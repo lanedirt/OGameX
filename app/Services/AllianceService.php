@@ -2,12 +2,12 @@
 
 namespace OGame\Services;
 
-use Log;
-use OGame\GameMessages\AllianceBroadcast;
-use OGame\GameMessages\AllianceApplicationReceived;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Log;
+use OGame\GameMessages\AllianceApplicationReceived;
+use OGame\GameMessages\AllianceBroadcast;
 use OGame\Models\Alliance;
 use OGame\Models\AllianceApplication;
 use OGame\Models\AllianceMember;
@@ -747,7 +747,7 @@ class AllianceService
         // Filter members based on recipients
         if (!in_array('-1', $recipients)) {
             // Filter by specific ranks
-            $members = $members->filter(function($allianceMember) use ($recipients) {
+            $members = $members->filter(function ($allianceMember) use ($recipients) {
                 return in_array($allianceMember->rank_id, $recipients);
             });
         }

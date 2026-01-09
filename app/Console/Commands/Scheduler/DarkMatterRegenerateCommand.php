@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Scheduler;
 
 use Exception;
 use Illuminate\Console\Command;
@@ -13,7 +13,7 @@ class DarkMatterRegenerateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:darkmatter-regenerate';
+    protected $signature = 'ogamex:scheduler:darkmatter-regenerate';
 
     /**
      * The console command description.

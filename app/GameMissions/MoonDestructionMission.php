@@ -2,9 +2,9 @@
 
 namespace OGame\GameMissions;
 
-use OGame\GameMessages\FleetLostContact;
 use Illuminate\Support\Facades\DB;
 use OGame\Enums\FleetSpeedType;
+use OGame\GameMessages\FleetLostContact;
 use OGame\GameMessages\MoonDestroyed;
 use OGame\GameMessages\MoonDestructionCatastrophic;
 use OGame\GameMessages\MoonDestructionFailure;
@@ -34,9 +34,9 @@ class MoonDestructionMission extends GameMission
 
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Cannot send missions while in vacation mode
-        if ($planet->getPlayer()->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
+        if (!$parentCheck->possible) {
+            return $parentCheck;
         }
 
         // Moon destruction mission is only possible for moons
@@ -51,7 +51,7 @@ class MoonDestructionMission extends GameMission
         }
 
         // Cannot attack own moon
-        if ($planet->getPlayer()->equals($targetMoon->getPlayer())) {
+        if ($this->checkOwnPlanet($planet, $targetMoon)) {
             return new MissionPossibleStatus(false, __('You cannot destroy your own moon.'));
         }
 
@@ -69,9 +69,8 @@ class MoonDestructionMission extends GameMission
         }
 
         // If target player is in vacation mode, the mission is not possible.
-        $targetPlayer = $targetMoon->getPlayer();
-        if ($targetPlayer->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'This player is in vacation mode!');
+        if ($vacationCheck = $this->checkTargetVacationMode($targetMoon)) {
+            return $vacationCheck;
         }
 
         // If all checks pass, the mission is possible

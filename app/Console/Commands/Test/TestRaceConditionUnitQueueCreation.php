@@ -1,12 +1,11 @@
 <?php
 
-namespace OGame\Console\Commands\Tests;
+namespace OGame\Console\Commands\Test;
 
-use GuzzleHttp\Promise\Utils;
 use DateTime;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\Utils;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Validation\ValidationException;
 use OGame\Models\Resources;
@@ -27,7 +26,7 @@ use OGame\Services\ObjectService;
  */
 class TestRaceConditionUnitQueueCreation extends TestCommand
 {
-    protected $signature = 'test:race-condition-unitqueue-creation';
+    protected $signature = 'ogamex:test:race-condition-unitqueue-creation';
     protected $description = 'Issue parallel unit queue creation requests to test race conditions.';
 
     /**

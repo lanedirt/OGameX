@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands\Tests;
+namespace OGame\Console\Commands\Test;
 
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -21,7 +21,7 @@ use OGame\Services\ObjectService;
  */
 class TestRaceConditionGameMission extends TestCommand
 {
-    protected $signature = 'test:race-condition-game-mission';
+    protected $signature = 'ogamex:test:race-condition-game-mission';
     protected $description = 'Issue parallel requests to test race conditions for game mission processing.';
 
     /**

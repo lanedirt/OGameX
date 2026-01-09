@@ -21,8 +21,7 @@ class NoteService
          * The PlayerService object.
          */
         private PlayerService $player
-    )
-    {
+    ) {
     }
 
     /**

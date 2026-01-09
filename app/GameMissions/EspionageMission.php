@@ -2,15 +2,13 @@
 
 namespace OGame\GameMissions;
 
-use OGame\GameMessages\FleetLostContact;
-use OGame\Models\Resources;
-use OGame\Factories\PlayerServiceFactory;
-use OGame\GameMessages\DefenderEspionageDetected;
-use OGame\GameMissions\BattleEngine\Models\BattleResult;
-use OGame\Services\PlayerService;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
+use OGame\Factories\PlayerServiceFactory;
+use OGame\GameMessages\DefenderEspionageDetected;
+use OGame\GameMessages\FleetLostContact;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\Models\MissionPossibleStatus;
@@ -20,9 +18,11 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resources;
 use OGame\Services\CounterEspionageService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
 use Throwable;
 
 class EspionageMission extends GameMission
@@ -38,9 +38,9 @@ class EspionageMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Cannot send missions while in vacation mode
-        if ($planet->getPlayer()->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
+        if (!$parentCheck->possible) {
+            return $parentCheck;
         }
 
         // Espionage mission is only possible for planets and moons.
@@ -55,8 +55,8 @@ class EspionageMission extends GameMission
         }
 
         // If planet belongs to current player, the mission is not possible.
-        if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
-            return new MissionPossibleStatus(false);
+        if ($ownPlanetCheck = $this->checkOwnPlanet($planet, $targetPlanet)) {
+            return $ownPlanetCheck;
         }
 
         // If no espionage probes are present in the fleet, the mission is not possible.
@@ -64,20 +64,14 @@ class EspionageMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // If mission from and to coordinates and types are the same, the mission is not possible.
-        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
-            return new MissionPossibleStatus(false);
-        }
-
         // If target player is in vacation mode, the mission is not possible.
-        $targetPlayer = $targetPlanet->getPlayer();
-        if ($targetPlayer->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'This player is in vacation mode!');
+        if ($vacationCheck = $this->checkTargetVacationMode($targetPlanet)) {
+            return $vacationCheck;
         }
 
         // Legor's planet (Arakis at 1:1:2) cannot be probed
-        if ($targetPlayer->getUsername(false) === 'Legor') {
-            return new MissionPossibleStatus(false, 'This planet belongs to an administrator and cannot be probed.');
+        if ($adminCheck = $this->checkAdminProtection($targetPlanet, __('This planet belongs to an administrator and cannot be probed.'))) {
+            return $adminCheck;
         }
 
         // If all checks pass, the mission is possible.

@@ -2,13 +2,13 @@
 
 namespace OGame\Http\Controllers;
 
-use OGame\Models\AllianceRank;
-use Log;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Log;
+use OGame\Models\AllianceRank;
 use OGame\Services\AllianceService;
 use OGame\Services\HighscoreService;
 use OGame\Services\PlayerService;

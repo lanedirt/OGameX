@@ -52,16 +52,16 @@
             height: 20px;
         }
         .alliance_class.small.none:before {
-            background: url("//gf2.geo.gfsrv.net/cdn4d/91f4cdf171328d7cef3443860cd063.png") no-repeat;
+            background: url("{{ asset('img/alliance/91f4cdf171328d7cef3443860cd063.png') }}") no-repeat;
         }
         .alliance_class.small.explorer:before {
-            background: url("//gf1.geo.gfsrv.net/cdn62/bb0ff2146d93887ff9bf2a14a25a45.png") no-repeat;
+            background: url("{{ asset('img/alliance/bb0ff2146d93887ff9bf2a14a25a45.png') }}") no-repeat;
         }
         .alliance_class.small.trader:before {
-            background: url("//gf1.geo.gfsrv.net/cdn01/02614bfe12340c2d8f89ce58ad83c7.png") no-repeat;
+            background: url("{{ asset('img/alliance/02614bfe12340c2d8f89ce58ad83c7.png') }}") no-repeat;
         }
         .alliance_class.small.warrior:before {
-            background: url("//gf2.geo.gfsrv.net/cdnaa/f2435fcc1304b0d181323254d3d3ec.png") no-repeat;
+            background: url("{{ asset('img/alliance/f2435fcc1304b0d181323254d3d3ec.png') }}") no-repeat;
         }
         /* beware: keep the stuff above in sync with 02base.css */
     </style>

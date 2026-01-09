@@ -2,10 +2,9 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Support\Facades\Date;
 use Cache;
 use Exception;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\View\View;
 use OGame\Facades\AppUtil;
 use OGame\Models\Highscore;

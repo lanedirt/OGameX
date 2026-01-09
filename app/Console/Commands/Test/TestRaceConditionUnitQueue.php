@@ -1,12 +1,11 @@
 <?php
 
-namespace OGame\Console\Commands\Tests;
+namespace OGame\Console\Commands\Test;
 
-use Illuminate\Support\Facades\Date;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Validation\ValidationException;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
@@ -21,7 +20,7 @@ use OGame\Services\UnitQueueService;
  */
 class TestRaceConditionUnitQueue extends TestCommand
 {
-    protected $signature = 'test:race-condition-unitqueue';
+    protected $signature = 'ogamex:test:race-condition-unitqueue';
     protected $description = 'Issue parallel requests to test race conditions for unit queue planet updates.';
 
     /**

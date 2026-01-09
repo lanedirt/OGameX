@@ -52,7 +52,7 @@
                             @elseif (!$building->valid_planet_type)
                                 data-status="disabled"
                                 title="{{ $building->object->title }}<br/>@lang('You can\'t construct that building on a moon!')"
-                            @elseif ($building->ship_or_defense_in_progress && ( $building->object->machine_name == 'shipyard' || $building->object->machine_name == 'nano_factory' ) )
+                            @elseif ($building->ship_or_defense_in_progress && ($building->object->machine_name === 'shipyard' || $building->object->machine_name === 'nano_factory'))
                                 data-status="disabled"
                             title="{{ $building->object->title }}<br/>@lang('The shipyard is still busy')"
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
@@ -78,7 +78,7 @@
                             @elseif ($build_queue_max)
                             @elseif ($is_in_vacation_mode)
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
-                            @elseif ($building->ship_or_defense_in_progress  && ( $building->object->machine_name == 'shipyard' || $building->object->machine_name == 'nano_factory' ) )
+                            @elseif ($building->ship_or_defense_in_progress  && ($building->object->machine_name === 'shipyard' || $building->object->machine_name === 'nano_factory'))
                             @else
                                 <button
                                         class="upgrade tooltip hideOthers js_hideTipOnMobile"
@@ -126,7 +126,7 @@
             </div>
         </div>
 
-  
+
         <script type="text/javascript">
             var planetMoveInProgress = false;
             var wreckFieldUpdateInterval;
@@ -375,12 +375,12 @@
                 }
             };
 
-    
+
             function createRepairLayerOverlay(wreckFieldData) {
 
                 // Create the overlay HTML structure
                 var overlayHtml = `
-                    <div class="overlayDiv repairlayer" style="width: 656px; background: url('https://gf2.geo.gfsrv.net/cdn13/e9f54b10dc4e1140ce090106d2f528.jpg') 100% 0% rgb(0, 0, 0);">
+                    <div class="overlayDiv repairlayer" style="width: 656px; background: url('{{ asset('img/facilities/e9f54b10dc4e1140ce090106d2f528.jpg') }}') 100% 0% rgb(0, 0, 0);">
                           <div id="repairlayer" style="">
                             <div class="repairableShips">
                                 <span>${wreckFieldData.is_repairing ? 'There is no wreckage at this position.' : 'Wreckages can be repaired in the Space Dock.'}</span>
@@ -992,7 +992,7 @@
                 });
             }
 
-  
+
             function startCountdownTimer(elementId, seconds, callback) {
                 var $element = $('#' + elementId);
                 if (!$element.length) return;

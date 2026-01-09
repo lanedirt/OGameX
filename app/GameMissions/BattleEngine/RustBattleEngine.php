@@ -2,12 +2,12 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
-use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
-use OGame\Services\CharacterClassService;
 use FFI;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;

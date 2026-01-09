@@ -28,9 +28,9 @@ class TransportMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Cannot send missions while in vacation mode
-        if ($planet->getPlayer()->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
+        if (!$parentCheck->possible) {
+            return $parentCheck;
         }
 
         // Transport mission is only possible for planets and moons.
@@ -44,15 +44,9 @@ class TransportMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // If mission from and to coordinates and types are the same, the mission is not possible.
-        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
-            return new MissionPossibleStatus(false);
-        }
-
         // If target player is in vacation mode, the mission is not possible.
-        $targetPlayer = $targetPlanet->getPlayer();
-        if ($targetPlayer->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'This player is in vacation mode!');
+        if ($vacationCheck = $this->checkTargetVacationMode($targetPlanet)) {
+            return $vacationCheck;
         }
 
         // If all checks pass, the mission is possible.

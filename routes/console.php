@@ -1,11 +1,11 @@
 <?php
 
-use OGame\Console\Commands\CleanupWreckFields;
-use OGame\Console\Commands\DarkMatterRegenerateCommand;
-use OGame\Console\Commands\GenerateAllianceHighscores;
-use OGame\Console\Commands\GenerateHighscoreRanks;
-use OGame\Console\Commands\GenerateHighscores;
-use OGame\Console\Commands\ResetDebrisFields;
+use OGame\Console\Commands\Scheduler\CleanupWreckFields;
+use OGame\Console\Commands\Scheduler\DarkMatterRegenerateCommand;
+use OGame\Console\Commands\Scheduler\GenerateAllianceHighscores;
+use OGame\Console\Commands\Scheduler\GenerateHighscoreRanks;
+use OGame\Console\Commands\Scheduler\GenerateHighscores;
+use OGame\Console\Commands\Scheduler\ResetDebrisFields;
 
 /*
 |--------------------------------------------------------------------------

@@ -1,12 +1,12 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Scheduler;
 
+use Illuminate\Console\Command;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet\Coordinate;
-use OGame\Services\ObjectService;
-use Illuminate\Console\Command;
 use OGame\Models\WreckField;
+use OGame\Services\ObjectService;
 
 class CleanupWreckFields extends Command
 {
@@ -15,7 +15,7 @@ class CleanupWreckFields extends Command
      *
      * @var string
      */
-    protected $signature = 'ogame:wreck-fields:cleanup';
+    protected $signature = 'ogamex:scheduler:cleanup-wreckfields';
 
     /**
      * The console command description.

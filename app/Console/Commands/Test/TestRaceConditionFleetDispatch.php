@@ -1,12 +1,11 @@
 <?php
 
-namespace OGame\Console\Commands\Tests;
+namespace OGame\Console\Commands\Test;
 
-use GuzzleHttp\Promise\Utils;
 use DateTime;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\Utils;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Validation\ValidationException;
 use OGame\Models\FleetMission;
@@ -27,7 +26,7 @@ use OGame\Services\ObjectService;
  */
 class TestRaceConditionFleetDispatch extends TestCommand
 {
-    protected $signature = 'test:race-condition-fleet-dispatch';
+    protected $signature = 'ogamex:test:race-condition-fleet-dispatch';
     protected $description = 'Issue parallel fleet dispatch requests to test race conditions for fleet sending.';
 
     /**

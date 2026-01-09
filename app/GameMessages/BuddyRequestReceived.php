@@ -2,8 +2,8 @@
 
 namespace OGame\GameMessages;
 
-use OGame\Models\BuddyRequest;
 use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\Models\BuddyRequest;
 
 class BuddyRequestReceived extends GameMessage
 {

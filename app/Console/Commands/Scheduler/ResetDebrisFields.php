@@ -1,6 +1,6 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Scheduler;
 
 use Illuminate\Console\Command;
 use OGame\Models\DebrisField;
@@ -12,7 +12,7 @@ class ResetDebrisFields extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:reset-debris-fields';
+    protected $signature = 'ogamex:scheduler:reset-debris-fields';
 
     /**
      * The console command description.

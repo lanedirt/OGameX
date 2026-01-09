@@ -1,15 +1,15 @@
 <?php
 
-namespace OGame\Console\Commands;
+namespace OGame\Console\Commands\Admin;
 
-use OGame\Models\User;
-use OGame\Models\Planet;
-use OGame\Jobs\CreateLegorMoon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Jobs\CreateLegorMoon;
+use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\User;
 use OGame\Models\UserTech;
 use OGame\Services\PlayerService;
 
@@ -20,14 +20,14 @@ class InitializeLegorAccount extends Command
      *
      * @var string
      */
-    protected $signature = 'ogamex:init-legor {--delay=90 : Delay in seconds before moon creation (default: 90)}';
+    protected $signature = 'ogamex:admin:init-legor {--delay=90 : Delay in seconds before moon creation (default: 90)}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Initialize the Legor admin account with Arakis planet at 1:1:2';
+    protected $description = 'Initialize the Legor admin account with Arakis planet at 1:1:2 (an ode to the original game)';
 
     /**
      * Execute the console command.

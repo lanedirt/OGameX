@@ -24,7 +24,7 @@ class LegorAccountTest extends AccountTestCase
     {
         // Migration creates Legor, but we can test the moon creation part
         // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+        $this->artisan('ogamex:admin:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
         // Verify user was created by migration
@@ -49,11 +49,11 @@ class LegorAccountTest extends AccountTestCase
     {
         // Migration creates Legor, command should still work (moon creation)
         // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+        $this->artisan('ogamex:admin:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
         // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+        $this->artisan('ogamex:admin:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
         // Verify only one Legor user exists
@@ -83,7 +83,7 @@ class LegorAccountTest extends AccountTestCase
 
         // Run the command - it should fail
         // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+        $this->artisan('ogamex:admin:init-legor', ['--delay' => 0])
             ->assertExitCode(1);
     }
 
@@ -93,7 +93,7 @@ class LegorAccountTest extends AccountTestCase
     public function testLegorPlanetCannotBeAttacked(): void
     {
         // Migration creates Legor, just create moon for testing
-        $this->artisan('ogamex:init-legor', ['--delay' => 0]);
+        $this->artisan('ogamex:admin:init-legor', ['--delay' => 0]);
 
         $legor = User::where('username', 'Legor')->first();
         $legorPlanet = Planet::where('user_id', $legor->id)
@@ -139,7 +139,7 @@ class LegorAccountTest extends AccountTestCase
     public function testLegorPlanetCannotBeProbed(): void
     {
         // Migration creates Legor, just create moon for testing
-        $this->artisan('ogamex:init-legor', ['--delay' => 0]);
+        $this->artisan('ogamex:admin:init-legor', ['--delay' => 0]);
 
         $legor = User::where('username', 'Legor')->first();
         $legorPlanet = Planet::where('user_id', $legor->id)
@@ -184,7 +184,7 @@ class LegorAccountTest extends AccountTestCase
     public function testCanSendResourcesToLegorPlanet(): void
     {
         // Migration creates Legor, just create moon for testing
-        $this->artisan('ogamex:init-legor', ['--delay' => 0]);
+        $this->artisan('ogamex:admin:init-legor', ['--delay' => 0]);
 
         $legor = User::where('username', 'Legor')->first();
         $legorPlanet = Planet::where('user_id', $legor->id)
@@ -233,7 +233,7 @@ class LegorAccountTest extends AccountTestCase
     {
         // Create Legor account with minimal delay for faster test
         // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+        $this->artisan('ogamex:admin:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
         $legor = User::where('username', 'Legor')->first();
@@ -254,7 +254,7 @@ class LegorAccountTest extends AccountTestCase
     {
         // Create Legor account
         // @phpstan-ignore-next-line Laravel artisan() requires immediate chaining, cannot store in variable
-        $this->artisan('ogamex:init-legor', ['--delay' => 0])
+        $this->artisan('ogamex:admin:init-legor', ['--delay' => 0])
             ->assertExitCode(0);
 
         // Check for debris field at 1:1:2
