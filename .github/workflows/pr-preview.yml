@@ -63,7 +63,7 @@ jobs:
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           cp .env.example .env
-          sed -i "s|APP_URL=.*|APP_URL=http://pr-${{ env.PR_NUMBER }}.preview.ogamex.dev|g" .env
+          sed -i "s|APP_URL=.*|APP_URL=https://pr-${{ env.PR_NUMBER }}.preview.ogamex.dev|g" .env
           sed -i "s|APP_ENV=.*|APP_ENV=local|g" .env
           sed -i "s|APP_DEBUG=.*|APP_DEBUG=true|g" .env
 
