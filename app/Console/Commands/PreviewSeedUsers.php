@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use OGame\Enums\CharacterClass;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\User;
 use OGame\Models\UserTech;
@@ -139,10 +140,11 @@ class PreviewSeedUsers extends Command
             'planet' => ['metal' => 20000, 'crystal' => 10000, 'deuterium' => 5000, 'metal_mine' => 5, 'crystal_mine' => 3, 'deuterium_synthesizer' => 1],
         ],
         10 => [
-            'description' => 'General, endgame, 5 planets, max tech',
+            'description' => 'Endgame, 5 planets, 90 unread messages',
             'role' => 'player',
             'character_class' => CharacterClass::GENERAL,
             'dark_matter' => 500000,
+            'seed_messages' => true,
             'tech' => [
                 'energy_technology' => 15, 'laser_technology' => 12, 'ion_technology' => 10,
                 'hyperspace_technology' => 12, 'plasma_technology' => 8,
@@ -269,6 +271,11 @@ class PreviewSeedUsers extends Command
             foreach ($config['additional_planets'] as $additionalPlanet) {
                 $this->createPlanet($user, $additionalPlanet['name'] ?? null, $additionalPlanet['config'] ?? []);
             }
+        }
+
+        // Seed messages if configured (for pagination testing)
+        if (!empty($config['seed_messages'])) {
+            $this->seedMessages($user);
         }
 
         return $user;
@@ -465,5 +472,99 @@ class PreviewSeedUsers extends Command
         }
 
         return $expanded;
+    }
+
+    /**
+     * Seed random messages for a user (for pagination testing).
+     * Creates 60 fleet messages and 30 economy messages.
+     *
+     * @param User $user
+     */
+    private function seedMessages(User $user): void
+    {
+        // Create 60 messages for "Fleets > Other" tab (fleet arrivals/returns)
+        $this->info('  Creating 60 fleet messages (Fleets > Other tab)...');
+        $fleetTemplates = [
+            [
+                'key' => 'return_of_fleet',
+                'params' => fn () => [
+                    'from' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                    'to' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                ],
+            ],
+            [
+                'key' => 'return_of_fleet_with_resources',
+                'params' => fn () => [
+                    'from' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                    'to' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                    'metal' => rand(10000, 500000),
+                    'crystal' => rand(5000, 250000),
+                    'deuterium' => rand(1000, 100000),
+                ],
+            ],
+            [
+                'key' => 'fleet_deployment',
+                'params' => fn () => [
+                    'from' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                    'to' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                ],
+            ],
+            [
+                'key' => 'fleet_deployment_with_resources',
+                'params' => fn () => [
+                    'from' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                    'to' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                    'metal' => rand(10000, 500000),
+                    'crystal' => rand(5000, 250000),
+                    'deuterium' => rand(1000, 100000),
+                ],
+            ],
+            [
+                'key' => 'debris_field_harvest',
+                'params' => fn () => [
+                    'coordinates' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                    'metal' => rand(10000, 500000),
+                    'crystal' => rand(5000, 250000),
+                ],
+            ],
+        ];
+
+        $this->createMessages($user, $fleetTemplates, 60);
+
+        // Create 30 messages for "Economy" tab (colony established)
+        $this->info('  Creating 30 economy messages (Economy tab)...');
+        $economyTemplates = [
+            [
+                'key' => 'colony_established',
+                'params' => fn () => [
+                    'coordinates' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
+                ],
+            ],
+        ];
+
+        $this->createMessages($user, $economyTemplates, 30);
+    }
+
+    /**
+     * Create messages from templates.
+     *
+     * @param User $user
+     * @param array<int, array{key: string, params: callable}> $templates
+     * @param int $count
+     */
+    private function createMessages(User $user, array $templates, int $count): void
+    {
+        for ($i = 0; $i < $count; $i++) {
+            $template = $templates[array_rand($templates)];
+
+            $message = new Message();
+            $message->user_id = $user->id;
+            $message->key = $template['key'];
+            $message->params = $template['params']();
+            $message->viewed = 0; // All unread
+            // Spread messages over the last 30 days
+            $message->created_at = now()->subMinutes(rand(1, 43200));
+            $message->save();
+        }
     }
 }
