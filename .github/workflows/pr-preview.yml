@@ -141,6 +141,7 @@ jobs:
             const prNumber = ${{ github.event.pull_request.number }};
             const previewUrl = `https://pr-${prNumber}.preview.ogamex.dev`;
             const sha = '${{ github.event.pull_request.head.sha }}'.substring(0, 7);
+            const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
 
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
@@ -156,9 +157,9 @@ jobs:
             const body = [
               '## Preview deployment',
               '',
-              '| Status | URL | Commit |',
-              '|--------|-----|--------|',
-              `| :white_check_mark: Deployed | [${previewUrl}](${previewUrl}) | \`${sha}\` |`,
+              '| Status | URL | Commit | Last deployed |',
+              '|--------|-----|--------|---------------|',
+              `| :white_check_mark: Live | [${previewUrl}](${previewUrl}) | \`${sha}\` | ${timestamp} |`,
               '',
               '---',
               '*This preview will be automatically destroyed when the PR is closed.*'
