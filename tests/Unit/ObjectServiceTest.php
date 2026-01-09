@@ -140,4 +140,62 @@ class ObjectServiceTest extends UnitTestCase
         $can_downgrade = ObjectService::canDowngradeBuilding('metal_mine', $this->planetService);
         $this->assertTrue($can_downgrade);
     }
+
+    /**
+     * Test getRecursiveRequirements returns all prerequisites for a technology.
+     * Example: shielding_technology requires research_lab level 6 and energy_technology level 3.
+     */
+    public function testGetRecursiveRequirementsForTechnology(): void
+    {
+        $requirements = ObjectService::getRecursiveRequirements('shielding_technology');
+
+        // shielding_technology requires: research_lab 6, energy_technology 3
+        $this->assertArrayHasKey('research_lab', $requirements);
+        $this->assertArrayHasKey('energy_technology', $requirements);
+        $this->assertEquals(6, $requirements['research_lab']);
+        $this->assertEquals(3, $requirements['energy_technology']);
+    }
+
+    /**
+     * Test getRecursiveRequirements returns nested prerequisites.
+     * Example: hyperspace_drive requires hyperspace_technology, which requires shielding_technology,
+     * which requires energy_technology - so all should be included.
+     */
+    public function testGetRecursiveRequirementsNestedDependencies(): void
+    {
+        $requirements = ObjectService::getRecursiveRequirements('hyperspace_drive');
+
+        // hyperspace_drive requires: research_lab 7, hyperspace_technology 3
+        // hyperspace_technology requires: research_lab 7, energy_technology 5, shielding_technology 5
+        // shielding_technology requires: research_lab 6, energy_technology 3
+        $this->assertArrayHasKey('research_lab', $requirements);
+        $this->assertArrayHasKey('hyperspace_technology', $requirements);
+        $this->assertArrayHasKey('shielding_technology', $requirements);
+        $this->assertArrayHasKey('energy_technology', $requirements);
+
+        // Should have highest required level for each
+        $this->assertEquals(7, $requirements['research_lab']); // max of 7 and 6
+        $this->assertEquals(5, $requirements['energy_technology']); // max of 5 and 3
+        $this->assertEquals(5, $requirements['shielding_technology']);
+        $this->assertEquals(3, $requirements['hyperspace_technology']);
+    }
+
+    /**
+     * Test getRecursiveRequirements returns empty array for object with no requirements.
+     */
+    public function testGetRecursiveRequirementsNoRequirements(): void
+    {
+        // metal_mine has no requirements
+        $requirements = ObjectService::getRecursiveRequirements('metal_mine');
+        $this->assertEmpty($requirements);
+    }
+
+    /**
+     * Test getRecursiveRequirements returns empty array for invalid object.
+     */
+    public function testGetRecursiveRequirementsInvalidObject(): void
+    {
+        $requirements = ObjectService::getRecursiveRequirements('nonexistent_object');
+        $this->assertEmpty($requirements);
+    }
 }

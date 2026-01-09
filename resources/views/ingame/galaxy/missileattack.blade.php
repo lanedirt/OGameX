@@ -96,6 +96,13 @@
 <script type="text/javascript">
 (function($) {
     function initMissleAttackLayer() {
+        // Missile count quick select - clicking the missile image sets max amount
+        $('#number').on('click', function(e) {
+            e.preventDefault();
+            var maxMissiles = $('#missileCount').data('max');
+            $('#missileCount').val(maxMissiles);
+        });
+
         // Defense target selection
         $('.defense-target').on('click', function(e) {
             e.preventDefault();

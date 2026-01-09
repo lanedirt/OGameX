@@ -1,0 +1,250 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request number to deploy'
+        required: true
+        type: number
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  PREVIEW_BASE_DIR: /opt/previews
+
+jobs:
+  deploy:
+    name: Deploy preview environment
+    runs-on: [self-hosted, ctogx-preview]
+
+    concurrency:
+      group: preview-pr-${{ github.event.pull_request.number || inputs.pr_number }}
+      cancel-in-progress: true
+
+    # Specify environment for "Deploy" approval button
+    # Note: Environment must be pre-configured in repo settings with required reviewers
+    environment:
+      name: pr-preview
+      url: https://pr-${{ github.event.pull_request.number || inputs.pr_number }}.preview.ogamex.dev
+
+    steps:
+      - name: Get PR details (for manual dispatch)
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let prNumber, headRef, headSha, repoFullName;
+
+            if (context.eventName === 'workflow_dispatch') {
+              prNumber = ${{ inputs.pr_number || 0 }};
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
+              headRef = pr.head.ref;
+              headSha = pr.head.sha;
+              repoFullName = pr.head.repo.full_name;
+            } else {
+              prNumber = context.payload.pull_request.number;
+              headRef = context.payload.pull_request.head.ref;
+              headSha = context.payload.pull_request.head.sha;
+              repoFullName = context.payload.pull_request.head.repo.full_name;
+            }
+
+            core.setOutput('pr_number', prNumber);
+            core.setOutput('head_ref', headRef);
+            core.setOutput('head_sha', headSha);
+            core.setOutput('repo_full_name', repoFullName);
+
+      - name: Set up environment variables
+        run: |
+          PR=${{ steps.pr.outputs.pr_number }}
+          echo "PR_NUMBER=$PR" >> $GITHUB_ENV
+          echo "PREVIEW_HOST=pr-$PR.preview.ogamex.dev" >> $GITHUB_ENV
+          echo "PREVIEW_DIR=${{ env.PREVIEW_BASE_DIR }}/pr-$PR" >> $GITHUB_ENV
+          echo "HEAD_REF=${{ steps.pr.outputs.head_ref }}" >> $GITHUB_ENV
+          echo "HEAD_SHA=${{ steps.pr.outputs.head_sha }}" >> $GITHUB_ENV
+          echo "REPO_FULL_NAME=${{ steps.pr.outputs.repo_full_name }}" >> $GITHUB_ENV
+
+      - name: Fix permissions from previous Docker runs
+        run: |
+          if [ -d "${{ env.PREVIEW_DIR }}" ]; then
+            docker run --rm -v ${{ env.PREVIEW_DIR }}:/workspace alpine chown -R $(id -u):$(id -g) /workspace
+          fi
+
+      - name: Checkout PR branch to preview directory
+        run: |
+          REPO_URL="https://github.com/${{ env.REPO_FULL_NAME }}.git"
+          COMMIT="${{ env.HEAD_SHA }}"
+          REF="${{ env.HEAD_REF }}"
+
+          if [ -d "${{ env.PREVIEW_DIR }}/.git" ]; then
+            # Directory exists with git, fetch and checkout
+            cd ${{ env.PREVIEW_DIR }}
+            git remote set-url origin "$REPO_URL" || true
+            git fetch origin "$REF" --depth=1
+            git checkout FETCH_HEAD --force
+            git clean -fd
+          else
+            # Fresh clone
+            rm -rf ${{ env.PREVIEW_DIR }}
+            git clone --depth 1 --branch "$REF" "$REPO_URL" ${{ env.PREVIEW_DIR }}
+          fi
+
+      - name: Create .env file
+        working-directory: ${{ env.PREVIEW_DIR }}
+        run: |
+          cp .env.example .env
+          sed -i "s|APP_URL=.*|APP_URL=https://pr-${{ env.PR_NUMBER }}.preview.ogamex.dev|g" .env
+          sed -i "s|APP_ENV=.*|APP_ENV=production|g" .env
+          sed -i "s|APP_DEBUG=.*|APP_DEBUG=true|g" .env
+
+      - name: Generate Traefik override
+        working-directory: ${{ env.PREVIEW_DIR }}
+        run: |
+          cat > docker-compose.override.yml << EOF
+          services:
+            ogamex-webserver:
+              ports: !override []
+              networks:
+                - app-network
+                - traefik
+              labels:
+                - traefik.enable=true
+                - traefik.docker.network=traefik
+                - traefik.http.routers.pr-${{ env.PR_NUMBER }}.rule=Host(\`${{ env.PREVIEW_HOST }}\`)
+                - traefik.http.routers.pr-${{ env.PR_NUMBER }}.entrypoints=web
+                - traefik.http.services.pr-${{ env.PR_NUMBER }}.loadbalancer.server.port=80
+
+            ogamex-app:
+              build:
+                args:
+                  USE_USER: "no"
+
+            ogamex-scheduler:
+              build:
+                args:
+                  USE_USER: "no"
+
+            ogamex-queue-worker:
+              build:
+                args:
+                  USE_USER: "no"
+
+            ogamex-db:
+              ports: !override []
+
+            ogamex-phpmyadmin:
+              profiles:
+                - disabled
+
+          networks:
+            traefik:
+              external: true
+          EOF
+
+      - name: Stop existing stack (if any)
+        working-directory: ${{ env.PREVIEW_DIR }}
+        run: |
+          docker compose -p pr-${{ env.PR_NUMBER }} down --remove-orphans || true
+
+      - name: Build and start preview stack
+        working-directory: ${{ env.PREVIEW_DIR }}
+        run: |
+          docker compose -p pr-${{ env.PR_NUMBER }} build
+          docker compose -p pr-${{ env.PR_NUMBER }} up -d --remove-orphans
+
+      - name: Wait for app to be healthy
+        working-directory: ${{ env.PREVIEW_DIR }}
+        run: |
+          echo "Waiting for application to be ready..."
+          timeout 300 bash -c 'until docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do sleep 5; done'
+          echo "Application is ready!"
+
+      - name: Run database migrations
+        working-directory: ${{ env.PREVIEW_DIR }}
+        run: |
+          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate --force
+
+      - name: Seed preview test users
+        working-directory: ${{ env.PREVIEW_DIR }}
+        run: |
+          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:preview-seed-users
+
+      - name: Comment on PR with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = ${{ env.PR_NUMBER }};
+            const previewUrl = `https://pr-${prNumber}.preview.ogamex.dev`;
+            const sha = '${{ env.HEAD_SHA }}'.substring(0, 7);
+            const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+
+            const botComment = comments.data.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Preview deployment')
+            );
+
+            const body = [
+              '## Preview deployment',
+              '',
+              'Preview environment for this PR is ready for functional testing. Use one of the test accounts below to log in.',
+              '',
+              '| Status | URL | Commit | Last deployed |',
+              '|--------|-----|--------|---------------|',
+              `| :white_check_mark: Live | [${previewUrl}](${previewUrl}) | \`${sha}\` | ${timestamp} |`,
+              '',
+              '<details>',
+              '<summary><strong>Test accounts</strong> (click to expand)</summary>',
+              '',
+              '| Email (login) | Password | Role | Class | Planets | Description |',
+              '|---------------|----------|------|-------|---------|-------------|',
+              '| test1@ogamex.dev | test | admin | Collector | 2 | Admin, high resources, mining focus |',
+              '| test2@ogamex.dev | test | player | General | 1 | Military focus, ships & fleet |',
+              '| test3@ogamex.dev | test | player | Discoverer | 1 | Exploration, probes & cargo ships |',
+              '| test4@ogamex.dev | test | player | None | 1 | New player, no class selected yet |',
+              '| test5@ogamex.dev | test | moderator | Collector | 1 | Moderator, balanced setup |',
+              '| test6@ogamex.dev | test | player | General | 1 | Vacation mode enabled |',
+              '| test7@ogamex.dev | test | player | General | 3 | Heavy defense across planets |',
+              '| test8@ogamex.dev | test | player | Discoverer | 1 | Fleet focus, inactive (i) 8 days |',
+              '| test9@ogamex.dev | test | player | Collector | 1 | Beginner, long inactive (I) 40 days |',
+              '| test10@ogamex.dev | test | player | General | 5 | Endgame, max tech, specialized planets |',
+              '',
+              '</details>',
+              '',
+              '---',
+              '*This preview will be automatically destroyed when the PR is closed.*'
+            ].join('\n');
+
+            // Delete previous bot comment if exists (so new one appears in timeline)
+            if (botComment) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id
+              });
+            }
+
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: body
+            });
+
+      - name: Output preview URL
+        run: |
+          echo "::notice::Preview deployed at https://pr-${{ env.PR_NUMBER }}.preview.ogamex.dev"
