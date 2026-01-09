@@ -3,6 +3,12 @@ name: PR Preview
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request number to deploy'
+        required: true
+        type: number
 
 permissions:
   contents: read
@@ -17,22 +23,54 @@ jobs:
     runs-on: [self-hosted, ctogx-preview]
 
     concurrency:
-      group: preview-pr-${{ github.event.pull_request.number }}
+      group: preview-pr-${{ github.event.pull_request.number || inputs.pr_number }}
       cancel-in-progress: true
 
     # Specify environment for "Deploy" approval button
     # Note: Environment must be pre-configured in repo settings with required reviewers
     environment:
       name: pr-preview
-      url: https://pr-${{ github.event.pull_request.number }}.preview.ogamex.dev
+      url: https://pr-${{ github.event.pull_request.number || inputs.pr_number }}.preview.ogamex.dev
 
     steps:
+      - name: Get PR details (for manual dispatch)
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let prNumber, headRef, headSha, repoFullName;
+
+            if (context.eventName === 'workflow_dispatch') {
+              prNumber = ${{ inputs.pr_number || 0 }};
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
+              headRef = pr.head.ref;
+              headSha = pr.head.sha;
+              repoFullName = pr.head.repo.full_name;
+            } else {
+              prNumber = context.payload.pull_request.number;
+              headRef = context.payload.pull_request.head.ref;
+              headSha = context.payload.pull_request.head.sha;
+              repoFullName = context.payload.pull_request.head.repo.full_name;
+            }
+
+            core.setOutput('pr_number', prNumber);
+            core.setOutput('head_ref', headRef);
+            core.setOutput('head_sha', headSha);
+            core.setOutput('repo_full_name', repoFullName);
+
       - name: Set up environment variables
         run: |
-          PR=${{ github.event.pull_request.number }}
+          PR=${{ steps.pr.outputs.pr_number }}
           echo "PR_NUMBER=$PR" >> $GITHUB_ENV
           echo "PREVIEW_HOST=pr-$PR.preview.ogamex.dev" >> $GITHUB_ENV
           echo "PREVIEW_DIR=${{ env.PREVIEW_BASE_DIR }}/pr-$PR" >> $GITHUB_ENV
+          echo "HEAD_REF=${{ steps.pr.outputs.head_ref }}" >> $GITHUB_ENV
+          echo "HEAD_SHA=${{ steps.pr.outputs.head_sha }}" >> $GITHUB_ENV
+          echo "REPO_FULL_NAME=${{ steps.pr.outputs.repo_full_name }}" >> $GITHUB_ENV
 
       - name: Fix permissions from previous Docker runs
         run: |
@@ -42,9 +80,9 @@ jobs:
 
       - name: Checkout PR branch to preview directory
         run: |
-          REPO_URL="https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git"
-          COMMIT="${{ github.event.pull_request.head.sha }}"
-          REF="${{ github.event.pull_request.head.ref }}"
+          REPO_URL="https://github.com/${{ env.REPO_FULL_NAME }}.git"
+          COMMIT="${{ env.HEAD_SHA }}"
+          REF="${{ env.HEAD_REF }}"
 
           if [ -d "${{ env.PREVIEW_DIR }}/.git" ]; then
             # Directory exists with git, fetch and checkout
@@ -143,9 +181,9 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumber = ${{ github.event.pull_request.number }};
+            const prNumber = ${{ env.PR_NUMBER }};
             const previewUrl = `https://pr-${prNumber}.preview.ogamex.dev`;
-            const sha = '${{ github.event.pull_request.head.sha }}'.substring(0, 7);
+            const sha = '${{ env.HEAD_SHA }}'.substring(0, 7);
             const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
 
             const comments = await github.rest.issues.listComments({
