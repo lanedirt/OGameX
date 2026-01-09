@@ -52,7 +52,7 @@
                             @elseif (!$building->valid_planet_type)
                                 data-status="disabled"
                                 title="{{ $building->object->title }}<br/>@lang('You can\'t construct that building on a moon!')"
-                            @elseif ($building->ship_or_defense_in_progress && ( $building->object->machine_name == 'shipyard' || $building->object->machine_name == 'nano_factory' ) )
+                            @elseif ($building->ship_or_defense_in_progress && ($building->object->machine_name === 'shipyard' || $building->object->machine_name === 'nano_factory'))
                                 data-status="disabled"
                             title="{{ $building->object->title }}<br/>@lang('The shipyard is still busy')"
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
@@ -78,7 +78,7 @@
                             @elseif ($build_queue_max)
                             @elseif ($is_in_vacation_mode)
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
-                            @elseif ($building->ship_or_defense_in_progress  && ( $building->object->machine_name == 'shipyard' || $building->object->machine_name == 'nano_factory' ) )
+                            @elseif ($building->ship_or_defense_in_progress  && ($building->object->machine_name === 'shipyard' || $building->object->machine_name === 'nano_factory'))
                             @else
                                 <button
                                         class="upgrade tooltip hideOthers js_hideTipOnMobile"
