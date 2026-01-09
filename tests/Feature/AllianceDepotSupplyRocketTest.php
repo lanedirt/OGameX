@@ -3,11 +3,15 @@
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\DB;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
+use OGame\Models\User;
+use OGame\Services\BuddyService;
 use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
 use Tests\AccountTestCase;
 
 /**
@@ -28,30 +32,36 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         $this->planetAddResources(new Resources(0, 0, 50000, 0));
 
         // Create a buddy and their planet
-        $buddy = $this->createAndSetUserWithPlanet();
-        $buddyPlanet = $buddy['planet'];
+        $buddyUser = User::factory()->create();
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $buddyPlanet = \OGame\Models\Planet::factory()->create([
+            'user_id' => $buddyUser->id,
+            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
+            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
+            'planet' => 8,
+        ]);
+        $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
         // Add buddy relationship
-        $this->playerSetAsBuddyOf($buddy['player']);
-
-        // Switch back to original player
-        $this->switchToOriginalPlanet();
+        $buddyService = resolve(BuddyService::class);
+        $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
+        $buddyService->acceptRequest($request->id, $buddyUser->id);
 
         // Send an ACS Defend fleet to buddy's planet with 4 hour hold
         $this->planetAddUnit('light_fighter', 10);
         $units = new UnitCollection();
-        $units->addUnit($this->getObjectService()->getUnitObjectByMachineName('light_fighter'), 10);
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
 
         $fleetMissionService = app(FleetMissionService::class);
-        $fleetMissionService->createNewFromPlayer(
+        $fleetMissionService->createNewFromPlanet(
             $this->planetService,
-            $buddyPlanet->getPlanetCoordinates(),
+            $buddyPlanetService->getPlanetCoordinates(),
             PlanetType::Planet,
             5, // ACS Defend
             $units,
             new Resources(0, 0, 0, 0),
-            4, // 4 hour hold time
-            10 // 100% speed
+            10, // 100% speed
+            4 // 4 hour hold time
         );
 
         // Fast forward to when fleet has arrived
@@ -60,7 +70,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         // Find the outbound mission
         $outboundMission = FleetMission::where('mission_type', 5)
             ->where('planet_id_from', $this->planetService->getPlanetId())
-            ->where('planet_id_to', $buddyPlanet->getPlanetId())
+            ->where('planet_id_to', $buddyPlanetService->getPlanetId())
             ->first();
 
         $this->assertNotNull($outboundMission, 'Outbound mission should exist');
@@ -83,7 +93,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         $this->assertEquals(40, $deuteriumBefore - $deuteriumAfter, 'Should deduct 40 deuterium');
 
         // Assert return mission time was extended
-        $returnMission = FleetMission::where('planet_id_from', $buddyPlanet->getPlanetId())
+        $returnMission = FleetMission::where('planet_id_from', $buddyPlanetService->getPlanetId())
             ->where('planet_id_to', $this->planetService->getPlanetId())
             ->where('mission_type', 5)
             ->first();
@@ -104,30 +114,36 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         $this->planetAddResources(new Resources(0, 0, 10, 0)); // Only 10 deuterium
 
         // Create a buddy and their planet
-        $buddy = $this->createAndSetUserWithPlanet();
-        $buddyPlanet = $buddy['planet'];
+        $buddyUser = User::factory()->create();
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $buddyPlanet = \OGame\Models\Planet::factory()->create([
+            'user_id' => $buddyUser->id,
+            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
+            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
+            'planet' => 8,
+        ]);
+        $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
         // Add buddy relationship
-        $this->playerSetAsBuddyOf($buddy['player']);
-
-        // Switch back to original player
-        $this->switchToOriginalPlanet();
+        $buddyService = resolve(BuddyService::class);
+        $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
+        $buddyService->acceptRequest($request->id, $buddyUser->id);
 
         // Send an ACS Defend fleet
         $this->planetAddUnit('cruiser', 5);
         $units = new UnitCollection();
-        $units->addUnit($this->getObjectService()->getUnitObjectByMachineName('cruiser'), 5);
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), 5);
 
         $fleetMissionService = app(FleetMissionService::class);
-        $fleetMissionService->createNewFromPlayer(
+        $fleetMissionService->createNewFromPlanet(
             $this->planetService,
-            $buddyPlanet->getPlanetCoordinates(),
+            $buddyPlanetService->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $units,
             new Resources(0, 0, 0, 0),
-            2,
-            10
+            10,
+            2
         );
 
         // Fast forward to when fleet has arrived
@@ -164,32 +180,38 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         $this->planetAddResources(new Resources(0, 0, 10000, 0));
 
         // Create a buddy and their planet
-        $buddy = $this->createAndSetUserWithPlanet();
-        $buddyPlanet = $buddy['planet'];
+        $buddyUser = User::factory()->create();
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $buddyPlanet = \OGame\Models\Planet::factory()->create([
+            'user_id' => $buddyUser->id,
+            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
+            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
+            'planet' => 8,
+        ]);
+        $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
         // Add buddy relationship
-        $this->playerSetAsBuddyOf($buddy['player']);
-
-        // Switch back to original player
-        $this->switchToOriginalPlanet();
+        $buddyService = resolve(BuddyService::class);
+        $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
+        $buddyService->acceptRequest($request->id, $buddyUser->id);
 
         // Send an ACS Defend fleet with SHORT hold time (30 minutes)
         $this->planetAddUnit('light_fighter', 10);
         $units = new UnitCollection();
-        $units->addUnit($this->getObjectService()->getUnitObjectByMachineName('light_fighter'), 10);
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
 
         $fleetMissionService = app(FleetMissionService::class);
 
         // Create mission manually with 0 hour hold (30 minutes minimum from game logic)
-        $mission = $fleetMissionService->createNewFromPlayer(
+        $mission = $fleetMissionService->createNewFromPlanet(
             $this->planetService,
-            $buddyPlanet->getPlanetCoordinates(),
+            $buddyPlanetService->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $units,
             new Resources(0, 0, 0, 0),
-            0, // 0 hour hold (will be minimum duration)
-            10
+            10,
+            0 // 0 hour hold (will be minimum duration)
         );
 
         // Fast forward to when fleet has arrived

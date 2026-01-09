@@ -61,7 +61,7 @@ class AllianceDepotController extends OGameController
         // Calculate deuterium cost per hour for each fleet
         foreach ($holding_fleets as &$fleet) {
             $outboundMission = FleetMission::find($fleet['id']);
-            if ($outboundMission) {
+            if ($outboundMission instanceof FleetMission) {
                 $fleet['deut_cost_per_hour'] = $this->allianceDepotService->calculateSupplyRocketCost($outboundMission, 1);
             }
         }

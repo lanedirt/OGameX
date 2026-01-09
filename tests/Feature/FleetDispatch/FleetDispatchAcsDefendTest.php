@@ -618,8 +618,8 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $this->travel(30)->hours();
         $this->get('/overview');
 
-        // The main goal is to verify no exceptions were thrown
-        $this->assertTrue(true, 'Battle completed without errors - resource handling works correctly');
+        // The main goal is to verify no exceptions were thrown during battle processing
+        // Test passes if no exceptions occur
     }
 
     /**

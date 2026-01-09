@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use OGame\Factories\PlanetServiceFactory;
 use Tests\AccountTestCase;
 
 /**
@@ -82,10 +83,12 @@ class AllianceDepotTest extends AccountTestCase
     public function testAllianceDepotNotAccessibleOnMoon(): void
     {
         // Create a moon for the current planet
-        $moon = $this->createMoonForCurrentPlanet();
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $moon = $planetServiceFactory->createMoonForPlanet($this->planetService, 2000000, 20);
 
         // Switch to the moon
-        $this->switchToMoon($moon);
+        $response = $this->get('/overview?cp=' . $moon->getPlanetId());
+        $response->assertStatus(200);
 
         // Try to access the Alliance Depot dialog
         $response = $this->get('/ajax/alliance-depot');

@@ -30,7 +30,7 @@ class AllianceDepotServiceTest extends UnitTestCase
         $mission->large_cargo = 5;       // 5 * 5 deut/hour = 25
         $mission->light_fighter = 20;    // 20 * 2 deut/hour = 40
         $mission->cruiser = 3;           // 3 * 30 deut/hour = 90
-        $mission->battleship = 2;        // 2 * 60 deut/hour = 120
+        $mission->battle_ship = 2;       // 2 * 60 deut/hour = 120
         // Total per hour: 285
 
         // Test 1 hour extension
