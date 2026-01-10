@@ -783,4 +783,73 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $returnMission = FleetMission::where('parent_id', $mission->id)->first();
         $this->assertNotNull($returnMission, 'Return mission should be created');
     }
+
+    /**
+     * Test that ships are not duplicated when return mission has arrival time in the past.
+     * This test verifies the fix for the critical bug where ships were duplicated due to
+     * immediate processing of return missions with past arrival times.
+     */
+    public function testDispatchFleetNoShipDuplicationWithHighSpeedMultiplier(): void
+    {
+        $this->basicSetup();
+        $buddyUser = $this->createBuddyPlayer();
+
+        // Add 1 battlecruiser to the planet
+        $this->planetAddUnit('battlecruiser', 1);
+
+        // Record initial ship count
+        $initialBattlecruiserCount = $this->planetService->getObjectAmount('battlecruiser');
+        $this->assertEquals(1, $initialBattlecruiserCount, 'Should start with 1 battlecruiser');
+
+        // Dispatch the fleet with 1 hour hold time
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('battlecruiser'), 1);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            1 // 1 hour hold
+        );
+
+        // Verify ship was deducted
+        $this->planetService->reloadPlanet();
+        $this->assertEquals(0, $this->planetService->getObjectAmount('battlecruiser'), 'Battlecruiser should be deducted after dispatch');
+
+        // Get mission timings
+        $fleetMissionDuration = $mission->time_arrival - $mission->time_departure;
+        $settingsService = app(SettingsService::class);
+        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+
+        // Travel to arrival + hold time + return trip time (complete round trip)
+        $totalMissionTime = $fleetMissionDuration + $actualHoldingTime + $fleetMissionDuration;
+        $this->travel($totalMissionTime + 1)->seconds();
+
+        // Process all missions by calling update multiple times to ensure everything is processed
+        $fleetMissionService->updateMission($mission);
+
+        // Get and process return mission
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNotNull($returnMission, 'Return mission should be created');
+        $fleetMissionService->updateMission($returnMission);
+
+        // Reload planet to get latest state
+        $this->planetService->reloadPlanet();
+
+        // Verify exactly 1 battlecruiser is back (no duplication)
+        $finalBattlecruiserCount = $this->planetService->getObjectAmount('battlecruiser');
+        $this->assertEquals(1, $finalBattlecruiserCount, 'Should have exactly 1 battlecruiser after mission completes (no duplication)');
+
+        // Verify all missions are processed
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'There should be no active missions after complete round trip');
+    }
+
 }

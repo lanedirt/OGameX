@@ -489,10 +489,21 @@ abstract class GameMission
         // Save the new fleet return mission.
         $mission->save();
 
-        // Check if the created mission arrival time is in the past. This can happen if the planet hasn't been updated
-        // for some time and missions have already played out in the meantime.
+        // Check if the created mission arrival time is in the past.
         // If the mission is in the past, process it immediately.
-        if ($mission->time_arrival < Date::now()->timestamp) {
+        // EXCEPTION: For ACS Defend return missions, only process immediately if the departure time
+        // has also passed. This prevents ship duplication when high fleet_speed_holding multipliers
+        // cause the return's arrival time to be in the past, but the fleet is still actually holding
+        // at the destination. By checking departure time, we ensure the hold period has truly expired.
+        $currentTime = (int)Date::now()->timestamp;
+        $shouldProcessImmediately = $mission->time_arrival < $currentTime;
+
+        // For ACS Defend, also require departure time to be in past (hold time expired)
+        if ($mission->mission_type === 5) {
+            $shouldProcessImmediately = $shouldProcessImmediately && ($mission->time_departure < $currentTime);
+        }
+
+        if ($shouldProcessImmediately) {
             $this->process($mission);
         }
     }

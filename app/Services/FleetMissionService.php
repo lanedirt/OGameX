@@ -262,11 +262,24 @@ class FleetMissionService
             $planetIds[] = $planet->getPlanetId();
         }
 
+        $currentTime = Date::now()->timestamp;
+
         $missions = $query->where(function ($query) use ($planetIds) {
             $query->where('user_id', $this->player->getId())
                 ->orWhereIn('planet_id_to', $planetIds);
         })
-            ->where('processed', 0)
+            ->where(function ($query) use ($currentTime) {
+                // Include unprocessed missions
+                $query->where('processed', 0)
+                    // Also include ACS Defend outbound missions that are processed but still in hold time
+                    ->orWhere(function ($query) use ($currentTime) {
+                        $query->where('mission_type', 5)
+                            ->whereNull('parent_id')
+                            ->where('processed', 1)
+                            ->where('time_arrival', '<=', $currentTime)
+                            ->whereRaw('time_arrival + time_holding > ?', [$currentTime]);
+                    });
+            })
             ->get();
 
         // Order the list taking into account the time_holding. This ensures that the order of missions is correct
@@ -402,8 +415,10 @@ class FleetMissionService
 
         // Filter based on mission type and hold time
         return $missions->filter(function ($mission) use ($currentTime, $fleetSpeedHolding) {
-            // ACS Defend (type 5): Process immediately at arrival
-            if ($mission->mission_type === 5) {
+            // ACS Defend outbound (type 5, no parent): Process immediately at arrival
+            // ACS Defend return (type 5, with parent): Normal processing, no hold time
+            $isAcsDefendOutbound = ($mission->mission_type === 5 && $mission->parent_id === null);
+            if ($isAcsDefendOutbound) {
                 return true;
             }
 
@@ -515,12 +530,15 @@ class FleetMissionService
 
         // Sanity check: only process missions that have arrived AND potential waiting time has passed.
         // Different mission types handle hold time differently:
-        // - ACS Defend (type 5): Process immediately at arrival, hold time determines return departure
+        // - ACS Defend outbound (type 5, no parent): Process immediately at arrival, hold time determines return departure
+        // - ACS Defend return (type 5, with parent): Normal processing, no hold time
         // - Expedition (type 15): Process after hold time (exploration period)
         // - Other missions: No hold time
         $holdTime = 0;
-        if ($mission->time_holding !== null && $mission->mission_type !== 5) {
-            // Only apply hold time delay for non-ACS Defend missions (like expeditions)
+        $isAcsDefendOutbound = ($mission->mission_type === 5 && $mission->parent_id === null);
+
+        if ($mission->time_holding !== null && !$isAcsDefendOutbound) {
+            // Only apply hold time delay for non-ACS Defend outbound missions (like expeditions)
             $settingsService = app(SettingsService::class);
             $holdTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
         }

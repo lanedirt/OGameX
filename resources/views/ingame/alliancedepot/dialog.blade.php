@@ -187,6 +187,14 @@
           $(this).select(); // Select the "1" so user can type over it
         }
       });
+
+      // Override the keyup handler to use a fixed max of 32 instead of deuterium-based calculation
+      // The server will validate if there's enough deuterium
+      $('#supplyTimeInput').off('keyup').on('keyup', function() {
+        if (typeof checkIntInput === 'function') {
+          checkIntInput(this, 1, 32);
+        }
+      });
     }
   })($);
 </script>
