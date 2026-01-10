@@ -265,3 +265,4 @@ The following projects either host OGameX servers or are based on the OGameX cor
 | Space Rivals | Built on top of the OGameX core with many different customizations and features. | [Visit](https://space-rivals.net/) | Not Open Source |
 
 Do you want your own OGameX-related project to be listed here? Create an issue in the [GitHub issues page](https://github.com/lanedirt/OGameX/issues) and provide details about your project.
+
