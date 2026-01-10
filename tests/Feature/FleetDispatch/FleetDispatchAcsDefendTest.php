@@ -785,9 +785,9 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     }
 
     /**
-     * Test that ships are not duplicated when return mission has arrival time in the past.
-     * This test verifies the fix for the critical bug where ships were duplicated due to
-     * immediate processing of return missions with past arrival times.
+     * Test that ships are not duplicated when missions complete after extended time periods.
+     * Verifies that return missions process correctly even when the complete round trip
+     * (outbound + hold + return) has elapsed.
      */
     public function testDispatchFleetNoShipDuplicationWithHighSpeedMultiplier(): void
     {
@@ -850,6 +850,84 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Verify all missions are processed
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(0, $activeMissions, 'There should be no active missions after complete round trip');
+    }
+
+    /**
+     * Test that ACS Defend return missions are hidden from the fleet overview until departure.
+     * Return missions should not be visible while the fleet is still holding at the destination,
+     * preventing the appearance of duplicate ships in the fleet list.
+     */
+    public function testDispatchFleetAcsDefendReturnMissionHiddenUntilDeparture(): void
+    {
+        $this->basicSetup();
+        $buddyUser = $this->createBuddyPlayer();
+
+        // Add 1 battlecruiser to the planet
+        $this->planetAddUnit('battlecruiser', 1);
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('battlecruiser'), 1);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            1 // 1 hour hold
+        );
+
+        // Travel to arrival time
+        $fleetMissionDuration = $mission->time_arrival - $mission->time_departure;
+        $this->travel($fleetMissionDuration + 1)->seconds();
+
+        // Process the outbound mission
+        $fleetMissionService->updateMission($mission);
+
+        // Manually adjust return mission's departure time to be in the future
+        // (This simulates the correct behavior - hold time not expired yet)
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNotNull($returnMission, 'Return mission should be created');
+
+        $returnMission->time_departure = time() + 3600; // 1 hour in future
+        $returnMission->time_arrival = time() + 3610; // Slightly after departure
+        $returnMission->save();
+
+        // Get active missions
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+
+        // Debug: Show all missions
+        $debugInfo = [];
+        foreach ($activeMissions as $activeMission) {
+            $debugInfo[] = sprintf(
+                "ID=%d type=%d parent=%s proc=%d depart=%d now=%d bc=%d",
+                $activeMission->id,
+                $activeMission->mission_type,
+                $activeMission->parent_id ?? 'null',
+                $activeMission->processed,
+                $activeMission->time_departure,
+                time(),
+                $activeMission->battlecruiser
+            );
+        }
+
+        // Count battlecruisers visible in active missions
+        $totalBattlecruisersInMissions = 0;
+        foreach ($activeMissions as $activeMission) {
+            $totalBattlecruisersInMissions += $activeMission->battlecruiser;
+        }
+
+        // Should only see 1 battlecruiser (from outbound/holding mission)
+        // Return mission should be hidden because it hasn't departed yet
+        $this->assertEquals(
+            1,
+            $totalBattlecruisersInMissions,
+            'Should only see 1 battlecruiser in active missions (return hidden until departure). Found: ' . implode(', ', $debugInfo)
+        );
     }
 
 }

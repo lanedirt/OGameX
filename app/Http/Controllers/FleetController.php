@@ -675,7 +675,16 @@ class FleetController extends OGameController
                 'components' => [],
                 'newAjaxToken' => csrf_token(),
                 'success' => false,
-            ]);
+            ], 500);
+        }
+
+        // Sanity check: mission must not already be canceled
+        if ($fleetMission->canceled) {
+            return response()->json([
+                'components' => [],
+                'newAjaxToken' => csrf_token(),
+                'success' => false,
+            ], 500);
         }
 
         // Recall the fleet mission

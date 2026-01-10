@@ -280,6 +280,13 @@ class FleetMissionService
                             ->whereRaw('time_arrival + time_holding > ?', [$currentTime]);
                     });
             })
+            // Exclude ACS Defend return missions that haven't departed yet
+            // This prevents showing duplicate ships while fleet is holding at destination
+            ->where(function ($query) use ($currentTime) {
+                $query->where('mission_type', '!=', 5)  // Not ACS Defend
+                    ->orWhereNull('parent_id')           // Or outbound mission
+                    ->orWhere('time_departure', '<=', $currentTime); // Or already departed
+            })
             ->get();
 
         // Order the list taking into account the time_holding. This ensures that the order of missions is correct
