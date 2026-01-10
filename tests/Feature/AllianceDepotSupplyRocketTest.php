@@ -67,8 +67,11 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         // Fleet arrives at $mission->time_arrival, holds until time_arrival + time_holding
         $arrivalTime = $mission->time_arrival;
         $currentTime = (int)Date::now()->timestamp; // Use Laravel's time, not system time()
-        $travelSeconds = $arrivalTime - $currentTime + 3600; // Arrive + 1 hour (to ensure mission has been processed)
+        $travelSeconds = $arrivalTime - $currentTime + 1; // Travel to 1 second after arrival
         $this->travel($travelSeconds)->seconds();
+
+        // Process the mission so it creates the return mission
+        $fleetMissionService->updateMission($mission);
 
         // Store original planet ID for finding the mission
         $originalPlanetId = $this->planetService->getPlanetId();
@@ -160,8 +163,11 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         // Travel to just after arrival time but well before hold expires
         $arrivalTime = $mission->time_arrival;
         $currentTime = (int)Date::now()->timestamp; // Use Laravel's time, not system time()
-        $travelSeconds = $arrivalTime - $currentTime + 60; // Arrive + 1 minute
+        $travelSeconds = $arrivalTime - $currentTime + 1; // Travel to 1 second after arrival
         $this->travel($travelSeconds)->seconds();
+
+        // Process the mission so it creates the return mission
+        $fleetMissionService->updateMission($mission);
 
         // Store original planet ID for finding the mission
         $originalPlanetId = $this->planetService->getPlanetId();

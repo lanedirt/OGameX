@@ -666,8 +666,8 @@ class FleetController extends OGameController
             }
         }
 
-        // Get the fleet mission service
-        $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id);
+        // Get the fleet mission (allow processed missions for ACS Defend recalls during hold time)
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id, false);
 
         // Sanity check: only owner of the fleet mission can recall it.
         if ($fleetMission->user_id !== $player->getId()) {

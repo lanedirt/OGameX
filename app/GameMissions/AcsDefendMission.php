@@ -21,7 +21,7 @@ class AcsDefendMission extends GameMission
     protected static string $name = 'ACS Defend';
     protected static int $typeId = 5;
     protected static bool $hasReturnMission = true;
-    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::holding;
     protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Friendly;
 
     /**

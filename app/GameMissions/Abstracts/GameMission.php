@@ -133,11 +133,20 @@ abstract class GameMission
      */
     public function cancel(FleetMission $mission): void
     {
-        // Update the mission arrived time to now instead of original planned arrival time if the mission would finish by itself.
-        // This arrival time is used by the return mission to calculate the return time.
-        $mission->time_arrival = (int)Date::now()->timestamp;
+        $currentTime = (int)Date::now()->timestamp;
 
-        // Clear the holding time for recalled missions (expeditions, etc.)
+        // Store the original arrival time before modifying it.
+        // This is needed to calculate the correct return trip adjustment for missions that have already arrived.
+        $originalArrivalTime = $mission->time_arrival;
+
+        // Check if the mission has already arrived (is holding at destination).
+        $hasArrived = $mission->time_arrival <= $currentTime;
+
+        // Always update time_arrival to now for consistency.
+        // This ensures startReturn() calculates departure time as "now".
+        $mission->time_arrival = $currentTime;
+
+        // Clear the holding time for recalled missions (expeditions, ACS Defend, etc.)
         // The fleet should return immediately without waiting at the destination.
         // Only set to 0 if there was a holding time, to avoid changing null to 0 for missions that don't use holding time.
         if ($mission->time_holding !== null) {
@@ -151,7 +160,11 @@ abstract class GameMission
 
         // Start the return mission with the resources and units of the original mission.
         // getResources() already includes parent mission resources.
-        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
+        // If the mission had already arrived, we need to adjust the return trip calculation.
+        // The adjustment ensures the return takes the same time as the original outbound trip,
+        // not including any elapsed hold time.
+        $returnTripAdjustment = $hasArrived ? ($originalArrivalTime - $currentTime) : 0;
+        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission), $returnTripAdjustment);
     }
 
     /**
@@ -274,6 +287,8 @@ abstract class GameMission
         // Holding time is the amount of time the fleet will wait at the target planet and/or how long expedition will last.
         // The $holdingHours is in hours, so we convert it to seconds.
         // Applies to expeditions and ACS Defend missions.
+        // Note: time_holding stores the "game time" (e.g., 1 hour = 3600 seconds) not the actual real-world duration.
+        // The fleet_speed_holding multiplier is applied when calculating actual mission timings (see startReturn).
         if (static::class === ExpeditionMission::class) {
             $mission->time_holding = $holdingHours * 3600;
             $targetType = PlanetType::DeepSpace;
@@ -410,8 +425,14 @@ abstract class GameMission
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.
         // Time this fleet mission will depart (arrival time of the parent mission + holding time if applicable)
-        // For expeditions, the holding time must be included as the mission doesn't complete until after the hold.
-        $time_start = $parentMission->time_arrival + ($parentMission->time_holding ?? 0);
+        // For expeditions and ACS Defend, the holding time must be included as the mission doesn't complete until after the hold.
+        // Apply fleet_speed_holding multiplier to convert "game time" to actual real-world time.
+        $settingsService = app(SettingsService::class);
+        $actualHoldingTime = $parentMission->time_holding !== null
+            ? (int)($parentMission->time_holding / $settingsService->fleetSpeedHolding())
+            : 0;
+
+        $time_start = $parentMission->time_arrival + $actualHoldingTime;
 
         // Time fleet mission will arrive (arrival time of the parent mission + duration of the parent mission)
         // Return mission duration is always the same as the parent mission duration.

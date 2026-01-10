@@ -61,7 +61,7 @@
                                     @endforeach
                                 </td>
                                 <td class="textCenter supplyTime">
-                                    <input type="number" min="1" max="32" class="textInput" name="supplyTime" id="supplyTimeInput" value="1" size="2">&nbsp;h
+                                    <input type="text" pattern="[0-9]+" class="textInput" name="supplyTime" id="supplyTimeInput" value="1" size="2" maxlength="2">&nbsp;h
                                 </td>
                                 <td class="textCenter">
                                 <span id="deutCosts" class="dark_highlight_tablet tooltip" data-tooltip-title="@lang('Supply costs Deuterium / h')">
@@ -179,6 +179,14 @@
     // Initialize Alliance Depot if function exists
     if (typeof initAllianceDepot === 'function') {
       initAllianceDepot();
+
+      // Override the focus handler to prevent clearing input when user clicks on it
+      // Only clear if the value is the default "1"
+      $('#supplyTimeInput').off('focus').on('focus', function() {
+        if ($(this).val() === '1') {
+          $(this).select(); // Select the "1" so user can type over it
+        }
+      });
     }
   })($);
 </script>

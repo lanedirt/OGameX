@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
 use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
@@ -664,5 +665,122 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->sendMissionToBuddyPlanet($unitCollection, new Resources(0, 0, 0, 0), false);
+    }
+
+    /**
+     * Test that recalling an ACS Defend fleet during hold time returns with correct trip duration.
+     * Bug: The return trip was taking longer than the outbound trip because elapsed hold time was being added.
+     */
+    public function testDispatchFleetRecallDuringHoldTimeReturnsWithCorrectDuration(): void
+    {
+        $this->basicSetup();
+        $this->createBuddyPlayer();
+
+        // Send ACS Defend fleet with 1 hour hold time
+        $this->planetAddUnit('light_fighter', 10);
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            1 // 1 hour hold
+        );
+
+        // Record the original travel duration
+        $originalTravelDuration = $mission->time_arrival - $mission->time_departure;
+
+        // Fast forward to 30 seconds after arrival (during hold time)
+        $this->travel($originalTravelDuration + 30)->seconds();
+
+        // Recall the fleet
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $mission->id,
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Get the return mission
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNotNull($returnMission, 'Return mission should exist');
+
+        // Calculate return trip duration
+        $returnTravelDuration = $returnMission->time_arrival - $returnMission->time_departure;
+
+        // The return trip should take the same time as the original outbound trip
+        // NOT the original trip duration + the 30 seconds we held
+        $this->assertEquals(
+            $originalTravelDuration,
+            $returnTravelDuration,
+            'Return trip duration should equal original trip duration, not include elapsed hold time'
+        );
+    }
+
+    /**
+     * Test that arrival messages are sent to both sender and host when fleet arrives.
+     * This test directly calls updateMission to verify message sending.
+     */
+    public function testDispatchFleetArrivalMessagesSentOnUpdate(): void
+    {
+        $this->basicSetup();
+        $buddyUser = $this->createBuddyPlayer();
+
+        // Mark all existing messages as read
+        $this->playerSetAllMessagesRead();
+
+        // Send ACS Defend fleet with 1 hour hold time
+        $this->planetAddUnit('light_fighter', 5);
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            1 // 1 hour hold
+        );
+
+        // Travel to arrival time
+        $travelDuration = $mission->time_arrival - $mission->time_departure;
+        $this->travel($travelDuration + 1)->seconds();
+
+        // Explicitly call updateMission to process the arrival
+        $fleetMissionService->updateMission($mission);
+
+        // Verify sender received message
+        $this->assertMessageReceivedAndContains('fleets', 'other', [
+            'Fleet is stopping',
+            'Fleet Command',
+        ]);
+
+        // Verify host received message
+        $this->assertMessageReceivedAndContainsDatabase($this->buddyPlanet->getPlayer(), [
+            'A fleet has arrived',
+        ]);
+
+        // Verify mission was processed
+        $mission->refresh();
+        $this->assertEquals(1, $mission->processed, 'Mission should be marked as processed');
+
+        // Verify return mission was created
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNotNull($returnMission, 'Return mission should be created');
     }
 }
