@@ -41,7 +41,8 @@ abstract class ObjectPropertyService
     public function calculateProperty(PlayerService $player): GameObjectPropertyDetails
     {
         $bonusPercentage = $this->getBonusPercentage($player);
-        $bonusValue = (($this->base_value / 100) * $bonusPercentage);
+        // Use integer arithmetic to avoid floating point precision issues
+        $bonusValue = intdiv($this->base_value * $bonusPercentage, 100);
 
         $totalValue = $this->base_value + $bonusValue;
 
