@@ -49,18 +49,19 @@ class AllianceDepotServiceTest extends UnitTestCase
     {
         $currentTime = time();
 
-        // Create outbound mission that arrived
+        // Create outbound mission that arrived with 30 minutes (1800 seconds) hold time in GAME time
         $outbound = new FleetMission();
         $outbound->mission_type = 5;
         $outbound->time_arrival = $currentTime - 900; // Arrived 15 minutes ago
+        $outbound->time_holding = 1800; // 30 minutes hold time in game-time (less than 1 hour)
         $outbound->processed = 0;
         $outbound->canceled = 0;
 
-        // Create return mission departing in 15 minutes (total hold: 30 minutes, less than 1 hour)
+        // Create return mission departing in 15 minutes (with 200x speed multiplier: 1800/200 = 9 seconds real-world)
         $return = new FleetMission();
         $return->mission_type = 5;
-        $return->time_departure = $currentTime + 900; // Departs in 15 minutes
-        $return->time_arrival = $currentTime + 1800;
+        $return->time_departure = $currentTime + 9; // Departs in 9 seconds (1800 game-time / 200 speed)
+        $return->time_arrival = $currentTime + 1000; // Some future time
         $return->canceled = 0;
 
         // Should not be extendable (holding < 1 hour originally)
@@ -75,18 +76,19 @@ class AllianceDepotServiceTest extends UnitTestCase
     {
         $currentTime = time();
 
-        // Create outbound mission that arrived
+        // Create outbound mission that arrived with 2 hours (7200 seconds) hold time in GAME time
         $outbound = new FleetMission();
         $outbound->mission_type = 5;
         $outbound->time_arrival = $currentTime - 3600; // Arrived 1 hour ago
+        $outbound->time_holding = 7200; // 2 hours hold time in game-time
         $outbound->processed = 0;
         $outbound->canceled = 0;
 
-        // Create return mission departing in 1 hour (total hold: 2 hours)
+        // Create return mission departing in 36 seconds (7200 game-time / 200 speed = 36 seconds real-world)
         $return = new FleetMission();
         $return->mission_type = 5;
-        $return->time_departure = $currentTime + 3600; // Departs in 1 hour
-        $return->time_arrival = $currentTime + 7200;
+        $return->time_departure = $currentTime + 36; // Departs in 36 seconds
+        $return->time_arrival = $currentTime + 1000; // Some future time
         $return->canceled = 0;
 
         // Should be extendable (holding >= 1 hour)

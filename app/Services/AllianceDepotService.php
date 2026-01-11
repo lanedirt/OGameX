@@ -76,36 +76,36 @@ class AllianceDepotService
             return false;
         }
 
-        // The hold time stored in the mission is "game time" (e.g., 3600 seconds = 1 hour).
-        // We need to apply the fleet_speed_holding multiplier to convert to real-world time.
+        // Get hold duration in game-time to check minimum hold requirement
+        // time_holding is stored in game-time seconds
         $settingsService = app(SettingsService::class);
 
-        // If time_holding is set, use it; otherwise calculate from return mission
         if ($outboundMission->time_holding !== null) {
-            $actualHoldingTime = (int)($outboundMission->time_holding / $settingsService->fleetSpeedHolding());
-            $gameTimeHoldDuration = $outboundMission->time_holding;
+            // time_holding is already in game time
+            $gameTimeHoldingDuration = $outboundMission->time_holding;
         } elseif ($returnMission) {
-            // Calculate from return mission's departure time
-            $actualHoldingTime = $returnMission->time_departure - $outboundMission->time_arrival;
-            // Convert real-world time back to game time for the 1-hour check
-            $gameTimeHoldDuration = (int)($actualHoldingTime * $settingsService->fleetSpeedHolding());
+            // Calculate from return mission's departure time (in real-world time)
+            // Convert to game time for comparison
+            $realWorldHoldingTime = $returnMission->time_departure - $outboundMission->time_arrival;
+            $gameTimeHoldingDuration = (int)($realWorldHoldingTime * $settingsService->fleetSpeedHolding());
         } else {
             // No hold time info available
             return false;
         }
 
+        // Must be holding for at least 1 hour in GAME time (3600 seconds)
+        // This ensures extensions are only allowed for missions with substantial hold times
+        if ($gameTimeHoldingDuration < 3600) {
+            return false;
+        }
+
         // Calculate expected return departure time using real-world hold duration
-        $expectedReturnDeparture = $outboundMission->time_arrival + $actualHoldingTime;
+        $realWorldHoldingTime = (int)($gameTimeHoldingDuration / $settingsService->fleetSpeedHolding());
+        $expectedReturnDeparture = $outboundMission->time_arrival + $realWorldHoldingTime;
 
         // Return mission must not have departed yet (check actual or expected time)
         $actualReturnDeparture = $returnMission ? $returnMission->time_departure : $expectedReturnDeparture;
         if ($actualReturnDeparture <= $currentTime) {
-            return false;
-        }
-
-        // Must be holding for at least 1 hour in GAME TIME (3600 seconds)
-        // This is the rule from the game - only missions with 1+ hour game time can be extended
-        if ($gameTimeHoldDuration < 3600) {
             return false;
         }
 

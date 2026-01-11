@@ -21,6 +21,51 @@ use Tests\AccountTestCase;
  */
 class AllianceDepotSupplyRocketTest extends AccountTestCase
 {
+    /** @var array<int> */
+    private array $createdPlanetIds = [];
+
+    /**
+     * Track created planets for cleanup.
+     */
+    private function trackPlanet(Planet $planet): void
+    {
+        $this->createdPlanetIds[] = $planet->id;
+    }
+
+    /**
+     * Clean up test data after each test to prevent test isolation issues.
+     */
+    protected function tearDown(): void
+    {
+        // Remove planets created during this test
+        if (!empty($this->createdPlanetIds)) {
+            // Delete fleet missions to/from these planets first (foreign key constraints)
+            // Delete child missions first (return missions with parent_id)
+            FleetMission::whereNotNull('parent_id')
+                ->where(function ($query) {
+                    $query->whereIn('planet_id_from', $this->createdPlanetIds)
+                        ->orWhereIn('planet_id_to', $this->createdPlanetIds);
+                })
+                ->delete();
+
+            // Then delete parent missions
+            FleetMission::whereNull('parent_id')
+                ->where(function ($query) {
+                    $query->whereIn('planet_id_from', $this->createdPlanetIds)
+                        ->orWhereIn('planet_id_to', $this->createdPlanetIds);
+                })
+                ->delete();
+
+            // Now we can delete the planets
+            Planet::whereIn('id', $this->createdPlanetIds)->delete();
+        }
+
+        // Remove all buddy relationships to prevent interference with other tests
+        \DB::table('buddy_requests')->truncate();
+
+        parent::tearDown();
+    }
+
     /**
      * Test that supply rocket successfully extends hold time.
      *
@@ -38,6 +83,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
             'planet' => 6,
         ]);
+        $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
         // Add buddy relationship first
@@ -135,6 +181,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
             'planet' => 7,
         ]);
+        $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
         // Add buddy relationship
@@ -217,6 +264,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
             'planet' => 9,
         ]);
+        $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
         // Add buddy relationship
@@ -319,15 +367,16 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
     public function testAcsDefendCanBeRecalledDuringExtendedHoldTime(): void
     {
         // Create buddy relationship with nearby planet
-        // Use current test user's ID as part of coordinates to ensure uniqueness across test runs
+        // Use a far-away location to avoid conflicts with other tests
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
-            'galaxy' => 4,
-            'system' => min(499, 400 + ($buddyUser->id % 99)),
-            'planet' => min(15, 10 + ($buddyUser->id % 5)),
+            'galaxy' => 4,  // Different galaxy to avoid conflicts
+            'system' => 150,
+            'planet' => 12,
         ]);
+        $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
 
         $buddyService = resolve(BuddyService::class);
