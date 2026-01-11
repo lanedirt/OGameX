@@ -29,7 +29,15 @@
             @endif
         </div>
         <select class="changeSite fright">
-            <option value="{{ $highscoreCurrentPlayerPage }}">Own position</option>
+            @if ($currentPlayerIsAdmin ?? false)
+                @if ($highscoreAdminVisible ?? false)
+                    <option value="{{ $highscoreCurrentPlayerPage }}">@lang('Own position')</option>
+                @else
+                    <option value="1">@lang('Own position') (-)</option>
+                @endif
+            @else
+                <option value="{{ $highscoreCurrentPlayerPage }}">@lang('Own position')</option>
+            @endif
             @for ($i = 1; $i <= ceil($highscorePlayerAmount / 100); $i++)
                 <option {{ $i == $highscoreCurrentPage ? 'selected="selected"' : '' }} value="{{ $i }}"> {{ ((($i-1) * 100) + 1)  }} - {{ $i * 100 }}</option>
             @endfor
@@ -91,7 +99,7 @@
                                     @endif
 
                                     <a href="{{ route('galaxy.index', ['galaxy' => $highscorePlayer['planet_coords']->galaxy, 'system' => $highscorePlayer['planet_coords']->system, 'position' => $highscorePlayer['planet_coords']->position]) }}" class="dark_highlight_tablet">
-                                        <span class="playername">
+                                        <span class="playername{{ ($highscorePlayer['is_admin'] ?? false) ? ' status_abbr_admin' : '' }}">
                                             {{ $highscorePlayer['name'] }}
                                         </span>
                                     </a>

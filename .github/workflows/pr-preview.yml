@@ -109,12 +109,12 @@ jobs:
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           # Remove all container_name lines to allow Docker Compose project namespacing
-          sed -i '/container_name:/d' docker-compose.yml
+          sed -i '/container_name:/d' docker-compose.prod.yml
 
       - name: Generate Traefik override
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          cat > docker-compose.override.yml << EOF
+          cat > docker-compose.override.yml << 'EOF'
           services:
             ogamex-webserver:
               ports: !override []
@@ -124,29 +124,12 @@ jobs:
               labels:
                 - traefik.enable=true
                 - traefik.docker.network=traefik
-                - traefik.http.routers.pr-${{ env.PR_NUMBER }}.rule=Host(\`${{ env.PREVIEW_HOST }}\`)
-                - traefik.http.routers.pr-${{ env.PR_NUMBER }}.entrypoints=web
-                - traefik.http.services.pr-${{ env.PR_NUMBER }}.loadbalancer.server.port=80
-
-            ogamex-app:
-              build:
-                args:
-                  USE_USER: "no"
-
-            ogamex-scheduler:
-              build:
-                args:
-                  USE_USER: "no"
-
-            ogamex-queue-worker:
-              build:
-                args:
-                  USE_USER: "no"
-
-            ogamex-db:
-              ports: !override []
+                - traefik.http.routers.pr-PR_NUMBER_PLACEHOLDER.rule=Host(`PREVIEW_HOST_PLACEHOLDER`)
+                - traefik.http.routers.pr-PR_NUMBER_PLACEHOLDER.entrypoints=web
+                - traefik.http.services.pr-PR_NUMBER_PLACEHOLDER.loadbalancer.server.port=80
 
             ogamex-phpmyadmin:
+              ports: !override []
               profiles:
                 - disabled
 
@@ -155,33 +138,37 @@ jobs:
               external: true
           EOF
 
+          # Replace placeholders with actual values
+          sed -i "s/PR_NUMBER_PLACEHOLDER/${{ env.PR_NUMBER }}/g" docker-compose.override.yml
+          sed -i "s/PREVIEW_HOST_PLACEHOLDER/${{ env.PREVIEW_HOST }}/g" docker-compose.override.yml
+
       - name: Stop existing stack (if any)
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} down --remove-orphans || true
+          docker compose -f docker-compose.prod.yml -f docker-compose.override.yml -p pr-${{ env.PR_NUMBER }} down --remove-orphans || true
 
       - name: Build and start preview stack
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} build
-          docker compose -p pr-${{ env.PR_NUMBER }} up -d --remove-orphans
+          docker compose -f docker-compose.prod.yml -f docker-compose.override.yml -p pr-${{ env.PR_NUMBER }} build
+          docker compose -f docker-compose.prod.yml -f docker-compose.override.yml -p pr-${{ env.PR_NUMBER }} up -d --remove-orphans
 
       - name: Wait for app to be healthy
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
           echo "Waiting for application to be ready..."
-          timeout 300 bash -c 'until docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do sleep 5; done'
+          timeout 300 bash -c 'until docker compose -f docker-compose.prod.yml -f docker-compose.override.yml -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do sleep 5; done'
           echo "Application is ready!"
 
       - name: Run database migrations
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate --force
+          docker compose -f docker-compose.prod.yml -f docker-compose.override.yml -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan migrate --force
 
       - name: Seed preview test users
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
-          docker compose -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:dev:seed-users
+          docker compose -f docker-compose.prod.yml -f docker-compose.override.yml -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:dev:seed-users
 
       - name: Comment on PR with preview URL
         uses: actions/github-script@v7
