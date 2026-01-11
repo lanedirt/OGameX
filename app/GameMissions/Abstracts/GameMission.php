@@ -158,18 +158,14 @@ abstract class GameMission
         $mission->processed = 1;
         $mission->save();
 
-        // If the mission had already arrived (ACS Defend during hold time), find and cancel
+        // If the mission had already arrived (ACS Defend during hold time), delete
         // the existing return mission before creating a new immediate return.
         // This prevents ship duplication from having two return missions.
+        // We delete rather than cancel because this return mission was never meant to happen.
         if ($hasArrived) {
-            $existingReturnMission = FleetMission::where('parent_id', $mission->id)
+            FleetMission::where('parent_id', $mission->id)
                 ->where('canceled', 0)
-                ->first();
-
-            if ($existingReturnMission) {
-                $existingReturnMission->canceled = 1;
-                $existingReturnMission->save();
-            }
+                ->delete();
         }
 
         // Start the return mission with the resources and units of the original mission.
