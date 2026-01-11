@@ -76,32 +76,27 @@ class AllianceDepotService
             return false;
         }
 
-        // Get hold duration in game-time to check minimum hold requirement
-        // time_holding is stored in game-time seconds
+        // Check if the ORIGINAL hold time was at least 1 hour (in GAME time)
+        // This prevents extending fleets sent with 0 hours (which become 30 min minimum)
+        // We only check time_holding which stores the original/total duration
         $settingsService = app(SettingsService::class);
 
+        if ($outboundMission->time_holding !== null && $outboundMission->time_holding < 3600) {
+            // Original hold time was less than 1 hour (game time), don't allow extension
+            return false;
+        }
+
+        // Calculate when the return mission will depart (for checking if still holding)
         if ($outboundMission->time_holding !== null) {
-            // time_holding is already in game time
-            $gameTimeHoldingDuration = $outboundMission->time_holding;
+            $realWorldHoldingTime = (int)($outboundMission->time_holding / $settingsService->fleetSpeedHolding());
+            $expectedReturnDeparture = $outboundMission->time_arrival + $realWorldHoldingTime;
         } elseif ($returnMission) {
-            // Calculate from return mission's departure time (in real-world time)
-            // Convert to game time for comparison
-            $realWorldHoldingTime = $returnMission->time_departure - $outboundMission->time_arrival;
-            $gameTimeHoldingDuration = (int)($realWorldHoldingTime * $settingsService->fleetSpeedHolding());
+            // If time_holding is not set, calculate from return mission
+            $expectedReturnDeparture = $returnMission->time_departure;
         } else {
             // No hold time info available
             return false;
         }
-
-        // Must be holding for at least 1 hour in GAME time (3600 seconds)
-        // This ensures extensions are only allowed for missions with substantial hold times
-        if ($gameTimeHoldingDuration < 3600) {
-            return false;
-        }
-
-        // Calculate expected return departure time using real-world hold duration
-        $realWorldHoldingTime = (int)($gameTimeHoldingDuration / $settingsService->fleetSpeedHolding());
-        $expectedReturnDeparture = $outboundMission->time_arrival + $realWorldHoldingTime;
 
         // Return mission must not have departed yet (check actual or expected time)
         $actualReturnDeparture = $returnMission ? $returnMission->time_departure : $expectedReturnDeparture;
@@ -183,12 +178,11 @@ class AllianceDepotService
         $currentTime = (int)Date::now()->timestamp;
 
         // Get all ACS Defend missions that have arrived and are holding
-        // When an ACS Defend mission arrives, it's immediately processed (processed = 1)
-        // and a return mission is created. We need processed = 1 to ensure the return mission exists.
+        // Only get outbound missions (parent_id IS NULL), not return missions
         $outboundMissions = FleetMission::where('mission_type', 5)
             ->where('planet_id_to', $planetId)
             ->where('time_arrival', '<=', $currentTime)
-            ->where('processed', 1)
+            ->whereNull('parent_id') // Only outbound missions, not returns
             ->where('canceled', 0)
             ->get();
 

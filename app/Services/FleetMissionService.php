@@ -268,16 +268,21 @@ class FleetMissionService
             $query->where('user_id', $this->player->getId())
                 ->orWhereIn('planet_id_to', $planetIds);
         })
+            ->where('canceled', 0) // Exclude canceled missions
             ->where(function ($query) use ($currentTime) {
                 // Include unprocessed missions
                 $query->where('processed', 0)
                     // Also include ACS Defend outbound missions that are processed but still in hold time
                     ->orWhere(function ($query) use ($currentTime) {
+                        $settingsService = app(\OGame\Services\SettingsService::class);
+                        $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
+
                         $query->where('mission_type', 5)
                             ->whereNull('parent_id')
                             ->where('processed', 1)
                             ->where('time_arrival', '<=', $currentTime)
-                            ->whereRaw('time_arrival + time_holding > ?', [$currentTime]);
+                            // Convert time_holding from game-time to real-world time by dividing by fleet_speed_holding
+                            ->whereRaw('time_arrival + (time_holding / ?) > ?', [$fleetSpeedHolding, $currentTime]);
                     });
             })
             // Exclude ACS Defend return missions that haven't departed yet
