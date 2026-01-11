@@ -21,7 +21,7 @@ class AcsDefendMission extends GameMission
     protected static string $name = 'ACS Defend';
     protected static int $typeId = 5;
     protected static bool $hasReturnMission = true;
-    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::holding;
     protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Friendly;
 
     /**
@@ -112,6 +112,12 @@ class AcsDefendMission extends GameMission
 
         // Return units to the destination planet
         $destination_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
+
+        // Add resources to the destination planet (if any).
+        $return_resources = $this->fleetMissionService->getResources($mission);
+        if ($return_resources->any()) {
+            $destination_planet->addResources($return_resources);
+        }
 
         // Send message to player that the return mission has arrived.
         $this->sendFleetReturnMessage($mission, $destination_planet->getPlayer());

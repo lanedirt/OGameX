@@ -53,9 +53,14 @@ class FacilitiesController extends AbstractBuildingsController
             ];
         }
 
-        return view('ingame.facilities.index')->with(
-            $this->indexPageParams($request, $player)
-        );
+        $params = $this->indexPageParams($request, $player);
+
+        // Add alliance depot level for button visibility
+        if ($this->planet->isPlanet()) {
+            $params['alliance_depot_level'] = $this->planet->getObjectLevel('alliance_depot');
+        }
+
+        return view('ingame.facilities.index')->with($params);
     }
 
     /**

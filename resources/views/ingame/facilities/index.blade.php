@@ -19,6 +19,11 @@
                         <a href="{{ route('jumpgate.index') }}" class="overlay" data-overlay-title="@lang('Use Jump Gate')">@lang('Jump Gate')</a>
                     </div>
                 @endif
+                @if (isset($alliance_depot_level) && $alliance_depot_level > 0)
+                    <div id="slot01" class="slot">
+                        <a href="{{ route('alliance-depot.index') }}" class="overlay" data-overlay-class="allydepot" data-overlay-title="@lang('Alliance Depot')">@lang('Alliance Depot')</a>
+                    </div>
+                @endif
             </header>
             <div id="technologydetails_wrapper">
                 <div id="technologydetails_content"></div>
