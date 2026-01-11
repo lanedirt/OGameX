@@ -74334,8 +74334,6 @@ function loadFleetTemplates() {
     });
 
     $(".list tr:even").addClass("alt");
-  }).fail(function(xhr) {
-    // Silently fail on error
   });
 }
 
@@ -74587,8 +74585,6 @@ function loadStandardFleetDropdown() {
       // Reinitialize the dropdown
       $select.ogameDropDown();
     }
-  }).fail(function(xhr) {
-    // Silently fail on error
   });
 }
 
