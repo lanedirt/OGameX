@@ -74248,13 +74248,11 @@ function loadFleetTemplates() {
   $tbody = $table.find('tbody');
 
   $.get('/ajax/fleet/templates', function(response) {
-    console.log('Templates loaded:', response);
     var templates = response.templates || [];
 
     // Find the tbody again in case the dialog was re-created
     $table = $('.ui-dialog:visible #fleetTemplates, #zeuch666:visible #fleetTemplates, #fleetTemplates').first();
     if ($table.length === 0) {
-      console.error('Table disappeared during load');
       return;
     }
     $tbody = $table.find('tbody');
@@ -74337,7 +74335,7 @@ function loadFleetTemplates() {
 
     $(".list tr:even").addClass("alt");
   }).fail(function(xhr) {
-    console.error('Failed to load fleet templates:', xhr);
+    // Silently fail on error
   });
 }
 
@@ -74367,7 +74365,6 @@ function initStandardFleet() {
   $(document).on('dialogopen', '.ui-dialog', function(e) {
     var $dialog = $(e.target);
     if ($dialog.find('#fleetTemplates').length > 0 || $dialog.attr('aria-describedby') === 'zeuch666') {
-      console.log('Fleet templates dialog opened');
       // Use cached templates if available for instant display
       if (cachedTemplates && cachedTemplates.length > 0) {
         populateTemplatesTable(cachedTemplates);
@@ -74387,8 +74384,6 @@ function initStandardFleet() {
     var templateId = $("#template_id").val();
     var templateName = $("#template_name").val();
 
-    console.log('Saving template:', { templateId: templateId, templateName: templateName });
-
     // Validate name
     if (!templateName || templateName.trim() === '') {
       errorBoxDecision(LocalizationStrings.attention, 'Please enter a template name.', LocalizationStrings.yes, LocalizationStrings.no, function() {});
@@ -74407,8 +74402,6 @@ function initStandardFleet() {
         totalShips += value;
       }
     });
-
-    console.log('Ships data:', ships);
 
     if (totalShips === 0) {
       errorBoxDecision(LocalizationStrings.attention, 'Please add at least one ship to the template.', LocalizationStrings.yes, LocalizationStrings.no, function() {});
@@ -74430,7 +74423,6 @@ function initStandardFleet() {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       },
       success: function(response) {
-        console.log('Save response:', response);
         if (response.success) {
           // Close the edit overlay
           $('.ui-dialog:has(#fleetTemplatesEdit)').find('.ui-dialog-titlebar-close').click();
@@ -74450,7 +74442,6 @@ function initStandardFleet() {
         }
       },
       error: function(xhr) {
-        console.error('Save error:', xhr);
         var message = 'Failed to save template.';
         if (xhr.responseJSON && xhr.responseJSON.message) {
           message = xhr.responseJSON.message;
@@ -74561,7 +74552,6 @@ function populateTemplatesTable(templates) {
 // Load templates and populate the standard fleets dropdown
 function loadStandardFleetDropdown() {
   $.get('/ajax/fleet/templates', function(response) {
-    console.log('Loading standard fleets dropdown:', response);
     var templates = response.templates || [];
     cachedTemplates = templates;
 
@@ -74575,7 +74565,6 @@ function loadStandardFleetDropdown() {
           ships: template.ships
         };
       });
-      console.log('Updated fleetDispatcher.standardFleets:', fleetDispatcher.standardFleets);
     }
 
     // Update the select dropdown
@@ -74597,11 +74586,9 @@ function loadStandardFleetDropdown() {
 
       // Reinitialize the dropdown
       $select.ogameDropDown();
-
-      console.log('Updated standard fleets dropdown with', templates.length, 'templates');
     }
   }).fail(function(xhr) {
-    console.error('Failed to load fleet templates for dropdown:', xhr);
+    // Silently fail on error
   });
 }
 
