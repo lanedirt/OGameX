@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use OGame\Models\Message;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMissions\AttackMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -49,14 +50,14 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        // Add bombers to attacker planet (bombers are strong against defenses)
+        // Add bombers to attacker planet
         $this->planetAddUnit('bomber', 100);
 
-        // Set 0% repair rate to ensure we can see if defenses are actually destroyed
+        // Set 0% repair rate to ensure defenses are fully destroyed
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('defense_repair_rate', 0);
 
-        // Add a strong attacker fleet (bombers are strong against defenses)
+        // Create attacker fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('bomber'), 100);
         $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
@@ -111,7 +112,7 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
             'IPMs should not participate in combat and should remain intact'
         );
 
-        // Verify that actual defenses DID participate (most should be destroyed with 100 bombers)
+        // Verify that actual defenses participated in combat
         $totalDefenses = $foreignPlanetReloaded->getObjectAmount('rocket_launcher')
             + $foreignPlanetReloaded->getObjectAmount('light_laser');
 
@@ -122,7 +123,7 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
         );
 
         // Get the battle report
-        $messageAttacker = \OGame\Models\Message::where('user_id', $this->planetService->getPlayer()->getId())
+        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())
             ->where('key', 'battle_report')
             ->orderByDesc('id')
             ->first();
@@ -133,16 +134,28 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
 
         // Verify that missiles are NOT in the defender's battle report units
         $defenderUnits = $battleReport->defender['units'] ?? [];
-        $this->assertArrayNotHasKey('anti_ballistic_missile', $defenderUnits,
-            'ABMs should not appear in battle report as defender units');
-        $this->assertArrayNotHasKey('interplanetary_missile', $defenderUnits,
-            'IPMs should not appear in battle report as defender units');
+        $this->assertArrayNotHasKey(
+            'anti_ballistic_missile',
+            $defenderUnits,
+            'ABMs should not appear in battle report as defender units'
+        );
+        $this->assertArrayNotHasKey(
+            'interplanetary_missile',
+            $defenderUnits,
+            'IPMs should not appear in battle report as defender units'
+        );
 
         // Verify that actual defenses DO appear in the battle report
-        $this->assertArrayHasKey('rocket_launcher', $defenderUnits,
-            'Rocket launchers should appear in battle report as defender units');
-        $this->assertArrayHasKey('light_laser', $defenderUnits,
-            'Light lasers should appear in battle report as defender units');
+        $this->assertArrayHasKey(
+            'rocket_launcher',
+            $defenderUnits,
+            'Rocket launchers should appear in battle report as defender units'
+        );
+        $this->assertArrayHasKey(
+            'light_laser',
+            $defenderUnits,
+            'Light lasers should appear in battle report as defender units'
+        );
     }
 
     /**
@@ -158,7 +171,7 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
         $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
-        // Add ONLY missiles (no other defenses)
+        // Add missiles only (no other defenses)
         $foreignPlanet->addUnit('anti_ballistic_missile', 20);
         $foreignPlanet->addUnit('interplanetary_missile', 10);
         $foreignPlanet->save();
@@ -183,7 +196,7 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $foreignPlanetReloaded = $planetServiceFactory->make($foreignPlanet->getPlanetId());
 
-        // Missiles should be untouched
+        // Verify missiles remain at original count
         $this->assertEquals(
             20,
             $foreignPlanetReloaded->getObjectAmount('anti_ballistic_missile'),
@@ -196,7 +209,7 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
         );
 
         // Get the battle report
-        $messageAttacker = \OGame\Models\Message::where('user_id', $this->planetService->getPlayer()->getId())
+        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())
             ->where('key', 'battle_report')
             ->orderByDesc('id')
             ->first();
@@ -207,7 +220,9 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
 
         // Defender should have 0 units in the battle report
         $defenderUnits = $battleReport->defender['units'] ?? [];
-        $this->assertEmpty($defenderUnits,
-            'Defender should have no units in battle report when only missiles are present');
+        $this->assertEmpty(
+            $defenderUnits,
+            'Defender should have no units in battle report when only missiles are present'
+        );
     }
 }

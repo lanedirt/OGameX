@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions\BattleEngine\Models;
 
+use OGame\Services\ObjectService;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
@@ -81,7 +82,7 @@ class DefenderFleet
     private static function getDefenseUnitsForCombat(PlanetService $planet): UnitCollection
     {
         $units = new UnitCollection();
-        $objects = \OGame\Services\ObjectService::getDefenseObjects();
+        $objects = ObjectService::getDefenseObjects();
         foreach ($objects as $object) {
             // Skip missiles - they should not participate in combat
             if (in_array($object->machine_name, [
