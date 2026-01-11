@@ -224,6 +224,10 @@ class EspionageReport extends GameMessage
             'buildings' => $buildings,
             'research' => $research,
             'counter_espionage_chance' => $this->espionageReportModel->counter_espionage_chance ?? 0,
+            'galaxy' => $this->espionageReportModel->planet_galaxy,
+            'system' => $this->espionageReportModel->planet_system,
+            'position' => $this->espionageReportModel->planet_position,
+            'planet_type' => $this->espionageReportModel->planet_type,
         ];
     }
 }

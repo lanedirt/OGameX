@@ -21,7 +21,7 @@
                           title='share message'></span>
         </a>
 
-        <a href="#TODOpage=ingame&component=fleetdispatch&galaxy=1&system=4&position=10&type=1&mission=1" class="icon_nf_link fleft">
+        <a href="{{ route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet_type, 'mission' => 1]) }}" class="icon_nf_link fleft">
                     <span class="icon_nf icon_attack tooltip js_hideTipOnMobile" title='Attack'>
                                                 </span>
         </a>
