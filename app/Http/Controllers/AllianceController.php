@@ -654,12 +654,14 @@ class AllianceController extends OGameController
             $redirectUrl = null;
 
             switch ($action) {
+                case 'acceptApplication':
                 case 'accept_application':
                     $applicationId = $request->input('application_id');
                     $allianceService->acceptApplication($applicationId, $userId);
                     $message = __('Application accepted');
                     break;
 
+                case 'denyApplication':
                 case 'reject_application':
                     $applicationId = $request->input('application_id');
                     $allianceService->rejectApplication($applicationId, $userId);
