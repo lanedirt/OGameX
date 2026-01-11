@@ -274,7 +274,7 @@ class FleetMissionService
                 $query->where('processed', 0)
                     // Also include ACS Defend outbound missions that are processed but still in hold time
                     ->orWhere(function ($query) use ($currentTime) {
-                        $settingsService = app(\OGame\Services\SettingsService::class);
+                        $settingsService = app(SettingsService::class);
                         $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
 
                         $query->where('mission_type', 5)
