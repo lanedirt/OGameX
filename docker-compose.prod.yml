@@ -3,7 +3,6 @@ services:
   # MariaDB Service
   ogamex-db:
     image: mariadb:11.3.2-jammy
-    container_name: ogamex-db
     restart: unless-stopped
     tty: true
     volumes:
@@ -30,7 +29,6 @@ services:
       dockerfile: Dockerfile
       args:
         OPCACHE_ENABLE: "1" # Enable opcache in production
-    container_name: ogamex-app
     restart: unless-stopped
     tty: true
     environment:
@@ -51,7 +49,6 @@ services:
   # Nginx Service
   ogamex-webserver:
     image: nginx:alpine
-    container_name: ogamex-webserver
     restart: unless-stopped
     tty: true
     volumes:
@@ -72,7 +69,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ogamex-scheduler
     restart: unless-stopped
     volumes:
       - .:/var/www/html
@@ -89,7 +85,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ogamex-queue-worker
     restart: unless-stopped
     volumes:
       - .:/var/www/html
@@ -104,7 +99,6 @@ services:
   # PhpMyAdmin
   ogamex-phpmyadmin:
     image: phpmyadmin
-    container_name: ogamex-phpmyadmin
     restart: always
     ports:
       - 8080:80

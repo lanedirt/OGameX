@@ -105,12 +105,6 @@ jobs:
           sed -i "s|APP_ENV=.*|APP_ENV=production|g" .env
           sed -i "s|APP_DEBUG=.*|APP_DEBUG=true|g" .env
 
-      - name: Remove container_name from docker-compose for isolation
-        working-directory: ${{ env.PREVIEW_DIR }}
-        run: |
-          # Remove all container_name lines to allow Docker Compose project namespacing
-          sed -i '/container_name:/d' docker-compose.prod.yml
-
       - name: Generate Traefik override
         working-directory: ${{ env.PREVIEW_DIR }}
         run: |
