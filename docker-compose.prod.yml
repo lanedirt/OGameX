@@ -56,8 +56,8 @@ services:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
       - ./nginx/ssl/:/etc/nginx/ssl/
     ports:
-      - "80:80"
-      - "443:443"
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
     networks:
       - app-network
     depends_on:
@@ -101,7 +101,7 @@ services:
     image: phpmyadmin
     restart: always
     ports:
-      - 8080:80
+      - "${PHPMYADMIN_PORT:-8080}:80"
     environment:
       - PMA_ARBITRARY=1
       - PMA_HOST=ogame-db
