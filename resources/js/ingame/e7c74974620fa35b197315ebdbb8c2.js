@@ -35833,7 +35833,7 @@ function getAllianceTooltip(galaxyContentObject) {
   if (player.isAllianceMember) {
     infoPageLink = `<li><a href="${alliance.infoPageLink}">${alliance.infoPageTitle}</a></li>`;
   } else {
-    infoPageLink = `<li><a href="allianceInfo.php?allianceId=${player.allianceId}" target="_ally">${alliance.infoPageTitle}</a></li>`;
+    infoPageLink = `<li><a href="/alliance/info/${player.allianceId}" target="_blank">${alliance.infoPageTitle}</a></li>`;
   }
 
   let applicationLink = "";
