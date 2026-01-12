@@ -46,6 +46,9 @@ trait ObjectAjaxTrait
         // Check requirements of this object
         $requirements_met = ObjectService::objectRequirementsMetWithQueue($object->machine_name, $next_level, $planet);
 
+        // Check character class requirements
+        $character_class_met = ObjectService::objectCharacterClassMet($object->machine_name, $planet);
+
         // Check if the current planet has the right type to build this object.
         $valid_planet_type = ObjectService::objectValidPlanetType($object->machine_name, $planet);
 
@@ -238,6 +241,7 @@ trait ObjectAjaxTrait
             'enough_resources' => $enough_resources,
             'has_requirements' => $object->hasRequirements(),
             'requirements_met' => $requirements_met,
+            'character_class_met' => $character_class_met,
             'valid_planet_type' => $valid_planet_type,
             'build_active' => $build_queue->count(),
             'build_active_current' => $build_active_current,

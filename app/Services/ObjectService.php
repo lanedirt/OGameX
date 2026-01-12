@@ -357,18 +357,22 @@ class ObjectService
         $user = $player->getUser();
         $characterClassService = app(CharacterClassService::class);
 
-        if ($machine_name === 'reaper' && !$characterClassService->isGeneral($user)) {
-            return false;
+        // Check reaper - only General class can build
+        if ($machine_name === 'reaper') {
+            return $characterClassService->isGeneral($user);
         }
 
-        if ($machine_name === 'pathfinder' && !$characterClassService->isDiscoverer($user)) {
-            return false;
+        // Check pathfinder - only Discoverer class can build
+        if ($machine_name === 'pathfinder') {
+            return $characterClassService->isDiscoverer($user);
         }
 
-        if ($machine_name === 'crawler' && !$characterClassService->isCollector($user)) {
-            return false;
+        // Check crawler - only Collector class can build
+        if ($machine_name === 'crawler') {
+            return $characterClassService->isCollector($user);
         }
 
+        // All other ships/units have no character class restrictions
         return true;
     }
 
