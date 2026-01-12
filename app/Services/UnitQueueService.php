@@ -169,6 +169,13 @@ class UnitQueueService
         // Check if user satisifes requirements to build this object.
         $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet);
 
+        // Check if user satisifes character class requirements to build this object.
+        $character_class_met = ObjectService::objectCharacterClassMet($object->machine_name, $planet);
+        if (!$character_class_met) {
+            // If character class requirements are not met, stop here.
+            return;
+        }
+
         // Sanity check: check if the planet has enough resources to build
         // the amount requested. If not, then adjust the ordered amount.
         // E.g. if a player orders 100 units but can only afford 60 units,
