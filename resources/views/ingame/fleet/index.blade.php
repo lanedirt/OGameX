@@ -972,14 +972,9 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             <span class="icon icon_combatunits"></span>
                                             @lang('Standard fleets')
                                         </a>
-                                        <select class="combatunits dropdownInitialized" size="1" id="standardfleet"
-                                                style="display: none;">
+                                        <select class="combatunits" size="1" id="standardfleet">
                                             <option>-</option>
-                                            <option value="954">20 battleships</option>
-                                        </select><span class="dropdown currentlySelected combatunits" rel="dropdown484"
-                                                       style="width: 144px;"><a class="undefined" data-value="-"
-                                                                                rel="dropdown484"
-                                                                                href="javascript:void(0);">-</a></span>
+                                        </select>
                                     </div>
                                     <span class="show_fleet_apikey tooltipCustom tpd-hideOnClickOutside" title="">
                             </span>
