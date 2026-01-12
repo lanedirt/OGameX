@@ -508,9 +508,30 @@ class PlayerService
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this]);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
 
-        // Exclude missile attacks (type 10) as they don't use fleet slots
-        $fleetMissions = $activeMissions->filter(function ($mission) {
-            return $mission->mission_type !== 10;
+        // Exclude missile attacks (type 10) and ACS Defend missions during hold time (type 5)
+        // as they don't use fleet slots
+        // For ACS Defend, calculate if the fleet is currently holding (physically arrived but hold hasn't expired)
+        $settingsService = app(SettingsService::class);
+        $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
+        $currentTime = (int)Date::now()->timestamp;
+
+        $fleetMissions = $activeMissions->filter(function ($mission) use ($fleetSpeedHolding, $currentTime) {
+            // Exclude missile attacks
+            if ($mission->mission_type === 10) {
+                return false;
+            }
+
+            // Exclude ACS Defend missions that are currently holding
+            if ($mission->mission_type === 5 && $mission->time_holding !== null && $mission->parent_id === null) {
+                $actualHoldingTime = (int)($mission->time_holding / $fleetSpeedHolding);
+                $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+                // If physically arrived but hold hasn't expired, don't count toward fleet slots
+                if ($physicalArrivalTime <= $currentTime && $currentTime < $mission->time_arrival) {
+                    return false;
+                }
+            }
+
+            return true;
         });
 
         return $fleetMissions->count();

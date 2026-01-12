@@ -139,8 +139,16 @@ abstract class GameMission
         // This is needed to calculate the correct return trip adjustment for missions that have already arrived.
         $originalArrivalTime = $mission->time_arrival;
 
-        // Check if the mission has already arrived (is holding at destination).
-        $hasArrived = $mission->time_arrival <= $currentTime;
+        // For ACS Defend missions (type 5), time_arrival includes hold time.
+        // Calculate physical arrival time to check if the fleet has arrived at the target.
+        if ($mission->mission_type === 5 && $mission->time_holding !== null) {
+            $settingsService = app(SettingsService::class);
+            $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+            $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+            $hasArrived = $physicalArrivalTime <= $currentTime;
+        } else {
+            $hasArrived = $mission->time_arrival <= $currentTime;
+        }
 
         // Always update time_arrival to now for consistency.
         // This ensures startReturn() calculates departure time as "now".
@@ -157,16 +165,6 @@ abstract class GameMission
         $mission->canceled = 1;
         $mission->processed = 1;
         $mission->save();
-
-        // If the mission had already arrived (ACS Defend during hold time), delete
-        // the existing return mission before creating a new immediate return.
-        // This prevents ship duplication from having two return missions.
-        // We delete rather than cancel because this return mission was never meant to happen.
-        if ($hasArrived) {
-            FleetMission::where('parent_id', $mission->id)
-                ->where('canceled', 0)
-                ->delete();
-        }
 
         // Start the return mission with the resources and units of the original mission.
         // getResources() already includes parent mission resources.
@@ -292,7 +290,6 @@ abstract class GameMission
 
         $mission->mission_type = static::$typeId;
         $mission->time_departure = $time_start;
-        $mission->time_arrival = $time_end;
 
         // Holding time is the amount of time the fleet will wait at the target planet and/or how long expedition will last.
         // The $holdingHours is in hours, so we convert it to seconds.
@@ -302,8 +299,17 @@ abstract class GameMission
         if (static::class === ExpeditionMission::class) {
             $mission->time_holding = $holdingHours * 3600;
             $targetType = PlanetType::DeepSpace;
+            $mission->time_arrival = $time_end;
         } elseif (static::class === AcsDefendMission::class) {
             $mission->time_holding = $holdingHours * 3600;
+            // For ACS Defend, time_arrival includes the hold time.
+            // This means the mission won't be processed until hold time expires.
+            // We use processed_hold flag to track if the fleet is still holding at the target.
+            $settingsService = app(SettingsService::class);
+            $actualHoldingTime = (int)(($holdingHours * 3600) / $settingsService->fleetSpeedHolding());
+            $mission->time_arrival = $time_end + $actualHoldingTime;
+        } else {
+            $mission->time_arrival = $time_end;
         }
 
         $mission->type_to = $targetType->value;
@@ -501,19 +507,8 @@ abstract class GameMission
 
         // Check if the created mission arrival time is in the past.
         // If the mission is in the past, process it immediately.
-        // EXCEPTION: For ACS Defend return missions, only process immediately if the departure time
-        // has also passed. This prevents ship duplication when high fleet_speed_holding multipliers
-        // cause the return's arrival time to be in the past, but the fleet is still actually holding
-        // at the destination. By checking departure time, we ensure the hold period has truly expired.
         $currentTime = (int)Date::now()->timestamp;
-        $shouldProcessImmediately = $mission->time_arrival < $currentTime;
-
-        // For ACS Defend, also require departure time to be in past (hold time expired)
-        if ($mission->mission_type === 5) {
-            $shouldProcessImmediately = $shouldProcessImmediately && ($mission->time_departure < $currentTime);
-        }
-
-        if ($shouldProcessImmediately) {
+        if ($mission->time_arrival < $currentTime) {
             $this->process($mission);
         }
     }

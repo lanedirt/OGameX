@@ -91,15 +91,12 @@ class AcsDefendMission extends GameMission
             'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
         ]);
 
+        // Create and start the return mission
+        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
+
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
-
-        // Create and start the return mission after hold time expires
-        // Preserve any resources sent with the fleet (like recycle mission behavior)
-        $resources = $this->fleetMissionService->getResources($mission);
-        $units = $this->fleetMissionService->getFleetUnits($mission);
-        $this->startReturn($mission, $resources, $units);
     }
 
     /**

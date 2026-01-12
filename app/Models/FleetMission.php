@@ -39,6 +39,7 @@ use Illuminate\Support\Carbon;
  * @property int $interplanetary_missile
  * @property int|null $target_priority
  * @property int $processed
+ * @property int $processed_hold
  * @property int $canceled
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -72,6 +73,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|FleetMission wherePlanetIdTo($value)
  * @method static Builder|FleetMission wherePositionTo($value)
  * @method static Builder|FleetMission whereProcessed($value)
+ * @method static Builder|FleetMission whereProcessedHold($value)
  * @method static Builder|FleetMission whereRecycler($value)
  * @method static Builder|FleetMission whereSmallCargo($value)
  * @method static Builder|FleetMission whereSystemTo($value)

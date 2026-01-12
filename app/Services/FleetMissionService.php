@@ -287,25 +287,25 @@ class FleetMissionService
                             ->whereRaw('time_arrival + (time_holding / ?) > ?', [$fleetSpeedHolding, $currentTime]);
                     });
             })
-            // Exclude ACS Defend return missions that haven't departed yet
-            // This prevents showing duplicate ships while fleet is holding at destination
-            ->where(function ($query) use ($currentTime) {
-                $query->where('mission_type', '!=', 5)  // Not ACS Defend
-                    ->orWhereNull('parent_id')           // Or outbound mission
-                    ->orWhere('time_departure', '<=', $currentTime); // Or already departed
-            })
             ->get();
 
         // Order the list taking into account the time_holding. This ensures that the order of missions is correct
         // for the event list that assumes the first mission is the next mission to arrive.
         $missions = $missions->sortBy(function ($mission) {
+            $settingsService = app(SettingsService::class);
+            $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
+
             // If the mission has not arrived yet, return the time_arrival.
             if ($mission->time_arrival >= Date::now()->timestamp) {
                 return $mission->time_arrival;
             }
 
-            // If the mission has arrived AND has a waiting time, return the time_arrival + time_holding.
-            return $mission->time_arrival + ($mission->time_holding ?? 0);
+            // If the mission has arrived AND has a waiting time, return the time_arrival + actual holding time.
+            $actualHoldingTime = $mission->time_holding !== null
+                ? (int)($mission->time_holding / $fleetSpeedHolding)
+                : 0;
+
+            return $mission->time_arrival + $actualHoldingTime;
         });
 
         return $missions;
@@ -417,7 +417,7 @@ class FleetMissionService
         $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
         $currentTime = Date::now()->timestamp;
 
-        // Get missions and filter based on mission type
+        // Get unprocessed missions that have arrived
         $missions = $this->model
             ->where(function ($query) use ($planetIds) {
                 $query->whereIn('planet_id_from', $planetIds)
@@ -429,8 +429,7 @@ class FleetMissionService
 
         // Filter based on mission type and hold time
         return $missions->filter(function ($mission) use ($currentTime, $fleetSpeedHolding) {
-            // ACS Defend outbound (type 5, no parent): Process immediately at arrival
-            // ACS Defend return (type 5, with parent): Normal processing, no hold time
+            // For ACS Defend, time_arrival already includes hold time, so process immediately when arrived
             $isAcsDefendOutbound = ($mission->mission_type === 5 && $mission->parent_id === null);
             if ($isAcsDefendOutbound) {
                 return true;

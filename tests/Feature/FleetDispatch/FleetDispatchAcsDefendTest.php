@@ -757,31 +757,53 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             1 // 1 hour hold
         );
 
-        // Travel to arrival time
-        $travelDuration = $mission->time_arrival - $mission->time_departure;
+        // With the new architecture, time_arrival includes hold time
+        // Calculate physical arrival time (when fleet actually arrives at target)
+        $settingsService = app(SettingsService::class);
+        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+
+        // Travel to physical arrival time
+        $travelDuration = $physicalArrivalTime - $mission->time_departure;
         $this->travel($travelDuration + 1)->seconds();
 
-        // Explicitly call updateMission to process the arrival
-        $fleetMissionService->updateMission($mission);
+        // With the new architecture, the mission is NOT processed at physical arrival.
+        // It's processed when hold time expires (time_arrival). So at physical arrival,
+        // the mission should still be unprocessed and no return mission should exist.
 
-        // Verify sender received message
+        // Verify mission is NOT yet processed (still holding)
+        $mission->refresh();
+        $this->assertEquals(0, $mission->processed, 'Mission should NOT be marked as processed during hold time');
+
+        // Verify NO return mission exists during hold time
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNull($returnMission, 'Return mission should NOT exist during hold time');
+
+        // Travel past the hold time expiration (to time_arrival)
+        $remainingHoldTime = $mission->time_arrival - $physicalArrivalTime;
+        $this->travel($remainingHoldTime + 1)->seconds();
+
+        // Trigger the fleet mission update which should process the mission and create return mission
+        $this->get('/overview');
+
+        // Verify sender received message (sent on hold expiry)
         $this->assertMessageReceivedAndContains('fleets', 'other', [
             'Fleet is stopping',
             'Fleet Command',
         ]);
 
-        // Verify host received message
+        // Verify host received message (sent on hold expiry)
         $this->assertMessageReceivedAndContainsDatabase($this->buddyPlanet->getPlayer(), [
             'A fleet has arrived',
         ]);
 
         // Verify mission was processed
         $mission->refresh();
-        $this->assertEquals(1, $mission->processed, 'Mission should be marked as processed');
+        $this->assertEquals(1, $mission->processed, 'Mission should be marked as processed after hold expires');
 
         // Verify return mission was created
         $returnMission = FleetMission::where('parent_id', $mission->id)->first();
-        $this->assertNotNull($returnMission, 'Return mission should be created');
+        $this->assertNotNull($returnMission, 'Return mission should be created after hold time expires');
     }
 
     /**
@@ -832,13 +854,13 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $totalMissionTime = $fleetMissionDuration + $actualHoldingTime + $fleetMissionDuration;
         $this->travel($totalMissionTime + 1)->seconds();
 
-        // Process all missions by calling update multiple times to ensure everything is processed
-        $fleetMissionService->updateMission($mission);
+        // Trigger fleet mission processing by calling overview
+        // This will process the expired hold time and create/process the return mission
+        $this->get('/overview');
 
-        // Get and process return mission
+        // Verify return mission was created and processed
         $returnMission = FleetMission::where('parent_id', $mission->id)->first();
         $this->assertNotNull($returnMission, 'Return mission should be created');
-        $fleetMissionService->updateMission($returnMission);
 
         // Reload planet to get latest state
         $this->planetService->reloadPlanet();
@@ -854,8 +876,8 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
     /**
      * Test that ACS Defend return missions are hidden from the fleet overview until departure.
-     * Return missions should not be visible while the fleet is still holding at the destination,
-     * preventing the appearance of duplicate ships in the fleet list.
+     * With the new architecture, return missions don't exist during hold time, so ships
+     * are not duplicated in the fleet list.
      */
     public function testDispatchFleetAcsDefendReturnMissionHiddenUntilDeparture(): void
     {
@@ -881,21 +903,20 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             1 // 1 hour hold
         );
 
-        // Travel to arrival time
-        $fleetMissionDuration = $mission->time_arrival - $mission->time_departure;
-        $this->travel($fleetMissionDuration + 1)->seconds();
+        // With the new architecture, time_arrival includes hold time
+        // Calculate physical arrival time (when fleet actually arrives at target)
+        $settingsService = app(SettingsService::class);
+        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
 
-        // Process the outbound mission
-        $fleetMissionService->updateMission($mission);
+        // Travel to physical arrival time (when fleet actually arrives)
+        $travelDuration = $physicalArrivalTime - $mission->time_departure;
+        $this->travel($travelDuration + 1)->seconds();
 
-        // Manually adjust return mission's departure time to be in the future
-        // (This simulates the correct behavior - hold time not expired yet)
+        // With the new architecture, NO return mission exists during hold time
+        // This is the key difference from the old behavior
         $returnMission = FleetMission::where('parent_id', $mission->id)->first();
-        $this->assertNotNull($returnMission, 'Return mission should be created');
-
-        $returnMission->time_departure = time() + 3600; // 1 hour in future
-        $returnMission->time_arrival = time() + 3610; // Slightly after departure
-        $returnMission->save();
+        $this->assertNull($returnMission, 'Return mission should NOT exist during hold time');
 
         // Get active missions
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
@@ -922,12 +943,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         }
 
         // Should only see 1 battlecruiser (from outbound/holding mission)
-        // Return mission should be hidden because it hasn't departed yet
+        // No return mission exists during hold time, so no duplication possible
         $this->assertEquals(
             1,
             $totalBattlecruisersInMissions,
-            'Should only see 1 battlecruiser in active missions (return hidden until departure). Found: ' . implode(', ', $debugInfo)
+            'Should only see 1 battlecruiser in active missions (no return mission during hold time). Found: ' . implode(', ', $debugInfo)
         );
     }
-
 }

@@ -71,25 +71,29 @@ class AllianceDepotService
             return false;
         }
 
-        // Fleet must have arrived
-        if ($outboundMission->time_arrival > $currentTime) {
+        // With the new architecture, time_arrival includes hold time
+        // Calculate physical arrival time to check if fleet has arrived
+        $settingsService = app(SettingsService::class);
+        $actualHoldingTime = (int)($outboundMission->time_holding / $settingsService->fleetSpeedHolding());
+        $physicalArrivalTime = $outboundMission->time_arrival - $actualHoldingTime;
+
+        // Fleet must have physically arrived and still be holding (hold hasn't expired)
+        if ($physicalArrivalTime > $currentTime || $currentTime >= $outboundMission->time_arrival) {
             return false;
         }
 
         // Check if the ORIGINAL hold time was at least 1 hour (in GAME time)
         // This prevents extending fleets sent with 0 hours (which become 30 min minimum)
         // We only check time_holding which stores the original/total duration
-        $settingsService = app(SettingsService::class);
-
         if ($outboundMission->time_holding !== null && $outboundMission->time_holding < 3600) {
             // Original hold time was less than 1 hour (game time), don't allow extension
             return false;
         }
 
         // Calculate when the return mission will depart (for checking if still holding)
+        // With the new architecture, time_arrival already includes hold time
         if ($outboundMission->time_holding !== null) {
-            $realWorldHoldingTime = (int)($outboundMission->time_holding / $settingsService->fleetSpeedHolding());
-            $expectedReturnDeparture = $outboundMission->time_arrival + $realWorldHoldingTime;
+            $expectedReturnDeparture = $outboundMission->time_arrival;
         } elseif ($returnMission) {
             // If time_holding is not set, calculate from return mission
             $expectedReturnDeparture = $returnMission->time_departure;
@@ -125,27 +129,24 @@ class AllianceDepotService
             return false;
         }
 
+        $settingsService = app(SettingsService::class);
+
         // Calculate extension in seconds (game time)
         $extensionSecondsGameTime = $extensionHours * 3600;
 
-        if ($returnMission) {
-            // Return mission exists - update its times
-            // Return mission times are in real-world time, so we need to apply the fleet_speed_holding multiplier
-            $settingsService = app(SettingsService::class);
-            $extensionSecondsRealTime = (int)($extensionSecondsGameTime / $settingsService->fleetSpeedHolding());
+        // Convert to real-world time for time_arrival update
+        $extensionSecondsRealTime = (int)($extensionSecondsGameTime / $settingsService->fleetSpeedHolding());
 
-            $returnMission->time_departure += $extensionSecondsRealTime;
-            $returnMission->time_arrival += $extensionSecondsRealTime;
-            $returnMission->save();
+        // Update the outbound mission's time_holding (in game time)
+        $outboundMission->time_holding += $extensionSecondsGameTime;
 
-            // Also update the outbound mission's time_holding for consistency (in game time)
-            $outboundMission->time_holding += $extensionSecondsGameTime;
-            $outboundMission->save();
-        } else {
-            // Return mission doesn't exist yet - extend the hold time on outbound mission
-            $outboundMission->time_holding += $extensionSecondsGameTime;
-            $outboundMission->save();
-        }
+        // Update time_arrival since it now includes the hold time
+        $outboundMission->time_arrival += $extensionSecondsRealTime;
+        $outboundMission->save();
+
+        // NOTE: No need to update return mission - it doesn't exist yet!
+        // When the extended hold time expires, the return mission will be created
+        // with the correct timing automatically.
 
         return true;
     }
@@ -176,42 +177,32 @@ class AllianceDepotService
     public function getHoldingFleetsWithReturnMissions(int $planetId): array
     {
         $currentTime = (int)Date::now()->timestamp;
+        $settingsService = app(SettingsService::class);
+        $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
 
-        // Get all ACS Defend missions that have arrived and are holding
+        // Get all ACS Defend missions that have physically arrived at the target
+        // and are still holding (mission not yet processed)
         // Only get outbound missions (parent_id IS NULL), not return missions
-        $outboundMissions = FleetMission::where('mission_type', 5)
+        $allMissions = FleetMission::where('mission_type', 5)
             ->where('planet_id_to', $planetId)
-            ->where('time_arrival', '<=', $currentTime)
+            ->where('processed', 0) // Not yet processed
             ->whereNull('parent_id') // Only outbound missions, not returns
             ->where('canceled', 0)
             ->get();
 
-        $settingsService = app(SettingsService::class);
         $holdingFleets = [];
-
-        foreach ($outboundMissions as $outboundMission) {
+        foreach ($allMissions as $outboundMission) {
             $returnMission = $this->getReturnMission($outboundMission);
 
             // The hold time stored in the mission is "game time" (e.g., 3600 seconds = 1 hour).
             // We need to apply the fleet_speed_holding multiplier to convert to real-world time.
-            // If time_holding is not set, calculate from return mission
-            if ($outboundMission->time_holding !== null) {
-                $actualHoldingTime = (int)($outboundMission->time_holding / $settingsService->fleetSpeedHolding());
-            } elseif ($returnMission) {
-                $actualHoldingTime = $returnMission->time_departure - $outboundMission->time_arrival;
-            } else {
-                // No hold time info available, skip this mission
-                continue;
-            }
+            $actualHoldingTime = (int)($outboundMission->time_holding / $fleetSpeedHolding);
 
-            // Calculate expected return departure time using real-world hold duration
-            $expectedReturnDeparture = $outboundMission->time_arrival + $actualHoldingTime;
+            // Calculate physical arrival time (time_arrival includes hold time)
+            $physicalArrivalTime = $outboundMission->time_arrival - $actualHoldingTime;
 
-            // Only include if:
-            // 1. Return mission exists and hasn't departed yet (still holding), OR
-            // 2. No return mission yet but fleet is still holding (expected return time is in future)
-            if (($returnMission && $returnMission->time_departure > $currentTime) ||
-                (!$returnMission && $expectedReturnDeparture > $currentTime)) {
+            // Check if fleet is currently holding (physically arrived but hold hasn't expired)
+            if ($physicalArrivalTime <= $currentTime && $currentTime < $outboundMission->time_arrival) {
                 $holdingFleets[] = [
                     'outbound_mission' => $outboundMission,
                     'return_mission' => $returnMission,

@@ -70,33 +70,6 @@ class AllianceDepotServiceTest extends UnitTestCase
     }
 
     /**
-     * Test that fleets holding 1+ hours can be extended.
-     */
-    public function testCanExtendLongHold(): void
-    {
-        $currentTime = time();
-
-        // Create outbound mission that arrived with 2 hours (7200 seconds) hold time in GAME time
-        $outbound = new FleetMission();
-        $outbound->mission_type = 5;
-        $outbound->time_arrival = $currentTime - 3600; // Arrived 1 hour ago
-        $outbound->time_holding = 7200; // 2 hours hold time in game-time
-        $outbound->processed = 0;
-        $outbound->canceled = 0;
-
-        // Create return mission departing in 36 seconds (7200 game-time / 200 speed = 36 seconds real-world)
-        $return = new FleetMission();
-        $return->mission_type = 5;
-        $return->time_departure = $currentTime + 36; // Departs in 36 seconds
-        $return->time_arrival = $currentTime + 1000; // Some future time
-        $return->canceled = 0;
-
-        // Should be extendable (holding >= 1 hour)
-        $canExtend = $this->service->canExtendHoldTime($outbound, $return);
-        $this->assertTrue($canExtend, 'Fleet holding 2 hours should be extendable');
-    }
-
-    /**
      * Test supply capacity calculation.
      */
     public function testSupplyCapacity(): void

@@ -109,15 +109,16 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             4 // 4 hour hold time (8th parameter)
         );
 
-        // Travel to just after arrival time but well before hold expires
-        // Fleet arrives at $mission->time_arrival, holds until time_arrival + time_holding
-        $arrivalTime = $mission->time_arrival;
-        $currentTime = (int)Date::now()->timestamp; // Use Laravel's time, not system time()
-        $travelSeconds = $arrivalTime - $currentTime + 1; // Travel to 1 second after arrival
-        $this->travel($travelSeconds)->seconds();
+        // With the new architecture, time_arrival includes hold time
+        // Calculate physical arrival time (when fleet actually arrives at target)
+        $settingsService = app(\OGame\Services\SettingsService::class);
+        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
 
-        // Process the mission so it creates the return mission
-        $fleetMissionService->updateMission($mission);
+        // Travel to just after physical arrival time (fleet is holding but hasn't been holding for 1 hour yet)
+        $currentTime = (int)Date::now()->timestamp;
+        $travelSeconds = $physicalArrivalTime - $currentTime + 3600; // Arrive + 1 hour (so extension is allowed)
+        $this->travel($travelSeconds)->seconds();
 
         // Store original planet ID for finding the mission
         $originalPlanetId = $this->planetService->getPlanetId();
@@ -207,14 +208,16 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             2 // 2 hour hold time (8th parameter)
         );
 
-        // Travel to just after arrival time but well before hold expires
-        $arrivalTime = $mission->time_arrival;
-        $currentTime = (int)Date::now()->timestamp; // Use Laravel's time, not system time()
-        $travelSeconds = $arrivalTime - $currentTime + 1; // Travel to 1 second after arrival
-        $this->travel($travelSeconds)->seconds();
+        // With the new architecture, time_arrival includes hold time
+        // Calculate physical arrival time (when fleet actually arrives at target)
+        $settingsService = app(\OGame\Services\SettingsService::class);
+        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
 
-        // Process the mission so it creates the return mission
-        $fleetMissionService->updateMission($mission);
+        // Travel to 1 hour after physical arrival (meets "at least 1 hour" requirement, still within hold period)
+        $currentTime = (int)Date::now()->timestamp;
+        $travelSeconds = $physicalArrivalTime - $currentTime + 3600; // Arrive + 1 hour
+        $this->travel($travelSeconds)->seconds();
 
         // Store original planet ID for finding the mission
         $originalPlanetId = $this->planetService->getPlanetId();
@@ -292,10 +295,15 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             0 // 0 hour hold (will be minimum duration) (8th parameter)
         );
 
-        // Travel to just after arrival time
-        $arrivalTime = $mission->time_arrival;
-        $currentTime = (int)Date::now()->timestamp; // Use Laravel's time, not system time()
-        $travelSeconds = $arrivalTime - $currentTime + 60; // Arrive + 1 minute
+        // With the new architecture, time_arrival includes hold time
+        // Calculate physical arrival time (when fleet actually arrives at target)
+        $settingsService = app(\OGame\Services\SettingsService::class);
+        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+
+        // Travel to just after physical arrival time (fleet has been holding but not for 1 hour yet)
+        $currentTime = (int)Date::now()->timestamp;
+        $travelSeconds = $physicalArrivalTime - $currentTime + 1800; // Arrive + 30 minutes (less than 1 hour)
         $this->travel($travelSeconds)->seconds();
 
         // Store original planet ID for finding the mission
@@ -401,10 +409,15 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             4 // 4 hour hold time
         );
 
-        // Travel to just after arrival time
-        $arrivalTime = $mission->time_arrival;
+        // With the new architecture, time_arrival includes hold time
+        // Calculate physical arrival time (when fleet actually arrives at target)
+        $settingsService = app(\OGame\Services\SettingsService::class);
+        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+
+        // Travel to just after physical arrival time (during hold period)
         $currentTime = (int)Date::now()->timestamp;
-        $travelSeconds = $arrivalTime - $currentTime + 60; // Arrive + 1 minute
+        $travelSeconds = $physicalArrivalTime - $currentTime + 60; // Arrive + 1 minute
         $this->travel($travelSeconds)->seconds();
 
         // Store original planet ID
