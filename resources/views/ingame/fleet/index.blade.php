@@ -1438,7 +1438,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     <!-- START: Speed percentage -->
                                     <div class="percentageBarWrapper">
                                         <div id="speedPercentage" class="percentageBar"
-                                             style="float:left;width:600px;margin-left:20px" value="{{ $fleetSpeedIncrement }}" steps="{{ 100 / $fleetSpeedIncrement }}"
+                                             style="float:left;width:600px;margin-left:20px" value="10" steps="{{ 100 / $fleetSpeedIncrement }}"
                                              stepsize="{{ $fleetSpeedIncrement }}" minvalue="{{ $fleetSpeedIncrement / 100 }}" usehalfstep="{{ $fleetSpeedIncrement == 5 ? 'true' : 'false' }}"></div>
                                         <div id="percentStatus" style="float:left; font-size:12px;"></div>
                                         <script>
