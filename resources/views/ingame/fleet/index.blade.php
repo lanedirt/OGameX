@@ -423,7 +423,7 @@
 
             var apiDataJson = {
                 "coords": "{{ $planet->getPlanetCoordinates()->asString() }}",
-                "characterClassId": 2,
+                "characterClassId": {{ $player->getUser()->character_class ?? 0 }},
                 "allianceClassId": 0,
                 "researches": {"109": 1, "110": 0, "111": 6, "115": 5, "117": 3, "118": 0, "114": 0},
                 "defenses": {
@@ -474,7 +474,7 @@
                 },
                 "fleetspeed": {{ $fleetSpeedIncrement }}
             }
-            var apiCommonData = [["coords", "{{ $planet->getPlanetCoordinates()->asString() }}"], ["characterClassId", 2]];
+            var apiCommonData = [["coords", "{{ $planet->getPlanetCoordinates()->asString() }}"], ["characterClassId", {{ $player->getUser()->character_class ?? 0 }}]];
             var apiTechData = [[109, 1], [115, 5], [110, 0], [117, 3], [111, 6], [118, 0], [114, 0]];
             var apiDefenseData = [[401, 1], [402, 1]];
             var apiShipBaseData = [[202, 0], [204, 0], [205, 1], [208, 0], [210, 6], [212, 2], [217, 0]];
