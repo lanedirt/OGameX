@@ -156,9 +156,15 @@ class PhalanxService
                     if ($mission->planet_id_from === $target_planet_id) {
                         // Yes! This fleet left from the scanned planet and will return to it
                         // Add the predicted return trip
-                        $return_time_arrival = $mission->time_arrival +
-                                             ($mission->time_arrival - $mission->time_departure) +
-                                             ($mission->time_holding ?? 0);
+                        // For ACS Defend (type 5), time_arrival already includes hold time
+                        if ($mission->mission_type === 5) {
+                            $return_time_arrival = $mission->time_arrival +
+                                                 ($mission->time_arrival - $mission->time_departure - ($mission->time_holding ?? 0));
+                        } else {
+                            $return_time_arrival = $mission->time_arrival +
+                                                 ($mission->time_arrival - $mission->time_departure) +
+                                                 ($mission->time_holding ?? 0);
+                        }
 
                         $ships = $this->getFleetShips($mission);
                         $fleet_speed = $this->getFleetSpeed($mission);
@@ -220,10 +226,16 @@ class PhalanxService
                 $parent_mission = FleetMission::find($mission->parent_id);
                 if ($parent_mission) {
                     // Calculate return arrival time same way as FleetEventsController does
-                    // Return arrival = parent arrival + travel duration + holding time
-                    $display_time_arrival = $parent_mission->time_arrival +
-                                          ($parent_mission->time_arrival - $parent_mission->time_departure) +
-                                          ($parent_mission->time_holding ?? 0);
+                    // For ACS Defend (type 5), time_arrival already includes hold time
+                    if ($parent_mission->mission_type === 5) {
+                        $one_way_duration = ($parent_mission->time_arrival - ($parent_mission->time_holding ?? 0)) - $parent_mission->time_departure;
+                        $display_time_arrival = $parent_mission->time_arrival + $one_way_duration;
+                    } else {
+                        // For other missions: Return arrival = parent arrival + travel duration + holding time
+                        $display_time_arrival = $parent_mission->time_arrival +
+                                              ($parent_mission->time_arrival - $parent_mission->time_departure) +
+                                              ($parent_mission->time_holding ?? 0);
+                    }
                 }
             }
 
