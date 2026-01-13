@@ -106,9 +106,12 @@ class GameObjectProduction
      * @param float $building_percentage
      *  The production percentage of the building set by the player
      *
+     * @param bool $include_crawler
+     *  Whether to include crawler bonus and energy consumption calculation
+     *
      * @return ProductionIndex
      */
-    public function calculate(int $level, float $building_percentage = 1): ProductionIndex
+    public function calculate(int $level, float $building_percentage = 1, bool $include_crawler = true): ProductionIndex
     {
         $productionIndex = new ProductionIndex();
 
@@ -125,7 +128,9 @@ class GameObjectProduction
         $this->calculateEngineer($productionIndex);
         $this->calculateGeologist($productionIndex);
         $this->calculateCharacterClass($productionIndex);
-        $this->calculateCrawler($productionIndex);
+        if ($include_crawler) {
+            $this->calculateCrawler($productionIndex);
+        }
         $this->calculateCommandingStaff($productionIndex);
         $this->calculateItems($productionIndex);
         $this->calculateTotal($productionIndex);

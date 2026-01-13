@@ -2019,7 +2019,11 @@ class PlanetService
         $object->production->characterClassService = app(CharacterClassService::class);
         $object->production->universe_speed = $this->settingsService->economySpeed();
 
-        return $object->production->calculate($object_level, $resource_production_factor * $building_percentage);
+        // Only include crawler calculation for metal mine to avoid calculating it multiple times
+        // (crawlers affect all resource production, so we only need to calculate them once)
+        $include_crawler = $object->machine_name === 'metal_mine';
+
+        return $object->production->calculate($object_level, $resource_production_factor * $building_percentage, $include_crawler);
     }
 
     /**

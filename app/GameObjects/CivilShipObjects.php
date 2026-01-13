@@ -40,6 +40,7 @@ class CivilShipObjects
         $smallCargo->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $smallCargo->properties = new GameObjectProperties($smallCargo, 4000, 10, 5, 5000, 5000, 10);
         // Switch to Impulse at 5 and bump base speed to 10,000
@@ -70,6 +71,7 @@ To maximize the resources that can be stored in the holds, this ship has little 
         $largeCargo->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $largeCargo->properties = new GameObjectProperties($largeCargo, 12000, 25, 5, 7500, 25000, 50);
 
@@ -96,6 +98,7 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
         $colonyShip->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $colonyShip->properties = new GameObjectProperties($colonyShip, 30000, 100, 50, 2500, 7500, 100);
 
@@ -124,6 +127,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $recycler->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $recycler->properties = new GameObjectProperties($recycler, 16000, 10, 1, 2000, 20000, 300);
         // Switch to Impulse at 17 (base 4,000), then Hyperspace at 15 (base 6,000)
@@ -190,8 +194,8 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $crawler->title = 'Crawler';
         $crawler->machine_name = 'crawler';
         $crawler->class_name = 'resbuggy'; // CSS uses 'resbuggy' for Crawler sprite
-        $crawler->description = 'Crawlers are resource drones that support the mines and increase production.';
-        $crawler->description_long = 'Crawlers are state-of-the-art mining machines which can considerably increase the production of raw materials in the mines. However, they can only be built by members of the Collector class. Crawlers move across the planet`s surface and enter the shafts where they help to increase the mine`s production. The maximum number of Crawlers that can be used is limited by the level of the planet`s mines. The maximum overcharge is 100%. Collectors will be able to upgrade their Crawlers to an overcharge of 150%.';
+        $crawler->description = 'Crawlers increase the production of metal, crystal and Deuterium on their tasked planet each by 0.02%, 0.02% and 0.02% respectively. As a collector, production also increases. The maximum total bonus depends on the overall level of your mines.';
+        $crawler->description_long = 'The Crawler is a large trench vehicle that increases the production of mines and synthesizers. It is more agile than it looks but it is not particularly robust. Each Crawler increases metal production by 0.02%, crystal production by 0.02% and Deuterium production by 0.02%. As a collector, production also increases. The maximum total bonus depends on the overall level of your mines.';
         $crawler->requirements = [
             new GameObjectRequirement('shipyard', 4),
             new GameObjectRequirement('combustion_drive', 4),
@@ -199,10 +203,6 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
             new GameObjectRequirement('laser_technology', 4),
         ];
         $crawler->price = new GameObjectPrice(2000, 2000, 1000, 0);
-        $crawler->rapidfire = [
-            new GameObjectRapidfire('espionage_probe', 5),
-            new GameObjectRapidfire('solar_satellite', 5),
-        ];
         $crawler->properties = new GameObjectProperties($crawler, 4000, 1, 1, 0, 0, 0);
 
         $crawler->assets = new GameObjectAssets();
@@ -229,6 +229,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
             new GameObjectRapidfire('small_cargo', 3),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $pathfinder->properties = new GameObjectProperties($pathfinder, 23000, 100, 200, 12000, 10000, 300);
         // Switch to Impulse at 3, then Hyperspace at 3
