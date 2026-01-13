@@ -109,6 +109,11 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::post('/ajax/fleet/dispatch/send-mini-fleet', [FleetController::class, 'dispatchSendMiniFleet'])->name('fleet.dispatch.sendminifleet');
     Route::post('/ajax/fleet/dispatch/recall-fleet', [FleetController::class, 'dispatchRecallFleet'])->name('fleet.dispatch.recallfleet');
 
+    // Fleet Templates (Standard Fleets)
+    Route::get('/ajax/fleet/templates', [FleetController::class, 'getTemplates'])->name('fleet.templates.index');
+    Route::post('/ajax/fleet/templates', [FleetController::class, 'saveTemplate'])->name('fleet.templates.store');
+    Route::delete('/ajax/fleet/templates/{id}', [FleetController::class, 'deleteTemplate'])->name('fleet.templates.delete');
+
     Route::get('/ajax/fleet/eventbox/fetch', [FleetEventsController::class, 'fetchEventBox'])->name('fleet.eventbox.fetch');
     Route::get('/ajax/fleet/eventlist/fetch', [FleetEventsController::class, 'fetchEventList'])->name('fleet.eventlist.fetch');
 

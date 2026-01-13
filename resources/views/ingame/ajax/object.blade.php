@@ -237,7 +237,7 @@
                                 $ships_being_built = ( $object->machine_name == 'shipyard' ||  $object->machine_name == 'nano_factory') && $ship_or_defense_in_progress;
                             @endphp
 
-                            @if (!$enough_resources || !$requirements_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built) || $is_in_vacation_mode)
+                            @if (!$enough_resources || !$requirements_met || !$character_class_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built) || $is_in_vacation_mode)
                                 disabled
                             @else
                             @endif
@@ -246,6 +246,8 @@
                                 $tooltip = false;
                                 if ($is_in_vacation_mode) {
                                     $tooltip = __('You are not able to build while in vacation mode');
+                                } elseif (!$character_class_met) {
+                                    $tooltip = __('Wrong character class!');
                                 } elseif ($disabled_shipyard_upgrading) {
                                     $tooltip = __('Shipyard is being upgraded');
                                 } elseif ($ships_being_built) {

@@ -25,7 +25,8 @@ class CapacityPropertyService extends ObjectPropertyService
     public function calculateProperty(PlayerService $player): GameObjectPropertyDetails
     {
         $bonusPercentage = $this->getBonusPercentage($player);
-        $bonusValue = (($this->base_value / 100) * $bonusPercentage);
+        // Use integer arithmetic to avoid floating point precision issues
+        $bonusValue = intdiv($this->base_value * $bonusPercentage, 100);
 
         $totalValue = $this->base_value + $bonusValue;
 
@@ -44,7 +45,8 @@ class CapacityPropertyService extends ObjectPropertyService
         // Apply character class cargo bonuses (based on base value only, not including research bonuses)
         $classBonus = $this->getCharacterClassCargoBonus($player);
         if ($classBonus > 0) {
-            $classBonusValue = (($this->base_value / 100) * $classBonus);
+            // Use integer arithmetic to avoid floating point precision issues
+            $classBonusValue = intdiv($this->base_value * $classBonus, 100);
             $totalValue += $classBonusValue;
 
             $breakdown['bonuses'][] = [

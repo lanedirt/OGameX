@@ -423,7 +423,7 @@
 
             var apiDataJson = {
                 "coords": "{{ $planet->getPlanetCoordinates()->asString() }}",
-                "characterClassId": 2,
+                "characterClassId": {{ $player->getUser()->character_class ?? 0 }},
                 "allianceClassId": 0,
                 "researches": {"109": 1, "110": 0, "111": 6, "115": 5, "117": 3, "118": 0, "114": 0},
                 "defenses": {
@@ -474,7 +474,7 @@
                 },
                 "fleetspeed": {{ $fleetSpeedIncrement }}
             }
-            var apiCommonData = [["coords", "{{ $planet->getPlanetCoordinates()->asString() }}"], ["characterClassId", 2]];
+            var apiCommonData = [["coords", "{{ $planet->getPlanetCoordinates()->asString() }}"], ["characterClassId", {{ $player->getUser()->character_class ?? 0 }}]];
             var apiTechData = [[109, 1], [115, 5], [110, 0], [117, 3], [111, 6], [118, 0], [114, 0]];
             var apiDefenseData = [[401, 1], [402, 1]];
             var apiShipBaseData = [[202, 0], [204, 0], [205, 1], [208, 0], [210, 6], [212, 2], [217, 0]];
@@ -972,14 +972,9 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             <span class="icon icon_combatunits"></span>
                                             @lang('Standard fleets')
                                         </a>
-                                        <select class="combatunits dropdownInitialized" size="1" id="standardfleet"
-                                                style="display: none;">
+                                        <select class="combatunits" size="1" id="standardfleet">
                                             <option>-</option>
-                                            <option value="954">20 battleships</option>
-                                        </select><span class="dropdown currentlySelected combatunits" rel="dropdown484"
-                                                       style="width: 144px;"><a class="undefined" data-value="-"
-                                                                                rel="dropdown484"
-                                                                                href="javascript:void(0);">-</a></span>
+                                        </select>
                                     </div>
                                     <span class="show_fleet_apikey tooltipCustom tpd-hideOnClickOutside" title="">
                             </span>
@@ -1438,7 +1433,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     <!-- START: Speed percentage -->
                                     <div class="percentageBarWrapper">
                                         <div id="speedPercentage" class="percentageBar"
-                                             style="float:left;width:600px;margin-left:20px" value="{{ $fleetSpeedIncrement }}" steps="{{ 100 / $fleetSpeedIncrement }}"
+                                             style="float:left;width:600px;margin-left:20px" value="10" steps="{{ 100 / $fleetSpeedIncrement }}"
                                              stepsize="{{ $fleetSpeedIncrement }}" minvalue="{{ $fleetSpeedIncrement / 100 }}" usehalfstep="{{ $fleetSpeedIncrement == 5 ? 'true' : 'false' }}"></div>
                                         <div id="percentStatus" style="float:left; font-size:12px;"></div>
                                         <script>

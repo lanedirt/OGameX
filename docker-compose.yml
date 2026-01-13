@@ -3,14 +3,13 @@ services:
   # MariaDB Service
   ogamex-db:
     image: mariadb:11.3.2-jammy
-    container_name: ogamex-db
     restart: unless-stopped
     tty: true
     volumes:
      - ogame-dbdata:/var/lib/mysql
      - ./mysql/my.cnf:/etc/mysql/my.cnf
     ports:
-      - "3306:3306"
+      - "${DB_EXTERNAL_PORT:-3306}:3306"
     environment:
       MARIADB_DATABASE: laravel
       MARIADB_ROOT_PASSWORD: toor
@@ -32,7 +31,6 @@ services:
       args:
         OPCACHE_ENABLE: "0"  # Disable opcache for development
         USE_USER: ${USE_USER_ARG:-yes}  # Defaults to "yes". Set to "no" for GitHub Actions.
-    container_name: ogamex-app
     restart: unless-stopped
     tty: true
     environment:
@@ -55,7 +53,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ogamex-scheduler
     restart: unless-stopped
     volumes:
       - .:/var/www/html
@@ -72,7 +69,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ogamex-queue-worker
     restart: unless-stopped
     volumes:
       - .:/var/www/html
@@ -87,7 +83,6 @@ services:
   # Nginx Service
   ogamex-webserver:
     image: nginx:alpine
-    container_name: ogamex-webserver
     restart: unless-stopped
     tty: true
     volumes:
@@ -95,8 +90,8 @@ services:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
       - ./nginx/ssl/:/etc/nginx/ssl/
     ports:
-      - "80:80"
-      - "443:443"
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
     networks:
       - app-network
     depends_on:
@@ -106,10 +101,9 @@ services:
   # PhpMyAdmin
   ogamex-phpmyadmin:
     image: phpmyadmin
-    container_name: ogamex-phpmyadmin
     restart: always
     ports:
-      - "8080:80"
+      - "${PHPMYADMIN_PORT:-8080}:80"
     environment:
       - PMA_ARBITRARY=1
       - PMA_HOST=ogame-db

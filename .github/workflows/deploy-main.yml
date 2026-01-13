@@ -1,0 +1,43 @@
+name: Deploy Main
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DEPLOY_DIR: /opt/main
+
+jobs:
+  deploy:
+    name: Deploy to main.ogamex.dev
+    runs-on: [self-hosted, ctogx]
+
+    concurrency:
+      group: deploy-main
+      cancel-in-progress: true
+
+    environment:
+      name: main
+      url: https://main.ogamex.dev
+
+    steps:
+      - name: Pull latest changes
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: git pull
+
+      - name: Build and start stack
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
+
+      - name: Prune old Docker build artifacts
+        run: docker system prune -af
+
+      - name: Output deployment info
+        run: |
+          echo "::notice::Deployed main branch to https://main.ogamex.dev"
+          echo "Commit: ${{ github.sha }}"
