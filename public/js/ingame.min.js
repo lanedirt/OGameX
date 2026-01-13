@@ -68843,10 +68843,7 @@ function getPlayerTooltip(galaxyContentObject) {
   let rankLink = "";
 
   if (actions.highscore.available) {
-    let statsLink = `
-            <a href="${actions.highscore.link}">${player.highscorePositionPlayer}</a>
-        `;
-    rankLink = `<li class="rank">${actions.highscore.title}: ${statsLink}</li>`;
+    rankLink = `<li class="rank">${actions.highscore.title}: <a href="${actions.highscore.link}">${actions.highscore.rank}</a></li>`;
   }
 
   let messageLink = "";

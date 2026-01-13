@@ -96,7 +96,7 @@ class PlayerService
     public function load(int $id): void
     {
         // Fetch user from model
-        $user = User::where('id', $id)->first();
+        $user = User::with('highscore')->where('id', $id)->first();
         $this->user = $user;
 
         // Fetch user tech from model
