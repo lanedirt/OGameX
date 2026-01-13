@@ -695,10 +695,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             1 // 1 hour hold
         );
 
-        // Record the original travel duration
-        $originalTravelDuration = $mission->time_arrival - $mission->time_departure;
+        // Record the original travel duration (physical arrival, not including hold time)
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
+        $originalTravelDuration = $physicalArrivalTime - $mission->time_departure;
 
-        // Fast forward to 30 seconds after arrival (during hold time)
+        // Fast forward to 30 seconds after physical arrival (during hold time)
         $this->travel($originalTravelDuration + 30)->seconds();
 
         // Recall the fleet
@@ -757,11 +758,9 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             1 // 1 hour hold
         );
 
-        // With the new architecture, time_arrival includes hold time
+        // With the new architecture, time_arrival includes hold time (as raw game time)
         // Calculate physical arrival time (when fleet actually arrives at target)
-        $settingsService = app(SettingsService::class);
-        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
-        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
 
         // Travel to physical arrival time
         $travelDuration = $physicalArrivalTime - $mission->time_departure;
@@ -903,11 +902,9 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             1 // 1 hour hold
         );
 
-        // With the new architecture, time_arrival includes hold time
+        // With the new architecture, time_arrival includes hold time (as raw game time)
         // Calculate physical arrival time (when fleet actually arrives at target)
-        $settingsService = app(SettingsService::class);
-        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
-        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
 
         // Travel to physical arrival time (when fleet actually arrives)
         $travelDuration = $physicalArrivalTime - $mission->time_departure;

@@ -73,9 +73,8 @@ class AllianceDepotService
 
         // With the new architecture, time_arrival includes hold time
         // Calculate physical arrival time to check if fleet has arrived
-        $settingsService = app(SettingsService::class);
-        $actualHoldingTime = (int)($outboundMission->time_holding / $settingsService->fleetSpeedHolding());
-        $physicalArrivalTime = $outboundMission->time_arrival - $actualHoldingTime;
+        // Hold time is stored as raw game time (not affected by fleet speed)
+        $physicalArrivalTime = $outboundMission->time_arrival - ($outboundMission->time_holding ?? 0);
 
         // Fleet must have physically arrived and still be holding (hold hasn't expired)
         if ($physicalArrivalTime > $currentTime || $currentTime >= $outboundMission->time_arrival) {
@@ -129,19 +128,15 @@ class AllianceDepotService
             return false;
         }
 
-        $settingsService = app(SettingsService::class);
-
         // Calculate extension in seconds (game time)
-        $extensionSecondsGameTime = $extensionHours * 3600;
-
-        // Convert to real-world time for time_arrival update
-        $extensionSecondsRealTime = (int)($extensionSecondsGameTime / $settingsService->fleetSpeedHolding());
+        // Hold time is stored and used as raw game time (not affected by fleet speed)
+        $extensionSeconds = $extensionHours * 3600;
 
         // Update the outbound mission's time_holding (in game time)
-        $outboundMission->time_holding += $extensionSecondsGameTime;
+        $outboundMission->time_holding += $extensionSeconds;
 
         // Update time_arrival since it now includes the hold time
-        $outboundMission->time_arrival += $extensionSecondsRealTime;
+        $outboundMission->time_arrival += $extensionSeconds;
         $outboundMission->save();
 
         // NOTE: No need to update return mission - it doesn't exist yet!
@@ -177,8 +172,6 @@ class AllianceDepotService
     public function getHoldingFleetsWithReturnMissions(int $planetId): array
     {
         $currentTime = (int)Date::now()->timestamp;
-        $settingsService = app(SettingsService::class);
-        $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
 
         // Get all ACS Defend missions that have physically arrived at the target
         // and are still holding (mission not yet processed)
@@ -194,9 +187,8 @@ class AllianceDepotService
         foreach ($allMissions as $outboundMission) {
             $returnMission = $this->getReturnMission($outboundMission);
 
-            // The hold time stored in the mission is "game time" (e.g., 3600 seconds = 1 hour).
-            // We need to apply the fleet_speed_holding multiplier to convert to real-world time.
-            $actualHoldingTime = (int)($outboundMission->time_holding / $fleetSpeedHolding);
+            // Hold time is stored as raw game time (not affected by fleet speed)
+            $actualHoldingTime = $outboundMission->time_holding ?? 0;
 
             // Calculate physical arrival time (time_arrival includes hold time)
             $physicalArrivalTime = $outboundMission->time_arrival - $actualHoldingTime;

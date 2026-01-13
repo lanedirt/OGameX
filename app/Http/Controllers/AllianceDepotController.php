@@ -48,14 +48,89 @@ class AllianceDepotController extends OGameController
             ]);
         }
 
-        // Get all ACS Defend fleets currently holding at this planet
-        $holding_fleets = $this->getHoldingFleets($current_planet->getPlanetId());
+        // Get all ACS Defend fleets currently holding at this planet using the service
+        $holdingFleetsData = $this->allianceDepotService->getHoldingFleetsWithReturnMissions($current_planet->getPlanetId());
+
+        // Format the data for the view
+        $holding_fleets = [];
+        foreach ($holdingFleetsData as $fleetData) {
+            $outboundMission = $fleetData['outbound_mission'];
+            $returnMission = $fleetData['return_mission'];
+
+            // Get fleet composition
+            $ships = $this->getFleetShips($outboundMission);
+
+            // Get sender player name
+            $senderPlayer = new PlayerService($outboundMission->user_id);
+            $senderPlayerName = strip_tags($senderPlayer->getUsername());
+
+            // Get sender planet coordinates
+            $senderPlanetService = $this->planetServiceFactory->make($outboundMission->planet_id_from, true);
+            $senderCoordinates = $senderPlanetService ? $senderPlanetService->getPlanetCoordinates()->asString() : 'Unknown';
+
+            // Get destination planet info
+            $destinationPlanetService = $this->planetServiceFactory->make($outboundMission->planet_id_to, true);
+            $destinationName = $destinationPlanetService ? $destinationPlanetService->getPlanetName() : 'Unknown';
+
+            // Return time is time_arrival (when hold expires/return departs)
+            $returnTime = $outboundMission->time_arrival;
+
+            $holding_fleets[] = [
+                'id' => $outboundMission->id,
+                'sender_planet_id' => $outboundMission->planet_id_from,
+                'sender_player_name' => $senderPlayerName,
+                'sender_coordinates' => $senderCoordinates,
+                'destination_name' => $destinationName,
+                'destination_type' => $outboundMission->type_to,
+                'arrival_time' => $returnTime,
+                'return_time' => $returnTime,
+                'hold_duration' => $returnTime - (int)time(),
+                'can_extend' => $fleetData['can_extend'],
+                'ships' => $ships,
+            ];
+        }
 
         // Also get fleets holding at the accompanying moon (if it exists)
         if ($current_planet->hasMoon()) {
             $moon = $current_planet->moon();
-            $moon_holding_fleets = $this->getHoldingFleets($moon->getPlanetId());
-            $holding_fleets = array_merge($holding_fleets, $moon_holding_fleets);
+            $moonHoldingFleetsData = $this->allianceDepotService->getHoldingFleetsWithReturnMissions($moon->getPlanetId());
+
+            foreach ($moonHoldingFleetsData as $fleetData) {
+                $outboundMission = $fleetData['outbound_mission'];
+                $returnMission = $fleetData['return_mission'];
+
+                // Get fleet composition
+                $ships = $this->getFleetShips($outboundMission);
+
+                // Get sender player name
+                $senderPlayer = new PlayerService($outboundMission->user_id);
+                $senderPlayerName = strip_tags($senderPlayer->getUsername());
+
+                // Get sender planet coordinates
+                $senderPlanetService = $this->planetServiceFactory->make($outboundMission->planet_id_from, true);
+                $senderCoordinates = $senderPlanetService ? $senderPlanetService->getPlanetCoordinates()->asString() : 'Unknown';
+
+                // Get destination planet info
+                $destinationPlanetService = $this->planetServiceFactory->make($outboundMission->planet_id_to, true);
+                $destinationName = $destinationPlanetService ? $destinationPlanetService->getPlanetName() : 'Unknown';
+
+                // Return time is time_arrival (when hold expires/return departs)
+                $returnTime = $outboundMission->time_arrival;
+
+                $holding_fleets[] = [
+                    'id' => $outboundMission->id,
+                    'sender_planet_id' => $outboundMission->planet_id_from,
+                    'sender_player_name' => $senderPlayerName,
+                    'sender_coordinates' => $senderCoordinates,
+                    'destination_name' => $destinationName,
+                    'destination_type' => $outboundMission->type_to,
+                    'arrival_time' => $returnTime,
+                    'return_time' => $returnTime,
+                    'hold_duration' => $returnTime - (int)time(),
+                    'can_extend' => $fleetData['can_extend'],
+                    'ships' => $ships,
+                ];
+            }
         }
 
         // Calculate deuterium cost per hour for each fleet
@@ -72,84 +147,6 @@ class AllianceDepotController extends OGameController
             'alliance_depot_level' => $alliance_depot_level,
             'holding_fleets' => $holding_fleets,
         ]);
-    }
-
-    /**
-     * Get all fleets currently holding at the specified planet.
-     *
-     * @param int $planetId
-     * @return array<int, array<string, mixed>>
-     */
-    private function getHoldingFleets(int $planetId): array
-    {
-        $currentTime = (int)time();
-
-        // Query for ACS Defend missions (type 5) that are currently holding
-        // A fleet is "holding" when:
-        // - It has arrived (time_arrival <= now)
-        // - It hasn't been processed yet (processed = 0) OR has been processed but not finished holding
-        //   (ACS Defend missions are processed when time_arrival + time_holding is reached)
-        // - It's not canceled (canceled = 0)
-        $missions = FleetMission::where('mission_type', 5)
-            ->where('planet_id_to', $planetId)
-            ->where('time_arrival', '<=', $currentTime)
-            ->where('canceled', 0)
-            ->get();
-
-        $holdingFleets = [];
-
-        foreach ($missions as $mission) {
-            // Get the return mission if it exists
-            $returnMission = FleetMission::where('planet_id_from', $mission->planet_id_to)
-                ->where('planet_id_to', $mission->planet_id_from)
-                ->where('mission_type', 5)
-                ->where('time_departure', '>=', $mission->time_arrival)
-                ->where('canceled', 0)
-                ->orderBy('time_departure', 'asc')
-                ->first();
-
-            // Calculate expected return departure time
-            $expectedReturnDeparture = $mission->time_arrival + $mission->time_holding;
-
-            // Only include if:
-            // 1. Return mission exists and hasn't departed yet (still holding), OR
-            // 2. No return mission yet but fleet is still holding (expected return time is in future)
-            if (($returnMission && $returnMission->time_departure > $currentTime) ||
-                (!$returnMission && $expectedReturnDeparture > $currentTime)) {
-                // Get fleet composition
-                $ships = $this->getFleetShips($mission);
-
-                // Get sender player name (strip HTML tags)
-                $senderPlayer = new PlayerService($mission->user_id);
-                $senderPlayerName = strip_tags($senderPlayer->getUsername());
-
-                // Get sender planet info for coordinates
-                $senderPlanetService = $this->planetServiceFactory->make($mission->planet_id_from, true);
-
-                // Get destination planet info to show where fleet is holding
-                $destinationPlanetService = $this->planetServiceFactory->make($mission->planet_id_to, true);
-                $destinationName = $destinationPlanetService ? $destinationPlanetService->getPlanetName() : 'Unknown';
-                $destinationType = $mission->type_to; // 1 = planet, 3 = moon
-
-                // Use return mission times if it exists, otherwise calculate from outbound mission
-                $returnTime = $returnMission ? $returnMission->time_departure : $expectedReturnDeparture;
-
-                $holdingFleets[] = [
-                    'id' => $mission->id,
-                    'sender_planet_id' => $mission->planet_id_from,
-                    'sender_player_name' => $senderPlayerName,
-                    'sender_coordinates' => $senderPlanetService ? $senderPlanetService->getPlanetCoordinates()->asString() : 'Unknown',
-                    'destination_name' => $destinationName,
-                    'destination_type' => $destinationType,
-                    'arrival_time' => $mission->time_arrival,
-                    'return_time' => $returnTime,
-                    'hold_duration' => $returnTime - $currentTime,
-                    'ships' => $ships,
-                ];
-            }
-        }
-
-        return $holdingFleets;
     }
 
     /**

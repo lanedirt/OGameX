@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use DB;
 use Exception;
 use Illuminate\Support\Facades\Date;
 use OGame\Factories\PlanetServiceFactory;
@@ -61,7 +62,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         }
 
         // Remove all buddy relationships to prevent interference with other tests
-        \DB::table('buddy_requests')->truncate();
+        DB::table('buddy_requests')->truncate();
 
         parent::tearDown();
     }
@@ -109,11 +110,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             4 // 4 hour hold time (8th parameter)
         );
 
-        // With the new architecture, time_arrival includes hold time
+        // With the new architecture, time_arrival includes hold time (as raw game time)
         // Calculate physical arrival time (when fleet actually arrives at target)
-        $settingsService = app(\OGame\Services\SettingsService::class);
-        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
-        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
 
         // Travel to just after physical arrival time (fleet is holding but hasn't been holding for 1 hour yet)
         $currentTime = (int)Date::now()->timestamp;
@@ -208,11 +207,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             2 // 2 hour hold time (8th parameter)
         );
 
-        // With the new architecture, time_arrival includes hold time
+        // With the new architecture, time_arrival includes hold time (as raw game time)
         // Calculate physical arrival time (when fleet actually arrives at target)
-        $settingsService = app(\OGame\Services\SettingsService::class);
-        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
-        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
 
         // Travel to 1 hour after physical arrival (meets "at least 1 hour" requirement, still within hold period)
         $currentTime = (int)Date::now()->timestamp;
@@ -295,11 +292,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             0 // 0 hour hold (will be minimum duration) (8th parameter)
         );
 
-        // With the new architecture, time_arrival includes hold time
+        // With the new architecture, time_arrival includes hold time (as raw game time)
         // Calculate physical arrival time (when fleet actually arrives at target)
-        $settingsService = app(\OGame\Services\SettingsService::class);
-        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
-        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
 
         // Travel to just after physical arrival time (fleet has been holding but not for 1 hour yet)
         $currentTime = (int)Date::now()->timestamp;
@@ -409,11 +404,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             4 // 4 hour hold time
         );
 
-        // With the new architecture, time_arrival includes hold time
+        // With the new architecture, time_arrival includes hold time (as raw game time)
         // Calculate physical arrival time (when fleet actually arrives at target)
-        $settingsService = app(\OGame\Services\SettingsService::class);
-        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
-        $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
 
         // Travel to just after physical arrival time (during hold period)
         $currentTime = (int)Date::now()->timestamp;

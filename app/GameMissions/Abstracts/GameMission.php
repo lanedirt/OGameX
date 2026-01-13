@@ -136,18 +136,16 @@ abstract class GameMission
         $currentTime = (int)Date::now()->timestamp;
 
         // Store the original arrival time before modifying it.
-        // This is needed to calculate the correct return trip adjustment for missions that have already arrived.
+        // For ACS Defend, we need physical arrival time for return trip calculation.
         $originalArrivalTime = $mission->time_arrival;
-
-        // For ACS Defend missions (type 5), time_arrival includes hold time.
-        // Calculate physical arrival time to check if the fleet has arrived at the target.
         if ($mission->mission_type === 5 && $mission->time_holding !== null) {
-            $settingsService = app(SettingsService::class);
-            $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
-            $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+            $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
             $hasArrived = $physicalArrivalTime <= $currentTime;
+            // For ACS Defend, use physical arrival time for adjustment
+            $originalArrivalTimeForAdjustment = $physicalArrivalTime;
         } else {
             $hasArrived = $mission->time_arrival <= $currentTime;
+            $originalArrivalTimeForAdjustment = $originalArrivalTime;
         }
 
         // Always update time_arrival to now for consistency.
@@ -171,7 +169,7 @@ abstract class GameMission
         // If the mission had already arrived, we need to adjust the return trip calculation.
         // The adjustment ensures the return takes the same time as the original outbound trip,
         // not including any elapsed hold time.
-        $returnTripAdjustment = $hasArrived ? ($originalArrivalTime - $currentTime) : 0;
+        $returnTripAdjustment = $hasArrived ? ($originalArrivalTimeForAdjustment - $currentTime) : 0;
         $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission), $returnTripAdjustment);
     }
 
@@ -304,10 +302,8 @@ abstract class GameMission
             $mission->time_holding = $holdingHours * 3600;
             // For ACS Defend, time_arrival includes the hold time.
             // This means the mission won't be processed until hold time expires.
-            // We use processed_hold flag to track if the fleet is still holding at the target.
-            $settingsService = app(SettingsService::class);
-            $actualHoldingTime = (int)(($holdingHours * 3600) / $settingsService->fleetSpeedHolding());
-            $mission->time_arrival = $time_end + $actualHoldingTime;
+            // Hold time is stored as raw game time (not affected by fleet speed).
+            $mission->time_arrival = $time_end + ($holdingHours * 3600);
         } else {
             $mission->time_arrival = $time_end;
         }
@@ -441,18 +437,30 @@ abstract class GameMission
         // No need to check for resources and units, as the return mission takes the units from the original
         // mission and the resources are already delivered. Nothing is deducted from the planet.
         // Time this fleet mission will depart (arrival time of the parent mission + holding time if applicable)
-        // For expeditions and ACS Defend, the holding time must be included as the mission doesn't complete until after the hold.
-        // Apply fleet_speed_holding multiplier to convert "game time" to actual real-world time.
+        // For expeditions, the holding time must be included as the mission doesn't complete until after the hold.
+        // For ACS Defend, time_arrival already includes the hold time.
         $settingsService = app(SettingsService::class);
         $actualHoldingTime = $parentMission->time_holding !== null
             ? (int)($parentMission->time_holding / $settingsService->fleetSpeedHolding())
             : 0;
 
-        $time_start = $parentMission->time_arrival + $actualHoldingTime;
+        // For ACS Defend (type 5), time_arrival already includes hold time
+        // For other missions with hold time (like Expeditions), add actual holding time
+        if ($parentMission->mission_type === 5) {
+            $time_start = $parentMission->time_arrival;
+        } else {
+            $time_start = $parentMission->time_arrival + $actualHoldingTime;
+        }
 
-        // Time fleet mission will arrive (arrival time of the parent mission + duration of the parent mission)
-        // Return mission duration is always the same as the parent mission duration.
-        $time_end = $time_start + ($parentMission->time_arrival - $parentMission->time_departure) + $additionalReturnTripTime;
+        // Time fleet mission will arrive (departure time + one-way duration)
+        // For ACS Defend, one-way duration = physical arrival - departure
+        // For other missions, one-way duration = arrival - departure
+        if ($parentMission->mission_type === 5 && $parentMission->time_holding !== null) {
+            $oneWayDuration = ($parentMission->time_arrival - $parentMission->time_holding) - $parentMission->time_departure;
+        } else {
+            $oneWayDuration = $parentMission->time_arrival - $parentMission->time_departure;
+        }
+        $time_end = $time_start + $oneWayDuration + $additionalReturnTripTime;
 
         // Create new return mission object
         $mission = new FleetMission();
@@ -574,12 +582,15 @@ abstract class GameMission
         $defenders[] = DefenderFleet::fromPlanet($planet);
 
         // Find all ACS Defend fleets currently holding at this planet
+        // For ACS Defend, time_arrival includes hold time, so we need to check:
+        // - physical_arrival (time_arrival - time_holding) <= now (fleet has arrived)
+        // - time_arrival > now (still holding, hold hasn't expired)
         $defendMissions = FleetMission::query()
             ->where('mission_type', 5)  // ACS Defend
             ->where('planet_id_to', $planet->getPlanetId())
             ->where('processed', 0)  // Still active
-            ->where('time_arrival', '<=', Date::now()->timestamp)  // Has arrived
-            ->whereRaw('time_arrival + COALESCE(time_holding, 0) > ?', [Date::now()->timestamp])  // Still holding
+            ->whereRaw('time_arrival - COALESCE(time_holding, 0) <= ?', [Date::now()->timestamp])  // Has physically arrived
+            ->where('time_arrival', '>', Date::now()->timestamp)  // Still holding (hold hasn't expired)
             ->get();
 
         // Add each defending fleet
