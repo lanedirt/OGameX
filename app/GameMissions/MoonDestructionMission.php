@@ -237,8 +237,19 @@ class MoonDestructionMission extends GameMission
 
         // Update surviving units if all Deathstars are lost
         if ($allDeathstarsLost) {
+            // Track military statistics for lost Deathstars
+            $militaryStatisticsService = app(\OGame\Services\MilitaryStatisticsService::class);
+            $attackerPlayer = $this->playerServiceFactory->make($mission->user_id, true);
+
             foreach ($survivingUnits->units as $unit) {
                 if ($unit->unitObject->machine_name === 'deathstar') {
+                    // Calculate lost points before zeroing the amount
+                    $lostPoints = $militaryStatisticsService->calculateMilitaryPointsFromMachineName('deathstar', $unit->amount);
+                    if ($lostPoints > 0) {
+                        $user = $attackerPlayer->getUser();
+                        $militaryStatisticsService->addLostPoints($user, $lostPoints);
+                    }
+
                     $unit->amount = 0;
                     break;
                 }

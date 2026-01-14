@@ -876,4 +876,52 @@ class MerchantTest extends AccountTestCase
         $expectedMetal = (int)floor($smallCargoObject->price->resources->metal->get() * 10 * 0.35);
         $this->assertEquals($expectedMetal, $returned['metal'], 'Resources should be calculated for 10 ships, not 1');
     }
+
+    /**
+     * Test that scrapping units tracks military statistics correctly.
+     */
+    public function testScrapTracksUnitLostStatistics(): void
+    {
+        $player = $this->planetService->getPlayer();
+        $user = $player->getUser();
+
+        // Record initial lost points
+        $initialLostPoints = $user->military_units_lost_points;
+
+        // Add mixed units to planet (military ships, civil ships, defense)
+        $this->planetService->addUnit('light_fighter', 10);  // Military ship (100%)
+        $this->planetService->addUnit('small_cargo', 10);    // Civil ship (50%)
+        $this->planetService->addUnit('rocket_launcher', 10); // Defense (100%)
+        $this->planetService->save();
+
+        $lightFighterObject = ObjectService::getObjectByMachineName('light_fighter');
+        $smallCargoObject = ObjectService::getObjectByMachineName('small_cargo');
+        $rocketLauncherObject = ObjectService::getObjectByMachineName('rocket_launcher');
+
+        // Scrap all units
+        $response = $this->post('/merchant/scrap/execute', [
+            'items' => [
+                $lightFighterObject->id => 10,
+                $smallCargoObject->id => 10,
+                $rocketLauncherObject->id => 10,
+            ],
+            'confirmed' => true,
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Calculate expected military points
+        // Light fighter: 3000 metal + 1000 crystal = 4000 * 10 * 100% / 1000 = 40 points
+        // Small cargo: 2000 metal + 2000 crystal = 4000 * 10 * 50% / 1000 = 20 points
+        // Rocket launcher: 2000 metal * 10 * 100% / 1000 = 20 points
+        // Total expected: 80 points
+        $expectedPoints = 80;
+
+        // Verify military statistics were updated
+        $user->refresh();
+        $actualGainedPoints = $user->military_units_lost_points - $initialLostPoints;
+        $this->assertEquals($expectedPoints, $actualGainedPoints, 'Scrapping should add correct military lost points');
+    }
 }

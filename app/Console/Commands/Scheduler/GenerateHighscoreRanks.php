@@ -6,6 +6,7 @@ use Cache;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use OGame\Enums\HighscoreTypeEnum;
+use OGame\Enums\MilitaryHighscoreTypeEnum;
 use OGame\Models\AllianceHighscore;
 use OGame\Models\Highscore;
 use OGame\Models\User;
@@ -35,13 +36,34 @@ class GenerateHighscoreRanks extends Command
         $adminVisible = $settingsService->highscoreAdminVisible();
 
         foreach (HighscoreTypeEnum::cases() as $type) {
-            $this->updatePlayerRank($type, $adminVisible);
-            $this->updateAllianceRank($type);
+            // For military type, process each subcategory separately
+            if ($type === HighscoreTypeEnum::military) {
+                foreach (MilitaryHighscoreTypeEnum::cases() as $militaryType) {
+                    $this->updatePlayerRankMilitary($militaryType, $adminVisible);
+                    // TODO: Update alliance highscores when alliance military subcategories are added
+                    // $this->updateAllianceRankMilitary($militaryType);
+                }
+            } else {
+                $this->updatePlayerRank($type, $adminVisible);
+                $this->updateAllianceRank($type);
+            }
         }
 
         // Clear highscore cache so changes are reflected immediately
         $this->clearHighscoreCache();
         $this->info("\nHighscore cache cleared.");
+    }
+
+    /**
+     * Get the database column name for the given highscore type.
+     * Maps 'military' type to 'military_built' column.
+     */
+    private function getColumnName(HighscoreTypeEnum $type): string
+    {
+        if ($type === HighscoreTypeEnum::military) {
+            return 'military_built';
+        }
+        return $type->name;
     }
 
     /**
@@ -64,19 +86,30 @@ class GenerateHighscoreRanks extends Command
                 Cache::forget(sprintf('alliance-highscores-%s-%d', $type->name, $page));
             }
         }
+
+        // Clear military subcategory cache
+        foreach (MilitaryHighscoreTypeEnum::cases() as $militaryType) {
+            $columnName = 'military_' . $militaryType->name;
+            for ($page = 1; $page <= 100; $page++) {
+                Cache::forget(sprintf('highscores-%s-%d-0', $columnName, $page));
+                Cache::forget(sprintf('highscores-%s-%d-1', $columnName, $page));
+            }
+        }
     }
 
     private function updatePlayerRank(HighscoreTypeEnum $type, bool $adminVisible): void
     {
         $rank = 1;
-        $this->info("\nUpdating player highscore ranks for $type->name...");
+        $columnName = $this->getColumnName($type);
+        $rankColumnName = $columnName . '_rank';
+        $this->info("\nUpdating player highscore ranks for $columnName...");
 
         // Set Legor's rank to 0 (Legor is excluded from highscore, ranked players start at 1)
         $legor = User::where('username', 'Legor')->first();
         if ($legor) {
             $legorHighscore = Highscore::where('player_id', $legor->id)->first();
             if ($legorHighscore) {
-                $legorHighscore->{$type->name.'_rank'} = 0;
+                $legorHighscore->{$rankColumnName} = 0;
                 $legorHighscore->save();
             }
         }
@@ -90,7 +123,7 @@ class GenerateHighscoreRanks extends Command
             foreach ($adminUsers as $adminUser) {
                 $adminHighscore = Highscore::where('player_id', $adminUser->id)->first();
                 if ($adminHighscore) {
-                    $adminHighscore->{$type->name.'_rank'} = 0;
+                    $adminHighscore->{$rankColumnName} = 0;
                     $adminHighscore->save();
                 }
             }
@@ -106,7 +139,7 @@ class GenerateHighscoreRanks extends Command
             ->join('users', 'highscores.player_id', '=', 'users.id')
             ->where('users.username', '!=', 'Legor')
             ->select('highscores.*')
-            ->orderByDesc($type->name)
+            ->orderByDesc($columnName)
             ->oldest('users.created_at');
 
         // Exclude admin users from ranking if setting is disabled
@@ -124,22 +157,26 @@ class GenerateHighscoreRanks extends Command
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());
 
-        $query->chunk(200, function ($highscores) use ($type, &$bar, &$rank) {
+        $query->chunk(200, function ($highscores) use ($rankColumnName, &$bar, &$rank) {
             /** @var Collection<int, Highscore> $highscores */
             foreach ($highscores as $highscore) {
-                $highscore->{$type->name.'_rank'} = $rank;
+                $highscore->{$rankColumnName} = $rank;
                 $highscore->save();
                 $bar->advance();
                 $rank++;
             }
         });
-        $this->info("\nAll player highscores for type $type->name completed!\n");
+        $this->info("\nAll player highscores for type $columnName completed!\n");
     }
 
     private function updateAllianceRank(HighscoreTypeEnum $type): void
     {
         $rank = 1;
-        $this->info("\nUpdating alliance highscore ranks for $type->name...");
+        // Note: Alliance highscores don't have military subcategories yet, so military still uses 'military' column
+        $columnName = $type->name;
+        // Special handling: alliance military uses 'military_built_rank' instead of 'military_rank'
+        $rankColumnName = ($type === HighscoreTypeEnum::military) ? 'military_built_rank' : $columnName . '_rank';
+        $this->info("\nUpdating alliance highscore ranks for $columnName...");
 
         // Order by the highscore value in descending order, and by the alliance creation date in ascending order.
         // This ensures that:
@@ -148,21 +185,122 @@ class GenerateHighscoreRanks extends Command
         $query = AllianceHighscore::query()
             ->join('alliances', 'alliance_highscores.alliance_id', '=', 'alliances.id')
             ->select('alliance_highscores.*')
-            ->orderByDesc($type->name)
+            ->orderByDesc($columnName)
             ->oldest('alliances.created_at');
 
         $bar = $this->output->createProgressBar();
         $bar->start($query->count());
 
-        $query->chunk(200, function ($highscores) use ($type, &$bar, &$rank) {
+        $query->chunk(200, function ($highscores) use ($rankColumnName, &$bar, &$rank) {
             /** @var Collection<int, AllianceHighscore> $highscores */
             foreach ($highscores as $highscore) {
-                $highscore->{$type->name.'_rank'} = $rank;
+                /** @phpstan-ignore property.notFound */
+                $highscore->{$rankColumnName} = $rank;
                 $highscore->save();
                 $bar->advance();
                 $rank++;
             }
         });
-        $this->info("\nAll alliance highscores for type $type->name completed!\n");
+        $this->info("\nAll alliance highscores for type $columnName completed!\n");
     }
+
+    /**
+     * Update player rank for military subcategories
+     */
+    private function updatePlayerRankMilitary(MilitaryHighscoreTypeEnum $type, bool $adminVisible): void
+    {
+        $rank = 1;
+        $columnName = 'military_' . $type->name;
+        $rankColumnName = $columnName . '_rank';
+        $this->info("\nUpdating player highscore ranks for $columnName...");
+
+        // Set Legor's rank to 0
+        $legor = User::where('username', 'Legor')->first();
+        if ($legor) {
+            $legorHighscore = Highscore::where('player_id', $legor->id)->first();
+            if ($legorHighscore) {
+                $legorHighscore->{$rankColumnName} = 0;
+                $legorHighscore->save();
+            }
+        }
+
+        // Set admin users' ranks to 0 if admins are excluded
+        if (!$adminVisible) {
+            $adminUsers = User::whereHas('roles', function ($query) {
+                $query->where('name', 'admin');
+            })->get();
+
+            foreach ($adminUsers as $adminUser) {
+                $adminHighscore = Highscore::where('player_id', $adminUser->id)->first();
+                if ($adminHighscore) {
+                    $adminHighscore->{$rankColumnName} = 0;
+                    $adminHighscore->save();
+                }
+            }
+        }
+
+        $query = Highscore::query()
+            ->join('users', 'highscores.player_id', '=', 'users.id')
+            ->where('users.username', '!=', 'Legor')
+            ->select('highscores.*')
+            ->orderByDesc($columnName)
+            ->oldest('users.created_at');
+
+        if (!$adminVisible) {
+            $query->whereNotExists(function ($subQuery) {
+                $subQuery->selectRaw('1')
+                    ->from('model_has_roles')
+                    ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                    ->whereColumn('model_has_roles.model_id', 'users.id')
+                    ->where('model_has_roles.model_type', User::class)
+                    ->where('roles.name', 'admin');
+            });
+        }
+
+        $bar = $this->output->createProgressBar();
+        $bar->start($query->count());
+
+        $query->chunk(200, function ($highscores) use ($rankColumnName, &$bar, &$rank) {
+            /** @var Collection<int, Highscore> $highscores */
+            foreach ($highscores as $highscore) {
+                $highscore->{$rankColumnName} = $rank;
+                $highscore->save();
+                $bar->advance();
+                $rank++;
+            }
+        });
+        $this->info("\nAll player highscores for military $type->name completed!\n");
+    }
+
+    /**
+     * Update alliance rank for military subcategories
+     * TODO: Implement when alliance military subcategories are added to database
+     */
+    // private function updateAllianceRankMilitary(MilitaryHighscoreTypeEnum $type): void
+    // {
+    //     $rank = 1;
+    //     $columnName = 'military_' . $type->name;
+    //     $rankColumnName = $columnName . '_rank';
+    //     $this->info("\nUpdating alliance highscore ranks for $columnName...");
+    //
+    //     $query = AllianceHighscore::query()
+    //         ->join('alliances', 'alliance_highscores.alliance_id', '=', 'alliances.id')
+    //         ->select('alliance_highscores.*')
+    //         ->orderByDesc($columnName)
+    //         ->oldest('alliances.created_at');
+    //
+    //     $bar = $this->output->createProgressBar();
+    //     $bar->start($query->count());
+    //
+    //     $query->chunk(200, function ($highscores) use ($rankColumnName, &$bar, &$rank) {
+    //         /** @var Collection<int, AllianceHighscore> $highscores */
+    //         foreach ($highscores as $highscore) {
+    //             $highscore->{$rankColumnName} = $rank;
+    //             $highscore->save();
+    //             $bar->advance();
+    //             $rank++;
+    //         }
+    //     });
+    //     $this->info("\nAll alliance highscores for military $type->name completed!\n");
+    // }
 }

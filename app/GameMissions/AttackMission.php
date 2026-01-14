@@ -12,6 +12,7 @@ use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameMissions\Models\MissionPossibleStatus;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
@@ -108,6 +109,9 @@ class AttackMission extends GameMission
 
         // Set the attacker's origin planet ID on the battle result for the battle report.
         $battleResult->attackerPlanetId = $mission->planet_id_from;
+
+        // Update military statistics for both players
+        $this->updateMilitaryStatistics($attackerPlayer, $defenderPlanet->getPlayer(), $battleResult);
 
         // Deduct loot from the target planet.
         $defenderPlanet->deductResources($battleResult->loot);
@@ -535,5 +539,84 @@ class AttackMission extends GameMission
         $report->save();
 
         return $report->id;
+    }
+
+    /**
+     * Update military statistics for both attacker and defender after battle.
+     * Tracks destroyed and lost military units for highscore purposes.
+     *
+     * @param PlayerService $attackerPlayer The attacking player
+     * @param PlayerService $defenderPlayer The defending player
+     * @param BattleResult $battleResult The battle result containing unit losses
+     * @return void
+     */
+    private function updateMilitaryStatistics(PlayerService $attackerPlayer, PlayerService $defenderPlayer, BattleResult $battleResult): void
+    {
+        // Calculate military points from units (both civil and military ships count)
+        // Military ships count 100%, civil ships count 50%
+        $attackerLostPoints = $this->calculateMilitaryPoints($battleResult->attackerUnitsLost, $attackerPlayer);
+        $defenderLostPoints = $this->calculateMilitaryPoints($battleResult->defenderUnitsLost, $defenderPlayer);
+
+        // Update attacker statistics
+        // Attacker destroyed enemy units (defender's losses)
+        // Attacker lost their own units
+        $attackerUser = $attackerPlayer->getUser();
+        $attackerUser->military_units_destroyed_points += $defenderLostPoints;
+        $attackerUser->military_units_lost_points += $attackerLostPoints;
+        $attackerUser->save();
+
+        // Update defender statistics
+        // Defender destroyed enemy units (attacker's losses)
+        // Defender lost their own units
+        $defenderUser = $defenderPlayer->getUser();
+        $defenderUser->military_units_destroyed_points += $attackerLostPoints;
+        $defenderUser->military_units_lost_points += $defenderLostPoints;
+        $defenderUser->save();
+    }
+
+    /**
+     * Calculate military points from lost units.
+     * Military ships count 100%, civil ships count 50%, defenses count 100%.
+     *
+     * @param UnitCollection $unitsLost The units that were lost
+     * @param PlayerService $player The player who lost the units (for tech bonus calculation)
+     * @return int The military points value
+     */
+    private function calculateMilitaryPoints(UnitCollection $unitsLost, PlayerService $player): int
+    {
+        $points = 0;
+
+        foreach ($unitsLost->units as $unit) {
+            if ($unit->amount > 0) {
+                $unitValue = $unit->unitObject->price->resources->sum();
+
+                // Check unit type and apply appropriate multiplier
+                if ($unit->unitObject->type === GameObjectType::Ship) {
+                    // Check if it's a military or civil ship
+                    $militaryShips = ObjectService::getMilitaryShipObjects();
+                    $isMilitaryShip = false;
+                    foreach ($militaryShips as $militaryShip) {
+                        if ($militaryShip->machine_name === $unit->unitObject->machine_name) {
+                            $isMilitaryShip = true;
+                            break;
+                        }
+                    }
+
+                    if ($isMilitaryShip) {
+                        // Military ships: 100%
+                        $points += ($unitValue * $unit->amount);
+                    } else {
+                        // Civil ships: 50%
+                        $points += ($unitValue * $unit->amount * 0.5);
+                    }
+                } elseif ($unit->unitObject->type === GameObjectType::Defense) {
+                    // Defense units: 100%
+                    $points += ($unitValue * $unit->amount);
+                }
+            }
+        }
+
+        // Convert to points (divide by 1000, same as regular highscore calculation)
+        return (int)floor($points / 1000);
     }
 }

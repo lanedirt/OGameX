@@ -121,7 +121,7 @@ class AllianceHighscoreTest extends AccountTestCase
         $this->assertLessThan($highscore2->general_rank, $highscore1->general_rank);
         $this->assertLessThan($highscore2->economy_rank, $highscore1->economy_rank);
         $this->assertLessThan($highscore2->research_rank, $highscore1->research_rank);
-        $this->assertLessThan($highscore2->military_rank, $highscore1->military_rank);
+        $this->assertLessThan($highscore2->military_built_rank, $highscore1->military_built_rank);
 
         // Both should have valid ranks (not null)
         $this->assertNotNull($highscore1->general_rank);
@@ -219,7 +219,7 @@ class AllianceHighscoreTest extends AccountTestCase
             'general_rank' => 1,
             'economy_rank' => 1,
             'research_rank' => 1,
-            'military_rank' => 1,
+            'military_built_rank' => 1,
         ]);
 
         // Should now appear in validRanks
