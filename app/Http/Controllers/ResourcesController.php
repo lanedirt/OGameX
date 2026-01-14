@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use OGame\Services\SettingsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -166,10 +167,10 @@ class ResourcesController extends AbstractBuildingsController
         // Add crawler energy consumption separately (only once, not per mine)
         // Get metal mine object to access the crawler energy calculation
         $metalMine = ObjectService::getGameObjectsWithProductionByMachineName('metal_mine');
-        $settingsService = app(\OGame\Services\SettingsService::class);
+        $settingsService = app(SettingsService::class);
         $metalMine->production->planetService = $this->planet;
         $metalMine->production->playerService = $player;
-        $metalMine->production->characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $metalMine->production->characterClassService = app(CharacterClassService::class);
         $metalMine->production->universe_speed = $settingsService->economySpeed();
         $crawlerEnergy = $metalMine->production->getCrawlerEnergyConsumption();
         $productionindex_total->crawler->energy->set($crawlerEnergy);
