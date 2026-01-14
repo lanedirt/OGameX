@@ -117,6 +117,9 @@ class ResourcesController extends AbstractBuildingsController
         foreach (ObjectService::getGameObjectsWithProduction() as $building) {
             $level = $this->planet->getObjectLevel($building->machine_name);
             $productionindex = $this->planet->getObjectProductionIndex($building, $level);
+
+            // Add the production index, but crawler energy needs special handling
+            // because it should only be counted once (not per mine)
             $productionindex_total->add($productionindex);
 
             // Calculate production without character class bonus for individual building display
@@ -159,6 +162,17 @@ class ResourcesController extends AbstractBuildingsController
                 ];
             }
         }
+
+        // Add crawler energy consumption separately (only once, not per mine)
+        // Get metal mine object to access the crawler energy calculation
+        $metalMine = ObjectService::getGameObjectsWithProductionByMachineName('metal_mine');
+        $settingsService = app(\OGame\Services\SettingsService::class);
+        $metalMine->production->planetService = $this->planet;
+        $metalMine->production->playerService = $player;
+        $metalMine->production->characterClassService = app(\OGame\Services\CharacterClassService::class);
+        $metalMine->production->universe_speed = $settingsService->economySpeed();
+        $crawlerEnergy = $metalMine->production->getCrawlerEnergyConsumption();
+        $productionindex_total->crawler->energy->set($crawlerEnergy);
 
         $production_factor = $this->planet->getResourceProductionFactor();
 
