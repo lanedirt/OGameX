@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Services\MilitaryStatisticsService;
 use Exception;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Enums\FleetMissionStatus;
@@ -645,7 +646,7 @@ class ExpeditionMission extends GameMission
 
         // Track military statistics for lost fleet
         $fleetUnits = $this->fleetMissionService->getFleetUnits($mission);
-        $militaryStatisticsService = app(\OGame\Services\MilitaryStatisticsService::class);
+        $militaryStatisticsService = app(MilitaryStatisticsService::class);
         $lostPoints = $militaryStatisticsService->calculateMilitaryPoints($fleetUnits);
 
         if ($lostPoints > 0) {
@@ -713,7 +714,7 @@ class ExpeditionMission extends GameMission
 
         // Track military statistics for expedition battles
         // Player only gets "lost" points (no "destroyed" points against NPCs)
-        $militaryStatisticsService = app(\OGame\Services\MilitaryStatisticsService::class);
+        $militaryStatisticsService = app(MilitaryStatisticsService::class);
         $playerLostPoints = $militaryStatisticsService->calculateMilitaryPoints($battleResult->attackerUnitsLost);
         if ($playerLostPoints > 0) {
             $user = $player->getUser();

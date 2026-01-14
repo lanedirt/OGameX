@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use OGame\Services\MilitaryStatisticsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -554,7 +555,7 @@ class MerchantController extends OGameController
 
         // Execute the trade: remove adjusted items and add resources
         // Also track military statistics for scrapped units
-        $militaryStatisticsService = resolve(\OGame\Services\MilitaryStatisticsService::class);
+        $militaryStatisticsService = resolve(MilitaryStatisticsService::class);
         $totalLostPoints = 0;
 
         foreach ($adjustedItems as $itemId => $amount) {

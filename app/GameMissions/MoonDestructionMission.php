@@ -2,6 +2,7 @@
 
 namespace OGame\GameMissions;
 
+use OGame\Services\MilitaryStatisticsService;
 use Illuminate\Support\Facades\DB;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\FleetLostContact;
@@ -238,7 +239,7 @@ class MoonDestructionMission extends GameMission
         // Update surviving units if all Deathstars are lost
         if ($allDeathstarsLost) {
             // Track military statistics for lost Deathstars
-            $militaryStatisticsService = app(\OGame\Services\MilitaryStatisticsService::class);
+            $militaryStatisticsService = app(MilitaryStatisticsService::class);
             $attackerPlayer = $this->playerServiceFactory->make($mission->user_id, true);
 
             foreach ($survivingUnits->units as $unit) {
