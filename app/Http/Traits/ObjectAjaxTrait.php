@@ -111,6 +111,19 @@ trait ObjectAjaxTrait
             if (!empty($production_current->energy->get())) {
                 $energy_difference = ($production_next->energy->get() - $production_current->energy->get()) * -1;
             }
+        } elseif ($object->machine_name === 'crawler') {
+            // Special handling for Crawlers: they consume energy but don't have production property
+            // Each crawler consumes 50 energy at 100%, with additional cost for overcharge
+            $crawlerPercentage = $planet->getBuildingPercent('crawler') / 10; // Convert to decimal (0-1.5)
+            $baseEnergy = 50;
+            $energyConsumption = $baseEnergy * $crawlerPercentage;
+
+            // Add extra energy cost for overload (>100%)
+            if ($crawlerPercentage > 1.0) {
+                $energyConsumption += $baseEnergy * ($crawlerPercentage - 1.0);
+            }
+
+            $energy_difference = floor($energyConsumption);
         }
 
         $enough_resources = $planet->hasResources($price);
