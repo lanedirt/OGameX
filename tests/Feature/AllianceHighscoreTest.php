@@ -62,8 +62,8 @@ class AllianceHighscoreTest extends AccountTestCase
         $allianceService->acceptApplication($application->id, $founder->id);
 
         // Create highscores for both members AFTER all alliance operations are complete
-        Highscore::updateOrCreate(['player_id' => $founder->id], ['general' => 1000, 'economy' => 500, 'research' => 300, 'military' => 200]);
-        Highscore::updateOrCreate(['player_id' => $member->id], ['general' => 800, 'economy' => 400, 'research' => 250, 'military' => 150]);
+        Highscore::updateOrCreate(['player_id' => $founder->id], ['general' => 1000, 'economy' => 500, 'research' => 300, 'military_built' => 200]);
+        Highscore::updateOrCreate(['player_id' => $member->id], ['general' => 800, 'economy' => 400, 'research' => 250, 'military_built' => 150]);
 
         // Generate alliance highscores
         Artisan::call('ogamex:scheduler:generate-alliance-highscores');
@@ -91,13 +91,13 @@ class AllianceHighscoreTest extends AccountTestCase
         $founder1 = User::factory()->create();
         $alliance1 = $allianceService->createAlliance($founder1->id, $this->uniqueTag('TOP'), $this->uniqueName('Top Alliance'));
 
-        Highscore::updateOrCreate(['player_id' => $founder1->id], ['general' => 2000, 'economy' => 1000, 'research' => 800, 'military' => 500]);
+        Highscore::updateOrCreate(['player_id' => $founder1->id], ['general' => 2000, 'economy' => 1000, 'research' => 800, 'military_built' => 500]);
 
         // Create second alliance
         $founder2 = User::factory()->create();
         $alliance2 = $allianceService->createAlliance($founder2->id, $this->uniqueTag('MID'), $this->uniqueName('Mid Alliance'));
 
-        Highscore::updateOrCreate(['player_id' => $founder2->id], ['general' => 1000, 'economy' => 500, 'research' => 400, 'military' => 200]);
+        Highscore::updateOrCreate(['player_id' => $founder2->id], ['general' => 1000, 'economy' => 500, 'research' => 400, 'military_built' => 200]);
 
         // Generate highscores
         Artisan::call('ogamex:scheduler:generate-alliance-highscores');
@@ -140,7 +140,7 @@ class AllianceHighscoreTest extends AccountTestCase
         $alliance = $allianceService->createAlliance($founder->id, $this->uniqueTag(), $this->uniqueName());
 
         // Initial scores
-        Highscore::updateOrCreate(['player_id' => $founder->id], ['general' => 1000, 'economy' => 500, 'research' => 300, 'military' => 200]);
+        Highscore::updateOrCreate(['player_id' => $founder->id], ['general' => 1000, 'economy' => 500, 'research' => 300, 'military_built' => 200]);
 
         // Generate initial alliance highscores
         Artisan::call('ogamex:scheduler:generate-alliance-highscores');
@@ -151,7 +151,7 @@ class AllianceHighscoreTest extends AccountTestCase
         $this->assertEquals(1000, $allianceHighscore->general);
 
         // Update founder's score
-        Highscore::updateOrCreate(['player_id' => $founder->id], ['general' => 2000, 'economy' => 500, 'research' => 300, 'military' => 200]);
+        Highscore::updateOrCreate(['player_id' => $founder->id], ['general' => 2000, 'economy' => 500, 'research' => 300, 'military_built' => 200]);
 
         // Regenerate alliance highscores
         Artisan::call('ogamex:scheduler:generate-alliance-highscores');
@@ -173,7 +173,7 @@ class AllianceHighscoreTest extends AccountTestCase
         $alliance = $allianceService->createAlliance($this->currentUserId, $this->uniqueTag(), $this->uniqueName());
 
         // Create highscore
-        Highscore::updateOrCreate(['player_id' => $this->currentUserId], ['general' => 1000, 'economy' => 500, 'research' => 300, 'military' => 200]);
+        Highscore::updateOrCreate(['player_id' => $this->currentUserId], ['general' => 1000, 'economy' => 500, 'research' => 300, 'military_built' => 200]);
         Artisan::call('ogamex:scheduler:generate-alliance-highscores');
 
         $alliance->refresh();

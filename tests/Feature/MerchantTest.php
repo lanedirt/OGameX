@@ -882,6 +882,10 @@ class MerchantTest extends AccountTestCase
      */
     public function testScrapTracksUnitLostStatistics(): void
     {
+        // Ensure storage has capacity for returned resources
+        $this->planetSetObjectLevel('metal_store', 5);
+        $this->planetSetObjectLevel('crystal_store', 5);
+
         $player = $this->planetService->getPlayer();
         $user = $player->getUser();
 

@@ -1167,7 +1167,12 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::LossOfFleet]);
 
         // Send the expedition mission with all ships
-        $this->sendTestExpedition(true);
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 50);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 5000);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
+        $this->sendMissionToPosition16($unitCollection, new Resources(0, 0, 0, 0), true);
 
         // Wait for the mission to complete
         $this->travel(10)->hours();

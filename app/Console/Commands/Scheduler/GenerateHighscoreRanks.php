@@ -40,9 +40,9 @@ class GenerateHighscoreRanks extends Command
             if ($type === HighscoreTypeEnum::military) {
                 foreach (MilitaryHighscoreTypeEnum::cases() as $militaryType) {
                     $this->updatePlayerRankMilitary($militaryType, $adminVisible);
-                    // TODO: Update alliance highscores when alliance military subcategories are added
-                    // $this->updateAllianceRankMilitary($militaryType);
                 }
+                // For alliances, only update the built subcategory (alliances don't track destroyed/lost separately yet)
+                $this->updateAllianceRank($type);
             } else {
                 $this->updatePlayerRank($type, $adminVisible);
                 $this->updateAllianceRank($type);
@@ -185,7 +185,7 @@ class GenerateHighscoreRanks extends Command
         $query = AllianceHighscore::query()
             ->join('alliances', 'alliance_highscores.alliance_id', '=', 'alliances.id')
             ->select('alliance_highscores.*')
-            ->orderByDesc($columnName)
+            ->orderByDesc('alliance_highscores.' . $columnName)
             ->oldest('alliances.created_at');
 
         $bar = $this->output->createProgressBar();
