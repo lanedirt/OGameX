@@ -77,12 +77,14 @@ trait ObjectAjaxTrait
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
 
                 $shipyard_upgrading = $player->planets->current()->isBuildingObject('shipyard');
+                $nanite_upgrading = $player->planets->current()->isBuildingObject('nano_factory');
                 break;
             case GameObjectType::Defense:
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
 
                 $shipyard_upgrading = $player->planets->current()->isBuildingObject('shipyard');
+                $nanite_upgrading = $player->planets->current()->isBuildingObject('nano_factory');
                 break;
             case GameObjectType::Research:
                 $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
@@ -267,6 +269,7 @@ trait ObjectAjaxTrait
             'research_lab_upgrading' => $research_lab_upgrading ?? false,
             'research_in_progress' => $research_in_progress ?? false,
             'shipyard_upgrading' => $shipyard_upgrading ?? false,
+            'nanite_upgrading' => $nanite_upgrading ?? false,
             'ship_or_defense_in_progress' => $ship_or_defense_in_progress ?? false,
             'downgrade_price' => $downgrade_price,
             'downgrade_duration' => $downgrade_duration,

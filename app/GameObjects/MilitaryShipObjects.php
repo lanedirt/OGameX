@@ -37,6 +37,7 @@ class MilitaryShipObjects
         $lightFighter->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $lightFighter->properties = new GameObjectProperties($lightFighter, 4000, 10, 50, 12500, 50, 20);
         $lightFighter->assets = new GameObjectAssets();
@@ -64,6 +65,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
             new GameObjectRapidfire('small_cargo', 3),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $heavyFighter->properties = new GameObjectProperties($heavyFighter, 10000, 25, 150, 10000, 100, 75);
         $heavyFighter->assets = new GameObjectAssets();
@@ -94,6 +96,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('solar_satellite', 5),
             new GameObjectRapidfire('light_fighter', 6),
             new GameObjectRapidfire('rocket_launcher', 10),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $cruiser->properties = new GameObjectProperties($cruiser, 27000, 50, 400, 15000, 800, 300);
         $cruiser->assets = new GameObjectAssets();
@@ -117,6 +120,7 @@ class MilitaryShipObjects
         $battleship->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $battleship->properties = new GameObjectProperties($battleship, 60000, 200, 1000, 10000, 1500, 500);
         $battleship->assets = new GameObjectAssets();
@@ -147,6 +151,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('battle_ship', 7),
             new GameObjectRapidfire('small_cargo', 3),
             new GameObjectRapidfire('large_cargo', 3),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $battlecruiser->properties = new GameObjectProperties($battlecruiser, 70000, 400, 700, 10000, 750, 250);
         $battlecruiser->assets = new GameObjectAssets();
@@ -180,6 +185,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('ion_cannon', 10),
             new GameObjectRapidfire('gauss_cannon', 5),
             new GameObjectRapidfire('plasma_turret', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $bomber->properties = new GameObjectProperties($bomber, 75000, 500, 1000, 4000, 500, 700);
         $bomber->properties->speed_upgrade = [
@@ -212,6 +218,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('solar_satellite', 5),
             new GameObjectRapidfire('light_laser', 10),
             new GameObjectRapidfire('battlecruiser', 2),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $destroyer->properties = new GameObjectProperties($destroyer, 110000, 500, 2000, 5000, 2000, 1000);
         $destroyer->assets = new GameObjectAssets();
@@ -256,6 +263,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('ion_cannon', 100),
             new GameObjectRapidfire('gauss_cannon', 50),
             new GameObjectRapidfire('battlecruiser', 15),
+            new GameObjectRapidfire('crawler', 250),
         ];
         $deathstar->properties = new GameObjectProperties($deathstar, 9000000, 50000, 200000, 100, 1000000, 1);
         $deathstar->assets = new GameObjectAssets();
@@ -286,6 +294,7 @@ class MilitaryShipObjects
             new GameObjectRapidfire('heavy_fighter', 3),
             new GameObjectRapidfire('small_cargo', 3),
             new GameObjectRapidfire('large_cargo', 3),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $reaper->properties = new GameObjectProperties($reaper, 140000, 700, 2800, 7000, 10000, 1100);
         // Use hyperspace drive

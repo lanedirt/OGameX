@@ -25,14 +25,14 @@ class CrawlerEnergyDisplayTest extends UnitTestCase
 
         // Get crawler object
         $object = ObjectService::getObjectById(217); // Crawler ID
-        
+
         // Simulate the energy calculation from ObjectAjaxTrait for 100% production
         $crawlerPercentage = 10 / 10; // Convert to decimal (0-1.5)
         $baseEnergy = 50;
         $energyConsumption = $baseEnergy * $crawlerPercentage;
-        
+
         $energy_difference = floor($energyConsumption);
-        
+
         // Assert that energy consumption is calculated correctly
         $this->assertEquals(50, $energy_difference, 'Crawler should consume 50 energy at 100% production');
     }

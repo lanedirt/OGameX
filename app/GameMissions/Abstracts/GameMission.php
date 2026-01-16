@@ -425,7 +425,7 @@ abstract class GameMission
      * @param int $additionalReturnTripTime Time in seconds to add to the return trip duration (optional, used by expeditions). Can be positive or negative.
      * @return void
      */
-    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0): void
+    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0, array|null $wreckFieldData = null): void
     {
         if ($units->getAmount() === 0) {
             // No units to return, no need to create a return mission.
@@ -509,6 +509,11 @@ abstract class GameMission
         $mission->metal = (int)$resources->metal->get();
         $mission->crystal = (int)$resources->crystal->get();
         $mission->deuterium = (int)$resources->deuterium->get();
+
+        // Set wreck field data if provided (for General class attacks)
+        if ($wreckFieldData !== null) {
+            $mission->wreck_field_data = $wreckFieldData;
+        }
 
         // Save the new fleet return mission.
         $mission->save();
