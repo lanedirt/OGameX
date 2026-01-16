@@ -122,9 +122,14 @@
                         </div>
                     </td>
 
-                    <td class="score
-                     ">
-                        {{ $highscorePlayer['points_formatted'] }}
+                    <td class="score">
+                        @if($highscoreCurrentType == 3 && isset($highscorePlayer['total_ships']))
+                            <span class="tooltip" title="{{ __('Total ships') }}: {{ number_format($highscorePlayer['total_ships']) }}">
+                                {{ $highscorePlayer['points_formatted'] }}
+                            </span>
+                        @else
+                            {{ $highscorePlayer['points_formatted'] }}
+                        @endif
                     </td>
                 </tr>
             @endforeach

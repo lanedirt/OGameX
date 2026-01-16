@@ -190,7 +190,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $crawler->title = 'Crawler';
         $crawler->machine_name = 'crawler';
         $crawler->class_name = 'resbuggy'; // CSS uses 'resbuggy' for Crawler sprite
-        $crawler->description = 'Crawlers are resource drones that support the mines and increase production.';
+        $crawler->description = 'Crawlers increase the production of metal, crystal and Deuterium on their tasked planet each by 0.02%, 0.02% and 0.02% respectively. As a collector, production also increases. The maximum total bonus depends on the overall level of your mines.';
         $crawler->description_long = 'Crawlers are state-of-the-art mining machines which can considerably increase the production of raw materials in the mines. However, they can only be built by members of the Collector class. Crawlers move across the planet`s surface and enter the shafts where they help to increase the mine`s production. The maximum number of Crawlers that can be used is limited by the level of the planet`s mines. The maximum overcharge is 100%. Collectors will be able to upgrade their Crawlers to an overcharge of 150%.';
         $crawler->requirements = [
             new GameObjectRequirement('shipyard', 4),
