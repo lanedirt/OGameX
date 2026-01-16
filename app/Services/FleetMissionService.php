@@ -543,7 +543,7 @@ class FleetMissionService
 
         // Sanity check: only process missions that have arrived AND potential waiting time has passed.
         // Different mission types handle hold time differently:
-        // - ACS Defend outbound (type 5, no parent): Process immediately at arrival, hold time determines return departure
+        // - ACS Defend outbound (type 5, no parent): Send arrival messages at physical arrival, create return mission after hold
         // - ACS Defend return (type 5, with parent): Normal processing, no hold time
         // - Expedition (type 15): Process after hold time (exploration period)
         // - Other missions: No hold time
@@ -555,6 +555,25 @@ class FleetMissionService
             $settingsService = app(SettingsService::class);
             $holdTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
         }
+
+        // Special handling for ACS Defend outbound: send arrival messages at physical arrival time
+        // This must happen BEFORE the time check so messages are sent even if time has passed
+        // For ACS Defend, time_arrival = physical_arrival + time_holding (game time)
+        // So physical_arrival = time_arrival - time_holding
+        if ($isAcsDefendOutbound && $mission->time_holding !== null && $mission->processed_hold == 0) {
+            $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
+
+            // If we've reached physical arrival and haven't sent hold-processed messages yet
+            if ($physicalArrivalTime <= Date::now()->timestamp) {
+                // Mark as processed_hold to avoid sending messages multiple times
+                $mission->processed_hold = 1;
+                $mission->save();
+
+                // Send arrival messages to sender and host
+                $this->sendAcsDefendArrivalMessages($mission);
+            }
+        }
+
         $arrivalTimeWithWaitingTime = $mission->time_arrival + $holdTime;
         if ($arrivalTimeWithWaitingTime > Date::now()->timestamp) {
             return;
@@ -570,6 +589,31 @@ class FleetMissionService
             'messageService' => $this->messageService,
         ]);
         $missionObject->process($mission);
+    }
+
+    /**
+     * Send arrival messages for ACS Defend missions.
+     * Called when the fleet physically arrives at the destination (start of hold time).
+     *
+     * @param FleetMission $mission
+     * @return void
+     */
+    private function sendAcsDefendArrivalMessages(FleetMission $mission): void
+    {
+        $planetServiceFactory = app(\OGame\Factories\PlanetServiceFactory::class);
+
+        $origin_planet = $planetServiceFactory->make($mission->planet_id_from, true);
+        $target_planet = $planetServiceFactory->make($mission->planet_id_to, true);
+
+        // Send message to sender (Fleet Command)
+        $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), \OGame\GameMessages\AcsDefendArrivalSender::class, [
+            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+        ]);
+
+        // Send message to host/target (Space Monitoring)
+        $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), \OGame\GameMessages\AcsDefendArrivalHost::class, [
+            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+        ]);
     }
 
     /**

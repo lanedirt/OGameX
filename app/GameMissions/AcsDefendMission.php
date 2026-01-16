@@ -4,8 +4,6 @@ namespace OGame\GameMissions;
 
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
-use OGame\GameMessages\AcsDefendArrivalHost;
-use OGame\GameMessages\AcsDefendArrivalSender;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -78,18 +76,9 @@ class AcsDefendMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
-
-        // Send message to sender (Fleet Command)
-        $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), AcsDefendArrivalSender::class, [
-            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
-        ]);
-
-        // Send message to host/target (Space Monitoring)
-        $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), AcsDefendArrivalHost::class, [
-            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
-        ]);
+        // Note: Arrival messages are sent earlier when the fleet physically arrives (start of hold time)
+        // via FleetMissionService::sendAcsDefendArrivalMessages()
+        // This method is called after the hold time expires to create the return mission
 
         // Create and start the return mission
         $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
