@@ -44,7 +44,10 @@ class ShipyardController extends AbstractUnitsController
 
         return view(view: 'ingame.shipyard.index')->with(
             array_merge(
-                ['shipyard_upgrading' => $player->planets->current()->isBuildingObject('shipyard')],
+                [
+                    'shipyard_upgrading' => $player->planets->current()->isBuildingObject('shipyard'),
+                    'nanite_upgrading' => $player->planets->current()->isBuildingObject('nano_factory')
+                ],
                 parent::indexPage($request, $player)
             )
         );
