@@ -396,4 +396,8 @@ Defenses destroyed: :defenses_destroyed',
 Application message:
 :application_message',
     ],
+
+    // Building upgrade messages
+    'Shipyard is being upgraded.' => 'Shipyard is being upgraded.',
+    'Nanite Factory is being upgraded.' => 'Nanite Factory is being upgraded.',
 ];

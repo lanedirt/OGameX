@@ -1,0 +1,63 @@
+name: Deploy Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git tag to deploy (e.g., v1.2.3). Leave empty for latest release.'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  DEPLOY_DIR: /opt/release
+
+jobs:
+  deploy:
+    name: Deploy to release.ogamex.dev
+    runs-on: [self-hosted, ctogx]
+
+    concurrency:
+      group: deploy-release
+      cancel-in-progress: true
+
+    environment:
+      name: release
+      url: https://release.ogamex.dev
+
+    steps:
+      - name: Determine tag to deploy
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          elif [ -n "${{ inputs.tag }}" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            # Get latest release tag
+            cd ${{ env.DEPLOY_DIR }}
+            git fetch --tags
+            TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Deploying tag: $TAG"
+
+      - name: Fetch and checkout release tag
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: |
+          git fetch --tags --force
+          git checkout ${{ steps.tag.outputs.tag }}
+
+      - name: Build and start stack
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
+
+      - name: Prune old Docker build artifacts
+        run: docker system prune -af
+
+      - name: Output deployment info
+        run: echo "::notice::Deployed ${{ steps.tag.outputs.tag }} to https://release.ogamex.dev"

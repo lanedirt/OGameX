@@ -40,6 +40,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $target_priority
  * @property int $processed
  * @property int $canceled
+ * @property array|null $wreck_field_data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Planet|null $planetFrom
@@ -99,6 +100,15 @@ use Illuminate\Support\Carbon;
  */
 class FleetMission extends Model
 {
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'wreck_field_data' => 'array',
+    ];
+
     /**
      * Get the planet that this fleet mission is going from.
      */

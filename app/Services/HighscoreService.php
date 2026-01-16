@@ -7,8 +7,11 @@ use Exception;
 use OGame\Enums\HighscoreTypeEnum;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\GameObjects\CivilShipObjects;
+use OGame\GameObjects\MilitaryShipObjects;
 use OGame\Models\Alliance;
 use OGame\Models\AllianceHighscore;
+use OGame\Models\FleetMission;
 use OGame\Models\Highscore;
 use OGame\Models\Resources;
 
@@ -261,6 +264,42 @@ class HighscoreService
     }
 
     /**
+     * Get player's total ship count across all planets and fleets.
+     *
+     * @param PlayerService $player
+     * @return int
+     * @throws Exception
+     */
+    public function getPlayerTotalShipCount(PlayerService $player): int
+    {
+        $totalShips = 0;
+
+        // Get all ship objects (military + civil)
+        $shipObjects = [...MilitaryShipObjects::get(), ...CivilShipObjects::get()];
+
+        // Count ships on all planets
+        foreach ($player->planets->all() as $planet) {
+            foreach ($shipObjects as $ship) {
+                $totalShips += $planet->getObjectAmount($ship->machine_name);
+            }
+        }
+
+        // Count ships in active fleet missions (exclude processed missions)
+        $fleetMissions = FleetMission::where('user_id', $player->getId())
+            ->where('processed', false)
+            ->get();
+        foreach ($fleetMissions as $mission) {
+            // Count ships in the mission
+            foreach ($shipObjects as $ship) {
+                $shipAmount = $mission->{$ship->machine_name} ?? 0;
+                $totalShips += $shipAmount;
+            }
+        }
+
+        return $totalShips;
+    }
+
+    /**
      * Get highscores.
      *
      * @param int $perPage
@@ -319,6 +358,12 @@ class HighscoreService
                     }
                 }
 
+                // Get total ship count for military highscore
+                $totalShips = null;
+                if ($this->highscoreType === HighscoreTypeEnum::military) {
+                    $totalShips = $this->getPlayerTotalShipCount($playerService);
+                }
+
                 $parsedHighscores[] = [
                     'id' => $playerScore->player_id,
                     'name' => $playerScore->player->username,
@@ -329,6 +374,7 @@ class HighscoreService
                     'is_admin' => $playerService->isAdmin(),
                     'alliance_tag' => $allianceTag,
                     'alliance_id' => $allianceId,
+                    'total_ships' => $totalShips,
                 ];
             }
             return $parsedHighscores;

@@ -144,7 +144,7 @@
     var jumpgateTranslation = {
         "validTargetNeeded": "@lang('You must select a valid target.')",
         "noShipsWereSelected": "@lang('No ships were selected!')",
-        "jumpSuccess": "@lang('Ships have been transferred successfully.')",
+        "jumpSuccess": "@lang('Jump has been executed successfully.')",
         "jumpError": "@lang('An error occurred during the jump.')"
     };
 

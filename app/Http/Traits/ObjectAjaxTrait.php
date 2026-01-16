@@ -77,12 +77,14 @@ trait ObjectAjaxTrait
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
 
                 $shipyard_upgrading = $player->planets->current()->isBuildingObject('shipyard');
+                $nanite_upgrading = $player->planets->current()->isBuildingObject('nano_factory');
                 break;
             case GameObjectType::Defense:
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
 
                 $shipyard_upgrading = $player->planets->current()->isBuildingObject('shipyard');
+                $nanite_upgrading = $player->planets->current()->isBuildingObject('nano_factory');
                 break;
             case GameObjectType::Research:
                 $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
@@ -111,6 +113,19 @@ trait ObjectAjaxTrait
             if (!empty($production_current->energy->get())) {
                 $energy_difference = ($production_next->energy->get() - $production_current->energy->get()) * -1;
             }
+        } elseif ($object->machine_name === 'crawler') {
+            // Special handling for Crawlers: they consume energy but don't have production property
+            // Each crawler consumes 50 energy at 100%, with additional cost for overcharge
+            $crawlerPercentage = $planet->getBuildingPercent('crawler') / 10; // Convert to decimal (0-1.5)
+            $baseEnergy = 50;
+            $energyConsumption = $baseEnergy * $crawlerPercentage;
+
+            // Add extra energy cost for overload (>100%)
+            if ($crawlerPercentage > 1.0) {
+                $energyConsumption += $baseEnergy * ($crawlerPercentage - 1.0);
+            }
+
+            $energy_difference = floor($energyConsumption);
         }
 
         $enough_resources = $planet->hasResources($price);
@@ -254,6 +269,7 @@ trait ObjectAjaxTrait
             'research_lab_upgrading' => $research_lab_upgrading ?? false,
             'research_in_progress' => $research_in_progress ?? false,
             'shipyard_upgrading' => $shipyard_upgrading ?? false,
+            'nanite_upgrading' => $nanite_upgrading ?? false,
             'ship_or_defense_in_progress' => $ship_or_defense_in_progress ?? false,
             'downgrade_price' => $downgrade_price,
             'downgrade_duration' => $downgrade_duration,
