@@ -2,7 +2,6 @@
 
 namespace OGame\Http\Controllers;
 
-use OGame\Services\SettingsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +17,7 @@ use OGame\Services\BuildingQueueService;
 use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 use OGame\Services\UnitQueueService;
 
 class ResourcesController extends AbstractBuildingsController

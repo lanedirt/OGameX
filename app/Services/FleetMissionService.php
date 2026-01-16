@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Date;
 use OGame\Enums\FleetSpeedType;
 use OGame\Factories\GameMissionFactory;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\GameConstants\UniverseConstants;
+use OGame\GameMessages\AcsDefendArrivalHost;
+use OGame\GameMessages\AcsDefendArrivalSender;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
@@ -600,18 +603,18 @@ class FleetMissionService
      */
     private function sendAcsDefendArrivalMessages(FleetMission $mission): void
     {
-        $planetServiceFactory = app(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = app(PlanetServiceFactory::class);
 
         $origin_planet = $planetServiceFactory->make($mission->planet_id_from, true);
         $target_planet = $planetServiceFactory->make($mission->planet_id_to, true);
 
         // Send message to sender (Fleet Command)
-        $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), \OGame\GameMessages\AcsDefendArrivalSender::class, [
+        $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), AcsDefendArrivalSender::class, [
             'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
         ]);
 
         // Send message to host/target (Space Monitoring)
-        $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), \OGame\GameMessages\AcsDefendArrivalHost::class, [
+        $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), AcsDefendArrivalHost::class, [
             'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
         ]);
     }
