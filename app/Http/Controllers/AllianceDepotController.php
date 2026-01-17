@@ -10,6 +10,8 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Services\AllianceDepotService;
+use OGame\Services\AllianceService;
+use OGame\Services\BuddyService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
@@ -234,6 +236,24 @@ class AllianceDepotController extends OGameController
             return response()->json([
                 'success' => false,
                 'error' => __('This fleet is not holding at your planet.'),
+            ]);
+        }
+
+        // Check if the fleet sender is a buddy or alliance member
+        $currentUserId = $player->getUser()->id;
+        $fleetSenderId = $outboundMission->user_id;
+
+        $buddyService = app(BuddyService::class);
+        $isBuddy = $buddyService->areBuddies($currentUserId, $fleetSenderId);
+
+        $allianceService = app(AllianceService::class);
+        $isAllianceMember = $allianceService->arePlayersInSameAlliance($currentUserId, $fleetSenderId);
+
+        // Only allow supplying rockets to buddies or alliance members
+        if (!$isBuddy && !$isAllianceMember) {
+            return response()->json([
+                'success' => false,
+                'error' => __('You can only send supply rockets to buddies or alliance members!'),
             ]);
         }
 
