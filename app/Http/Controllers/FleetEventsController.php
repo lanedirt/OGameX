@@ -167,26 +167,20 @@ class FleetEventsController extends OGameController
                 }
             }
 
-            // For hold time calculation, different mission types work differently:
-            // - ACS Defend (type 5): time_arrival includes hold time (raw game time)
-            // - Expeditions (type 15): time_arrival is physical arrival, need to apply fleetSpeedHolding
-            $settingsService = app(SettingsService::class);
+            // Calculate holding time for display and logic
+            // - ACS Defend (type 5): time_arrival includes hold time
+            // - Expeditions (type 15): time_arrival is physical arrival, add holding time
+            // Holding time is always real time (not affected by fleet speed)
+            $actualHoldingTime = $row->time_holding ?? 0;
+            $displayHoldingTime = $actualHoldingTime;
+
             if ($row->mission_type === 5) {
-                // ACS Defend: use raw hold time
-                $actualHoldingTime = $row->time_holding ?? 0;
                 $physicalArrivalTime = $row->time_arrival - $actualHoldingTime;
-            } elseif ($row->time_holding !== null) {
-                // Expeditions and others: apply fleetSpeedHolding conversion
-                $actualHoldingTime = (int)($row->time_holding / $settingsService->fleetSpeedHolding());
-                $physicalArrivalTime = $row->time_arrival;
             } else {
-                $actualHoldingTime = 0;
                 $physicalArrivalTime = $row->time_arrival;
             }
 
-            // Determine if mission is currently in hold period (arrived but hold hasn't expired)
-            // For Expeditions: hold from time_arrival to time_arrival + actualHoldingTime
-            // For ACS Defend: hold from physicalArrivalTime to time_arrival
+            // Determine if mission is currently in hold period
             $isInHoldPeriod = false;
             if ($actualHoldingTime > 0) {
                 if ($row->mission_type === 5) {

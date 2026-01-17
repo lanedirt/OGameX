@@ -295,18 +295,14 @@ class FleetMissionService
         // Order the list taking into account the time_holding. This ensures that the order of missions is correct
         // for the event list that assumes the first mission is the next mission to arrive.
         $missions = $missions->sortBy(function ($mission) {
-            $settingsService = app(SettingsService::class);
-            $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
-
             // If the mission has not arrived yet, return the time_arrival.
             if ($mission->time_arrival >= Date::now()->timestamp) {
                 return $mission->time_arrival;
             }
 
-            // If the mission has arrived AND has a waiting time, return the time_arrival + actual holding time.
-            $actualHoldingTime = $mission->time_holding !== null
-                ? (int)($mission->time_holding / $fleetSpeedHolding)
-                : 0;
+            // If the mission has arrived AND has a waiting time, return the time_arrival + holding time.
+            // IMPORTANT: Holding time is always real time (not affected by fleet speed)
+            $actualHoldingTime = $mission->time_holding ?? 0;
 
             return $mission->time_arrival + $actualHoldingTime;
         });
@@ -416,8 +412,6 @@ class FleetMissionService
      */
     public function getArrivedMissionsByPlanetIds(array $planetIds): Collection
     {
-        $settingsService = app(SettingsService::class);
-        $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
         $currentTime = Date::now()->timestamp;
 
         // Get unprocessed missions that have arrived
@@ -431,20 +425,18 @@ class FleetMissionService
             ->get();
 
         // Filter based on mission type and hold time
-        return $missions->filter(function ($mission) use ($currentTime, $fleetSpeedHolding) {
-            // For ACS Defend, time_arrival already includes hold time, so process immediately when arrived
+        return $missions->filter(function ($mission) use ($currentTime) {
+            // ACS Defend outbound: time_arrival includes hold time, process immediately when arrived
             $isAcsDefendOutbound = ($mission->mission_type === 5 && $mission->parent_id === null);
             if ($isAcsDefendOutbound) {
                 return true;
             }
 
-            // Other missions with hold time: Apply fleet_speed_holding multiplier
+            // Holding time is always real time (not affected by fleet speed modifier)
             if ($mission->time_holding !== null) {
-                $actualHoldTime = (int)($mission->time_holding / $fleetSpeedHolding);
-                return ($mission->time_arrival + $actualHoldTime) <= $currentTime;
+                return ($mission->time_arrival + $mission->time_holding) <= $currentTime;
             }
 
-            // Missions without hold time: Process immediately at arrival
             return true;
         });
     }
@@ -550,13 +542,12 @@ class FleetMissionService
         // - ACS Defend return (type 5, with parent): Normal processing, no hold time
         // - Expedition (type 15): Process after hold time (exploration period)
         // - Other missions: No hold time
+        // IMPORTANT: Holding time is always real time for ALL missions (not affected by fleet speed)
         $holdTime = 0;
         $isAcsDefendOutbound = ($mission->mission_type === 5 && $mission->parent_id === null);
 
         if ($mission->time_holding !== null && !$isAcsDefendOutbound) {
-            // Only apply hold time delay for non-ACS Defend outbound missions (like expeditions)
-            $settingsService = app(SettingsService::class);
-            $holdTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+            $holdTime = $mission->time_holding;
         }
 
         // Special handling for ACS Defend outbound: send arrival messages at physical arrival time
