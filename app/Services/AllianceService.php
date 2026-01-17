@@ -797,6 +797,27 @@ class AllianceService
     }
 
     /**
+     * Check if two users are in the same alliance.
+     *
+     * @param int $userId1
+     * @param int $userId2
+     * @return bool
+     */
+    public function arePlayersInSameAlliance(int $userId1, int $userId2): bool
+    {
+        $user1 = User::find($userId1);
+        $user2 = User::find($userId2);
+
+        // Both users must exist
+        if (!$user1 || !$user2) {
+            return false;
+        }
+
+        // Both users must be in the same alliance (not null)
+        return $user1->alliance_id !== null && $user1->alliance_id === $user2->alliance_id;
+    }
+
+    /**
      * Send notification to all alliance members who can manage applications.
      *
      * @param Alliance $alliance

@@ -76,10 +76,25 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     protected ?PlanetService $buddyPlanet = null;
 
     /**
+     * @var PlanetService|null The alliance member's planet (stored to ensure consistency within a test)
+     */
+    protected ?PlanetService $allianceMemberPlanet = null;
+
+    /**
+     * @var PlanetService|null The non-affiliated player's planet (stored to ensure consistency within a test)
+     */
+    protected ?PlanetService $otherPlanet = null;
+
+    /**
      * @var array<int> Track all buddy user IDs created across all tests for cleanup
      * Static to persist across test instances and avoid losing IDs during setUp()
      */
     protected static array $allCreatedBuddyUserIds = [];
+
+    /**
+     * @var int|null Track the current user's alliance ID for cleanup
+     */
+    protected ?int $createdAllianceId = null;
 
     /**
      * Set up the test case.
@@ -88,11 +103,14 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     {
         parent::setUp();
         $this->buddyPlanet = null;
+        $this->allianceMemberPlanet = null;
+        $this->otherPlanet = null;
+        $this->createdAllianceId = null;
     }
 
     /**
      * Clean up test data after each test to prevent state leakage.
-     * Only removes buddy relationships and resets vacation mode - test users and planets
+     * Only removes buddy relationships, alliance data, and resets vacation mode - test users and planets
      * remain in database but won't have special state that affects subsequent tests.
      *
      * @todo Refactor test architecture to support DatabaseTransactions/RefreshDatabase
@@ -100,6 +118,34 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
      */
     protected function tearDown(): void
     {
+        // Clean up alliance data created during this test
+        if ($this->createdAllianceId !== null) {
+            // Delete alliance members
+            DB::table('alliance_members')
+                ->where('alliance_id', $this->createdAllianceId)
+                ->delete();
+
+            // Delete alliance applications
+            DB::table('alliance_applications')
+                ->where('alliance_id', $this->createdAllianceId)
+                ->delete();
+
+            // Delete alliance
+            DB::table('alliances')
+                ->where('id', $this->createdAllianceId)
+                ->delete();
+
+            // Reset current user's alliance_id
+            if (isset($this->currentUserId)) {
+                DB::table('users')
+                    ->where('id', $this->currentUserId)
+                    ->update([
+                        'alliance_id' => null,
+                        'alliance_left_at' => null,
+                    ]);
+            }
+        }
+
         // Clean up buddy relationships and vacation mode created during this test run
         // Process and remove each ID to avoid accumulation
         while (!empty(self::$allCreatedBuddyUserIds)) {
@@ -112,6 +158,14 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
                         ->orWhere('receiver_user_id', $buddyUserId);
                 })
                 ->delete();
+
+            // Reset alliance_id for this user (in case they were added as alliance member)
+            DB::table('users')
+                ->where('id', $buddyUserId)
+                ->update([
+                    'alliance_id' => null,
+                    'alliance_left_at' => null,
+                ]);
 
             // Reset all vacation mode fields for buddy user
             // activateVacationMode() sets: vacation_mode, vacation_mode_activated_at, vacation_mode_until
@@ -946,5 +1000,136 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             $totalBattlecruisersInMissions,
             'Should only see 1 battlecruiser in active missions (no return mission during hold time). Found: ' . implode(', ', $debugInfo)
         );
+    }
+
+    /**
+     * Assert that trying to dispatch ACS Defend to alliance member planet succeeds.
+     */
+    public function testFleetCheckToAllianceMemberPlanetSuccess(): void
+    {
+        $this->basicSetup();
+        $allianceMemberUser = $this->createAllianceMemberPlayer();
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $this->checkTargetFleet($this->allianceMemberPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, true);
+    }
+
+    /**
+     * Assert that trying to dispatch ACS Defend to non-alliance, non-buddy planet fails.
+     */
+    public function testFleetCheckToNonAllianceNonBuddyPlanetError(): void
+    {
+        $this->basicSetup();
+        $otherUser = $this->createNonAffiliatedPlayer();
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $this->checkTargetFleet($this->otherPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, false);
+    }
+
+    /**
+     * Verify that dispatching ACS Defend to alliance member works and returns correctly.
+     */
+    public function testDispatchFleetReturnTripToAllianceMember(): void
+    {
+        $this->basicSetup();
+        $allianceMemberUser = $this->createAllianceMemberPlayer();
+
+        // Assert starting units
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light Fighters are not at 5 units at beginning of test.');
+
+        // Send fleet to alliance member's planet.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 2);
+        $this->dispatchFleet($this->allianceMemberPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 2);
+
+        // Verify units were deducted
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 3, 'Light Fighters not deducted after fleet dispatch.');
+
+        // Increase time to complete full mission cycle (outbound + hold + return).
+        $this->travel(20)->hours();
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Check that units are back on planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light Fighters not returned to planet after mission completion.');
+    }
+
+    /**
+     * Create an alliance relationship between current player and another player.
+     * Both players are added to the same alliance.
+     *
+     * @return User The alliance member user
+     */
+    protected function createAllianceMemberPlayer(): User
+    {
+        $allianceService = resolve(\OGame\Services\AllianceService::class);
+
+        // Create alliance for current user
+        $alliance = $allianceService->createAlliance($this->currentUserId, 'TAG', 'Test Alliance');
+        $this->createdAllianceId = $alliance->id;
+
+        // Create a fresh user for alliance member
+        $allianceMemberUser = User::factory()->create();
+        self::$allCreatedBuddyUserIds[] = $allianceMemberUser->id;
+
+        // Create a planet for the alliance member
+        $allianceMemberPlanet = Planet::factory()->create([
+            'user_id' => $allianceMemberUser->id,
+            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
+            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 6),
+            'planet' => 13,
+        ]);
+
+        // Get planet service for the alliance member's planet
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $allianceMemberPlayerService = resolve(PlayerService::class, ['player_id' => $allianceMemberUser->id]);
+        $this->allianceMemberPlanet = $planetServiceFactory->makeForPlayer($allianceMemberPlayerService, $allianceMemberPlanet->id);
+
+        // Add new member to alliance (bypass cooldown for testing)
+        /** @phpstan-ignore assign.propertyType */
+        $allianceMemberUser->alliance_id = $alliance->id;
+        $allianceMemberUser->alliance_left_at = null;
+        $allianceMemberUser->save();
+
+        \OGame\Models\AllianceMember::create([
+            'alliance_id' => $alliance->id,
+            'user_id' => $allianceMemberUser->id,
+            'rank_id' => null,
+            'joined_at' => now(),
+        ]);
+
+        return $allianceMemberUser;
+    }
+
+    /**
+     * Create a player that is neither buddy nor alliance member.
+     *
+     * @return User The non-affiliated user
+     */
+    protected function createNonAffiliatedPlayer(): User
+    {
+        // Create a fresh user that is not a buddy or alliance member
+        $otherUser = User::factory()->create();
+        self::$allCreatedBuddyUserIds[] = $otherUser->id;
+
+        // Create a planet for the other user
+        $otherPlanet = Planet::factory()->create([
+            'user_id' => $otherUser->id,
+            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
+            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 7),
+            'planet' => 14,
+        ]);
+
+        // Get planet service for the other user's planet
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $otherPlayerService = resolve(PlayerService::class, ['player_id' => $otherUser->id]);
+        $this->otherPlanet = $planetServiceFactory->makeForPlayer($otherPlayerService, $otherPlanet->id);
+
+        return $otherUser;
     }
 }
