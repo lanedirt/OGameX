@@ -517,6 +517,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         $allianceMemberPlanetService = $planetServiceFactory->make($allianceMemberPlanet->id, true);
 
         // Add alliance member to alliance (bypass cooldown for testing)
+        /** @phpstan-ignore assign.propertyType */
         $allianceMemberUser->alliance_id = $alliance->id;
         $allianceMemberUser->alliance_left_at = null;
         $allianceMemberUser->save();

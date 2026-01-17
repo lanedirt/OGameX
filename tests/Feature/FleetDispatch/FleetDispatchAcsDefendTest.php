@@ -1091,6 +1091,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $this->allianceMemberPlanet = $planetServiceFactory->makeForPlayer($allianceMemberPlayerService, $allianceMemberPlanet->id);
 
         // Add new member to alliance (bypass cooldown for testing)
+        /** @phpstan-ignore assign.propertyType */
         $allianceMemberUser->alliance_id = $alliance->id;
         $allianceMemberUser->alliance_left_at = null;
         $allianceMemberUser->save();
