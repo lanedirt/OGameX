@@ -654,8 +654,21 @@ class FleetController extends OGameController
         // Get the fleet mission id
         $fleet_mission_id = request()->input('fleet_mission_id');
 
-        // Get the fleet mission service
-        $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id);
+        // Handle fake IDs used for "wait end" rows and "return trip" rows
+        // Wait end rows use: real_id + 888888
+        // Return trip rows use: real_id + 999999
+        if ($fleet_mission_id > 888888) {
+            if ($fleet_mission_id > 999999) {
+                // This is a return trip fake ID, subtract 999999 to get real ID
+                $fleet_mission_id -= 999999;
+            } else {
+                // This is a wait end fake ID, subtract 888888 to get real ID
+                $fleet_mission_id -= 888888;
+            }
+        }
+
+        // Get the fleet mission (allow processed missions for ACS Defend recalls during hold time)
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id, false);
 
         // Sanity check: only owner of the fleet mission can recall it.
         if ($fleetMission->user_id !== $player->getId()) {
@@ -663,7 +676,16 @@ class FleetController extends OGameController
                 'components' => [],
                 'newAjaxToken' => csrf_token(),
                 'success' => false,
-            ]);
+            ], 500);
+        }
+
+        // Sanity check: mission must not already be canceled
+        if ($fleetMission->canceled) {
+            return response()->json([
+                'components' => [],
+                'newAjaxToken' => csrf_token(),
+                'success' => false,
+            ], 500);
         }
 
         // Recall the fleet mission

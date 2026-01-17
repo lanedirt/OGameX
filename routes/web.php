@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use OGame\Http\Controllers\Admin\DeveloperShortcutsController;
 use OGame\Http\Controllers\Admin\ServerSettingsController as AdminServerSettingsController;
 use OGame\Http\Controllers\AllianceController;
+use OGame\Http\Controllers\AllianceDepotController;
 use OGame\Http\Controllers\BuddiesController;
 use OGame\Http\Controllers\ChangeNickController;
 use OGame\Http\Controllers\CharacterClassController;
@@ -129,6 +130,10 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::get('/ajax/jumpgate', [JumpGateController::class, 'index'])->name('jumpgate.index');
     Route::post('/ajax/jumpgate/execute', [JumpGateController::class, 'executeJump'])->name('jumpgate.execute');
     Route::post('/ajax/jumpgate/set-default-target', [JumpGateController::class, 'setDefaultTarget'])->name('jumpgate.setdefaulttarget');
+
+    // Alliance Depot
+    Route::get('/ajax/alliance-depot', [AllianceDepotController::class, 'index'])->name('alliance-depot.index');
+    Route::post('/ajax/alliance-depot/send-supply-rocket', [AllianceDepotController::class, 'sendSupplyRocket'])->name('alliance-depot.send-supply-rocket');
 
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
