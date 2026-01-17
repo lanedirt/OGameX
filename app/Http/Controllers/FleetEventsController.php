@@ -13,7 +13,6 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\PlayerService;
-use OGame\Services\SettingsService;
 use OGame\ViewModels\FleetEventRowViewModel;
 
 class FleetEventsController extends OGameController
