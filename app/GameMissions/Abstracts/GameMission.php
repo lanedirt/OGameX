@@ -439,10 +439,8 @@ abstract class GameMission
         // Time this fleet mission will depart (arrival time of the parent mission + holding time if applicable)
         // For expeditions, the holding time must be included as the mission doesn't complete until after the hold.
         // For ACS Defend, time_arrival already includes the hold time.
-        $settingsService = app(SettingsService::class);
-        $actualHoldingTime = $parentMission->time_holding !== null
-            ? (int)($parentMission->time_holding / $settingsService->fleetSpeedHolding())
-            : 0;
+        // IMPORTANT: Holding time is always real time (not affected by fleet speed)
+        $actualHoldingTime = $parentMission->time_holding ?? 0;
 
         // For ACS Defend (type 5), time_arrival already includes hold time
         // For other missions with hold time (like Expeditions), add actual holding time
