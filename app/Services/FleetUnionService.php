@@ -25,6 +25,7 @@ class FleetUnionService
      */
     public function __construct(
         private readonly BuddyService $buddyService,
+        private readonly AllianceService $allianceService,
     ) {
     }
 
@@ -192,14 +193,10 @@ class FleetUnionService
             return true;
         }
 
-        // TODO: Check if in same alliance
-        // Pending PR that will add alliance check method for all ACS
-        // $user1 = \OGame\Models\User::find($userId1);
-        // $user2 = \OGame\Models\User::find($userId2);
-        //
-        // if ($user1 && $user2 && $user1->alliance_id && $user1->alliance_id === $user2->alliance_id) {
-        //     return true;
-        // }
+        // Check if in same alliance
+        if ($this->allianceService->arePlayersInSameAlliance($userId1, $userId2)) {
+            return true;
+        }
 
         return false;
     }
