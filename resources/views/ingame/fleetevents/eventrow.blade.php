@@ -256,13 +256,23 @@
 
 <script type="text/javascript">
     (function ($) {
-        new eventboxCountdown(
-            $("#counter-eventlist-{{ $fleet_event_row->id }}"),
-                {{ $fleet_event_row->mission_time_arrival }} - {{ time() }},
-            $("#eventListWrap"),
-            "#TODO_page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
-            [0, 1]
-        );
+        // Set up AJAX to include CSRF token for this countdown
+        var originalAjaxSetup = $.ajaxSetup;
+        var wrappedCountdown = function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            new eventboxCountdown(
+                $("#counter-eventlist-{{ $fleet_event_row->id }}"),
+                    {{ $fleet_event_row->mission_time_arrival }} - {{ time() }},
+                $("#eventListWrap"),
+                "{{ route('fleet.eventlist.checkevents') }}",
+                [{{ $fleet_event_row->id }}]
+            );
+        };
+        wrappedCountdown();
     })(jQuery);
 </script>
 
