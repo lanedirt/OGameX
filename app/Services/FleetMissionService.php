@@ -278,17 +278,16 @@ class FleetMissionService
                 // Include unprocessed missions
                 $query->where('processed', 0)
                     // Also include ACS Defend outbound missions that are processed but still in hold time
+                    // (ACS Defend is marked processed=1 immediately at arrival, before hold time ends)
                     ->orWhere(function ($query) use ($currentTime) {
-                        $settingsService = app(SettingsService::class);
-                        $fleetSpeedHolding = $settingsService->fleetSpeedHolding();
-
                         $query->where('mission_type', 5)
                             ->whereNull('parent_id')
                             ->where('processed', 1)
                             ->where('time_arrival', '<=', $currentTime)
-                            // Convert time_holding from game-time to real-world time by dividing by fleet_speed_holding
-                            ->whereRaw('time_arrival + (time_holding / ?) > ?', [$fleetSpeedHolding, $currentTime]);
+                            // IMPORTANT: Holding time is always real time (not affected by fleet speed)
+                            ->whereRaw('time_arrival + time_holding > ?', [$currentTime]);
                     });
+                // Note: Expeditions stay processed=0 during hold time, so they're already included above
             })
             ->get();
 

@@ -35,42 +35,63 @@ class FleetEventsController extends OGameController
         $typeNextMission = '';
         $timeNextMission = 0;
         $eventType = FleetMissionStatus::Friendly;
+        $currentTime = (int)Date::now()->timestamp;
 
-        if ($activeMissionRows->isNotEmpty()) {
-            $firstMission = $activeMissionRows->first();
-            $typeNextMission = $fleetMissionService->missionTypeToLabel($firstMission->mission_type) . ($firstMission->parent_id ? ' (R)' : '');
+        // Find the next event time across all missions (matches fetchEventList display logic)
+        // We need to iterate through all missions and calculate their display times because:
+        // - ACS Defend: time_arrival includes hold time, so we show physical arrival (time_arrival - hold) during travel
+        // - Expeditions: time_arrival is physical arrival, so we show hold end (time_arrival + hold) during hold
+        // This ensures the eventbox "Next:" matches the first mission shown in the events list
+        $nextEventTime = null;
+        $nextMission = null;
 
-            // Calculate the appropriate display time for the "Next:" field
-            $currentTime = (int)Date::now()->timestamp;
+        foreach ($activeMissionRows as $mission) {
+            $actualHoldingTime = $mission->time_holding ?? 0;
+            $isInHoldPeriod = false;
+            $displayTime = $mission->time_arrival;
 
-            // For ACS Defend missions (type 5), time_arrival includes hold time
-            // During travel: show physical arrival time
-            // During hold: show hold expiration time (time_arrival)
-            if ($firstMission->mission_type === 5 && $firstMission->time_holding !== null) {
-                $physicalArrivalTime = $firstMission->time_arrival - $firstMission->time_holding;
-
-                // If still traveling, show time until physical arrival
-                if ($physicalArrivalTime > $currentTime) {
-                    $timeNextMission = $physicalArrivalTime - $currentTime;
-                }
-                // If holding, show time until hold expires
-                elseif ($firstMission->time_arrival > $currentTime) {
-                    $timeNextMission = $firstMission->time_arrival - $currentTime;
-                }
-                // Hold has expired, mission complete
-                else {
-                    $timeNextMission = 0;
-                }
-            } else {
-                // For other missions, use time_arrival directly
-                if ($firstMission->time_arrival >= $currentTime) {
-                    $timeNextMission = $firstMission->time_arrival - $currentTime;
+            // Determine if this mission is currently in its hold period and calculate the display time
+            // Hold time mechanics differ between mission types:
+            if ($actualHoldingTime > 0) {
+                if ($mission->mission_type === 5) {
+                    // ACS Defend: time_arrival = physical_arrival + hold_time
+                    // Hold period: from physical arrival until time_arrival
+                    $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+                    $isInHoldPeriod = ($physicalArrivalTime <= $currentTime && $mission->time_arrival > $currentTime);
+                    // During travel: show when fleet physically arrives
+                    // During hold: show when hold expires (return departs)
+                    $displayTime = $isInHoldPeriod ? $mission->time_arrival : $physicalArrivalTime;
                 } else {
-                    $timeNextMission = 0;
+                    // Expeditions and other missions: time_arrival = physical_arrival
+                    // Hold period: from time_arrival until time_arrival + hold_time
+                    $isInHoldPeriod = ($mission->time_arrival <= $currentTime && ($mission->time_arrival + $actualHoldingTime) > $currentTime);
+                    // During travel: show when fleet arrives
+                    // During hold: show when hold expires (exploration ends)
+                    $displayTime = $isInHoldPeriod ? ($mission->time_arrival + $actualHoldingTime) : $mission->time_arrival;
                 }
             }
 
-            $eventType = $this->determineFriendly($firstMission, $player);
+            // Track the soonest upcoming event across all missions
+            // We check both missions in hold period (showing hold end) and regular missions (showing arrival)
+            if ($isInHoldPeriod) {
+                // Mission in hold period - show hold end time
+                if ($displayTime > $currentTime && ($nextEventTime === null || $displayTime < $nextEventTime)) {
+                    $nextEventTime = $displayTime;
+                    $nextMission = $mission;
+                }
+            } else {
+                // Mission traveling or no hold time - show arrival time
+                if ($displayTime > $currentTime && ($nextEventTime === null || $displayTime < $nextEventTime)) {
+                    $nextEventTime = $displayTime;
+                    $nextMission = $mission;
+                }
+            }
+        }
+
+        if ($nextMission !== null) {
+            $typeNextMission = $fleetMissionService->missionTypeToLabel($nextMission->mission_type) . ($nextMission->parent_id ? ' (R)' : '');
+            $timeNextMission = $nextEventTime - $currentTime;
+            $eventType = $this->determineFriendly($nextMission, $player);
 
             // Loop through all missions to calculate all mission counts.
             foreach ($activeMissionRows as $row) {
@@ -98,6 +119,74 @@ class FleetEventsController extends OGameController
             'eventText' => $typeNextMission,
             'newAjaxToken' => csrf_token(),
         ]);
+    }
+
+    /**
+     * Check which fleet events should be removed from the display.
+     * Called by frontend countdown timers when they expire (shows "done" status).
+     *
+     * This endpoint determines which mission rows should be cleared from the fleet widget
+     * when their countdown reaches zero. It's called via AJAX 2.5 seconds after a timer expires.
+     *
+     * Logic:
+     * - When a mission with hold time reaches its arrival, the arrival row should disappear
+     * - The fetchEventList controller filters out arrival rows for missions in hold period
+     * - This endpoint tells the frontend which IDs to remove from the DOM
+     *
+     * @param PlayerService $player
+     * @param FleetMissionService $fleetMissionService
+     * @return JsonResponse Returns JSON with format: {"rows": [123, 456]} listing mission IDs to remove
+     */
+    public function checkEvents(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
+    {
+        // Get the mission IDs that the frontend wants to check (countdown timers that expired)
+        $requestedIds = request()->input('ids', []);
+
+        // Get all currently active missions
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+
+        // Build a list of mission IDs that should still be displayed
+        // Missions in hold period are excluded because fetchEventList filters them out
+        $displayedMissionIds = [];
+        $currentTime = Date::now()->timestamp;
+
+        foreach ($activeMissions as $mission) {
+            // Determine if this mission is currently in its hold period
+            // During hold period, the arrival row is hidden but synthetic rows (hold end, return) are shown
+            $actualHoldingTime = $mission->time_holding ?? 0;
+            $isInHoldPeriod = false;
+
+            if ($actualHoldingTime > 0) {
+                if ($mission->mission_type === 5) {
+                    // ACS Defend: hold period is from physical arrival to time_arrival
+                    $physicalArrivalTime = $mission->time_arrival - $actualHoldingTime;
+                    $isInHoldPeriod = ($physicalArrivalTime <= $currentTime && $mission->time_arrival > $currentTime);
+                } else {
+                    // Expeditions: hold period is from time_arrival to time_arrival + hold_time
+                    $isInHoldPeriod = ($mission->time_arrival <= $currentTime && ($mission->time_arrival + $actualHoldingTime) > $currentTime);
+                }
+            }
+
+            // Only include missions that are NOT in hold period (their arrival row should be shown)
+            if (!$isInHoldPeriod) {
+                $displayedMissionIds[] = $mission->id;
+            }
+        }
+
+        // Determine which requested IDs should be removed from the display
+        // If a mission ID is not in the displayed set, it should be removed from the DOM
+        $idsToRemove = [];
+        foreach ($requestedIds as $requestedId) {
+            if (!in_array($requestedId, $displayedMissionIds)) {
+                $idsToRemove[] = $requestedId;
+            }
+        }
+
+        // Return JSON with Content-Type: text/plain to prevent jQuery from auto-parsing
+        // The legacy JavaScript calls $.parseJSON(data) which expects a string, not an object
+        return response()->json([
+            'rows' => $idsToRemove
+        ])->header('Content-Type', 'text/plain');
     }
 
     /**
