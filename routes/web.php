@@ -116,6 +116,7 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
 
     Route::get('/ajax/fleet/eventbox/fetch', [FleetEventsController::class, 'fetchEventBox'])->name('fleet.eventbox.fetch');
     Route::get('/ajax/fleet/eventlist/fetch', [FleetEventsController::class, 'fetchEventList'])->name('fleet.eventlist.fetch');
+    Route::post('/ajax/fleet/eventlist/checkevents', [FleetEventsController::class, 'checkEvents'])->name('fleet.eventlist.checkevents');
 
     // Galaxy
     Route::get('/galaxy', [GalaxyController::class, 'index'])->name('galaxy.index');
