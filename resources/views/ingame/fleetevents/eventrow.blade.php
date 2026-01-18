@@ -256,14 +256,21 @@
 
 <script type="text/javascript">
     (function ($) {
-        // Set up AJAX to include CSRF token for this countdown
-        var originalAjaxSetup = $.ajaxSetup;
+        // Initialize countdown timer for this fleet mission row
+        // When the countdown reaches zero, it calls the checkEvents endpoint to determine
+        // which mission rows should be removed from the display (e.g., arrival missions entering hold time)
+
+        // Set up AJAX to include CSRF token for Laravel authentication
         var wrappedCountdown = function() {
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
+            // Initialize the countdown timer
+            // Parameters: countdown element, time remaining (seconds), parent container,
+            //             checkEvents URL, mission IDs to check when timer expires
             new eventboxCountdown(
                 $("#counter-eventlist-{{ $fleet_event_row->id }}"),
                     {{ $fleet_event_row->mission_time_arrival }} - {{ time() }},
