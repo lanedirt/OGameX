@@ -708,7 +708,7 @@ class ExpeditionMission extends GameMission
 
         // Create debris field for expedition battles at position 16 (deep space)
         // Expedition battles create debris fields that can only be collected by Pathfinders (Discoverer class)
-        $expeditionCoords = new \OGame\Models\Planet\Coordinate($mission->galaxy_to, $mission->system_to, 16);
+        $expeditionCoords = new Coordinate($mission->galaxy_to, $mission->system_to, 16);
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadOrCreateForCoordinates($expeditionCoords);
 
