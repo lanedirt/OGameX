@@ -36,6 +36,7 @@ use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\CharacterClassService;
 use OGame\Services\DarkMatterService;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\MerchantService;
 use OGame\Services\NPCFleetGeneratorService;
 use OGame\Services\NPCPlanetService;
@@ -705,27 +706,47 @@ class ExpeditionMission extends GameMission
         // Note: Battle report uses origin planet coordinates, not deep space position 16
         $reportId = $this->createExpeditionBattleReport($player, $npcPlayer, $originPlanet, $battleResult);
 
-        // TODO: Debris field creation for expedition battles
-        // Currently, expedition battles do NOT create debris fields at position 16.
-        // This will change when player classes are introduced - the Discoverer class
-        // will be able to collect debris from expedition battles at position 16.
-        // When implementing player classes, add debris field creation here:
-        //
-        // Important notes:
-        // 1. Debris field should be created at position 16 (deep space), NOT at the origin planet.
-        //    The battle report uses the origin planet coordinates, but debris is at position 16.
-        // 2. Expedition battles only create 10% debris (not the standard 30%).
-        //    Recalculate debris from battle losses: (attacker + defender losses) × 10% × debris field percentage.
-        // 3. Only Pathfinders (with Discoverer class) can collect expedition debris, not Recyclers.
-        //
-        // $expeditionCoords = new \OGame\Models\Planet\Coordinate($mission->galaxy_to, $mission->system_to, 16);
-        // $debrisFieldService = resolve(DebrisFieldService::class);
-        // $debrisFieldService->loadOrCreateForCoordinates($expeditionCoords);
-        // // Calculate 10% debris instead of using $battleResult->debris (which uses 30%)
-        // $totalLosses = $battleResult->attackerResourceLoss->add($battleResult->defenderResourceLoss);
-        // $expeditionDebris = $totalLosses->multiply(0.10); // 10% for expeditions
-        // $debrisFieldService->appendResources($expeditionDebris);
-        // $debrisFieldService->save();
+        // Create debris field for expedition battles at position 16 (deep space)
+        // Expedition battles create debris fields that can only be collected by Pathfinders (Discoverer class)
+        $expeditionCoords = new \OGame\Models\Planet\Coordinate($mission->galaxy_to, $mission->system_to, 16);
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($expeditionCoords);
+        
+        // Calculate expedition debris: 10% of battle losses (not the standard 30%)
+        // Use the same logic as normal battles but with 10% rate instead of settings percentage
+        $expeditionDebrisRate = 0.10; // 10% for expeditions
+        $deuteriumOn = $this->settings->debrisFieldDeuteriumOn();
+        
+        // Calculate debris from all units lost in battle (attacker + defender)
+        $allUnitsLost = clone $battleResult->attackerUnitsLost;
+        foreach ($battleResult->defenderUnitsLost->units as $unit) {
+            $allUnitsLost->addUnit($unit->unitObject, $unit->amount);
+        }
+        
+        $metal = 0;
+        $crystal = 0;
+        $deuterium = 0;
+        
+        foreach ($allUnitsLost->units as $unit) {
+            $unitMetal = $unit->unitObject->price->resources->metal->get() * $unit->amount;
+            $unitCrystal = $unit->unitObject->price->resources->crystal->get() * $unit->amount;
+            $unitDeuterium = $unit->unitObject->price->resources->deuterium->get() * $unit->amount;
+            
+            $metal += floor($unitMetal * $expeditionDebrisRate);
+            $crystal += floor($unitCrystal * $expeditionDebrisRate);
+            
+            if ($deuteriumOn) {
+                $deuterium += floor($unitDeuterium * $expeditionDebrisRate);
+            }
+        }
+        
+        $expeditionDebris = new Resources($metal, $crystal, $deuterium, 0);
+        
+        // Only create debris field if there's actually debris to add
+        if ($expeditionDebris->sum() > 0) {
+            $debrisFieldService->appendResources($expeditionDebris);
+            $debrisFieldService->save();
+        }
 
         // Process battle result
         $survivingUnits = $battleResult->attackerUnitsResult;
