@@ -711,37 +711,37 @@ class ExpeditionMission extends GameMission
         $expeditionCoords = new \OGame\Models\Planet\Coordinate($mission->galaxy_to, $mission->system_to, 16);
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadOrCreateForCoordinates($expeditionCoords);
-        
+
         // Calculate expedition debris: 10% of battle losses (not the standard 30%)
         // Use the same logic as normal battles but with 10% rate instead of settings percentage
         $expeditionDebrisRate = 0.10; // 10% for expeditions
         $deuteriumOn = $this->settings->debrisFieldDeuteriumOn();
-        
+
         // Calculate debris from all units lost in battle (attacker + defender)
         $allUnitsLost = clone $battleResult->attackerUnitsLost;
         foreach ($battleResult->defenderUnitsLost->units as $unit) {
             $allUnitsLost->addUnit($unit->unitObject, $unit->amount);
         }
-        
+
         $metal = 0;
         $crystal = 0;
         $deuterium = 0;
-        
+
         foreach ($allUnitsLost->units as $unit) {
             $unitMetal = $unit->unitObject->price->resources->metal->get() * $unit->amount;
             $unitCrystal = $unit->unitObject->price->resources->crystal->get() * $unit->amount;
             $unitDeuterium = $unit->unitObject->price->resources->deuterium->get() * $unit->amount;
-            
+
             $metal += floor($unitMetal * $expeditionDebrisRate);
             $crystal += floor($unitCrystal * $expeditionDebrisRate);
-            
+
             if ($deuteriumOn) {
                 $deuterium += floor($unitDeuterium * $expeditionDebrisRate);
             }
         }
-        
+
         $expeditionDebris = new Resources($metal, $crystal, $deuterium, 0);
-        
+
         // Only create debris field if there's actually debris to add
         if ($expeditionDebris->sum() > 0) {
             $debrisFieldService->appendResources($expeditionDebris);
