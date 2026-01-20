@@ -51,7 +51,10 @@ class DefenseController extends AbstractUnitsController
 
         return view(view: 'ingame.defense.index')->with(
             array_merge(
-                ['shipyard_upgrading' => $player->planets->current()->isBuildingObject('shipyard')],
+                [
+                    'shipyard_upgrading' => $player->planets->current()->isBuildingObject('shipyard'),
+                    'nanite_upgrading' => $player->planets->current()->isBuildingObject('nano_factory')
+                ],
                 parent::indexPage($request, $player)
             )
         );

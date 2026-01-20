@@ -208,7 +208,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         );
 
         // Advance time for defend fleet to arrive and start holding
-        $this->travelTo(Carbon::createFromTimestamp($acsDefendMission->time_arrival + 10));
+        // With the new architecture, time_arrival includes hold time, so calculate physical arrival
+        $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
+        $this->travelTo(Carbon::createFromTimestamp($physicalArrivalTime + 10));
         $this->reloadApplication();
 
         // Now send attack fleet - it should arrive while defend fleet is still holding
@@ -272,8 +274,10 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
             2 // Hold for 2 hours
         );
 
-        // Advance time so ACS defend fleet arrives
-        $this->travelTo(Carbon::createFromTimestamp($acsDefendMission->time_arrival + 10));
+        // Advance time so ACS defend fleet arrives (during hold period)
+        // With the new architecture, time_arrival includes hold time, so calculate physical arrival
+        $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
+        $this->travelTo(Carbon::createFromTimestamp($physicalArrivalTime + 10));
         $this->reloadApplication();
         $this->get('/overview');
 
@@ -354,8 +358,10 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
             2 // Hold for 2 hours
         );
 
-        // Advance time so ACS defend fleet arrives
-        $this->travelTo(Carbon::createFromTimestamp($acsDefendMission->time_arrival + 10));
+        // Advance time so ACS defend fleet arrives (during hold period)
+        // With the new architecture, time_arrival includes hold time, so calculate physical arrival
+        $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
+        $this->travelTo(Carbon::createFromTimestamp($physicalArrivalTime + 10));
         $this->reloadApplication();
         $this->get('/overview');
 
@@ -434,8 +440,10 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
             2 // Hold for 2 hours
         );
 
-        // Advance time so ACS defend fleet arrives
-        $this->travelTo(Carbon::createFromTimestamp($acsDefendMission->time_arrival + 10));
+        // Advance time so ACS defend fleet arrives (during hold period)
+        // With the new architecture, time_arrival includes hold time, so calculate physical arrival
+        $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
+        $this->travelTo(Carbon::createFromTimestamp($physicalArrivalTime + 10));
         $this->reloadApplication();
         $this->get('/overview');
 
@@ -558,9 +566,12 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
             2 // Hold for 2 hours
         );
 
-        // Advance time so both ACS defend fleets arrive
-        $maxArrivalTime = max($acsDefendMission1->time_arrival, $acsDefendMission2->time_arrival);
-        $this->travelTo(Carbon::createFromTimestamp($maxArrivalTime + 10));
+        // Advance time so both ACS defend fleets arrive (during hold period)
+        // With the new architecture, time_arrival includes hold time, so calculate physical arrival
+        $physicalArrivalTime1 = $acsDefendMission1->time_arrival - $acsDefendMission1->time_holding;
+        $physicalArrivalTime2 = $acsDefendMission2->time_arrival - $acsDefendMission2->time_holding;
+        $maxPhysicalArrivalTime = max($physicalArrivalTime1, $physicalArrivalTime2);
+        $this->travelTo(Carbon::createFromTimestamp($maxPhysicalArrivalTime + 10));
         $this->reloadApplication();
         $this->get('/overview');
 

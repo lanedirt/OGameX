@@ -261,7 +261,8 @@ The following projects either host OGameX servers or are based on the OGameX cor
 
 | Project Name | Description | Link | Type |
 |-------------|-------------|------|------|
+| MWarfare | MWarfare is derived from the OGameX project, it takes the game forward using modern technology and game design to create a more realistic version of OGame that the community has long deserved. | https://mwarfare.com/ | Not Open Source
 | OGameX Combat Simulator | High-performance OGame combat simulator based on the OGameX Rust battle engine. Features a blazing fast Rust-powered WASM engine (~200x faster than PHP), client-side calculations that work offline, and accurate battle simulations based on OGameX formulas. | [GitHub](https://github.com/rbardtke/OgameX-Combat-Simulator) | Open Source (MIT) |
-| Space Rivals | Built on top of the OGameX core with many different customizations and features. | [Visit](https://space-rivals.net/) | Not Open Source |
+| Space Rivals | Built on top of the OGameX core with many different customizations and features. | https://space-rivals.net | Not Open Source |
 
 Do you want your own OGameX-related project to be listed here? Create an issue in the [GitHub issues page](https://github.com/lanedirt/OGameX/issues) and provide details about your project.

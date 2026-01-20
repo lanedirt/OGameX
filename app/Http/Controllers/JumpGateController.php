@@ -193,7 +193,7 @@ class JumpGateController extends OGameController
 
         return response()->json([
             'success' => true,
-            'message' => __('Ships have been transferred successfully.'),
+            'message' => __('Jump has been executed successfully.'),
             'redirect' => route('facilities.index', ['cp' => $target_moon_id]),
         ]);
     }

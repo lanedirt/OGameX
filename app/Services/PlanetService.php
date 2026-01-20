@@ -1942,6 +1942,16 @@ class PlanetService
             $building_production_total->add($production);
         }
 
+        // Add crawler energy consumption (only once, not per mine)
+        // Crawlers are special: their production bonus is calculated per mine,
+        // but their energy consumption should only be counted once per planet
+        $crawlerEnergy = $this->getCrawlerEnergyConsumption();
+        if ($crawlerEnergy < 0) {
+            $crawler_energy_consumption = abs($crawlerEnergy);
+            $building_production_total->energy->add(new Resource($crawler_energy_consumption));
+            $energy_consumption_total += $crawler_energy_consumption;
+        }
+
         // After all production values are calculated, we need to calculate the actual fusion plant energy production.
         // This is done by comparing deuterium consumption with deuterium production. If consumption is higher
         // than production and there is no deuterium in storage, we need to set the energy production to 0.
@@ -2055,6 +2065,26 @@ class PlanetService
         $productionIndex->total->energy->set(floor($productionIndex->total->energy->get()));
 
         return $productionIndex->total;
+    }
+
+    /**
+     * Get crawler energy consumption for this planet.
+     * This is separate from building production to avoid counting crawler energy multiple times.
+     *
+     * @return int Negative value representing energy consumption
+     */
+    private function getCrawlerEnergyConsumption(): int
+    {
+        // Get metal mine object (we only need one to access the production calculator)
+        $metalMine = ObjectService::getGameObjectsWithProductionByMachineName('metal_mine');
+
+        // Set up the production calculator with planet context
+        $metalMine->production->planetService = $this;
+        $metalMine->production->playerService = $this->player;
+        $metalMine->production->characterClassService = app(CharacterClassService::class);
+        $metalMine->production->universe_speed = $this->settingsService->economySpeed();
+
+        return $metalMine->production->getCrawlerEnergyConsumption();
     }
 
     /**

@@ -4,8 +4,6 @@ namespace OGame\GameMissions;
 
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
-use OGame\GameMessages\AcsDefendArrivalHost;
-use OGame\GameMessages\AcsDefendArrivalSender;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -13,6 +11,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\AllianceService;
 use OGame\Services\BuddyService;
 use OGame\Services\PlanetService;
 
@@ -21,7 +20,7 @@ class AcsDefendMission extends GameMission
     protected static string $name = 'ACS Defend';
     protected static int $typeId = 5;
     protected static bool $hasReturnMission = true;
-    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
+    protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::holding;
     protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Friendly;
 
     /**
@@ -56,17 +55,19 @@ class AcsDefendMission extends GameMission
             return $vacationCheck;
         }
 
-        // Check if players are buddies (accepted buddy request exists)
+        // Check if players are buddies (accepted buddy request exists) or in the same alliance
         $currentUserId = $planet->getPlayer()->getUser()->id;
         $targetUserId = $targetPlanet->getPlayer()->getUser()->id;
 
         $buddyService = app(BuddyService::class);
         $isBuddy = $buddyService->areBuddies($currentUserId, $targetUserId);
 
-        // TODO: Add alliance check when alliance system is implemented
-        // For now, only allow ACS Defend to buddy planets
-        if (!$isBuddy) {
-            return new MissionPossibleStatus(false, __('You can only send ACS Defend missions to buddies!'));
+        $allianceService = app(AllianceService::class);
+        $isAllianceMember = $allianceService->arePlayersInSameAlliance($currentUserId, $targetUserId);
+
+        // Only allow ACS Defend to buddies or alliance members
+        if (!$isBuddy && !$isAllianceMember) {
+            return new MissionPossibleStatus(false, __('You can only send ACS Defend missions to buddies or alliance members!'));
         }
 
         // If all checks pass, the mission is possible.
@@ -78,28 +79,16 @@ class AcsDefendMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
-        $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        // Note: Arrival messages are sent earlier when the fleet physically arrives (start of hold time)
+        // via FleetMissionService::sendAcsDefendArrivalMessages()
+        // This method is called after the hold time expires to create the return mission
 
-        // Send message to sender (Fleet Command)
-        $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), AcsDefendArrivalSender::class, [
-            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
-        ]);
-
-        // Send message to host/target (Space Monitoring)
-        $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), AcsDefendArrivalHost::class, [
-            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
-        ]);
+        // Create and start the return mission
+        $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
 
         // Mark the arrival mission as processed
         $mission->processed = 1;
         $mission->save();
-
-        // Create and start the return mission after hold time expires
-        // Preserve any resources sent with the fleet (like recycle mission behavior)
-        $resources = $this->fleetMissionService->getResources($mission);
-        $units = $this->fleetMissionService->getFleetUnits($mission);
-        $this->startReturn($mission, $resources, $units);
     }
 
     /**
@@ -112,6 +101,12 @@ class AcsDefendMission extends GameMission
 
         // Return units to the destination planet
         $destination_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
+
+        // Add resources to the destination planet (if any).
+        $return_resources = $this->fleetMissionService->getResources($mission);
+        if ($return_resources->any()) {
+            $destination_planet->addResources($return_resources);
+        }
 
         // Send message to player that the return mission has arrived.
         $this->sendFleetReturnMessage($mission, $destination_planet->getPlayer());

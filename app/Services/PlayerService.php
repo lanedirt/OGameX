@@ -96,7 +96,7 @@ class PlayerService
     public function load(int $id): void
     {
         // Fetch user from model
-        $user = User::where('id', $id)->first();
+        $user = User::with('highscore')->where('id', $id)->first();
         $this->user = $user;
 
         // Fetch user tech from model
@@ -509,8 +509,14 @@ class PlayerService
         $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
 
         // Exclude missile attacks (type 10) as they don't use fleet slots
+        // All other missions use fleet slots for their entire duration (travel + hold + return)
         $fleetMissions = $activeMissions->filter(function ($mission) {
-            return $mission->mission_type !== 10;
+            // Exclude missile attacks
+            if ($mission->mission_type === 10) {
+                return false;
+            }
+
+            return true;
         });
 
         return $fleetMissions->count();

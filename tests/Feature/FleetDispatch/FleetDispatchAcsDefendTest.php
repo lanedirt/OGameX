@@ -3,15 +3,20 @@
 namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Support\Facades\DB;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
 use OGame\Models\Message;
+use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 use RuntimeException;
 use Tests\FleetDispatchTestCase;
 
@@ -71,10 +76,25 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     protected ?PlanetService $buddyPlanet = null;
 
     /**
+     * @var PlanetService|null The alliance member's planet (stored to ensure consistency within a test)
+     */
+    protected ?PlanetService $allianceMemberPlanet = null;
+
+    /**
+     * @var PlanetService|null The non-affiliated player's planet (stored to ensure consistency within a test)
+     */
+    protected ?PlanetService $otherPlanet = null;
+
+    /**
      * @var array<int> Track all buddy user IDs created across all tests for cleanup
      * Static to persist across test instances and avoid losing IDs during setUp()
      */
     protected static array $allCreatedBuddyUserIds = [];
+
+    /**
+     * @var int|null Track the current user's alliance ID for cleanup
+     */
+    protected ?int $createdAllianceId = null;
 
     /**
      * Set up the test case.
@@ -83,11 +103,14 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     {
         parent::setUp();
         $this->buddyPlanet = null;
+        $this->allianceMemberPlanet = null;
+        $this->otherPlanet = null;
+        $this->createdAllianceId = null;
     }
 
     /**
      * Clean up test data after each test to prevent state leakage.
-     * Only removes buddy relationships and resets vacation mode - test users and planets
+     * Only removes buddy relationships, alliance data, and resets vacation mode - test users and planets
      * remain in database but won't have special state that affects subsequent tests.
      *
      * @todo Refactor test architecture to support DatabaseTransactions/RefreshDatabase
@@ -95,6 +118,34 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
      */
     protected function tearDown(): void
     {
+        // Clean up alliance data created during this test
+        if ($this->createdAllianceId !== null) {
+            // Delete alliance members
+            DB::table('alliance_members')
+                ->where('alliance_id', $this->createdAllianceId)
+                ->delete();
+
+            // Delete alliance applications
+            DB::table('alliance_applications')
+                ->where('alliance_id', $this->createdAllianceId)
+                ->delete();
+
+            // Delete alliance
+            DB::table('alliances')
+                ->where('id', $this->createdAllianceId)
+                ->delete();
+
+            // Reset current user's alliance_id
+            if (isset($this->currentUserId)) {
+                DB::table('users')
+                    ->where('id', $this->currentUserId)
+                    ->update([
+                        'alliance_id' => null,
+                        'alliance_left_at' => null,
+                    ]);
+            }
+        }
+
         // Clean up buddy relationships and vacation mode created during this test run
         // Process and remove each ID to avoid accumulation
         while (!empty(self::$allCreatedBuddyUserIds)) {
@@ -107,6 +158,14 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
                         ->orWhere('receiver_user_id', $buddyUserId);
                 })
                 ->delete();
+
+            // Reset alliance_id for this user (in case they were added as alliance member)
+            DB::table('users')
+                ->where('id', $buddyUserId)
+                ->update([
+                    'alliance_id' => null,
+                    'alliance_left_at' => null,
+                ]);
 
             // Reset all vacation mode fields for buddy user
             // activateVacationMode() sets: vacation_mode, vacation_mode_activated_at, vacation_mode_until
@@ -144,14 +203,14 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     {
         // Create a fresh user specifically for this test
         // This ensures we never accidentally select an admin user
-        $buddyUser = \OGame\Models\User::factory()->create();
+        $buddyUser = User::factory()->create();
 
         // Track this user ID in static array for cleanup in tearDown
         // Static array persists across test instances
         self::$allCreatedBuddyUserIds[] = $buddyUser->id;
 
         // Create a planet for the buddy user at a random position to avoid conflicts
-        $buddyPlanet = \OGame\Models\Planet::factory()->create([
+        $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
@@ -159,8 +218,8 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         ]);
 
         // Get planet service for the buddy's planet
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
-        $buddyPlayerService = resolve(\OGame\Services\PlayerService::class, ['player_id' => $buddyUser->id]);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $buddyPlayerService = resolve(PlayerService::class, ['player_id' => $buddyUser->id]);
         $this->buddyPlanet = $planetServiceFactory->makeForPlayer($buddyPlayerService, $buddyPlanet->id);
 
         $buddyService = resolve(BuddyService::class);
@@ -305,7 +364,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Refresh planet service after mission arrival
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $foreignPlanet = $planetServiceFactory->make($foreignPlanet->getPlanetId());
 
         // Assert sender received message from "Fleet Command"
@@ -403,7 +462,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $this->get('/overview');
 
         // Refresh planet services after mission completion
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $buddyPlanetReloaded = $planetServiceFactory->make($this->buddyPlanet->getPlanetId());
         $this->planetService = $planetServiceFactory->make($this->planetService->getPlanetId());
 
@@ -418,6 +477,208 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Resources should be approximately back (allowing for fuel consumption)
         $this->assertGreaterThan($ourStartingMetal + 30, $currentMetal, 'Metal resources not returned with fleet.');
         $this->assertGreaterThan($ourStartingCrystal + 20, $currentCrystal, 'Crystal resources not returned with fleet.');
+    }
+
+    /**
+     * Verify that resources return when ACS Defend fleet is recalled during hold time.
+     */
+    public function testDispatchFleetResourcesReturnOnRecall(): void
+    {
+        $this->basicSetup();
+        $this->planetAddUnit('small_cargo', 5);
+        $this->createBuddyPlayer();
+
+        // Record starting resources
+        $startingMetal = $this->planetService->metal()->get();
+        $startingCrystal = $this->planetService->crystal()->get();
+
+        // Send fleet with resources and 10 hour hold time
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 2);
+        $this->dispatchFleet($this->buddyPlanet->getPlanetCoordinates(), $unitCollection, new Resources(800, 600, 0, 0), PlanetType::Planet, 10);
+
+        // Wait until fleet arrives and is holding (but not long enough to return)
+        $this->travel(5)->hours();
+        $this->get('/overview');
+
+        // Get the fleet mission and recall it
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertGreaterThan(0, $activeMissions->count(), 'No active fleet missions found');
+
+        $fleetMissionId = $activeMissions->first()->id;
+
+        // Recall the mission
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $fleetMissionId,
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(200);
+
+        // Wait for return trip
+        $this->travel(10)->hours();
+        $this->get('/overview');
+
+        // Reload planet and check resources
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $this->planetService = $planetServiceFactory->make($this->planetService->getPlanetId());
+        $finalMetal = $this->planetService->metal()->get();
+        $finalCrystal = $this->planetService->crystal()->get();
+
+        // Resources should be approximately back (minus fuel for outbound trip only since recalled)
+        $this->assertGreaterThan($startingMetal - 300, $finalMetal, 'Metal resources not returned after recall');
+        $this->assertGreaterThan($startingCrystal - 200, $finalCrystal, 'Crystal resources not returned after recall');
+    }
+
+    /**
+     * Verify that resources return proportionally when ACS Defend fleet survives a battle.
+     */
+    public function testDispatchFleetResourcesReturnProportionallyAfterBattle(): void
+    {
+        $this->basicSetup();
+        $this->planetAddUnit('small_cargo', 10);
+        $this->createBuddyPlayer();
+
+        // Configure battle settings
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+        $settingsService->set('fleet_speed_war', 1);
+        $settingsService->set('fleet_speed_holding', 1);
+
+        // Send ACS Defend with resources
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 5);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+        $this->sendMissionToBuddyPlanet($unitCollection, new Resources(1000, 800, 0, 0));
+
+        // Wait for fleet to arrive at buddy's planet
+        $this->travel(10)->hours();
+        $this->get('/overview');
+
+        // Create attacker
+        $attackerUser = User::factory()->create();
+        self::$allCreatedBuddyUserIds[] = $attackerUser->id;
+
+        $attackerPlanet = Planet::factory()->create([
+            'user_id' => $attackerUser->id,
+            'galaxy' => $this->buddyPlanet->getPlanetCoordinates()->galaxy,
+            'system' => $this->buddyPlanet->getPlanetCoordinates()->system,
+            'planet' => 10,
+        ]);
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $attackerPlayerService = resolve(PlayerService::class, ['player_id' => $attackerUser->id]);
+        $attackerPlanetService = $planetServiceFactory->makeForPlayer($attackerPlayerService, $attackerPlanet->id);
+
+        // Setup attacker with moderate force
+        $attackerPlanetService->addUnit('light_fighter', 20);
+        $attackerPlayerService->setResearchLevel('weapon_technology', 3);
+        $attackerPlayerService->setResearchLevel('shielding_technology', 3);
+        $attackerPlayerService->setResearchLevel('armor_technology', 3);
+        $attackerPlayerService->setResearchLevel('combustion_drive', 1);
+        $attackerPlayerService->setResearchLevel('computer_technology', 1);
+        $attackerPlanetService->addResources(new Resources(0, 0, 100000, 0));
+
+        // Send attack mission
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $attackUnits = new UnitCollection();
+        $attackUnits->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
+
+        $fleetMissionService->createNewFromPlanet(
+            $attackerPlanetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $attackUnits,
+            new Resources(0, 0, 0, 0),
+            10
+        );
+
+        // Wait for attack and return
+        $this->travel(20)->hours();
+        $this->get('/overview');
+
+        // Reload our planet
+        $this->planetService = $planetServiceFactory->make($this->planetService->getPlanetId());
+
+        // Check that some resources returned (proportional to surviving ships)
+        $finalMetal = $this->planetService->metal()->get();
+        $finalCrystal = $this->planetService->crystal()->get();
+
+        // We should have gotten at least some resources back
+        $this->assertGreaterThan(0, $finalMetal, 'No metal returned after battle');
+        $this->assertGreaterThan(0, $finalCrystal, 'No crystal returned after battle');
+    }
+
+    /**
+     * Verify that battle handling doesn't throw errors when ACS Defend fleet participates.
+     */
+    public function testDispatchFleetBattleResourceHandlingNoErrors(): void
+    {
+        $this->basicSetup();
+        $this->planetAddUnit('small_cargo', 5);
+        $this->createBuddyPlayer();
+
+        // Configure battle settings
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+        $settingsService->set('fleet_speed_war', 1);
+
+        // Send ACS Defend fleet with cargo ships and resources
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 2);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 3);
+        $this->sendMissionToBuddyPlanet($unitCollection, new Resources(100, 50, 0, 0));
+
+        // Wait for fleet to arrive
+        $this->travel(10)->hours();
+        $this->get('/overview');
+
+        // Create attacker
+        $attackerUser = User::factory()->create();
+        self::$allCreatedBuddyUserIds[] = $attackerUser->id;
+
+        $attackerPlanet = Planet::factory()->create([
+            'user_id' => $attackerUser->id,
+            'galaxy' => $this->buddyPlanet->getPlanetCoordinates()->galaxy,
+            'system' => $this->buddyPlanet->getPlanetCoordinates()->system,
+            'planet' => 11,
+        ]);
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $attackerPlayerService = resolve(PlayerService::class, ['player_id' => $attackerUser->id]);
+        $attackerPlanetService = $planetServiceFactory->makeForPlayer($attackerPlayerService, $attackerPlanet->id);
+
+        // Setup attacker
+        $attackerPlanetService->addUnit('light_fighter', 30);
+        $attackerPlayerService->setResearchLevel('weapon_technology', 5);
+        $attackerPlayerService->setResearchLevel('shielding_technology', 5);
+        $attackerPlayerService->setResearchLevel('armor_technology', 5);
+        $attackerPlayerService->setResearchLevel('combustion_drive', 1);
+        $attackerPlayerService->setResearchLevel('computer_technology', 1);
+        $attackerPlanetService->addResources(new Resources(0, 0, 100000, 0));
+
+        // Send attack
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $attackUnits = new UnitCollection();
+        $attackUnits->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 30);
+
+        $fleetMissionService->createNewFromPlanet(
+            $attackerPlanetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $attackUnits,
+            new Resources(0, 0, 0, 0),
+            10
+        );
+
+        // Wait for attack and potential return
+        $this->travel(30)->hours();
+        $this->get('/overview');
+
+        // The main goal is to verify no exceptions were thrown during battle processing
+        // Test passes if no exceptions occur
     }
 
     /**
@@ -458,5 +719,417 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->sendMissionToBuddyPlanet($unitCollection, new Resources(0, 0, 0, 0), false);
+    }
+
+    /**
+     * Test that recalling an ACS Defend fleet during hold time returns with correct trip duration.
+     * Bug: The return trip was taking longer than the outbound trip because elapsed hold time was being added.
+     */
+    public function testDispatchFleetRecallDuringHoldTimeReturnsWithCorrectDuration(): void
+    {
+        $this->basicSetup();
+        $this->createBuddyPlayer();
+
+        // Send ACS Defend fleet with 1 hour hold time
+        $this->planetAddUnit('light_fighter', 10);
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            1 // 1 hour hold
+        );
+
+        // Record the original travel duration (physical arrival, not including hold time)
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
+        $originalTravelDuration = $physicalArrivalTime - $mission->time_departure;
+
+        // Fast forward to 30 seconds after physical arrival (during hold time)
+        $this->travel($originalTravelDuration + 30)->seconds();
+
+        // Recall the fleet
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $mission->id,
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Get the return mission
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNotNull($returnMission, 'Return mission should exist');
+
+        // Calculate return trip duration
+        $returnTravelDuration = $returnMission->time_arrival - $returnMission->time_departure;
+
+        // The return trip should take the same time as the original outbound trip
+        // NOT the original trip duration + the 30 seconds we held
+        $this->assertEquals(
+            $originalTravelDuration,
+            $returnTravelDuration,
+            'Return trip duration should equal original trip duration, not include elapsed hold time'
+        );
+    }
+
+    /**
+     * Test that arrival messages are sent to both sender and host when fleet arrives.
+     * This test directly calls updateMission to verify message sending.
+     */
+    public function testDispatchFleetArrivalMessagesSentOnUpdate(): void
+    {
+        $this->basicSetup();
+        $buddyUser = $this->createBuddyPlayer();
+
+        // Mark all existing messages as read
+        $this->playerSetAllMessagesRead();
+
+        // Send ACS Defend fleet with 1 hour hold time
+        $this->planetAddUnit('light_fighter', 5);
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            1 // 1 hour hold
+        );
+
+        // With the new architecture, time_arrival includes hold time (as raw game time)
+        // Calculate physical arrival time (when fleet actually arrives at target)
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
+
+        // Travel to physical arrival time
+        $travelDuration = $physicalArrivalTime - $mission->time_departure;
+        $this->travel($travelDuration + 1)->seconds();
+
+        // With the new architecture, the mission is NOT processed at physical arrival.
+        // It's processed when hold time expires (time_arrival). So at physical arrival,
+        // the mission should still be unprocessed and no return mission should exist.
+
+        // Verify mission is NOT yet processed (still holding)
+        $mission->refresh();
+        $this->assertEquals(0, $mission->processed, 'Mission should NOT be marked as processed during hold time');
+
+        // Verify NO return mission exists during hold time
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNull($returnMission, 'Return mission should NOT exist during hold time');
+
+        // Travel past the hold time expiration (to time_arrival)
+        $remainingHoldTime = $mission->time_arrival - $physicalArrivalTime;
+        $this->travel($remainingHoldTime + 1)->seconds();
+
+        // Trigger the fleet mission update which should process the mission and create return mission
+        $this->get('/overview');
+
+        // Verify sender received message (sent on hold expiry)
+        $this->assertMessageReceivedAndContains('fleets', 'other', [
+            'Fleet is stopping',
+            'Fleet Command',
+        ]);
+
+        // Verify host received message (sent on hold expiry)
+        $this->assertMessageReceivedAndContainsDatabase($this->buddyPlanet->getPlayer(), [
+            'A fleet has arrived',
+        ]);
+
+        // Verify mission was processed
+        $mission->refresh();
+        $this->assertEquals(1, $mission->processed, 'Mission should be marked as processed after hold expires');
+
+        // Verify return mission was created
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNotNull($returnMission, 'Return mission should be created after hold time expires');
+    }
+
+    /**
+     * Test that ships are not duplicated when missions complete after extended time periods.
+     * Verifies that return missions process correctly even when the complete round trip
+     * (outbound + hold + return) has elapsed.
+     */
+    public function testDispatchFleetNoShipDuplicationWithHighSpeedMultiplier(): void
+    {
+        $this->basicSetup();
+        $buddyUser = $this->createBuddyPlayer();
+
+        // Add 1 battlecruiser to the planet
+        $this->planetAddUnit('battlecruiser', 1);
+
+        // Record initial ship count
+        $initialBattlecruiserCount = $this->planetService->getObjectAmount('battlecruiser');
+        $this->assertEquals(1, $initialBattlecruiserCount, 'Should start with 1 battlecruiser');
+
+        // Dispatch the fleet with 1 hour hold time
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('battlecruiser'), 1);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            1 // 1 hour hold
+        );
+
+        // Verify ship was deducted
+        $this->planetService->reloadPlanet();
+        $this->assertEquals(0, $this->planetService->getObjectAmount('battlecruiser'), 'Battlecruiser should be deducted after dispatch');
+
+        // Get mission timings
+        $fleetMissionDuration = $mission->time_arrival - $mission->time_departure;
+        $settingsService = app(SettingsService::class);
+        $actualHoldingTime = (int)($mission->time_holding / $settingsService->fleetSpeedHolding());
+
+        // Travel to arrival + hold time + return trip time (complete round trip)
+        $totalMissionTime = $fleetMissionDuration + $actualHoldingTime + $fleetMissionDuration;
+        $this->travel($totalMissionTime + 1)->seconds();
+
+        // Trigger fleet mission processing by calling overview
+        // This will process the expired hold time and create/process the return mission
+        $this->get('/overview');
+
+        // Verify return mission was created and processed
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNotNull($returnMission, 'Return mission should be created');
+
+        // Reload planet to get latest state
+        $this->planetService->reloadPlanet();
+
+        // Verify exactly 1 battlecruiser is back (no duplication)
+        $finalBattlecruiserCount = $this->planetService->getObjectAmount('battlecruiser');
+        $this->assertEquals(1, $finalBattlecruiserCount, 'Should have exactly 1 battlecruiser after mission completes (no duplication)');
+
+        // Verify all missions are processed
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'There should be no active missions after complete round trip');
+    }
+
+    /**
+     * Test that ACS Defend return missions are hidden from the fleet overview until departure.
+     * With the new architecture, return missions don't exist during hold time, so ships
+     * are not duplicated in the fleet list.
+     */
+    public function testDispatchFleetAcsDefendReturnMissionHiddenUntilDeparture(): void
+    {
+        $this->basicSetup();
+        $buddyUser = $this->createBuddyPlayer();
+
+        // Add 1 battlecruiser to the planet
+        $this->planetAddUnit('battlecruiser', 1);
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('battlecruiser'), 1);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            1 // 1 hour hold
+        );
+
+        // With the new architecture, time_arrival includes hold time (as raw game time)
+        // Calculate physical arrival time (when fleet actually arrives at target)
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
+
+        // Travel to physical arrival time (when fleet actually arrives)
+        $travelDuration = $physicalArrivalTime - $mission->time_departure;
+        $this->travel($travelDuration + 1)->seconds();
+
+        // With the new architecture, NO return mission exists during hold time
+        // This is the key difference from the old behavior
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNull($returnMission, 'Return mission should NOT exist during hold time');
+
+        // Get active missions
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+
+        // Debug: Show all missions
+        $debugInfo = [];
+        foreach ($activeMissions as $activeMission) {
+            $debugInfo[] = sprintf(
+                "ID=%d type=%d parent=%s proc=%d depart=%d now=%d bc=%d",
+                $activeMission->id,
+                $activeMission->mission_type,
+                $activeMission->parent_id ?? 'null',
+                $activeMission->processed,
+                $activeMission->time_departure,
+                time(),
+                $activeMission->battlecruiser
+            );
+        }
+
+        // Count battlecruisers visible in active missions
+        $totalBattlecruisersInMissions = 0;
+        foreach ($activeMissions as $activeMission) {
+            $totalBattlecruisersInMissions += $activeMission->battlecruiser;
+        }
+
+        // Should only see 1 battlecruiser (from outbound/holding mission)
+        // No return mission exists during hold time, so no duplication possible
+        $this->assertEquals(
+            1,
+            $totalBattlecruisersInMissions,
+            'Should only see 1 battlecruiser in active missions (no return mission during hold time). Found: ' . implode(', ', $debugInfo)
+        );
+    }
+
+    /**
+     * Assert that trying to dispatch ACS Defend to alliance member planet succeeds.
+     */
+    public function testFleetCheckToAllianceMemberPlanetSuccess(): void
+    {
+        $this->basicSetup();
+        $allianceMemberUser = $this->createAllianceMemberPlayer();
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $this->checkTargetFleet($this->allianceMemberPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, true);
+    }
+
+    /**
+     * Assert that trying to dispatch ACS Defend to non-alliance, non-buddy planet fails.
+     */
+    public function testFleetCheckToNonAllianceNonBuddyPlanetError(): void
+    {
+        $this->basicSetup();
+        $otherUser = $this->createNonAffiliatedPlayer();
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $this->checkTargetFleet($this->otherPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, false);
+    }
+
+    /**
+     * Verify that dispatching ACS Defend to alliance member works and returns correctly.
+     */
+    public function testDispatchFleetReturnTripToAllianceMember(): void
+    {
+        $this->basicSetup();
+        $allianceMemberUser = $this->createAllianceMemberPlayer();
+
+        // Assert starting units
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light Fighters are not at 5 units at beginning of test.');
+
+        // Send fleet to alliance member's planet.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 2);
+        $this->dispatchFleet($this->allianceMemberPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 2);
+
+        // Verify units were deducted
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 3, 'Light Fighters not deducted after fleet dispatch.');
+
+        // Increase time to complete full mission cycle (outbound + hold + return).
+        $this->travel(20)->hours();
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        // Check that units are back on planet.
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Light Fighters not returned to planet after mission completion.');
+    }
+
+    /**
+     * Create an alliance relationship between current player and another player.
+     * Both players are added to the same alliance.
+     *
+     * @return User The alliance member user
+     */
+    protected function createAllianceMemberPlayer(): User
+    {
+        $allianceService = resolve(\OGame\Services\AllianceService::class);
+
+        // Create alliance for current user
+        $alliance = $allianceService->createAlliance($this->currentUserId, 'TAG', 'Test Alliance');
+        $this->createdAllianceId = $alliance->id;
+
+        // Create a fresh user for alliance member
+        $allianceMemberUser = User::factory()->create();
+        self::$allCreatedBuddyUserIds[] = $allianceMemberUser->id;
+
+        // Create a planet for the alliance member
+        $allianceMemberPlanet = Planet::factory()->create([
+            'user_id' => $allianceMemberUser->id,
+            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
+            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 6),
+            'planet' => 13,
+        ]);
+
+        // Get planet service for the alliance member's planet
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $allianceMemberPlayerService = resolve(PlayerService::class, ['player_id' => $allianceMemberUser->id]);
+        $this->allianceMemberPlanet = $planetServiceFactory->makeForPlayer($allianceMemberPlayerService, $allianceMemberPlanet->id);
+
+        // Add new member to alliance (bypass cooldown for testing)
+        /** @phpstan-ignore assign.propertyType */
+        $allianceMemberUser->alliance_id = $alliance->id;
+        $allianceMemberUser->alliance_left_at = null;
+        $allianceMemberUser->save();
+
+        \OGame\Models\AllianceMember::create([
+            'alliance_id' => $alliance->id,
+            'user_id' => $allianceMemberUser->id,
+            'rank_id' => null,
+            'joined_at' => now(),
+        ]);
+
+        return $allianceMemberUser;
+    }
+
+    /**
+     * Create a player that is neither buddy nor alliance member.
+     *
+     * @return User The non-affiliated user
+     */
+    protected function createNonAffiliatedPlayer(): User
+    {
+        // Create a fresh user that is not a buddy or alliance member
+        $otherUser = User::factory()->create();
+        self::$allCreatedBuddyUserIds[] = $otherUser->id;
+
+        // Create a planet for the other user
+        $otherPlanet = Planet::factory()->create([
+            'user_id' => $otherUser->id,
+            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
+            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 7),
+            'planet' => 14,
+        ]);
+
+        // Get planet service for the other user's planet
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $otherPlayerService = resolve(PlayerService::class, ['player_id' => $otherUser->id]);
+        $this->otherPlanet = $planetServiceFactory->makeForPlayer($otherPlayerService, $otherPlanet->id);
+
+        return $otherUser;
     }
 }

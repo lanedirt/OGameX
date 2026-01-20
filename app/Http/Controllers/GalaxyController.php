@@ -12,6 +12,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Alliance;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
+use OGame\Models\Highscore;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\BuddyService;
@@ -466,6 +467,14 @@ class GalaxyController extends OGameController
         // Check if target player is admin (cannot send buddy requests or ignore admins)
         $isTargetAdmin = $player->isAdmin();
 
+        // Get player's highscore rank
+        /** @var Highscore|null $highscore */
+        $highscore = $player->getUser()->highscore;
+        $playerRank = $highscore?->general_rank;
+
+        // Calculate which page this player is on in the highscore (100 players per page)
+        $highscorePage = $playerRank !== null ? (int)ceil($playerRank / 100) : 1;
+
         // Get player's alliance information
         $alliance = null;
         $allianceTag = null;
@@ -541,7 +550,10 @@ class GalaxyController extends OGameController
                     'playerName' => $player->getUsername(),
                 ],
                 'highscore' => [
-                    'available' => false,
+                    'available' => $playerRank !== null,
+                    'rank' => $playerRank,
+                    'title' => 'Ranking',
+                    'link' => route('highscore.index', ['category' => 1, 'page' => $highscorePage]),
                 ],
                 'message' => [
                     'available' => false,

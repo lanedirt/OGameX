@@ -2,11 +2,11 @@
 
 namespace OGame\GameMissions\BattleEngine\Models;
 
-use OGame\Services\ObjectService;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 

@@ -23,7 +23,7 @@
                     <ul class="icons">
                         @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
                         @foreach ($units[0] as $building)
-                            @include('ingame.shipyard.unit-item', ['building' => $building, 'shipyard_upgrading' => $shipyard_upgrading, 'is_in_vacation_mode' => $is_in_vacation_mode ?? false])
+                            @include('ingame.shipyard.unit-item', ['building' => $building, 'shipyard_upgrading' => $shipyard_upgrading, 'nanite_upgrading' => $nanite_upgrading, 'is_in_vacation_mode' => $is_in_vacation_mode ?? false])
                         @endforeach
                     </ul>
                 </div>
@@ -32,7 +32,7 @@
                     <ul class="icons">
                         @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
                         @foreach ($units[1] as $building)
-                            @include('ingame.shipyard.unit-item', ['building' => $building, 'shipyard_upgrading' => $shipyard_upgrading, 'is_in_vacation_mode' => $is_in_vacation_mode ?? false])
+                            @include('ingame.shipyard.unit-item', ['building' => $building, 'shipyard_upgrading' => $shipyard_upgrading, 'nanite_upgrading' => $nanite_upgrading, 'is_in_vacation_mode' => $is_in_vacation_mode ?? false])
                         @endforeach
                     </ul>
                 </div>

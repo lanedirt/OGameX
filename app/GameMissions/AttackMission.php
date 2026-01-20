@@ -12,6 +12,7 @@ use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameMissions\Models\MissionPossibleStatus;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
@@ -152,8 +153,26 @@ class AttackMission extends GameMission
                         ]);
                     } else {
                         // Fleet survived - create return mission with surviving units
-                        // No resources to return for defend missions (they don't carry resources)
-                        $this->startReturn($defendMission, new Resources(0, 0, 0, 0), $fleetResult->unitsResult);
+                        // Calculate resource survival rate based on cargo capacity
+                        $fleetOwner = $this->playerServiceFactory->make($fleetResult->ownerId);
+                        $originalUnits = $this->fleetMissionService->getFleetUnits($defendMission);
+                        $originalCargoCapacity = $originalUnits->getTotalCargoCapacity($fleetOwner);
+                        $remainingCargoCapacity = $fleetResult->unitsResult->getTotalCargoCapacity($fleetOwner);
+
+                        // Handle edge case: if original capacity is 0, survival rate is 0
+                        $survivalRate = $originalCargoCapacity > 0
+                            ? $remainingCargoCapacity / $originalCargoCapacity
+                            : 0;
+
+                        // Calculate resources remaining on surviving ships
+                        $remainingResources = new Resources(
+                            max(0, (int)($defendMission->metal * $survivalRate)),
+                            max(0, (int)($defendMission->crystal * $survivalRate)),
+                            max(0, (int)($defendMission->deuterium * $survivalRate)),
+                            0
+                        );
+
+                        $this->startReturn($defendMission, $remainingResources, $fleetResult->unitsResult);
                     }
                 }
             }
@@ -253,16 +272,9 @@ class AttackMission extends GameMission
         // Save the debris field
         $debrisFieldService->save();
 
-        // Create or extend wreck field if conditions are met
-        //
-        // TODO: When the General class is implemented, wreck fields generated during attacks with a General
-        // should behave differently: the wreck field should only be spawned at the General's origin planet
-        // once the attacking fleet has returned from the mission. This means the wreck field data needs to
-        // be stored with the fleet mission and created at the origin planet coordinates upon mission return.
-        //
-        // Current behavior: wreck field is created immediately at the battle location.
-        // General behavior (future): wreck field data stored with mission, created at origin planet on return.
-        //
+        // Create or extend wreck field at defender's location if conditions are met
+        // Note: If attacker is General class, a separate wreck field will be created at the attacker's
+        // origin planet when the return mission arrives (see processReturn method).
         // IMPORTANT: If the battle is on a moon, the wreck field is created at the planet's coordinates
         // (not the moon's), and can only be interacted with from the planet.
         if (!empty($battleResult->wreckField) && $battleResult->wreckField['formed']) {
@@ -404,7 +416,20 @@ class AttackMission extends GameMission
             $totalResources = LootService::distributeLoot($totalResources, $remainingCargoCapacity);
         }
 
-        $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult);
+        // Calculate wreck field for General class attacker
+        // General perk: wreck field from attacker's lost ships is transported back with the return mission
+        $attackerWreckFieldData = null;
+        $characterClassService = resolve(CharacterClassService::class);
+        if ($characterClassService->isGeneral($attackerPlayer->getUser())) {
+            // Calculate attacker's lost units (start - result = lost)
+            $attackerUnitsLost = clone $battleResult->attackerUnitsStart;
+            $attackerUnitsLost->subtractCollection($battleResult->attackerUnitsResult);
+
+            // Calculate wreck field data if conditions are met
+            $attackerWreckFieldData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart);
+        }
+
+        $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult, 0, $attackerWreckFieldData);
     }
 
     /**
@@ -424,12 +449,82 @@ class AttackMission extends GameMission
             $target_planet->addResources($return_resources);
         }
 
+        // Create wreck field at origin planet if data exists (General class perk)
+        // The wreck field is created from the attacker's lost ships and appears at the origin planet
+        if (!empty($mission->wreck_field_data) && is_array($mission->wreck_field_data)) {
+            $wreckFieldService = new WreckFieldService($target_planet->getPlayer(), $this->settings);
+
+            // Determine coordinates for wreck field
+            // If returning to a moon, create wreck field at the planet's coordinates
+            $wreckFieldCoordinates = $target_planet->isMoon()
+                ? $target_planet->planet()->getPlanetCoordinates()
+                : $target_planet->getPlanetCoordinates();
+
+            // Create wreck field at origin planet
+            $wreckFieldService->createWreckField(
+                $wreckFieldCoordinates,
+                $mission->wreck_field_data,
+                $target_planet->getPlayer()->getId()
+            );
+        }
+
         // Send message to player that the return mission has arrived.
         $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
 
         // Mark the return mission as processed
         $mission->processed = 1;
         $mission->save();
+    }
+
+    /**
+     * Calculate the wreck field for attacker's lost ships (General class perk).
+     * Similar logic to defender wreck field but for attacker's ships.
+     *
+     * @param UnitCollection $attackerUnitsLost Units lost by the attacker.
+     * @param UnitCollection $attackerUnitsStart Starting units of the attacker.
+     * @return array<array{machine_name: string, quantity: int, repair_progress: int}>|null Wreck field data with ships array, or null if conditions not met.
+     */
+    private function calculateAttackerWreckField(UnitCollection $attackerUnitsLost, UnitCollection $attackerUnitsStart): array|null
+    {
+        $wreckFieldData = [];
+        $wreckFieldPercentage = (100.0 - $this->settings->debrisFieldFromShips()) / 100;
+
+        // Only ships (not defenses) can go into wreck fields
+        foreach ($attackerUnitsLost->units as $unit) {
+            if ($unit->amount > 0 && $unit->unitObject->type === GameObjectType::Ship) {
+                $wreckFieldCount = (int) floor($unit->amount * $wreckFieldPercentage);
+                if ($wreckFieldCount > 0) {
+                    $wreckFieldData[] = [
+                        'machine_name' => $unit->unitObject->machine_name,
+                        'quantity' => $wreckFieldCount,
+                        'repair_progress' => 0,
+                    ];
+                }
+            }
+        }
+
+        // Check if wreck field conditions are met
+        $totalLostValue = $attackerUnitsLost->toResources()->metal->get() +
+                         $attackerUnitsLost->toResources()->crystal->get() +
+                         $attackerUnitsLost->toResources()->deuterium->get();
+        $totalFleetValue = $attackerUnitsStart->toResources()->metal->get() +
+                          $attackerUnitsStart->toResources()->crystal->get() +
+                          $attackerUnitsStart->toResources()->deuterium->get();
+
+        if ($totalFleetValue > 0) {
+            $destroyedPercentage = ($totalLostValue / $totalFleetValue) * 100;
+            $minResourcesRequired = $this->settings->wreckFieldMinResourcesLoss();
+            $minFleetPercentageRequired = $this->settings->wreckFieldMinFleetPercentage();
+
+            // Only return wreck field data if conditions are met and there are ships
+            if ($totalLostValue >= $minResourcesRequired
+                && $destroyedPercentage >= $minFleetPercentageRequired
+                && !empty($wreckFieldData)) {
+                return $wreckFieldData;
+            }
+        }
+
+        return null;
     }
 
     /**
