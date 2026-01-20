@@ -42,6 +42,7 @@ class GenerateHighscores extends Command
                     'research' => $highscoreService->getPlayerScoreResearch($playerService),
                     'military' => $highscoreService->getPlayerScoreMilitary($playerService),
                 ]);
+                unset($playerService);
                 $bar->advance();
             }
         });
