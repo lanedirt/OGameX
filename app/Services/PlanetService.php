@@ -1663,33 +1663,27 @@ class PlanetService
         // Build the update query with WHERE conditions to ensure atomicity
         $query = Planet::where('id', $this->getPlanetId());
 
-        // Use a tolerance buffer to handle float precision issues with large numbers
-        // Float columns lose precision with large values (20M+), so we allow a small buffer
-        $conditions = [];
+        // Add WHERE conditions for each resource that needs to be deducted
         if ($metalCost > 0) {
-            $conditions[] = "metal + 1000 > {$metalCost}";
+            $query->where('metal', '>=', $metalCost);
         }
         if ($crystalCost > 0) {
-            $conditions[] = "crystal + 1000 > {$crystalCost}";
+            $query->where('crystal', '>=', $crystalCost);
         }
         if ($deuteriumCost > 0) {
-            $conditions[] = "deuterium + 1000 > {$deuteriumCost}";
-        }
-
-        if (!empty($conditions)) {
-            $query->whereRaw(implode(' AND ', $conditions));
+            $query->where('deuterium', '>=', $deuteriumCost);
         }
 
         // Build the update array
         $updates = [];
         if ($metalCost > 0) {
-            $updates['metal'] = DB::raw("GREATEST(metal - {$metalCost}, 0)");
+            $updates['metal'] = DB::raw("metal - {$metalCost}");
         }
         if ($crystalCost > 0) {
-            $updates['crystal'] = DB::raw("GREATEST(crystal - {$crystalCost}, 0)");
+            $updates['crystal'] = DB::raw("crystal - {$crystalCost}");
         }
         if ($deuteriumCost > 0) {
-            $updates['deuterium'] = DB::raw("GREATEST(deuterium - {$deuteriumCost}, 0)");
+            $updates['deuterium'] = DB::raw("deuterium - {$deuteriumCost}");
         }
 
         // If no resources to deduct, return success
@@ -1703,13 +1697,13 @@ class PlanetService
         if ($affected > 0) {
             // Sync in-memory model with the deducted values
             if ($metalCost > 0) {
-                $this->planet->metal = max(0, $this->planet->metal - $metalCost);
+                $this->planet->metal -= $metalCost;
             }
             if ($crystalCost > 0) {
-                $this->planet->crystal = max(0, $this->planet->crystal - $crystalCost);
+                $this->planet->crystal -= $crystalCost;
             }
             if ($deuteriumCost > 0) {
-                $this->planet->deuterium = max(0, $this->planet->deuterium - $deuteriumCost);
+                $this->planet->deuterium -= $deuteriumCost;
             }
             return true;
         }
