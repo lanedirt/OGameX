@@ -120,7 +120,9 @@ class FleetUnionServiceTest extends TestCase
         $alliance = $allianceService->createAlliance($user1->id, 'TEST', 'Test Alliance');
 
         // Add user2 to alliance
-        $user2->alliance_id = $alliance->id;
+        /** @var int<1, max> $allianceId */
+        $allianceId = $alliance->id;
+        $user2->alliance_id = $allianceId;
         $user2->save();
         AllianceMember::create([
             'alliance_id' => $alliance->id,
