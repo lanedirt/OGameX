@@ -55,7 +55,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - .:/var/www/html
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     environment:
       CONTAINER_ROLE: scheduler
     networks:
@@ -71,7 +72,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - .:/var/www/html
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     environment:
       CONTAINER_ROLE: queue
     networks:
