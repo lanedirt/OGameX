@@ -17,6 +17,8 @@ use Illuminate\Support\Carbon;
  * @property int|null $system_to
  * @property int|null $position_to
  * @property int $mission_type
+ * @property int|null $union_id
+ * @property int|null $union_slot
  * @property int $time_departure
  * @property int $time_arrival
  * @property float $metal
@@ -125,5 +127,21 @@ class FleetMission extends Model
     public function planetTo(): BelongsTo
     {
         return $this->belongsTo(Planet::class);
+    }
+
+    /**
+     * Get the union this mission belongs to (for ACS Attack).
+     */
+    public function union(): BelongsTo
+    {
+        return $this->belongsTo(FleetUnion::class, 'union_id');
+    }
+
+    /**
+     * Check if this mission is part of a union.
+     */
+    public function isInUnion(): bool
+    {
+        return $this->union_id !== null;
     }
 }
