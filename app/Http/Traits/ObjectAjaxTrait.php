@@ -179,6 +179,15 @@ trait ObjectAjaxTrait
             $build_queue_max = true;
         }
 
+        // Check if planet has enough fields for this building (only for buildings that consume fields)
+        // Ships, defense units, and certain other objects don't consume planet fields
+        $fields_exceeded = false;
+        if (($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) && $object->consumesPlanetField) {
+            $currentBuildingCount = $planet->getBuildingCount();
+            $maxFields = $planet->getPlanetFieldMax();
+            $fields_exceeded = $currentBuildingCount >= $maxFields;
+        }
+
         // Calculate downgrade information for buildings and stations
         $downgrade_price = null;
         $downgrade_duration = null;
@@ -281,6 +290,7 @@ trait ObjectAjaxTrait
             'is_missile_silo' => $is_missile_silo,
             'current_missiles' => $current_missiles,
             'max_missiles' => $max_missiles,
+            'fields_exceeded' => $fields_exceeded,
         ]);
 
         return response()->json([

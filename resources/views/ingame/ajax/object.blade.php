@@ -237,7 +237,7 @@
                                 $ships_being_built = ( $object->machine_name == 'shipyard' ||  $object->machine_name == 'nano_factory') && $ship_or_defense_in_progress;
                             @endphp
 
-                            @if (!$enough_resources || !$requirements_met || !$character_class_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built) || $is_in_vacation_mode)
+                            @if (!$enough_resources || !$requirements_met || !$character_class_met || !$valid_planet_type || $build_queue_max || !$max_build_amount || $research_lab_upgrading || ($object->machine_name === 'research_lab' && $research_in_progress || $disabled_shipyard_upgrading || $ships_being_built) || $is_in_vacation_mode || (($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) && $fields_exceeded))
                                 disabled
                             @else
                             @endif
@@ -254,7 +254,7 @@
                                     $tooltip = __('The Shipyard is still busy');
                                 }
                             @endphp
-                        <span class="tooltip" title="{{ is_string($tooltip) ? $tooltip : '' }}">
+                        <span class="tooltip" title="{{ is_string($tooltip) ? $tooltip : (($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) && $fields_exceeded ? __('Not enough fields!') : '') }}">
                             @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                                 Build
                             @elseif (!empty($build_active->id))

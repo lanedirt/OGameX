@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers\Abstracts;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Http\Controllers\OGameController;
 use OGame\Http\Controllers\ShipyardController;
 use OGame\Http\Traits\ObjectAjaxTrait;
@@ -106,6 +107,22 @@ abstract class AbstractBuildingsController extends OGameController
                 }
                 $view_model->research_in_progress = $research_in_progress;
                 $view_model->ship_or_defense_in_progress = $ship_or_defense_in_progress;
+
+                // Check if this building would use the last available field or exceed field limit
+                // Ships, defense units, and certain other objects don't consume planet fields
+                if (($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) && $object->consumesPlanetField) {
+                    $currentBuildingCount = $this->planet->getBuildingCount();
+                    $maxFields = $this->planet->getPlanetFieldMax();
+
+                    // If current building count + 1 equals max fields, this would use the last field
+                    $view_model->uses_last_field = ($currentBuildingCount + 1) >= $maxFields;
+
+                    // If current building count >= max fields, fields are already exceeded
+                    $view_model->fields_exceeded = $currentBuildingCount >= $maxFields;
+                } else {
+                    $view_model->uses_last_field = false;
+                    $view_model->fields_exceeded = false;
+                }
 
                 $buildings[$key_row][$object->id] = $view_model;
             }
@@ -219,7 +236,15 @@ abstract class AbstractBuildingsController extends OGameController
         }
 
         $building_id = $request->input('technologyId');
-        $this->queue->add($player->planets->current(), $building_id);
+
+        try {
+            $this->queue->add($player->planets->current(), $building_id);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
