@@ -392,8 +392,8 @@ class FleetUnionServiceTest extends TestCase
      */
     public function testMaxPlayersLimitEnforced(): void
     {
-        // Use random system to avoid conflicts across test runs
-        $system = rand(100, 400);
+        // Use unique system based on time and PID to avoid conflicts in parallel runs
+        $system = (int) (microtime(true) * 1000) % 900000 + 100000;
 
         // Create 5 users with buddy relationships to user1
         $user1 = User::factory()->create();
