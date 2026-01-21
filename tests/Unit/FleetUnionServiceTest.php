@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use Exception;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\DB;
 use OGame\Models\Alliance;
 use OGame\Models\AllianceMember;
 use OGame\Models\BuddyRequest;
@@ -17,14 +17,23 @@ use Tests\TestCase;
 
 class FleetUnionServiceTest extends TestCase
 {
-    use DatabaseTransactions;
-
     private FleetUnionService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->service = app(FleetUnionService::class);
+
+        // Start transaction for test isolation
+        DB::beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        // Rollback transaction to clean up test data
+        DB::rollBack();
+
+        parent::tearDown();
     }
 
     /**
@@ -383,12 +392,15 @@ class FleetUnionServiceTest extends TestCase
      */
     public function testMaxPlayersLimitEnforced(): void
     {
+        // Use random system to avoid conflicts across test runs
+        $system = rand(100, 400);
+
         // Create 5 users with buddy relationships to user1
         $user1 = User::factory()->create();
         $planet1 = Planet::factory()->create([
             'user_id' => $user1->id,
             'galaxy' => 1,
-            'system' => 50,
+            'system' => $system,
             'planet' => 1,
         ]);
 
@@ -415,7 +427,7 @@ class FleetUnionServiceTest extends TestCase
             $planet = Planet::factory()->create([
                 'user_id' => $user->id,
                 'galaxy' => 1,
-                'system' => 50,
+                'system' => $system,
                 'planet' => 2 + $i,
             ]);
 
@@ -446,7 +458,7 @@ class FleetUnionServiceTest extends TestCase
         $planet6 = Planet::factory()->create([
             'user_id' => $user6->id,
             'galaxy' => 1,
-            'system' => 50,
+            'system' => $system,
             'planet' => 6,
         ]);
 
