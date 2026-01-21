@@ -3,6 +3,7 @@
 namespace OGame\GameMissions\BattleEngine;
 
 use FFI;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
@@ -10,7 +11,6 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
-use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 
 /**
@@ -19,6 +19,10 @@ use OGame\Services\SettingsService;
  * This class is responsible for handling the battle logic in the game, used primarily
  * by the AttackMission class. This is the Rust version of the BattleEngine which calls
  * the Rust battle engine library for improved memory usage and performance.
+ *
+ * TODO: Update constructor to accept array<AttackerFleet> $attackers instead of single attacker.
+ * TODO: Update to populate attackerFleetResults for multi-attacker battles.
+ * TODO: Update prepareBattleInput() to handle multiple attacker fleets with different tech levels.
  *
  * @package OGame\GameMissions\BattleEngine
  */
@@ -32,17 +36,14 @@ class RustBattleEngine extends BattleEngine
     /**
      * RustBattleEngine constructor.
      *
-     * @param UnitCollection $attackerFleet The fleet of the attacker player.
-     * @param PlayerService $attackerPlayer The attacker player.
+     * @param array<AttackerFleet> $attackers All attacking fleets.
      * @param PlanetService $defenderPlanet The planet of the defender player (used for loot, moon calculation).
      * @param array<DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
      * @param SettingsService $settings The settings service.
-     * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
-     * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, array $defenders, SettingsService $settings, int $attackerFleetMissionId, int $attackerOwnerId)
+    public function __construct(array $attackers, PlanetService $defenderPlanet, array $defenders, SettingsService $settings)
     {
-        parent::__construct($attackerFleet, $attackerPlayer, $defenderPlanet, $defenders, $settings, $attackerFleetMissionId, $attackerOwnerId);
+        parent::__construct($attackers, $defenderPlanet, $defenders, $settings);
 
         $this->ffi = FFI::cdef(
             "char* fight_battle_rounds(const char* input_json);",
@@ -146,6 +147,7 @@ class RustBattleEngine extends BattleEngine
     {
         // Convert PHP battle units to Rust format
         $attackerUnits = [];
+        $attackerPlayer = $this->getAttackerPlayer();
         foreach ($result->attackerUnitsStart->units as $unit) {
             $rapidfire = [];
             foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
@@ -156,9 +158,9 @@ class RustBattleEngine extends BattleEngine
             $attackerUnits[$unit->unitObject->id] = [
                 'unit_id' => $unit->unitObject->id,
                 'amount' => $unit->amount,
-                'shield_points' => $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue,
-                'attack_power' => $unit->unitObject->properties->attack->calculate($this->attackerPlayer)->totalValue,
-                'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue / 10),
+                'shield_points' => $unit->unitObject->properties->shield->calculate($attackerPlayer)->totalValue,
+                'attack_power' => $unit->unitObject->properties->attack->calculate($attackerPlayer)->totalValue,
+                'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($attackerPlayer)->totalValue / 10),
                 'rapidfire' => $rapidfire,
             ];
         }
@@ -272,8 +274,9 @@ class RustBattleEngine extends BattleEngine
     private function checkHamillManoeuvre(BattleResult $result): void
     {
         // Check if attacker is General class
+        $attackerPlayer = $this->getAttackerPlayer();
         $characterClassService = app(CharacterClassService::class);
-        if (!$characterClassService->isGeneral($this->attackerPlayer->getUser())) {
+        if (!$characterClassService->isGeneral($attackerPlayer->getUser())) {
             return;
         }
 

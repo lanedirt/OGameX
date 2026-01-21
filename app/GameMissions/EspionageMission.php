@@ -8,6 +8,7 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\DefenderEspionageDetected;
 use OGame\GameMessages\FleetLostContact;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
@@ -236,14 +237,24 @@ class EspionageMission extends GameMission
         // Collect all defending fleets (planet owner + ACS defend fleets)
         $defenders = $this->collectDefendingFleets($targetPlanet);
 
+        // Create AttackerFleet for counter-espionage probes (no FleetMission, use temporary ID)
+        $attackerFleet = new AttackerFleet();
+        $attackerFleet->units = $attackerUnits;
+        $attackerFleet->player = $attackerPlayer;
+        $attackerFleet->fleetMissionId = 0; // 0 for temporary/ephemeral fleets
+        $attackerFleet->ownerId = $ownerId;
+        $attackerFleet->cargoResources = new Resources(0, 0, 0, 0);
+        $attackerFleet->isInitiator = true;
+        $attackerFleet->fleetMission = null;
+
         // Execute battle using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $defenders, $this->settings, $fleetMissionId, $ownerId);
+                $battleEngine = new PhpBattleEngine([$attackerFleet], $targetPlanet, $defenders, $this->settings);
                 break;
             case 'rust':
             default:
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $defenders, $this->settings, $fleetMissionId, $ownerId);
+                $battleEngine = new RustBattleEngine([$attackerFleet], $targetPlanet, $defenders, $this->settings);
                 break;
         }
 

@@ -94,6 +94,12 @@ class BattleResult
     public array $defenderFleetResults = [];
 
     /**
+     * @var array<AttackerFleetResult> Per-fleet results for each attacking fleet in ACS battles.
+     * Empty array for backward compatibility with single-attacker battles.
+     */
+    public array $attackerFleetResults = [];
+
+    /**
      * @var int The attacker player's weapon technology level.
      */
     public int $attackerWeaponLevel;
