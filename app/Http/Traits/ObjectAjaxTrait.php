@@ -185,7 +185,26 @@ trait ObjectAjaxTrait
         if (($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) && $object->consumesPlanetField) {
             $currentBuildingCount = $planet->getBuildingCount();
             $maxFields = $planet->getPlanetFieldMax();
-            $fields_exceeded = $currentBuildingCount >= $maxFields;
+
+            // Calculate the projected building count after all queued items complete
+            $queuedFieldChange = 0;
+            $build_active = $build_queue->getCurrentlyBuildingFromQueue();
+            $build_queued = $build_queue->getQueuedFromQueue();
+            $all_queued = $build_active !== null ? [$build_active] : [];
+            $all_queued = array_merge($all_queued, $build_queued);
+
+            foreach ($all_queued as $queueItem) {
+                if ($queueItem->object->consumesPlanetField) {
+                    $current_item_level = $planet->getObjectLevel($queueItem->object->machine_name);
+                    $queuedFieldChange += ($queueItem->level_target - $current_item_level);
+                }
+            }
+
+            // The projected building count after all queued items complete
+            $projectedBuildingCount = $currentBuildingCount + $queuedFieldChange;
+
+            // If projected building count >= max fields, fields are exceeded (after queue completes)
+            $fields_exceeded = $projectedBuildingCount >= $maxFields;
         }
 
         // Calculate downgrade information for buildings and stations

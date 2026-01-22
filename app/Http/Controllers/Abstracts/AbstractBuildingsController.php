@@ -114,11 +114,30 @@ abstract class AbstractBuildingsController extends OGameController
                     $currentBuildingCount = $this->planet->getBuildingCount();
                     $maxFields = $this->planet->getPlanetFieldMax();
 
-                    // If current building count + 1 equals max fields, this would use the last field
-                    $view_model->uses_last_field = ($currentBuildingCount + 1) >= $maxFields;
+                    // Calculate the projected building count after all queued items complete
+                    $queuedFieldChange = 0;
+                    // Include the currently building item
+                    $all_queued = [];
+                    if ($build_active !== null) {
+                        $all_queued[] = $build_active;
+                    }
+                    $all_queued = array_merge($all_queued, $build_queue);
 
-                    // If current building count >= max fields, fields are already exceeded
-                    $view_model->fields_exceeded = $currentBuildingCount >= $maxFields;
+                    foreach ($all_queued as $queueItem) {
+                        if ($queueItem->object->consumesPlanetField) {
+                            $current_item_level = $this->planet->getObjectLevel($queueItem->object->machine_name);
+                            $queuedFieldChange += ($queueItem->level_target - $current_item_level);
+                        }
+                    }
+
+                    // The projected building count after all queued items complete
+                    $projectedBuildingCount = $currentBuildingCount + $queuedFieldChange;
+
+                    // If projected building count + 1 equals max fields, this would use the last field
+                    $view_model->uses_last_field = ($projectedBuildingCount + 1) >= $maxFields;
+
+                    // If projected building count >= max fields, fields are already exceeded (after queue completes)
+                    $view_model->fields_exceeded = $projectedBuildingCount >= $maxFields;
                 } else {
                     $view_model->uses_last_field = false;
                     $view_model->fields_exceeded = false;
