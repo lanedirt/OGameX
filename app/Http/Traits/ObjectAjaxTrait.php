@@ -187,6 +187,7 @@ trait ObjectAjaxTrait
             $maxFields = $planet->getPlanetFieldMax();
 
             // Calculate the projected building count after all queued items complete
+            // Only apply this for building queues (BuildingQueueViewModel with level_target property)
             $queuedFieldChange = 0;
             $build_active = $build_queue->getCurrentlyBuildingFromQueue();
             $build_queued = $build_queue->getQueuedFromQueue();
@@ -194,7 +195,9 @@ trait ObjectAjaxTrait
             $all_queued = array_merge($all_queued, $build_queued);
 
             foreach ($all_queued as $queueItem) {
-                if ($queueItem->object->consumesPlanetField) {
+                // Only process queue items that have level_target (BuildingQueueViewModel)
+                // UnitQueueViewModel doesn't have this property, so we skip it
+                if (property_exists($queueItem, 'level_target') && $queueItem->object->consumesPlanetField) {
                     $current_item_level = $planet->getObjectLevel($queueItem->object->machine_name);
                     $queuedFieldChange += ($queueItem->level_target - $current_item_level);
                 }
