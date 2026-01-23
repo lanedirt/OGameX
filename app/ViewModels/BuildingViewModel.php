@@ -9,4 +9,6 @@ class BuildingViewModel extends QueueViewModel
     public bool $valid_planet_type;
     public ?int $target_level = null;
     public bool $is_downgrade = false;
+    public bool $uses_last_field = false;
+    public bool $fields_exceeded = false;
 }

@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers\Abstracts;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Http\Controllers\OGameController;
 use OGame\Http\Controllers\ShipyardController;
 use OGame\Http\Traits\ObjectAjaxTrait;
@@ -106,6 +107,41 @@ abstract class AbstractBuildingsController extends OGameController
                 }
                 $view_model->research_in_progress = $research_in_progress;
                 $view_model->ship_or_defense_in_progress = $ship_or_defense_in_progress;
+
+                // Check if this building would use the last available field or exceed field limit
+                // Ships, defense units, and certain other objects don't consume planet fields
+                if (($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) && $object->consumesPlanetField) {
+                    $currentBuildingCount = $this->planet->getBuildingCount();
+                    $maxFields = $this->planet->getPlanetFieldMax();
+
+                    // Calculate the projected building count after all queued items complete
+                    $queuedFieldChange = 0;
+                    // Include the currently building item
+                    $all_queued = [];
+                    if ($build_active !== null) {
+                        $all_queued[] = $build_active;
+                    }
+                    $all_queued = array_merge($all_queued, $build_queue);
+
+                    foreach ($all_queued as $queueItem) {
+                        if ($queueItem->object->consumesPlanetField) {
+                            $current_item_level = $this->planet->getObjectLevel($queueItem->object->machine_name);
+                            $queuedFieldChange += ($queueItem->level_target - $current_item_level);
+                        }
+                    }
+
+                    // The projected building count after all queued items complete
+                    $projectedBuildingCount = $currentBuildingCount + $queuedFieldChange;
+
+                    // If projected building count + 1 equals max fields, this would use the last field
+                    $view_model->uses_last_field = ($projectedBuildingCount + 1) >= $maxFields;
+
+                    // If projected building count >= max fields, fields are already exceeded (after queue completes)
+                    $view_model->fields_exceeded = $projectedBuildingCount >= $maxFields;
+                } else {
+                    $view_model->uses_last_field = false;
+                    $view_model->fields_exceeded = false;
+                }
 
                 $buildings[$key_row][$object->id] = $view_model;
             }
@@ -219,7 +255,15 @@ abstract class AbstractBuildingsController extends OGameController
         }
 
         $building_id = $request->input('technologyId');
-        $this->queue->add($player->planets->current(), $building_id);
+
+        try {
+            $this->queue->add($player->planets->current(), $building_id);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
