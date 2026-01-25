@@ -64,8 +64,8 @@ class RustBattleEngine extends BattleEngine
         // Convert PHP battle units to format expected by Rust
         $input = $this->prepareBattleInput($result);
 
-        // Convert to JSON, forcing object notation
-        $inputJson = json_encode($input, JSON_FORCE_OBJECT);
+        // Convert to JSON
+        $inputJson = json_encode($input);
 
         // Call Rust function
         // @phpstan-ignore-next-line
@@ -76,40 +76,10 @@ class RustBattleEngine extends BattleEngine
         $battleOutput = json_decode($output, true);
 
         // Convert Rust output back to PHP battle rounds
-        $rounds = $this->convertBattleOutput($battleOutput);
+        $rounds = $this->convertBattleOutput($result, $battleOutput);
 
-        // Populate per-fleet defender results
-        // Since Rust doesn't track individual unit ownership, we distribute surviving units
-        // proportionally based on each fleet's contribution to the total starting forces
-        if (count($rounds) > 0) {
-            $lastRound = end($rounds);
-            $survivingDefenderUnits = $lastRound->defenderShips;
-
-            foreach ($result->defenderFleetResults as $fleetResult) {
-                // Calculate this fleet's proportion of each unit type in starting forces
-                foreach ($fleetResult->unitsStart->units as $unit) {
-                    $unitMachineName = $unit->unitObject->machine_name;
-                    $fleetStartAmount = $unit->amount;
-                    $totalStartAmount = $result->defenderUnitsStart->getAmountByMachineName($unitMachineName);
-                    $survivingAmount = $survivingDefenderUnits->getAmountByMachineName($unitMachineName);
-
-                    if ($totalStartAmount > 0 && $survivingAmount > 0) {
-                        // Distribute surviving units proportionally
-                        $fleetProportion = $fleetStartAmount / $totalStartAmount;
-                        $fleetSurvivingAmount = (int)floor($survivingAmount * $fleetProportion);
-                        $fleetResult->unitsResult->addUnit($unit->unitObject, $fleetSurvivingAmount);
-                    }
-                }
-
-                // Calculate losses for this fleet
-                $fleetResult->unitsLost = clone $fleetResult->unitsStart;
-                $fleetResult->unitsLost->subtractCollection($fleetResult->unitsResult);
-
-                // Check if completely destroyed
-                $fleetResult->completelyDestroyed = $fleetResult->unitsResult->getAmount() === 0;
-            }
-        } else {
-            // No battle occurred - all fleets keep their units
+        // Handle case where no battle occurred - all fleets keep their units
+        if (count($rounds) === 0) {
             foreach ($result->defenderFleetResults as $fleetResult) {
                 $fleetResult->unitsResult = clone $fleetResult->unitsStart;
                 $fleetResult->completelyDestroyed = false;
@@ -124,36 +94,44 @@ class RustBattleEngine extends BattleEngine
      *
      * @param BattleResult $result
      * @return array{
-     *     attacker_units: array<int, array{
-     *         unit_id: int,
-     *         amount: int,
-     *         shield_points: int,
-     *         attack_power: int,
-     *         hull_plating: float,
-     *         rapidfire: array<int, int>
+     *     attacker_fleets: array<int, array{
+     *         fleet_mission_id: int,
+     *         owner_id: int,
+     *         units: array<int, array{
+     *             unit_id: int,
+     *             amount: int,
+     *             shield_points: int,
+     *             attack_power: int,
+     *             hull_plating: float,
+     *             rapidfire: array<int, int>
+     *         }>
      *     }>,
-     *     defender_units: array<int, array{
-     *         unit_id: int,
-     *         amount: int,
-     *         shield_points: int,
-     *         attack_power: int,
-     *         hull_plating: float,
-     *         rapidfire: array<int, int>
+     *     defender_fleets: array<int, array{
+     *         fleet_mission_id: int,
+     *         owner_id: int,
+     *         units: array<int, array{
+     *             unit_id: int,
+     *             amount: int,
+     *             shield_points: int,
+     *             attack_power: int,
+     *             hull_plating: float,
+     *             rapidfire: array<int, int>
+     *         }>
      *     }>
      * }
      */
     private function prepareBattleInput(BattleResult $result): array
     {
-        // Convert PHP battle units to Rust format
-        $attackerUnits = [];
+        // Build attacker fleet (currently only single attacker supported)
+        $attackerUnits = new \stdClass();
         foreach ($result->attackerUnitsStart->units as $unit) {
-            $rapidfire = [];
+            $rapidfire = new \stdClass();
             foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
                 $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
-                $rapidfire[$targetUnit->id] = $rapidfireObject->amount;
+                $rapidfire->{$targetUnit->id} = $rapidfireObject->amount;
             }
 
-            $attackerUnits[$unit->unitObject->id] = [
+            $attackerUnits->{$unit->unitObject->id} = (object)[
                 'unit_id' => $unit->unitObject->id,
                 'amount' => $unit->amount,
                 'shield_points' => $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue,
@@ -163,38 +141,56 @@ class RustBattleEngine extends BattleEngine
             ];
         }
 
-        // Convert defender units to Rust format
-        $defenderUnits = [];
-        foreach ($result->defenderUnitsStart->units as $unit) {
-            $rapidfire = [];
-            foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
-                $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
-                $rapidfire[$targetUnit->id] = $rapidfireObject->amount;
+        $attackerFleets = [
+            (object)[
+                'fleet_mission_id' => $this->attackerFleetMissionId,
+                'owner_id' => max(0, $this->attackerOwnerId), // Ensure non-negative for u32
+                'units' => $attackerUnits,
+            ],
+        ];
+
+        // Build defender fleets (planet owner + ACS defend fleets)
+        $defenderFleets = [];
+        foreach ($result->defenderFleetResults as $fleetResult) {
+            $defenderUnits = new \stdClass();
+            foreach ($fleetResult->unitsStart->units as $unit) {
+                $rapidfire = new \stdClass();
+                foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
+                    $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
+                    $rapidfire->{$targetUnit->id} = $rapidfireObject->amount;
+                }
+
+                $defenderUnits->{$unit->unitObject->id} = (object)[
+                    'unit_id' => $unit->unitObject->id,
+                    'amount' => $unit->amount,
+                    'shield_points' => $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue,
+                    'attack_power' => $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue,
+                    'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue / 10),
+                    'rapidfire' => $rapidfire,
+                ];
             }
 
-            $defenderUnits[$unit->unitObject->id] = [
-                'unit_id' => $unit->unitObject->id,
-                'amount' => $unit->amount,
-                'shield_points' => $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue,
-                'attack_power' => $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue,
-                'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue / 10),
-                'rapidfire' => $rapidfire,
+            $defenderFleets[] = (object)[
+                'fleet_mission_id' => $fleetResult->fleetMissionId,
+                'owner_id' => max(0, $fleetResult->ownerId), // Ensure non-negative for u32
+                'units' => $defenderUnits,
             ];
         }
 
         return [
-            'attacker_units' => $attackerUnits,
-            'defender_units' => $defenderUnits,
+            'attacker_fleets' => $attackerFleets,
+            'defender_fleets' => $defenderFleets,
         ];
     }
 
     /**
-     * Convert the battle output from Rust to PHP.
+     * Convert the battle output from Rust to PHP and populate per-fleet results.
      *
+     * @param BattleResult $result The battle result to populate with fleet results
      * @param array<string, list<array<string, float|int|string>>> $battleOutput
      * @return array<BattleResultRound>
      */
-    private function convertBattleOutput(array $battleOutput): array
+    private function convertBattleOutput(BattleResult $result, array $battleOutput): array
     {
         $rounds = [];
         foreach ($battleOutput['rounds'] as $roundData) {
@@ -240,6 +236,33 @@ class RustBattleEngine extends BattleEngine
             $round->absorbedDamageDefender = (int)($roundData['absorbed_damage_defender'] ?? 0);
             $round->fullStrengthAttacker = (int)($roundData['full_strength_attacker'] ?? 0);
             $round->fullStrengthDefender = (int)($roundData['full_strength_defender'] ?? 0);
+
+            // Populate per-fleet results from Rust (use last round for final results)
+            if (isset($roundData['defender_fleet_results']) && is_array($roundData['defender_fleet_results'])) {
+                foreach ($roundData['defender_fleet_results'] as $fleetResult) {
+                    $fleetMissionId = (int)$fleetResult['fleet_mission_id'];
+                    $ownerId = (int)$fleetResult['owner_id'];
+
+                    // Find the corresponding fleet result in the BattleResult
+                    foreach ($result->defenderFleetResults as $defenderFleetResult) {
+                        if ($defenderFleetResult->fleetMissionId === $fleetMissionId && $defenderFleetResult->ownerId === $ownerId) {
+                            // Populate units_result from Rust data
+                            if (isset($fleetResult['units_result']) && is_array($fleetResult['units_result'])) {
+                                $defenderFleetResult->unitsResult = $this->convertUnitArrayToUnitCollection($fleetResult['units_result']);
+                            }
+
+                            // Populate units_lost from Rust data
+                            if (isset($fleetResult['units_lost']) && is_array($fleetResult['units_lost'])) {
+                                $defenderFleetResult->unitsLost = $this->convertUnitArrayToUnitCollection($fleetResult['units_lost']);
+                            }
+
+                            // Check if completely destroyed
+                            $defenderFleetResult->completelyDestroyed = $defenderFleetResult->unitsResult->getAmount() === 0;
+                            break;
+                        }
+                    }
+                }
+            }
 
             $rounds[] = $round;
         }
