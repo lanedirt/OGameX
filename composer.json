@@ -14,7 +14,7 @@
         "spatie/laravel-permission": "^6.7"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.13",
+        "barryvdh/laravel-debugbar": "^4.0",
         "barryvdh/laravel-ide-helper": "^3.0",
         "brianium/paratest": "^7.5",
         "driftingly/rector-laravel": "^2.1",
