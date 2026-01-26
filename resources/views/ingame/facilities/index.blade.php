@@ -69,6 +69,9 @@
                             @elseif ($build_queue_max)
                                 data-status="disabled"
                                 title="{{ $building->object->title }}<br/>@lang('Queue is full')"
+                            @elseif (($building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Building || $building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) && $building->fields_exceeded)
+                                data-status="disabled"
+                                title="{{ $building->object->title }}<br/>@lang('Not enough fields!')"
                             @else
                                 data-status="on"
                                 title="{{ $building->object->title }}"
@@ -81,6 +84,7 @@
                             @elseif (!$building->valid_planet_type)
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)
+                            @elseif (($building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Building || $building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) && $building->fields_exceeded)
                             @elseif ($is_in_vacation_mode)
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
                             @elseif ($building->ship_or_defense_in_progress  && ($building->object->machine_name === 'shipyard' || $building->object->machine_name === 'nano_factory'))
@@ -88,7 +92,7 @@
                                 <button
                                         class="upgrade tooltip hideOthers js_hideTipOnMobile"
                                         aria-label="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}" title="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}"
-                                        data-technology="{{ $building->object->id }}" data-is-spaceprovider="">
+                                        data-technology="{{ $building->object->id }}" @if (!$building->object->consumesPlanetField) data-is-spaceprovider="1" @else data-is-spaceprovider="" @endif @if ($building->uses_last_field) data-is-last-field="1" @endif>
                                 </button>
                             @endif
                             @if ($building->currently_building)

@@ -112,6 +112,22 @@ class BuildingQueueService
             throw new Exception('Requirements not met to build this object.');
         }
 
+        // Check if planet has enough fields for this building (only for buildings that consume fields)
+        // Ships, defense units, and certain other objects don't consume planet fields
+        if (($building->type === GameObjectType::Building || $building->type === GameObjectType::Station) && $building->consumesPlanetField) {
+            $currentBuildingCount = $planet->getBuildingCount();
+            $maxFields = $planet->getPlanetFieldMax();
+
+            // The new building would add 1 to the building count
+            if ($currentBuildingCount >= $maxFields) {
+                if ($planet->isMoon()) {
+                    throw new Exception('Not enough fields on this moon. Upgrade your Moon Base or use a moon field item to get more fields.');
+                } else {
+                    throw new Exception('Not enough fields on this planet. Upgrade your Terraformer or use a planet field item to get more fields.');
+                }
+            }
+        }
+
         $queue = new BuildingQueue();
         $queue->planet_id = $planet->getPlanetId();
         $queue->object_id = $building->id;

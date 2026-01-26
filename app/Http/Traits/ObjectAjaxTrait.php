@@ -179,6 +179,37 @@ trait ObjectAjaxTrait
             $build_queue_max = true;
         }
 
+        // Check if planet has enough fields for this building (only for buildings that consume fields)
+        // Ships, defense units, and certain other objects don't consume planet fields
+        $fields_exceeded = false;
+        if (($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) && $object->consumesPlanetField) {
+            $currentBuildingCount = $planet->getBuildingCount();
+            $maxFields = $planet->getPlanetFieldMax();
+
+            // Calculate the projected building count after all queued items complete
+            // Only apply this for building queues (BuildingQueueViewModel with level_target property)
+            $queuedFieldChange = 0;
+            $build_active = $build_queue->getCurrentlyBuildingFromQueue();
+            $build_queued = $build_queue->getQueuedFromQueue();
+            $all_queued = $build_active !== null ? [$build_active] : [];
+            $all_queued = array_merge($all_queued, $build_queued);
+
+            foreach ($all_queued as $queueItem) {
+                // Only process queue items that have level_target (BuildingQueueViewModel)
+                // UnitQueueViewModel doesn't have this property, so we skip it
+                if (property_exists($queueItem, 'level_target') && $queueItem->object->consumesPlanetField) {
+                    $current_item_level = $planet->getObjectLevel($queueItem->object->machine_name);
+                    $queuedFieldChange += ($queueItem->level_target - $current_item_level);
+                }
+            }
+
+            // The projected building count after all queued items complete
+            $projectedBuildingCount = $currentBuildingCount + $queuedFieldChange;
+
+            // If projected building count >= max fields, fields are exceeded (after queue completes)
+            $fields_exceeded = $projectedBuildingCount >= $maxFields;
+        }
+
         // Calculate downgrade information for buildings and stations
         $downgrade_price = null;
         $downgrade_duration = null;
@@ -281,6 +312,7 @@ trait ObjectAjaxTrait
             'is_missile_silo' => $is_missile_silo,
             'current_missiles' => $current_missiles,
             'max_missiles' => $max_missiles,
+            'fields_exceeded' => $fields_exceeded,
         ]);
 
         return response()->json([
