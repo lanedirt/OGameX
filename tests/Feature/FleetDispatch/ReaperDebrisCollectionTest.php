@@ -71,6 +71,12 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('reaper'), 10);
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new \OGame\Models\Resources(0, 0, 0, 0));
 
+        // Clear foreign planet units from previous tests to ensure isolation
+        $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
+        $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
+        $foreignPlanet->save();
+        $foreignPlanet->reloadPlanet();
+
         // Set up: Defender with ships (not defenses) to create debris when destroyed
         // Using cruisers to create battle - but not too many to exceed Reaper cargo capacity
         $foreignPlanet->addUnit('cruiser', 5);
@@ -92,7 +98,14 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $this->get('/overview'); // Trigger mission processing
 
         // Get battle report to check debris amounts
-        $battleReport = \OGame\Models\BattleReport::latest()->first();
+        // Filter by target planet coordinates to ensure we get the correct report
+        $coords = $foreignPlanet->getPlanetCoordinates();
+        $battleReport = \OGame\Models\BattleReport::query()
+            ->where('planet_galaxy', $coords->galaxy)
+            ->where('planet_system', $coords->system)
+            ->where('planet_position', $coords->position)
+            ->latest()
+            ->first();
         $this->assertNotNull($battleReport, 'Battle report should be created');
 
         $totalDebris = (int)$battleReport->debris['metal'] + (int)$battleReport->debris['crystal'] + (int)$battleReport->debris['deuterium'];
@@ -169,6 +182,12 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('reaper'), 10);
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new \OGame\Models\Resources(0, 0, 0, 0));
 
+        // Clear foreign planet units from previous tests to ensure isolation
+        $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
+        $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
+        $foreignPlanet->save();
+        $foreignPlanet->reloadPlanet();
+
         // Set up: Defender with ships (not defenses) to create debris when destroyed
         // Using cruisers to create battle - but not too many to exceed Reaper cargo capacity
         $foreignPlanet->addUnit('cruiser', 5);
@@ -183,7 +202,14 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $this->get('/overview'); // Trigger mission processing
 
         // Get battle report to check debris amounts
-        $battleReport = \OGame\Models\BattleReport::latest()->first();
+        // Filter by target planet coordinates to ensure we get the correct report
+        $coords = $foreignPlanet->getPlanetCoordinates();
+        $battleReport = \OGame\Models\BattleReport::query()
+            ->where('planet_galaxy', $coords->galaxy)
+            ->where('planet_system', $coords->system)
+            ->where('planet_position', $coords->position)
+            ->latest()
+            ->first();
         $this->assertNotNull($battleReport, 'Battle report should be created');
 
         $totalDebris = (int)$battleReport->debris['metal'] + (int)$battleReport->debris['crystal'] + (int)$battleReport->debris['deuterium'];
