@@ -160,7 +160,9 @@ abstract class AbstractBuildingsController extends OGameController
         }
 
         // Parse header filename for this planet
-        ksort($header_filename_parts);
+        // IMPORTANT: Do NOT sort - the order from header_filename_objects is critical!
+        // OGame uses build order (dependency chain), not numerical order.
+        // ksort() would break the filename matching.
 
         $header_filename = '';
         if ($this->planet->isPlanet()) {
