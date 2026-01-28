@@ -48,6 +48,9 @@
                             @elseif (!$building->requirements_met)
                                 data-status="off"
                                 title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"
+                            @elseif (!$building->character_class_met)
+                                data-status="disabled"
+                                title="{{ $building->object->title }}<br/>@lang('Wrong character class!')"
                             @elseif (!$building->valid_planet_type)
                                 data-status="disabled"
                                 title="{{ $building->object->title }}<br/>@lang('You can\'t construct that building on a moon!')"
@@ -67,6 +70,7 @@
                         ><span class="icon sprite @if (in_array($building->object->machine_name, ['metal_store','crystal_store','deuterium_store'])) sprite_small small @else sprite_medium medium @endif {{ $building->object->class_name }}">
                             @if ($building->currently_building)
                             @elseif (!$building->requirements_met)
+                            @elseif (!$building->character_class_met)
                             @elseif (!$building->valid_planet_type)
                             @elseif (!$building->enough_resources)
                             @elseif ($build_queue_max)

@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use OGame\Models\Resources;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use OGame\Models\Planet;
+use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use Tests\AccountTestCase;
 
