@@ -51,4 +51,10 @@ class FleetEventRowViewModel
     public int $fleet_unit_count;
     public UnitCollection $fleet_units;
     public Resources $resources;
+
+    /**
+     * @var bool Whether this fleet can be converted to an ACS federation (union).
+     * True for attack missions that are not return trips and not already in a union.
+     */
+    public bool $can_create_federation = false;
 }

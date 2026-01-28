@@ -109,6 +109,12 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::post('/ajax/fleet/dispatch/send-mini-fleet', [FleetController::class, 'dispatchSendMiniFleet'])->name('fleet.dispatch.sendminifleet');
     Route::post('/ajax/fleet/dispatch/recall-fleet', [FleetController::class, 'dispatchRecallFleet'])->name('fleet.dispatch.recallfleet');
 
+    // ACS Fleet Unions
+    Route::post('/ajax/fleet/union/create', [FleetController::class, 'createUnion'])->name('fleet.union.create');
+    Route::post('/ajax/fleet/union/join', [FleetController::class, 'joinUnion'])->name('fleet.union.join');
+    Route::get('/ajax/fleet/union/available', [FleetController::class, 'getAvailableUnions'])->name('fleet.union.available');
+    Route::get('/overlay/fleet/federation', [FleetController::class, 'federationOverlay'])->name('fleet.federation.overlay');
+
     // Fleet Templates (Standard Fleets)
     Route::get('/ajax/fleet/templates', [FleetController::class, 'getTemplates'])->name('fleet.templates.index');
     Route::post('/ajax/fleet/templates', [FleetController::class, 'saveTemplate'])->name('fleet.templates.store');

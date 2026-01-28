@@ -175,6 +175,19 @@ class FleetUnionService
     }
 
     /**
+     * Check if a player can join a union (ally/buddy of creator).
+     * Used for UI filtering to show available unions.
+     *
+     * @param FleetUnion $union
+     * @param int $playerId
+     * @return bool
+     */
+    public function canPlayerJoinUnion(FleetUnion $union, int $playerId): bool
+    {
+        return $this->isAllyOrBuddy($union->user_id, $playerId);
+    }
+
+    /**
      * Check if two players are allies or buddies.
      *
      * @param int $userId1

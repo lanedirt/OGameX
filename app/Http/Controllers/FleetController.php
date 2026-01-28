@@ -12,12 +12,15 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\GameConstants\UniverseConstants;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
 use OGame\Models\FleetTemplate;
+use OGame\Models\FleetUnion;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\CharacterClassService;
 use OGame\Services\CoordinateDistanceCalculator;
 use OGame\Services\FleetMissionService;
+use OGame\Services\FleetUnionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -195,6 +198,14 @@ class FleetController extends OGameController
             $eventRowViewModel->friendly_status = $mission::getFriendlyStatus()->value;
             // Missile attacks (mission type 10) cannot be recalled
             $eventRowViewModel->is_recallable = ($row->mission_type !== 10);
+
+            // Set whether this fleet can be converted to an ACS federation (union)
+            // Only regular attack missions (type 1) that are not return trips and not already in a union
+            $eventRowViewModel->can_create_federation = (
+                $row->mission_type === 1 && // Attack mission
+                !$eventRowViewModel->is_return_trip && // Not a return trip
+                $row->union_id === null // Not already in a union
+            );
 
             // Add return trip info to the same row (not as separate row) if the mission has a return mission
             if ($fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
@@ -695,6 +706,183 @@ class FleetController extends OGameController
             'components' => [],
             'newAjaxToken' => csrf_token(),
             'success' => true,
+        ]);
+    }
+
+    /**
+     * Create a fleet union from an existing attack mission.
+     *
+     * @param PlayerService $player
+     * @param FleetUnionService $fleetUnionService
+     * @return JsonResponse
+     */
+    public function createUnion(PlayerService $player, FleetUnionService $fleetUnionService): JsonResponse
+    {
+        $validated = request()->validate([
+            'fleet_mission_id' => 'nullable|integer|exists:fleet_missions,id',
+            'fleetID' => 'nullable|integer|exists:fleet_missions,id',
+            'name' => 'nullable|string|max:100',
+            'groupname' => 'nullable|string|max:100',
+        ]);
+
+        // Support both OGame field names (fleetID, groupname) and our internal names
+        $fleetMissionId = $validated['fleetID'] ?? $validated['fleet_mission_id'] ?? null;
+        $unionName = $validated['groupname'] ?? $validated['name'] ?? null;
+
+        if (!$fleetMissionId) {
+            return response()->json(['error' => __('t_acs.error_mission_not_found')], 404);
+        }
+
+        $mission = FleetMission::where('id', $fleetMissionId)
+            ->where('user_id', $player->getId())
+            ->first();
+
+        if (!$mission) {
+            return response()->json(['error' => __('t_acs.error_mission_not_found')], 404);
+        }
+
+        try {
+            $union = $fleetUnionService->createUnion($mission, $unionName);
+
+            return response()->json([
+                'success' => true,
+                'union_id' => $union->id,
+                'time_arrival' => $union->time_arrival,
+                'newAjaxToken' => csrf_token(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Join an existing fleet union with a fleet mission.
+     *
+     * @param PlayerService $player
+     * @param FleetUnionService $fleetUnionService
+     * @return JsonResponse
+     */
+    public function joinUnion(PlayerService $player, FleetUnionService $fleetUnionService): JsonResponse
+    {
+        $validated = request()->validate([
+            'fleet_mission_id' => 'required|integer|exists:fleet_missions,id',
+            'union_id' => 'required|integer|exists:fleet_unions,id',
+        ]);
+
+        $mission = FleetMission::where('id', $validated['fleet_mission_id'])
+            ->where('user_id', $player->getId())
+            ->first();
+
+        /** @var FleetUnion|null $union */
+        $union = FleetUnion::find($validated['union_id']);
+
+        if (!$mission || !$union) {
+            return response()->json(['error' => __('t_acs.error_not_found')], 404);
+        }
+
+        try {
+            $fleetUnionService->joinUnion($union, $mission);
+
+            $refreshedUnion = FleetUnion::find($union->id);
+            if (!$refreshedUnion) {
+                return response()->json(['error' => __('t_acs.error_not_found')], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'time_arrival' => $refreshedUnion->time_arrival,
+                'newAjaxToken' => csrf_token(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Get available unions for a target coordinate.
+     *
+     * @param PlayerService $player
+     * @param FleetUnionService $fleetUnionService
+     * @return JsonResponse
+     */
+    public function getAvailableUnions(PlayerService $player, FleetUnionService $fleetUnionService): JsonResponse
+    {
+        $validated = request()->validate([
+            'galaxy' => 'required|integer|min:1|max:9',
+            'system' => 'required|integer|min:1|max:499',
+            'position' => 'required|integer|min:1|max:15',
+            'planet_type' => 'required|integer|in:1,2',
+        ]);
+
+        $unions = FleetUnion::with(['creator', 'activeFleetMissions'])
+            ->where('galaxy_to', $validated['galaxy'])
+            ->where('system_to', $validated['system'])
+            ->where('position_to', $validated['position'])
+            ->where('planet_type_to', $validated['planet_type'])
+            ->whereHas('creator', function ($query) use ($player) {
+                $query->where('id', '!=', $player->getId());
+            })
+            ->where('time_arrival', '>', now()->timestamp)
+            ->whereHas('activeFleetMissions', function ($query) {
+                $query->where('processed', 0)->where('canceled', 0);
+            })
+            ->get();
+
+        $availableUnions = [];
+
+        foreach ($unions as $union) {
+            // Check if current player is ally/buddy of creator
+            if ($fleetUnionService->canPlayerJoinUnion($union, $player->getId())) {
+                $availableUnions[] = [
+                    'id' => $union->id,
+                    'name' => $union->name,
+                    'creator' => $union->creator->username,
+                    'time_arrival' => $union->time_arrival,
+                    'participant_count' => $union->activeFleetMissions()->count(),
+                    'max_fleets' => $union->max_fleets,
+                    'can_join' => !$union->hasReachedMaxFleets(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'unions' => $availableUnions,
+            'newAjaxToken' => csrf_token(),
+        ]);
+    }
+
+    /**
+     * Show the fleet union (federation) overlay for creating a new union.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return View
+     */
+    public function federationOverlay(Request $request, PlayerService $player): View
+    {
+        $fleetMissionId = $request->input('fleet', 0);
+
+        // Validate that the fleet belongs to the current player
+        $mission = FleetMission::where('id', $fleetMissionId)
+            ->where('user_id', $player->getId())
+            ->where('mission_type', 1) // Attack mission
+            ->where('union_id', null) // Not already in a union
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->first();
+
+        if (!$mission) {
+            abort(404, 'Fleet mission not found or cannot be converted to a union.');
+        }
+
+        return view('ingame.fleet.federation-overlay')->with([
+            'fleetMissionId' => $fleetMissionId,
         ]);
     }
 

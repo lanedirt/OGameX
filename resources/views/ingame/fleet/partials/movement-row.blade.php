@@ -175,6 +175,14 @@ if ($fleet_event->is_return_trip) {
         <span class="nextMission friendly textBeefy">@lang('Return')</span>
     @endif
 
+    @if ($fleet_event->can_create_federation)
+        <span class="fedAttack" id="federation_{{ $fleet_event->id }}">
+            <a href="{{ route('fleet.federation.overlay', ['fleet' => $fleet_event->id]) }}" class="openOverlay tooltip icon" data-title="@lang('Fleet union')" data-overlay-class="federation-layer" data-fleet-id="{{ $fleet_event->id }}" title="@lang('fleet union')">
+                <img src="/img/icons/2ff25995f98351834db4b5aa048c68.gif" height="16" width="16">
+            </a>
+        </span>
+    @endif
+
     <span class="openDetails">
         <a href="javascript:void(0);" class="openCloseDetails" data-mission-id="{{ $fleet_event->id }}" data-end-time="{{ $fleet_event->mission_time_arrival }}">
             <img src="/img/icons/577565fadab7780b0997a76d0dca9b.gif" height="16" width="16">

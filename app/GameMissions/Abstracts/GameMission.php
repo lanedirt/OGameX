@@ -11,12 +11,14 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\AcsDefendMission;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\ExpeditionMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
+use OGame\Models\FleetUnion;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
@@ -133,6 +135,12 @@ abstract class GameMission
      */
     public function cancel(FleetMission $mission): void
     {
+        // Handle fleet recall from union (remove from union, delete empty union)
+        if ($mission->isInUnion()) {
+            $fleetUnionService = resolve(\OGame\Services\FleetUnionService::class);
+            $fleetUnionService->handleFleetRecall($mission);
+        }
+
         $currentTime = (int)Date::now()->timestamp;
 
         // Store the original arrival time before modifying it.
@@ -606,6 +614,61 @@ abstract class GameMission
         }
 
         return $defenders;
+    }
+
+    /**
+     * Collect all attacking fleets from a union (if the mission belongs to one).
+     *
+     * @param FleetMission $mission The fleet mission to check for union participation.
+     * @return array<AttackerFleet> Array of attacking fleets. Single fleet if no union.
+     */
+    protected function collectAttackingFleets(FleetMission $mission): array
+    {
+        $attackers = [];
+
+        // Check if this mission is part of a union
+        if (!$mission->isInUnion()) {
+            // Single attacker - create AttackerFleet from this mission only
+            $attackers[] = AttackerFleet::fromFleetMission(
+                $mission,
+                $this->fleetMissionService,
+                $this->playerServiceFactory,
+                true // isInitiator
+            );
+            return $attackers;
+        }
+
+        // Collect all fleets from the union
+        /** @var FleetUnion $union */
+        $union = $mission->union;
+        if (!$union) {
+            // Union was deleted or doesn't exist
+            $attackers[] = AttackerFleet::fromFleetMission(
+                $mission,
+                $this->fleetMissionService,
+                $this->playerServiceFactory,
+                true // isInitiator
+            );
+            return $attackers;
+        }
+
+        $fleetMissions = $union->activeFleetMissions()
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->orderBy('union_slot')
+            ->get();
+
+        foreach ($fleetMissions as $fleetMission) {
+            $isInitiator = ($fleetMission->union_slot === 1);
+            $attackers[] = AttackerFleet::fromFleetMission(
+                $fleetMission,
+                $this->fleetMissionService,
+                $this->playerServiceFactory,
+                $isInitiator
+            );
+        }
+
+        return $attackers;
     }
 
     /**

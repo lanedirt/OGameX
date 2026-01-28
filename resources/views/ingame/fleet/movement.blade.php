@@ -130,6 +130,42 @@
                     });
                     return false;
                 });
+
+                // Federation (fleet union) overlay handler
+                $("#movement a.openOverlay[data-overlay-class='federation-layer']").off('click').on('click', function (e) {
+                    e.preventDefault();
+                    var fleetId = $(this).attr("data-fleet-id");
+                    var overlayUrl = $(this).attr("href");
+
+                    // Open the overlay
+                    $.ajax({
+                        url: overlayUrl,
+                        type: 'GET',
+                        success: function(response) {
+                            // Create and show the overlay
+                            var overlayDiv = $('<div class="overlayDiv">').html(response);
+                            overlayDiv.dialog({
+                                modal: true,
+                                resizable: false,
+                                width: 'auto',
+                                title: overlayDiv.find('a[data-overlay-class="federation-layer"]').attr('data-title') || '@lang('Fleet union')',
+                                close: function() {
+                                    $(this).dialog('destroy').remove();
+                                }
+                            });
+
+                            // Set the fleet mission ID in the form (using OGame field name)
+                            overlayDiv.find('input[name="fleetID"]').val(fleetId);
+                        },
+                        error: function() {
+                            if (typeof errorBox !== 'undefined') {
+                                errorBox('@lang('Failed to load federation overlay')');
+                            }
+                        }
+                    });
+
+                    return false;
+                });
             });
         </script>
     </div>
