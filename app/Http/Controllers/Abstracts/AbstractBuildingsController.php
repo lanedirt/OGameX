@@ -87,6 +87,8 @@ abstract class AbstractBuildingsController extends OGameController
 
                 // Check requirements of this building
                 $requirements_met = ObjectService::objectRequirementsMetWithQueue($object_machine_name, $next_level, $this->planet);
+                // Check character class requirements (for class-specific ships like crawler)
+                $character_class_met = ObjectService::objectCharacterClassMet($object_machine_name, $this->planet);
 
                 $valid_planet_type = ObjectService::objectValidPlanetType($object_machine_name, $this->planet);
 
@@ -98,6 +100,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->object = $object;
                 $view_model->current_level = $current_level;
                 $view_model->requirements_met = $requirements_met;
+                $view_model->character_class_met = $character_class_met;
                 $view_model->valid_planet_type = $valid_planet_type;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
