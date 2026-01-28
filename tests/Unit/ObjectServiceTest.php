@@ -142,6 +142,19 @@ class ObjectServiceTest extends UnitTestCase
     }
 
     /**
+     * Test canDowngradeBuilding returns false for Terraformer (permanent building).
+     */
+    public function testCanDowngradeBuildingTerraformerIsPermanent(): void
+    {
+        $this->createAndSetPlanetModel([
+            'terraformer' => 1,
+        ]);
+
+        $can_downgrade = ObjectService::canDowngradeBuilding('terraformer', $this->planetService);
+        $this->assertFalse($can_downgrade);
+    }
+
+    /**
      * Test getRecursiveRequirements returns all prerequisites for a technology.
      * Example: shielding_technology requires research_lab level 6 and energy_technology level 3.
      */
