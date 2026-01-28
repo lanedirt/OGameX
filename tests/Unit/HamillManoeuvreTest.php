@@ -3,8 +3,10 @@
 namespace Tests\Unit;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\AccountTestCase;
@@ -37,6 +39,33 @@ class HamillManoeuvreTest extends AccountTestCase
     }
 
     /**
+     * Helper method to create a battle engine with the new multi-attacker architecture.
+     *
+     * @param UnitCollection $attackerFleet
+     * @param \OGame\Services\PlayerService $player
+     * @param \OGame\Services\PlanetService $defenderPlanet
+     * @param \OGame\Services\SettingsService $settingsService
+     * @return PhpBattleEngine
+     */
+    private function createBattleEngine(UnitCollection $attackerFleet, \OGame\Services\PlayerService $player, \OGame\Services\PlanetService $defenderPlanet, \OGame\Services\SettingsService $settingsService): PhpBattleEngine
+    {
+        // Create defenders array with planet's stationary forces
+        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($defenderPlanet)];
+
+        // Convert UnitCollection to AttackerFleet for the new multi-attacker architecture
+        $attacker = new AttackerFleet();
+        $attacker->units = $attackerFleet;
+        $attacker->player = $player;
+        $attacker->fleetMissionId = 0; // 0 for test battles without a real fleet mission
+        $attacker->ownerId = $player->getId();
+        $attacker->cargoResources = new Resources(0, 0, 0, 0);
+        $attacker->isInitiator = true;
+        $attacker->fleetMission = null;
+
+        return new PhpBattleEngine([$attacker], $defenderPlanet, $defenders, $settingsService);
+    }
+
+    /**
      * Test that General class Light Fighter can destroy a Deathstar with Hamill Manoeuvre.
      *
      * @throws BindingResolutionException
@@ -61,19 +90,8 @@ class HamillManoeuvreTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getShipObjectByMachineName('light_fighter'), 100);
 
-        // Create defenders array with planet's stationary forces
-        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($defenderPlanet)];
-
         // Create battle engine
-        $battleEngine = new PhpBattleEngine(
-            $attackerFleet,
-            $player,
-            $defenderPlanet,
-            $defenders,
-            $settingsService,
-            0,
-            $player->getId()
-        );
+        $battleEngine = $this->createBattleEngine($attackerFleet, $player, $defenderPlanet, $settingsService);
 
         // Run battle simulation
         $result = $battleEngine->simulateBattle();
@@ -113,19 +131,8 @@ class HamillManoeuvreTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getShipObjectByMachineName('light_fighter'), 100);
 
-        // Create defenders array with planet's stationary forces
-        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($defenderPlanet)];
-
         // Create battle engine
-        $battleEngine = new PhpBattleEngine(
-            $attackerFleet,
-            $player,
-            $defenderPlanet,
-            $defenders,
-            $settingsService,
-            0,
-            $player->getId()
-        );
+        $battleEngine = $this->createBattleEngine($attackerFleet, $player, $defenderPlanet, $settingsService);
 
         // Run battle simulation
         $result = $battleEngine->simulateBattle();
@@ -162,19 +169,8 @@ class HamillManoeuvreTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getShipObjectByMachineName('heavy_fighter'), 100);
 
-        // Create defenders array with planet's stationary forces
-        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($defenderPlanet)];
-
         // Create battle engine
-        $battleEngine = new PhpBattleEngine(
-            $attackerFleet,
-            $player,
-            $defenderPlanet,
-            $defenders,
-            $settingsService,
-            0,
-            $player->getId()
-        );
+        $battleEngine = $this->createBattleEngine($attackerFleet, $player, $defenderPlanet, $settingsService);
 
         // Run battle simulation
         $result = $battleEngine->simulateBattle();
@@ -211,19 +207,8 @@ class HamillManoeuvreTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getShipObjectByMachineName('light_fighter'), 100);
 
-        // Create defenders array with planet's stationary forces
-        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($defenderPlanet)];
-
         // Create battle engine
-        $battleEngine = new PhpBattleEngine(
-            $attackerFleet,
-            $player,
-            $defenderPlanet,
-            $defenders,
-            $settingsService,
-            0,
-            $player->getId()
-        );
+        $battleEngine = $this->createBattleEngine($attackerFleet, $player, $defenderPlanet, $settingsService);
 
         // Run battle simulation
         $result = $battleEngine->simulateBattle();
@@ -257,19 +242,8 @@ class HamillManoeuvreTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getShipObjectByMachineName('light_fighter'), 100);
 
-        // Create defenders array with planet's stationary forces
-        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($defenderPlanet)];
-
         // Create battle engine
-        $battleEngine = new PhpBattleEngine(
-            $attackerFleet,
-            $player,
-            $defenderPlanet,
-            $defenders,
-            $settingsService,
-            0,
-            $player->getId()
-        );
+        $battleEngine = $this->createBattleEngine($attackerFleet, $player, $defenderPlanet, $settingsService);
 
         // Run battle simulation
         $result = $battleEngine->simulateBattle();

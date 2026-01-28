@@ -2,6 +2,9 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use InvalidArgumentException;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleetResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
@@ -42,21 +45,55 @@ abstract class BattleEngine
     /**
      * BattleEngine constructor.
      *
-     * @param UnitCollection $attackerFleet The fleet of the attacker player.
-     * @param PlayerService $attackerPlayer The attacker player.
+     * @param array<AttackerFleet> $attackers All attacking fleets.
      * @param PlanetService $defenderPlanet The planet of the defender player (used for loot, moon calculation).
      * @param array<DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
      * @param SettingsService $settings The settings service.
-     * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
-     * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(private UnitCollection $attackerFleet, protected PlayerService $attackerPlayer, protected PlanetService $defenderPlanet, protected array $defenders, private SettingsService $settings, protected int $attackerFleetMissionId, protected int $attackerOwnerId)
+    public function __construct(protected array $attackers, protected PlanetService $defenderPlanet, protected array $defenders, private SettingsService $settings)
     {
+        // For backward compatibility, use the first attacker as the primary attacker
+        // For multi-attacker battles, we'll use combined fleet data for loot calculation
+        $primaryAttacker = $this->attackers[0] ?? null;
+        if ($primaryAttacker === null) {
+            throw new InvalidArgumentException('At least one attacker fleet is required');
+        }
+
         // Determine loot percentage based on character class and defender status
         $characterClassService = app(CharacterClassService::class);
-        $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($this->attackerPlayer->getUser()) * 100);
+        $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($primaryAttacker->player->getUser()) * 100);
 
-        $this->lootService = new LootService($this->attackerFleet, $this->attackerPlayer, $this->defenderPlanet, $this->lootPercentage);
+        // Combine all attacker fleets for loot calculation
+        $combinedAttackerFleet = new UnitCollection();
+        foreach ($this->attackers as $attacker) {
+            $combinedAttackerFleet->addCollection($attacker->units);
+        }
+
+        $this->lootService = new LootService($combinedAttackerFleet, $primaryAttacker->player, $this->defenderPlanet, $this->lootPercentage);
+    }
+
+    /**
+     * Get the primary attacker player (for backward compatibility).
+     *
+     * @return PlayerService
+     */
+    protected function getAttackerPlayer(): PlayerService
+    {
+        return $this->attackers[0]->player;
+    }
+
+    /**
+     * Get the combined attacker fleet (for backward compatibility).
+     *
+     * @return UnitCollection
+     */
+    protected function getAttackerFleet(): UnitCollection
+    {
+        $combined = new UnitCollection();
+        foreach ($this->attackers as $attacker) {
+            $combined->addCollection($attacker->units);
+        }
+        return $combined;
     }
 
     /**
@@ -71,10 +108,14 @@ abstract class BattleEngine
         // Initialize the battle result object with the attacker and defender information.
         $result->lootPercentage = $this->lootPercentage;
 
+        // Use primary attacker for tech levels (first attacker in array)
+        $primaryAttacker = $this->attackers[0];
+        $attackerPlayer = $primaryAttacker->player;
+
         // Get base research levels
-        $attackerWeaponBase = $this->attackerPlayer->getResearchLevel('weapon_technology');
-        $attackerShieldBase = $this->attackerPlayer->getResearchLevel('shielding_technology');
-        $attackerArmorBase = $this->attackerPlayer->getResearchLevel('armor_technology');
+        $attackerWeaponBase = $attackerPlayer->getResearchLevel('weapon_technology');
+        $attackerShieldBase = $attackerPlayer->getResearchLevel('shielding_technology');
+        $attackerArmorBase = $attackerPlayer->getResearchLevel('armor_technology');
 
         $defenderWeaponBase = $this->defenderPlanet->getPlayer()->getResearchLevel('weapon_technology');
         $defenderShieldBase = $this->defenderPlanet->getPlayer()->getResearchLevel('shielding_technology');
@@ -82,7 +123,7 @@ abstract class BattleEngine
 
         // Apply General class combat research bonus (+2 levels)
         $characterClassService = app(CharacterClassService::class);
-        $attackerCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($this->attackerPlayer->getUser());
+        $attackerCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($attackerPlayer->getUser());
         $defenderCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($this->defenderPlanet->getPlayer()->getUser());
 
         $result->attackerWeaponLevel = $attackerWeaponBase + $attackerCombatBonus;
@@ -93,8 +134,23 @@ abstract class BattleEngine
         $result->defenderShieldLevel = $defenderShieldBase + $defenderCombatBonus;
         $result->defenderArmorLevel = $defenderArmorBase + $defenderCombatBonus;
 
-        $result->attackerUnitsStart = clone $this->attackerFleet;
-        $result->attackerUnitsResult = clone $this->attackerFleet;
+        // Combine all attacker fleets for backward-compatible units tracking
+        $result->attackerUnitsStart = new UnitCollection();
+        foreach ($this->attackers as $attacker) {
+            $result->attackerUnitsStart->addCollection($attacker->units);
+        }
+        $result->attackerUnitsResult = clone $result->attackerUnitsStart;
+
+        // Initialize per-attacker fleet results
+        foreach ($this->attackers as $attacker) {
+            $fleetResult = new AttackerFleetResult(
+                $attacker->fleetMissionId,
+                $attacker->ownerId,
+                $attacker->units
+            );
+            $result->attackerFleetResults[] = $fleetResult;
+        }
+
         $result->defenderUnitsStart = new UnitCollection();
 
         // Collect units from all defending fleets and initialize per-fleet results
@@ -319,9 +375,11 @@ abstract class BattleEngine
      */
     protected function sanitizeRoundArray(array $rounds): array
     {
+        $combinedAttackerFleet = $this->getAttackerFleet();
+
         foreach ($rounds as $round) {
             // Ensure all attacker units are present in the round
-            foreach ($this->attackerFleet->units as $unit) {
+            foreach ($combinedAttackerFleet->units as $unit) {
                 if (!$round->attackerShips->hasUnit($unit->unitObject)) {
                     $round->attackerShips->addUnit($unit->unitObject, 0);
                 }

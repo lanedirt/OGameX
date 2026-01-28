@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\Date;
 use InvalidArgumentException;
 use OGame\GameMissions\BattleEngine\BattleEngine;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
@@ -124,13 +125,19 @@ class TestBattleEnginePerformance extends TestCommand
         // Create defenders array with planet's stationary forces
         $defenders = [DefenderFleet::fromPlanet($this->currentPlanetService)];
 
-        // For test battles, use fleetMissionId = 0 and current player's ID
-        $fleetMissionId = 0;
-        $ownerId = $this->playerService->getId();
+        // Convert UnitCollection to AttackerFleet for the new multi-attacker architecture
+        $attacker = new AttackerFleet();
+        $attacker->units = $attackerFleet;
+        $attacker->player = $this->playerService;
+        $attacker->fleetMissionId = 0; // 0 for test battles without a real fleet mission
+        $attacker->ownerId = $this->playerService->getId();
+        $attacker->cargoResources = new Resources(0, 0, 0, 0);
+        $attacker->isInitiator = true;
+        $attacker->fleetMission = null;
 
         return $engine === 'php'
-            ? new PhpBattleEngine($attackerFleet, $this->playerService, $this->currentPlanetService, $defenders, $settingsService, $fleetMissionId, $ownerId)
-            : new RustBattleEngine($attackerFleet, $this->playerService, $this->currentPlanetService, $defenders, $settingsService, $fleetMissionId, $ownerId);
+            ? new PhpBattleEngine([$attacker], $this->currentPlanetService, $defenders, $settingsService)
+            : new RustBattleEngine([$attacker], $this->currentPlanetService, $defenders, $settingsService);
     }
 
     /**

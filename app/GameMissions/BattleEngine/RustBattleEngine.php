@@ -3,6 +3,7 @@
 namespace OGame\GameMissions\BattleEngine;
 
 use FFI;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
@@ -10,7 +11,6 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
-use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 
 /**
@@ -32,17 +32,14 @@ class RustBattleEngine extends BattleEngine
     /**
      * RustBattleEngine constructor.
      *
-     * @param UnitCollection $attackerFleet The fleet of the attacker player.
-     * @param PlayerService $attackerPlayer The attacker player.
+     * @param array<AttackerFleet> $attackers All attacking fleets.
      * @param PlanetService $defenderPlanet The planet of the defender player (used for loot, moon calculation).
      * @param array<DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
      * @param SettingsService $settings The settings service.
-     * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
-     * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, array $defenders, SettingsService $settings, int $attackerFleetMissionId, int $attackerOwnerId)
+    public function __construct(array $attackers, PlanetService $defenderPlanet, array $defenders, SettingsService $settings)
     {
-        parent::__construct($attackerFleet, $attackerPlayer, $defenderPlanet, $defenders, $settings, $attackerFleetMissionId, $attackerOwnerId);
+        parent::__construct($attackers, $defenderPlanet, $defenders, $settings);
 
         $this->ffi = FFI::cdef(
             "char* fight_battle_rounds(const char* input_json);",
@@ -80,6 +77,10 @@ class RustBattleEngine extends BattleEngine
 
         // Handle case where no battle occurred - all fleets keep their units
         if (count($rounds) === 0) {
+            foreach ($result->attackerFleetResults as $fleetResult) {
+                $fleetResult->unitsResult = clone $fleetResult->unitsStart;
+                $fleetResult->completelyDestroyed = false;
+            }
             foreach ($result->defenderFleetResults as $fleetResult) {
                 $fleetResult->unitsResult = clone $fleetResult->unitsStart;
                 $fleetResult->completelyDestroyed = false;
@@ -122,32 +123,33 @@ class RustBattleEngine extends BattleEngine
      */
     private function prepareBattleInput(BattleResult $result): array
     {
-        // Build attacker fleet (currently only single attacker supported)
-        $attackerUnits = new \stdClass();
-        foreach ($result->attackerUnitsStart->units as $unit) {
-            $rapidfire = new \stdClass();
-            foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
-                $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
-                $rapidfire->{$targetUnit->id} = $rapidfireObject->amount;
+        // Build attacker fleets
+        $attackerFleets = [];
+        foreach ($this->attackers as $attackerFleet) {
+            $attackerUnits = new \stdClass();
+            foreach ($attackerFleet->units->units as $unit) {
+                $rapidfire = new \stdClass();
+                foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
+                    $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
+                    $rapidfire->{$targetUnit->id} = $rapidfireObject->amount;
+                }
+
+                $attackerUnits->{$unit->unitObject->id} = (object)[
+                    'unit_id' => $unit->unitObject->id,
+                    'amount' => $unit->amount,
+                    'shield_points' => $unit->unitObject->properties->shield->calculate($attackerFleet->player)->totalValue,
+                    'attack_power' => $unit->unitObject->properties->attack->calculate($attackerFleet->player)->totalValue,
+                    'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($attackerFleet->player)->totalValue / 10),
+                    'rapidfire' => $rapidfire,
+                ];
             }
 
-            $attackerUnits->{$unit->unitObject->id} = (object)[
-                'unit_id' => $unit->unitObject->id,
-                'amount' => $unit->amount,
-                'shield_points' => $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue,
-                'attack_power' => $unit->unitObject->properties->attack->calculate($this->attackerPlayer)->totalValue,
-                'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue / 10),
-                'rapidfire' => $rapidfire,
+            $attackerFleets[] = (object)[
+                'fleet_mission_id' => $attackerFleet->fleetMissionId,
+                'owner_id' => max(0, $attackerFleet->ownerId), // Ensure non-negative for u32
+                'units' => $attackerUnits,
             ];
         }
-
-        $attackerFleets = [
-            (object)[
-                'fleet_mission_id' => $this->attackerFleetMissionId,
-                'owner_id' => max(0, $this->attackerOwnerId), // Ensure non-negative for u32
-                'units' => $attackerUnits,
-            ],
-        ];
 
         // Build defender fleets (planet owner + ACS defend fleets)
         $defenderFleets = [];
@@ -238,6 +240,32 @@ class RustBattleEngine extends BattleEngine
             $round->fullStrengthDefender = (int)($roundData['full_strength_defender'] ?? 0);
 
             // Populate per-fleet results from Rust (use last round for final results)
+            if (isset($roundData['attacker_fleet_results']) && is_array($roundData['attacker_fleet_results'])) {
+                foreach ($roundData['attacker_fleet_results'] as $fleetResult) {
+                    $fleetMissionId = (int)$fleetResult['fleet_mission_id'];
+                    $ownerId = (int)$fleetResult['owner_id'];
+
+                    // Find the corresponding fleet result in the BattleResult
+                    foreach ($result->attackerFleetResults as $attackerFleetResult) {
+                        if ($attackerFleetResult->fleetMissionId === $fleetMissionId && $attackerFleetResult->playerId === $ownerId) {
+                            // Populate units_result from Rust data
+                            if (isset($fleetResult['units_result']) && is_array($fleetResult['units_result'])) {
+                                $attackerFleetResult->unitsResult = $this->convertUnitArrayToUnitCollection($fleetResult['units_result']);
+                            }
+
+                            // Populate units_lost from Rust data
+                            if (isset($fleetResult['units_lost']) && is_array($fleetResult['units_lost'])) {
+                                $attackerFleetResult->unitsLost = $this->convertUnitArrayToUnitCollection($fleetResult['units_lost']);
+                            }
+
+                            // Check if completely destroyed
+                            $attackerFleetResult->completelyDestroyed = $attackerFleetResult->unitsResult->getAmount() === 0;
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (isset($roundData['defender_fleet_results']) && is_array($roundData['defender_fleet_results'])) {
                 foreach ($roundData['defender_fleet_results'] as $fleetResult) {
                     $fleetMissionId = (int)$fleetResult['fleet_mission_id'];
@@ -295,8 +323,9 @@ class RustBattleEngine extends BattleEngine
     private function checkHamillManoeuvre(BattleResult $result): void
     {
         // Check if attacker is General class
+        $attackerPlayer = $this->getAttackerPlayer();
         $characterClassService = app(CharacterClassService::class);
-        if (!$characterClassService->isGeneral($this->attackerPlayer->getUser())) {
+        if (!$characterClassService->isGeneral($attackerPlayer->getUser())) {
             return;
         }
 

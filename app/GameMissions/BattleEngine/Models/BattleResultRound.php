@@ -13,15 +13,43 @@ class BattleResultRound
 {
     /**
      * @var UnitCollection Unit losses of the attacker player until now which includes previous rounds.
-     * TODO: now this only works for a single attacker. Support for multiple attackers should be added later.
      */
     public UnitCollection $attackerLosses;
 
     /**
      * @var UnitCollection Unit losses of the player in this round.
-     *  TODO: now this only works for a single attacker. Support for multiple attackers should be added later.
      */
     public UnitCollection $attackerLossesInRound;
+
+    /**
+     * @var array<int, UnitCollection> Cumulative losses per attacker fleet_mission_id.
+     * Empty array for backward compatibility with single-attacker battles.
+     */
+    public array $attackerLossesPerFleet = [];
+
+    /**
+     * @var array<int, UnitCollection> Losses in THIS round per attacker fleet_mission_id.
+     * Empty array for backward compatibility with single-attacker battles.
+     */
+    public array $attackerLossesInRoundPerFleet = [];
+
+    /**
+     * @var array<int, UnitCollection> Remaining ships per attacker fleet_mission_id.
+     * Empty array for backward compatibility with single-attacker battles.
+     */
+    public array $attackerShipsPerFleet = [];
+
+    /**
+     * @var array<int, int> Hits made by each attacker fleet (keyed by fleet_mission_id).
+     * Empty array for backward compatibility with single-attacker battles.
+     */
+    public array $hitsPerAttackerFleet = [];
+
+    /**
+     * @var array<int, int> Damage dealt by each attacker fleet (keyed by fleet_mission_id).
+     * Empty array for backward compatibility with single-attacker battles.
+     */
+    public array $damagePerAttackerFleet = [];
 
     /**
      * @var UnitCollection Unit losses of the defender until now which includes previous rounds.
