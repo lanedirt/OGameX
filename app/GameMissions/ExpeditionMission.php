@@ -19,6 +19,7 @@ use OGame\GameMessages\ExpeditionGainShips;
 use OGame\GameMessages\ExpeditionLossOfFleet;
 use OGame\GameMessages\ExpeditionMerchantFound;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
@@ -690,14 +691,21 @@ class ExpeditionMission extends GameMission
         // NPC battles don't have ACS defend fleets, just the NPC's forces
         $defenders = [DefenderFleet::fromPlanet($npcPlanetService)];
 
+        // Create AttackerFleet for the player's expedition fleet
+        $attackerFleet = new AttackerFleet();
+        $attackerFleet->units = $playerFleet;
+        $attackerFleet->player = $player;
+        $attackerFleet->fleetMissionId = $mission->id;
+        $attackerFleet->ownerId = $mission->user_id;
+        $attackerFleet->cargoResources = new Resources(0, 0, 0, 0);
+        $attackerFleet->isInitiator = true;
+        $attackerFleet->fleetMission = $mission;
+
         $battleEngine = new RustBattleEngine(
-            $playerFleet,
-            $player,
+            [$attackerFleet],
             $npcPlanetService,
             $defenders,
-            $this->settings,
-            $mission->id,
-            $mission->user_id
+            $this->settings
         );
 
         $battleResult = $battleEngine->simulateBattle();

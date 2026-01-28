@@ -7,6 +7,7 @@ use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\GameMessages\FleetLostContact;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
@@ -90,18 +91,21 @@ class AttackMission extends GameMission
         $attackerPlayer = $origin_planet->getPlayer();
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
+        // Create AttackerFleet for the mission
+        $attackerFleet = AttackerFleet::fromFleetMission($mission, $this->fleetMissionService, $this->playerServiceFactory, true);
+
         // Collect all defending fleets (planet owner + ACS defend fleets)
         $defenders = $this->collectDefendingFleets($defenderPlanet);
 
         // Execute the battle logic using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $defenders, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new PhpBattleEngine([$attackerFleet], $defenderPlanet, $defenders, $this->settings);
                 break;
             case 'rust':
             default:
                 // Default to RustBattleEngine if no specific engine is configured
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $defenderPlanet, $defenders, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new RustBattleEngine([$attackerFleet], $defenderPlanet, $defenders, $this->settings);
                 break;
         }
 

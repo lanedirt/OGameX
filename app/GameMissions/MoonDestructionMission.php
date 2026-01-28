@@ -11,6 +11,7 @@ use OGame\GameMessages\MoonDestructionFailure;
 use OGame\GameMessages\MoonDestructionMissionFailed;
 use OGame\GameMessages\MoonDestructionSuccess;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
@@ -110,17 +111,20 @@ class MoonDestructionMission extends GameMission
         $attackerPlayer = $originPlanet->getPlayer();
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
 
+        // Create AttackerFleet for the mission
+        $attackerFleet = AttackerFleet::fromFleetMission($mission, $this->fleetMissionService, $this->playerServiceFactory, true);
+
         // Collect all defending fleets (planet owner + ACS defend fleets)
         $defenders = $this->collectDefendingFleets($targetMoon);
 
         // Execute the battle logic using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $defenders, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new PhpBattleEngine([$attackerFleet], $targetMoon, $defenders, $this->settings);
                 break;
             case 'rust':
             default:
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $defenders, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new RustBattleEngine([$attackerFleet], $targetMoon, $defenders, $this->settings);
                 break;
         }
 
