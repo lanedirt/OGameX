@@ -947,6 +947,11 @@ class ObjectService
                 return false;
             }
 
+            // Special case: Terraformer cannot be downgraded once built
+            if ($machine_name === 'terraformer') {
+                return false;
+            }
+
             // Special case: Missile Silo cannot be downgraded if it contains missiles
             if ($machine_name === 'missile_silo') {
                 $ipm_count = $planet->getObjectAmount('interplanetary_missile');
