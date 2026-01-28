@@ -12,6 +12,7 @@ use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\SettingsService;
+use stdClass;
 
 /**
  * Class RustBattleEngine.
@@ -94,41 +95,16 @@ class RustBattleEngine extends BattleEngine
      * Prepare the battle input for the Rust battle engine.
      *
      * @param BattleResult $result
-     * @return array{
-     *     attacker_fleets: array<int, array{
-     *         fleet_mission_id: int,
-     *         owner_id: int,
-     *         units: array<int, array{
-     *             unit_id: int,
-     *             amount: int,
-     *             shield_points: int,
-     *             attack_power: int,
-     *             hull_plating: float,
-     *             rapidfire: array<int, int>
-     *         }>
-     *     }>,
-     *     defender_fleets: array<int, array{
-     *         fleet_mission_id: int,
-     *         owner_id: int,
-     *         units: array<int, array{
-     *             unit_id: int,
-     *             amount: int,
-     *             shield_points: int,
-     *             attack_power: int,
-     *             hull_plating: float,
-     *             rapidfire: array<int, int>
-     *         }>
-     *     }>
-     * }
+     * @return array Array structure for JSON serialization to Rust battle engine
      */
     private function prepareBattleInput(BattleResult $result): array
     {
         // Build attacker fleets
         $attackerFleets = [];
         foreach ($this->attackers as $attackerFleet) {
-            $attackerUnits = new \stdClass();
+            $attackerUnits = new stdClass();
             foreach ($attackerFleet->units->units as $unit) {
-                $rapidfire = new \stdClass();
+                $rapidfire = new stdClass();
                 foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
                     $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
                     $rapidfire->{$targetUnit->id} = $rapidfireObject->amount;
@@ -154,9 +130,9 @@ class RustBattleEngine extends BattleEngine
         // Build defender fleets (planet owner + ACS defend fleets)
         $defenderFleets = [];
         foreach ($result->defenderFleetResults as $fleetResult) {
-            $defenderUnits = new \stdClass();
+            $defenderUnits = new stdClass();
             foreach ($fleetResult->unitsStart->units as $unit) {
-                $rapidfire = new \stdClass();
+                $rapidfire = new stdClass();
                 foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
                     $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
                     $rapidfire->{$targetUnit->id} = $rapidfireObject->amount;
