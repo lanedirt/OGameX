@@ -66,7 +66,11 @@ class HighscoreController extends OGameController
         // 0 = points
         // 1 = economy
         // 2 = research
-        // 3 = military
+        // 3 = military (defaults to military_built)
+        // 4 = military lost
+        // 5 = military built
+        // 6 = military destroyed
+        // 7 = honour points (not yet implemented)
         $type = $request->input('type', '0');
         if (!empty($type)) {
             $type = (int)$type;
@@ -74,7 +78,38 @@ class HighscoreController extends OGameController
             $type = 0;
         }
 
-        $highscoreService->setHighscoreType($type);
+        // TODO: Implement honour points system (type 7)
+        // Honour points should track honourable vs dishonourable battles based on military points comparison
+        // For now, honour points show all zeros since the feature is not yet implemented
+        if ($type === 7) {
+            // Return empty highscore view with all zeros for honour points
+            return view('ingame.highscore.players_points')->with([
+                'highscorePlayers' => [], // Empty - no honour points data yet
+                'highscorePlayerAmount' => 0,
+                'highscoreCurrentPlayerRank' => 0,
+                'highscoreCurrentPlayerPage' => 1,
+                'highscoreCurrentPage' => 1,
+                'highscoreCurrentType' => 7,
+                'player' => $player,
+                'highscoreAdminVisible' => $highscoreService->isAdminVisibleInHighscore(),
+                'currentPlayerIsAdmin' => $player->isAdmin(),
+            ]);
+        }
+
+        // Map frontend type values to backend type and subcategory
+        // Frontend: 3=military_built (default), 4=military_lost, 5=military_built, 6=military_destroyed
+        $militarySubcategory = null;
+        if ($type >= 3 && $type <= 6) {
+            // Map to military subcategories
+            $militarySubcategory = match($type) {
+                3, 5 => 0, // built (default and explicit)
+                6 => 1,    // destroyed
+                4 => 2,    // lost
+            };
+            $type = 3; // All military subcategories use type 3
+        }
+
+        $highscoreService->setHighscoreType($type, $militarySubcategory);
 
         // Check if we're searching for a specific player's rank
         $searchRelId = $request->input('searchRelId', null);
@@ -130,7 +165,12 @@ class HighscoreController extends OGameController
         // 0 = points
         // 1 = economy
         // 2 = research
-        // 3 = military
+        // 3 = military (defaults to military_built)
+        // 4 = military lost
+        // 5 = military built
+        // 6 = military destroyed
+        // 7 = honour points (not yet implemented)
+        // Note: Alliance military subcategories not yet implemented, defaults to 'military' column
         $type = $request->input('type', '0');
         if (!empty($type)) {
             $type = (int)$type;
@@ -138,7 +178,30 @@ class HighscoreController extends OGameController
             $type = 0;
         }
 
-        $highscoreService->setHighscoreType($type);
+        // TODO: Implement honour points system (type 7) for alliances
+        // Honour points should track honourable vs dishonourable battles based on military points comparison
+        // For now, honour points show all zeros since the feature is not yet implemented
+        if ($type === 7) {
+            // Return empty highscore view with all zeros for honour points
+            return view('ingame.highscore.alliance_points')->with([
+                'highscoreAlliances' => [], // Empty - no honour points data yet
+                'highscoreAllianceAmount' => 0,
+                'highscoreCurrentAllianceRank' => 0,
+                'highscoreCurrentAlliancePage' => 1,
+                'highscoreCurrentPage' => 1,
+                'highscoreCurrentType' => 7,
+                'currentUserAllianceId' => auth()->user()->alliance_id,
+                'player' => $player,
+            ]);
+        }
+
+        // Map frontend type values to backend type
+        // For alliances, military subcategories aren't implemented yet, so all military types use the same column
+        if ($type >= 3 && $type <= 6) {
+            $type = 3; // All military types default to military column for alliances
+        }
+
+        $highscoreService->setHighscoreType($type, null);
 
         // Check if we're searching for a specific alliance's rank
         $searchRelId = $request->input('searchRelId', null);
