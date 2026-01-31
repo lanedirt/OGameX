@@ -256,7 +256,7 @@
             <br class="clearfloat">
 
             <ul class="common_info fleft">
-                <li class="attackerCharacterClass">@lang('Class'): Collector</li>
+                <li class="attackerCharacterClass">@lang('Class'): {{ $attacker_character_class ?? '' }}</li>
             </ul>
             <br class="clearfloat">
 
@@ -323,7 +323,7 @@
             <br class="clearfloat">
 
             <ul class="common_info fleft">
-                <li class="defenderCharacterClass">@lang('Class'): Collector</li>
+                <li class="defenderCharacterClass">@lang('Class'): {{ $defender_character_class ?? '' }}</li>
             </ul>
 
             <br class="clearfloat">
@@ -532,7 +532,7 @@
                     "4492924": {
                         "ownerName": "{{ $attacker_name }}",
                         "ownerCharacterClassId": 1,
-                        "ownerCharacterClassName": "Collector",
+                        "ownerCharacterClassName": "{{ $attacker_character_class ?? '' }}",
                         "ownerID": 115473,
                         "ownerCoordinates": "2:488:1",
                         "ownerPlanetType": 3,
@@ -604,7 +604,7 @@
                 "member": [{
                     "ownerName": "{{ $defender_name }}",
                     "ownerCharacterClassId": 1,
-                    "ownerCharacterClassName": "Collector",
+                    "ownerCharacterClassName": "{{ $defender_character_class ?? '' }}",
                     "ownerID": 102489,
                     "ownerCoordinates": "2:3:11",
                     "ownerPlanetType": 1,
