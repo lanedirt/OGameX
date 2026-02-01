@@ -399,6 +399,8 @@ class BattleReport extends GameMessage
             'defender_name' => $defender_name,
             'attacker_class' => ($winner === 'attacker') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
             'defender_class' => ($winner === 'defender') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
+            'attacker_character_class' => isset($this->battleReportModel->attacker['character_class']) ? $this->battleReportModel->attacker['character_class'] : null,
+            'defender_character_class' => isset($this->battleReportModel->defender['character_class']) ? $this->battleReportModel->defender['character_class'] : null,
             'defender_planet_name' => $planet->getPlanetName(),
             'defender_planet_coords' => $planet->getPlanetCoordinates()->asString(),
             'defender_planet_link' => route('galaxy.index', ['galaxy' => $planet->getPlanetCoordinates()->galaxy, 'system' => $planet->getPlanetCoordinates()->system, 'position' => $planet->getPlanetCoordinates()->position]),
