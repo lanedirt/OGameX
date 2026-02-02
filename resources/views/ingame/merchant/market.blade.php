@@ -46,7 +46,9 @@
                                             'deuterium' => $planet->deuteriumStorage()->get(),
                                             default => 0
                                         };
-                                        $freeStorageAmount = max(0, $storageCapacity - $currentAmount);
+                                        // Include 1% buffer to match server-side validation
+                                        $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.01);
+                                        $freeStorageAmount = max(0, $storageCapacityWithBuffer - $currentAmount);
                                     @endphp
 
                                     <tr class="{{ $rowClass }} {{ $isSelling ? 'toSell' : '' }}">
@@ -187,7 +189,9 @@
                                             'deuterium' => $planet->deuteriumStorage()->get(),
                                             default => 0
                                         };
-                                        $freeStorageAmount = max(0, $storageCapacity - $currentAmount);
+                                        // Include 1% buffer to match server-side validation
+                                        $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.01);
+                                        $freeStorageAmount = max(0, $storageCapacityWithBuffer - $currentAmount);
                                     @endphp
 
                                     <tr class="{{ $rowClass }} {{ $isSelling ? 'toSell' : '' }}">
@@ -292,7 +296,9 @@
                         'deuterium' => $planet->deuteriumStorage()->get(),
                         default => 0
                     };
-                    $freeStorageAmount = max(0, $storageCapacity - $currentAmount);
+                    // Include 0.5% buffer to match server-side validation
+                    $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.005);
+                    $freeStorageAmount = max(0, $storageCapacityWithBuffer - $currentAmount);
                 @endphp
                 "{{ $resourceId }}": {{ $freeStorageAmount }},
             @endforeach
@@ -318,6 +324,19 @@
             };
         @endphp
         var offer_amount = {{ $offerAmount }};
+        var currentResources = {
+            @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
+                @php
+                    $currentAmount = match($resourceKey) {
+                        'metal' => $planet->metal()->get(),
+                        'crystal' => $planet->crystal()->get(),
+                        'deuterium' => $planet->deuterium()->get(),
+                        default => 0
+                    };
+                @endphp
+                "{{ $resourceId }}": {{ $currentAmount }},
+            @endforeach
+        };
         var token = "{{ csrf_token() }}";
         var merchantType = "{{ $merchantType }}";
 
@@ -396,9 +415,10 @@
 
             var neededAmount = Math.ceil(value * (giveRate / receiveRate));
 
-            // Check if we have enough of the selling resource
-            if (neededAmount > offer_amount) {
-                value = Math.floor(offer_amount * (receiveRate / giveRate));
+            // Check if we have enough of the selling resource (use current amount, not stale page load amount)
+            var currentOfferAmount = currentResources[giveResourceId];
+            if (neededAmount > currentOfferAmount) {
+                value = Math.floor(currentOfferAmount * (receiveRate / giveRate));
                 neededAmount = Math.ceil(value * (giveRate / receiveRate));
                 formatNumber(input, value);
             }
@@ -432,14 +452,29 @@
             var giveRate = factor[giveResourceId];
             var receiveRate = factor[resourceId];
 
-            // Calculate max based on available selling resource
-            var maxFromAvailable = Math.floor(offer_amount * (receiveRate / giveRate));
+            // Use current resource amount (available at page load)
+            var currentOfferAmount = currentResources[giveResourceId];
 
-            // Calculate max based on storage capacity
+            // Calculate max based on available selling resource
+            var maxFromAvailable = Math.floor(currentOfferAmount * (receiveRate / giveRate));
+
+            // Calculate max based on storage capacity (with 0.5% buffer)
             var maxFromStorage = freeStorage[resourceId];
+
+            // DEBUG
+            console.log('=== setMaxValue DEBUG ===');
+            console.log('Resource ID:', resourceId);
+            console.log('Give resource ID:', giveResourceId);
+            console.log('Current offer amount:', currentOfferAmount);
+            console.log('Give rate:', giveRate);
+            console.log('Receive rate:', receiveRate);
+            console.log('Max from available:', maxFromAvailable);
+            console.log('Max from storage:', maxFromStorage);
+            console.log('Free storage object:', freeStorage);
 
             // Use the smaller of the two
             var maxValue = Math.min(maxFromAvailable, maxFromStorage);
+            console.log('Final max value:', maxValue);
 
             $('#' + resourceId + '_value').val(maxValue);
             checkValue(resourceId);

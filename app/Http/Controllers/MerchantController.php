@@ -430,10 +430,17 @@ class MerchantController extends OGameController
             'deuterium' => $planet->deuteriumStorage()->get(),
         ];
 
+        // Apply 1% buffer to match resource trader behavior and account for production
+        $storageCapacityWithBuffer = [
+            'metal' => (int)floor($storageCapacity['metal'] * 1.01),
+            'crystal' => (int)floor($storageCapacity['crystal'] * 1.01),
+            'deuterium' => (int)floor($storageCapacity['deuterium'] * 1.01),
+        ];
+
         $currentResources = $planet->getResources();
-        $freeMetalStorage = max(0, $storageCapacity['metal'] - $currentResources->metal->get());
-        $freeCrystalStorage = max(0, $storageCapacity['crystal'] - $currentResources->crystal->get());
-        $freeDeuteriumStorage = max(0, $storageCapacity['deuterium'] - $currentResources->deuterium->get());
+        $freeMetalStorage = max(0, $storageCapacityWithBuffer['metal'] - $currentResources->metal->get());
+        $freeCrystalStorage = max(0, $storageCapacityWithBuffer['crystal'] - $currentResources->crystal->get());
+        $freeDeuteriumStorage = max(0, $storageCapacityWithBuffer['deuterium'] - $currentResources->deuterium->get());
 
         // First pass: validate amounts and check storage capacity
         $adjustedItems = [];

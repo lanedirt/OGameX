@@ -36,7 +36,9 @@
                             'deuterium' => $planet->deuteriumStorage()->get(),
                             default => 0
                         };
-                        $freeStorageAmount = max(0, $storageCapacity - $currentAmount);
+                        // Include 1% buffer to match server-side validation
+                        $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.01);
+                        $freeStorageAmount = max(0, $storageCapacityWithBuffer - $currentAmount);
                     @endphp
 
                     <tr class="{{ $rowClass }} {{ $isSelling ? 'toSell' : '' }}">
@@ -127,7 +129,9 @@
                     'deuterium' => $planet->deuteriumStorage()->get(),
                     default => 0
                 };
-                $freeStorageAmount = max(0, floor($storageCapacity - $currentAmount));
+                // Include 0.5% buffer to match server-side validation
+                $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.005);
+                $freeStorageAmount = max(0, floor($storageCapacityWithBuffer - $currentAmount));
             @endphp
             "{{ $resourceId }}": {{ (int)$freeStorageAmount }},
         @endforeach
@@ -266,19 +270,12 @@
         // Use the smaller of the two (both are integers now)
         var maxValue = Math.floor(Math.min(maxFromAvailable, maxFromStorage));
 
-        // Subtract a small buffer to account for ongoing resource production
-        // Resources increase over time, so free storage decreases
-        // This prevents the "storage full" error when there's a delay between clicking max and submitting
-        var safetyBuffer = 100;
-        maxValue = Math.max(0, maxValue - safetyBuffer);
-
-        // Also verify that this value will actually fit in storage given current production
-        // Double-check: ensure we're not trying to receive more than storage allows
+        // No safety buffer needed - server-side validation uses 0.5% buffer
+        // which is already included in freeStorage values
         console.log('Max value calculation:', {
             maxFromAvailable: maxFromAvailable,
             maxFromStorage: maxFromStorage,
             maxValue: maxValue,
-            safetyBuffer: safetyBuffer,
             giveRate: giveRate,
             receiveRate: receiveRate
         });
