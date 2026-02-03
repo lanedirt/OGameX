@@ -23,16 +23,6 @@ class MerchantService
      */
     public const DARK_MATTER_COST = 3500;
 
-    /**
-     * Storage buffer percentage to allow over storage capacity for transactions.
-     * This prevents trades from failing due to resources produced between UI calculation
-     * and server-side validation. 1% buffer = trades can fill storage up to 101% of capacity.
-     *
-     * Set to 1% to accommodate resource production during transaction processing while
-     * preventing exploitation. On 18M storage this allows ~180k buffer, which is sufficient
-     * even for high economy speed servers with max-level mines.
-     */
-    public const STORAGE_BUFFER_PERCENTAGE = 0.01;
 
     /**
      * Call a merchant.
@@ -251,24 +241,34 @@ class MerchantService
         $storageCapacity = $planet->{$storageMethod}()->get();
         $currentReceiveAmount = $currentResources->{$receiveResource}->get();
 
-        // Apply storage buffer to account for resource production during transaction
-        // Allow trades that would go slightly over base storage (up to +1%) to prevent
-        // failures due to resources produced between UI calculation and server validation
-        $maxAllowedCapacity = (int)floor($storageCapacity * (1 + self::STORAGE_BUFFER_PERCENTAGE));
+        // Cap the trade to exactly fill storage if it would overflow
+        // This prevents trades from failing due to resource production between UI and server
+        // Instead of rejecting, we execute a proportionally reduced trade
+        $availableStorage = $storageCapacity - $currentReceiveAmount;
 
-        if ($currentReceiveAmount + $receiveAmount > $maxAllowedCapacity) {
-            return [
-                'success' => false,
-                'message' => __('t_merchant.error.trade.not_enough_storage', [
-                    'resource' => $receiveResource,
-                    'need' => number_format($currentReceiveAmount + $receiveAmount),
-                    'have' => number_format($storageCapacity)
-                ]),
-            ];
+        if ($receiveAmount > $availableStorage) {
+            // Cap receive amount to exactly fill storage
+            $receiveAmount = max(0, (int)floor($availableStorage));
+
+            // Adjust give amount proportionally
+            if ($receiveAmount > 0) {
+                $giveAmount = (int)ceil($receiveAmount / $exchangeRate);
+
+                // Verify player still has enough after adjustment
+                if ($currentAmount < $giveAmount) {
+                    $giveAmount = $currentAmount;
+                    $receiveAmount = (int)floor($giveAmount * $exchangeRate);
+                }
+            } else {
+                // Storage is full, trade is not possible
+                return [
+                    'success' => false,
+                    'message' => __('t_merchant.error.trade.storage_full', [
+                        'resource' => $receiveResource,
+                    ]),
+                ];
+            }
         }
-
-        // Trade is allowed - execute at full requested amounts
-        // Resources can go up to 105% of base storage capacity
 
         // Execute the trade using atomic deduction to prevent race conditions
         try {
@@ -282,7 +282,7 @@ class MerchantService
             // Use atomic deduction (save_planet = true) to prevent race conditions
             $planet->deductResources($deductResources, true);
 
-            // Add the resource being received (can exceed base storage up to 101%)
+            // Add the resource being received (capped to storage capacity)
             $addResources = new Resources(
                 $receiveResource === 'metal' ? $receiveAmount : 0,
                 $receiveResource === 'crystal' ? $receiveAmount : 0,

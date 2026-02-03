@@ -221,12 +221,6 @@
         crystal: {{ $storageCapacity['crystal'] }},
         deuterium: {{ $storageCapacity['deuterium'] }}
     };
-    // Apply 1% buffer to match server-side validation and account for production
-    var storageCapacityWithBuffer = {
-        metal: Math.floor(storageCapacity.metal * 1.01),
-        crystal: Math.floor(storageCapacity.crystal * 1.01),
-        deuterium: Math.floor(storageCapacity.deuterium * 1.01)
-    };
     var currentResources = {
         metal: {{ $currentResources['metal'] }},
         crystal: {{ $currentResources['crystal'] }},
@@ -394,9 +388,9 @@
             var returnDeuterium = Math.floor(totalDeuterium * (offerPercentage / 100));
 
             // Apply storage limits (ensure free storage is never negative)
-            var freeMetalStorage = Math.max(0, storageCapacityWithBuffer.metal - currentResources.metal);
-            var freeCrystalStorage = Math.max(0, storageCapacityWithBuffer.crystal - currentResources.crystal);
-            var freeDeuteriumStorage = Math.max(0, storageCapacityWithBuffer.deuterium - currentResources.deuterium);
+            var freeMetalStorage = Math.max(0, storageCapacity.metal - currentResources.metal);
+            var freeCrystalStorage = Math.max(0, storageCapacity.crystal - currentResources.crystal);
+            var freeDeuteriumStorage = Math.max(0, storageCapacity.deuterium - currentResources.deuterium);
 
             returnMetal = Math.min(returnMetal, freeMetalStorage);
             returnCrystal = Math.min(returnCrystal, freeCrystalStorage);
@@ -419,9 +413,9 @@
 
         // Validate storage capacity and adjust amounts if needed
         function validateStorageCapacity(targetInput) {
-            var freeMetalStorage = Math.max(0, storageCapacityWithBuffer.metal - currentResources.metal);
-            var freeCrystalStorage = Math.max(0, storageCapacityWithBuffer.crystal - currentResources.crystal);
-            var freeDeuteriumStorage = Math.max(0, storageCapacityWithBuffer.deuterium - currentResources.deuterium);
+            var freeMetalStorage = Math.max(0, storageCapacity.metal - currentResources.metal);
+            var freeCrystalStorage = Math.max(0, storageCapacity.crystal - currentResources.crystal);
+            var freeDeuteriumStorage = Math.max(0, storageCapacity.deuterium - currentResources.deuterium);
 
             // First, calculate storage used by all OTHER inputs (not the target)
             $('.ship_amount[id]').each(function() {

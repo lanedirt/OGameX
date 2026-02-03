@@ -46,9 +46,7 @@
                                             'deuterium' => $planet->deuteriumStorage()->get(),
                                             default => 0
                                         };
-                                        // Include 1% buffer to match server-side validation
-                                        $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.01);
-                                        $freeStorageAmount = max(0, $storageCapacityWithBuffer - $currentAmount);
+                                        $freeStorageAmount = max(0, $storageCapacity - $currentAmount);
                                     @endphp
 
                                     <tr class="{{ $rowClass }} {{ $isSelling ? 'toSell' : '' }}">
@@ -189,9 +187,7 @@
                                             'deuterium' => $planet->deuteriumStorage()->get(),
                                             default => 0
                                         };
-                                        // Include 1% buffer to match server-side validation
-                                        $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.01);
-                                        $freeStorageAmount = max(0, $storageCapacityWithBuffer - $currentAmount);
+                                        $freeStorageAmount = max(0, $storageCapacity - $currentAmount);
                                     @endphp
 
                                     <tr class="{{ $rowClass }} {{ $isSelling ? 'toSell' : '' }}">
@@ -296,9 +292,7 @@
                         'deuterium' => $planet->deuteriumStorage()->get(),
                         default => 0
                     };
-                    // Include 0.5% buffer to match server-side validation
-                    $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.005);
-                    $freeStorageAmount = max(0, $storageCapacityWithBuffer - $currentAmount);
+                    $freeStorageAmount = max(0, $storageCapacity - $currentAmount);
                 @endphp
                 "{{ $resourceId }}": {{ $freeStorageAmount }},
             @endforeach
@@ -458,7 +452,7 @@
             // Calculate max based on available selling resource
             var maxFromAvailable = Math.floor(currentOfferAmount * (receiveRate / giveRate));
 
-            // Calculate max based on storage capacity (with 0.5% buffer)
+            // Calculate max based on storage capacity
             var maxFromStorage = freeStorage[resourceId];
 
             // DEBUG

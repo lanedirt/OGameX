@@ -36,9 +36,7 @@
                             'deuterium' => $planet->deuteriumStorage()->get(),
                             default => 0
                         };
-                        // Include 1% buffer to match server-side validation
-                        $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.01);
-                        $freeStorageAmount = max(0, $storageCapacityWithBuffer - $currentAmount);
+                        $freeStorageAmount = max(0, $storageCapacity - $currentAmount);
                     @endphp
 
                     <tr class="{{ $rowClass }} {{ $isSelling ? 'toSell' : '' }}">
@@ -129,9 +127,7 @@
                     'deuterium' => $planet->deuteriumStorage()->get(),
                     default => 0
                 };
-                // Include 0.5% buffer to match server-side validation
-                $storageCapacityWithBuffer = (int)floor($storageCapacity * 1.005);
-                $freeStorageAmount = max(0, floor($storageCapacityWithBuffer - $currentAmount));
+                $freeStorageAmount = max(0, floor($storageCapacity - $currentAmount));
             @endphp
             "{{ $resourceId }}": {{ (int)$freeStorageAmount }},
         @endforeach
@@ -270,8 +266,7 @@
         // Use the smaller of the two (both are integers now)
         var maxValue = Math.floor(Math.min(maxFromAvailable, maxFromStorage));
 
-        // No safety buffer needed - server-side validation uses 0.5% buffer
-        // which is already included in freeStorage values
+        // Server-side will automatically cap trades to fit exact storage capacity
         console.log('Max value calculation:', {
             maxFromAvailable: maxFromAvailable,
             maxFromStorage: maxFromStorage,
