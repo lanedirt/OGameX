@@ -23,7 +23,6 @@ class MerchantService
      */
     public const DARK_MATTER_COST = 3500;
 
-
     /**
      * Call a merchant.
      *
@@ -256,7 +255,7 @@ class MerchantService
 
                 // Verify player still has enough after adjustment
                 if ($currentAmount < $giveAmount) {
-                    $giveAmount = $currentAmount;
+                    $giveAmount = (int)floor($currentAmount);
                     $receiveAmount = (int)floor($giveAmount * $exchangeRate);
                 }
             } else {
