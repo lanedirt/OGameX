@@ -12,6 +12,7 @@ use OGame\GameConstants\UniverseConstants;
 use OGame\Http\Controllers\OGameController;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Services\DarkMatterService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
@@ -359,5 +360,57 @@ class DeveloperShortcutsController extends OGameController
         $debrisField->save();
 
         return redirect()->back()->with('success', 'Debris field created/updated successfully at ' . $coordinate->asString());
+    }
+
+    /**
+     * Updates the dark matter of the player at the specified coordinates.
+     *
+     * @param Request $request
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @param DarkMatterService $darkMatterService
+     * @param SettingsService $settingsService
+     * @return RedirectResponse
+     */
+    public function updateDarkMatter(Request $request, PlanetServiceFactory $planetServiceFactory, DarkMatterService $darkMatterService, SettingsService $settingsService): RedirectResponse
+    {
+        // Validate coordinates and amount
+        $validated = $request->validate([
+            'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
+            'system' => 'required|integer|min:1|max:' . UniverseConstants::MAX_SYSTEM_COUNT,
+            'position' => 'required|integer|min:1|max:' . UniverseConstants::MAX_PLANET_POSITION,
+            'dark_matter' => 'required',
+        ]);
+
+        $coordinate = new Coordinate(
+            $validated['galaxy'],
+            $validated['system'],
+            $validated['position']
+        );
+
+        $planet = $planetServiceFactory->makePlanetForCoordinate($coordinate);
+        if (!$planet) {
+            return redirect()->back()->with('error', 'No planet exists at ' . $coordinate->asString());
+        }
+
+        $user = $planet->getPlayer()->getUser();
+        $amount = (int)AppUtil::parseResourceValue($request->input('dark_matter', 0));
+        if ($amount == 0) {
+            return redirect()->back()->with('error', 'Dark matter amount cannot be zero');
+        }
+
+        try {
+            if ($amount > 0) {
+                // Credit dark matter
+                $darkMatterService->credit($user, $amount, 'admin_grant', 'Admin granted dark matter via developer shortcuts');
+                return redirect()->back()->with('success', 'Added ' . number_format($amount) . ' dark matter to player ' . $user->username . ' at ' . $coordinate->asString());
+            } else {
+                // Debit dark matter (convert to positive for debit)
+                $debitAmount = abs($amount);
+                $darkMatterService->debit($user, $debitAmount, 'admin_deduct', 'Admin deducted dark matter via developer shortcuts');
+                return redirect()->back()->with('success', 'Deducted ' . number_format($debitAmount) . ' dark matter from player ' . $user->username . ' at ' . $coordinate->asString());
+            }
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update dark matter: ' . $e->getMessage());
+        }
     }
 }
