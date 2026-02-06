@@ -154,7 +154,6 @@ class MerchantTest extends AccountTestCase
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
             'give_amount' => $giveAmount,
-            'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 
@@ -176,14 +175,6 @@ class MerchantTest extends AccountTestCase
         $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
         $this->planetService->getPlayer()->save();
 
-        $callResponse = $this->post('/merchant/call', [
-            'type' => 'deuterium',
-            '_token' => csrf_token(),
-        ]);
-
-        $tradeRates = $callResponse->json()['tradeRates'];
-        $exchangeRate = $tradeRates['receive']['metal']['rate'];
-
         // Give planet minimal resources
         $this->planetService->addResources(new Resources(0, 0, 100, 0));
         $this->planetService->save();
@@ -193,7 +184,6 @@ class MerchantTest extends AccountTestCase
             'give_resource' => 'deuterium',
             'receive_resource' => 'metal',
             'give_amount' => 10000,
-            'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 
@@ -235,7 +225,6 @@ class MerchantTest extends AccountTestCase
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
             'give_amount' => $requestedGiveAmount,
-            'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 
@@ -306,16 +295,12 @@ class MerchantTest extends AccountTestCase
         // Verify starting crystal is capacity - 25
         $this->assertEquals($crystalStorageCapacity - 25, $crystalBeforeTrade);
 
-        // Request more crystal than available storage (50 when only 25 available)
-        $requestedCrystal = 50;
-        $requestedMetal = (int)ceil($requestedCrystal / $exchangeRate);
-
         // Trade should SUCCEED but be automatically capped to available storage (25)
+        $requestedMetal = 1000;
         $response = $this->post('/merchant/trade', [
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
             'give_amount' => $requestedMetal,
-            'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 
@@ -374,7 +359,6 @@ class MerchantTest extends AccountTestCase
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
             'give_amount' => $requestedMetal,
-            'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 
@@ -970,7 +954,6 @@ class MerchantTest extends AccountTestCase
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
             'give_amount' => '2,000',  // Comma-separated input
-            'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 

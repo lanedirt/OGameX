@@ -183,7 +183,7 @@ abstract class AccountTestCase extends TestCase
 
         // Initialize the player service with factory.
         $playerServiceFactory = resolve(PlayerServiceFactory::class);
-        $playerService = $playerServiceFactory->make($this->currentUserId);
+        $playerService = $playerServiceFactory->make($this->currentUserId, true);
         $this->planetService = $playerService->planets->current();
 
         // Set second planet service if it exists
