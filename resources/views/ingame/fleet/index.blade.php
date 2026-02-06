@@ -182,7 +182,7 @@
             var LOOT_PRIO_METAL = 2;
             var LOOT_PRIO_CRYSTAL = 3;
             var LOOT_PRIO_DEUTERIUM = 4;
-            var LOOT_PRIO_FOOD = 1;
+            // var LOOT_PRIO_FOOD = 1;
 
             var missions = {
                 "MISSION_NONE": 0,
@@ -266,11 +266,11 @@
 
             var holdingTime = 1;
             var expeditionTime = 0;
-            var lifeformEnabled = true;
+            // var lifeformEnabled = true;
             var metalOnPlanet = {{ $planet->metal()->getRounded() }};
             var crystalOnPlanet = {{ $planet->crystal()->getRounded() }};
             var deuteriumOnPlanet = {{ $planet->deuterium()->getRounded() }};
-            var foodOnPlanet = 0;
+            // var foodOnPlanet = 0;
 
             var fleetCount = {{ $fleetSlotsInUse }};
             var maxFleetCount = {{ $fleetSlotsMax }};
@@ -363,7 +363,7 @@
                 "LOCA_ALL_METAL": "Metal",
                 "LOCA_ALL_CRYSTAL": "Crystal",
                 "LOCA_ALL_DEUTERIUM": "Deuterium",
-                "LOCA_ALL_FOOD": "Food",
+                // "LOCA_ALL_FOOD": "Food",
                 "LOCA_FLEET_LOAD_ROOM": "cargo bay",
                 "LOCA_FLEET_CARGO_SPACE": "Available space \/ Max. cargo space",
                 "LOCA_FLEET_SEND": "Send fleet",
@@ -383,7 +383,7 @@
                 "LOCA_INACTIVE_SYSTEMS": "Inactive Systems",
                 "LOCA_NETWORK_ON": "On",
                 "LOCA_NETWORK_OFF": "Off",
-                "LOCA_LOOT_FOOD": "Plunder food",
+                // "LOCA_LOOT_FOOD": "Plunder food",
                 "LOCA_BASHING_SYSTEM_LIMIT_REACHED_ATTACK_MISSIONS_DISABLED": "Attack missions have been deactivated as a result of too many attacks on the target."
             };
             var locadyn = {
@@ -467,7 +467,7 @@
                 "bonuses": {
                     "recycleAttackerFleet": 0,
                     "moonChanceIncrease": 0,
-                    "lifeformProtection": 0,
+                    // "lifeformProtection": 0,
                     "spaceDockExtender": 0,
                     "denCapacity": {"metal": 0, "crystal": 0, "deuterium": 0},
                     "characterClassBooster": {"1": 0, "2": 0, "3": 0}
@@ -1257,7 +1257,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <input name="prioMetal" type="hidden" value="2">
                                         <input name="prioCrystal" type="hidden" value="3">
                                         <input name="prioDeuterium" type="hidden" value="4">
-                                        <input name="prioFood" type="hidden" value="1">
+                                        <!-- <input name="prioFood" type="hidden" value="1"> -->
 
                                     </div>
                                     <div class="missionHeader">@lang('Briefing:')</div>
@@ -1379,7 +1379,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                     </a>
                                                 </div>
                                             </div>
-                                            <div class="res_wrap border3px">
+                                            <!-- <div class="res_wrap border3px">
                                                 <div class="resourceIcon food tooltip" title="Food"></div>
                                                 <div class="res">
                                                     <input type="text" pattern="[0-9,.]*"
@@ -1403,7 +1403,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                 <script>
 
                                                 </script>
-                                            </div>
+                                            </div> -->
                                             <div id="loadAllResources">
                                                 <div class="allResourcesWrap ipiHintable"
                                                      data-ipi-hint="ipiFleetCargoLoadAll">

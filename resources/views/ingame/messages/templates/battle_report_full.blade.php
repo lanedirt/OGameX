@@ -332,10 +332,10 @@
                 <li class="defenderWeapon">@lang('Weapons'): {{ $defender_weapons }}%</li>
                 <li class="defenderShield">@lang('Shields'): {{ $defender_shields }}%</li>
                 <li class="defenderCover">@lang('Armour'): {{ $defender_armor }}%</li>
-                <li class="resource_list_el_small">
+                <!-- <li class="resource_list_el_small">
                     <div class="resourceIconSmall population"></div>
                     <span class="res_value tooltipCustom overmark" data-tooltip-title="0">0</span>
-                </li>
+                </li> -->
             </ul>
             <br class="clearfloat">
 
@@ -525,7 +525,7 @@
 @endforeach
             ],
             // End combat rounds --------------------------------------------------------------------
-            "lifeformEnabled": true,
+            // "lifeformEnabled": true,
             "isExpedition": false,
             "attackerJSON": {
                 "member": {
