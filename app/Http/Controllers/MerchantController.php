@@ -143,45 +143,18 @@ class MerchantController extends OGameController
         $receiveResource = $request->input('receive_resource');
         // Remove commas and spaces from input before converting to int
         $giveAmount = (int)str_replace([',', ' '], '', $request->input('give_amount'));
-        $exchangeRate = (float)$request->input('exchange_rate');
 
         try {
             // Get current planet (resources will be deducted from current planet)
             $planet = $player->planets->current();
 
-            // Verify there's an active merchant for this user (planet-agnostic, check cache for persistence)
-            $activeMerchant = cache()->get('active_merchant_' . $player->getId());
-            if (!$activeMerchant) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('t_merchant.error.trade.no_active_merchant'),
-                ], 400);
-            }
-
-            // Verify the merchant type matches
-            if ($activeMerchant['type'] !== $giveResource) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('t_merchant.error.trade.merchant_type_mismatch'),
-                ], 400);
-            }
-
-            // Verify the exchange rate matches the active merchant's rates
-            if (!isset($activeMerchant['trade_rates']['receive'][$receiveResource]) ||
-                abs($activeMerchant['trade_rates']['receive'][$receiveResource]['rate'] - $exchangeRate) > 0.0001) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('t_merchant.error.trade.invalid_exchange_rate'),
-                ], 400);
-            }
-
-            // Execute the trade using current planet's resources
+            // Execute the trade
             $result = MerchantService::executeTrade(
+                $player,
                 $planet,
                 $giveResource,
                 $receiveResource,
-                $giveAmount,
-                $exchangeRate
+                $giveAmount
             );
 
             if ($result['success']) {

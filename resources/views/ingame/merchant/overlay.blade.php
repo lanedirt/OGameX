@@ -133,7 +133,13 @@
         @endforeach
     };
 
-    var factor = {
+    var baseFactor = {
+        1: 3.00, // Metal
+        2: 2.00, // Crystal
+        3: 1.00 // Deuterium
+    };
+
+    var tradeFactor = {
         @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
             @if($resourceKey === $merchantType)
                 "{{ $resourceId }}": 1.0,
@@ -206,8 +212,8 @@
 
         // Calculate how much of the selling resource is needed
         var giveResourceId = {{ $resources[$merchantType] }};
-        var giveRate = factor[giveResourceId];
-        var receiveRate = factor[resourceId];
+        var giveRate = baseFactor[giveResourceId];
+        var receiveRate = tradeFactor[resourceId];
 
         var neededAmount = Math.ceil(value * (giveRate / receiveRate));
 
@@ -232,7 +238,7 @@
             @if($resourceKey !== $merchantType)
                 var val{{ $resourceId }} = parseInt($('#{{ $resourceId }}_value').val().replace(/[,\.]/g, '')) || 0;
                 if (val{{ $resourceId }} > 0) {
-                    var rate{{ $resourceId }} = factor[{{ $resourceId }}];
+                    var rate{{ $resourceId }} = tradeFactor[{{ $resourceId }}];
                     totalNeeded += Math.ceil(val{{ $resourceId }} * (giveRate / rate{{ $resourceId }}));
                 }
             @endif
@@ -244,8 +250,8 @@
 
     function setMaxValue(resourceId) {
         var giveResourceId = {{ $resources[$merchantType] }};
-        var giveRate = factor[giveResourceId];
-        var receiveRate = factor[resourceId];
+        var giveRate = baseFactor[giveResourceId];
+        var receiveRate = tradeFactor[resourceId];
 
         // Calculate max based on storage capacity first (ensure integer)
         var maxFromStorage = Math.floor(freeStorage[resourceId]);
@@ -266,15 +272,6 @@
         // Use the smaller of the two (both are integers now)
         var maxValue = Math.floor(Math.min(maxFromAvailable, maxFromStorage));
 
-        // Server-side will automatically cap trades to fit exact storage capacity
-        console.log('Max value calculation:', {
-            maxFromAvailable: maxFromAvailable,
-            maxFromStorage: maxFromStorage,
-            maxValue: maxValue,
-            giveRate: giveRate,
-            receiveRate: receiveRate
-        });
-
         $('#' + resourceId + '_value').val(maxValue);
         checkValue(resourceId);
     }
@@ -294,8 +291,8 @@
                 var value{{ $resourceId }} = parseInt($('#{{ $resourceId }}_value').val().replace(/[,\.]/g, '')) || 0;
                 if (value{{ $resourceId }} > 0) {
                     formData.receive_resource = '{{ $resourceKey }}';
-                    var giveRate = factor[{{ $resources[$merchantType] }}];
-                    var receiveRate = factor[{{ $resourceId }}];
+                    var giveRate = baseFactor[{{ $resources[$merchantType] }}];
+                    var receiveRate = tradeFactor[{{ $resourceId }}];
                     formData.give_amount = Math.ceil(value{{ $resourceId }} * (giveRate / receiveRate));
                     formData.exchange_rate = receiveRate / giveRate;
                 }
@@ -306,11 +303,6 @@
             errorBoxNotify(LocalizationStrings.error, '@lang("Please select a resource to receive.")');
             return false;
         }
-
-        // Debug logging
-        console.log('Give amount calculated:', formData.give_amount);
-        console.log('Offer amount available:', offer_amount);
-        console.log('Difference:', formData.give_amount - offer_amount);
 
         // Use a small tolerance (1 unit) for floating point comparison
         if (formData.give_amount > offer_amount + 1) {
