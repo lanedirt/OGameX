@@ -293,7 +293,6 @@ class MerchantService
         // This prevents trades from failing due to resource production between UI and server
         // Instead of rejecting, we execute a proportionally reduced trade
         $availableStorage = $storageCapacity - $currentReceiveAmount;
-
         if ($receiveAmount > $availableStorage) {
             // Cap receive amount to exactly fill storage
             $receiveAmount = max(0, (int)floor($availableStorage));
@@ -338,7 +337,6 @@ class MerchantService
             );
 
             $planet->addResources($addResources, true);
-
             return [
                 'success' => true,
                 'message' => __('t_merchant.success.trade_completed'),
