@@ -115,6 +115,7 @@ return [
             'invalid_resource_type' => 'Invalid resource type.',
             'not_enough_resource' => 'Not enough :resource available. You have :have but need :need.',
             'not_enough_storage' => 'Not enough storage capacity for :resource. You need :need capacity but only have :have.',
+            'storage_full' => 'Storage is full for :resource. Cannot complete trade.',
             'execution_failed' => 'Trade execution failed: :error',
         ],
     ],

@@ -240,15 +240,33 @@ class MerchantService
         $storageCapacity = $planet->{$storageMethod}()->get();
         $currentReceiveAmount = $currentResources->{$receiveResource}->get();
 
-        if ($currentReceiveAmount + $receiveAmount > $storageCapacity) {
-            return [
-                'success' => false,
-                'message' => __('t_merchant.error.trade.not_enough_storage', [
-                    'resource' => $receiveResource,
-                    'need' => number_format($currentReceiveAmount + $receiveAmount),
-                    'have' => number_format($storageCapacity)
-                ]),
-            ];
+        // Cap the trade to exactly fill storage if it would overflow
+        // This prevents trades from failing due to resource production between UI and server
+        // Instead of rejecting, we execute a proportionally reduced trade
+        $availableStorage = $storageCapacity - $currentReceiveAmount;
+
+        if ($receiveAmount > $availableStorage) {
+            // Cap receive amount to exactly fill storage
+            $receiveAmount = max(0, (int)floor($availableStorage));
+
+            // Adjust give amount proportionally
+            if ($receiveAmount > 0) {
+                $giveAmount = (int)ceil($receiveAmount / $exchangeRate);
+
+                // Verify player still has enough after adjustment
+                if ($currentAmount < $giveAmount) {
+                    $giveAmount = (int)floor($currentAmount);
+                    $receiveAmount = (int)floor($giveAmount * $exchangeRate);
+                }
+            } else {
+                // Storage is full, trade is not possible
+                return [
+                    'success' => false,
+                    'message' => __('t_merchant.error.trade.storage_full', [
+                        'resource' => $receiveResource,
+                    ]),
+                ];
+            }
         }
 
         // Execute the trade using atomic deduction to prevent race conditions
@@ -263,7 +281,7 @@ class MerchantService
             // Use atomic deduction (save_planet = true) to prevent race conditions
             $planet->deductResources($deductResources, true);
 
-            // Add the resource being received
+            // Add the resource being received (capped to storage capacity)
             $addResources = new Resources(
                 $receiveResource === 'metal' ? $receiveAmount : 0,
                 $receiveResource === 'crystal' ? $receiveAmount : 0,

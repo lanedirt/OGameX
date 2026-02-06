@@ -202,8 +202,8 @@ class MerchantTest extends AccountTestCase
     }
 
     /**
-     * Test that trade respects storage capacity limits.
-     * This is critical - players should NEVER exceed storage capacity.
+     * Test that trade respects storage capacity limits by auto-capping.
+     * Trades are automatically reduced to fit exactly at 100% storage capacity.
      */
     public function testTradeRespectsStorageCapacity(): void
     {
@@ -221,25 +221,179 @@ class MerchantTest extends AccountTestCase
 
         // Fill crystal storage almost to capacity
         $crystalStorageCapacity = $this->planetService->crystalStorage()->get();
-        $this->planetService->addResources(new Resources(100000, $crystalStorageCapacity - 1000, 0, 0));
+        $currentCrystal = $this->planetService->crystal()->get();
+        $this->planetService->addResources(new Resources(100000, $crystalStorageCapacity - 1000 - $currentCrystal, 0, 0));
         $this->planetService->save();
 
-        // Try to trade for more crystal than storage can hold
+        // Reload to ensure we have updated resources
+        $this->planetService->reloadPlanet();
+        $crystalBeforeTrade = $this->planetService->crystal()->get();
+
+        // Try to trade for way more crystal than storage allows
+        $requestedGiveAmount = 50000;
         $response = $this->post('/merchant/trade', [
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
-            'give_amount' => 50000,
+            'give_amount' => $requestedGiveAmount,
+            'exchange_rate' => $exchangeRate,
+            '_token' => csrf_token(),
+        ]);
+
+        // Trade should succeed but be capped
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify we received LESS than what full trade would have given
+        $actualReceived = $response->json('received');
+        $fullTradeWouldGive = (int)floor($requestedGiveAmount * $exchangeRate);
+        $this->assertLessThan($fullTradeWouldGive, $actualReceived);
+
+        // Verify crystal increased from before trade
+        $this->planetService->reloadPlanet();
+        $finalCrystal = $this->planetService->crystal()->get();
+        $this->assertGreaterThan($crystalBeforeTrade, $finalCrystal);
+
+        // Verify the trade was actually capped (gave less metal than requested)
+        $actualGiven = $response->json('given');
+        $this->assertLessThan($requestedGiveAmount, $actualGiven);
+    }
+
+    /**
+     * Test that trades are automatically capped to exact storage capacity.
+     *
+     * This tests the fix for the bug where "gain max resources" button fails because
+     * resource production continues between UI calculation and server-side validation.
+     *
+     * Instead of failing or using a buffer, the server now automatically caps the trade
+     * to exactly fill storage to 100% capacity, executing a proportionally reduced trade.
+     */
+    public function testTradeAutomaticallyCapsToStorageCapacity(): void
+    {
+        // Call merchant first
+        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
+        $this->planetService->getPlayer()->save();
+
+        $callResponse = $this->post('/merchant/call', [
+            'type' => 'metal',
+            '_token' => csrf_token(),
+        ]);
+
+        $tradeRates = $callResponse->json()['tradeRates'];
+        $exchangeRate = $tradeRates['receive']['crystal']['rate'];
+
+        // Reload planet to ensure we have latest data
+        $this->planetService->reloadPlanet();
+
+        // Get storage capacity
+        $crystalStorageCapacity = $this->planetService->crystalStorage()->get();
+
+        // Simulate the bug scenario:
+        // UI calculated max when player had (capacity - 100) crystal
+        // By the time server processes it, production added 75 crystal
+        // So now player has (capacity - 25) crystal and tries to receive 50
+        $currentCrystal = $this->planetService->crystal()->get();
+
+        // Set crystal to capacity - 25 (simulating production filled most of the space)
+        $crystalToAdd = ($crystalStorageCapacity - 25) - $currentCrystal;
+        $this->planetService->addResources(new Resources(100000, $crystalToAdd, 0, 0));
+        $this->planetService->save();
+
+        // Reload to get accurate counts after adding resources
+        $this->planetService->reloadPlanet();
+        $metalBeforeTrade = $this->planetService->metal()->get();
+        $crystalBeforeTrade = $this->planetService->crystal()->get();
+
+        // Verify starting crystal is capacity - 25
+        $this->assertEquals($crystalStorageCapacity - 25, $crystalBeforeTrade);
+
+        // Request more crystal than available storage (50 when only 25 available)
+        $requestedCrystal = 50;
+        $requestedMetal = (int)ceil($requestedCrystal / $exchangeRate);
+
+        // Trade should SUCCEED but be automatically capped to available storage (25)
+        $response = $this->post('/merchant/trade', [
+            'give_resource' => 'metal',
+            'receive_resource' => 'crystal',
+            'give_amount' => $requestedMetal,
             'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 
         $response->assertStatus(200);
-        $response->assertJson(['success' => false]);
-        $this->assertStringContainsString('Not enough storage capacity', $response->json('message'));
+        $response->assertJson(['success' => true]);
 
-        // Verify crystal didn't exceed capacity
+        // Verify trade was executed but capped
         $this->planetService->reloadPlanet();
-        $this->assertLessThanOrEqual($crystalStorageCapacity, $this->planetService->crystal()->get());
+        $finalCrystal = $this->planetService->crystal()->get();
+
+        // Crystal should be exactly at storage capacity (not over, not under)
+        $this->assertEquals($crystalStorageCapacity, $finalCrystal);
+
+        // Verify metal was deducted (but proportionally less than requested)
+        $finalMetal = $this->planetService->metal()->get();
+        $actualMetalGiven = $metalBeforeTrade - $finalMetal;
+        $this->assertGreaterThan(0, $actualMetalGiven);
+        $this->assertLessThan($requestedMetal, $actualMetalGiven); // Less than requested
+    }
+
+    /**
+     * Test that trades are capped when storage is nearly full.
+     * When storage is at capacity, trades may succeed if production consumed resources,
+     * but the amount received will be minimal (capped to available space).
+     */
+    public function testTradeCappedWhenStorageNearlyFull(): void
+    {
+        // Call merchant first
+        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
+        $this->planetService->getPlayer()->save();
+
+        $callResponse = $this->post('/merchant/call', [
+            'type' => 'metal',
+            '_token' => csrf_token(),
+        ]);
+
+        $tradeRates = $callResponse->json()['tradeRates'];
+        $exchangeRate = $tradeRates['receive']['crystal']['rate'];
+
+        // Get storage capacity and fill it to 99.9%
+        $crystalStorageCapacity = $this->planetService->crystalStorage()->get();
+        $currentCrystal = $this->planetService->crystal()->get();
+        $targetCrystal = (int)floor($crystalStorageCapacity * 0.999);
+        $this->planetService->addResources(new Resources(100000, $targetCrystal - $currentCrystal, 0, 0));
+        $this->planetService->save();
+
+        // Reload to ensure we have updated resources
+        $this->planetService->reloadPlanet();
+        $crystalBefore = $this->planetService->crystal()->get();
+
+        // Try to trade for a significant amount
+        $requestedMetal = 10000;
+        $expectedCrystalFromFullTrade = (int)floor($requestedMetal * $exchangeRate);
+
+        $response = $this->post('/merchant/trade', [
+            'give_resource' => 'metal',
+            'receive_resource' => 'crystal',
+            'give_amount' => $requestedMetal,
+            'exchange_rate' => $exchangeRate,
+            '_token' => csrf_token(),
+        ]);
+
+        // Trade should succeed
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // But received amount should be much less than requested (capped by storage)
+        $actualReceived = $response->json('received');
+        $this->assertLessThan($expectedCrystalFromFullTrade, $actualReceived);
+
+        // Verify the trade was capped (gave much less metal than requested)
+        $actualGiven = $response->json('given');
+        $this->assertLessThan($requestedMetal, $actualGiven);
+
+        // Verify crystal increased but not by the full trade amount
+        $this->planetService->reloadPlanet();
+        $finalCrystal = $this->planetService->crystal()->get();
+        $this->assertGreaterThan($crystalBefore, $finalCrystal);
     }
 
     /**

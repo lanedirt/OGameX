@@ -266,19 +266,11 @@
         // Use the smaller of the two (both are integers now)
         var maxValue = Math.floor(Math.min(maxFromAvailable, maxFromStorage));
 
-        // Subtract a small buffer to account for ongoing resource production
-        // Resources increase over time, so free storage decreases
-        // This prevents the "storage full" error when there's a delay between clicking max and submitting
-        var safetyBuffer = 100;
-        maxValue = Math.max(0, maxValue - safetyBuffer);
-
-        // Also verify that this value will actually fit in storage given current production
-        // Double-check: ensure we're not trying to receive more than storage allows
+        // Server-side will automatically cap trades to fit exact storage capacity
         console.log('Max value calculation:', {
             maxFromAvailable: maxFromAvailable,
             maxFromStorage: maxFromStorage,
             maxValue: maxValue,
-            safetyBuffer: safetyBuffer,
             giveRate: giveRate,
             receiveRate: receiveRate
         });
