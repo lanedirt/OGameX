@@ -241,7 +241,7 @@
                     </span>
                     </div>
                 </div>
-                <div class="resource_tile population">
+                <!-- <div class="resource_tile population">
                     <div id="population_box" class="population tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="Population|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;overmark&quot;>100</span></td></tr><tr><th>Living Space
 </th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Satisfied</th><td><span class=&quot;undermark&quot;>0</span></td></tr><tr><th>Hungry</th><td><span class=&quot;overmark&quot;>0</span></td></tr><tr><th>Growth rate</th><td><span class=&quot;&quot;>±0</span></td></tr><tr><th>Bunker Space
@@ -261,7 +261,7 @@
                         <span id="resources_food" data-raw="0" class="overmark">0</span>
                     </span>
                     </div>
-                </div>
+                </div> -->
                 <div class="resource_tile darkmatter">
                     <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="@lang('Dark Matter')|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;&quot;>{!! $resources['darkmatter']['amount_formatted'] !!}</span></td></tr></table>"
@@ -278,13 +278,13 @@
             </div>
         </div>
         <div id="commandercomponent" class="">
-            <div id="lifeform" class="fleft">
+            <!-- <div id="lifeform" class="fleft">
                 <a href="#TODO_page=ingame&amp;component=lfsettings" class="tooltipHTML js_hideTipOnMobile ipiHintable"
                    title="Lifeform|No lifeforms
 " data-ipi-hint="ipiLifeformSettings">
                     <div class="resourceIcon population"></div>
                 </a>
-            </div>
+            </div> -->
             <div id="characterclass" class="fleft">
                 @php
                     $userClass = $currentPlayer->getUser()->getCharacterClassEnum();
@@ -1329,28 +1329,28 @@ However, the Space Dock's engineers think that some of the remains can be salvag
 
                 reloadResources({
                     "resources": {
-                        "population": {
-                            "amount": 100,
-                            "storage": 0,
-                            "safeCapacity": 0,
-                            "growthRate": 0,
-                            "capableToFeed": 0,
-                            "needFood": 0,
-                            "singleFoodConsumption": 0,
-                            "tooltip": "@lang('Population')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"overmark\">100<\/span><\/td><\/tr><tr><th>@lang('Living Space')\n<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Satisfied')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>@lang('Hungry')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Growth rate')<\/th><td><span class=\"\">\u00b10<\/span><\/td><\/tr><tr><th>@lang('Bunker Space')\n<\/th><td><span class=\"middlemark\">100<\/span><\/td><\/tr><\/table>",
-                            "classesListItem": ""
-                        },
-                        "food": {
-                            "amount": 0,
-                            "storage": 0,
-                            "capableToFeed": 0,
-                            "production": 0,
-                            "consumption": 0,
-                            "timeTillFoodRunsOut": 0,
-                            "vacationMode": "",
-                            "tooltip": "@lang('Food')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Overproduction')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>@lang('Consumption')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Consumed in')<\/th><td><span class=\"overmark timeTillFoodRunsOut\">~<\/span><\/td><\/tr><\/table>",
-                            "classesListItem": ""
-                        },
+                        // "population": {
+                        //     "amount": 100,
+                        //     "storage": 0,
+                        //     "safeCapacity": 0,
+                        //     "growthRate": 0,
+                        //     "capableToFeed": 0,
+                        //     "needFood": 0,
+                        //     "singleFoodConsumption": 0,
+                        //     "tooltip": "@lang('Population')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"overmark\">100<\/span><\/td><\/tr><tr><th>@lang('Living Space')\n<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Satisfied')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>@lang('Hungry')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Growth rate')<\/th><td><span class=\"\">\u00b10<\/span><\/td><\/tr><tr><th>@lang('Bunker Space')\n<\/th><td><span class=\"middlemark\">100<\/span><\/td><\/tr><\/table>",
+                        //     "classesListItem": ""
+                        // },
+                        // "food": {
+                        //     "amount": 0,
+                        //     "storage": 0,
+                        //     "capableToFeed": 0,
+                        //     "production": 0,
+                        //     "consumption": 0,
+                        //     "timeTillFoodRunsOut": 0,
+                        //     "vacationMode": "",
+                        //     "tooltip": "@lang('Food')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Overproduction')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>@lang('Consumption')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Consumed in')<\/th><td><span class=\"overmark timeTillFoodRunsOut\">~<\/span><\/td><\/tr><\/table>",
+                        //     "classesListItem": ""
+                        // },
                         "metal": {
                             "amount": {!! $resources['metal']['amount'] !!},
                             "storage": {!! $resources['metal']['storage'] !!},
@@ -1714,7 +1714,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                     <a href="{{ $urlToPlanetWithUpdatedParam }}"
                                        data-link="{{ $urlToPlanetWithUpdatedParam }}"
                                        title="<b>{{ $planet->getPlanetName() }} [{{ $planet->getPlanetCoordinates()->asString() }}]</b><br/>
-                                        @lang('Lifeform'): Humans<br/>
+                                        {{-- @lang('Lifeform'): Humans<br/> --}}
                                         {{ OGame\Facades\AppUtil::formatNumber($planet->getPlanetDiameter()) }}km ({{ $planet->getBuildingCount() }}/{{ $planet->getPlanetFieldMax() }})<br>
                                         {{ $planet->getPlanetTempMin() }} to {{ $planet->getPlanetTempMax() }}°C<br/>
                                         <a href=&quot;{{ route('overview.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Overview')</a><br/>
