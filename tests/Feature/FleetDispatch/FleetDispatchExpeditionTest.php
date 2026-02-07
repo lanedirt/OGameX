@@ -1145,4 +1145,106 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $finalBattlecruisers = $this->planetService->getObjectAmount('battlecruiser');
         $this->assertGreaterThan(0, $finalBattlecruisers, 'Some ships should return from battle');
     }
+
+    /**
+     * Test that expedition loss of fleet tracks military statistics.
+     *
+     * @return void
+     */
+    public function testExpeditionLossOfFleetTracksMilitaryStatistics(): void
+    {
+        $this->basicSetup();
+
+        // Add known units to the fleet
+        $this->planetAddUnit('light_fighter', 100);  // Military ship (100%)
+        $this->planetAddUnit('small_cargo', 50);     // Civil ship (50%)
+
+        // Get user and record initial lost points
+        $user = $this->planetService->getPlayer()->getUser();
+        $initialLostPoints = $user->military_units_lost_points;
+
+        // Enable only the "loss of fleet" expedition outcome
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::LossOfFleet]);
+
+        // Send the expedition mission with all ships
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 50);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 5000);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
+        $this->sendMissionToPosition16($unitCollection, new Resources(0, 0, 0, 0), true);
+
+        // Wait for the mission to complete
+        $this->travel(10)->hours();
+
+        // Load the planet again
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Verify ships were lost
+        $this->assertEquals(0, $this->planetService->getObjectAmount('light_fighter'), 'All light fighters should be lost');
+        $this->assertEquals(0, $this->planetService->getObjectAmount('small_cargo'), 'All small cargo should be lost');
+
+        // Calculate expected military points
+        // Light fighter: 3000 metal + 1000 crystal = 4000 * 100 * 100% / 1000 = 400 points
+        // Small cargo: 2000 metal + 2000 crystal = 4000 * 50 * 50% / 1000 = 100 points
+        // Large cargo (from basicSetup): 6000 metal + 6000 crystal = 12000 * 5000 * 50% / 1000 = 30,000 points
+        // Espionage probe (from basicSetup): 1000 crystal * 1 * 50% / 1000 = 0.5 = 0 points (rounds down)
+        // Total expected: 400 + 100 + 30,000 = 30,500 points
+        $expectedMinPoints = 30000; // At least the large cargo
+
+        // Verify military statistics were updated
+        $user->refresh();
+        $actualGainedPoints = $user->military_units_lost_points - $initialLostPoints;
+        $this->assertGreaterThanOrEqual($expectedMinPoints, $actualGainedPoints, 'Loss of fleet should track military lost points');
+    }
+
+    /**
+     * Test that expedition battle losses track military statistics.
+     *
+     * @return void
+     */
+    public function testExpeditionBattleLossesTrackMilitaryStatistics(): void
+    {
+        $this->basicSetup();
+
+        // Add combat ships for the expedition
+        $this->planetAddUnit('battlecruiser', 10);
+
+        // Set moderate tech levels
+        $this->playerSetResearchLevel('weapon_technology', 5);
+        $this->playerSetResearchLevel('shielding_technology', 5);
+        $this->playerSetResearchLevel('armor_technology', 5);
+
+        // Get user and record initial lost points
+        $user = $this->planetService->getPlayer()->getUser();
+        $initialLostPoints = $user->military_units_lost_points;
+        $initialShipCount = $this->planetService->getShipUnits()->getAmount();
+
+        // Enable only the pirate battle outcome (weaker than aliens, guaranteed losses)
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::BattlePirates]);
+
+        // Send the expedition mission
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete and return
+        $this->travel(20)->hours();
+
+        // Load the planet again
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        $finalShipCount = $this->planetService->getShipUnits()->getAmount();
+
+        // If there were ship losses in battle, verify statistics were tracked
+        if ($finalShipCount < $initialShipCount) {
+            $user->refresh();
+            $actualGainedPoints = $user->military_units_lost_points - $initialLostPoints;
+            $this->assertGreaterThan(0, $actualGainedPoints, 'Expedition battle losses should track military lost points');
+        } else {
+            // If no losses (very rare but possible), just verify stats didn't decrease
+            $user->refresh();
+            $this->assertGreaterThanOrEqual($initialLostPoints, $user->military_units_lost_points);
+        }
+    }
 }

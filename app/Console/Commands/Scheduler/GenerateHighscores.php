@@ -40,7 +40,9 @@ class GenerateHighscores extends Command
                     'general' => $highscoreService->getPlayerScore($playerService),
                     'economy' => $highscoreService->getPlayerScoreEconomy($playerService),
                     'research' => $highscoreService->getPlayerScoreResearch($playerService),
-                    'military' => $highscoreService->getPlayerScoreMilitary($playerService),
+                    'military_built' => $highscoreService->getPlayerScoreMilitary($playerService),
+                    'military_destroyed' => $player->military_units_destroyed_points,
+                    'military_lost' => $player->military_units_lost_points,
                 ]);
                 unset($playerService);
                 $bar->advance();
