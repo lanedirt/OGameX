@@ -174,6 +174,23 @@ class MerchantService
     }
 
     /**
+     * Get the base rate for a resource type.
+     * Base rates represent relative resource values: Metal=3, Crystal=2, Deuterium=1
+     *
+     * @param string $resourceType
+     * @return float
+     */
+    private static function getBaseRate(string $resourceType): float
+    {
+        return match ($resourceType) {
+            'metal' => 3.00,
+            'crystal' => 2.00,
+            'deuterium' => 1.00,
+            default => 1.00,
+        };
+    }
+
+    /**
      * Format a trade rate for display (e.g., "1,000 deuterium = 2,400 metal").
      *
      * @param string $giveType
@@ -184,7 +201,8 @@ class MerchantService
     private static function formatTradeRate(string $giveType, string $receiveType, float $rate): string
     {
         $baseAmount = 1000;
-        $receiveAmount = (int)round($baseAmount * $rate);
+        $giveRate = self::getBaseRate($giveType);
+        $receiveAmount = (int)round($baseAmount * $rate / $giveRate);
 
         return number_format($baseAmount) . ' ' . ucfirst($giveType) .
                ' = ' .
@@ -194,19 +212,21 @@ class MerchantService
     /**
      * Execute a resource trade with the merchant.
      *
+     * Exchange rate is fetched from the server-side cache to prevent frontend spoofing.
+     *
+     * @param PlayerService $player
      * @param PlanetService $planet
      * @param string $giveResource
      * @param string $receiveResource
      * @param int $giveAmount
-     * @param float $exchangeRate
      * @return array{success: bool, message: string, given?: int, received?: int}
      */
     public static function executeTrade(
+        PlayerService $player,
         PlanetService $planet,
         string $giveResource,
         string $receiveResource,
-        int $giveAmount,
-        float $exchangeRate
+        int $giveAmount
     ): array {
         // Validate resource types
         $validResources = ['metal', 'crystal', 'deuterium'];
@@ -216,6 +236,35 @@ class MerchantService
                 'message' => __('t_merchant.error.trade.invalid_resource_type'),
             ];
         }
+
+        // Verify there's an active merchant for this user
+        $activeMerchant = cache()->get('active_merchant_' . $player->getId());
+        if (!$activeMerchant) {
+            return [
+                'success' => false,
+                'message' => __('t_merchant.error.trade.no_active_merchant'),
+            ];
+        }
+
+        // Verify the merchant type matches the give resource
+        if ($activeMerchant['type'] !== $giveResource) {
+            return [
+                'success' => false,
+                'message' => __('t_merchant.error.trade.merchant_type_mismatch'),
+            ];
+        }
+
+        // Get the exchange rate from the stored merchant data (prevents frontend spoofing)
+        if (!isset($activeMerchant['trade_rates']['receive'][$receiveResource])) {
+            return [
+                'success' => false,
+                'message' => __('t_merchant.error.trade.invalid_resource_type'),
+            ];
+        }
+
+        $receiveRate = $activeMerchant['trade_rates']['receive'][$receiveResource]['rate'];
+        $giveRate = self::getBaseRate($giveResource);
+        $exchangeRate = $receiveRate / $giveRate;
 
         // Check if player has enough of the give resource
         $currentResources = $planet->getResources();
@@ -240,15 +289,32 @@ class MerchantService
         $storageCapacity = $planet->{$storageMethod}()->get();
         $currentReceiveAmount = $currentResources->{$receiveResource}->get();
 
-        if ($currentReceiveAmount + $receiveAmount > $storageCapacity) {
-            return [
-                'success' => false,
-                'message' => __('t_merchant.error.trade.not_enough_storage', [
-                    'resource' => $receiveResource,
-                    'need' => number_format($currentReceiveAmount + $receiveAmount),
-                    'have' => number_format($storageCapacity)
-                ]),
-            ];
+        // Cap the trade to exactly fill storage if it would overflow
+        // This prevents trades from failing due to resource production between UI and server
+        // Instead of rejecting, we execute a proportionally reduced trade
+        $availableStorage = $storageCapacity - $currentReceiveAmount;
+        if ($receiveAmount > $availableStorage) {
+            // Cap receive amount to exactly fill storage
+            $receiveAmount = max(0, (int)floor($availableStorage));
+
+            // Adjust give amount proportionally
+            if ($receiveAmount > 0) {
+                $giveAmount = (int)ceil($receiveAmount / $exchangeRate);
+
+                // Verify player still has enough after adjustment
+                if ($currentAmount < $giveAmount) {
+                    $giveAmount = (int)floor($currentAmount);
+                    $receiveAmount = (int)floor($giveAmount * $exchangeRate);
+                }
+            } else {
+                // Storage is full, trade is not possible
+                return [
+                    'success' => false,
+                    'message' => __('t_merchant.error.trade.storage_full', [
+                        'resource' => $receiveResource,
+                    ]),
+                ];
+            }
         }
 
         // Execute the trade using atomic deduction to prevent race conditions
@@ -263,7 +329,7 @@ class MerchantService
             // Use atomic deduction (save_planet = true) to prevent race conditions
             $planet->deductResources($deductResources, true);
 
-            // Add the resource being received
+            // Add the resource being received (capped to storage capacity)
             $addResources = new Resources(
                 $receiveResource === 'metal' ? $receiveAmount : 0,
                 $receiveResource === 'crystal' ? $receiveAmount : 0,
@@ -271,7 +337,6 @@ class MerchantService
             );
 
             $planet->addResources($addResources, true);
-
             return [
                 'success' => true,
                 'message' => __('t_merchant.success.trade_completed'),

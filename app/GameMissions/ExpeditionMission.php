@@ -59,13 +59,14 @@ class ExpeditionMission extends GameMission
      * Get configurable outcome weights based on community research.
      * Each outcome has a weight (representing relative probability).
      * Weights are loaded from database settings to allow dynamic event configuration.
+     * @param FleetMission $mission The fleet mission to get outcome weights for
      * @return array<string, float>
      */
-    protected function getOutcomeWeights(): array
+    protected function getOutcomeWeights(FleetMission $mission): array
     {
         $settingsService = app(SettingsService::class);
 
-        return [
+        $weights = [
             'dark_matter' => $settingsService->expeditionWeightDarkMatter(),
             'ships' => $settingsService->expeditionWeightShips(),
             'resources' => $settingsService->expeditionWeightResources(),
@@ -77,6 +78,18 @@ class ExpeditionMission extends GameMission
             'aliens' => $settingsService->expeditionWeightAliens(),
             'merchant' => $settingsService->expeditionWeightMerchant(),
         ];
+
+        // Apply Discoverer class bonus: 50% reduced chance of combat encounters
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+        $characterClassService = app(CharacterClassService::class);
+        $combatMultiplier = $characterClassService->getExpeditionEnemyChanceMultiplier($player->getUser());
+
+        if ($combatMultiplier < 1.0) {
+            $weights['pirates'] *= $combatMultiplier;
+            $weights['aliens'] *= $combatMultiplier;
+        }
+
+        return $weights;
     }
 
     /**
@@ -137,7 +150,7 @@ class ExpeditionMission extends GameMission
 
         // If the mission is not processed yet, we need to process the outcome.
         // Select a random outcome based on configuration and weights
-        $outcome = $this->selectRandomOutcome();
+        $outcome = $this->selectRandomOutcome($mission);
 
         switch ($outcome) {
             case ExpeditionOutcomeType::Failed:
@@ -877,9 +890,10 @@ class ExpeditionMission extends GameMission
      * for a particular outcome means more chance of that outcome being selected
      * relative to the other outcomes.
      *
+     * @param FleetMission $mission The fleet mission to select an outcome for
      * @return ExpeditionOutcomeType
      */
-    private function selectRandomOutcome(): ExpeditionOutcomeType
+    private function selectRandomOutcome(FleetMission $mission): ExpeditionOutcomeType
     {
         // Map outcome types to their weights
         $outcomeMapping = [
@@ -899,7 +913,7 @@ class ExpeditionMission extends GameMission
         $weightedOutcomes = [];
         $totalWeight = 0;
 
-        foreach ($this->getOutcomeWeights() as $key => $weight) {
+        foreach ($this->getOutcomeWeights($mission) as $key => $weight) {
             if (!isset($outcomeMapping[$key])) {
                 continue;
             }

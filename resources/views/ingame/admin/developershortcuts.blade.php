@@ -20,7 +20,7 @@
                 <h2>@lang('Developer shortcuts')</h2>
             </div>
             <div class="content">
-                <div class="buddylistContent">
+                <div class="buddylistContent" style="margin-bottom: 60px;">
                     <form action="{{ route('admin.developershortcuts.update') }}" name="form" method="post">
                         {{ csrf_field() }}
                                 <p class="box_highlight textCenter no_buddies">@lang('Update current planet:')</p>
@@ -251,8 +251,45 @@
                                     </div>
                                 </div>
                             </form>
-                        <div class="footer">
-                        </div>
+
+                            <form action="{{ route('admin.developershortcuts.update-dark-matter') }}" name="form" method="post">
+                                {{ csrf_field() }}
+                                <p class="box_highlight textCenter no_buddies">@lang('Add / subtract dark matter for player at coordinates:')</p>
+                                <div class="group bborder" style="display: block;">
+                                    <div class="fieldwrapper">
+                                        <div class="smallFont">@lang('Enter positive value to add or negative value to subtract dark matter. Supports k/m/b suffixes.')</div>
+                                        <label class="styled textBeefy">@lang('Coordinates:')</label>
+                                        <div class="thefield" style="display: flex; gap: 10px;">
+                                            <div>
+                                                <label for="dm_galaxy">@lang('Galaxy:')</label>
+                                                <input type="text" id="dm_galaxy" pattern="^[0-9]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->galaxy }}" min="1" max="{{ $settings->numberOfGalaxies() }}" name="galaxy">
+                                            </div>
+                                            <div>
+                                                <label for="dm_system">@lang('System:')</label>
+                                                <input type="text" id="dm_system" pattern="^[0-9]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
+                                            </div>
+                                            <div>
+                                                <label for="dm_position">@lang('Position:')</label>
+                                                <input type="text" id="dm_position" pattern="^[0-9]+$" class="textInput w50 textCenter textBeefy"
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->position }}" min="1" max="15" name="position">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper">
+                                        <label class="styled textBeefy">@lang('Dark Matter amount:')</label>
+                                        <div class="thefield">
+                                            <input type="text" id="dark_matter" pattern="^[-+0-9,.kmb]+$"
+                                                   class="textInput w100 textCenter textBeefy"
+                                                   placeholder="0" name="dark_matter">
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper" style="text-align: center;">
+                                        <input type="submit" class="btn_blue" name="update_dark_matter" value="@lang('Update Dark Matter')">
+                                    </div>
+                                </div>
+                            </form>
                 </div>
             </div>
             </div>

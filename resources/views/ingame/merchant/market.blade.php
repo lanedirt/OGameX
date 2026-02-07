@@ -33,6 +33,14 @@
                                         $rowClass = ($rowIndex % 2 === 0) ? 'alt' : '';
                                         $rowIndex++;
 
+                                        // Base rates: Metal=3, Crystal=2, Deuterium=1
+                                        $baseRate = match($merchantType) {
+                                            'metal' => 3,
+                                            'crystal' => 2,
+                                            'deuterium' => 1,
+                                            default => 1
+                                        };
+
                                         // Get current planet resources and storage
                                         $currentAmount = match($resourceKey) {
                                             'metal' => $planet->metal()->get(),
@@ -174,6 +182,14 @@
                                         $rowClass = ($rowIndex % 2 === 0) ? 'alt' : '';
                                         $rowIndex++;
 
+                                        // Base rates: Metal=3, Crystal=2, Deuterium=1 (defined once, used in both branches)
+                                        $baseRate = match($merchantType) {
+                                            'metal' => 3,
+                                            'crystal' => 2,
+                                            'deuterium' => 1,
+                                            default => 1
+                                        };
+
                                         // Get current planet resources and storage
                                         $currentAmount = match($resourceKey) {
                                             'metal' => $planet->metal()->get(),
@@ -301,7 +317,8 @@
         var factor = {
             @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
                 @if($resourceKey === $merchantType)
-                    "{{ $resourceId }}": 1.0,
+                    {{-- Base rates: Metal=3, Crystal=2, Deuterium=1 --}}
+                    "{{ $resourceId }}": {{ match($merchantType) { 'metal' => '3.00', 'crystal' => '2.00', 'deuterium' => '1.00', default => '1.00' } }},
                 @else
                     "{{ $resourceId }}": {{ $activeMerchant['trade_rates']['receive'][$resourceKey]['rate'] }},
                 @endif
@@ -318,6 +335,19 @@
             };
         @endphp
         var offer_amount = {{ $offerAmount }};
+        var currentResources = {
+            @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
+                @php
+                    $currentAmount = match($resourceKey) {
+                        'metal' => $planet->metal()->get(),
+                        'crystal' => $planet->crystal()->get(),
+                        'deuterium' => $planet->deuterium()->get(),
+                        default => 0
+                    };
+                @endphp
+                "{{ $resourceId }}": {{ $currentAmount }},
+            @endforeach
+        };
         var token = "{{ csrf_token() }}";
         var merchantType = "{{ $merchantType }}";
 
@@ -396,9 +426,10 @@
 
             var neededAmount = Math.ceil(value * (giveRate / receiveRate));
 
-            // Check if we have enough of the selling resource
-            if (neededAmount > offer_amount) {
-                value = Math.floor(offer_amount * (receiveRate / giveRate));
+            // Check if we have enough of the selling resource (use current amount, not stale page load amount)
+            var currentOfferAmount = currentResources[giveResourceId];
+            if (neededAmount > currentOfferAmount) {
+                value = Math.floor(currentOfferAmount * (receiveRate / giveRate));
                 neededAmount = Math.ceil(value * (giveRate / receiveRate));
                 formatNumber(input, value);
             }
@@ -432,8 +463,11 @@
             var giveRate = factor[giveResourceId];
             var receiveRate = factor[resourceId];
 
+            // Use current resource amount (available at page load)
+            var currentOfferAmount = currentResources[giveResourceId];
+
             // Calculate max based on available selling resource
-            var maxFromAvailable = Math.floor(offer_amount * (receiveRate / giveRate));
+            var maxFromAvailable = Math.floor(currentOfferAmount * (receiveRate / giveRate));
 
             // Calculate max based on storage capacity
             var maxFromStorage = freeStorage[resourceId];
@@ -450,11 +484,11 @@
                 _token: token,
                 give_resource: merchantType,
                 receive_resource: null,
-                give_amount: 0,
-                exchange_rate: 0
+                give_amount: 0
             };
 
             // Find which resource is being received
+            // Note: exchange_rate is calculated server-side from cached merchant data to prevent spoofing
             @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
                 @if($resourceKey !== $merchantType)
                     var value{{ $resourceId }} = parseInt($('#{{ $resourceId }}_value').val().replace(/,/g, '')) || 0;
@@ -463,7 +497,6 @@
                         var giveRate = factor[{{ $resources[$merchantType] }}];
                         var receiveRate = factor[{{ $resourceId }}];
                         formData.give_amount = Math.ceil(value{{ $resourceId }} * (giveRate / receiveRate));
-                        formData.exchange_rate = receiveRate / giveRate;
                     }
                 @endif
             @endforeach

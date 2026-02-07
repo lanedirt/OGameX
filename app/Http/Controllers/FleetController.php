@@ -537,6 +537,10 @@ class FleetController extends OGameController
         $targetType = (int)request()->input('type');
         $shipCount = (int)request()->input('shipCount');
         $mission_type = (int)request()->input('mission');
+        // Validate ship count is positive, if not, default to 1.
+        if ($shipCount < 1) {
+            $shipCount = 1;
+        }
 
         // Validate mission type and set units to be sent.
         $units = new UnitCollection();
@@ -548,8 +552,13 @@ class FleetController extends OGameController
                 $units->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), $probeCount);
                 break;
             case 8: // Recycle
-                $responseMessage = __('Send recycler to:');
-                $units->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), $shipCount);
+                if ($position === UniverseConstants::EXPEDITION_POSITION) {
+                    $responseMessage = __('Send pathfinder to:');
+                    $units->addUnit(ObjectService::getUnitObjectByMachineName('pathfinder'), $shipCount);
+                } else {
+                    $responseMessage = __('Send recycler to:');
+                    $units->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), $shipCount);
+                }
                 break;
             default:
                 return response()->json([
@@ -575,11 +584,6 @@ class FleetController extends OGameController
                 'newAjaxToken' => csrf_token(),
                 'components' => [],
             ]);
-        }
-
-        // Validate ship count is positive, if not, default to 1.
-        if ($shipCount < 1) {
-            $shipCount = 1;
         }
 
         // Get the current player's planet.
@@ -630,7 +634,7 @@ class FleetController extends OGameController
                         'system' => $system,
                         'position' => $position,
                     ],
-                    'planetType' => 1,
+                    'planetType' => $targetType,
                     'success' => true,
                 ],
                 'newAjaxToken' => csrf_token(),

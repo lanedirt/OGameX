@@ -256,7 +256,7 @@
             <br class="clearfloat">
 
             <ul class="common_info fleft">
-                <li class="attackerCharacterClass">@lang('Class'): Collector</li>
+                <li class="attackerCharacterClass">@lang('Class'): {{ $attacker_character_class ?? '' }}</li>
             </ul>
             <br class="clearfloat">
 
@@ -323,7 +323,7 @@
             <br class="clearfloat">
 
             <ul class="common_info fleft">
-                <li class="defenderCharacterClass">@lang('Class'): Collector</li>
+                <li class="defenderCharacterClass">@lang('Class'): {{ $defender_character_class ?? '' }}</li>
             </ul>
 
             <br class="clearfloat">
@@ -332,10 +332,10 @@
                 <li class="defenderWeapon">@lang('Weapons'): {{ $defender_weapons }}%</li>
                 <li class="defenderShield">@lang('Shields'): {{ $defender_shields }}%</li>
                 <li class="defenderCover">@lang('Armour'): {{ $defender_armor }}%</li>
-                <li class="resource_list_el_small">
+                <!-- <li class="resource_list_el_small">
                     <div class="resourceIconSmall population"></div>
                     <span class="res_value tooltipCustom overmark" data-tooltip-title="0">0</span>
-                </li>
+                </li> -->
             </ul>
             <br class="clearfloat">
 
@@ -525,14 +525,14 @@
 @endforeach
             ],
             // End combat rounds --------------------------------------------------------------------
-            "lifeformEnabled": true,
+            // "lifeformEnabled": true,
             "isExpedition": false,
             "attackerJSON": {
                 "member": {
                     "4492924": {
                         "ownerName": "{{ $attacker_name }}",
                         "ownerCharacterClassId": 1,
-                        "ownerCharacterClassName": "Collector",
+                        "ownerCharacterClassName": "{{ $attacker_character_class ?? '' }}",
                         "ownerID": 115473,
                         "ownerCoordinates": "2:488:1",
                         "ownerPlanetType": 3,
@@ -604,7 +604,7 @@
                 "member": [{
                     "ownerName": "{{ $defender_name }}",
                     "ownerCharacterClassId": 1,
-                    "ownerCharacterClassName": "Collector",
+                    "ownerCharacterClassName": "{{ $defender_character_class ?? '' }}",
                     "ownerID": 102489,
                     "ownerCoordinates": "2:3:11",
                     "ownerPlanetType": 1,
