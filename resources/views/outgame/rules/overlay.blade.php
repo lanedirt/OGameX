@@ -1,11 +1,11 @@
 <div class="tabContent">
-    @if(!empty($rulesHtml))
+    @if(!empty($contentHtml))
         <div class="inner-box clearfix" style="color:#848484;">
-            {!! $rulesHtml !!}
+            {!! $contentHtml !!}
         </div>
     @else
         <div class="inner-box clearfix" style="color:#848484;">
-            <p>No rules have been set.</p>
+            <p>{{ $emptyMessage }}</p>
         </div>
     @endif
 </div>

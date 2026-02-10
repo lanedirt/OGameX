@@ -21,7 +21,26 @@ class RulesController extends Controller
         $rulesHtml = $bbCodeParser->parse($bbcode);
 
         return view('outgame.rules.overlay', [
-            'rulesHtml' => $rulesHtml,
+            'contentHtml' => $rulesHtml,
+            'emptyMessage' => 'No rules have been set.',
+        ]);
+    }
+
+    /**
+     * Shows the legal overlay (AJAX endpoint).
+     *
+     * @param SettingsService $settingsService
+     * @param BbCodeParserService $bbCodeParser
+     * @return View
+     */
+    public function ajaxLegal(SettingsService $settingsService, BbCodeParserService $bbCodeParser): View
+    {
+        $bbcode = $settingsService->legalContent();
+        $legalHtml = $bbCodeParser->parse($bbcode);
+
+        return view('outgame.rules.overlay', [
+            'contentHtml' => $legalHtml,
+            'emptyMessage' => 'No legal information has been set.',
         ]);
     }
 }

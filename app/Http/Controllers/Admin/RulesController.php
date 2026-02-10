@@ -11,7 +11,7 @@ use OGame\Services\SettingsService;
 class RulesController extends OGameController
 {
     /**
-     * Shows the admin rules editor page.
+     * Shows the admin rules & legal editor page.
      *
      * @param PlayerService $player
      * @param SettingsService $settingsService
@@ -21,11 +21,12 @@ class RulesController extends OGameController
     {
         return view('ingame.admin.rules')->with([
             'rules_content' => $settingsService->rulesContent(),
+            'legal_content' => $settingsService->legalContent(),
         ]);
     }
 
     /**
-     * Saves the rules content.
+     * Saves the rules and legal content.
      *
      * @param SettingsService $settingsService
      * @return RedirectResponse
@@ -33,6 +34,7 @@ class RulesController extends OGameController
     public function update(SettingsService $settingsService): RedirectResponse
     {
         $settingsService->set('rules_content', request('rules_content', ''));
+        $settingsService->set('legal_content', request('legal_content', ''));
 
         return redirect()->route('admin.rules.index')->with('success', __('Changes saved!'));
     }

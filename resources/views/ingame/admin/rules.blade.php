@@ -9,7 +9,7 @@
             <div id="alliance">
                 <div id="inhalt">
                     <div id="planet" class="planet-header">
-                        <h2>@lang('Server Rules')</h2>
+                        <h2>@lang('Rules & Legal')</h2>
                     </div>
                     <div class="c-left"></div>
                     <div class="c-right"></div>
@@ -17,12 +17,29 @@
                     <div class="alliance_wrapper">
                         <div class="allianceContent">
                             <div class="sectioncontent" style="display:block;">
-                                <div class="contentz ui-tabs ui-corner-all ui-widget ui-widget-content">
-                                    <div class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="false">
+                                <div class="contentz ui-tabs ui-corner-all ui-widget ui-widget-content" id="rulesLegalTabs">
+                                    <ul class="tabsbelow subsection_tabs ui-state-active ui-tabs-nav ui-corner-all ui-helper-reset ui-helper-clearfix ui-widget-header" role="tablist">
+                                        <li role="tab" tabindex="0" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active ui-state-active">
+                                            <a href="#tab-rules" role="presentation" tabindex="-1" class="ui-tabs-anchor"><span>@lang('Rules')</span></a>
+                                        </li>
+                                        <li role="tab" tabindex="-1" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab">
+                                            <a href="#tab-legal" role="presentation" tabindex="-1" class="ui-tabs-anchor"><span>@lang('Legal')</span></a>
+                                        </li>
+                                    </ul>
+                                    <div id="tab-rules" class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="false">
                                         <form action="{{ route('admin.rules.update') }}" method="post" autocomplete="off">
                                             {{ csrf_field() }}
+                                            <input type="hidden" name="legal_content" value="{{ $legal_content }}">
                                             <textarea name="rules_content" class="alliancetexts">{{ $rules_content }}</textarea>
-                                            <input type="submit" class="btn_blue float_right" value="@lang('Save rules')">
+                                            <input type="submit" class="btn_blue float_right" value="@lang('Save')">
+                                        </form>
+                                    </div>
+                                    <div id="tab-legal" class="ui-tabs-panel ui-corner-bottom ui-widget-content" style="display:none;" aria-hidden="true">
+                                        <form action="{{ route('admin.rules.update') }}" method="post" autocomplete="off">
+                                            {{ csrf_field() }}
+                                            <input type="hidden" name="rules_content" value="{{ $rules_content }}">
+                                            <textarea name="legal_content" class="alliancetexts">{{ $legal_content }}</textarea>
+                                            <input type="submit" class="btn_blue float_right" value="@lang('Save')">
                                         </form>
                                     </div>
                                 </div>
@@ -41,6 +58,8 @@
             @if (session('success'))
                 fadeBox('{{ session('success') }}', false);
             @endif
+
+            $('#rulesLegalTabs').tabs();
 
             initBBCodeEditor(
                 locaKeys,

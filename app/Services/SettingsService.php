@@ -702,4 +702,14 @@ class SettingsService
     {
         return $this->get('rules_content', '');
     }
+
+    /**
+     * Returns the legal content (BBCode).
+     *
+     * @return string
+     */
+    public function legalContent(): string
+    {
+        return $this->get('legal_content', '');
+    }
 }
