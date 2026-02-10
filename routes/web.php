@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use OGame\Http\Controllers\Admin\DeveloperShortcutsController;
+use OGame\Http\Controllers\Admin\RulesController as AdminRulesController;
 use OGame\Http\Controllers\Admin\ServerSettingsController as AdminServerSettingsController;
 use OGame\Http\Controllers\AllianceController;
 use OGame\Http\Controllers\AllianceDepotController;
@@ -29,6 +30,7 @@ use OGame\Http\Controllers\PremiumController;
 use OGame\Http\Controllers\ResearchController;
 use OGame\Http\Controllers\ResourcesController;
 use OGame\Http\Controllers\RewardsController;
+use OGame\Http\Controllers\RulesController;
 use OGame\Http\Controllers\SearchController;
 use OGame\Http\Controllers\ServerSettingsController;
 use OGame\Http\Controllers\ShipyardController;
@@ -47,6 +49,9 @@ use OGame\Http\Controllers\TechtreeController;
 */
 
 Route::redirect('/', '/overview', 301);
+
+// Public AJAX endpoints (no auth required).
+Route::get('/ajax/main/rules', [RulesController::class, 'ajaxRules'])->name('rules.ajax');
 
 // Group: all logged in pages:
 Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(function () {
@@ -227,6 +232,10 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     // Server settings
     Route::get('/admin/server-settings', [AdminServerSettingsController::class, 'index'])->name('admin.serversettings.index');
     Route::post('/admin/server-settings', [AdminServerSettingsController::class, 'update'])->name('admin.serversettings.update');
+
+    // Rules
+    Route::get('/admin/rules', [AdminRulesController::class, 'index'])->name('admin.rules.index');
+    Route::post('/admin/rules', [AdminRulesController::class, 'update'])->name('admin.rules.update');
 
     // Developer shortcuts
     Route::get('/admin/developer-shortcuts', [DeveloperShortcutsController::class, 'index'])->name('admin.developershortcuts.index');

@@ -692,4 +692,14 @@ class SettingsService
     {
         return (bool)$this->get('highscore_admin_visible', 0);
     }
+
+    /**
+     * Returns the server rules content (BBCode).
+     *
+     * @return string
+     */
+    public function rulesContent(): string
+    {
+        return $this->get('rules_content', '');
+    }
 }
