@@ -14,7 +14,7 @@
                     <div class="c-left"></div>
                     <div class="c-right"></div>
                     <div class="clearfloat"></div>
-                    <div class="alliance_wrapper">
+                    <div class="alliance_wrapper" style="height:auto; min-height:auto; padding-bottom:50px;">
                         <div class="allianceContent">
                             <div class="sectioncontent" style="display:block;">
                                 <div class="contentz ui-tabs ui-corner-all ui-widget ui-widget-content" id="rulesLegalTabs">
