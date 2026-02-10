@@ -53,6 +53,9 @@ Route::redirect('/', '/overview', 301);
 // Public AJAX endpoints (no auth required).
 Route::get('/ajax/main/rules', [RulesController::class, 'ajaxRules'])->name('rules.ajax');
 Route::get('/ajax/main/legal', [RulesController::class, 'ajaxLegal'])->name('legal.ajax');
+Route::get('/ajax/main/privacy-policy', [RulesController::class, 'ajaxPrivacyPolicy'])->name('privacypolicy.ajax');
+Route::get('/ajax/main/terms', [RulesController::class, 'ajaxTerms'])->name('terms.ajax');
+Route::get('/ajax/main/contact', [RulesController::class, 'ajaxContact'])->name('contact.ajax');
 
 // Group: all logged in pages:
 Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(function () {

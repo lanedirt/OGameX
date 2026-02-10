@@ -712,4 +712,34 @@ class SettingsService
     {
         return $this->get('legal_content', '');
     }
+
+    /**
+     * Returns the privacy policy content (BBCode).
+     *
+     * @return string
+     */
+    public function privacyPolicyContent(): string
+    {
+        return $this->get('privacy_policy_content', '');
+    }
+
+    /**
+     * Returns the terms and conditions content (BBCode).
+     *
+     * @return string
+     */
+    public function termsContent(): string
+    {
+        return $this->get('terms_content', '');
+    }
+
+    /**
+     * Returns the contact content (BBCode).
+     *
+     * @return string
+     */
+    public function contactContent(): string
+    {
+        return $this->get('contact_content', '');
+    }
 }

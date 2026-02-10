@@ -492,9 +492,9 @@
         <div class="linksAndCopyright">
             <div id="footerLinks">
                 <a class="overlay" data-type="ajax" href="/ajax/main/legal">Legal</a> |
-                <a target="_blank" href="#">Privacy Policy</a> |
-                <a target="_blank" href="#">T&Cs</a> |
-                <a target="_blank" href="#">Contact</a> |
+                <a class="overlay" data-type="ajax" href="/ajax/main/privacy-policy">Privacy Policy</a> |
+                <a class="overlay" data-type="ajax" href="/ajax/main/terms">T&Cs</a> |
+                <a class="overlay" data-type="ajax" href="/ajax/main/contact">Contact</a> |
                 <a class="overlay" data-type="ajax" href="/ajax/main/rules">Rules</a>
                 <br/>
                 <div class="align_center">

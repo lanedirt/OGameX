@@ -9,7 +9,7 @@ use OGame\Services\SettingsService;
 class RulesController extends Controller
 {
     /**
-     * Shows the server rules overlay (AJAX endpoint for outgame page).
+     * Shows the server rules overlay (AJAX endpoint).
      *
      * @param SettingsService $settingsService
      * @param BbCodeParserService $bbCodeParser
@@ -17,11 +17,8 @@ class RulesController extends Controller
      */
     public function ajaxRules(SettingsService $settingsService, BbCodeParserService $bbCodeParser): View
     {
-        $bbcode = $settingsService->rulesContent();
-        $rulesHtml = $bbCodeParser->parse($bbcode);
-
         return view('outgame.rules.overlay', [
-            'contentHtml' => $rulesHtml,
+            'contentHtml' => $bbCodeParser->parse($settingsService->rulesContent()),
             'emptyMessage' => 'No rules have been set.',
         ]);
     }
@@ -35,12 +32,54 @@ class RulesController extends Controller
      */
     public function ajaxLegal(SettingsService $settingsService, BbCodeParserService $bbCodeParser): View
     {
-        $bbcode = $settingsService->legalContent();
-        $legalHtml = $bbCodeParser->parse($bbcode);
-
         return view('outgame.rules.overlay', [
-            'contentHtml' => $legalHtml,
+            'contentHtml' => $bbCodeParser->parse($settingsService->legalContent()),
             'emptyMessage' => 'No legal information has been set.',
+        ]);
+    }
+
+    /**
+     * Shows the privacy policy overlay (AJAX endpoint).
+     *
+     * @param SettingsService $settingsService
+     * @param BbCodeParserService $bbCodeParser
+     * @return View
+     */
+    public function ajaxPrivacyPolicy(SettingsService $settingsService, BbCodeParserService $bbCodeParser): View
+    {
+        return view('outgame.rules.overlay', [
+            'contentHtml' => $bbCodeParser->parse($settingsService->privacyPolicyContent()),
+            'emptyMessage' => 'No privacy policy has been set.',
+        ]);
+    }
+
+    /**
+     * Shows the terms and conditions overlay (AJAX endpoint).
+     *
+     * @param SettingsService $settingsService
+     * @param BbCodeParserService $bbCodeParser
+     * @return View
+     */
+    public function ajaxTerms(SettingsService $settingsService, BbCodeParserService $bbCodeParser): View
+    {
+        return view('outgame.rules.overlay', [
+            'contentHtml' => $bbCodeParser->parse($settingsService->termsContent()),
+            'emptyMessage' => 'No terms and conditions have been set.',
+        ]);
+    }
+
+    /**
+     * Shows the contact overlay (AJAX endpoint).
+     *
+     * @param SettingsService $settingsService
+     * @param BbCodeParserService $bbCodeParser
+     * @return View
+     */
+    public function ajaxContact(SettingsService $settingsService, BbCodeParserService $bbCodeParser): View
+    {
+        return view('outgame.rules.overlay', [
+            'contentHtml' => $bbCodeParser->parse($settingsService->contactContent()),
+            'emptyMessage' => 'No contact information has been set.',
         ]);
     }
 }

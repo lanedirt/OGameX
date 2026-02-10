@@ -22,11 +22,14 @@ class RulesController extends OGameController
         return view('ingame.admin.rules')->with([
             'rules_content' => $settingsService->rulesContent(),
             'legal_content' => $settingsService->legalContent(),
+            'privacy_policy_content' => $settingsService->privacyPolicyContent(),
+            'terms_content' => $settingsService->termsContent(),
+            'contact_content' => $settingsService->contactContent(),
         ]);
     }
 
     /**
-     * Saves the rules and legal content.
+     * Saves all content.
      *
      * @param SettingsService $settingsService
      * @return RedirectResponse
@@ -35,6 +38,9 @@ class RulesController extends OGameController
     {
         $settingsService->set('rules_content', request('rules_content', ''));
         $settingsService->set('legal_content', request('legal_content', ''));
+        $settingsService->set('privacy_policy_content', request('privacy_policy_content', ''));
+        $settingsService->set('terms_content', request('terms_content', ''));
+        $settingsService->set('contact_content', request('contact_content', ''));
 
         return redirect()->route('admin.rules.index')->with('success', __('Changes saved!'));
     }
