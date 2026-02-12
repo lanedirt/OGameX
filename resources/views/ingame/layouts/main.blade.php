@@ -1888,9 +1888,10 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                     <a href="{{ route('language.switch', ['lang' => 'nl']) }}">Dutch</a>|
             @endswitch
             <a href="#">Board</a>|
-            <a class="overlay-temp" href="#" data-overlay-iframe="true" data-iframe-width="450"
+            <a class="overlay" href="{{ route('rules.ajax') }}"
                data-overlay-title="Rules">@lang('Rules')</a>|
-            <a href="#">@lang('Legal')</a>
+            <a class="overlay" href="{{ route('legal.ajax') }}"
+               data-overlay-title="Legal">@lang('Legal')</a>
         </div>
     </div><!-- -->
 </div>

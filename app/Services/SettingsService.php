@@ -692,4 +692,54 @@ class SettingsService
     {
         return (bool)$this->get('highscore_admin_visible', 0);
     }
+
+    /**
+     * Returns the server rules content (BBCode).
+     *
+     * @return string
+     */
+    public function rulesContent(): string
+    {
+        return $this->get('rules_content', '');
+    }
+
+    /**
+     * Returns the legal content (BBCode).
+     *
+     * @return string
+     */
+    public function legalContent(): string
+    {
+        return $this->get('legal_content', '');
+    }
+
+    /**
+     * Returns the privacy policy content (BBCode).
+     *
+     * @return string
+     */
+    public function privacyPolicyContent(): string
+    {
+        return $this->get('privacy_policy_content', '');
+    }
+
+    /**
+     * Returns the terms and conditions content (BBCode).
+     *
+     * @return string
+     */
+    public function termsContent(): string
+    {
+        return $this->get('terms_content', '');
+    }
+
+    /**
+     * Returns the contact content (BBCode).
+     *
+     * @return string
+     */
+    public function contactContent(): string
+    {
+        return $this->get('contact_content', '');
+    }
 }
