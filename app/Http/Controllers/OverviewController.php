@@ -9,7 +9,9 @@ use Illuminate\View\View;
 use OGame\Facades\AppUtil;
 use OGame\Models\Highscore;
 use OGame\Services\BuildingQueueService;
+use OGame\Services\FleetMissionService;
 use OGame\Services\HighscoreService;
+use OGame\Services\PlanetMoveService;
 use OGame\Services\PlayerService;
 use OGame\Services\ResearchQueueService;
 use OGame\Services\UnitQueueService;
@@ -27,7 +29,7 @@ class OverviewController extends OGameController
      * @return View
      * @throws Exception
      */
-    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unit_queue, WreckFieldService $wreckFieldService): View
+    public function index(PlayerService $player, BuildingQueueService $building_queue, ResearchQueueService $research_queue, UnitQueueService $unit_queue, WreckFieldService $wreckFieldService, PlanetMoveService $planetMoveService, FleetMissionService $fleetMissionService): View
     {
         $this->setBodyId('overview');
 
@@ -39,6 +41,7 @@ class OverviewController extends OGameController
         $build_queue = $build_full_queue->getQueuedFromQueue();
 
         // Parse research queue for this planet
+        $researchQueueService = $research_queue;
         $research_full_queue = $research_queue->retrieveQueue($planet);
         $research_active = $research_full_queue->getCurrentlyBuildingFromQueue();
         $research_queue = $research_full_queue->getQueuedFromQueue();
@@ -90,6 +93,14 @@ class OverviewController extends OGameController
             return AppUtil::formatNumber(Highscore::where('player_id', $player->getId())->first()->general ?? 0);
         });
 
+        // Get active planet move for countdown display.
+        $activeMove = $planetMoveService->getActiveMoveForPlanet($planet);
+        $planetMoveCountdown = $activeMove !== null ? max(0, $activeMove->time_arrive - time()) : 0;
+        $planetMoveTarget = $activeMove !== null ? $activeMove->target_galaxy . ':' . $activeMove->target_system . ':' . $activeMove->target_position : '';
+        $planetMoveBlockers = $activeMove !== null
+            ? $planetMoveService->getBlockingReasons($planet, $building_queue, $researchQueueService, $unit_queue, $fleetMissionService)
+            : [];
+
         return view('ingame.overview.index')->with([
             'header_filename' => $planet->isMoon() ? 'moon/' . $planet->getPlanetImageType() : $planet->getPlanetBiomeType(),
             'planet_name' => $planet->getPlanetName(),
@@ -115,6 +126,10 @@ class OverviewController extends OGameController
             'other_planet' => $other_planet,
             'wreck_field' => $wreckField,
             'show_wreck_field_icon' => $showWreckFieldIcon,
+            'planet_move' => $activeMove,
+            'planet_move_countdown' => $planetMoveCountdown,
+            'planet_move_target' => $planetMoveTarget,
+            'planet_move_blockers' => $planetMoveBlockers,
         ]);
     }
 }
