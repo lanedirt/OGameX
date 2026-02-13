@@ -362,6 +362,16 @@ abstract class GameMission
     public function process(FleetMission $mission): void
     {
         if (empty($mission->parent_id)) {
+            // Target planet was relocated — return fleet (or cancel if no return trip).
+            if ($mission->planet_id_to === null) {
+                $mission->processed = 1;
+                $mission->save();
+                if (static::$hasReturnMission) {
+                    $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
+                }
+                return;
+            }
+
             // This is an arrival mission as it has no parent mission.
             // Process arrival.
             $this->processArrival($mission);

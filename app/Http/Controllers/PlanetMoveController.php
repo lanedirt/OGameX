@@ -55,6 +55,11 @@ class PlanetMoveController extends OGameController
             return response()->json(['error' => 'A planet relocation is already in progress.']);
         }
 
+        // Validate the planet is not on cooldown from a recent relocation.
+        if ($planetMoveService->getCooldownSecondsForPlanet($planet) > 0) {
+            return response()->json(['error' => 'Relocation is on cooldown. Please wait before relocating again.']);
+        }
+
         // Validate the player can afford the relocation cost (check only, don't deduct yet).
         $cost = (int) $settingsService->get('planet_relocation_cost', 240000);
         if (!$darkMatterService->canAfford($user, $cost)) {
@@ -67,8 +72,8 @@ class PlanetMoveController extends OGameController
             return response()->json(['error' => 'Cannot relocate while buildings are being constructed.']);
         }
 
-        // Validate no active research queue for this player.
-        $researchQueue = $researchQueueService->retrieveQueue($planet);
+        // Validate no active research queue on the current planet.
+        $researchQueue = $researchQueueService->retrieveQueueForPlanet($planet);
         if (count($researchQueue->queue) > 0) {
             return response()->json(['error' => 'Cannot relocate while research is in progress.']);
         }

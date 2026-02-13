@@ -3,14 +3,38 @@
 namespace OGame\Services;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Date;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMessages\PlanetRelocationSuccess;
+use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\PlanetMove;
 
 class PlanetMoveService
 {
+    /**
+     * Get the cooldown seconds remaining before a planet can be relocated again.
+     * A 24-hour cooldown applies after a move is processed or cancelled.
+     */
+    public function getCooldownSecondsForPlanet(PlanetService $planet): int
+    {
+        $lastMove = PlanetMove::where('planet_id', $planet->getPlanetId())
+            ->where(function ($query) {
+                $query->where('canceled', true)->orWhere('processed', true);
+            })
+            ->orderByDesc('updated_at')
+            ->first();
+
+        if ($lastMove === null) {
+            return 0;
+        }
+
+        return (int) max(0, ((int) $lastMove->updated_at->timestamp + 86400) - (int) Date::now()->timestamp);
+    }
+
     /**
      * Get the active (pending) move for a planet, if any.
      */
@@ -81,8 +105,8 @@ class PlanetMoveService
             return false;
         }
 
-        // Re-validate no active research queue.
-        $researchQueue = $researchQueueService->retrieveQueue($planet);
+        // Re-validate no active research queue on this planet.
+        $researchQueue = $researchQueueService->retrieveQueueForPlanet($planet);
         if (count($researchQueue->queue) > 0) {
             $this->cancelMove($move);
             return false;
@@ -113,8 +137,11 @@ class PlanetMoveService
         // Deduct DM.
         $darkMatterService->debit($user, $cost, DarkMatterTransactionType::PLANET_RELOCATION->value, 'Planet relocation to ' . $targetCoordinate->asString());
 
-        // Move planet coordinates and recalculate temperature.
+        // Save old coordinates before updating.
         $planetModel = Planet::find($move->planet_id);
+        $oldCoordinate = new Coordinate($planetModel->galaxy, $planetModel->system, $planetModel->planet);
+
+        // Move planet coordinates and recalculate temperature.
         $planetModel->galaxy = $move->target_galaxy;
         $planetModel->system = $move->target_system;
         $planetModel->planet = $move->target_position;
@@ -136,12 +163,114 @@ class PlanetMoveService
             $moonModel->temp_max = $avgTemp;
             $moonModel->temp_min = $avgTemp - 40;
             $moonModel->save();
+
+            // Deactivate the jump gate on the relocated moon for 24 hours.
+            if ($moon->getObjectLevel('jump_gate') > 0) {
+                $moon->setJumpGateCooldown((int) Date::now()->timestamp + 86400);
+            }
+
+            // Collect flyable ships from moon and create deployment fleet to transfer them.
+            $allMoonShipUnits = $moon->getShipUnits();
+            $moonShipUnits = new UnitCollection();
+            foreach ($allMoonShipUnits->units as $unit) {
+                if (!in_array($unit->unitObject->machine_name, ['solar_satellite', 'crawler'], true)) {
+                    $moonShipUnits->addUnit($unit->unitObject, $unit->amount);
+                }
+            }
+            if ($moonShipUnits->getAmount() > 0) {
+                $this->createShipTransferMission($moon, $oldCoordinate, $targetCoordinate, $moonShipUnits, $fleetMissionService, $settingsService);
+            }
         }
+
+        // Collect flyable ships from planet and create deployment fleet to transfer them.
+        // Filter out non-flyable units (solar satellites, crawlers) that cannot be part of fleet missions.
+        $allShipUnits = $planet->getShipUnits();
+        $shipUnits = new UnitCollection();
+        foreach ($allShipUnits->units as $unit) {
+            if (!in_array($unit->unitObject->machine_name, ['solar_satellite', 'crawler'], true)) {
+                $shipUnits->addUnit($unit->unitObject, $unit->amount);
+            }
+        }
+        if ($shipUnits->getAmount() > 0) {
+            $this->createShipTransferMission($planet, $oldCoordinate, $targetCoordinate, $shipUnits, $fleetMissionService, $settingsService);
+        }
+
+        // Detach foreign fleet missions targeting the old coordinates.
+        // These missions will find planet_id_to = null on arrival and return home.
+        $planetIds = [$move->planet_id];
+        if ($planet->hasMoon()) {
+            $planetIds[] = $planet->moon()->getPlanetId();
+        }
+        FleetMission::whereIn('planet_id_to', $planetIds)
+            ->where('user_id', '!=', $planet->getPlayer()->getId())
+            ->where('processed', 0)
+            ->update(['planet_id_to' => null]);
 
         $move->processed = true;
         $move->save();
 
+        // Send success message to the player.
+        $messageService = resolve(MessageService::class);
+        $messageService->sendSystemMessageToPlayer($planet->getPlayer(), PlanetRelocationSuccess::class, [
+            'planet_name' => $planet->getPlanetName(),
+            'old_coordinates' => $oldCoordinate->asString(),
+            'new_coordinates' => $targetCoordinate->asString(),
+        ]);
+
         return true;
+    }
+
+    /**
+     * Create a deployment fleet mission to transfer ships from old to new coordinates.
+     */
+    private function createShipTransferMission(
+        PlanetService $planet,
+        Coordinate $oldCoordinate,
+        Coordinate $newCoordinate,
+        UnitCollection $shipUnits,
+        FleetMissionService $fleetMissionService,
+        SettingsService $settingsService,
+    ): void {
+        // Calculate flight duration using the distance formula and slowest ship speed.
+        $distance = $fleetMissionService->calculateDistance($oldCoordinate, $newCoordinate);
+        $slowestSpeed = $shipUnits->getSlowestUnitSpeed($planet->getPlayer());
+        $fleetSpeed = $settingsService->fleetSpeedPeaceful();
+        $duration = (int) max(round((35000 / 10 * sqrt($distance * 10 / $slowestSpeed) + 10) / $fleetSpeed), 1);
+
+        $now = (int) Date::now()->timestamp;
+
+        // Create the fleet mission record directly (bypasses GameMission::start()).
+        $mission = new FleetMission();
+        $mission->user_id = $planet->getPlayer()->getId();
+        $mission->planet_id_from = $planet->getPlanetId();
+        $mission->planet_id_to = $planet->getPlanetId();
+        $mission->galaxy_from = $oldCoordinate->galaxy;
+        $mission->system_from = $oldCoordinate->system;
+        $mission->position_from = $oldCoordinate->position;
+        $mission->type_from = $planet->getPlanetType()->value;
+        $mission->galaxy_to = $newCoordinate->galaxy;
+        $mission->system_to = $newCoordinate->system;
+        $mission->position_to = $newCoordinate->position;
+        $mission->type_to = $planet->getPlanetType()->value;
+        $mission->mission_type = 4; // Deployment
+        $mission->time_departure = $now;
+        $mission->time_arrival = $now + $duration;
+        $mission->metal = 0;
+        $mission->crystal = 0;
+        $mission->deuterium = 0;
+        $mission->deuterium_consumption = 0;
+        $mission->processed = 0;
+        $mission->canceled = 0;
+
+        // Populate ship columns from the unit collection.
+        foreach ($shipUnits->units as $unit) {
+            $mission->{$unit->unitObject->machine_name} = $unit->amount;
+        }
+
+        $mission->save();
+
+        // Remove ships from the planet.
+        $planet->removeUnits($shipUnits, true);
     }
 
     /**
@@ -164,7 +293,7 @@ class PlanetMoveService
             $reasons[] = 'Buildings are being constructed on this planet';
         }
 
-        $researchQueue = $researchQueueService->retrieveQueue($planet);
+        $researchQueue = $researchQueueService->retrieveQueueForPlanet($planet);
         if (count($researchQueue->queue) > 0) {
             $reasons[] = 'Research is still taking place on this planet';
         }
