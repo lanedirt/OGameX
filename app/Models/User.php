@@ -45,6 +45,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property int|null $character_class
  * @property bool $character_class_free_used
  * @property Carbon|null $character_class_changed_at
+ * @property int $military_units_destroyed_points
+ * @property int $military_units_lost_points
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read UserTech|null $tech

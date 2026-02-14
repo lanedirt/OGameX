@@ -2,6 +2,7 @@
 
 namespace OGame\Http\Controllers;
 
+use OGame\Services\MilitaryStatisticsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -526,6 +527,10 @@ class MerchantController extends OGameController
         $returnDeuterium = (int)floor($totalDeuterium * ($offerPercentage / 100));
 
         // Execute the trade: remove adjusted items and add resources
+        // Also track military statistics for scrapped units
+        $militaryStatisticsService = resolve(MilitaryStatisticsService::class);
+        $totalLostPoints = 0;
+
         foreach ($adjustedItems as $itemId => $amount) {
             if ($amount <= 0) {
                 continue;
@@ -533,8 +538,18 @@ class MerchantController extends OGameController
 
             $object = $objectService->getObjectById((int)$itemId);
             if ($object) {
+                // Calculate military points for scrapped units
+                $lostPoints = $militaryStatisticsService->calculateMilitaryPointsFromMachineName($object->machine_name, $amount);
+                $totalLostPoints += $lostPoints;
+
                 $planet->removeUnit($object->machine_name, $amount);
             }
+        }
+
+        // Update player's lost military statistics
+        if ($totalLostPoints > 0) {
+            $user = $player->getUser();
+            $militaryStatisticsService->addLostPoints($user, $totalLostPoints);
         }
 
         // Add resources
