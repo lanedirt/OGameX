@@ -91,7 +91,7 @@ class PlanetMoveController extends OGameController
         }
 
         // Schedule the move (DM will be deducted when the countdown expires).
-        $planetMoveService->scheduleMoveForPlanet($planet, $targetCoordinate);
+        $planetMoveService->scheduleMoveForPlanet($planet, $targetCoordinate, $settingsService);
 
         return response()->json(['error' => '']);
     }

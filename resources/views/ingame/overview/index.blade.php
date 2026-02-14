@@ -48,7 +48,9 @@
             "error": "Error"
         };
         var planetMoveCooldown = {{ $planet_move_countdown }};
-        new SimpleCountdownTimer('#moveCountdown', {{ $planet_move_countdown }}, true);
+        new SimpleCountdownTimer('#moveCountdown', {{ $planet_move_countdown }}, '{{ route('overview.index') }}');
+        @elseif($planet_move_cooldown > 0)
+        new SimpleCountdownTimer('#moveCountdown', {{ $planet_move_cooldown }}, '{{ route('overview.index') }}');
         @endif
 
         var cancelProduction_id;
@@ -215,6 +217,24 @@
                                         </a>
                                     </span>
                                 </span>
+                            @elseif($planet_move_cooldown > 0)
+                                @php
+                                    $t = $planet_move_cooldown;
+                                    $cooldownParts = [];
+                                    foreach (['d' => 86400, 'h' => 3600, 'm' => 60, 's' => 1] as $u => $v) {
+                                        $n = intdiv($t, $v);
+                                        if ($n > 0) {
+                                            $t -= $n * $v;
+                                            $cooldownParts[] = $n . $u;
+                                        }
+                                        if (count($cooldownParts) >= 2) break;
+                                    }
+                                    $cooldownFormatted = implode(' ', $cooldownParts);
+                                @endphp
+                                <span class="tooltip planetMoveIcons planetMoveInactive icon"
+                                      title="Time until next possible relocation"></span>
+                                <span id="moveCountdown" class="status_abbr_longinactive tooltip fleft"
+                                      title="Time until next possible relocation">{{ $cooldownFormatted }}</span>
                             @else
                                 <a class="tooltipLeft dark_highlight_tablet fleft"
                                    href='{{ route('galaxy.index') }}'

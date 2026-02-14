@@ -249,8 +249,10 @@ class FleetEventsController extends OGameController
 
             $eventRowViewModel->is_recallable = false;
             if ($friendlyStatus === FleetMissionStatus::Friendly) {
-                // Missile attacks (mission type 10) cannot be recalled
-                if ($row->mission_type !== 10) {
+                // Missile attacks (mission type 10) cannot be recalled.
+                // Planet relocation ship transfers (deployment to self) cannot be recalled.
+                $isRelocationTransfer = ($row->mission_type === 4 && $row->planet_id_from === $row->planet_id_to);
+                if ($row->mission_type !== 10 && !$isRelocationTransfer) {
                     $eventRowViewModel->is_recallable = true;
                 }
             }

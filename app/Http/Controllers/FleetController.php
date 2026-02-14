@@ -193,8 +193,10 @@ class FleetController extends OGameController
             // Determine friendly status based on mission type for styling
             $mission = GameMissionFactory::getMissionById($row->mission_type, []);
             $eventRowViewModel->friendly_status = $mission::getFriendlyStatus()->value;
-            // Missile attacks (mission type 10) cannot be recalled
-            $eventRowViewModel->is_recallable = ($row->mission_type !== 10);
+            // Missile attacks (mission type 10) cannot be recalled.
+            // Planet relocation ship transfers (deployment to self) cannot be recalled.
+            $isRelocationTransfer = ($row->mission_type === 4 && $row->planet_id_from === $row->planet_id_to);
+            $eventRowViewModel->is_recallable = ($row->mission_type !== 10 && !$isRelocationTransfer);
 
             // Add return trip info to the same row (not as separate row) if the mission has a return mission
             if ($fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {

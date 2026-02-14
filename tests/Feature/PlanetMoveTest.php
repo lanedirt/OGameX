@@ -709,4 +709,122 @@ class PlanetMoveTest extends AccountTestCase
         $this->assertNotNull($returnMission, 'A return mission should be created for the foreign fleet.');
         $this->assertEquals($foreignPlanet->getPlanetId(), $returnMission->planet_id_to, 'Return mission should target the foreign player\'s planet.');
     }
+
+    /**
+     * Test that relocation ship transfer missions cannot be recalled.
+     */
+    public function testRelocationShipTransferNotRecallable(): void
+    {
+        $emptyCoordinate = $this->getNearbyEmptyCoordinate();
+
+        // Add ships to the planet so a transfer mission is created.
+        $this->planetAddUnit('small_cargo', 5);
+
+        $this->scheduleAndProcessMove($emptyCoordinate);
+
+        // Find the ship transfer fleet mission.
+        $fleetMission = FleetMission::where('user_id', $this->currentUserId)
+            ->where('mission_type', 4)
+            ->where('processed', 0)
+            ->first();
+        $this->assertNotNull($fleetMission);
+        $this->assertEquals($fleetMission->planet_id_from, $fleetMission->planet_id_to, 'Relocation transfer should have same from/to planet.');
+
+        // Attempt to recall the fleet via the recall endpoint.
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            '_token' => csrf_token(),
+            'fleet_mission_id' => $fleetMission->id,
+        ]);
+
+        $response->assertStatus(200);
+
+        // Verify the mission was NOT canceled.
+        $fleetMission->refresh();
+        $this->assertEquals(0, $fleetMission->canceled, 'Relocation ship transfer should not be recallable.');
+    }
+
+    /**
+     * Test that a relocated planet can be abandoned without foreign key errors.
+     */
+    public function testAbandonAfterRelocation(): void
+    {
+        $emptyCoordinate = $this->getNearbyEmptyCoordinate();
+
+        $this->scheduleAndProcessMove($emptyCoordinate);
+
+        // Verify the move was processed and planet is at new coordinates.
+        $this->reloadApplication();
+        $this->planetService->getPlayer()->load($this->planetService->getPlayer()->getId());
+        $updatedPlanet = $this->planetService->getPlayer()->planets->current();
+        $newCoordinates = $updatedPlanet->getPlanetCoordinates();
+        $this->assertEquals($emptyCoordinate->galaxy, $newCoordinates->galaxy);
+
+        // Clean up fleet missions so they don't block abandonment.
+        FleetMission::where('user_id', $this->currentUserId)->delete();
+
+        // Abandon the relocated planet (should not throw a foreign key constraint error).
+        $response = $this->post('/ajax/planet-abandon/abandon', [
+            '_token' => csrf_token(),
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('status', 'success');
+    }
+
+    /**
+     * Test that no cooldown is applied when relocation fails because the target was colonized.
+     */
+    public function testNoCooldownWhenTargetColonized(): void
+    {
+        $emptyCoordinate = $this->getNearbyEmptyCoordinate();
+
+        // Schedule a move.
+        $this->post('/ajax/planet-move', [
+            '_token' => csrf_token(),
+            'galaxy' => $emptyCoordinate->galaxy,
+            'system' => $emptyCoordinate->system,
+            'position' => $emptyCoordinate->position,
+        ]);
+
+        // Fast-forward the move's time_arrive to the past.
+        $move = PlanetMove::where('planet_id', $this->planetService->getPlanetId())
+            ->where('canceled', false)
+            ->where('processed', false)
+            ->first();
+        $this->assertNotNull($move);
+        $move->time_arrive = time() - 1;
+        $move->save();
+
+        // Colonize the target position (create a planet there) so the move fails.
+        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $blockerPlanet = $planetServiceFactory->createAdditionalPlanetForPlayer($foreignPlanet->getPlayer(), $emptyCoordinate);
+
+        // Trigger processing — the move should fail because target is occupied.
+        $planetMoveService = resolve(PlanetMoveService::class);
+        $planetMoveService->processDueMoves(
+            resolve(PlanetServiceFactory::class),
+            resolve(DarkMatterService::class),
+            resolve(SettingsService::class),
+            resolve(BuildingQueueService::class),
+            resolve(ResearchQueueService::class),
+            resolve(UnitQueueService::class),
+            resolve(FleetMissionService::class),
+        );
+
+        // Verify the move record was deleted (not canceled).
+        $this->assertNull(PlanetMove::find($move->id), 'Move record should be deleted when target is occupied.');
+
+        // Verify no cooldown is applied.
+        $cooldown = $planetMoveService->getCooldownSecondsForPlanet($this->planetService);
+        $this->assertEquals(0, $cooldown, 'No cooldown should be applied when target was colonized.');
+
+        // Verify DM was NOT deducted.
+        $user = User::find($this->currentUserId);
+        $this->assertEquals(500000, $user->dark_matter);
+
+        // Clean up the blocker planet.
+        DB::table('planets')->where('id', $blockerPlanet->getPlanetId())->delete();
+    }
 }

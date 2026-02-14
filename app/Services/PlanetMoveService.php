@@ -49,15 +49,17 @@ class PlanetMoveService
     /**
      * Schedule a planet move with a 24-hour countdown.
      */
-    public function scheduleMoveForPlanet(PlanetService $planet, Coordinate $target): PlanetMove
+    public function scheduleMoveForPlanet(PlanetService $planet, Coordinate $target, SettingsService $settingsService): PlanetMove
     {
+        $duration = (int) $settingsService->get('planet_relocation_duration', 86400);
+
         return PlanetMove::create([
             'planet_id' => $planet->getPlanetId(),
             'target_galaxy' => $target->galaxy,
             'target_system' => $target->system,
             'target_position' => $target->position,
             'time_start' => time(),
-            'time_arrive' => time() + 86400,
+            'time_arrive' => time() + $duration,
             'canceled' => false,
             'processed' => false,
         ]);
@@ -89,9 +91,10 @@ class PlanetMoveService
         $targetCoordinate = new Coordinate($move->target_galaxy, $move->target_system, $move->target_position);
 
         // Re-validate target position is still empty.
+        // If someone colonized the target, delete the move record (no cooldown penalty).
         $existingPlanet = $planetServiceFactory->makePlanetForCoordinate($targetCoordinate, false);
         if ($existingPlanet !== null) {
-            $this->cancelMove($move);
+            $move->delete();
             return false;
         }
 
