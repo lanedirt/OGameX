@@ -101,6 +101,10 @@ class OverviewController extends OGameController
             ? $planetMoveService->getBlockingReasons($planet, $building_queue, $researchQueueService, $unit_queue, $fleetMissionService)
             : [];
 
+        $planetMoveCooldown = $activeMove === null
+            ? $planetMoveService->getCooldownSecondsForPlanet($planet)
+            : 0;
+
         return view('ingame.overview.index')->with([
             'header_filename' => $planet->isMoon() ? 'moon/' . $planet->getPlanetImageType() : $planet->getPlanetBiomeType(),
             'planet_name' => $planet->getPlanetName(),
@@ -130,6 +134,7 @@ class OverviewController extends OGameController
             'planet_move_countdown' => $planetMoveCountdown,
             'planet_move_target' => $planetMoveTarget,
             'planet_move_blockers' => $planetMoveBlockers,
+            'planet_move_cooldown' => $planetMoveCooldown,
         ]);
     }
 }

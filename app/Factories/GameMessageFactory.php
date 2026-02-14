@@ -34,6 +34,7 @@ use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMessages\FleetLostContact;
 use OGame\GameMessages\MissileAttackReport;
 use OGame\GameMessages\MissileDefenseReport;
+use OGame\GameMessages\PlanetRelocationSuccess;
 use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMessages\TransportArrived;
@@ -95,6 +96,9 @@ class GameMessageFactory
         // Alliance messages
         'alliance_broadcast' => AllianceBroadcast::class,
         'alliance_application_received' => AllianceApplicationReceived::class,
+
+        // Planet relocation messages
+        'planet_relocation_success' => PlanetRelocationSuccess::class,
         ];
 
     /**
