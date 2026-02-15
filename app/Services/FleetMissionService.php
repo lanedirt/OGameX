@@ -114,17 +114,9 @@ class FleetMissionService
     {
         $fromCoordinate = $fromPlanet->getPlanetCoordinates();
 
-        return $this->calculateDistance($fromCoordinate, $to);
-    }
-
-    /**
-     * Calculate the distance between two coordinates.
-     */
-    public function calculateDistance(Coordinate $from, Coordinate $to): int
-    {
-        $diffGalaxy = abs($from->galaxy - $to->galaxy);
-        $diffSystem = abs($from->system - $to->system);
-        $diffPlanet = abs($from->position - $to->position);
+        $diffGalaxy = abs($fromCoordinate->galaxy - $to->galaxy);
+        $diffSystem = abs($fromCoordinate->system - $to->system);
+        $diffPlanet = abs($fromCoordinate->position - $to->position);
 
         // If the galaxies are different
         if ($diffGalaxy != 0) {
@@ -149,8 +141,8 @@ class FleetMissionService
             }
 
             // Calculate empty and inactive systems to subtract from distance
-            $emptySystems = $this->coordinateDistanceCalculator->getNumEmptySystems($from, $to);
-            $inactiveSystems = $this->coordinateDistanceCalculator->getNumInactiveSystems($from, $to);
+            $emptySystems = $this->coordinateDistanceCalculator->getNumEmptySystems($fromCoordinate, $to);
+            $inactiveSystems = $this->coordinateDistanceCalculator->getNumInactiveSystems($fromCoordinate, $to);
 
             $deltaSystem = max($deltaSystem - $emptySystems - $inactiveSystems, 1);
             return $deltaSystem * 5 * 19 + 2700;

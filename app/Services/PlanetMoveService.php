@@ -234,8 +234,8 @@ class PlanetMoveService
         FleetMissionService $fleetMissionService,
         SettingsService $settingsService,
     ): void {
-        // Calculate flight duration using the distance formula and slowest ship speed.
-        $distance = $fleetMissionService->calculateDistance($oldCoordinate, $newCoordinate);
+        // Calculate flight duration using a simple distance formula.
+        $distance = $this->calculateCoordinateDistance($oldCoordinate, $newCoordinate);
         $slowestSpeed = $shipUnits->getSlowestUnitSpeed($planet->getPlayer());
         $fleetSpeed = $settingsService->fleetSpeedPeaceful();
         $duration = (int) max(round((35000 / 10 * sqrt($distance * 10 / $slowestSpeed) + 10) / $fleetSpeed), 1);
@@ -357,5 +357,29 @@ class PlanetMoveService
                 $fleetMissionService,
             );
         }
+    }
+
+    /**
+     * Calculate a simple distance between two coordinates for ship transfer duration.
+     */
+    private function calculateCoordinateDistance(Coordinate $from, Coordinate $to): int
+    {
+        $diffGalaxy = abs($from->galaxy - $to->galaxy);
+        $diffSystem = abs($from->system - $to->system);
+        $diffPlanet = abs($from->position - $to->position);
+
+        if ($diffGalaxy != 0) {
+            return $diffGalaxy * 20000;
+        }
+
+        if ($diffSystem != 0) {
+            return $diffSystem * 5 * 19 + 2700;
+        }
+
+        if ($diffPlanet != 0) {
+            return $diffPlanet * 5 + 1000;
+        }
+
+        return 5;
     }
 }
