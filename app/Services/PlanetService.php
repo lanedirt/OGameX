@@ -17,6 +17,7 @@ use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\PlanetMove;
 use OGame\Models\ProductionIndex;
 use OGame\Models\ResearchQueue;
 use OGame\Models\Resource;
@@ -251,6 +252,9 @@ class PlanetService
 
         // Unit queues
         UnitQueue::where('planet_id', $this->planet->id)->delete();
+
+        // Planet moves
+        PlanetMove::where('planet_id', $this->planet->id)->delete();
 
         // Update the player's current planet if it is the planet being abandoned.
         if ($this->getPlayer()->getCurrentPlanetId() === $this->planet->id) {

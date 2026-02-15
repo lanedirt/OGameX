@@ -19,6 +19,7 @@ use OGame\Services\BuddyService;
 use OGame\Services\CharacterClassService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PhalanxService;
+use OGame\Services\PlanetMoveService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -78,6 +79,7 @@ class GalaxyController extends OGameController
             'max_slots' => 1,
             'max_galaxies' => $settingsService->numberOfGalaxies(),
             'is_in_vacation_mode' => $player->isInVacationMode(),
+            'planet_relocation_cost' => (int)$settingsService->get('planet_relocation_cost', 240000),
         ]);
     }
 
@@ -593,11 +595,18 @@ class GalaxyController extends OGameController
         $has_colonize_ship = $this->playerService->planets->current()->getObjectAmount('colony_ship') > 0;
         $colonize_ship_message = "<br><div><img src='/img/galaxy/activity.gif' />" . __('t_galaxy.mission.colonize.no_ship') . "</div>";
 
+        // Check if the current planet already has a pending move.
+        $planetMoveService = app(PlanetMoveService::class);
+        $activeMove = $planetMoveService->getActiveMoveForPlanet($this->playerService->planets->current());
+        $planetMovePossible = $activeMove === null;
+
         $missions_available = [
             [
                 'missionType' => 0,
-                'planetMovePossible' => true,
+                'planetMovePossible' => $planetMovePossible,
                 'moveAction' => 'prepareMove',
+                'moveLink' => route('planetMove.move'),
+                'galaxyLink' => route('galaxy.index', ['galaxy' => $galaxy, 'system' => $system]),
                 'title' => 'Relocate'
             ],
             [
@@ -702,7 +711,7 @@ class GalaxyController extends OGameController
             'filterSettings' => [],
             'lifeformEnabled' => false,
             'newAjaxToken' => csrf_token(),
-            'reservedPositions' => [],
+            'reservedPositions' => $this->getReservedPositions($galaxy, $system),
             'success' => true,
             'system' => [
                 'availableMissiles' => $planet->getObjectAmount('interplanetary_missile'),
@@ -788,6 +797,31 @@ class GalaxyController extends OGameController
         }
 
         return $slotsColonized;
+    }
+
+    /**
+     * Get reserved positions for a galaxy+system (positions with pending planet moves).
+     *
+     * @param int $galaxy
+     * @param int $system
+     * @return array<int, array<string, mixed>>
+     */
+    private function getReservedPositions(int $galaxy, int $system): array
+    {
+        $planetMoveService = app(PlanetMoveService::class);
+        $activeMoves = $planetMoveService->getActiveMovesForSystem($galaxy, $system);
+
+        $reserved = [];
+        foreach ($activeMoves as $move) {
+            $planet = Planet::find($move->planet_id);
+            $reserved[$move->target_position] = [
+                'isReserved' => true,
+                'user_id' => $planet?->user_id,
+                'cooldown' => max(0, $move->time_arrive - time()),
+            ];
+        }
+
+        return $reserved;
     }
 
     /**

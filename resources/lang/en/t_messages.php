@@ -397,6 +397,13 @@ Application message:
 :application_message',
     ],
 
+    // Planet relocation messages
+    'planet_relocation_success' => [
+        'from' => 'Manage colonies',
+        'subject' => ':planet_name`s relocation has been successful',
+        'body' => 'The planet :planet_name has been successfully relocated from the coordinates [coordinates]:old_coordinates[/coordinates] to [coordinates]:new_coordinates[/coordinates].',
+    ],
+
     // Building upgrade messages
     'Shipyard is being upgraded.' => 'Shipyard is being upgraded.',
     'Nanite Factory is being upgraded.' => 'Nanite Factory is being upgraded.',

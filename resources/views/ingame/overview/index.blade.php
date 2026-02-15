@@ -38,6 +38,21 @@
         var currentChar = 0;
         var linetwo = 0;
 
+        @if($planet_move)
+        var planetMoveLoca = {
+            "askTitle": "Resettle Planet",
+            "askCancel": "Are you sure that you wish to cancel this planet relocation? The reserved position will be released.",
+            "yes": "yes",
+            "no": "No",
+            "success": "The planet relocation was successfully cancelled.",
+            "error": "Error"
+        };
+        var planetMoveCooldown = {{ $planet_move_countdown }};
+        new SimpleCountdownTimer('#moveCountdown', {{ $planet_move_countdown }}, '{{ route('overview.index') }}');
+        @elseif($planet_move_cooldown > 0)
+        new SimpleCountdownTimer('#moveCountdown', {{ $planet_move_cooldown }}, '{{ route('overview.index') }}');
+        @endif
+
         var cancelProduction_id;
         var production_listid;
 
@@ -167,17 +182,71 @@
                     <div id="planetOptions">
 
                         <div class="planetMoveStart fleft" style="display: inline;">
-                            <a class="tooltipLeft dark_highlight_tablet fleft"
-                               href='{{ route('galaxy.index') }}'
-                               title="@lang('The relocation allows you to move your planets to another position in a distant system of your choosing.<br /><br />
+                            @if($planet_move)
+                                @php
+                                    $t = $planet_move_countdown;
+                                    $countdownParts = [];
+                                    foreach (['d' => 86400, 'h' => 3600, 'm' => 60, 's' => 1] as $u => $v) {
+                                        $n = intdiv($t, $v);
+                                        if ($n > 0) {
+                                            $t -= $n * $v;
+                                            $countdownParts[] = $n . $u;
+                                        }
+                                        if (count($countdownParts) >= 2) break;
+                                    }
+                                    $countdownFormatted = implode(' ', $countdownParts);
+                                @endphp
+                                <span class="planetMoveProgress fleft">
+                                    @if(count($planet_move_blockers) > 0)
+                                        <span class="tooltip planetMoveIcons planetMoveBreakup icon"
+                                              title="The following things are currently standing in the way of your planet relocation: {{ implode(', ', $planet_move_blockers) }}"></span>
+                                    @else
+                                        <span class="tooltip planetMoveIcons planetMoveOk icon"
+                                              title="Nothing can get in the way of the planet´s planned relocation now."></span>
+                                    @endif
+                                    <span id="moveProgress">
+                                        <a id="moveCountdown" class="tooltip js_hideTipOnMobile undermark"
+                                           href="{{ route('galaxy.index', ['galaxy' => $planet_move->target_galaxy, 'system' => $planet_move->target_system]) }}"
+                                           title="[{{ $planet_move_target }}]">{{ $countdownFormatted }}
+                                        </a>
+                                        <a class="tooltip js_hideTipOnMobile cancelMove icon_link"
+                                           href="javascript:void(0);"
+                                           rel="{{ route('planetMove.cancel') }}"
+                                           title="cancel">
+                                            <span class="icon icon_quit"></span>
+                                        </a>
+                                    </span>
+                                </span>
+                            @elseif($planet_move_cooldown > 0)
+                                @php
+                                    $t = $planet_move_cooldown;
+                                    $cooldownParts = [];
+                                    foreach (['d' => 86400, 'h' => 3600, 'm' => 60, 's' => 1] as $u => $v) {
+                                        $n = intdiv($t, $v);
+                                        if ($n > 0) {
+                                            $t -= $n * $v;
+                                            $cooldownParts[] = $n . $u;
+                                        }
+                                        if (count($cooldownParts) >= 2) break;
+                                    }
+                                    $cooldownFormatted = implode(' ', $cooldownParts);
+                                @endphp
+                                <span class="tooltip planetMoveIcons planetMoveInactive icon"
+                                      title="Time until next possible relocation"></span>
+                                <span id="moveCountdown" class="status_abbr_longinactive tooltip fleft"
+                                      title="Time until next possible relocation">{{ $cooldownFormatted }}</span>
+                            @else
+                                <a class="tooltipLeft dark_highlight_tablet fleft"
+                                   href='{{ route('galaxy.index') }}'
+                                   title="@lang('The relocation allows you to move your planets to another position in a distant system of your choosing.<br /><br />
 The actual relocation first takes place 24 hours after activation. In this time, you can use your planets as normal. A countdown shows you how much time remains prior to the relocation.<br /><br />
 Once the countdown has run down and the planet is to be moved, none of your fleets that are stationed there can be active. At this time, there should also be nothing in construction, nothing being repaired and nothing researched. If there is a construction task, a repair task or a fleet still active upon the countdown`s expiry, the relocation will be cancelled.<br /><br />
 If the relocation is successful, you will be charged 240.000 Dark Matter. The planets, the buildings and the stored resources including moon will be moved immediately. Your fleets travel to the new coordinates automatically with the speed of the slowest ship. The jump gate to a relocated moon is deactivated for 24 hours.')"
-                               data-tooltip-button="To galaxy">
-                                <span class="planetMoveIcons settings planetMoveDefault icon fleft"></span>
-                                <span class="planetMoveOverviewMoveLink">@lang('Relocate')</span>
-                            </a>
-
+                                   data-tooltip-button="To galaxy">
+                                    <span class="planetMoveIcons settings planetMoveDefault icon fleft"></span>
+                                    <span class="planetMoveOverviewMoveLink">@lang('Relocate')</span>
+                                </a>
+                            @endif
                         </div>
 
                         <a class="dark_highlight_tablet float_right openPlanetRenameGiveupBox"

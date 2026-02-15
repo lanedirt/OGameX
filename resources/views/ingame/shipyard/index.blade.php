@@ -62,7 +62,7 @@
             </div>
         </div>
         <script type="text/javascript">
-            var planetMoveInProgress = false;
+            var planetMoveInProgress = {{ $planet_move_in_progress ? 'true' : 'false' }};
         </script>
     </div>
 
