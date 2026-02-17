@@ -617,6 +617,11 @@ class FleetMissionService
      */
     public function cancelMission(FleetMission $mission): void
     {
+        // Planet relocation ship transfers (deployment to self) cannot be recalled.
+        if ($mission->mission_type === 4 && $mission->planet_id_from === $mission->planet_id_to) {
+            return;
+        }
+
         $isAcsDefendInHoldTime = false;
 
         // Sanity check: only allow cancelling missions that have not yet arrived OR are still in their holding period.

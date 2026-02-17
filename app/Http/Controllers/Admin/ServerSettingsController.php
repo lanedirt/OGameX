@@ -53,6 +53,8 @@ class ServerSettingsController extends OGameController
             'dark_matter_regen_enabled' => (bool)$settingsService->get('dark_matter_regen_enabled', 0),
             'dark_matter_regen_amount' => (int)$settingsService->get('dark_matter_regen_amount', 150000),
             'dark_matter_regen_period' => (int)$settingsService->get('dark_matter_regen_period', 604800),
+            'planet_relocation_cost' => (int)$settingsService->get('planet_relocation_cost', 240000),
+            'planet_relocation_duration' => (int)$settingsService->get('planet_relocation_duration', 86400),
             'bonus_expedition_slots' => $settingsService->bonusExpeditionSlots(),
             'expedition_reward_multiplier_resources' => $settingsService->expeditionRewardMultiplierResources(),
             'expedition_reward_multiplier_ships' => $settingsService->expeditionRewardMultiplierShips(),
@@ -118,6 +120,8 @@ class ServerSettingsController extends OGameController
         $settingsService->set('dark_matter_regen_enabled', request('dark_matter_regen_enabled', 0));
         $settingsService->set('dark_matter_regen_amount', request('dark_matter_regen_amount', 150000));
         $settingsService->set('dark_matter_regen_period', request('dark_matter_regen_period', 604800));
+        $settingsService->set('planet_relocation_cost', request('planet_relocation_cost', 240000));
+        $settingsService->set('planet_relocation_duration', request('planet_relocation_duration', 86400));
 
         $settingsService->set('bonus_expedition_slots', request('bonus_expedition_slots', 0));
         $settingsService->set('expedition_reward_multiplier_resources', request('expedition_reward_multiplier_resources', 1.0));

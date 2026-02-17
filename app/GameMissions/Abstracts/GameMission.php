@@ -362,6 +362,18 @@ abstract class GameMission
     public function process(FleetMission $mission): void
     {
         if (empty($mission->parent_id)) {
+            // Target planet was relocated — return fleet (or cancel if no return trip).
+            // Only applies to mission types that normally target an existing planet/moon.
+            // Colonize (7), recycle (8), and expedition (15) legitimately have null planet_id_to.
+            if ($mission->planet_id_to === null && !in_array($mission->mission_type, [7, 8, 15], true)) {
+                $mission->processed = 1;
+                $mission->save();
+                if (static::$hasReturnMission) {
+                    $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
+                }
+                return;
+            }
+
             // This is an arrival mission as it has no parent mission.
             // Process arrival.
             $this->processArrival($mission);

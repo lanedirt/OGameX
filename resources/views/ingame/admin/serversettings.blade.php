@@ -156,6 +156,23 @@
                             </div>
                         </div>
 
+                        <p class="box_highlight textCenter no_buddies">@lang('Planet relocation settings.')</p>
+
+                        <div class="group bborder" style="display: block;">
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Planet relocation cost (Dark Matter):')</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w100 textCenter textBeefy" value="{{ $planet_relocation_cost }}" size="10" name="planet_relocation_cost">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Planet relocation duration (seconds):')</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w100 textCenter textBeefy" value="{{ $planet_relocation_duration }}" size="10" name="planet_relocation_duration">
+                                </div>
+                            </div>
+                        </div>
+
                         <p class="box_highlight textCenter no_buddies">@lang('Alliance settings.')</p>
 
                         <div class="group bborder" style="display: block;">
