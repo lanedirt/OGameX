@@ -35,6 +35,7 @@ use OGame\Http\Controllers\SearchController;
 use OGame\Http\Controllers\ServerSettingsController;
 use OGame\Http\Controllers\ShipyardController;
 use OGame\Http\Controllers\ShopController;
+use OGame\Http\Controllers\ChatController;
 use OGame\Http\Controllers\TechtreeController;
 
 /*
@@ -197,6 +198,14 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
 
     Route::get('/highscore', [HighscoreController::class, 'index'])->name('highscore.index');
     Route::post('/ajax/highscore', [HighscoreController::class, 'ajax'])->name('highscore.ajax');
+
+    // Chat
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+    Route::post('/chat/history', [ChatController::class, 'getHistory'])->name('chat.history');
+    Route::post('/chat/more', [ChatController::class, 'loadMore'])->name('chat.more');
+    Route::post('/chat/read', [ChatController::class, 'markRead'])->name('chat.read');
+    Route::post('/chat/visibility', [ChatController::class, 'toggleVisibility'])->name('chat.visibility');
 
     Route::get('/buddies', [BuddiesController::class, 'index'])->name('buddies.index');
     Route::post('/buddies', [BuddiesController::class, 'post'])->name('buddies.post');
