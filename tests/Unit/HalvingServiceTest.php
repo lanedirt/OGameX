@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Models\BuildingQueue;
 use OGame\Models\DarkMatterTransaction;
@@ -16,8 +15,6 @@ use Tests\AccountTestCase;
 
 class HalvingServiceTest extends AccountTestCase
 {
-    use RefreshDatabase;
-
     private HalvingService $halvingService;
 
     protected function setUp(): void

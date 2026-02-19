@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use DB;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Models\Planet;
 use OGame\Models\User;
 use OGame\Models\WreckField;
@@ -11,8 +10,6 @@ use Tests\TestCase;
 
 class FacilitiesWreckFieldTest extends TestCase
 {
-    use RefreshDatabase;
-
     private User $user;
     private Planet $planet;
 

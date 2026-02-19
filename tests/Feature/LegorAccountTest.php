@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -15,8 +14,6 @@ use Tests\AccountTestCase;
 
 class LegorAccountTest extends AccountTestCase
 {
-    use RefreshDatabase;
-
     /**
      * Test that the Legor initialization command creates the account properly.
      */

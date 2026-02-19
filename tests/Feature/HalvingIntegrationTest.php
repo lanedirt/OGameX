@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Models\BuildingQueue;
 use OGame\Models\DarkMatterTransaction;
 use OGame\Models\ResearchQueue;
@@ -15,8 +14,6 @@ use Tests\AccountTestCase;
  */
 class HalvingIntegrationTest extends AccountTestCase
 {
-    use RefreshDatabase;
-
     /**
      * Test building halving end-to-end workflow.
      */
