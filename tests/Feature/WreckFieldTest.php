@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
@@ -14,8 +13,6 @@ use Tests\TestCase;
 
 class WreckFieldTest extends TestCase
 {
-    use RefreshDatabase;
-
     private User $user;
     private Planet $planet;
     private WreckFieldService $wreckFieldService;

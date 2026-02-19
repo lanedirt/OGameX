@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Models\User;
 use OGame\Services\DarkMatterService;
@@ -13,8 +12,6 @@ use Tests\UnitTestCase;
 
 class DarkMatterServiceTest extends UnitTestCase
 {
-    use RefreshDatabase;
-
     private DarkMatterService $darkMatterService;
 
     protected function setUp(): void
