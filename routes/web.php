@@ -217,6 +217,8 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
 
     Route::get('/rewards', [RewardsController::class, 'index'])->name('rewards.index');
     Route::get('/planet-move', [PlanetMoveController::class, 'index'])->name('planetMove.index');
+    Route::post('/ajax/planet-move', [PlanetMoveController::class, 'move'])->name('planetMove.move');
+    Route::get('/ajax/planet-move/cancel', [PlanetMoveController::class, 'cancel'])->name('planetMove.cancel');
 
     Route::get('/overlay/search', [SearchController::class, 'overlay'])->name('search.overlay');
     Route::post('/ajax/search', [SearchController::class, 'search'])->name('search.ajax');

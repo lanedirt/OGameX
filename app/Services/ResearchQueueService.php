@@ -197,6 +197,53 @@ class ResearchQueueService
     }
 
     /**
+     * Retrieve current research queue for a specific planet only (not all player planets).
+     * Used by planet relocation to check if research is running on the planet being moved.
+     *
+     * @param PlanetService $planet
+     * @return ResearchQueueListViewModel
+     * @throws Exception
+     */
+    public function retrieveQueueForPlanet(PlanetService $planet): ResearchQueueListViewModel
+    {
+        // Fetch queue items from model scoped to this specific planet.
+        $queue_items = $this->model
+            ->where([
+                ['research_queues.planet_id', $planet->getPlanetId()],
+                ['research_queues.processed', 0],
+                ['research_queues.canceled', 0],
+            ])
+            ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
+            ->get();
+
+        // Convert to ViewModel array
+        $list = [];
+        foreach ($queue_items as $item) {
+            $object = ObjectService::getResearchObjectById($item->object_id);
+            $planetService = $planet->getPlayer()->planets->getById($item['planet_id']);
+            $time_countdown = $item->time_end - (int)Date::now()->timestamp;
+            if ($time_countdown < 0) {
+                $time_countdown = 0;
+            }
+
+            $viewModel = new ResearchQueueViewModel(
+                $item['id'],
+                $object,
+                $time_countdown,
+                $item['time_end'] - $item['time_start'],
+                $planetService,
+                $item['building'],
+                $item['object_level_target'],
+            );
+
+            $list[] = $viewModel;
+        }
+
+        return new ResearchQueueListViewModel($list);
+    }
+
+    /**
      * Get the amount of player active research queue items.
      *
      * @param PlayerService $player
