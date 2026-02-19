@@ -100,6 +100,7 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::get('/ajax/shipyard', [ShipyardController::class, 'ajax'])->name('shipyard.ajax');
     Route::post('/shipyard/add-buildrequest', [ShipyardController::class, 'addBuildRequest'])->name('shipyard.addbuildrequest');
     Route::post('/ajax/shipyard/halve-unit', [ShipyardController::class, 'halveUnit'])->name('shipyard.halveunit');
+    Route::post('/ajax/shipyard/complete-unit', [ShipyardController::class, 'completeUnit'])->name('shipyard.completeunit');
 
     // Defense
     Route::get('/defense', [DefenseController::class, 'index'])->name('defense.index');

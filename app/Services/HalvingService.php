@@ -302,11 +302,25 @@ class HalvingService
     /**
      * Halve a unit queue item.
      *
+     * Halving removes 50% of the original construction time from the remaining time
+     * (capped at remaining time) and instantly awards the units that correspond to
+     * that removed time. Can only be used once per queue item — after halving the
+     * "Finish" button is shown instead.
+     *
+     * Example: 100 units × 3s = 300s total. If 200s remain when halving:
+     * - timeReduction = min(150, 200) = 150s removed
+     * - unitsToAward  = floor(150 / 3) = 50 awarded instantly
+     * - 50s remaining at the same 3s/unit rate
+     *
+     * Both time_start and time_end are shifted back by timeReduction so that
+     * time_per_unit = (time_end - time_start) / object_amount stays constant and
+     * normal queue processing continues without double-counting.
+     *
      * @param User $user The user performing the halving
      * @param int $queueItemId The unit queue item ID
      * @param PlanetService $planet The planet service
      * @return array{success: bool, new_time_end: int, cost: int, new_balance: int, remaining_time: int}
-     * @throws Exception If insufficient Dark Matter or invalid queue item
+     * @throws Exception If insufficient Dark Matter, already halved, or invalid queue item
      */
     public function halveUnit(User $user, int $queueItemId, PlanetService $planet): array
     {
@@ -329,14 +343,19 @@ class HalvingService
                 throw new Exception('Queue item not found or already completed');
             }
 
-            // Calculate new time values
-            // Cost is based on remaining time, reduction is 50% of original time
-            $timeValues = $this->calculateNewTimeValues(
-                (int)$queueItem->time_end,
-                (int)$queueItem->time_duration,
-                'unit'
-            );
-            $cost = $timeValues['cost'];
+            if ($queueItem->dm_halved) {
+                throw new Exception('Queue item has already been halved. Use Complete to finish instantly.');
+            }
+
+            $currentTime = $this->getCurrentTimestamp();
+            $remainingTime = (int)$queueItem->time_end - $currentTime;
+
+            if ($remainingTime <= 0) {
+                throw new Exception('Queue item already completed');
+            }
+
+            // Calculate cost based on remaining time before halving
+            $cost = $this->calculateHalvingCost($remainingTime, 'unit');
 
             // Check balance
             if ($lockedUser->dark_matter < $cost) {
@@ -358,16 +377,126 @@ class HalvingService
                 $lockedUser->dark_matter
             );
 
-            // Update queue item time_end
-            $queueItem->time_end = $timeValues['new_time_end'];
+            // Calculate time_per_unit from original order values
+            $timePerUnit = (int)$queueItem->time_duration / (int)$queueItem->object_amount;
+
+            // Time reduction: 50% of original duration, capped at remaining time
+            $halfDuration = intdiv((int)$queueItem->time_duration, 2);
+            $timeReduction = min($halfDuration, $remainingTime);
+
+            // Units to award instantly: units that correspond to the removed time
+            $unitsToAward = (int)floor($timeReduction / $timePerUnit);
+
+            // Award units instantly to the planet
+            if ($unitsToAward > 0) {
+                $planet->addUnit($object->machine_name, $unitsToAward);
+            }
+
+            // Shift time_start and time_end back equally to preserve time_per_unit rate.
+            // Reset time_progress to now so the processing loop does not double-count.
+            $queueItem->time_start = (int)$queueItem->time_start - $timeReduction;
+            $queueItem->time_end = (int)$queueItem->time_end - $timeReduction;
+            $queueItem->object_amount_progress = (int)$queueItem->object_amount_progress + $unitsToAward;
+            $queueItem->time_progress = $currentTime;
+            $queueItem->dm_halved = 1;
+
+            $newTimeEnd = (int)$queueItem->time_end;
+            $newRemainingTime = $newTimeEnd - $currentTime;
+
+            // If fully awarded, mark as processed
+            if ($queueItem->object_amount_progress >= (int)$queueItem->object_amount) {
+                $queueItem->processed = 1;
+                $queueItem->time_end = $currentTime;
+                $newTimeEnd = $currentTime;
+                $newRemainingTime = 0;
+            }
+
             $queueItem->save();
 
             return [
                 'success' => true,
-                'new_time_end' => $timeValues['new_time_end'],
+                'new_time_end' => $newTimeEnd,
                 'cost' => $cost,
                 'new_balance' => $lockedUser->dark_matter,
-                'remaining_time' => $timeValues['remaining_time'],
+                'remaining_time' => $newRemainingTime,
+            ];
+        });
+
+        return $result;
+    }
+
+    /**
+     * Complete a unit queue item instantly using Dark Matter.
+     *
+     * This is used when the remaining time is short enough that a halve would
+     * reduce it to zero. Instead of halving, the queue is completed immediately.
+     *
+     * @param User $user The user performing the completion
+     * @param int $queueItemId The unit queue item ID
+     * @param PlanetService $planet The planet service
+     * @return array{success: bool, cost: int, new_balance: int}
+     * @throws Exception If insufficient Dark Matter or invalid queue item
+     */
+    public function completeUnit(User $user, int $queueItemId, PlanetService $planet): array
+    {
+        /** @var array{success: bool, cost: int, new_balance: int} $result */
+        $result = DB::transaction(function () use ($user, $queueItemId, $planet) {
+            // Lock user row for Dark Matter balance
+            $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
+            if (!$lockedUser) {
+                throw new Exception('User not found');
+            }
+
+            // Lock and retrieve queue item
+            $queueItem = UnitQueue::where('id', $queueItemId)
+                ->where('planet_id', $planet->getPlanetId())
+                ->where('processed', 0)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$queueItem) {
+                throw new Exception('Queue item not found or already completed');
+            }
+
+            // Calculate cost based on remaining time
+            $currentTime = $this->getCurrentTimestamp();
+            $remainingTime = (int)$queueItem->time_end - $currentTime;
+
+            if ($remainingTime <= 0) {
+                throw new Exception('Queue item already completed');
+            }
+
+            $cost = $this->calculateHalvingCost($remainingTime, 'unit');
+
+            // Check balance
+            if ($lockedUser->dark_matter < $cost) {
+                throw new Exception("Insufficient Dark Matter. Required: {$cost}, Available: {$lockedUser->dark_matter}");
+            }
+
+            // Debit Dark Matter
+            $lockedUser->dark_matter -= $cost;
+            $lockedUser->save();
+
+            // Record transaction
+            $object = ObjectService::getUnitObjectById($queueItem->object_id);
+            $description = "Completing unit: {$object->title} on planet {$planet->getPlanetName()} (ID: {$planet->getPlanetId()})";
+            $this->transactionService->recordTransaction(
+                $lockedUser,
+                -$cost,
+                DarkMatterTransactionType::HALVING->value,
+                $description,
+                $lockedUser->dark_matter
+            );
+
+            // Set time_end to now so updateUnitQueue will award all remaining units
+            $queueItem->time_end = $currentTime;
+            $queueItem->dm_completed = 1;
+            $queueItem->save();
+
+            return [
+                'success' => true,
+                'cost' => $cost,
+                'new_balance' => $lockedUser->dark_matter,
             ];
         });
 
