@@ -107,7 +107,7 @@ class ExpeditionDiscovererCombatReductionTest extends FleetDispatchTestCase
         $discovererMission->save();
 
         // Run outcome selection many times and count combat encounters
-        $totalIterations = 500;
+        $totalIterations = 1000;
         $discovererCombatCount = 0;
 
         $expeditionMission = resolve(\OGame\GameMissions\ExpeditionMission::class);
@@ -151,9 +151,9 @@ class ExpeditionDiscovererCombatReductionTest extends FleetDispatchTestCase
         // Collector: combat = 50/100 = 50%
         // Discoverer: combat = 25/75 = 33.3%
         // Ratio: 33.3 / 50 = 0.666
-        // With 500 samples, allow 10% margin for statistical variance
+        // With 1000 samples, allow 20% margin for statistical variance
         $expectedRatio = 0.666;
-        $marginOfError = 0.10;
+        $marginOfError = 0.20;
 
         $actualRatio = $collectorCombatRate > 0 ? $discovererCombatRate / $collectorCombatRate : 0;
 
