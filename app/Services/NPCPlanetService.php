@@ -65,4 +65,17 @@ class NPCPlanetService extends PlanetService
     {
         return new UnitCollection();
     }
+
+    /**
+     * Override to return 0 for all unit amounts (NPC planets have no buildings, ships on planet, or defenses).
+     * Without this override, the parent method reads from the real planet DB which would incorrectly
+     * include the player's own defense units in the NPC defending fleet.
+     *
+     * @param string $machine_name
+     * @return int
+     */
+    public function getObjectAmount(string $machine_name): int
+    {
+        return 0;
+    }
 }

@@ -54,9 +54,8 @@ fn main() -> Result<()> {
 
      */
 
-    let json_input = r#"
-    {"attacker_units":{"204": {"unit_id":204,"amount":100000,"shield_points":10,"attack_power":50,"hull_plating":400,"rapidfire":{"210":5,"212":5}}},"defender_units":{"401": {"unit_id":401,"amount":100000,"shield_points":20,"attack_power":80,"hull_plating":200,"rapidfire":{}}}}
-"#;
+    // Expedition battle scenario: Player (Reaper + 12870 LC + Pathfinder) vs NPC Pirates (5 LF + 3699 LC)
+    let json_input = r#"{"attacker_fleets":[{"fleet_mission_id":1,"owner_id":456,"units":{"218":{"unit_id":218,"amount":1,"shield_points":700.0,"attack_power":2800.0,"hull_plating":14000.0,"rapidfire":{"210":5,"212":5,"204":4,"205":3,"202":3,"203":3,"217":5}},"203":{"unit_id":203,"amount":12870,"shield_points":25.0,"attack_power":5.0,"hull_plating":1200.0,"rapidfire":{"210":5,"212":5,"217":5}},"219":{"unit_id":219,"amount":1,"shield_points":100.0,"attack_power":200.0,"hull_plating":2300.0,"rapidfire":{"210":5,"212":5,"202":3,"217":5}}}}],"defender_fleets":[{"fleet_mission_id":0,"owner_id":0,"units":{"204":{"unit_id":204,"amount":5,"shield_points":10.0,"attack_power":50.0,"hull_plating":400.0,"rapidfire":{"210":5,"212":5,"217":5}},"203":{"unit_id":203,"amount":3699,"shield_points":25.0,"attack_power":5.0,"hull_plating":1200.0,"rapidfire":{"210":5,"212":5,"217":5}}}}]}"#;
 
     // Convert input string to CString for FFI call
     let c_input = std::ffi::CString::new(json_input).unwrap();

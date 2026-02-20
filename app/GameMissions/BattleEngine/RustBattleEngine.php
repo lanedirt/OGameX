@@ -249,7 +249,9 @@ class RustBattleEngine extends BattleEngine
 
                     // Find the corresponding fleet result in the BattleResult
                     foreach ($result->defenderFleetResults as $defenderFleetResult) {
-                        if ($defenderFleetResult->fleetMissionId === $fleetMissionId && $defenderFleetResult->ownerId === $ownerId) {
+                        // Note: NPC owner IDs are negative (-1/-2) in PHP but clamped to 0 when sent to Rust.
+                        // Use max(0, ...) here to match the same clamping applied in prepareBattleInput().
+                        if ($defenderFleetResult->fleetMissionId === $fleetMissionId && max(0, $defenderFleetResult->ownerId) === $ownerId) {
                             // Populate units_result from Rust data
                             if (isset($fleetResult['units_result']) && is_array($fleetResult['units_result'])) {
                                 $defenderFleetResult->unitsResult = $this->convertUnitArrayToUnitCollection($fleetResult['units_result']);
