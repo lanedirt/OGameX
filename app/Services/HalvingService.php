@@ -392,10 +392,14 @@ class HalvingService
                 $planet->addUnit($object->machine_name, $unitsToAward);
             }
 
+            // Capture original time_end to know which subsequent items are chained to this one
+            // and need to be updated as well.
+            $originalTimeEnd = (int)$queueItem->time_end;
+
             // Shift time_start and time_end back equally to preserve time_per_unit rate.
             // Reset time_progress to now so the processing loop does not double-count.
             $queueItem->time_start = (int)$queueItem->time_start - $timeReduction;
-            $queueItem->time_end = (int)$queueItem->time_end - $timeReduction;
+            $queueItem->time_end = $originalTimeEnd - $timeReduction;
             $queueItem->object_amount_progress = (int)$queueItem->object_amount_progress + $unitsToAward;
             $queueItem->time_progress = $currentTime;
             $queueItem->dm_halved = 1;
@@ -412,6 +416,10 @@ class HalvingService
             }
 
             $queueItem->save();
+
+            // Update any other queued items for this planet to advance their time_start and time_end
+            // equally as well to prevent gaps in the queue.
+            $this->updateFutureQueueItems($planet->getPlanetId(), $originalTimeEnd, $newTimeEnd);
 
             return [
                 'success' => true,
@@ -488,10 +496,25 @@ class HalvingService
                 $lockedUser->dark_matter
             );
 
-            // Set time_end to now so updateUnitQueue will award all remaining units
+            // Capture original time_end before overwriting so the update knows which
+            // subsequent items were chained to this one.
+            $originalTimeEnd = (int)$queueItem->time_end;
+
+            // Set time_end to now so updateUnitQueue will award all remaining units.
+            // Also clamp time_start to now: if the item was halved while still waiting
+            // in the queue, halveUnit may have shifted time_start into the future; leaving
+            // time_start > time_end would create a broken state where the queue processor
+            // cannot retrieve the item (it filters by time_start <= now).
             $queueItem->time_end = $currentTime;
+            if ((int)$queueItem->time_start > $currentTime) {
+                $queueItem->time_start = $currentTime;
+            }
             $queueItem->dm_completed = 1;
             $queueItem->save();
+
+            // Update any other queued items for this planet to advance their time_start and time_end
+            // equally as well to prevent gaps in the queue.
+            $this->updateFutureQueueItems($planet->getPlanetId(), $originalTimeEnd, $currentTime);
 
             return [
                 'success' => true,
@@ -576,5 +599,32 @@ class HalvingService
         }
 
         return $this->calculateHalvingCost($remainingTime, 'research');
+    }
+
+    /**
+     * Update future queued items for this planet to advance their time_start and time_end
+     * equally based on a issued halving/completing time reduction.
+     *
+     * @param int $planetId    Planet whose unit queue should be updated
+     * @param int $oldTimeEnd  Original time_end of the modified item (before the change)
+     * @param int $newTimeEnd  New time_end of the modified item (after the change)
+     * @return void
+     */
+    private function updateFutureQueueItems(int $planetId, int $oldTimeEnd, int $newTimeEnd): void
+    {
+        if ($newTimeEnd >= $oldTimeEnd) {
+            // Sanity check: time did not decrease, no update necessary.
+            return;
+        }
+
+        $timeReduction = $oldTimeEnd - $newTimeEnd;
+
+        UnitQueue::where('planet_id', $planetId)
+            ->where('processed', 0)
+            ->where('time_start', '>=', $oldTimeEnd)
+            ->update([
+                'time_start' => DB::raw("time_start - {$timeReduction}"),
+                'time_end'   => DB::raw("time_end - {$timeReduction}"),
+            ]);
     }
 }
