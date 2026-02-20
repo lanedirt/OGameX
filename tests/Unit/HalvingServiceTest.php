@@ -818,6 +818,85 @@ class HalvingServiceTest extends AccountTestCase
     }
 
     /**
+     * Halving/completing item A must update time adjustments for subsequent chained items
+     * so they start immediately after A finishes, and time_start <= time_end is always valid.
+     */
+    public function testHalveAndCompleteChainedQueueItems(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 1000000;
+        $user->save();
+
+        $this->planetSetObjectLevel('robot_factory', 2);
+        $this->planetSetObjectLevel('shipyard', 2);
+        $this->playerSetResearchLevel('combustion_drive', 1);
+
+        $now      = (int)\Carbon\Carbon::now()->timestamp;
+        $duration = 2000; // 1000 units × 2 s/unit
+        $objectId = ObjectService::getObjectByMachineName('light_fighter')->id;
+        $planetId = $this->planetService->getPlanetId();
+
+        // Three chained items: A (building now), B (starts when A ends), C (starts when B ends)
+        $itemA = $this->makeUnitQueueItem($planetId, $objectId, $now - 100, $duration);
+        $itemB = $this->makeUnitQueueItem($planetId, $objectId, $itemA->time_end, $duration);
+        $itemC = $this->makeUnitQueueItem($planetId, $objectId, $itemB->time_end, $duration);
+
+        // Halve + complete item A
+        $this->halvingService->halveUnit($user, $itemA->id, $this->planetService);
+        $user->refresh();
+        $this->halvingService->completeUnit($user, $itemA->id, $this->planetService);
+        $user->refresh();
+        $itemA->refresh();
+        $itemB->refresh();
+        $itemC->refresh();
+
+        // B and C must have been shifted to start immediately after A's new time_end
+        $this->assertEqualsWithDelta((int)$itemA->time_end, (int)$itemB->time_start, 1, 'B time_start after halve+complete A');
+        $this->assertEquals((int)$itemB->time_start + $duration, (int)$itemB->time_end, 'B duration unchanged');
+        $this->assertEqualsWithDelta((int)$itemB->time_end, (int)$itemC->time_start, 1, 'C time_start after halve+complete A');
+        $this->assertEquals((int)$itemC->time_start + $duration, (int)$itemC->time_end, 'C duration unchanged');
+
+        // Halve + complete item B
+        $this->halvingService->halveUnit($user, $itemB->id, $this->planetService);
+        $user->refresh();
+        $this->halvingService->completeUnit($user, $itemB->id, $this->planetService);
+        $itemB->refresh();
+        $itemC->refresh();
+
+        // B must have valid timestamps (time_start <= time_end) — previously got stuck here
+        $this->assertLessThanOrEqual((int)$itemB->time_end, (int)$itemB->time_start, 'B time_start <= time_end after halve+complete B');
+
+        // C must still be chained correctly to B's final time_end
+        $this->assertEqualsWithDelta((int)$itemB->time_end, (int)$itemC->time_start, 1, 'C time_start after halve+complete B');
+        $this->assertEquals((int)$itemC->time_start + $duration, (int)$itemC->time_end, 'C duration unchanged after B');
+    }
+
+    /**
+     * Helper: create a UnitQueue record with controlled timestamps.
+     */
+    private function makeUnitQueueItem(int $planetId, int $objectId, int $timeStart, int $duration): UnitQueue
+    {
+        $item = new UnitQueue();
+        $item->planet_id              = $planetId;
+        $item->object_id              = $objectId;
+        $item->object_amount          = (int)($duration / 2); // 2 s/unit
+        $item->time_duration          = $duration;
+        $item->time_start             = $timeStart;
+        $item->time_end               = $timeStart + $duration;
+        $item->time_progress          = 0;
+        $item->object_amount_progress = 0;
+        $item->metal                  = 0;
+        $item->crystal                = 0;
+        $item->deuterium              = 0;
+        $item->processed              = 0;
+        $item->dm_halved              = 0;
+        $item->dm_completed           = 0;
+        $item->save();
+
+        return $item;
+    }
+
+    /**
      * Test unit halving logs a transaction.
      */
     public function testUnitHalvingLogsTransaction(): void
