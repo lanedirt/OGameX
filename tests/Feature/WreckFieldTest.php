@@ -3,43 +3,27 @@
 namespace Tests\Feature;
 
 use Exception;
-use OGame\Factories\PlanetServiceFactory;
-use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\User;
 use OGame\Models\WreckField;
 use OGame\Services\WreckFieldService;
-use Tests\TestCase;
+use Tests\AccountTestCase;
 
-class WreckFieldTest extends TestCase
+class WreckFieldTest extends AccountTestCase
 {
-    private User $user;
-    private Planet $planet;
-    private WreckFieldService $wreckFieldService;
-
-    protected function setUp(): void
+    private function getWreckFieldService(): WreckFieldService
     {
-        parent::setUp();
+        $settingsService = resolve(\OGame\Services\SettingsService::class);
+        return new WreckFieldService($this->planetService->getPlayer(), $settingsService);
+    }
 
-        $this->user = User::factory()->create();
-
-        // Create a test planet
-        $this->planet = Planet::factory()->create([
-            'user_id' => $this->user->id,
-            'galaxy' => 1,
-            'system' => 1,
-            'planet' => 1,
-        ]);
-
-        // Create WreckFieldService with the correct player
-        $playerService = new \OGame\Services\PlayerService($this->user->id);
-        $settingsService = app(\OGame\Services\SettingsService::class);
-        $this->wreckFieldService = new \OGame\Services\WreckFieldService($playerService, $settingsService);
+    private function getCurrentCoordinate(): Coordinate
+    {
+        return $this->planetService->getPlanetCoordinates();
     }
 
     public function test_wreck_field_can_be_created(): void
     {
-        $coordinate = new Coordinate(1, 1, 1);
+        $coordinate = $this->getCurrentCoordinate();
         $shipData = [
             [
                 'machine_name' => 'light_fighter',
@@ -48,13 +32,14 @@ class WreckFieldTest extends TestCase
             ]
         ];
 
-        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $shipData, $this->user->id);
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckField = $wreckFieldService->createWreckField($coordinate, $shipData, $this->currentUserId);
 
         $this->assertInstanceOf(WreckField::class, $wreckField);
         $this->assertEquals($coordinate->galaxy, $wreckField->galaxy);
         $this->assertEquals($coordinate->system, $wreckField->system);
         $this->assertEquals($coordinate->position, $wreckField->planet);
-        $this->assertEquals($this->user->id, $wreckField->owner_player_id);
+        $this->assertEquals($this->currentUserId, $wreckField->owner_player_id);
         $this->assertEquals('active', $wreckField->status);
         $this->assertEquals($shipData, $wreckField->ship_data);
     }
@@ -102,23 +87,26 @@ class WreckFieldTest extends TestCase
 
     public function test_start_repairs(): void
     {
-        $wreckField = WreckField::factory()->create([
-            'galaxy' => $this->planet->galaxy,
-            'system' => $this->planet->system,
-            'planet' => $this->planet->planet,
+        $coords = $this->getCurrentCoordinate();
+
+        WreckField::factory()->create([
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
             'status' => 'active',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
             ],
         ]);
 
-        $this->wreckFieldService->loadForCoordinates(new Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet));
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckFieldService->loadForCoordinates($coords);
 
-        $result = $this->wreckFieldService->startRepairs(1);
+        $result = $wreckFieldService->startRepairs(1);
 
         $this->assertTrue($result);
 
-        $updatedWreckField = $this->wreckFieldService->getWreckField();
+        $updatedWreckField = $wreckFieldService->getWreckField();
         $this->assertEquals('repairing', $updatedWreckField->status);
         $this->assertNotNull($updatedWreckField->repair_started_at);
         $this->assertNotNull($updatedWreckField->repair_completed_at);
@@ -127,69 +115,78 @@ class WreckFieldTest extends TestCase
 
     public function test_complete_repairs(): void
     {
-        $wreckField = WreckField::factory()->create([
-            'galaxy' => $this->planet->galaxy,
-            'system' => $this->planet->system,
-            'planet' => $this->planet->planet,
+        $coords = $this->getCurrentCoordinate();
+
+        WreckField::factory()->create([
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
             'status' => 'repairing',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
             ],
         ]);
 
-        $this->wreckFieldService->loadForCoordinates(new Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet));
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckFieldService->loadForCoordinates($coords);
 
-        $repairedShips = $this->wreckFieldService->completeRepairs();
+        $repairedShips = $wreckFieldService->completeRepairs();
 
         $this->assertCount(1, $repairedShips);
         $this->assertEquals('light_fighter', $repairedShips[0]['machine_name']);
         $this->assertEquals(10, $repairedShips[0]['quantity']);
         $this->assertEquals(100, $repairedShips[0]['repair_progress']);
 
-        $updatedWreckField = $this->wreckFieldService->getWreckField();
+        $updatedWreckField = $wreckFieldService->getWreckField();
         $this->assertEquals('completed', $updatedWreckField->status);
     }
 
     public function test_burn_wreck_field(): void
     {
-        $wreckField = WreckField::factory()->create([
-            'galaxy' => $this->planet->galaxy,
-            'system' => $this->planet->system,
-            'planet' => $this->planet->planet,
+        $coords = $this->getCurrentCoordinate();
+
+        WreckField::factory()->create([
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
             'status' => 'active',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
             ],
         ]);
 
-        $this->wreckFieldService->loadForCoordinates(new Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet));
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckFieldService->loadForCoordinates($coords);
 
-        $result = $this->wreckFieldService->burnWreckField();
+        $result = $wreckFieldService->burnWreckField();
 
         $this->assertTrue($result);
 
-        $updatedWreckField = $this->wreckFieldService->getWreckField();
+        $updatedWreckField = $wreckFieldService->getWreckField();
         $this->assertEquals('burned', $updatedWreckField->status);
     }
 
     public function test_burn_wreck_field_during_repairs_fails(): void
     {
-        $wreckField = WreckField::factory()->create([
-            'galaxy' => $this->planet->galaxy,
-            'system' => $this->planet->system,
-            'planet' => $this->planet->planet,
+        $coords = $this->getCurrentCoordinate();
+
+        WreckField::factory()->create([
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
             'status' => 'repairing',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
             ],
         ]);
 
-        $this->wreckFieldService->loadForCoordinates(new Coordinate($this->planet->galaxy, $this->planet->system, $this->planet->planet));
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckFieldService->loadForCoordinates($coords);
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Wreck field cannot be burned while repairs are in progress');
 
-        $this->wreckFieldService->burnWreckField();
+        $wreckFieldService->burnWreckField();
     }
 
     public function test_wreck_field_time_remaining(): void
@@ -208,12 +205,14 @@ class WreckFieldTest extends TestCase
 
     public function test_get_wreck_field_for_current_planet(): void
     {
+        $coords = $this->getCurrentCoordinate();
+
         // Create a wreck field for the planet
         $wreckField = WreckField::factory()->create([
-            'galaxy' => $this->planet->galaxy,
-            'system' => $this->planet->system,
-            'planet' => $this->planet->planet,
-            'owner_player_id' => $this->user->id,
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
+            'owner_player_id' => $this->currentUserId,
             'status' => 'active',
             'expires_at' => now()->addHours(72),
             'ship_data' => [
@@ -221,9 +220,8 @@ class WreckFieldTest extends TestCase
             ],
         ]);
 
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $planetService = $planetServiceFactory->make($this->planet->id);
-        $wreckFieldData = $this->wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckFieldData = $wreckFieldService->getWreckFieldForCurrentPlanet($this->planetService);
 
         $this->assertIsArray($wreckFieldData);
         $this->assertEquals($wreckField->id, $wreckFieldData['wreck_field']->id);
@@ -235,41 +233,42 @@ class WreckFieldTest extends TestCase
 
     public function test_get_wreck_field_for_current_planet_returns_null_when_expired(): void
     {
+        $coords = $this->getCurrentCoordinate();
+
         // Create an expired wreck field
-        $wreckField = WreckField::factory()->create([
-            'galaxy' => $this->planet->galaxy,
-            'system' => $this->planet->system,
-            'planet' => $this->planet->planet,
-            'owner_player_id' => $this->user->id,
+        WreckField::factory()->create([
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
+            'owner_player_id' => $this->currentUserId,
             'status' => 'active',
             'expires_at' => now()->subHours(1), // Expired
         ]);
 
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $planetService = $planetServiceFactory->make($this->planet->id);
-        $wreckFieldData = $this->wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckFieldData = $wreckFieldService->getWreckFieldForCurrentPlanet($this->planetService);
 
         $this->assertNull($wreckFieldData);
     }
 
     public function test_extend_wreck_field_with_new_ships(): void
     {
-        // Create initial wreck field
-        $coordinate = new Coordinate(1, 1, 1);
+        $coordinate = $this->getCurrentCoordinate();
         $initialShips = [
             ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
         ];
 
-        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $initialShips, $this->user->id);
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckField = $wreckFieldService->createWreckField($coordinate, $initialShips, $this->currentUserId);
         $originalExpiresAt = $wreckField->expires_at;
 
-        // Add new ships after some time has passed
-        sleep(1);
+        // Advance fake time so the extended expiry (now + 72h) exceeds the original
+        $this->travelTo(now()->addSeconds(5));
         $newShips = [
             ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
         ];
 
-        $this->wreckFieldService->extendWreckField($wreckField, $newShips);
+        $wreckFieldService->extendWreckField($wreckField, $newShips);
 
         $wreckField->refresh();
 
@@ -297,13 +296,13 @@ class WreckFieldTest extends TestCase
 
     public function test_create_wreck_field_combines_with_active_wreck_field_and_resets_expiration(): void
     {
-        // Create initial wreck field that expires soon
-        $coordinate = new Coordinate(1, 1, 1);
+        $coordinate = $this->getCurrentCoordinate();
         $initialShips = [
             ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
         ];
 
-        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $initialShips, $this->user->id);
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckField = $wreckFieldService->createWreckField($coordinate, $initialShips, $this->currentUserId);
 
         // Manually set expiration to be near expiration (1 hour from now)
         $wreckField->expires_at = now()->addHour();
@@ -316,7 +315,7 @@ class WreckFieldTest extends TestCase
             ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
         ];
 
-        $updatedWreckField = $this->wreckFieldService->createWreckField($coordinate, $newShips, $this->user->id);
+        $updatedWreckField = $wreckFieldService->createWreckField($coordinate, $newShips, $this->currentUserId);
 
         // Check that ships were combined
         $this->assertCount(2, $updatedWreckField->ship_data);
@@ -342,28 +341,27 @@ class WreckFieldTest extends TestCase
 
     public function test_create_wreck_field_adds_to_ongoing_repairs_when_repairing(): void
     {
-        // Create initial wreck field
-        $coordinate = new Coordinate(1, 1, 1);
+        $coordinate = $this->getCurrentCoordinate();
         $initialShips = [
             ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
         ];
 
-        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $initialShips, $this->user->id);
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckField = $wreckFieldService->createWreckField($coordinate, $initialShips, $this->currentUserId);
 
         // Start repairs
-        $this->wreckFieldService->loadForCoordinates($coordinate);
-        $this->wreckFieldService->startRepairs(1);
+        $wreckFieldService->loadForCoordinates($coordinate);
+        $wreckFieldService->startRepairs(1);
 
         $wreckField->refresh();
         $originalRepairCompletionTime = $wreckField->repair_completed_at;
-        $originalShipCount = $wreckField->getTotalShips();
 
         // Create another wreck field at the same coordinates while repairs are ongoing
         $newShips = [
             ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
         ];
 
-        $newWreckField = $this->wreckFieldService->createWreckField($coordinate, $newShips, $this->user->id);
+        $newWreckField = $wreckFieldService->createWreckField($coordinate, $newShips, $this->currentUserId);
 
         // With the new implementation, a separate blocked wreck field should be created
         $this->assertEquals('blocked', $newWreckField->status);
@@ -391,13 +389,13 @@ class WreckFieldTest extends TestCase
 
     public function test_extend_wreck_field_with_reset_resets_expiration_timer(): void
     {
-        // Create initial wreck field
-        $coordinate = new Coordinate(1, 1, 1);
+        $coordinate = $this->getCurrentCoordinate();
         $initialShips = [
             ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
         ];
 
-        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $initialShips, $this->user->id);
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckField = $wreckFieldService->createWreckField($coordinate, $initialShips, $this->currentUserId);
 
         // Manually set expiration to be near expiration
         $wreckField->expires_at = now()->addHour();
@@ -410,7 +408,7 @@ class WreckFieldTest extends TestCase
             ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
         ];
 
-        $this->wreckFieldService->extendWreckFieldWithReset($wreckField, $newShips);
+        $wreckFieldService->extendWreckFieldWithReset($wreckField, $newShips);
 
         $wreckField->refresh();
 
@@ -438,17 +436,17 @@ class WreckFieldTest extends TestCase
 
     public function test_add_ships_to_ongoing_repairs_does_not_change_repair_time(): void
     {
-        // Create initial wreck field
-        $coordinate = new Coordinate(1, 1, 1);
+        $coordinate = $this->getCurrentCoordinate();
         $initialShips = [
             ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
         ];
 
-        $wreckField = $this->wreckFieldService->createWreckField($coordinate, $initialShips, $this->user->id);
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckField = $wreckFieldService->createWreckField($coordinate, $initialShips, $this->currentUserId);
 
         // Start repairs
-        $this->wreckFieldService->loadForCoordinates($coordinate);
-        $this->wreckFieldService->startRepairs(1);
+        $wreckFieldService->loadForCoordinates($coordinate);
+        $wreckFieldService->startRepairs(1);
 
         $wreckField->refresh();
         $originalRepairCompletionTime = $wreckField->repair_completed_at;
@@ -458,7 +456,7 @@ class WreckFieldTest extends TestCase
             ['machine_name' => 'heavy_fighter', 'quantity' => 5, 'repair_progress' => 0]
         ];
 
-        $this->wreckFieldService->addShipsToOngoingRepairs($wreckField, $newShips);
+        $wreckFieldService->addShipsToOngoingRepairs($wreckField, $newShips);
 
         $wreckField->refresh();
 
