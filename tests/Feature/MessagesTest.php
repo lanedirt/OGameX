@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Lang;
 use OGame\Factories\GameMessageFactory;
+use OGame\GameMessages\Abstracts\ExpeditionGameMessage;
 use OGame\Models\BattleReport;
 use OGame\Models\EspionageReport;
 use OGame\Models\Message;
@@ -40,7 +41,7 @@ class MessagesTest extends MoonTestCase
             // - espionage_report as it requires special handling and is tested separately by testEspionageReport().
             // - battle_report as it requires special handling and is tested separately by testBattleReport().
             // - expedition game messages as they require special handling and are tested separately by testExpeditionGameMessageTranslationVariations().
-            if ($gameMessage->getKey() === 'espionage_report' || $gameMessage->getKey() === 'battle_report' || $gameMessage instanceof \OGame\GameMessages\Abstracts\ExpeditionGameMessage) {
+            if ($gameMessage->getKey() === 'espionage_report' || $gameMessage->getKey() === 'battle_report' || $gameMessage instanceof ExpeditionGameMessage) {
                 continue;
             }
 
@@ -123,8 +124,8 @@ class MessagesTest extends MoonTestCase
         $this->assertStringContainsString($this->moonService->getPlanetName(), $body, 'Moon name not found in message body');
         $this->assertStringContainsString($this->moonService->getPlanetCoordinates()->asString(), $body, 'Moon coordinates not found in message body');
 
-        // Assert that the planet has the correct planet icon
-        $this->assertStringContainsString('planetIcon planet', $body, 'Planet icon not found in message body');
+        // Assert that the planet has the correct planet icon (now an img element with planet image)
+        $this->assertStringContainsString('img/planets/medium/', $body, 'Planet icon not found in message body');
 
         // Assert that the moon has the correct moon icon
         $this->assertStringContainsString('planetIcon moon', $body, 'Moon icon not found in message body');
@@ -241,7 +242,7 @@ class MessagesTest extends MoonTestCase
         $expeditionMessages = [];
 
         foreach ($gameMessages as $key => $gameMessage) {
-            if ($gameMessage instanceof \OGame\GameMessages\Abstracts\ExpeditionGameMessage) {
+            if ($gameMessage instanceof ExpeditionGameMessage) {
                 $expeditionMessages[$key] = $gameMessage;
             }
         }
