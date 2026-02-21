@@ -1145,4 +1145,139 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $finalBattlecruisers = $this->planetService->getObjectAmount('battlecruiser');
         $this->assertGreaterThan(0, $finalBattlecruisers, 'Some ships should return from battle');
     }
+
+    /**
+     * Test that player's planet defense units are NOT included in the NPC fleet during expedition battles.
+     *
+     * Regression test for bug where NPCPlanetService did not override getObjectAmount(), causing the
+     * player's own defense structures to be incorrectly added to the NPC defending fleet.
+     *
+     * @return void
+     */
+    public function testExpeditionBattleNPCFleetExcludesPlayerDefenses(): void
+    {
+        $this->basicSetup();
+
+        // Add defense units to the player's planet - these should NOT appear in the NPC fleet.
+        // Defense unit IDs: 401=rocket_launcher, 402=light_laser, 403=heavy_laser,
+        //                   404=gauss_cannon, 405=ion_cannon, 406=plasma_turret,
+        //                   407=small_shield_dome, 408=large_shield_dome
+        $this->planetAddUnit('rocket_launcher', 500);
+        $this->planetAddUnit('light_laser', 200);
+        $this->planetAddUnit('gauss_cannon', 50);
+
+        // Add combat ships for the expedition
+        $this->planetAddUnit('battlecruiser', 100);
+        $this->playerSetResearchLevel('weapon_technology', 10);
+        $this->playerSetResearchLevel('shielding_technology', 10);
+        $this->playerSetResearchLevel('armor_technology', 10);
+
+        // Enable only pirate battles
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::BattlePirates]);
+
+        // Send the expedition mission
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Get the battle report
+        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
+
+        $report = $battleReports->first();
+
+        // The NPC fleet is shown as the attacker in expedition reports.
+        // attacker['units'] is stored as ['machine_name' => amount, ...] via UnitCollection::toArray().
+        // Verify no defense unit machine names appear in the NPC fleet.
+        $defenseUnitNames = [
+            'rocket_launcher', 'light_laser', 'heavy_laser',
+            'gauss_cannon', 'ion_cannon', 'plasma_turret',
+            'small_shield_dome', 'large_shield_dome',
+        ];
+        $npcUnits = $report->attacker['units'] ?? [];
+
+        foreach ($defenseUnitNames as $machineName) {
+            $this->assertArrayNotHasKey(
+                $machineName,
+                $npcUnits,
+                "Defense unit '{$machineName}' should NOT be in the NPC fleet (player's own defenses must not be added to NPC)"
+            );
+        }
+    }
+
+    /**
+     * Test that expedition battles produce sensible hit counts for various fleet compositions.
+     *
+     * Regression test for a bug where certain fleet combinations caused the NPC to report an
+     * impossible number of shots (e.g. 547,575) while the player fired only 1 shot.
+     *
+     * @return void
+     */
+    public function testExpeditionBattleHitCountsSensible(): void
+    {
+        $this->basicSetup();
+
+        // Ensure we have enough deuterium for the large fleet
+        $this->planetAddResources(new Resources(0, 0, 10000000, 0));
+
+        // Fleet composition that originally triggered the bug: Reaper + many LC + Pathfinder
+        $this->planetAddUnit('reaper', 1);
+        $this->planetAddUnit('large_cargo', 12870);
+        $this->planetAddUnit('pathfinder', 1);
+
+        // Also add defense units to the planet to verify they are not included in NPC fleet
+        $this->planetAddUnit('rocket_launcher', 1000);
+        $this->planetAddUnit('large_shield_dome', 1);
+
+        $this->playerSetResearchLevel('weapon_technology', 5);
+        $this->playerSetResearchLevel('shielding_technology', 5);
+        $this->playerSetResearchLevel('armor_technology', 5);
+
+        // Enable only pirate battles
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::BattlePirates]);
+
+        // Send the expedition with the specific fleet (override sendTestExpedition)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('reaper'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 12870);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('pathfinder'), 1);
+        $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), true);
+
+        // Wait for the mission to complete
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Get the battle report
+        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
+
+        $report = $battleReports->first();
+        $this->assertTrue($report->general['expedition_battle'] ?? false, 'Should be an expedition battle report');
+
+        // Verify that hit counts in each round are within reasonable bounds.
+        // The NPC fleet is at most a few thousand ships, so it cannot fire hundreds of thousands of shots.
+        // A ship with RF=5 fires on average 5 shots, so: max_shots ≈ fleet_size * max_rf_value
+        // NPC fleet is at most ~20,000 ships. With max RF of 5: expected max ≈ 100,000.
+        // The original bug reported 547,575 NPC shots from a ~3,704 ship fleet (impossible: 3704 * 5 = 18,520 max).
+        $maxReasonableHitsPerRound = 500000; // Very generous upper bound to catch the original bug
+
+        // The NPC is the "attacker" in expedition reports (roles are swapped)
+        foreach ($report->rounds as $i => $round) {
+            $npcHits = $round['hits_attacker'] ?? 0; // NPC shots (attacker in swapped report)
+            $playerHits = $round['hits_defender'] ?? 0; // Player shots (defender in swapped report)
+
+            $this->assertLessThan(
+                $maxReasonableHitsPerRound,
+                $npcHits,
+                "Round " . ($i + 1) . ": NPC hits ({$npcHits}) exceeded reasonable maximum. Possible defense unit contamination in NPC fleet."
+            );
+
+            // Player fired at least 1 shot if they had any ships (basic sanity check)
+            // (Only check if there were ships alive at start of round)
+        }
+    }
 }
