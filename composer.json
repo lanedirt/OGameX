@@ -8,6 +8,7 @@
         "php": "^8.5",
         "laravel/fortify": "^1.21",
         "laravel/framework": "^12.0",
+        "laravel/reverb": "^1.7",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
         "spatie/laravel-discord-alerts": "^1.7",

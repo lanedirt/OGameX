@@ -14746,7 +14746,7 @@ function initBBCodeEditor(locaKeys, itemArray, imagesAllowed, selector, maxChars
     },
     markupSet: [markupSetBasic, markupSetAdvanced],
     resizeHandle: false,
-    previewParserPath: bbcodePreviewUrl + "&imgAllowed=" + (imagesAllowed ? 1 : 0),
+    previewParserPath: bbcodePreviewUrl ? (bbcodePreviewUrl + "&imgAllowed=" + (imagesAllowed ? 1 : 0)) : '',
     previewAutoRefresh: true,
     previewParserVar: 'text',
     previewInElement: $('<div class="miu_preview_container"></div>'),
@@ -15299,7 +15299,8 @@ function updateBuyTextAndActivatePackage($buttonElem, $package) {
   $package.addClass('premium');
 }
 /**/
-ogame.chat = {
+// ogame.chat implementation has been moved to resources/js/ingame/chat.js
+var _ogame_chat_removed = {
   socket: null,
   connected: false,
   connecting: false,
