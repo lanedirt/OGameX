@@ -83,7 +83,9 @@ class AcsDefendMission extends GameMission
         // via FleetMissionService::sendAcsDefendArrivalMessages()
         // This method is called after the hold time expires to create the return mission
 
-        // Create and start the return mission
+        // Create and start the return mission.
+        // Unit counts on the mission record may have been updated by battle processing if the fleet
+        // was attacked during hold time, so getFleetUnits() returns the correct post-battle survivors.
         $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
 
         // Mark the arrival mission as processed
