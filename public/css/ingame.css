@@ -1723,7 +1723,6 @@ button.ui-button::-moz-focus-inner {
 .select2-hidden-accessible {
   border: 0 !important;
   clip: rect(0 0 0 0) !important;
-  -webkit-clip-path: inset(50%) !important;
   clip-path: inset(50%) !important;
   height: 1px !important;
   overflow: hidden !important;
@@ -6330,6 +6329,17 @@ div.content-box-s .header h3 {
 
 #messages #planet.shortHeader { background-image: url("/img/icons/969c4e267c1a550aad41b8fd1debe4.jpg"); }
 #chat #planet.shortHeader { background-image: url("/img/icons/c02c34215b665f753ae3e062c680d9.jpg"); }
+#chat #planet h2 {
+    color: #fff;
+    font: bold 18px/22px Verdana,Arial,Helvetica,sans-serif;
+    height: 22px;
+    margin: 0 0 0 144px;
+    overflow: hidden;
+    padding-top: 7px;
+    white-space: nowrap;
+    width: 470px;
+    text-overflow: ellipsis;
+}
 
 #resourceSettings #planet.shortHeader { background-image: url("/img/icons/8a1aa7b42b1d117d9ebb04c97b6d6d.jpg"); }
 #movement #planet.shortHeader { background-image: url("/img/icons/9b0237402cdb812513f8a513a7d8e3.jpg"); }
@@ -10442,6 +10452,22 @@ figure.planetIcon.planet {
     position: absolute;
 }
 
+#chatpartner a {
+    text-decoration: underline;
+    color: inherit;
+}
+#chatpartner a.txt_link {
+    text-decoration: none;
+    float: left;
+}
+#chatpartner a.txt_link img {
+    vertical-align: middle;
+    margin-right: 2px;
+}
+#otherPlayerAllianceTag {
+    float: left;
+    margin: 0 3px 0 0;
+}
 #otherPlayerName {
     overflow: hidden;
     display: inline-block;
@@ -13946,6 +13972,9 @@ div#buddyCopyOverlay .code {
 /* ***************** Single Chat ******************************************** */
 
 .largeChatContainer { max-height: 500px; overflow: hidden; }
+#chat .largeChatContainer { overflow-y: auto; }
+#chat .largeChatContainer ul.chat { margin: 0; padding: 5px; list-style: none; }
+#chat .largeChatContainer ul.chat .chat_msg:first-child { margin-top: 0; }
 
 .chat_msg .msg_title { width: 270px; }
 
@@ -15335,8 +15364,7 @@ characterclass-bonus .technology-fullrow {
             #0000 25%,#0008 0 37.5%,#0004 0) 0   /50% 100% no-repeat,
             conic-gradient(at right var(--s) bottom var(--d),
             #0004 62.5%,#0008 0 75%,#0000 0) 100%/50% 100% no-repeat;
-    -webkit-clip-path: polygon(0 var(--d), var(--s) var(--d),var(--s) 0,calc(100% - var(--s)) 0,calc(100% - var(--s)) var(--d),100% var(--d),calc(100% - var(--c)) calc(50% + var(--d)/2),100% 100%,calc(100% - var(--s) - var(--d)) 100%,calc(100% - var(--s) - var(--d)) calc(100% - var(--d)),calc(var(--s) + var(--d)) calc(100% - var(--d)),calc(var(--s) + var(--d)) 100%,0 100%,var(--c) calc(50% + var(--d)/2));
-            clip-path: polygon(0 var(--d), var(--s) var(--d),var(--s) 0,calc(100% - var(--s)) 0,calc(100% - var(--s)) var(--d),100% var(--d),calc(100% - var(--c)) calc(50% + var(--d)/2),100% 100%,calc(100% - var(--s) - var(--d)) 100%,calc(100% - var(--s) - var(--d)) calc(100% - var(--d)),calc(var(--s) + var(--d)) calc(100% - var(--d)),calc(var(--s) + var(--d)) 100%,0 100%,var(--c) calc(50% + var(--d)/2));
+    clip-path: polygon(0 var(--d), var(--s) var(--d),var(--s) 0,calc(100% - var(--s)) 0,calc(100% - var(--s)) var(--d),100% var(--d),calc(100% - var(--c)) calc(50% + var(--d)/2),100% 100%,calc(100% - var(--s) - var(--d)) 100%,calc(100% - var(--s) - var(--d)) calc(100% - var(--d)),calc(var(--s) + var(--d)) calc(100% - var(--d)),calc(var(--s) + var(--d)) 100%,0 100%,var(--c) calc(50% + var(--d)/2));
 
     width: -moz-fit-content;
 
@@ -44855,7 +44883,7 @@ div.values .equipment .item_img a.timeLink span.time {left: 1px;}
 }
 
 /* Faster transition in Safari for less noticable fractional font-size issue */
-@media not all and (-webkit-min-device-pixel-ratio:0), not all and (min-resolution:.001dpcm) {
+@media not all and (min-resolution:.001dpcm) {
     @supports (-webkit-appearance:none) {
         .labeled-textfield > input,
         .labeled-textfield > input + span,

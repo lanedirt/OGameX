@@ -25,7 +25,6 @@ mix.scripts([
     'resources/js/ingame/vendor/jquery.ba-bbq-1.4pre.js',
     'resources/js/ingame/vendor/jquery.colorpicker.js',
     'resources/js/ingame/jquery.js',
-    'resources/js/ingame/chat.js',
     'resources/js/ingame/inventory.js',
     'resources/js/ingame/jquery-spinners.js',
     'resources/js/ingame/messages.js',
@@ -35,6 +34,10 @@ mix.scripts([
     'resources/js/ingame/timerhandler.js',
     'resources/js/ingame/e7c74974620fa35b197315ebdbb8c2.js',
     'resources/js/ingame/messages-pagination.js',
+    'node_modules/pusher-js/dist/web/pusher.min.js',
+    'node_modules/laravel-echo/dist/echo.iife.js',
+    'resources/js/ingame/echo.js',
+    'resources/js/ingame/chat.js',
 ], 'public/js/ingame.js').minify('public/js/ingame.js').version();
 
 // ---

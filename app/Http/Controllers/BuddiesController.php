@@ -3,10 +3,15 @@
 namespace OGame\Http\Controllers;
 
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use OGame\Models\Alliance;
+use OGame\Models\AllianceMember;
+use OGame\Models\ChatMessage;
+use OGame\Models\User;
 use OGame\Services\BuddyService;
 
 class BuddiesController extends OGameController
@@ -247,9 +252,25 @@ class BuddiesController extends OGameController
     public function getOnlineBuddies(BuddyService $buddyService): JsonResponse
     {
         $userId = (int) auth()->id();
+        $user = User::find($userId);
         $allBuddies = $buddyService->getBuddies($userId);
 
-        $buddyList = $allBuddies->map(function ($buddyRequest) use ($userId) {
+        // Get IDs of players with active (recent) chats
+        $activeChatPartnerIds = ChatMessage::where(function ($q) use ($userId) {
+            $q->where('sender_id', $userId)->orWhere('recipient_id', $userId);
+        })
+            ->whereNotNull('recipient_id')
+            ->orderBy('created_at', 'desc')
+            ->limit(100)
+            ->get()
+            ->map(function ($msg) use ($userId) {
+                return $msg->sender_id === $userId ? $msg->recipient_id : $msg->sender_id;
+            })
+            ->unique()
+            ->values()
+            ->all();
+
+        $buddyList = $allBuddies->map(function ($buddyRequest) use ($userId, $activeChatPartnerIds) {
             $buddy = $buddyRequest->sender_user_id === $userId
                 ? $buddyRequest->receiver
                 : $buddyRequest->sender;
@@ -258,6 +279,7 @@ class BuddiesController extends OGameController
                 'id' => $buddy->id,
                 'username' => $buddy->username,
                 'isOnline' => $buddy->isOnline(),
+                'hasActiveChat' => in_array($buddy->id, $activeChatPartnerIds),
             ];
         });
 
@@ -266,10 +288,80 @@ class BuddiesController extends OGameController
             return $buddy['isOnline'];
         })->count();
 
+        // Alliance info and members
+        $alliance = null;
+        $allianceMembers = [];
+        if ($user && $user->alliance_id) {
+            /** @var Alliance|null $allianceModel */
+            $allianceModel = $user->alliance;
+            if ($allianceModel) {
+                $alliance = [
+                    'id' => $allianceModel->id,
+                    'name' => $allianceModel->alliance_name,
+                    'tag' => $allianceModel->alliance_tag,
+                ];
+                /** @var Collection<int, AllianceMember> $members */
+                $members = $allianceModel->members()
+                    ->where('user_id', '!=', $userId)
+                    ->with('user')
+                    ->get();
+                $allianceMembers = $members->map(function (AllianceMember $member) use ($activeChatPartnerIds) {
+                    return [
+                        'id' => $member->user_id,
+                        'username' => $member->user->username,
+                        'isOnline' => $member->user->isOnline(),
+                        'hasActiveChat' => in_array($member->user_id, $activeChatPartnerIds),
+                    ];
+                })
+                    ->values()
+                    ->all();
+            }
+        }
+
+        // Recent chat partners (players the user has chatted with recently, excluding buddies and alliance members)
+        $buddyIds = $buddyList->pluck('id')->toArray();
+        $allianceMemberIds = array_column($allianceMembers, 'id');
+        $recentPartners = ChatMessage::where(function ($q) use ($userId) {
+            $q->where('sender_id', $userId)->orWhere('recipient_id', $userId);
+        })
+            ->whereNotNull('recipient_id')
+            ->orderBy('created_at', 'desc')
+            ->limit(100)
+            ->get()
+            ->map(function ($msg) use ($userId) {
+                return $msg->sender_id === $userId ? $msg->recipient_id : $msg->sender_id;
+            })
+            ->unique()
+            ->filter(function ($partnerId) use ($buddyIds, $allianceMemberIds) {
+                return !in_array($partnerId, $buddyIds) && !in_array($partnerId, $allianceMemberIds);
+            })
+            ->take(20)
+            ->map(function ($partnerId) use ($user) {
+                $partner = User::find($partnerId);
+                if (!$partner) {
+                    return;
+                }
+
+                // Only reveal online status for alliance members
+                $sameAlliance = $user && $user->alliance_id && $user->alliance_id === $partner->alliance_id;
+
+                return [
+                    'id' => $partner->id,
+                    'username' => $partner->username,
+                    'isOnline' => $sameAlliance && $partner->isOnline(),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+
         return response()->json([
             'success' => true,
             'buddies' => $buddyList->values()->all(),
             'count' => $onlineCount,
+            'alliance' => $alliance,
+            'allianceMembers' => $allianceMembers,
+            'recentPartners' => $recentPartners,
         ]);
     }
 }

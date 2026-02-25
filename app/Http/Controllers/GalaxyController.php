@@ -558,7 +558,11 @@ class GalaxyController extends OGameController
                     'link' => route('highscore.index', ['category' => 1, 'page' => $highscorePage]),
                 ],
                 'message' => [
-                    'available' => false,
+                    'available' => $isForeignPlayer && !$isTargetAdmin,
+                    'disabledChatBar' => false,
+                    'title' => __('Write message'),
+                    'link' => 'javascript:void(0);',
+                    'playerId' => $player->getId(),
                 ],
             ],
             'playerId' => $player->getId(),

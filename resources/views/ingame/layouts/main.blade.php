@@ -343,12 +343,12 @@ Combat simulation save slots +20">
                     @endif
                 </a>
                 <!-- Neue Chatnachrichten-Zähler -->
-                <a class=" comm_menu chat tooltip js_hideTipOnMobile tpd-hideOnClickOutside"
-                   href="#"
-                   title="0 unread conversation(s)">
+                <a class="comm_menu chat tooltip js_hideTipOnMobile"
+                   href="{{ route('chat.index') }}"
+                   title="{{ $unreadChatCount }} unread message(s)">
                     <!-- js modification !-->
-                    <span class="new_msg_count totalChatMessages noMessage" data-new-messages="0">
-                    0                </span>
+                    <span class="new_msg_count totalChatMessages @if($unreadChatCount === 0) noMessage @endif" data-new-messages="{{ $unreadChatCount }}">
+                    {{ $unreadChatCount }}                </span>
                 </a>
                 <div id="messages_collapsed">
                     <div id="eventboxFilled" class="eventToggle" style="display: none;">
@@ -848,15 +848,14 @@ Combat simulation save slots +20">
                 var miniFleetLink = "{{ route('fleet.dispatch.sendminifleet') }}";
                 var ogameUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
                 var startpageUrl = "{{ str_replace('/', '\/', URL::to('/')) }}";
-                var nodePort = 19603;
-                // TODO: WebSocket/chat functionality not yet implemented. Disabled to prevent loading overview as a script.
-                // var nodeUrl = "{{ route('overview.index') }}#TODO_19603\/socket.io\/socket.io.js";
-                var nodeParams = {
-                    "port": 19603,
-                    "secure": "true"
-                };
-                var chatUrl = "/"; //#TODO_page=ajaxChat
-                var chatUrlLoadMoreMessages = "{{ route('overview.index') }}#TODO_page=chatGetAdditionalMessages";
+                // Laravel Reverb / Echo configuration for real-time chat
+                var reverbAppKey = "{{ env('REVERB_APP_KEY', '') }}";
+                var reverbHost = "{{ env('REVERB_HOST', 'localhost') }}";
+                var reverbPort = "{{ env('REVERB_PORT', '8080') }}";
+                var reverbScheme = "{{ env('REVERB_SCHEME', 'http') }}";
+                var chatUrl = "{{ route('chat.send') }}";
+                var chatHistoryUrl = "{{ route('chat.history') }}";
+                var chatUrlLoadMoreMessages = "{{ route('chat.more') }}";
                 var chatLoca = {
                     "TEXT_EMPTY": "Where is the message?",
                     "TEXT_TOO_LONG": "The message is too long.",
@@ -866,7 +865,7 @@ Combat simulation save slots +20">
                     "INVALID_PARAMETERS": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
                     "SEND_FAILED": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
                     "LOCA_ALL_ERROR_NOTACTIVATED": "This function is only available after your accounts activation.",
-                    "X_NEW_CHATS": "#+# unread conversation(s)",
+                    "X_NEW_CHATS": "#+# unread message(s)",
                     "MORE_USERS": "show more"
                 };
                 var eventboxLoca = {
@@ -1669,7 +1668,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                         if (ogame.chat.isLoadingPlayerList === false && ogame.chat.playerList !== null) {
                             clearInterval(initChatAsyncInterval);
                             ogame.chat.initChatBar(playerId);
-                            ogame.chat.initChat(playerId, isMobile);
+                            ogame.chat.initChat(playerId, isMobile, {{ auth()->user()->alliance_id ?? 'null' }});
                             ogame.chat.updateCustomScrollbar($('.scrollContainer'));
                         }
                     }
@@ -1679,6 +1678,8 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         }
                     });
+
+                    // Chat speech bubble icon now links to /chat page directly.
                 });</script>            <!-- END JAVASCRIPT -->
 
 
@@ -1965,7 +1966,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
     </div>
 </div>
 <script type="text/javascript">var visibleChats = {"players": [], "associations": []};
-    var bigChatLink = "{{ route('overview.index') }}#TODO_page=chat";
+    var bigChatLink = "{{ route('overview.index') }}";
     var locaKeys = {
         "bold": "@lang('Bold')",
         "italic": "@lang('Italic')",
