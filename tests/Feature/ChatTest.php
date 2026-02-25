@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use OGame\Models\ChatMessage;
 use OGame\Models\User;
 use OGame\Services\AllianceService;
 use OGame\Services\BuddyService;
