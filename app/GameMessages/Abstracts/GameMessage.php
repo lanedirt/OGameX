@@ -325,10 +325,10 @@ abstract class GameMessage
             if ($planetService !== null) {
                 $planetIcon = '';
                 $planetIconTitle = '';
+                $planetIconHtml = '';
                 switch ($planetService->getPlanetType()) {
                     case PlanetType::Planet:
-                        $planetIcon = 'planet';
-                        $planetIconTitle = 'Planet';
+                        $planetIconHtml = '<img src="' . asset('img/planets/medium/' . $planetService->getPlanetBiomeType() . '_' . $planetService->getPlanetImageType() . '.png') . '" width="16" height="16" class="tooltip js_hideTipOnMobile" title="Planet">';
                         break;
                     case PlanetType::Moon:
                         $planetIcon = 'moon';
@@ -339,9 +339,12 @@ abstract class GameMessage
                         $planetIcon = 'Debris Field';
                         break;
                 }
-                $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
-                                    <figure class="planetIcon ' . $planetIcon . ' tooltip js_hideTipOnMobile" title="' . $planetIconTitle . '"></figure>
-                                ' . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
+                if (empty($planetIconHtml)) {
+                    $planetIconHtml = '<figure class="planetIcon ' . $planetIcon . ' tooltip js_hideTipOnMobile" title="' . $planetIconTitle . '"></figure>';
+                }
+                $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">'
+                                . $planetIconHtml . ' '
+                                . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
             } else {
                 $planetName = 'Unknown Planet';
             }

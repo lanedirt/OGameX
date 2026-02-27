@@ -196,8 +196,10 @@ class FleetController extends OGameController
             // Determine friendly status based on mission type for styling
             $mission = GameMissionFactory::getMissionById($row->mission_type, []);
             $eventRowViewModel->friendly_status = $mission::getFriendlyStatus()->value;
-            // Missile attacks (mission type 10) cannot be recalled
-            $eventRowViewModel->is_recallable = ($row->mission_type !== 10);
+            // Missile attacks (mission type 10) cannot be recalled.
+            // Planet relocation ship transfers (deployment to self) cannot be recalled.
+            $isRelocationTransfer = ($row->mission_type === 4 && $row->planet_id_from === $row->planet_id_to);
+            $eventRowViewModel->is_recallable = ($row->mission_type !== 10 && !$isRelocationTransfer);
 
             // Set whether this fleet can be converted to an ACS federation (union)
             // Only regular attack missions (type 1) that are not return trips and not already in a union
@@ -666,24 +668,19 @@ class FleetController extends OGameController
      */
     public function dispatchRecallFleet(PlayerService $player, FleetMissionService $fleetMissionService): JsonResponse
     {
-        // Get the fleet mission id
-        $fleet_mission_id = request()->input('fleet_mission_id');
-
-        // Handle fake IDs used for "wait end" rows and "return trip" rows
-        // Wait end rows use: real_id + 888888
-        // Return trip rows use: real_id + 999999
-        if ($fleet_mission_id > 888888) {
-            if ($fleet_mission_id > 999999) {
-                // This is a return trip fake ID, subtract 999999 to get real ID
-                $fleet_mission_id -= 999999;
-            } else {
-                // This is a wait end fake ID, subtract 888888 to get real ID
-                $fleet_mission_id -= 888888;
-            }
-        }
+        // Get the fleet mission id (always the real mission ID, sent from the event list widget)
+        $fleet_mission_id = (int)request()->input('fleet_mission_id');
 
         // Get the fleet mission (allow processed missions for ACS Defend recalls during hold time)
         $fleetMission = $fleetMissionService->getFleetMissionById($fleet_mission_id, false);
+
+        if ($fleetMission === null) {
+            return response()->json([
+                'components' => [],
+                'newAjaxToken' => csrf_token(),
+                'success' => false,
+            ], 500);
+        }
 
         // Sanity check: only owner of the fleet mission can recall it.
         if ($fleetMission->user_id !== $player->getId()) {

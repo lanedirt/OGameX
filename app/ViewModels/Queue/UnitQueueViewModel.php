@@ -27,7 +27,8 @@ class UnitQueueViewModel extends QueueViewModel
         public int $object_amount,
         public int $object_amount_remaining,
         public int $time_countdown_object_next,
-        public int $time_countdown_per_object
+        public int $time_countdown_per_object,
+        public bool $dm_halved = false,
     ) {
         parent::__construct($id, $object, $time_countdown, $time_total);
     }

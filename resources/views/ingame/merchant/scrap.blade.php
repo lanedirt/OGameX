@@ -105,7 +105,7 @@
 
                             <button id="js_scrapBargain" class="bargain">@lang('Bargain')</button>
                             <br class="clearfloat">
-                            <span class="bargain_cost">@lang('Costs:'): <span class="js_bargainCost">{{ number_format($bargainCost) }}</span> @lang('Dark Matter')</span>
+                            <span class="bargain_cost">@lang('Costs:') <span class="js_bargainCost">{{ number_format($bargainCost) }}</span> @lang('Dark Matter')</span>
                         </div>
                         <div class="left_footer"></div>
                     </div>
@@ -140,7 +140,7 @@
                                                             </div>
                                                         </div>
                                                         <input class="ship_amount" tabindex="{{ $tabindex }}" name="am{{ $shipId }}" id="ship_{{ $shipId }}"
-                                                               value="" type="text" pattern="[0-9,.]*" {{ $shipData['amount'] == 0 ? 'readonly="readonly"' : '' }}
+                                                               value="" type="text" pattern="[0-9,.]*" {!! $shipData['amount'] == 0 ? 'readonly="readonly"' : '' !!}
                                                                data-item-id="{{ $shipId }}"
                                                                data-metal="{{ $shipData['cost']['metal'] }}" data-crystal="{{ $shipData['cost']['crystal'] }}" data-deuterium="{{ $shipData['cost']['deuterium'] }}">
                                                         <a href="javascript:void(0);" class="max tooltip js_maxShips" ref="#ship_{{ $shipId }}" data-tooltip-title="@lang('Select all')"></a>
@@ -172,7 +172,7 @@
                                                                 </div>
                                                             </div>
                                                             <input class="ship_amount" tabindex="{{ $tabindex }}" name="am{{ $defenseId }}" id="ship_{{ $defenseId }}"
-                                                                   value="" type="text" pattern="[0-9,.]*" {{ $defenseData['amount'] == 0 ? 'readonly="readonly"' : '' }}
+                                                                   value="" type="text" pattern="[0-9,.]*" {!! $defenseData['amount'] == 0 ? 'readonly="readonly"' : '' !!}
                                                                    data-item-id="{{ $defenseId }}"
                                                                    data-metal="{{ $defenseData['cost']['metal'] }}" data-crystal="{{ $defenseData['cost']['crystal'] }}" data-deuterium="{{ $defenseData['cost']['deuterium'] }}">
                                                             <a href="javascript:void(0);" class="max tooltip js_maxShips" ref="#ship_{{ $defenseId }}" data-tooltip-title="@lang('Select all')"></a>
@@ -259,9 +259,10 @@
 
         // Initialize AnythingSlider for ships
         var shipsSlider = $('#js_anythingSliderShips').anythingSlider({
-            buildNavigation: true,
+            buildNavigation: false,
             buildStartStop: false,
-            resizeContents: false,
+            infiniteSlides: false,
+            resizeContents: true,
             expand: false,
             hashTags: false,
             width: 353,
@@ -270,9 +271,10 @@
 
         // Initialize AnythingSlider for defense (hidden initially)
         var defenseSlider = $('#js_anythingSliderDefense').anythingSlider({
-            buildNavigation: true,
+            buildNavigation: false,
             buildStartStop: false,
-            resizeContents: false,
+            infiniteSlides: false,
+            resizeContents: true,
             expand: false,
             hashTags: false,
             width: 353,

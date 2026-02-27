@@ -28,6 +28,8 @@ if [ "$role" = "scheduler" ]; then
     done
 elif [ "$role" = "queue" ]; then
       php /var/www/artisan queue:work --verbose --no-interaction
+elif [ "$role" = "reverb" ]; then
+    php /var/www/artisan reverb:start --host="${REVERB_SERVER_HOST:-0.0.0.0}" --port="${REVERB_SERVER_PORT:-8090}"
 elif [ "$role" = "app" ]; then
     # Check APP_ENV and run appropriate composer install
     if [ "$is_production" = true ]; then

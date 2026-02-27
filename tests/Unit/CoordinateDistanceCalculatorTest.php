@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\User;
@@ -12,8 +11,6 @@ use Tests\TestCase;
 
 class CoordinateDistanceCalculatorTest extends TestCase
 {
-    use RefreshDatabase;
-
     private CoordinateDistanceCalculator $calculator;
     private SettingsService $settingsService;
 

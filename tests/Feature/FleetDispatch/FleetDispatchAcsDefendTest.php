@@ -5,12 +5,14 @@ namespace Tests\Feature\FleetDispatch;
 use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\AllianceMember;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
+use OGame\Services\AllianceService;
 use OGame\Services\BuddyService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
@@ -782,8 +784,8 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     }
 
     /**
-     * Test that arrival messages are sent to both sender and host when fleet arrives.
-     * This test directly calls updateMission to verify message sending.
+     * Test that arrival messages are sent to both sender and host at physical arrival time,
+     * not delayed until hold expiry.
      */
     public function testDispatchFleetArrivalMessagesSentOnUpdate(): void
     {
@@ -812,51 +814,96 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             1 // 1 hour hold
         );
 
-        // With the new architecture, time_arrival includes hold time (as raw game time)
         // Calculate physical arrival time (when fleet actually arrives at target)
         $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
-
-        // Travel to physical arrival time
         $travelDuration = $physicalArrivalTime - $mission->time_departure;
+
+        // Travel to physical arrival time and trigger a page load
         $this->travel($travelDuration + 1)->seconds();
-
-        // With the new architecture, the mission is NOT processed at physical arrival.
-        // It's processed when hold time expires (time_arrival). So at physical arrival,
-        // the mission should still be unprocessed and no return mission should exist.
-
-        // Verify mission is NOT yet processed (still holding)
-        $mission->refresh();
-        $this->assertEquals(0, $mission->processed, 'Mission should NOT be marked as processed during hold time');
-
-        // Verify NO return mission exists during hold time
-        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
-        $this->assertNull($returnMission, 'Return mission should NOT exist during hold time');
-
-        // Travel past the hold time expiration (to time_arrival)
-        $remainingHoldTime = $mission->time_arrival - $physicalArrivalTime;
-        $this->travel($remainingHoldTime + 1)->seconds();
-
-        // Trigger the fleet mission update which should process the mission and create return mission
         $this->get('/overview');
 
-        // Verify sender received message (sent on hold expiry)
+        // Messages should be sent at physical arrival, not delayed until hold expiry
         $this->assertMessageReceivedAndContains('fleets', 'other', [
             'Fleet is stopping',
             'Fleet Command',
         ]);
-
-        // Verify host received message (sent on hold expiry)
         $this->assertMessageReceivedAndContainsDatabase($this->buddyPlanet->getPlayer(), [
             'A fleet has arrived',
         ]);
 
-        // Verify mission was processed
+        // Mission should still be unprocessed (hold not expired)
+        $mission->refresh();
+        $this->assertEquals(0, $mission->processed, 'Mission should NOT be marked as processed during hold time');
+        $this->assertEquals(1, $mission->processed_hold, 'Mission should be marked processed_hold after physical arrival');
+
+        // No return mission yet
+        $returnMission = FleetMission::where('parent_id', $mission->id)->first();
+        $this->assertNull($returnMission, 'Return mission should NOT exist during hold time');
+
+        // Travel past hold expiry and trigger processing
+        $remainingHoldTime = $mission->time_arrival - $physicalArrivalTime;
+        $this->travel($remainingHoldTime + 1)->seconds();
+        $this->get('/overview');
+
+        // Mission should now be fully processed and return mission created
         $mission->refresh();
         $this->assertEquals(1, $mission->processed, 'Mission should be marked as processed after hold expires');
-
-        // Verify return mission was created
         $returnMission = FleetMission::where('parent_id', $mission->id)->first();
         $this->assertNotNull($returnMission, 'Return mission should be created after hold time expires');
+    }
+
+    /**
+     * Test that arrival messages are sent to sender and host even when the fleet is recalled
+     * during hold time before any page load has triggered normal message dispatch.
+     */
+    public function testDispatchFleetArrivalMessagesSentOnRecallDuringHoldTime(): void
+    {
+        $this->basicSetup();
+        $this->createBuddyPlayer();
+        $this->playerSetAllMessagesRead();
+
+        $this->planetAddUnit('light_fighter', 5);
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+
+        $fleetMissionService = app(FleetMissionService::class);
+        $mission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            1 // 1 hour hold
+        );
+
+        // Advance into the hold period without triggering any page load
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
+        $travelDuration = $physicalArrivalTime - $mission->time_departure;
+        $this->travel($travelDuration + 10)->seconds();
+
+        // Recall immediately (no page load since physical arrival, so processed_hold is still 0)
+        $mission->refresh();
+        $this->assertEquals(0, $mission->processed_hold, 'processed_hold should be 0 before any page load');
+
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $mission->id,
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Arrival messages should have been sent by cancelMission() itself
+        $this->assertMessageReceivedAndContains('fleets', 'other', [
+            'Fleet is stopping',
+            'Fleet Command',
+        ]);
+        $this->assertMessageReceivedAndContainsDatabase($this->buddyPlanet->getPlayer(), [
+            'A fleet has arrived',
+        ]);
     }
 
     /**
@@ -1003,6 +1050,65 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     }
 
     /**
+     * Verify that recalling an ACS Defend fleet during hold time via the fleet event list widget
+     * works correctly — the widget recall button must use the real mission ID, not the synthetic
+     * DOM offset ID (real_id + 888888), which would fail for large real IDs.
+     */
+    public function testDispatchFleetRecallDuringHoldTimeViaEventListWidget(): void
+    {
+        $this->basicSetup();
+        $this->createBuddyPlayer();
+
+        // Send ACS Defend with 1 hour hold time
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 2);
+        $this->dispatchFleet($this->buddyPlanet->getPlanetCoordinates(), $units, new Resources(0, 0, 0, 0), PlanetType::Planet, 1);
+
+        // Get the real mission record
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'No active fleet mission found.');
+        $mission = $activeMissions->first();
+        $realMissionId = $mission->id;
+
+        // Advance time into the hold period (physical arrival + 10 seconds)
+        $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
+        $travelDuration = $physicalArrivalTime - $mission->time_departure;
+        $this->travel($travelDuration + 10)->seconds();
+        $this->get('/overview');
+
+        // Fetch the fleet event list — this is the HTML the widget loads
+        $response = $this->get('/ajax/fleet/eventlist/fetch');
+        $response->assertStatus(200);
+
+        // The recall button for the hold-period waitEndRow must carry the real mission ID,
+        // not real_id + 888888 (which overflows into the 999999 range for large IDs and
+        // causes the recall endpoint to derive the wrong mission ID, leading to HTTP 500).
+        $html = (string)$response->getContent();
+        $this->assertStringContainsString(
+            'data-fleet-id="' . $realMissionId . '"',
+            $html,
+            'Fleet event list recall button should use real mission ID in data-fleet-id'
+        );
+
+        // Simulate clicking the recall button (sends the real mission ID, as the widget now does)
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $realMissionId,
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Wait for the return trip to complete
+        $this->travel(10)->hours();
+        $this->get('/overview');
+
+        // Ships should be back on planet
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Ships did not return after widget recall during hold time.');
+    }
+
+    /**
      * Assert that trying to dispatch ACS Defend to alliance member planet succeeds.
      */
     public function testFleetCheckToAllianceMemberPlanetSuccess(): void
@@ -1067,7 +1173,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
      */
     protected function createAllianceMemberPlayer(): User
     {
-        $allianceService = resolve(\OGame\Services\AllianceService::class);
+        $allianceService = resolve(AllianceService::class);
 
         // Create alliance for current user
         $alliance = $allianceService->createAlliance($this->currentUserId, 'TAG', 'Test Alliance');
@@ -1096,7 +1202,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $allianceMemberUser->alliance_left_at = null;
         $allianceMemberUser->save();
 
-        \OGame\Models\AllianceMember::create([
+        AllianceMember::create([
             'alliance_id' => $alliance->id,
             'user_id' => $allianceMemberUser->id,
             'rank_id' => null,

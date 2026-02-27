@@ -2,12 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use OGame\Http\Controllers\Admin\DeveloperShortcutsController;
+use OGame\Http\Controllers\Admin\RulesController as AdminRulesController;
 use OGame\Http\Controllers\Admin\ServerSettingsController as AdminServerSettingsController;
 use OGame\Http\Controllers\AllianceController;
 use OGame\Http\Controllers\AllianceDepotController;
 use OGame\Http\Controllers\BuddiesController;
 use OGame\Http\Controllers\ChangeNickController;
 use OGame\Http\Controllers\CharacterClassController;
+use OGame\Http\Controllers\ChatController;
 use OGame\Http\Controllers\DefenseController;
 use OGame\Http\Controllers\FacilitiesController;
 use OGame\Http\Controllers\FleetController;
@@ -29,6 +31,7 @@ use OGame\Http\Controllers\PremiumController;
 use OGame\Http\Controllers\ResearchController;
 use OGame\Http\Controllers\ResourcesController;
 use OGame\Http\Controllers\RewardsController;
+use OGame\Http\Controllers\RulesController;
 use OGame\Http\Controllers\SearchController;
 use OGame\Http\Controllers\ServerSettingsController;
 use OGame\Http\Controllers\ShipyardController;
@@ -47,6 +50,13 @@ use OGame\Http\Controllers\TechtreeController;
 */
 
 Route::redirect('/', '/overview', 301);
+
+// Public AJAX endpoints (no auth required).
+Route::get('/ajax/main/rules', [RulesController::class, 'ajaxRules'])->name('rules.ajax');
+Route::get('/ajax/main/legal', [RulesController::class, 'ajaxLegal'])->name('legal.ajax');
+Route::get('/ajax/main/privacy-policy', [RulesController::class, 'ajaxPrivacyPolicy'])->name('privacypolicy.ajax');
+Route::get('/ajax/main/terms', [RulesController::class, 'ajaxTerms'])->name('terms.ajax');
+Route::get('/ajax/main/contact', [RulesController::class, 'ajaxContact'])->name('contact.ajax');
 
 // Group: all logged in pages:
 Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(function () {
@@ -91,6 +101,7 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::get('/ajax/shipyard', [ShipyardController::class, 'ajax'])->name('shipyard.ajax');
     Route::post('/shipyard/add-buildrequest', [ShipyardController::class, 'addBuildRequest'])->name('shipyard.addbuildrequest');
     Route::post('/ajax/shipyard/halve-unit', [ShipyardController::class, 'halveUnit'])->name('shipyard.halveunit');
+    Route::post('/ajax/shipyard/complete-unit', [ShipyardController::class, 'completeUnit'])->name('shipyard.completeunit');
 
     // Defense
     Route::get('/defense', [DefenseController::class, 'index'])->name('defense.index');
@@ -195,6 +206,14 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::get('/highscore', [HighscoreController::class, 'index'])->name('highscore.index');
     Route::post('/ajax/highscore', [HighscoreController::class, 'ajax'])->name('highscore.ajax');
 
+    // Chat
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+    Route::post('/chat/history', [ChatController::class, 'getHistory'])->name('chat.history');
+    Route::post('/chat/more', [ChatController::class, 'loadMore'])->name('chat.more');
+    Route::post('/chat/read', [ChatController::class, 'markRead'])->name('chat.read');
+    Route::post('/chat/visibility', [ChatController::class, 'toggleVisibility'])->name('chat.visibility');
+
     Route::get('/buddies', [BuddiesController::class, 'index'])->name('buddies.index');
     Route::post('/buddies', [BuddiesController::class, 'post'])->name('buddies.post');
     Route::get('/buddies/request-dialog', [BuddiesController::class, 'showRequestDialog'])->name('buddies.requestdialog');
@@ -205,6 +224,8 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
 
     Route::get('/rewards', [RewardsController::class, 'index'])->name('rewards.index');
     Route::get('/planet-move', [PlanetMoveController::class, 'index'])->name('planetMove.index');
+    Route::post('/ajax/planet-move', [PlanetMoveController::class, 'move'])->name('planetMove.move');
+    Route::get('/ajax/planet-move/cancel', [PlanetMoveController::class, 'cancel'])->name('planetMove.cancel');
 
     Route::get('/overlay/search', [SearchController::class, 'overlay'])->name('search.overlay');
     Route::post('/ajax/search', [SearchController::class, 'search'])->name('search.ajax');
@@ -233,6 +254,10 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     // Server settings
     Route::get('/admin/server-settings', [AdminServerSettingsController::class, 'index'])->name('admin.serversettings.index');
     Route::post('/admin/server-settings', [AdminServerSettingsController::class, 'update'])->name('admin.serversettings.update');
+
+    // Rules
+    Route::get('/admin/rules', [AdminRulesController::class, 'index'])->name('admin.rules.index');
+    Route::post('/admin/rules', [AdminRulesController::class, 'update'])->name('admin.rules.update');
 
     // Developer shortcuts
     Route::get('/admin/developer-shortcuts', [DeveloperShortcutsController::class, 'index'])->name('admin.developershortcuts.index');

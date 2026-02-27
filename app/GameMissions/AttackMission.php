@@ -156,27 +156,40 @@ class AttackMission extends GameMission
                             'coordinates' => $coordinates,
                         ]);
                     } else {
-                        // Fleet survived - create return mission with surviving units
-                        // Calculate resource survival rate based on cargo capacity
+                        // Fleet survived - update the outbound ACS defend mission with the
+                        // post-battle unit counts and proportional resources. The fleet continues
+                        // to hold at the target planet until its hold time expires, at which point
+                        // AcsDefendMission::processArrival() creates the single return mission.
+                        //
+                        // We deliberately do NOT call startReturn() here because doing so would:
+                        // 1. Show a second fleet slot in the widget immediately after battle.
+                        // 2. Leave a dangling return mission if the player later recalls the fleet,
+                        //    causing both missions to process and double the ships returned.
                         $fleetOwner = $this->playerServiceFactory->make($fleetResult->ownerId);
                         $originalUnits = $this->fleetMissionService->getFleetUnits($defendMission);
                         $originalCargoCapacity = $originalUnits->getTotalCargoCapacity($fleetOwner);
                         $remainingCargoCapacity = $fleetResult->unitsResult->getTotalCargoCapacity($fleetOwner);
 
-                        // Handle edge case: if original capacity is 0, survival rate is 0
                         $survivalRate = $originalCargoCapacity > 0
                             ? $remainingCargoCapacity / $originalCargoCapacity
                             : 0;
 
-                        // Calculate resources remaining on surviving ships
-                        $remainingResources = new Resources(
-                            max(0, (int)($defendMission->metal * $survivalRate)),
-                            max(0, (int)($defendMission->crystal * $survivalRate)),
-                            max(0, (int)($defendMission->deuterium * $survivalRate)),
-                            0
-                        );
+                        // Zero out all ship columns first (covers ship types fully destroyed in battle)
+                        foreach ($originalUnits->units as $unit) {
+                            $defendMission->{$unit->unitObject->machine_name} = 0;
+                        }
 
-                        $this->startReturn($defendMission, $remainingResources, $fleetResult->unitsResult);
+                        // Set surviving ship counts
+                        foreach ($fleetResult->unitsResult->units as $unit) {
+                            $defendMission->{$unit->unitObject->machine_name} = $unit->amount;
+                        }
+
+                        // Update resources to the proportionally surviving amounts
+                        $defendMission->metal = max(0, (int)($defendMission->metal * $survivalRate));
+                        $defendMission->crystal = max(0, (int)($defendMission->crystal * $survivalRate));
+                        $defendMission->deuterium = max(0, (int)($defendMission->deuterium * $survivalRate));
+
+                        $defendMission->save();
                     }
                 }
             }

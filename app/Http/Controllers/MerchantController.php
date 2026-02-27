@@ -231,6 +231,16 @@ class MerchantController extends OGameController
             ];
         }
 
+        // Sort ships to match the scrapyard display order (military first, then civil, with Reaper after Solar Satellite)
+        $scrapShipOrder = [204, 205, 206, 207, 215, 211, 213, 214, 202, 203, 208, 209, 210, 212, 218, 217, 219];
+        uksort($ships, function ($a, $b) use ($scrapShipOrder) {
+            $posA = array_search($a, $scrapShipOrder);
+            $posB = array_search($b, $scrapShipOrder);
+            $posA = $posA !== false ? $posA : 999;
+            $posB = $posB !== false ? $posB : 999;
+            return $posA - $posB;
+        });
+
         // Build defense array
         $defense = [];
         $defenseObjects = $objectService::getDefenseObjects();

@@ -17,6 +17,7 @@ use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\PlanetMove;
 use OGame\Models\ProductionIndex;
 use OGame\Models\ResearchQueue;
 use OGame\Models\Resource;
@@ -251,6 +252,9 @@ class PlanetService
 
         // Unit queues
         UnitQueue::where('planet_id', $this->planet->id)->delete();
+
+        // Planet moves
+        PlanetMove::where('planet_id', $this->planet->id)->delete();
 
         // Update the player's current planet if it is the planet being abandoned.
         if ($this->getPlayer()->getCurrentPlanetId() === $this->planet->id) {
@@ -1508,6 +1512,23 @@ class PlanetService
             // Get object information.
             $object = ObjectService::getUnitObjectById($item->object_id);
 
+            $now = (int)Date::now()->timestamp;
+
+            // If time_end has fully elapsed, award all remaining units at once.
+            // This handles cases where time was reduced (e.g. via DM halving/complete).
+            if ($now >= $item->time_end) {
+                $remaining = $item->object_amount - $item->object_amount_progress;
+                if ($remaining > 0) {
+                    $item->time_progress = $item->time_end;
+                    $item->object_amount_progress = $item->object_amount;
+                    $item->processed = 1;
+                    $item->save();
+
+                    $this->addUnit($object->machine_name, $remaining, $save_planet);
+                }
+                continue;
+            }
+
             // Calculate if we can partially (or fully) complete this order
             // yet based on time per unit and amount of ordered units.
             $time_per_unit = ($item->time_end - $item->time_start) / $item->object_amount;
@@ -1519,7 +1540,7 @@ class PlanetService
             if ($last_update < $item->time_start) {
                 $last_update = $item->time_start;
             }
-            $last_update_diff = (int)Date::now()->timestamp - $last_update;
+            $last_update_diff = $now - $last_update;
 
             // If difference between last update and now is equal to or bigger
             // than the time per unit, give the unit and record progress.

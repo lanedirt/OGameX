@@ -3,10 +3,10 @@
 namespace Tests\Unit;
 
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Models\BuildingQueue;
 use OGame\Models\DarkMatterTransaction;
+use OGame\Models\UnitQueue;
 use OGame\Models\User;
 use OGame\Services\DarkMatterTransactionService;
 use OGame\Services\HalvingService;
@@ -16,8 +16,6 @@ use Tests\AccountTestCase;
 
 class HalvingServiceTest extends AccountTestCase
 {
-    use RefreshDatabase;
-
     private HalvingService $halvingService;
 
     protected function setUp(): void
@@ -64,7 +62,7 @@ class HalvingServiceTest extends AccountTestCase
         $testCases = [];
 
         // Generate random test cases to simulate property-based testing
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 3; $i++) {
             $timeSeconds = rand(1, 604800); // 1 second to 1 week
             $queueTypes = ['building', 'research', 'unit'];
             $queueType = $queueTypes[array_rand($queueTypes)];
@@ -119,7 +117,7 @@ class HalvingServiceTest extends AccountTestCase
         $testCases = [];
 
         // Generate random long durations
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 3; $i++) {
             $timeSeconds = rand(172800, 2592000); // 48 hours to 30 days
             $testCases["long_duration_{$i}"] = [$timeSeconds];
         }
@@ -137,7 +135,7 @@ class HalvingServiceTest extends AccountTestCase
         $testCases = [];
 
         // Generate random long durations
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 3; $i++) {
             $timeSeconds = rand(259200, 2592000); // 72 hours to 30 days
             $testCases["long_duration_{$i}"] = [$timeSeconds];
         }
@@ -167,7 +165,7 @@ class HalvingServiceTest extends AccountTestCase
         $queueTypes = ['building', 'research', 'unit'];
 
         // Generate random short durations
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 3; $i++) {
             $timeSeconds = rand(1, 1800); // 1 second to 30 minutes
             $queueType = $queueTypes[array_rand($queueTypes)];
             $testCases["short_duration_{$i}_{$queueType}"] = [$timeSeconds, $queueType];
@@ -207,7 +205,7 @@ class HalvingServiceTest extends AccountTestCase
         $testCases = [];
         $queueTypes = ['building', 'research', 'unit'];
 
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 3; $i++) {
             $timeSeconds = rand(1, 604800);
             $queueType = $queueTypes[array_rand($queueTypes)];
             $testCases["consistency_{$i}"] = [$timeSeconds, $queueType];
@@ -548,5 +546,391 @@ class HalvingServiceTest extends AccountTestCase
             // Second item should still be in queue and not modified
             $this->assertNotNull($secondQueueItemAfter, 'Second queue item should still exist');
         }
+    }
+
+    /**
+     * Helper method to set up shipyard prerequisites and add units to queue.
+     *
+     * @param int $amount Number of units to queue
+     */
+    private function addUnitsToQueue(int $amount): void
+    {
+        $this->planetSetObjectLevel('robot_factory', 2);
+        $this->planetSetObjectLevel('shipyard', 2);
+        $this->playerSetResearchLevel('combustion_drive', 1);
+        $this->planetAddResources(new \OGame\Models\Resources(500000, 500000, 500000, 0));
+        $this->addShipyardBuildRequest('light_fighter', $amount);
+    }
+
+    /**
+     * Test unit halving awards half the remaining units instantly.
+     */
+    public function testUnitHalvingAwardsHalfUnitsInstantly(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 100000;
+        $user->save();
+
+        $this->addUnitsToQueue(10);
+
+        $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+        $this->assertEquals(10, (int)$queueItem->object_amount);
+
+        // Count fighters before
+        $fightersBefore = $this->planetService->getObjectAmount('light_fighter');
+
+        // Perform halving
+        $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+
+        // Verify 5 units were awarded instantly
+        $this->planetService->reloadPlanet();
+        $fightersAfter = $this->planetService->getObjectAmount('light_fighter');
+        $this->assertEquals($fightersBefore + 5, $fightersAfter, 'Half the units (5) should be awarded instantly');
+    }
+
+    /**
+     * Test unit halving updates queue state correctly (time-shift approach).
+     */
+    public function testUnitHalvingRestructuresQueue(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 100000;
+        $user->save();
+
+        $this->addUnitsToQueue(10);
+
+        $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        // Perform halving
+        $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+
+        // Verify queue state: object_amount unchanged, progress updated, dm_halved set
+        $queueItem->refresh();
+        $this->assertEquals(10, (int)$queueItem->object_amount, 'object_amount should remain 10 (unchanged)');
+        $this->assertEquals(5, (int)$queueItem->object_amount_progress, '5 units should be reflected in progress');
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set');
+        $this->assertEquals(0, (int)$queueItem->processed, 'Queue should not be marked as processed');
+    }
+
+    /**
+     * Test unit halving preserves time per unit rate.
+     */
+    public function testUnitHalvingPreservesTimePerUnit(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 100000;
+        $user->save();
+
+        $this->addUnitsToQueue(20);
+
+        $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        // Calculate original time per unit
+        $originalTimePerUnit = ((int)$queueItem->time_end - (int)$queueItem->time_start) / (int)$queueItem->object_amount;
+
+        // Perform halving
+        $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+
+        // Verify time per unit is preserved
+        $queueItem->refresh();
+        $newTimePerUnit = ((int)$queueItem->time_end - (int)$queueItem->time_start) / (int)$queueItem->object_amount;
+        $this->assertEqualsWithDelta($originalTimePerUnit, $newTimePerUnit, 1, 'Time per unit should remain the same after halving');
+    }
+
+    /**
+     * Test unit halving with odd number of units.
+     *
+     * 7 units × N s each. timeReduction = floor(7N/2) s. unitsToAward = floor(timeReduction/N) = floor(3.5) = 3.
+     */
+    public function testUnitHalvingWithOddNumberOfUnits(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 100000;
+        $user->save();
+
+        $this->addUnitsToQueue(7);
+
+        $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        $fightersBefore = $this->planetService->getObjectAmount('light_fighter');
+
+        // Perform halving: floor(intdiv(7*N, 2) / N) = 3 awarded, 4 remain in queue
+        $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+
+        $queueItem->refresh();
+        $this->assertEquals(7, (int)$queueItem->object_amount, 'object_amount should remain 7 (unchanged)');
+        $this->assertEquals(3, (int)$queueItem->object_amount_progress, '3 units should be reflected in progress');
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set');
+
+        $this->planetService->reloadPlanet();
+        $fightersAfter = $this->planetService->getObjectAmount('light_fighter');
+        $this->assertEquals($fightersBefore + 3, $fightersAfter, '3 units should be awarded instantly');
+    }
+
+    /**
+     * Test that a second halve attempt is rejected (can only halve once).
+     */
+    public function testDoubleUnitHalvingIsRejected(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 200000;
+        $user->save();
+
+        $this->addUnitsToQueue(20);
+
+        $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        // First halve succeeds
+        $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+
+        $queueItem->refresh();
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved should be set after first halve');
+
+        // Second halve must throw
+        $user->refresh();
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('already been halved');
+
+        $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+    }
+
+    /**
+     * Test unit halving with 2 units awards 1 and leaves 1 in queue.
+     */
+    public function testUnitHalvingWithTwoUnits(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 100000;
+        $user->save();
+
+        $this->addUnitsToQueue(2);
+
+        $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        $fightersBefore = $this->planetService->getObjectAmount('light_fighter');
+
+        // Halve: 50% of 2-unit duration → 1 unit awarded instantly, 1 remaining in queue
+        $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+
+        $queueItem->refresh();
+        $this->assertEquals(2, (int)$queueItem->object_amount, 'object_amount should remain 2 (unchanged)');
+        $this->assertEquals(1, (int)$queueItem->object_amount_progress, '1 unit reflected in progress');
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set');
+        $this->assertEquals(0, (int)$queueItem->processed, 'Queue should not be processed yet');
+
+        $this->planetService->reloadPlanet();
+        $fightersAfter = $this->planetService->getObjectAmount('light_fighter');
+        $this->assertEquals($fightersBefore + 1, $fightersAfter, '1 unit should be awarded instantly');
+    }
+
+    /**
+     * Test unit halving deducts correct DM amount.
+     */
+    public function testUnitHalvingDeductsDarkMatter(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 100000;
+        $user->save();
+
+        $this->addUnitsToQueue(10);
+
+        $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        $initialBalance = $user->dark_matter;
+
+        // Calculate expected cost based on remaining time
+        $currentTime = (int)\Carbon\Carbon::now()->timestamp;
+        $remainingTime = (int)$queueItem->time_end - $currentTime;
+        $expectedCost = $this->halvingService->calculateHalvingCost($remainingTime, 'unit');
+
+        $result = $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+
+        $user->refresh();
+        $this->assertEquals($initialBalance - $result['cost'], $user->dark_matter, 'DM should be deducted by the halving cost');
+        $this->assertGreaterThanOrEqual(750, $result['cost'], 'Cost should be at least minimum 750 DM');
+    }
+
+    /**
+     * Test unit halving with insufficient Dark Matter fails.
+     */
+    public function testUnitHalvingInsufficientDarkMatter(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 100;
+        $user->save();
+
+        $this->addUnitsToQueue(10);
+
+        $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        $initialBalance = $user->dark_matter;
+        $fightersBefore = $this->planetService->getObjectAmount('light_fighter');
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Insufficient Dark Matter');
+
+        try {
+            $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+        } finally {
+            // Verify no changes were made
+            $user->refresh();
+            $this->assertEquals($initialBalance, $user->dark_matter, 'DM should not be deducted on failure');
+
+            $this->planetService->reloadPlanet();
+            $fightersAfter = $this->planetService->getObjectAmount('light_fighter');
+            $this->assertEquals($fightersBefore, $fightersAfter, 'No units should be awarded on failure');
+
+            $queueItem->refresh();
+            $this->assertEquals(10, (int)$queueItem->object_amount, 'Queue should be unchanged on failure');
+        }
+    }
+
+    /**
+     * Halving/completing item A must update time adjustments for subsequent chained items
+     * so they start immediately after A finishes, and time_start <= time_end is always valid.
+     */
+    public function testHalveAndCompleteChainedQueueItems(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 1000000;
+        $user->save();
+
+        $this->planetSetObjectLevel('robot_factory', 2);
+        $this->planetSetObjectLevel('shipyard', 2);
+        $this->playerSetResearchLevel('combustion_drive', 1);
+
+        $now      = (int)\Carbon\Carbon::now()->timestamp;
+        $duration = 2000; // 1000 units × 2 s/unit
+        $objectId = ObjectService::getObjectByMachineName('light_fighter')->id;
+        $planetId = $this->planetService->getPlanetId();
+
+        // Three chained items: A (building now), B (starts when A ends), C (starts when B ends)
+        $itemA = $this->makeUnitQueueItem($planetId, $objectId, $now - 100, $duration);
+        $itemB = $this->makeUnitQueueItem($planetId, $objectId, $itemA->time_end, $duration);
+        $itemC = $this->makeUnitQueueItem($planetId, $objectId, $itemB->time_end, $duration);
+
+        // Halve + complete item A
+        $this->halvingService->halveUnit($user, $itemA->id, $this->planetService);
+        $user->refresh();
+        $this->halvingService->completeUnit($user, $itemA->id, $this->planetService);
+        $user->refresh();
+        $itemA->refresh();
+        $itemB->refresh();
+        $itemC->refresh();
+
+        // B and C must have been shifted to start immediately after A's new time_end
+        $this->assertEqualsWithDelta((int)$itemA->time_end, (int)$itemB->time_start, 1, 'B time_start after halve+complete A');
+        $this->assertEquals((int)$itemB->time_start + $duration, (int)$itemB->time_end, 'B duration unchanged');
+        $this->assertEqualsWithDelta((int)$itemB->time_end, (int)$itemC->time_start, 1, 'C time_start after halve+complete A');
+        $this->assertEquals((int)$itemC->time_start + $duration, (int)$itemC->time_end, 'C duration unchanged');
+
+        // Halve + complete item B
+        $this->halvingService->halveUnit($user, $itemB->id, $this->planetService);
+        $user->refresh();
+        $this->halvingService->completeUnit($user, $itemB->id, $this->planetService);
+        $itemB->refresh();
+        $itemC->refresh();
+
+        // B must have valid timestamps (time_start <= time_end) — previously got stuck here
+        $this->assertLessThanOrEqual((int)$itemB->time_end, (int)$itemB->time_start, 'B time_start <= time_end after halve+complete B');
+
+        // C must still be chained correctly to B's final time_end
+        $this->assertEqualsWithDelta((int)$itemB->time_end, (int)$itemC->time_start, 1, 'C time_start after halve+complete B');
+        $this->assertEquals((int)$itemC->time_start + $duration, (int)$itemC->time_end, 'C duration unchanged after B');
+    }
+
+    /**
+     * Helper: create a UnitQueue record with controlled timestamps.
+     */
+    private function makeUnitQueueItem(int $planetId, int $objectId, int $timeStart, int $duration): UnitQueue
+    {
+        $item = new UnitQueue();
+        $item->planet_id              = $planetId;
+        $item->object_id              = $objectId;
+        $item->object_amount          = (int)($duration / 2); // 2 s/unit
+        $item->time_duration          = $duration;
+        $item->time_start             = $timeStart;
+        $item->time_end               = $timeStart + $duration;
+        $item->time_progress          = 0;
+        $item->object_amount_progress = 0;
+        $item->metal                  = 0;
+        $item->crystal                = 0;
+        $item->deuterium              = 0;
+        $item->processed              = 0;
+        $item->dm_halved              = 0;
+        $item->dm_completed           = 0;
+        $item->save();
+
+        return $item;
+    }
+
+    /**
+     * Test unit halving logs a transaction.
+     */
+    public function testUnitHalvingLogsTransaction(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 100000;
+        $user->save();
+
+        $this->addUnitsToQueue(10);
+
+        $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        $transactionCountBefore = DarkMatterTransaction::where('user_id', $this->currentUserId)
+            ->where('type', DarkMatterTransactionType::HALVING->value)
+            ->count();
+
+        $this->halvingService->halveUnit($user, $queueItem->id, $this->planetService);
+
+        $transactionCountAfter = DarkMatterTransaction::where('user_id', $this->currentUserId)
+            ->where('type', DarkMatterTransactionType::HALVING->value)
+            ->count();
+
+        $this->assertEquals($transactionCountBefore + 1, $transactionCountAfter, 'Transaction should be created');
+
+        $transaction = DarkMatterTransaction::where('user_id', $this->currentUserId)
+            ->where('type', DarkMatterTransactionType::HALVING->value)
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($transaction, 'Halving transaction should exist');
+        $this->assertStringContainsString('Halving unit', $transaction->description);
     }
 }

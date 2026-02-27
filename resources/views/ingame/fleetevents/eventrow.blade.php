@@ -239,7 +239,7 @@
         <td class="sendMail">
             @if ($fleet_event_row->is_recallable)
                 <span class="reversal reversal_time" ref="{{ $fleet_event_row->id }}">
-                    <a class="icon_link tooltipHTML recallFleet" data-fleet-id="{{ $fleet_event_row->id }}"
+                    <a class="icon_link tooltipHTML recallFleet" data-fleet-id="{{ $fleet_event_row->real_mission_id }}"
                        title="Recall:| {{ \Carbon\Carbon::parse($fleet_event_row->active_recall_time)->format('d.m.Y') }}<br>
                                             {{ \Carbon\Carbon::parse($fleet_event_row->active_recall_time)->format('H:i:s') }}">
                         <img src="/img/icons/89624964d4b06356842188dba05b1b.gif" height="16" width="16"/>

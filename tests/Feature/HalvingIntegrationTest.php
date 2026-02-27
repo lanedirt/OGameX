@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use OGame\Models\BuildingQueue;
 use OGame\Models\DarkMatterTransaction;
 use OGame\Models\ResearchQueue;
@@ -15,8 +14,6 @@ use Tests\AccountTestCase;
  */
 class HalvingIntegrationTest extends AccountTestCase
 {
-    use RefreshDatabase;
-
     /**
      * Test building halving end-to-end workflow.
      */
@@ -110,6 +107,10 @@ class HalvingIntegrationTest extends AccountTestCase
 
     /**
      * Test unit halving end-to-end workflow.
+     *
+     * Halving removes 50% of original duration from remaining time and instantly
+     * awards the corresponding units. object_amount is preserved; progress and
+     * dm_halved flag are updated. Time per unit rate stays the same.
      */
     public function testUnitHalvingEndToEnd(): void
     {
@@ -121,7 +122,7 @@ class HalvingIntegrationTest extends AccountTestCase
         $this->planetSetObjectLevel('shipyard', 2);
         $this->playerSetResearchLevel('combustion_drive', 1);
         $this->planetAddResources(new \OGame\Models\Resources(50000, 50000, 50000, 0));
-        $this->addShipyardBuildRequest('light_fighter', 5);
+        $this->addShipyardBuildRequest('light_fighter', 10);
 
         $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
             ->where('processed', 0)
@@ -130,7 +131,12 @@ class HalvingIntegrationTest extends AccountTestCase
         $this->assertNotNull($queueItem, 'Queue item should exist');
 
         $initialBalance = $user->dark_matter;
-        $initialTimeEnd = $queueItem->time_end;
+        $initialObjectAmount = (int)$queueItem->object_amount;
+        $initialTimePerUnit = ((int)$queueItem->time_end - (int)$queueItem->time_start) / $initialObjectAmount;
+
+        // Count light fighters on planet before halving
+        $this->planetService->reloadPlanet();
+        $fightersBefore = $this->planetService->getObjectAmount('light_fighter');
 
         $response = $this->post('/ajax/shipyard/halve-unit', [
             '_token' => csrf_token(),
@@ -145,8 +151,22 @@ class HalvingIntegrationTest extends AccountTestCase
         $user->refresh();
         $this->assertLessThan($initialBalance, $user->dark_matter, 'Dark Matter should be deducted');
 
+        // Verify queue state: object_amount unchanged, progress updated, dm_halved set
         $queueItem->refresh();
-        $this->assertLessThan($initialTimeEnd, $queueItem->time_end, 'time_end should be reduced');
+        $expectedAwarded = 5; // floor(50% of 10-unit duration / time_per_unit) = 5
+
+        $this->assertEquals($initialObjectAmount, (int)$queueItem->object_amount, 'object_amount should remain unchanged');
+        $this->assertEquals($expectedAwarded, (int)$queueItem->object_amount_progress, 'Progress should reflect instantly awarded units');
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set');
+
+        // Verify time per unit is preserved (both time_start and time_end shifted equally)
+        $newTimePerUnit = ((int)$queueItem->time_end - (int)$queueItem->time_start) / (int)$queueItem->object_amount;
+        $this->assertEqualsWithDelta($initialTimePerUnit, $newTimePerUnit, 1, 'Time per unit should remain the same');
+
+        // Verify units were awarded to the planet
+        $this->planetService->reloadPlanet();
+        $fightersAfter = $this->planetService->getObjectAmount('light_fighter');
+        $this->assertEquals($fightersBefore + $expectedAwarded, $fightersAfter, 'Half the units should be awarded instantly');
     }
 
     /**

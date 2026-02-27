@@ -139,7 +139,7 @@
                         var scheduleBuildListEntryUrl = '{{ route('resources.addbuildrequest.post') }}';
                         var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
-                        var planetMoveInProgress = false;
+                        var planetMoveInProgress = {{ $planet_move_in_progress ? 'true' : 'false' }};
                     </script>
                 </div>
             </div>

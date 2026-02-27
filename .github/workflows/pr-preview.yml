@@ -127,6 +127,11 @@ jobs:
               profiles:
                 - disabled
 
+            ogamex-reverb:
+              ports: !override []
+              profiles:
+                - disabled
+
           networks:
             traefik:
               external: true
