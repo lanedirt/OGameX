@@ -9,6 +9,7 @@ use OGame\Enums\FleetMissionStatus;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
+use OGame\Models\FleetUnion;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
@@ -246,7 +247,11 @@ class FleetEventsController extends OGameController
 
             $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
 
+            // Track union membership for ACS Attack grouping
+            $eventRowViewModel->union_id = $row->union_id;
+
             $friendlyStatus = $this->determineFriendly($row, $player);
+            $eventRowViewModel->friendly_status = $friendlyStatus->value;
 
             $eventRowViewModel->is_recallable = false;
             if ($friendlyStatus === FleetMissionStatus::Friendly) {
@@ -357,6 +362,79 @@ class FleetEventsController extends OGameController
                 $fleet_events[] = $returnTripRow;
             }
         }
+
+        // Group ACS Attack missions (type 2) by union_id into union summary rows
+        $unionGroups = [];
+        $nonUnionEvents = [];
+        foreach ($fleet_events as $event) {
+            if ($event->union_id !== null && $event->mission_type === 2 && !$event->is_return_trip) {
+                $unionGroups[$event->union_id][] = $event;
+            } else {
+                $nonUnionEvents[] = $event;
+            }
+        }
+
+        // Build union summary rows for the fleet events widget
+        foreach ($unionGroups as $unionId => $memberFleets) {
+            $union = FleetUnion::find($unionId);
+            if ($union === null) {
+                // Union not found, keep individual rows
+                foreach ($memberFleets as $fleet) {
+                    $nonUnionEvents[] = $fleet;
+                }
+                continue;
+            }
+
+            // Use the first fleet (initiator) as the basis for the summary row
+            $initiator = $memberFleets[0];
+            foreach ($memberFleets as $fleet) {
+                if ($fleet->id < $initiator->id) {
+                    $initiator = $fleet;
+                }
+            }
+
+            $summaryRow = new FleetEventRowViewModel();
+            $summaryRow->is_union_summary = true;
+            $summaryRow->id = $unionId; // Use union ID as the row ID
+            $summaryRow->union_id = $unionId;
+            $summaryRow->mission_type = 2;
+            $summaryRow->mission_label = 'ACS Attack';
+            $summaryRow->mission_time_arrival = $union->time_arrival;
+            $summaryRow->time_departure = $initiator->time_departure;
+            $summaryRow->is_return_trip = false;
+            $summaryRow->is_recallable = false;
+            $summaryRow->friendly_status = $initiator->friendly_status ?? 'friendly';
+
+            $summaryRow->destination_planet_name = $initiator->destination_planet_name;
+            $summaryRow->destination_planet_coords = $initiator->destination_planet_coords;
+            $summaryRow->destination_planet_type = $initiator->destination_planet_type;
+            $summaryRow->origin_planet_name = '';
+            $summaryRow->origin_planet_coords = $initiator->origin_planet_coords;
+            $summaryRow->origin_planet_type = $initiator->origin_planet_type;
+
+            // Union stats
+            $summaryRow->union_fleet_count = $union->activeFleetMissions()->count();
+            $summaryRow->union_max_fleets = $union->max_fleets;
+            $summaryRow->union_player_count = $union->getUniquePlayerCount();
+            $summaryRow->union_max_players = $union->max_players;
+
+            // Total fleet unit count across all member fleets
+            $totalUnits = 0;
+            foreach ($memberFleets as $fleet) {
+                $totalUnits += $fleet->fleet_unit_count;
+            }
+            $summaryRow->fleet_unit_count = $totalUnits;
+            $summaryRow->fleet_units = $initiator->fleet_units;
+            $summaryRow->resources = new Resources(0, 0, 0, 0);
+            $summaryRow->active_recall_time = 0;
+
+            // Attach member fleets for expanded view
+            $summaryRow->union_member_fleets = $memberFleets;
+
+            $nonUnionEvents[] = $summaryRow;
+        }
+
+        $fleet_events = $nonUnionEvents;
 
         // Order the fleet events by mission time arrival.
         usort($fleet_events, function ($a, $b) {

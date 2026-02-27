@@ -201,6 +201,9 @@ class FleetController extends OGameController
             $isRelocationTransfer = ($row->mission_type === 4 && $row->planet_id_from === $row->planet_id_to);
             $eventRowViewModel->is_recallable = ($row->mission_type !== 10 && !$isRelocationTransfer);
 
+            // Track union membership for ACS Attack grouping
+            $eventRowViewModel->union_id = $row->union_id;
+
             // Set whether this fleet can be converted to an ACS federation (union)
             // Only regular attack missions (type 1) that are not return trips and not already in a union
             $eventRowViewModel->can_create_federation = (
@@ -238,6 +241,89 @@ class FleetController extends OGameController
 
             $fleet_events[] = $eventRowViewModel;
         }
+
+        // Group ACS Attack missions (type 2) by union_id into union summary rows
+        $unionGroups = [];
+        $nonUnionEvents = [];
+        foreach ($fleet_events as $event) {
+            if ($event->union_id !== null && $event->mission_type === 2 && !$event->is_return_trip) {
+                $unionGroups[$event->union_id][] = $event;
+            } else {
+                $nonUnionEvents[] = $event;
+            }
+        }
+
+        // Build union summary rows
+        foreach ($unionGroups as $unionId => $memberFleets) {
+            $union = FleetUnion::find($unionId);
+            if ($union === null) {
+                // Union not found, keep individual rows
+                foreach ($memberFleets as $fleet) {
+                    $nonUnionEvents[] = $fleet;
+                }
+                continue;
+            }
+
+            // Use the first fleet (initiator, slot 1) as the basis for the summary row
+            $initiator = $memberFleets[0];
+            foreach ($memberFleets as $fleet) {
+                // Find the actual initiator (lowest union_slot)
+                if ($fleet->id < $initiator->id) {
+                    $initiator = $fleet;
+                }
+            }
+
+            $summaryRow = new FleetEventRowViewModel();
+            $summaryRow->is_union_summary = true;
+            $summaryRow->id = $unionId; // Use union ID as the row ID
+            $summaryRow->union_id = $unionId;
+            $summaryRow->mission_type = 2;
+            $summaryRow->mission_label = 'ACS Attack';
+            $summaryRow->mission_time_arrival = $union->time_arrival;
+            $summaryRow->time_departure = $initiator->time_departure;
+            $summaryRow->is_return_trip = false;
+            $summaryRow->is_recallable = false; // No recall on summary row
+            $summaryRow->friendly_status = $initiator->friendly_status;
+            $summaryRow->has_return_trip = false;
+            $summaryRow->timer_time = $union->time_arrival;
+            $summaryRow->remaining_time = max(0, $union->time_arrival - time());
+            $summaryRow->duration = max(1, $union->time_arrival - $initiator->time_departure);
+            $summaryRow->active_recall_time = 0;
+
+            // Destination info from the union
+            $summaryRow->destination_planet_name = $initiator->destination_planet_name;
+            $summaryRow->destination_planet_coords = $initiator->destination_planet_coords;
+            $summaryRow->destination_planet_type = $initiator->destination_planet_type;
+            $summaryRow->destination_planet_image_type = $initiator->destination_planet_image_type;
+            $summaryRow->destination_planet_biome_type = $initiator->destination_planet_biome_type;
+
+            // Origin info not shown on summary row (shows fleet/player counts instead)
+            $summaryRow->origin_planet_name = '';
+            $summaryRow->origin_planet_coords = $initiator->origin_planet_coords;
+            $summaryRow->origin_planet_type = $initiator->origin_planet_type;
+
+            // Union stats
+            $summaryRow->union_fleet_count = $union->activeFleetMissions()->count();
+            $summaryRow->union_max_fleets = $union->max_fleets;
+            $summaryRow->union_player_count = $union->getUniquePlayerCount();
+            $summaryRow->union_max_players = $union->max_players;
+
+            // Total fleet unit count across all member fleets
+            $totalUnits = 0;
+            foreach ($memberFleets as $fleet) {
+                $totalUnits += $fleet->fleet_unit_count;
+            }
+            $summaryRow->fleet_unit_count = $totalUnits;
+            $summaryRow->fleet_units = $initiator->fleet_units; // Will be shown per-fleet in expanded view
+            $summaryRow->resources = new Resources(0, 0, 0, 0);
+
+            // Attach member fleets for expanded view
+            $summaryRow->union_member_fleets = $memberFleets;
+
+            $nonUnionEvents[] = $summaryRow;
+        }
+
+        $fleet_events = $nonUnionEvents;
 
         // Order the fleet events by mission time arrival.
         usort($fleet_events, function ($a, $b) {
@@ -745,16 +831,22 @@ class FleetController extends OGameController
         try {
             $union = $fleetUnionService->createUnion($mission, $unionName);
 
+            // Response format expected by unionEdit() callback in movement.blade.php
             return response()->json([
-                'success' => true,
-                'union_id' => $union->id,
-                'time_arrival' => $union->time_arrival,
-                'newAjaxToken' => csrf_token(),
+                'fleetID' => $fleetMissionId,
+                'unionID' => $union->id,
+                'targetID' => $mission->galaxy_to . ':' . $mission->system_to . ':' . $mission->position_to,
+                'token' => csrf_token(),
+                'errorbox' => [
+                    'type' => 'fadeBox',
+                    'text' => __('Fleet union successfully created'),
+                    'failed' => false,
+                ],
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'error' => $e->getMessage(),
-                'newAjaxToken' => csrf_token(),
+                'errorbox' => [$e->getMessage()],
+                'token' => csrf_token(),
             ], 400);
         }
     }

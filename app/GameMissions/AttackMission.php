@@ -81,6 +81,13 @@ class AttackMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
+        // In a union, only the initiator (slot 1) should execute the battle.
+        // Non-initiator missions are collected by collectAttackingFleets() and their
+        // return missions are handled by the multi-attacker processing block.
+        if ($mission->isInUnion() && $mission->union_slot !== 1) {
+            return;
+        }
+
         $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, true);
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
@@ -235,7 +242,9 @@ class AttackMission extends GameMission
                         $totalResources = LootService::distributeLoot($totalResources, $remainingCargoCapacity);
                     }
 
-                    // Create return mission with survivors
+                    // Mark outbound mission as processed and create return mission with survivors
+                    $fleetMission->processed = 1;
+                    $fleetMission->save();
                     $this->startReturn($fleetMission, $totalResources, $fleetResult->unitsResult);
                 }
             }

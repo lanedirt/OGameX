@@ -58,4 +58,39 @@ class FleetEventRowViewModel
      * True for attack missions that are not return trips and not already in a union.
      */
     public bool $can_create_federation = false;
+
+    /**
+     * @var bool Whether this row is a union summary row (grouping multiple ACS Attack fleets).
+     */
+    public bool $is_union_summary = false;
+
+    /**
+     * @var int|null The union ID this fleet belongs to.
+     */
+    public ?int $union_id = null;
+
+    /**
+     * @var int Number of fleets in this union.
+     */
+    public int $union_fleet_count = 0;
+
+    /**
+     * @var int Maximum number of fleets allowed in this union.
+     */
+    public int $union_max_fleets = 16;
+
+    /**
+     * @var int Number of unique players in this union.
+     */
+    public int $union_player_count = 0;
+
+    /**
+     * @var int Maximum number of players allowed in this union.
+     */
+    public int $union_max_players = 5;
+
+    /**
+     * @var array<FleetEventRowViewModel> Individual fleet rows within this union (for expanded view).
+     */
+    public array $union_member_fleets = [];
 }

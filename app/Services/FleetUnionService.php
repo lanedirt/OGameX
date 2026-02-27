@@ -162,9 +162,10 @@ class FleetUnionService
         /** @var FleetUnion $union */
         $union = $mission->union;
 
-        // Remove from union
+        // Remove from union and revert to regular attack
         $mission->union_id = null;
         $mission->union_slot = null;
+        $mission->mission_type = 1;
         $mission->save();
 
         // Check if union is now empty

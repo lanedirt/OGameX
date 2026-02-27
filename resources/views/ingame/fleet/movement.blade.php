@@ -44,7 +44,11 @@
                 </div>
 
                 @foreach ($fleet_events as $fleet_event)
-                    @include('ingame.fleet.partials.movement-row', ['fleet_event' => $fleet_event])
+                    @if ($fleet_event->is_union_summary)
+                        @include('ingame.fleet.partials.movement-row-union', ['fleet_event' => $fleet_event])
+                    @else
+                        @include('ingame.fleet.partials.movement-row', ['fleet_event' => $fleet_event])
+                    @endif
                 @endforeach
 
                 <div class="placeholder"></div>
@@ -88,7 +92,7 @@
                             function() { reloadPage(); }
                         );
 
-                        @if (!$fleet_event->is_at_destination)
+                        @if (!$fleet_event->is_at_destination && !$fleet_event->is_union_summary)
                         new movementImageCountdown(
                             getElementByIdWithCache("route_{{ $fleet_event->id }}"),
                             {{ $fleet_event->remaining_time }},
@@ -113,6 +117,26 @@
                             {{ $fleet_event->return_remaining_time }}
                         );
                     @endif
+
+                    {{-- Initialize countdowns for member fleets within union summary rows --}}
+                    @if ($fleet_event->is_union_summary)
+                        @foreach ($fleet_event->union_member_fleets as $member_fleet)
+                            @if ($member_fleet->remaining_time > 0)
+                                new simpleCountdown(
+                                    getElementByIdWithCache("timer_{{ $member_fleet->id }}"),
+                                    {{ $member_fleet->remaining_time }},
+                                    function() { reloadPage(); }
+                                );
+                            @endif
+
+                            @if ($member_fleet->is_recallable && !$member_fleet->is_return_trip)
+                                new recallShipCountdown(
+                                    {{ $member_fleet->id }},
+                                    {{ $member_fleet->active_recall_time }}
+                                );
+                            @endif
+                        @endforeach
+                    @endif
                 @endforeach
 
                 initMovement();
@@ -134,36 +158,28 @@
                 // Federation (fleet union) overlay handler
                 $("#movement a.openOverlay[data-overlay-class='federation-layer']").off('click').on('click', function (e) {
                     e.preventDefault();
-                    var fleetId = $(this).attr("data-fleet-id");
                     var overlayUrl = $(this).attr("href");
-
-                    // Open the overlay
-                    $.ajax({
-                        url: overlayUrl,
-                        type: 'GET',
-                        success: function(response) {
-                            // Create and show the overlay
-                            var overlayDiv = $('<div class="overlayDiv">').html(response);
-                            overlayDiv.dialog({
-                                modal: true,
-                                resizable: false,
-                                width: 'auto',
-                                title: overlayDiv.find('a[data-overlay-class="federation-layer"]').attr('data-title') || '@lang('Fleet union')',
-                                close: function() {
-                                    $(this).dialog('destroy').remove();
-                                }
-                            });
-
-                            // Set the fleet mission ID in the form (using OGame field name)
-                            overlayDiv.find('input[name="fleetID"]').val(fleetId);
-                        },
-                        error: function() {
-                            if (typeof errorBox !== 'undefined') {
-                                errorBox('@lang('Failed to load federation overlay')');
-                            }
-                        }
+                    openOverlay(overlayUrl, {
+                        'class': 'federation-layer',
+                        title: '@lang('Fleet union')'
                     });
+                    return false;
+                });
 
+                // Union expand/collapse toggle handler
+                $("#movement a.toggleUnionDetails").off('click').on('click', function (e) {
+                    e.preventDefault();
+                    var unionId = $(this).attr("data-union-id");
+                    var summaryRow = $(this).closest(".allianceAttack");
+                    var memberRows = $(".partnerInfo.union" + unionId);
+
+                    if (summaryRow.hasClass("detailsClosed")) {
+                        summaryRow.removeClass("detailsClosed").addClass("detailsOpened");
+                        memberRows.show();
+                    } else {
+                        summaryRow.removeClass("detailsOpened").addClass("detailsClosed");
+                        memberRows.hide();
+                    }
                     return false;
                 });
             });

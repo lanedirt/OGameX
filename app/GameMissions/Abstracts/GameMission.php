@@ -22,6 +22,7 @@ use OGame\Models\FleetUnion;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\FleetUnionService;
 use OGame\Services\MessageService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -137,7 +138,7 @@ abstract class GameMission
     {
         // Handle fleet recall from union (remove from union, delete empty union)
         if ($mission->isInUnion()) {
-            $fleetUnionService = resolve(\OGame\Services\FleetUnionService::class);
+            $fleetUnionService = resolve(FleetUnionService::class);
             $fleetUnionService->handleFleetRecall($mission);
         }
 
