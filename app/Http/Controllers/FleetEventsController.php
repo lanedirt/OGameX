@@ -207,6 +207,7 @@ class FleetEventsController extends OGameController
             // Planet from service
             $eventRowViewModel = new FleetEventRowViewModel();
             $eventRowViewModel->id = $row->id;
+            $eventRowViewModel->real_mission_id = $row->id;
             $eventRowViewModel->mission_type = $row->mission_type;
             $eventRowViewModel->mission_label = $fleetMissionService->missionTypeToLabel($row->mission_type);
             // For ACS Defend missions (type 5), show physical arrival time (when fleet actually arrives)
@@ -299,7 +300,8 @@ class FleetEventsController extends OGameController
                 // ACS Defend missions (type 5) should be recallable during hold time
                 // Expeditions (type 15) should NOT be recallable during hold time
                 $waitEndRow->is_recallable = ($friendlyStatus === FleetMissionStatus::Friendly && $row->mission_type === 5);
-                $waitEndRow->id = $row->id + 888888; // Add large number to avoid conflicts
+                $waitEndRow->id = $row->id + 888888; // Add large number to avoid DOM ID conflicts
+                $waitEndRow->real_mission_id = $row->id;
                 $waitEndRow->mission_type = $eventRowViewModel->mission_type;
                 $waitEndRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
                 // For ACS Defend, time_arrival already includes hold time (return departure time)
@@ -336,7 +338,8 @@ class FleetEventsController extends OGameController
                 $returnTripRow = new FleetEventRowViewModel();
                 $returnTripRow->is_return_trip = true;
                 $returnTripRow->is_recallable = false;
-                $returnTripRow->id = $row->id + 999999; // Add a large number to avoid id conflicts
+                $returnTripRow->id = $row->id + 999999; // Add a large number to avoid DOM ID conflicts
+                $returnTripRow->real_mission_id = $row->id;
                 $returnTripRow->mission_type = $eventRowViewModel->mission_type;
                 $returnTripRow->mission_label = $fleetMissionService->missionTypeToLabel($eventRowViewModel->mission_type);
                 $returnTripRow->mission_time_arrival = $returnDepartureTime + $oneWayDuration;
