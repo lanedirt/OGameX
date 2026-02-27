@@ -413,14 +413,25 @@ class FleetMissionService
     {
         $currentTime = Date::now()->timestamp;
 
-        // Get unprocessed missions that have arrived
+        // Get unprocessed missions that have arrived.
+        // For ACS Defend (type 5), time_arrival = physical_arrival + time_holding, so we also
+        // include missions where the physical arrival time has passed (to send arrival messages on time).
         $missions = $this->model
             ->where(function ($query) use ($planetIds) {
                 $query->whereIn('planet_id_from', $planetIds)
                     ->orWhereIn('planet_id_to', $planetIds);
             })
-            ->where('time_arrival', '<=', $currentTime)
             ->where('processed', 0)
+            ->where(function ($query) use ($currentTime) {
+                $query->where('time_arrival', '<=', $currentTime)
+                    // ACS Defend: also include missions that have physically arrived but are still holding
+                    ->orWhere(function ($query) use ($currentTime) {
+                        $query->where('mission_type', 5)
+                            ->whereNull('parent_id')
+                            ->whereNotNull('time_holding')
+                            ->whereRaw('(time_arrival - time_holding) <= ?', [$currentTime]);
+                    });
+            })
             ->get();
 
         // Filter based on mission type and hold time
@@ -463,9 +474,9 @@ class FleetMissionService
      *
      * @param int $id
      * @param bool $only_active
-     * @return FleetMission
+     * @return FleetMission|null
      */
-    public function getFleetMissionById(int $id, bool $only_active = true): FleetMission
+    public function getFleetMissionById(int $id, bool $only_active = true): FleetMission|null
     {
         if ($only_active) {
             return $this->model
@@ -534,6 +545,9 @@ class FleetMissionService
     {
         // Load the mission object again from database to ensure we have the latest data.
         $mission = $this->getFleetMissionById($mission->id, false);
+        if ($mission === null) {
+            return;
+        }
 
         // Sanity check: only process missions that have arrived AND potential waiting time has passed.
         // Different mission types handle hold time differently:
@@ -622,32 +636,42 @@ class FleetMissionService
             return;
         }
 
-        $isAcsDefendInHoldTime = false;
-
-        // Sanity check: only allow cancelling missions that have not yet arrived OR are still in their holding period.
-        // ACS Defend missions (type 5) can be recalled during their hold time (while waiting at destination).
-        // For other missions with time_holding (e.g. expeditions), canceling is not allowed after arrival.
+        // Sanity check: only allow cancelling missions that have not yet arrived.
+        // For ACS Defend (type 5), time_arrival already includes the hold time, so when
+        // time_arrival < now the hold period has also expired and recall is no longer allowed.
+        // For other missions with hold time (e.g. expeditions), canceling is not allowed after arrival.
         if ($mission->time_arrival < Date::now()->timestamp) {
-            // Mission has arrived - check if it's an ACS Defend mission that's still holding
-            if ($mission->mission_type !== 5 || $mission->time_holding === null) {
-                // Not an ACS Defend or no hold time - cannot recall
-                return;
-            }
-
-            // Check if still within hold time
-            $holdEndTime = $mission->time_arrival + $mission->time_holding;
-            if ($holdEndTime <= Date::now()->timestamp) {
-                // Hold time has expired - cannot recall
-                return;
-            }
-            // If we get here, it's an ACS Defend mission still holding - allow recall even if processed
-            $isAcsDefendInHoldTime = true;
+            return;
         }
+
+        // Determine if this is an ACS Defend mission currently within its hold period.
+        // For ACS Defend: time_arrival = physical_arrival + time_holding
+        // The fleet is in hold when: (time_arrival - time_holding) <= now < time_arrival
+        // The processed flag may be set to 1 by AttackMission when the fleet is attacked during hold time,
+        // so we must allow recall in that case too.
+        $isAcsDefendInHoldTime = (
+            $mission->mission_type === 5
+            && $mission->time_holding !== null
+            && $mission->time_holding > 0
+            && ($mission->time_arrival - $mission->time_holding) <= Date::now()->timestamp
+        );
 
         // Sanity check: only allow canceling missions that have not been processed yet.
         // Exception: ACS Defend missions can be recalled during hold time even if processed.
         if ($mission->processed && !$isAcsDefendInHoldTime) {
             return;
+        }
+
+        // If an ACS Defend fleet is recalled during hold time and the arrival messages have not
+        // been sent yet (processed_hold == 0), send them now. The fleet did physically arrive
+        // at the destination even though it is being recalled, so both sender and host must be
+        // informed. Without this, a recall before the first page load since physical arrival
+        // would skip the messages entirely because cancel() sets processed=1, causing the
+        // query in getArrivedMissionsByPlanetIds() to exclude this mission permanently.
+        if ($isAcsDefendInHoldTime && $mission->processed_hold == 0) {
+            $this->sendAcsDefendArrivalMessages($mission);
+            $mission->processed_hold = 1;
+            $mission->save();
         }
 
         $missionObject = $this->gameMissionFactory->getMissionById($mission->mission_type, [

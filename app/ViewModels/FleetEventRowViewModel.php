@@ -10,6 +10,7 @@ use OGame\Models\Resources;
 class FleetEventRowViewModel
 {
     public int $id;
+    public ?int $real_mission_id = null;
     public int $mission_type;
     public string $mission_label;
     public int $mission_time_arrival;
