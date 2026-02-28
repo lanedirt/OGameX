@@ -12,6 +12,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\FleetUnion;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\FleetMissionService;
 use OGame\Services\PlayerService;
 use OGame\ViewModels\FleetEventRowViewModel;
@@ -238,6 +239,11 @@ class FleetEventsController extends OGameController
                 if ($planetToService !== null) {
                     $eventRowViewModel->destination_planet_name = $planetToService->getPlanetName();
                     $eventRowViewModel->destination_planet_coords = $planetToService->getPlanetCoordinates();
+                    $destPlayer = $planetToService->getPlayer();
+                    if ($destPlayer !== null) {
+                        $eventRowViewModel->destination_player_id = $destPlayer->getId();
+                        $eventRowViewModel->destination_player_name = $destPlayer->getUsername(false);
+                    }
                 }
             }
 
@@ -245,10 +251,12 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
             $eventRowViewModel->resources = $fleetMissionService->getResources($row);
 
+            $eventRowViewModel->time_departure = $row->time_departure;
             $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
 
-            // Track union membership for ACS Attack grouping
+            // Track union membership and user for ACS Attack grouping
             $eventRowViewModel->union_id = $row->union_id;
+            $eventRowViewModel->user_id = $row->user_id;
 
             $friendlyStatus = $this->determineFriendly($row, $player);
             $eventRowViewModel->friendly_status = $friendlyStatus->value;
@@ -418,15 +426,35 @@ class FleetEventsController extends OGameController
             $summaryRow->union_player_count = $union->getUniquePlayerCount();
             $summaryRow->union_max_players = $union->max_players;
 
-            // Total fleet unit count across all member fleets
+            // Total fleet unit count across all member fleets and per-player breakdown
             $totalUnits = 0;
+            $playerBreakdown = [];
             foreach ($memberFleets as $fleet) {
                 $totalUnits += $fleet->fleet_unit_count;
+
+                // Resolve player name
+                $user = User::find($fleet->user_id);
+                $fleet->player_name = $user !== null ? $user->username : 'Unknown';
+
+                // Group by player for union tooltip
+                $playerId = $fleet->user_id ?? 0;
+                if (!isset($playerBreakdown[$playerId])) {
+                    $playerBreakdown[$playerId] = [
+                        'player_name' => $fleet->player_name,
+                        'planet_name' => $fleet->origin_planet_name,
+                        'coords' => '[' . $fleet->origin_planet_coords->asString() . ']',
+                        'fleet_count' => 0,
+                        'ship_count' => 0,
+                    ];
+                }
+                $playerBreakdown[$playerId]['fleet_count']++;
+                $playerBreakdown[$playerId]['ship_count'] += $fleet->fleet_unit_count;
             }
             $summaryRow->fleet_unit_count = $totalUnits;
             $summaryRow->fleet_units = $initiator->fleet_units;
             $summaryRow->resources = new Resources(0, 0, 0, 0);
             $summaryRow->active_recall_time = 0;
+            $summaryRow->union_player_breakdown = array_values($playerBreakdown);
 
             // Attach member fleets for expanded view
             $summaryRow->union_member_fleets = $memberFleets;
@@ -444,6 +472,7 @@ class FleetEventsController extends OGameController
         return view('ingame.fleetevents.eventlist')->with(
             [
                 'fleet_events' => $fleet_events,
+                'espionage_probe_count' => $player->getEspionageProbesAmount() ?? 3,
             ]
         );
     }

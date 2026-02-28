@@ -54,10 +54,15 @@ class FleetEventRowViewModel
     public Resources $resources;
 
     /**
-     * @var bool Whether this fleet can be converted to an ACS federation (union).
-     * True for attack missions that are not return trips and not already in a union.
+     * @var bool Whether this fleet can open the federation (union) overlay.
+     * True for attack missions (type 1 to create, type 2 to edit).
      */
     public bool $can_create_federation = false;
+
+    /**
+     * @var string The alliance/union name displayed on the movement row (e.g. "KV12345").
+     */
+    public string $alliance_name = '';
 
     /**
      * @var bool Whether this row is a union summary row (grouping multiple ACS Attack fleets).
@@ -93,4 +98,29 @@ class FleetEventRowViewModel
      * @var array<FleetEventRowViewModel> Individual fleet rows within this union (for expanded view).
      */
     public array $union_member_fleets = [];
+
+    /**
+     * @var int|null The user ID who owns this fleet.
+     */
+    public int|null $user_id = null;
+
+    /**
+     * @var string The player name who owns this fleet (used in union member rows).
+     */
+    public string $player_name = '';
+
+    /**
+     * @var array<array{player_name: string, planet_name: string, coords: string, fleet_count: int, ship_count: int}> Per-player breakdown for union tooltip.
+     */
+    public array $union_player_breakdown = [];
+
+    /**
+     * @var int|null The user ID of the destination planet owner (for chat button).
+     */
+    public int|null $destination_player_id = null;
+
+    /**
+     * @var string The username of the destination planet owner (for chat button).
+     */
+    public string $destination_player_name = '';
 }

@@ -1127,6 +1127,11 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                 <select size="1" class="combatunits dropdownInitialized" id="aksbox"
                                                         name="acsValues" style="display: none;">
                                                     <option value="-">-</option>
+                                                    @foreach ($availableUnions as $union)
+                                                        <option value="{{ $union['galaxy'] }}#{{ $union['system'] }}#{{ $union['position'] }}#{{ $union['planet_type'] }}#{{ $union['name'] }}#{{ $union['id'] }}">
+                                                            {{ $union['name'] }} ({{ $union['creator'] }}) [{{ $union['galaxy'] }}:{{ $union['system'] }}:{{ $union['position'] }}]
+                                                        </option>
+                                                    @endforeach
                                                 </select><span class="dropdown currentlySelected combatunits"
                                                                rel="dropdown568" style="width: 144px;"><a
                                                             class="undefined" data-value="-" rel="dropdown568"

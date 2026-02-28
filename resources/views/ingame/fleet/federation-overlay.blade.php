@@ -32,7 +32,10 @@
                 <div class="wrapInner">
                     <div class="textBeefy">@lang('Union user'): (1/5)</div>
                     <ul size="7" id="participantselect" class="ui-selectable">
-                        <li ref="current" class="undermark">@lang('You')</li>
+                        <li ref="current" class="undermark">{{ $playerName }}</li>
+                        @foreach ($unionMembers as $memberName)
+                            <li ref="{{ $memberName }}" class="undermark">{{ $memberName }}</li>
+                        @endforeach
                     </ul>
                 </div><!-- float1 -->
                    <br class="clearfloat">

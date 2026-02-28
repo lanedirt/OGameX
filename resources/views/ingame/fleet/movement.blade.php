@@ -44,11 +44,7 @@
                 </div>
 
                 @foreach ($fleet_events as $fleet_event)
-                    @if ($fleet_event->is_union_summary)
-                        @include('ingame.fleet.partials.movement-row-union', ['fleet_event' => $fleet_event])
-                    @else
-                        @include('ingame.fleet.partials.movement-row', ['fleet_event' => $fleet_event])
-                    @endif
+                    @include('ingame.fleet.partials.movement-row', ['fleet_event' => $fleet_event])
                 @endforeach
 
                 <div class="placeholder"></div>
@@ -60,7 +56,7 @@
                 var data = $.parseJSON(response);
                 errorBoxAsArray(data["errorbox"]);
                 token = data.token;
-                $("#federation_" + data["fleetID"]).children().attr("href", "#federationlayer&ajax=1&union=" + data["unionID"] + "&fleet=" + data["fleetID"] + "&target=" + data["targetID"]);
+                $("#federation_" + data["fleetID"]).children().attr("href", "{{ route('fleet.federation.overlay') }}?fleet=" + data["fleetID"] + "&union=" + data["unionID"]);
                 $("#FederationLayer").parent('.overlayDiv').dialog('close');
                 $("#FederationLayer").remove();
             }
@@ -92,7 +88,7 @@
                             function() { reloadPage(); }
                         );
 
-                        @if (!$fleet_event->is_at_destination && !$fleet_event->is_union_summary)
+                        @if (!$fleet_event->is_at_destination)
                         new movementImageCountdown(
                             getElementByIdWithCache("route_{{ $fleet_event->id }}"),
                             {{ $fleet_event->remaining_time }},
@@ -118,25 +114,6 @@
                         );
                     @endif
 
-                    {{-- Initialize countdowns for member fleets within union summary rows --}}
-                    @if ($fleet_event->is_union_summary)
-                        @foreach ($fleet_event->union_member_fleets as $member_fleet)
-                            @if ($member_fleet->remaining_time > 0)
-                                new simpleCountdown(
-                                    getElementByIdWithCache("timer_{{ $member_fleet->id }}"),
-                                    {{ $member_fleet->remaining_time }},
-                                    function() { reloadPage(); }
-                                );
-                            @endif
-
-                            @if ($member_fleet->is_recallable && !$member_fleet->is_return_trip)
-                                new recallShipCountdown(
-                                    {{ $member_fleet->id }},
-                                    {{ $member_fleet->active_recall_time }}
-                                );
-                            @endif
-                        @endforeach
-                    @endif
                 @endforeach
 
                 initMovement();
@@ -166,22 +143,6 @@
                     return false;
                 });
 
-                // Union expand/collapse toggle handler
-                $("#movement a.toggleUnionDetails").off('click').on('click', function (e) {
-                    e.preventDefault();
-                    var unionId = $(this).attr("data-union-id");
-                    var summaryRow = $(this).closest(".allianceAttack");
-                    var memberRows = $(".partnerInfo.union" + unionId);
-
-                    if (summaryRow.hasClass("detailsClosed")) {
-                        summaryRow.removeClass("detailsClosed").addClass("detailsOpened");
-                        memberRows.show();
-                    } else {
-                        summaryRow.removeClass("detailsOpened").addClass("detailsClosed");
-                        memberRows.hide();
-                    }
-                    return false;
-                });
             });
         </script>
     </div>
