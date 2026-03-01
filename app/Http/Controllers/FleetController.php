@@ -284,7 +284,7 @@ class FleetController extends OGameController
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService): JsonResponse
+    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService, FleetMissionService $fleetMissionService, FleetUnionService $fleetUnionService): JsonResponse
     {
         $currentPlanet = $currentPlayer->planets->current();
 
@@ -358,6 +358,27 @@ class FleetController extends OGameController
         }
 
         // Build orders array set key to true if the mission is enabled. Set to false if not.
+        // ACS Attack (type 2) is enabled when the player has selected a union, Attack (type 1) is possible,
+        // and the fleet can reach the target within the union's max delay time at 100% speed.
+        $unionId = (int)request()->input('union');
+        if ($unionId > 0 && in_array(1, $enabledMissions, true)) {
+            $union = FleetUnion::find($unionId);
+            if ($union !== null) {
+                $flightDuration = $fleetMissionService->calculateFleetMissionDuration(
+                    $currentPlanet,
+                    $targetCoordinates,
+                    $units,
+                    GameMissionFactory::getMissionById(1, []),
+                    10 // 100% speed — fastest possible
+                );
+                $wouldArriveAt = time() + $flightDuration;
+                $maxArrival = $union->time_arrival + $fleetUnionService->getMaxDelayTime($union);
+                if ($wouldArriveAt <= $maxArrival) {
+                    $enabledMissions[] = 2;
+                }
+            }
+        }
+
         $orders = [];
         $possible_mission_types = [1, 2, 3, 4, 5, 6, 7, 8, 9, 15];
         foreach ($possible_mission_types as $mission) {
@@ -421,7 +442,7 @@ class FleetController extends OGameController
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService, SettingsService $settingsService, CharacterClassService $characterClassService): JsonResponse
+    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService, FleetUnionService $fleetUnionService, SettingsService $settingsService, CharacterClassService $characterClassService): JsonResponse
     {
         $galaxy = (int)request()->input('galaxy');
         $system = (int)request()->input('system');
@@ -515,8 +536,47 @@ class FleetController extends OGameController
         $resources = new Resources($metal, $crystal, $deuterium, 0);
         $planetType = PlanetType::from($target_type);
 
+        // Check if this fleet should join an existing union and pre-validate timing
+        $unionId = (int)request()->input('union');
+        $union = null;
+        if ($unionId > 0) {
+            $union = FleetUnion::find($unionId);
+            if ($union !== null) {
+                if ($union->hasReachedMaxFleets()) {
+                    return $this->validationErrorResponse('A maximum of 16 fleets can attack');
+                }
+
+                // Pre-validate max players (only if this would be a new player in the union)
+                $isNewPlayer = !$union->activeFleetMissions()
+                    ->where('user_id', $player->getId())
+                    ->exists();
+                if ($isNewPlayer && $union->hasReachedMaxPlayers()) {
+                    return $this->validationErrorResponse('A maximum of 5 players can attack');
+                }
+
+                // Pre-validate timing: calculate would-be arrival and check against union delay limit
+                $flightDuration = $fleetMissionService->calculateFleetMissionDuration(
+                    $planet,
+                    $target_coordinate,
+                    $units,
+                    GameMissionFactory::getMissionById(1, []),
+                    $speed_percent
+                );
+                $wouldArriveAt = time() + $flightDuration;
+                $maxArrival = $union->time_arrival + $fleetUnionService->getMaxDelayTime($union);
+                if ($wouldArriveAt > $maxArrival) {
+                    return $this->validationErrorResponse('You are to slow to join this fleet');
+                }
+            }
+        }
+
         try {
-            $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
+            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
+
+            // Join the fleet union if requested
+            if ($union !== null) {
+                $fleetUnionService->joinUnion($union, $fleetMission);
+            }
 
             return response()->json([
                 'success' => true,
@@ -913,6 +973,7 @@ class FleetController extends OGameController
                 'position' => $union->position_to,
                 'planet_type' => $union->planet_type_to,
                 'creator' => $union->creator->username,
+                'time' => $union->time_arrival,
             ];
         }
 
