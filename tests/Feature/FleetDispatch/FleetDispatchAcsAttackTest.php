@@ -5,6 +5,7 @@ namespace Tests\Feature\FleetDispatch;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameMissions\AttackMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
@@ -608,6 +609,271 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
     }
 
     /**
+     * Test that recalling a non-initiator fleet frees the slot and keeps the union intact.
+     */
+    public function testRecallNonInitiatorFreesSlot(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        // Send initiator fleet
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
+        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Create union
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'RecallSlotTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        // Ally joins
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 15);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        // Verify ally is slot 2
+        $allyMission->refresh();
+        $this->assertEquals(2, $allyMission->union_slot);
+
+        // Advance time slightly (fleet is mid-flight)
+        $midFlightTime = (int)(($initiatorMission->time_departure + $initiatorMission->time_arrival) / 2);
+        $this->travelTo(Date::createFromTimestamp($midFlightTime));
+        $this->reloadApplication();
+
+        // Recall ally's fleet: switch to ally user context
+        $this->be(User::find($this->allyUser->id));
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $allyMission->id,
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify ally mission is canceled and removed from union
+        $allyMission->refresh();
+        $this->assertEquals(1, $allyMission->canceled, 'Ally mission should be canceled');
+        $this->assertNull($allyMission->union_id, 'Ally mission should be removed from union');
+
+        // Verify a return mission was created for the ally
+        $allyReturn = FleetMission::where('parent_id', $allyMission->id)->where('canceled', 0)->first();
+        $this->assertNotNull($allyReturn, 'Ally should have a return mission');
+        $this->assertEquals($this->allyUser->id, $allyReturn->user_id, 'Return mission should belong to ally');
+
+        // Verify union still exists with initiator as slot 1
+        $union->refresh();
+        $this->assertNotNull($union, 'Union should still exist');
+        $initiatorMission->refresh();
+        $this->assertEquals(1, $initiatorMission->union_slot, 'Initiator should still be slot 1');
+        $this->assertEquals($unionId, $initiatorMission->union_id, 'Initiator should still be in the union');
+    }
+
+    /**
+     * Test that recalling the initiator (slot 1) reassigns slot 1 to the next fleet
+     * and updates union ownership.
+     */
+    public function testRecallInitiatorReassignsSlotOne(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        // Send initiator fleet
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
+        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Create union
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'InitiatorRecallTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        // Ally joins
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 15);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        // Verify initial state: initiator = slot 1, ally = slot 2, union owned by initiator
+        $initiatorMission->refresh();
+        $allyMission->refresh();
+        $this->assertEquals(1, $initiatorMission->union_slot);
+        $this->assertEquals(2, $allyMission->union_slot);
+        $this->assertEquals($this->currentUserId, $union->user_id, 'Union should be owned by initiator');
+
+        // Advance time slightly (mid-flight)
+        $midFlightTime = (int)(($initiatorMission->time_departure + $initiatorMission->time_arrival) / 2);
+        $this->travelTo(Date::createFromTimestamp($midFlightTime));
+        $this->reloadApplication();
+
+        // Recall initiator's fleet (logged in as the initiator/current user)
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $initiatorMission->id,
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify initiator mission is canceled and removed from union
+        $initiatorMission->refresh();
+        $this->assertEquals(1, $initiatorMission->canceled, 'Initiator mission should be canceled');
+        $this->assertNull($initiatorMission->union_id, 'Initiator should be removed from union');
+
+        // Verify ally is now slot 1 and union ownership transferred
+        $allyMission->refresh();
+        $union->refresh();
+        $this->assertEquals(1, $allyMission->union_slot, 'Ally should now be slot 1 (new initiator)');
+        $this->assertEquals($this->allyUser->id, $union->user_id, 'Union ownership should transfer to ally');
+
+        // Verify battle still processes at arrival (ally as slot 1).
+        // The ally's mission goes from ally planet → target planet, so we need to trigger
+        // processing from the target's perspective (the target planet is the destination).
+        $this->travelTo(Date::createFromTimestamp($allyMission->time_arrival + 10));
+        $this->refreshApplication();
+        $this->be(User::find($this->targetUser->id));
+        $this->get('/overview');
+
+        $battleReport = BattleReport::orderBy('id', 'desc')->first();
+        $this->assertNotNull($battleReport, 'Battle should still process with ally as new initiator (slot 1)');
+
+        // Verify ally's outbound mission is processed
+        $allyMission->refresh();
+        $this->assertEquals(1, $allyMission->processed, 'Ally mission should be processed after battle');
+    }
+
+    /**
+     * Test that recalling a fleet mid-flight returns at the synced (slower) speed,
+     * not the fleet's natural faster speed.
+     */
+    public function testRecallFleetReturnsAtSyncedSpeed(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        // Give ally impulse drive for faster natural speed
+        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser->id]);
+        $allyPlayerService->setResearchLevel('impulse_drive', 5);
+        $allyPlayerService->setResearchLevel('combustion_drive', 5);
+
+        // Send initiator fleet (slower)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $initiatorOutboundDuration = $initiatorMission->time_arrival - $initiatorMission->time_departure;
+
+        // Create union
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'SpeedTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        // Send ally fleet at 100% speed — the ally has faster tech, so their natural
+        // arrival time should be earlier than the initiator's
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        // Record ally's natural outbound duration before joining the union
+        $allyNaturalDuration = $allyMission->time_arrival - $allyMission->time_departure;
+
+        // Join union — ally's arrival should be pushed out to match the union's time
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+        $allyMission->refresh();
+
+        $allySyncedDuration = $allyMission->time_arrival - $allyMission->time_departure;
+        // The ally's arrival was pushed out to match union, so synced duration >= natural duration
+        $this->assertGreaterThanOrEqual($allyNaturalDuration, $allySyncedDuration, 'Ally should be slowed to match union');
+
+        // Advance to mid-flight
+        $elapsedTime = (int)(($allyMission->time_arrival - $allyMission->time_departure) / 2);
+        $midFlightTimestamp = $allyMission->time_departure + $elapsedTime;
+        $this->travelTo(Date::createFromTimestamp($midFlightTimestamp));
+        $this->reloadApplication();
+
+        // Recall ally's fleet
+        $this->be(User::find($this->allyUser->id));
+        $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
+            'fleet_mission_id' => $allyMission->id,
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(200);
+
+        // Get the return mission
+        $allyReturn = FleetMission::where('parent_id', $allyMission->id)->where('canceled', 0)->first();
+        $this->assertNotNull($allyReturn, 'Ally should have a return mission');
+
+        // Return duration should equal elapsed outbound time (at synced speed)
+        $returnDuration = $allyReturn->time_arrival - $allyReturn->time_departure;
+        $this->assertEquals($elapsedTime, $returnDuration, 'Return duration should equal elapsed outbound time at synced speed');
+    }
+
+    /**
      * Test that non-initiator fleet in union is skipped during processing
      * (only slot 1 processes the battle).
      */
@@ -754,5 +1020,164 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyMission->refresh();
         $this->assertEquals(1, $initiatorMission->processed, 'Initiator outbound should be processed');
         $this->assertEquals(1, $allyMission->processed, 'Ally outbound should be processed');
+    }
+
+    /**
+     * Test that post-battle return trips use each fleet's natural speed (based on surviving
+     * ships and owner's tech), not the synced union speed. In original OGame, after an ACS
+     * attack battle completes, each fleet returns home at its own speed.
+     */
+    public function testAcsAttackReturnUsesNaturalSpeedNotSyncedSpeed(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        // Give ally higher drive tech so they are naturally faster
+        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser->id]);
+        $allyPlayerService->setResearchLevel('impulse_drive', 5);
+        $allyPlayerService->setResearchLevel('combustion_drive', 5);
+
+        // Send initiator fleet (slower, no drive tech upgrades)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
+        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Create union
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'NaturalSpeedTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        // Send ally fleet at 100% speed
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        // Record ally's natural outbound duration before joining the union
+        $allyNaturalDuration = $allyMission->time_arrival - $allyMission->time_departure;
+
+        // Join union — ally's arrival gets pushed out to match the slower initiator
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+        $allyMission->refresh();
+
+        $allySyncedDuration = $allyMission->time_arrival - $allyMission->time_departure;
+        $this->assertGreaterThan($allyNaturalDuration, $allySyncedDuration, 'Ally should be slowed to match union');
+
+        // Advance to arrival so battle processes
+        $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
+        $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        // Get the ally's return mission
+        $allyReturn = FleetMission::where('parent_id', $allyMission->id)
+            ->where('canceled', 0)
+            ->first();
+        $this->assertNotNull($allyReturn, 'Ally should have a return mission');
+
+        $allyReturnDuration = $allyReturn->time_arrival - $allyReturn->time_departure;
+
+        // The return duration should be based on natural speed, not the synced speed.
+        // Since the ally has higher drive tech, their natural duration < synced duration.
+        $this->assertLessThan($allySyncedDuration, $allyReturnDuration, 'Return duration should be less than synced outbound duration (natural speed is faster)');
+
+        // Verify it matches the recalculated natural duration for surviving ships
+        $allyPlayerServiceForCalc = resolve(PlayerService::class, ['player_id' => $this->allyUser->id]);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $originPlanet = $planetServiceFactory->makeForPlayer($allyPlayerServiceForCalc, $allyMission->planet_id_from);
+
+        // Get surviving units from the return mission
+        $survivingUnits = $allyFleetMissionService->getFleetUnits($allyReturn);
+
+        $expectedNaturalDuration = $allyFleetMissionService->calculateFleetMissionDuration(
+            $originPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            $survivingUnits,
+            resolve(AttackMission::class),
+            10
+        );
+
+        $this->assertEquals($expectedNaturalDuration, $allyReturnDuration, 'Return duration should match recalculated natural speed');
+    }
+
+    /**
+     * Test that sending a fleet to join a full union returns an error fadeBox
+     * with the message "A maximum of 16 fleets can attack".
+     */
+    public function testSendFleetToFullUnionShowsMaxFleetsError(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        // Send initiator fleet
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Create union
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'FullUnionTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        // Set max_fleets to 1 so the union is already full (initiator occupies the only slot)
+        $union = FleetUnion::find($unionId);
+        $union->max_fleets = 1;
+        $union->save();
+
+        // Switch to ally and try to send a fleet to join the full union
+        $this->be(User::find($this->allyUser->id));
+
+        $response = $this->post('/ajax/fleet/dispatch/send-fleet', [
+            'galaxy' => $this->targetPlanet->getPlanetCoordinates()->galaxy,
+            'system' => $this->targetPlanet->getPlanetCoordinates()->system,
+            'position' => $this->targetPlanet->getPlanetCoordinates()->position,
+            'type' => PlanetType::Planet->value,
+            'metal' => 0,
+            'crystal' => 0,
+            'deuterium' => 0,
+            'mission' => 2, // ACS Attack
+            'speed' => 10,
+            'am204' => 5, // light_fighter
+            'union' => $unionId,
+            'holdingtime' => 0,
+            'retreatAfterDefenderRetreat' => 0,
+            'lootFoodOnAttack' => 0,
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(200);
+        $data = $response->json();
+        $this->assertFalse($data['success']);
+        $this->assertEquals('A maximum of 16 fleets can attack', $data['errors'][0]['message']);
     }
 }

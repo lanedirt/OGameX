@@ -100,6 +100,11 @@ class FleetEventRowViewModel
     public array $union_member_fleets = [];
 
     /**
+     * @var int|null The union slot number (1 = initiator).
+     */
+    public int|null $union_slot = null;
+
+    /**
      * @var int|null The user ID who owns this fleet.
      */
     public int|null $user_id = null;
@@ -110,7 +115,7 @@ class FleetEventRowViewModel
     public string $player_name = '';
 
     /**
-     * @var array<array{player_name: string, planet_name: string, coords: string, fleet_count: int, ship_count: int}> Per-player breakdown for union tooltip.
+     * @var array<array{player_name: string, origins: array<array{planet_name: string, coords: string, fleet_count: int, ship_count: int}>}> Per-player breakdown for union tooltip.
      */
     public array $union_player_breakdown = [];
 

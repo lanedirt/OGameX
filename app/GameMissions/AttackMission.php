@@ -242,10 +242,34 @@ class AttackMission extends GameMission
                         $totalResources = LootService::distributeLoot($totalResources, $remainingCargoCapacity);
                     }
 
+                    // Calculate natural return duration based on surviving ships and owner's tech.
+                    // In original OGame, post-battle returns use each fleet's own natural speed,
+                    // not the synced union speed. The origin planet provides correct tech levels
+                    // for speed calculation, and distance is symmetric.
+                    $originPlanet = $this->planetServiceFactory->makeForPlayer(
+                        $fleetOwner,
+                        $fleetMission->planet_id_from
+                    );
+                    $naturalReturnDuration = $this->fleetMissionService->calculateFleetMissionDuration(
+                        $originPlanet,
+                        $defenderPlanet->getPlanetCoordinates(),
+                        $fleetResult->unitsResult,
+                        $this,
+                        10
+                    );
+
+                    // Calculate wreck field for General class attacker
+                    // General perk: wreck field from attacker's lost ships is transported back with the return mission
+                    $attackerWreckFieldData = null;
+                    $characterClassService = resolve(CharacterClassService::class);
+                    if ($characterClassService->isGeneral($fleetOwner->getUser())) {
+                        $attackerWreckFieldData = $this->calculateAttackerWreckField($fleetResult->unitsLost, $fleetResult->unitsStart);
+                    }
+
                     // Mark outbound mission as processed and create return mission with survivors
                     $fleetMission->processed = 1;
                     $fleetMission->save();
-                    $this->startReturn($fleetMission, $totalResources, $fleetResult->unitsResult);
+                    $this->startReturn($fleetMission, $totalResources, $fleetResult->unitsResult, 0, $attackerWreckFieldData, $naturalReturnDuration);
                 }
             }
         }

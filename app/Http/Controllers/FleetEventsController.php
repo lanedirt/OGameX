@@ -254,8 +254,9 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->time_departure = $row->time_departure;
             $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
 
-            // Track union membership and user for ACS Attack grouping
+            // Track union membership, slot and user for ACS Attack grouping
             $eventRowViewModel->union_id = $row->union_id;
+            $eventRowViewModel->union_slot = $row->union_slot;
             $eventRowViewModel->user_id = $row->user_id;
 
             $friendlyStatus = $this->determineFriendly($row, $player);
@@ -436,20 +437,33 @@ class FleetEventsController extends OGameController
                 $user = User::find($fleet->user_id);
                 $fleet->player_name = $user !== null ? $user->username : 'Unknown';
 
-                // Group by player for union tooltip
+                // Group by player, then by origin for union tooltip
                 $playerId = $fleet->user_id ?? 0;
                 if (!isset($playerBreakdown[$playerId])) {
                     $playerBreakdown[$playerId] = [
                         'player_name' => $fleet->player_name,
+                        'origins' => [],
+                    ];
+                }
+
+                $originKey = $fleet->origin_planet_coords->asString();
+                if (!isset($playerBreakdown[$playerId]['origins'][$originKey])) {
+                    $playerBreakdown[$playerId]['origins'][$originKey] = [
                         'planet_name' => $fleet->origin_planet_name,
-                        'coords' => '[' . $fleet->origin_planet_coords->asString() . ']',
+                        'coords' => '[' . $originKey . ']',
                         'fleet_count' => 0,
                         'ship_count' => 0,
                     ];
                 }
-                $playerBreakdown[$playerId]['fleet_count']++;
-                $playerBreakdown[$playerId]['ship_count'] += $fleet->fleet_unit_count;
+                $playerBreakdown[$playerId]['origins'][$originKey]['fleet_count']++;
+                $playerBreakdown[$playerId]['origins'][$originKey]['ship_count'] += $fleet->fleet_unit_count;
             }
+
+            // Convert origins from associative to indexed arrays
+            foreach ($playerBreakdown as $pId => $playerData) {
+                $playerBreakdown[$pId]['origins'] = array_values($playerData['origins']);
+            }
+
             $summaryRow->fleet_unit_count = $totalUnits;
             $summaryRow->fleet_units = $initiator->fleet_units;
             $summaryRow->resources = new Resources(0, 0, 0, 0);

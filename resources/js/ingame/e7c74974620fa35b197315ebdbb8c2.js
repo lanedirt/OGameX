@@ -33539,7 +33539,6 @@ FleetDispatcher.prototype.selectCombatUnion = function (elem) {
     this.setTargetType(parseInt(parts[3]), true);
     this.union = parseInt(parts[5]);
   } else {
-    this.mission = this.fleetHelper.MISSION_NONE;
     this.union = 0;
   }
 };

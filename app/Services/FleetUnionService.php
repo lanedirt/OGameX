@@ -172,6 +172,28 @@ class FleetUnionService
         if ($union->activeFleetMissions()->count() === 0) {
             // Delete the empty union
             $union->delete();
+            return;
+        }
+
+        // Compact remaining slots: renumber by current slot order starting from 1
+        $remainingMissions = $union->activeFleetMissions()
+            ->orderBy('union_slot')
+            ->get();
+
+        $slot = 1;
+        foreach ($remainingMissions as $remainingMission) {
+            if ($remainingMission->union_slot !== $slot) {
+                $remainingMission->union_slot = $slot;
+                $remainingMission->save();
+            }
+            $slot++;
+        }
+
+        // Update union ownership to the new slot 1 fleet's owner
+        $newInitiator = $union->activeFleetMissions()->where('union_slot', 1)->first();
+        if ($newInitiator !== null && $union->user_id !== $newInitiator->user_id) {
+            $union->user_id = $newInitiator->user_id;
+            $union->save();
         }
     }
 

@@ -444,9 +444,10 @@ abstract class GameMission
      * @param Resources $resources The resources that are to be returned. Should include parent mission resources if they need to be preserved.
      * @param UnitCollection $units The units that are to be returned.
      * @param int $additionalReturnTripTime Time in seconds to add to the return trip duration (optional, used by expeditions). Can be positive or negative.
+     * @param int|null $overrideReturnDuration If set, use this duration (in seconds) for the return trip instead of calculating from parent mission times.
      * @return void
      */
-    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0, array|null $wreckFieldData = null): void
+    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0, array|null $wreckFieldData = null, int|null $overrideReturnDuration = null): void
     {
         if ($units->getAmount() === 0) {
             // No units to return, no need to create a return mission.
@@ -472,9 +473,12 @@ abstract class GameMission
         }
 
         // Time fleet mission will arrive (departure time + one-way duration)
+        // If an override duration is provided (e.g. recalculated natural speed after battle), use it.
         // For ACS Defend, one-way duration = physical arrival - departure
         // For other missions, one-way duration = arrival - departure
-        if ($parentMission->mission_type === 5 && $parentMission->time_holding !== null) {
+        if ($overrideReturnDuration !== null) {
+            $oneWayDuration = $overrideReturnDuration;
+        } elseif ($parentMission->mission_type === 5 && $parentMission->time_holding !== null) {
             $oneWayDuration = ($parentMission->time_arrival - $parentMission->time_holding) - $parentMission->time_departure;
         } else {
             $oneWayDuration = $parentMission->time_arrival - $parentMission->time_departure;
