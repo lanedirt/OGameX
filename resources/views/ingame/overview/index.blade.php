@@ -17,7 +17,7 @@
         textContent[2] = "@lang('Temperature'):";
         textContent[3] = "{!! $planet_temp_min !!}\u00b0C to {!! $planet_temp_max !!}\u00b0C";
         textContent[4] = "@lang('Position'):";
-        textContent[5] = "<a  href=\"{{ route('galaxy.index', ['galaxy' => 4, 'system' => 4, 'position' => 4])  }}\" >[{!! $planet_coordinates !!}]<\/a>";
+        textContent[5] = "<a  href=\"{{ route('galaxy.index', ['galaxy' => $planet_galaxy, 'system' => $planet_system, 'position' => $planet_position])  }}\" >[{!! $planet_coordinates !!}]<\/a>";
         textContent[6] = "@lang('Points'):";
         textContent[7] = "<a href='{{ route('highscore.index')  }}'>{{ $user_points }} (Place {!! $user_rank !!} of {!! $max_rank !!})<\/a>";
         textContent[8] = "@lang('Honour points'):";
