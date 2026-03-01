@@ -891,7 +891,7 @@ class FleetController extends OGameController
 
         // Get unions where the player was invited or is the creator
         $unions = FleetUnion::with(['creator'])
-            ->where('time_arrival', '>', time())
+            ->where('time_arrival', '>', now()->timestamp)
             ->whereHas('activeFleetMissions', function ($query) {
                 $query->where('processed', 0)->where('canceled', 0);
             })
