@@ -33,18 +33,20 @@
                 &lt;tr&gt;
                     &lt;th colspan=&quot;3&quot;&gt;{{ $playerInfo['player_name'] }}&lt;/th&gt;
                 &lt;/tr&gt;
+                @foreach ($playerInfo['origins'] as $origin)
                 &lt;tr&gt;
-                    &lt;td&gt;{{ $playerInfo['planet_name'] }}&lt;/td&gt;
-                    &lt;td&gt;{{ $playerInfo['coords'] }}&lt;/td&gt;
+                    &lt;td&gt;{{ $origin['planet_name'] }}&lt;/td&gt;
+                    &lt;td&gt;{{ $origin['coords'] }}&lt;/td&gt;
                 &lt;/tr&gt;
                 &lt;tr&gt;
                     &lt;td&gt;@lang('Fleets')&lt;/td&gt;
-                    &lt;td&gt;{{ $playerInfo['fleet_count'] }}&lt;/td&gt;
+                    &lt;td&gt;{{ $origin['fleet_count'] }}&lt;/td&gt;
                 &lt;/tr&gt;
                 &lt;tr&gt;
                     &lt;td&gt;@lang('Ships')&lt;/td&gt;
-                    &lt;td&gt;{{ $playerInfo['ship_count'] }}&lt;/td&gt;
+                    &lt;td&gt;{{ $origin['ship_count'] }}&lt;/td&gt;
                 &lt;/tr&gt;
+                @endforeach
             @endforeach
             &lt;/table&gt;
     &lt;/div&gt;
@@ -86,9 +88,15 @@
         data-arrival-time="{{ $member_fleet->mission_time_arrival }}"
     >
         <td class="countDown" style="color: #8C9EAA;">
-            @lang('Initial')
+            ---
         </td>
-        <td class="descFleet"></td>
+        <td class="descFleet">
+            @if ($member_fleet->user_id === auth()->id())
+                @lang('Own fleet')
+            @elseif ($member_fleet->user_id !== null)
+                <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $member_fleet->user_id }}" title="{{ $member_fleet->player_name }}"><span class="icon icon_chat"></span></a>
+            @endif
+        </td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
                  title="@lang('Own fleet') | {{ $member_fleet->mission_label }}" alt=""/>
