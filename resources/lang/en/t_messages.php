@@ -407,4 +407,50 @@ Application message:
     // Building upgrade messages
     'Shipyard is being upgraded.' => 'Shipyard is being upgraded.',
     'Nanite Factory is being upgraded.' => 'Nanite Factory is being upgraded.',
+
+    // ------------------------
+    // Moon destruction messages (attacker)
+    // TODO: these moon destruction messages are not correct and should be updated with
+    // real official messages from the original game. These are just placeholders for now.
+    'moon_destruction_success' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Moon :moon_name [:moon_coords] has been destroyed!',
+        'body' => 'With a destruction probability of :destruction_chance and a Deathstar loss probability of :loss_chance, your fleet has successfully destroyed the moon :moon_name at :moon_coords.',
+    ],
+
+    // ------------------------
+    'moon_destruction_failure' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Moon destruction at :moon_coords failed',
+        'body' => 'With a destruction probability of :destruction_chance and a Deathstar loss probability of :loss_chance, your fleet failed to destroy the moon :moon_name at :moon_coords. The fleet is returning.',
+    ],
+
+    // ------------------------
+    'moon_destruction_catastrophic' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Catastrophic loss during moon destruction at :moon_coords',
+        'body' => 'With a destruction probability of :destruction_chance and a Deathstar loss probability of :loss_chance, your fleet failed to destroy the moon :moon_name at :moon_coords. In addition, all Deathstars were lost in the attempt. There is no wreckage.',
+    ],
+
+    // ------------------------
+    'moon_destruction_mission_failed' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Moon destruction mission failed at :coordinates',
+        'body' => 'Your fleet arrived at :coordinates but no moon was found at the target location. The fleet is returning.',
+    ],
+
+    // ------------------------
+    // Moon destruction messages (defender)
+    'moon_destruction_repelled' => [
+        'from' => 'Space Monitoring',
+        'subject' => 'Destruction attempt on moon :moon_name [:moon_coords] repelled',
+        'body' => ':attacker_name attacked your moon :moon_name at :moon_coords with a destruction probability of :destruction_chance and a Deathstar loss probability of :loss_chance. Your moon has survived the attack!',
+    ],
+
+    // ------------------------
+    'moon_destroyed' => [
+        'from' => 'Space Monitoring',
+        'subject' => 'Moon :moon_name [:moon_coords] has been destroyed!',
+        'body' => 'Your moon :moon_name at :moon_coords has been destroyed by a Deathstar fleet belonging to :attacker_name!',
+    ],
 ];
