@@ -9,6 +9,7 @@ use OGame\GameMessages\MoonDestroyed;
 use OGame\GameMessages\MoonDestructionCatastrophic;
 use OGame\GameMessages\MoonDestructionFailure;
 use OGame\GameMessages\MoonDestructionMissionFailed;
+use OGame\GameMessages\MoonDestructionRepelled;
 use OGame\GameMessages\MoonDestructionSuccess;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
@@ -277,6 +278,10 @@ class MoonDestructionMission extends GameMission
             $targetMoon->abandonPlanet();
         });
 
+        // Refresh the mission so planet_id_to reflects the null value written by abandonPlanet.
+        // Without this, startReturn would use the stale moon ID and violate the FK constraint.
+        $mission->refresh();
+
         // Send success message to attacker
         $this->messageService->sendSystemMessageToPlayer($attackerPlayer, MoonDestructionSuccess::class, [
             'moon_name' => $moonName,
@@ -328,6 +333,7 @@ class MoonDestructionMission extends GameMission
     private function handleMoonDestructionFailure(FleetMission $mission, PlanetService $targetMoon, UnitCollection $survivingUnits, float $destructionChance, float $lossChance): void
     {
         $attackerPlayer = $this->playerServiceFactory->make($mission->user_id, true);
+        $defenderPlayer = $targetMoon->getPlayer();
         $moonName = $targetMoon->getPlanetName();
         $moonCoords = $targetMoon->getPlanetCoordinates()->asString();
 
@@ -335,6 +341,15 @@ class MoonDestructionMission extends GameMission
         $this->messageService->sendSystemMessageToPlayer($attackerPlayer, MoonDestructionFailure::class, [
             'moon_name' => $moonName,
             'moon_coords' => '[coordinates]' . $moonCoords . '[/coordinates]',
+            'destruction_chance' => number_format($destructionChance, 2) . '%',
+            'loss_chance' => number_format($lossChance, 2) . '%',
+        ]);
+
+        // Send repelled notification to defender
+        $this->messageService->sendSystemMessageToPlayer($defenderPlayer, MoonDestructionRepelled::class, [
+            'moon_name' => $moonName,
+            'moon_coords' => '[coordinates]' . $moonCoords . '[/coordinates]',
+            'attacker_name' => $attackerPlayer->getUsername(),
             'destruction_chance' => number_format($destructionChance, 2) . '%',
             'loss_chance' => number_format($lossChance, 2) . '%',
         ]);
@@ -347,12 +362,22 @@ class MoonDestructionMission extends GameMission
     private function handleCatastrophicFailure(FleetMission $mission, PlanetService $targetMoon, float $destructionChance, float $lossChance): void
     {
         $attackerPlayer = $this->playerServiceFactory->make($mission->user_id, true);
+        $defenderPlayer = $targetMoon->getPlayer();
         $moonName = $targetMoon->getPlanetName();
         $moonCoords = $targetMoon->getPlanetCoordinates()->asString();
 
         $this->messageService->sendSystemMessageToPlayer($attackerPlayer, MoonDestructionCatastrophic::class, [
             'moon_name' => $moonName,
             'moon_coords' => '[coordinates]' . $moonCoords . '[/coordinates]',
+            'destruction_chance' => number_format($destructionChance, 2) . '%',
+            'loss_chance' => number_format($lossChance, 2) . '%',
+        ]);
+
+        // Send repelled notification to defender
+        $this->messageService->sendSystemMessageToPlayer($defenderPlayer, MoonDestructionRepelled::class, [
+            'moon_name' => $moonName,
+            'moon_coords' => '[coordinates]' . $moonCoords . '[/coordinates]',
+            'attacker_name' => $attackerPlayer->getUsername(),
             'destruction_chance' => number_format($destructionChance, 2) . '%',
             'loss_chance' => number_format($lossChance, 2) . '%',
         ]);
