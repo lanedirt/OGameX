@@ -120,8 +120,8 @@
     <br/>
     Have fun playing!
 </div>
-@if ($currentPlayer->isAdmin())
-    @include ('ingame.layouts.admin-menu', ['currentPlayer' => $currentPlayer])
+@if ($currentPlayer->isAdmin() || !empty($isImpersonating))
+    @include ('ingame.layouts.admin-menu', ['currentPlayer' => $currentPlayer, 'isImpersonating' => $isImpersonating ?? false, 'impersonateLeaveUrl' => $impersonateLeaveUrl ?? null])
 @endif
 <div id="siteHeader"></div>
 <div id="pageContent">
@@ -495,7 +495,7 @@ Combat simulation save slots +20">
 
     </div>
 
-  
+
     <div id="left">
         <div id="ipimenucomponent" class="">
             <div id="ipiMenuWrapper" class="ipiMenuTrackedAction ipiHintable " title="" data-ipi-hint="ipiMenu">
@@ -2008,5 +2008,6 @@ However, the Space Dock's engineers think that some of the remains can be salvag
             "repeatY": "@lang('Repeat vertically')"
         }
     };</script>
+
 </body>
 </html>
