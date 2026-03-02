@@ -116,6 +116,9 @@ class IngameMainComposer
             });
         }
 
+        $impersonateManager = app('impersonate');
+        $isImpersonating = $impersonateManager->isImpersonating();
+
         $view->with([
             'underAttack' => $this->fleetMissionService->currentPlayerUnderAttack(),
             'unreadMessagesCount' => $this->messageService->getUnreadMessagesCount(),
@@ -130,6 +133,8 @@ class IngameMainComposer
             'settings' => $this->settingsService,
             'body_id' => $body_id,
             'locale' => $locale,
+            'isImpersonating' => $isImpersonating,
+            'impersonateLeaveUrl' => $isImpersonating ? route('impersonate.leave') : null,
         ]);
     }
 
