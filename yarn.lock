@@ -3469,10 +3469,10 @@ klona@^2.0.5:
   resolved "https://registry.npmjs.org/klona/-/klona-2.0.6.tgz"
   integrity sha512-dhG34DXATL5hSxJbIexCft8FChFXtmskoZYnoPWjXQuebWYCNkVeV3KkGegCK9CP1oswI/vQibS2GY7Em/sJJA==
 
-laravel-echo@^1.19.0:
-  version "1.19.0"
-  resolved "https://registry.npmjs.org/laravel-echo/-/laravel-echo-1.19.0.tgz"
-  integrity sha512-o/X4XH8BIRwij66PSjtotZfM88Z8g/4P3gzxQf2BTcZBKmGqucvI5JYYLprR2OZQ9XlGsmJ2v+hDpPGEbXwUWw==
+laravel-echo@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/laravel-echo/-/laravel-echo-2.0.2.tgz#175f3f135612830acb0fa56f77744ba8a12003c4"
+  integrity sha512-Ciai6hA7r35MFqNRb8G034cvm9WiveSTFQQKRGJhWtZGbng7C8BBa5QvqDxk/Mw5GeJ+q19jrEwQhf7r1b1lcg==
 
 laravel-mix@^6.0.49:
   version "6.0.49"
