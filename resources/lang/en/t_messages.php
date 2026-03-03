@@ -464,4 +464,13 @@ NOTE: The total strength of all participants compared to the total strength of d
         'subject' => 'Moon :moon_name [:moon_coords] has been destroyed!',
         'body' => 'Your moon :moon_name at :moon_coords has been destroyed by a Deathstar fleet belonging to :attacker_name!',
     ],
+
+    // ------------------------
+    // Wreck field repair completed
+    'wreck_field_repair_completed' => [
+        'from' => 'System Message',
+        'subject' => 'Repair completed',
+        'body' => 'Your repair request on planet :planet has been completed.
+:ship_count ships have been put back into service.',
+    ],
 ];
