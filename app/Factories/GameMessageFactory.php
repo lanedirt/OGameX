@@ -34,6 +34,12 @@ use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMessages\FleetLostContact;
 use OGame\GameMessages\FleetUnionInvite;
 use OGame\GameMessages\MissileAttackReport;
+use OGame\GameMessages\MoonDestroyed;
+use OGame\GameMessages\MoonDestructionCatastrophic;
+use OGame\GameMessages\MoonDestructionFailure;
+use OGame\GameMessages\MoonDestructionMissionFailed;
+use OGame\GameMessages\MoonDestructionRepelled;
+use OGame\GameMessages\MoonDestructionSuccess;
 use OGame\GameMessages\MissileDefenseReport;
 use OGame\GameMessages\PlanetRelocationSuccess;
 use OGame\GameMessages\ReturnOfFleet;
@@ -103,7 +109,15 @@ class GameMessageFactory
 
         // Planet relocation messages
         'planet_relocation_success' => PlanetRelocationSuccess::class,
-        ];
+
+        // Moon destruction messages
+        'moon_destruction_success' => MoonDestructionSuccess::class,
+        'moon_destruction_failure' => MoonDestructionFailure::class,
+        'moon_destruction_catastrophic' => MoonDestructionCatastrophic::class,
+        'moon_destroyed' => MoonDestroyed::class,
+        'moon_destruction_mission_failed' => MoonDestructionMissionFailed::class,
+        'moon_destruction_repelled' => MoonDestructionRepelled::class,
+    ];
 
     /**
      * @return array<GameMessage>

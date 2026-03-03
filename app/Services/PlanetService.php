@@ -226,10 +226,15 @@ class PlanetService
         }
 
         // Sanity check: disallow abandoning a planet with active fleet missions.
-        $fleetMissionService = resolve(FleetMissionService::class);
-        $activeMissions = $fleetMissionService->getActiveMissionsByPlanetIds([$this->planet->id]);
-        if ($activeMissions->count() > 0) {
-            throw new RuntimeException('Cannot abandon planet with active fleet missions.');
+        // Moons are exempt: moon destruction redirects incoming fleets and nulls out planet
+        // references for any remaining missions, so active missions are handled gracefully.
+        if ($this->isPlanet()) {
+            $fleetMissionService = resolve(FleetMissionService::class);
+            $activeMissions = $fleetMissionService->getActiveMissionsByPlanetIds([$this->planet->id]);
+
+            if ($activeMissions->count() > 0) {
+                throw new RuntimeException('Cannot abandon planet with active fleet missions.');
+            }
         }
 
         // If this is a planet and has a moon, delete the moon first
