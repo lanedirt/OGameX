@@ -4,20 +4,20 @@
             <div class="contentz">
                 <table class="createnote createALLY">
                     <tbody><tr>
-                        <td class="desc">Alliance Tag (3-8 characters)</td>
+                        <td class="desc">{{ __('t_ingame.alliance.create_tag_label') }}</td>
                         <td class="value">
                             <input class="text w200 validate[optional,custom[noSpecialCharacters],custom[noBeginOrEndUnderscore],custom[noBeginOrEndWhitespace],custom[noBeginOrEndHyphen],custom[notMoreThanThreeUnderscores],custom[notMoreThanThreeWhitespaces],custom[notMoreThanThreeHyphen],custom[noCollocateUnderscores],custom[noCollocateWhitespaces],custom[noCollocateHyphen],minSize[3]]" style="padding:3px;" type="text" size="8" name="allyTag" id="allyTagField" maxlength="8" value="">
                         </td>
                     </tr>
                     <tr>
-                        <td class="desc">Alliance name (3-30 characters)</td>
+                        <td class="desc">{{ __('t_ingame.alliance.create_name_label') }}</td>
                         <td class="value">
                             <input class="text w200 validate[optional,custom[noSpecialCharacters],custom[noBeginOrEndUnderscore],custom[noBeginOrEndWhitespace],custom[noBeginOrEndHyphen],custom[notMoreThanThreeUnderscores],custom[notMoreThanThreeWhitespaces],custom[notMoreThanThreeHyphen],custom[noCollocateUnderscores],custom[noCollocateWhitespaces],custom[noCollocateHyphen],minSize[3]]" style="padding:3px;" type="text" size="30" name="allyName" id="allyNameField" maxlength="30" value="">
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2" align="center">
-                            <a class="createAlly action btn_blue">Create alliance</a>
+                            <a class="createAlly action btn_blue">{{ __('t_ingame.alliance.create_btn') }}</a>
                         </td>
                     </tr>
                     </tbody></table>
@@ -34,7 +34,7 @@
                 $.validationEngineLanguage.allRules = 	{
                     "minSize": {
                         "regex": "none",
-                        "alertText": "Not enough characters"},
+                        "alertText": @json(__('t_ingame.alliance.validation_min_chars'))},
                     "pwMinSize": {
                         "regex": /^.{ 4,}$/,
                         "alertText": "The entered password is to short (min. 4 characters)"},
@@ -46,34 +46,34 @@
                         "alertText":"You need to enter a valid email address!"},
                     "noSpecialCharacters":{
                         "regex":/^[a-zA-Z0-9\-_\s]+$/,
-                        "alertText": "Contains invalid characters."},
+                        "alertText": @json(__('t_ingame.alliance.validation_special'))},
                     "noBeginOrEndUnderscore":{
                         "regex":/^([^_]+(.*[^_])?)?$/,
-                        "alertText": "Your name may not start or end with an underscore."},
+                        "alertText": @json(__('t_ingame.alliance.validation_underscore'))},
                     "noBeginOrEndHyphen":{
                         "regex":/^([^\-]+(.*[^\-])?)?$/,
-                        "alertText": "Your name may not start or finish with a hyphen."},
+                        "alertText": @json(__('t_ingame.alliance.validation_hyphen'))},
                     "noBeginOrEndWhitespace":{
                         "regex":/^([^\s]+(.*[^\s])?)?$/,
-                        "alertText": "Your name may not start or end with a space."},
+                        "alertText": @json(__('t_ingame.alliance.validation_space'))},
                     "notMoreThanThreeUnderscores":{
                         "regex":/^[^_]*(_[^_]*){0,3}$/,
-                        "alertText": "Your name may not contain more than 3 underscores in total."},
+                        "alertText": @json(__('t_ingame.alliance.validation_max_underscores'))},
                     "notMoreThanThreeHyphen":{
                         "regex":/^[^\-]*(\-[^\-]*){0,3}$/,
-                        "alertText": "Your name may not contain more than 3 hyphens."},
+                        "alertText": @json(__('t_ingame.alliance.validation_max_hyphens'))},
                     "notMoreThanThreeWhitespaces":{
                         "regex":/^[^\s]*(\s[^\s]*){0,3}$/,
-                        "alertText": "Your name may not include more than 3 spaces in total."},
+                        "alertText": @json(__('t_ingame.alliance.validation_max_spaces'))},
                     "noCollocateUnderscores":{
                         "regex":/^[^_]*(_[^_]+)*_?$/,
-                        "alertText": "You may not use two or more underscores one after the other."},
+                        "alertText": @json(__('t_ingame.alliance.validation_consec_underscores'))},
                     "noCollocateHyphen":{
                         "regex":/^[^\-]*(\-[^\-]+)*-?$/,
-                        "alertText": "You may not use two or more hyphens consecutively."},
+                        "alertText": @json(__('t_ingame.alliance.validation_consec_hyphens'))},
                     "noCollocateWhitespaces":{
                         "regex":/^[^\s]*(\s[^\s]+)*\s?$/,
-                        "alertText": "You may not use two or more spaces one after the other."}
+                        "alertText": @json(__('t_ingame.alliance.validation_consec_spaces'))}
 
                 }
             }

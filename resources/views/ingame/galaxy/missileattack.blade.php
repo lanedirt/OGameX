@@ -1,4 +1,4 @@
-<div id="rocketattack" data-title="@lang('Missile Attack')">
+<div id="rocketattack" data-title="{{ __('t_ingame.galaxy.missile_attack') }}">
     @if(!empty($error))
         <div class="error-box">
             <p class="error">{{ $error }}</p>
@@ -11,16 +11,16 @@
             <input type="hidden" name="position" value="{{ $position }}">
             <input type="hidden" name="type" value="{{ $type }}">
 
-            <div id="target">@lang('Target'): @if($type == 3)<figure class="planetIcon moon tooltip js_hideTipOnMobile" data-tooltip-title="@lang('Moon')"></figure>@endif[{{ $target_coords }}]</div>
-            <div id="flightDuration">@lang('Flight duration'): {{ $flight_duration_formatted }}</div>
-            <div id="arrivalTime">@lang('Arrival'): <span id="arrivalTimer" data-duration="{{ $flight_duration }}">{{ $arrival_time }}</span> @lang('Clock')</div>
+            <div id="target">{{ __('t_ingame.galaxy.target') }}: @if($type == 3)<figure class="planetIcon moon tooltip js_hideTipOnMobile" data-tooltip-title="{{ __('t_ingame.fleet.moon') }}"></figure>@endif[{{ $target_coords }}]</div>
+            <div id="flightDuration">{{ __('t_ingame.galaxy.flight_duration') }}: {{ $flight_duration_formatted }}</div>
+            <div id="arrivalTime">{{ __('t_ingame.fleet.arrival') }}: <span id="arrivalTimer" data-duration="{{ $flight_duration }}">{{ $arrival_time }}</span> {{ __('t_ingame.fleet.clock') }}</div>
 
             <div id="infos">
                 <div id="numberrockets">
                     <ul>
                         <li class="defense503">
                             <div class="buildingimg sprite defense small defense503">
-                                <a id="number" href="javascript:void(0);" class="tooltip js_hideTipOnMobile" data-tooltip-title="@lang('Interplanetary Missiles')">
+                                <a id="number" href="javascript:void(0);" class="tooltip js_hideTipOnMobile" data-tooltip-title="{{ __('t_ingame.galaxy.ipm_full') }}">
                                     <span class="ecke">
                                         <span class="level">{{ $available_missiles }}</span>
                                     </span>
@@ -32,62 +32,62 @@
                 </div>
 
                 <div id="priority">
-                    @lang('Primary target'):
+                    {{ __('t_ingame.galaxy.primary_target') }}:
                     <ul>
                         <li class="defense401">
                             <div class="buildingimg sprite defense small defense401">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="401" data-priority="2" data-tooltip-title="@lang('Rocket Launcher')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="401" data-priority="2" data-tooltip-title="{{ __('t_resources.rocket_launcher.title') }}"></a>
                             </div>
                         </li>
                         <li class="defense402">
                             <div class="buildingimg sprite defense small defense402">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="402" data-priority="3" data-tooltip-title="@lang('Light Laser')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="402" data-priority="3" data-tooltip-title="{{ __('t_resources.light_laser.title') }}"></a>
                             </div>
                         </li>
                         <li class="defense403">
                             <div class="buildingimg sprite defense small defense403">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="403" data-priority="4" data-tooltip-title="@lang('Heavy Laser')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="403" data-priority="4" data-tooltip-title="{{ __('t_resources.heavy_laser.title') }}"></a>
                             </div>
                         </li>
                         <li class="defense404">
                             <div class="buildingimg sprite defense small defense404">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="404" data-priority="5" data-tooltip-title="@lang('Gauss Cannon')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="404" data-priority="5" data-tooltip-title="{{ __('t_resources.gauss_cannon.title') }}"></a>
                             </div>
                         </li>
                         <li class="defense405">
                             <div class="buildingimg sprite defense small defense405">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="405" data-priority="6" data-tooltip-title="@lang('Ion Cannon')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="405" data-priority="6" data-tooltip-title="{{ __('t_resources.ion_cannon.title') }}"></a>
                             </div>
                         </li>
                         <li class="defense406">
                             <div class="buildingimg sprite defense small defense406">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="406" data-priority="7" data-tooltip-title="@lang('Plasma Turret')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="406" data-priority="7" data-tooltip-title="{{ __('t_resources.plasma_turret.title') }}"></a>
                             </div>
                         </li>
                         <li class="defense407">
                             <div class="buildingimg sprite defense small defense407">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="407" data-priority="8" data-tooltip-title="@lang('Small Shield Dome')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="407" data-priority="8" data-tooltip-title="{{ __('t_resources.small_shield_dome.title') }}"></a>
                             </div>
                         </li>
                         <li class="defense408">
                             <div class="buildingimg sprite defense small defense408">
-                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="408" data-priority="9" data-tooltip-title="@lang('Large Shield Dome')"></a>
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile defense-target" data-ref="408" data-priority="9" data-tooltip-title="{{ __('t_resources.large_shield_dome.title') }}"></a>
                             </div>
                         </li>
                     </ul>
                 </div>
 
-                <div id="noPriorityInfo" style="display: block;">@lang('No primary target selected: random target')</div>
+                <div id="noPriorityInfo" style="display: block;">{{ __('t_ingame.galaxy.no_primary_target') }}</div>
                 <input type="hidden" name="target_priority" id="primaryTarget" value="0">
 
                 @if($target_abm_count > 0)
                     <div id="abmWarning" style="color: #ff6b6b; margin: 10px 0; font-weight: bold;">
                         <img src="/img/galaxy/activity.gif" alt="Warning">
-                        @lang('Target has') <strong>{{ $target_abm_count }}</strong> @lang('Anti-Ballistic Missiles')
+                        {{ __('t_ingame.galaxy.target_has') }} <strong>{{ $target_abm_count }}</strong> {{ __('t_ingame.galaxy.abm_full') }}
                     </div>
                 @endif
 
-                <input type="submit" class="btn_blue" value="@lang('Fire')">
+                <input type="submit" class="btn_blue" value="{{ __('t_ingame.galaxy.fire') }}">
             </div>
         </form>
     @endif
@@ -138,12 +138,12 @@
             var maxMissiles = parseInt($('#missileCount').data('max'));
 
             if (isNaN(missileCount) || missileCount < 1) {
-                fadeBox('@lang('Please enter a valid number of missiles')', 1);
+                fadeBox('{{ __('t_ingame.galaxy.valid_missile_count') }}', 1);
                 return;
             }
 
             if (missileCount > maxMissiles) {
-                fadeBox('@lang('You do not have enough missiles')', 1);
+                fadeBox('{{ __('t_ingame.galaxy.not_enough_missiles') }}', 1);
                 return;
             }
 
@@ -158,7 +158,7 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        fadeBox(response.message || '@lang('Missiles launched successfully!')', 0);
+                        fadeBox(response.message || '{{ __('t_ingame.galaxy.launched_success') }}', 0);
 
                         // Refresh fleet widget immediately - same pattern as espionage missions
                         // Method 1: Reload the event box (notification bar)
@@ -180,12 +180,12 @@
                             }
                         }, 1500);
                     } else {
-                        fadeBox(response.error || '@lang('Failed to launch missiles')', 1);
+                        fadeBox(response.error || '{{ __('t_ingame.galaxy.launch_failed') }}', 1);
                         $submitBtn.prop('disabled', false);
                     }
                 },
                 error: function(xhr) {
-                    var errorMessage = '@lang('An error occurred. Please try again.')';
+                    var errorMessage = '{{ __('t_ingame.facilities_destroy.error') }}';
 
                     if (xhr.responseJSON && xhr.responseJSON.error) {
                         errorMessage = xhr.responseJSON.error;
@@ -231,7 +231,7 @@
     setTimeout(function() {
         var $dialog = $('#rocketattack').closest('.ui-dialog');
         if ($dialog.length > 0) {
-            $dialog.find('.ui-dialog-title').text('Missile Attack');
+            $dialog.find('.ui-dialog-title').text('{{ __('t_ingame.galaxy.missile_attack') }}');
         }
     }, 100);
 })(jQuery);

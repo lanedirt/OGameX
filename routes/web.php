@@ -51,6 +51,9 @@ use OGame\Http\Controllers\TechtreeController;
 
 Route::redirect('/', '/overview', 301);
 
+// Language switcher — accessible to both guests and authenticated users.
+Route::get('/lang/{lang}', [LanguageController::class, 'switchLang'])->name('language.switch');
+
 // Public AJAX endpoints (no auth required).
 Route::get('/ajax/main/rules', [RulesController::class, 'ajaxRules'])->name('rules.ajax');
 Route::get('/ajax/main/legal', [RulesController::class, 'ajaxLegal'])->name('legal.ajax');
@@ -240,7 +243,6 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::get('/overlay/payment/iframe', [PaymentController::class, 'iframe'])->name('payment.iframesrc');
 
     Route::get('/overlay/server-settings', [ServerSettingsController::class, 'overlay'])->name('serversettings.overlay');
-    Route::get('/lang/{lang}', [LanguageController::class, 'switchLang'])->name('language.switch');
 });
 
 // Group: all logged in pages:

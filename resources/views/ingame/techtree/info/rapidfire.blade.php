@@ -2,7 +2,7 @@
     <ul class="rapid_fire">
         @foreach ($rapidfire_from as $from => $rapidfire_data)
             <li class="rapid_fire_from {{ $rapidfire_data['object']->class_name }}">
-                Rapidfire from
+                {{ __('t_ingame.techtree.rapidfire_from') }}
                 <a href="#TODO_page=ajax&amp;component=technologytree&amp;ajax=1&amp;technologyId={{ $from }}&amp;tab=2" class="overlay" data-overlay-same="true">{{ $rapidfire_data['object']->title }}</a>:
                 <span class="value" data-value="{{ $rapidfire_data['rapidfire']->amount }}">
                     @php
@@ -34,7 +34,7 @@
 
         @foreach ($rapidfire_against as $target => $rapidfire_data)
             <li class="rapid_fire_against {{ $rapidfire_data['object']->class_name }}">
-                Rapidfire against
+                {{ __('t_ingame.techtree.rapidfire_against') }}
                 <a href="#TODO_page=ajax&amp;component=technologytree&amp;ajax=1&amp;technologyId={{ $target }}&amp;tab=2" class="overlay" data-overlay-same="true">{{ $rapidfire_data['object']->title }}</a>:
                 <span class="value" data-value="{{ $rapidfire_data['rapidfire']->amount }}">
                     @php

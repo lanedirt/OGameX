@@ -2,32 +2,32 @@
     <div id="inner">
         <div class="fleft sprite building large building44"></div>
         <div class="content">
-            <p>@lang('Missile silos are used to construct, store and launch interplanetary and anti-ballistic missiles. With each level of the silo, five interplanetary missiles or ten anti-ballistic missiles can be stored. One Interplanetary missile uses the same space as two Anti-Ballistic missiles. Storage of both Interplanetary missiles and Anti-Ballistic missiles in the same silo is allowed.')</p>
-            <span class="capacity">@lang('A missile silo on level :level can hold :ipm interplanetary missiles or :abm anti-ballistic missiles.', ['level' => $silo_level, 'ipm' => $max_ipm_capacity, 'abm' => $max_abm_capacity])</span>
+            <p>{{ __('t_ingame.facilities_destroy.silo_description') }}</p>
+            <span class="capacity">{{ __('t_ingame.facilities_destroy.silo_capacity', ['level' => $silo_level, 'ipm' => $max_ipm_capacity, 'abm' => $max_abm_capacity]) }}</span>
             <form id="rocketForm">
                 <table border="0" cellpadding="0" cellspacing="0">
                     <tbody>
                         <tr>
-                            <th>@lang('Type')</th>
-                            <th class="textCenter">@lang('Number')</th>
-                            <th class="textCenter">@lang('tear down')</th>
+                            <th>{{ __('t_ingame.facilities_destroy.type') }}</th>
+                            <th class="textCenter">{{ __('t_ingame.facilities_destroy.number') }}</th>
+                            <th class="textCenter">{{ __('t_ingame.facilities_destroy.tear_down') }}</th>
                             <th></th>
                         </tr>
                         <tr>
-                            <td>@lang('Anti-Ballistic Missiles')</td>
+                            <td>{{ __('t_resources.anti_ballistic_missiles.title') }}</td>
                             <td class="textCenter">{{ $abm_count }}</td>
                             <td class="textCenter"><input type="text" pattern="[0-9]*" value="" class="txt" size="4" maxlength="4" name="destroy_502" id="destroy_502"></td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>@lang('Interplanetary Missiles')</td>
+                            <td>{{ __('t_resources.interplanetary_missiles.title') }}</td>
                             <td class="textCenter">{{ $ipm_count }}</td>
                             <td class="textCenter"><input type="text" pattern="[0-9]*" value="" class="txt" size="4" maxlength="4" name="destroy_503" id="destroy_503"></td>
                             <td></td>
                         </tr>
                     </tbody>
                 </table>
-                <input type="button" class="btn_blue float_right" id="destroyMissiles" value="@lang('Proceed')">
+                <input type="button" class="btn_blue float_right" id="destroyMissiles" value="{{ __('t_ingame.facilities_destroy.proceed') }}">
             </form>
         </div>
     </div>
@@ -46,18 +46,18 @@
 
         // Validate at least one missile selected
         if (abmAmount === 0 && ipmAmount === 0) {
-            fadeBox('@lang('Please enter at least one missile to destroy')', 1);
+            fadeBox('{{ __('t_ingame.facilities_destroy.enter_minimum') }}', 1);
             return;
         }
 
         // Validate amounts don't exceed available
         if (abmAmount > maxABM) {
-            fadeBox('@lang('You do not have that many Anti-Ballistic Missiles')', 1);
+            fadeBox('{{ __('t_ingame.facilities_destroy.not_enough_abm') }}', 1);
             return;
         }
 
         if (ipmAmount > maxIPM) {
-            fadeBox('@lang('You do not have that many Interplanetary Missiles')', 1);
+            fadeBox('{{ __('t_ingame.facilities_destroy.not_enough_ipm') }}', 1);
             return;
         }
 
@@ -76,7 +76,7 @@
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    fadeBox(response.message || '@lang('Missiles destroyed successfully')', 0);
+                    fadeBox(response.message || '{{ __('t_ingame.facilities_destroy.destroyed_success') }}', 0);
 
                     // Close overlay after brief delay
                     setTimeout(function() {
@@ -89,12 +89,12 @@
                         }
                     }, 1500);
                 } else {
-                    fadeBox(response.error || '@lang('Failed to destroy missiles')', 1);
+                    fadeBox(response.error || '{{ __('t_ingame.facilities_destroy.destroy_failed') }}', 1);
                     $('#destroyMissiles').prop('disabled', false);
                 }
             },
             error: function(xhr) {
-                var errorMessage = '@lang('An error occurred. Please try again.')';
+                var errorMessage = '{{ __('t_ingame.facilities_destroy.error') }}';
 
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     errorMessage = xhr.responseJSON.error;

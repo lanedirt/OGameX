@@ -131,14 +131,14 @@
             <div id="bar">
                 <ul>
                     <li id="playerName">
-                        @lang('Player'):
+                        {{ __('t_ingame.layout.player') }}:
                         <selected-language-icon
                                 style="background-image: url('/img/flags/a176fcd6f3e3de2bed6a73a8b1d5e7.png');"></selected-language-icon>
 
                         <span class="textBeefy">
                                 <a href="{{ route('changenick.overlay') }}"
                                    class="overlay textBeefy"
-                                   data-overlay-title="Change player name"
+                                   data-overlay-title="{{ __('t_ingame.layout.change_player_name') }}"
                                    data-overlay-popup-width="400"
                                    data-overlay-popup-height="200"
                                 >
@@ -147,37 +147,37 @@
                             </span>
                     </li>
                     <li>
-                        <a href="{{ route('highscore.index') }}" accesskey="">@lang('Highscore')</a>
+                        <a href="{{ route('highscore.index') }}" accesskey="">{{ __('t_ingame.layout.highscore') }}</a>
                         ({{ $highscoreRank }})
                     </li>
                     <li>
                         <a href="{{ route('notes.overlay') }}"
-                           class="overlay" data-overlay-title="My notes"
+                           class="overlay" data-overlay-title="{{ __('t_ingame.layout.notes_overlay_title') }}"
                            data-overlay-class="notices"
                            data-overlay-popup-width="750"
                            data-overlay-popup-height="480"
                            accesskey="">
-                            @lang('Notes')</a>
+                            {{ __('t_ingame.layout.notes') }}</a>
                     </li>
                     <li>
                         <a class=""
                            accesskey=""
                            href="{{ route('buddies.index') }}"
                         >
-                            @lang('Buddies')@if($buddyRequestCount > 0) <span style="color: white;">({{ $buddyRequestCount }})</span>@endif</a>
+                            {{ __('t_ingame.layout.buddies') }}@if($buddyRequestCount > 0) <span style="color: white;">({{ $buddyRequestCount }})</span>@endif</a>
                     </li>
                     <li><a class="overlay"
                            href="{{ route('search.overlay') }}"
-                           data-overlay-title="Search Universe"
+                           data-overlay-title="{{ __('t_ingame.layout.search_overlay_title') }}"
                            data-overlay-close="__default closeSearch"
                            data-overlay-class="search"
-                           accesskey="">@lang('Search')</a>
+                           accesskey="">{{ __('t_ingame.layout.search') }}</a>
                     </li>
-                    <li><a href="{{ route('options.index') }}" accesskey="">@lang('Options')</a></li>
-                    <li><a href="#">@lang('Support')</a></li>
+                    <li><a href="{{ route('options.index') }}" accesskey="">{{ __('t_ingame.layout.options') }}</a></li>
+                    <li><a href="#">{{ __('t_ingame.layout.support') }}</a></li>
                     <li>
                         <a href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">@lang('Log out')</a>
+                                                     document.getElementById('logout-form').submit();">{{ __('t_ingame.layout.log_out') }}</a>
 
                         <form id="logout-form" action="{{ route('logout') }}" method="POST"
                               style="display: none;">
@@ -193,7 +193,7 @@
 
                 <div class="resource_tile metal">
                     <div id="metal_box" class="metal tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
-                         title="Metal|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['metal']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['metal']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['metal']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>"
+                         title="{{ __('t_ingame.layout.res_metal') }}|<table class=&quot;resourceTooltip&quot;><tr><th>{{ __('t_ingame.layout.res_available') }}:</th><td><span class=&quot;&quot;>{!! $resources['metal']['amount_formatted'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_storage_capacity') }}</th><td><span class=&quot;&quot;>{!! $resources['metal']['storage_formatted'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_current_production') }}:</th><td><span class=&quot;undermark&quot;>+{!! $resources['metal']['production_hour'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_den_capacity') }}:</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>"
                          data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1="
                          data-ipi-hint="ipiResourcemetal">
                         <div class="resourceIcon metal"></div>
@@ -206,7 +206,7 @@
                 </div>
                 <div class="resource_tile crystal">
                     <div id="crystal_box" class="crystal tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
-                         title="@lang('Crystal')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['crystal']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['crystal']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['crystal']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>"
+                         title="{{ __('t_ingame.layout.res_crystal') }}|<table class=&quot;resourceTooltip&quot;><tr><th>{{ __('t_ingame.layout.res_available') }}:</th><td><span class=&quot;&quot;>{!! $resources['crystal']['amount_formatted'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_storage_capacity') }}</th><td><span class=&quot;&quot;>{!! $resources['crystal']['storage_formatted'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_current_production') }}:</th><td><span class=&quot;undermark&quot;>+{!! $resources['crystal']['production_hour'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_den_capacity') }}:</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>"
                          data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1="
                          data-ipi-hint="ipiResourcecrystal">
                         <div class="resourceIcon crystal"></div>
@@ -219,7 +219,7 @@
                 </div>
                 <div class="resource_tile deuterium">
                     <div id="deuterium_box" class="deuterium tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
-                         title="@lang('Deuterium')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Storage capacity')</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['storage_formatted'] !!}</span></td></tr><tr><th>@lang('Current production'):</th><td><span class=&quot;undermark&quot;>+{!! $resources['deuterium']['production_hour'] !!}</span></td></tr><tr><th>@lang('Den Capacity'):</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>"
+                         title="{{ __('t_ingame.layout.res_deuterium') }}|<table class=&quot;resourceTooltip&quot;><tr><th>{{ __('t_ingame.layout.res_available') }}:</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['amount_formatted'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_storage_capacity') }}</th><td><span class=&quot;&quot;>{!! $resources['deuterium']['storage_formatted'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_current_production') }}:</th><td><span class=&quot;undermark&quot;>+{!! $resources['deuterium']['production_hour'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_den_capacity') }}:</th><td><span class=&quot;middlemark&quot;>0</span></td></tr></table>"
                          data-shop-url="#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f&amp;page=shop&amp;panel1-1="
                          data-ipi-hint="ipiResourcedeuterium">
                         <div class="resourceIcon deuterium"></div>
@@ -232,7 +232,7 @@
                 </div>
                 <div class="resource_tile energy">
                     <div id="energy_box" class="energy tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
-                         title="@lang('Energy')|<table class=&quot;resourceTooltip&quot;><tr><th>@lang('Available'):</th><td><span class=&quot;&quot;>{!! $resources['energy']['amount_formatted'] !!}</span></td></tr><tr><th>@lang('Current production:')</th><td><span class=&quot;undermark&quot;>+{!! $resources['energy']['production_formatted'] !!}</span></td></tr><tr><th>@lang('Consumption')</th><td><span class=&quot;overmark&quot;>-{!! $resources['energy']['consumption_formatted'] !!}</span></td></tr></table>"
+                         title="{{ __('t_ingame.layout.res_energy') }}|<table class=&quot;resourceTooltip&quot;><tr><th>{{ __('t_ingame.layout.res_available') }}:</th><td><span class=&quot;&quot;>{!! $resources['energy']['amount_formatted'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_current_production') }}:</th><td><span class=&quot;undermark&quot;>+{!! $resources['energy']['production_formatted'] !!}</span></td></tr><tr><th>{{ __('t_ingame.layout.res_consumption') }}</th><td><span class=&quot;overmark&quot;>-{!! $resources['energy']['consumption_formatted'] !!}</span></td></tr></table>"
                          data-ipi-hint="ipiResourceenergy">
                         <div class="resourceIcon energy"></div>
                         <span class="value">
@@ -264,8 +264,8 @@
                 </div> -->
                 <div class="resource_tile darkmatter">
                     <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
-                         title="@lang('Dark Matter')|<table class=&quot;resourceTooltip&quot;><tr><th>Available:</th><td><span class=&quot;&quot;>{!! $resources['darkmatter']['amount_formatted'] !!}</span></td></tr></table>"
-                         data-tooltip-button="Purchase Dark Matter" data-ipi-hint="ipiResourcedarkmatter">
+                         title="{{ __('t_ingame.layout.res_dark_matter') }}|<table class=&quot;resourceTooltip&quot;><tr><th>{{ __('t_ingame.layout.res_available') }}:</th><td><span class=&quot;&quot;>{!! $resources['darkmatter']['amount_formatted'] !!}</span></td></tr></table>"
+                         data-tooltip-button="{{ __('t_ingame.layout.res_purchase_dm') }}" data-ipi-hint="ipiResourcedarkmatter">
                         <a href="#TODO_page=payment" class="overlay">
                             <img src="/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif">
                             <div class="resourceIcon darkmatter"></div>
@@ -288,19 +288,19 @@
             <div id="characterclass" class="fleft">
                 @php
                     $userClass = $currentPlayer->getUser()->getCharacterClassEnum();
-                    $classTitle = 'No class selected';
+                    $classTitle = __('t_ingame.layout.class_none');
                     $classIcon = 'none';
                     $classBonuses = [];
 
                     if ($userClass) {
-                        $classTitle = 'Your class: ' . $userClass->getName();
+                        $classTitle = __('t_ingame.layout.class_selected', ['name' => $userClass->getName()]);
                         $classIcon = $userClass->getMachineName();
                         $classBonuses = $userClass->getBonuses();
                     }
                 @endphp
                 <a href="{{ route('characterclass.index') }}"
                    class="tooltipHTML js_hideTipOnMobile ipiHintable"
-                   title="{{ $classTitle }}|@if($classBonuses){{ implode('<br>', $classBonuses) }}@else @lang('Click to select a character class')@endif"
+                   title="{{ $classTitle }}|@if($classBonuses){{ implode('<br>', $classBonuses) }}@else {{ __('t_ingame.layout.class_click_select') }}@endif"
                    data-ipi-hint="ipiCharacterclassSettings">
                     <div class="sprite characterclass medium {{ $classIcon }}"></div>
                 </a>
@@ -334,7 +334,7 @@ Combat simulation save slots +20">
             <div id="message-wrapper">
                 <a class=" comm_menu messages tooltip js_hideTipOnMobile"
                    href="{{ route('messages.index') }}"
-                   title="{{ $unreadMessagesCount }} @lang('unread message(s)')">
+                   title="{{ $unreadMessagesCount }} {{ __('t_ingame.layout.unread_messages') }}">
                     @if ($unreadMessagesCount > 0)
                         <span class="new_msg_count totalMessages  news"
                               data-new-messages="{{ $unreadMessagesCount }}">
@@ -363,10 +363,10 @@ Combat simulation save slots +20">
                     </div>
                     <div id="eventboxLoading" class="textCenter textBeefy" style="display: block;">
                         <img height="16" width="16"
-                             src="/img/icons/3f9884806436537bdec305aa26fc60.gif"/>@lang('load...')
+                             src="/img/icons/3f9884806436537bdec305aa26fc60.gif"/>{{ __('t_ingame.layout.loading') }}
                     </div>
                     <div id="eventboxBlank" class="textCenter" style="display: none;">
-                        @lang('No fleet movement')
+                        {{ __('t_ingame.layout.no_fleet_movement') }}
                     </div>
                 </div>
             @php
@@ -395,7 +395,7 @@ Combat simulation save slots +20">
                 @endphp
 
                 <div id="attack_alert" class="@if ($underAttack) soon @elseif (!empty($playerWreckFields) && !$underAttack) wreckField @else noAttack @endif"
-                     @if ($underAttack) title="@lang('You are under attack!')" @endif>
+                     @if ($underAttack) title="{{ __('t_ingame.layout.under_attack') }}" @endif>
                     @if ($underAttack)
                         <a href="#TODO_componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
                     @elseif (!empty($playerWreckFields))
@@ -503,7 +503,7 @@ Combat simulation save slots +20">
                             href="#TODO_page=ajax&amp;component=ipioverview&amp;action=overviewLayer&amp;ajax=1"
                             class="overlay textBeefy" data-overlay-title="" id="ipiInnerMenuContentHolder">
                         <div class="ipiMenuHead">
-                            Directives
+                            {{ __('t_ingame.layout.menu_directives') }}
                         </div>
 
                         <div class="ipiMenuBody hidden"></div>
@@ -521,7 +521,7 @@ Combat simulation save slots +20">
                             <a href="{{ route('rewards.index') }}"
                                class="tooltipRight js_hideTipOnMobile "
                                target="_self"
-                               title="Rewards">
+                               title="{{ __('t_ingame.layout.menu_rewards_title') }}">
                                 <div class="menuImage overview {{(Request::is('rewards') || Request::is('overview') ? 'highlighted' : '') }}"></div>
                             </a>
                         </span>
@@ -530,7 +530,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Overview')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_overview') }}</span>
                         </a>
                     </li>
 
@@ -539,7 +539,7 @@ Combat simulation save slots +20">
                             <a href="{{ route('resources.settings') }}"
                                class="tooltipRight js_hideTipOnMobile "
                                target="_self"
-                               title="Resource settings">
+                               title="{{ __('t_ingame.layout.menu_resource_settings_title') }}">
                                 <div class="menuImage resources {{(Request::is('resources*') ? 'highlighted' : '') }}"></div>
                             </a>
                         </span>
@@ -548,14 +548,14 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Resources')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_resources') }}</span>
                         </a>
                     </li>
 
                     <li>
                         <span class="menu_icon">
                             @if ($currentPlanet->isMoon() && $currentPlanet->getObjectLevel('jump_gate') > 0)
-                                <a href="{{ route('jumpgate.index') }}" class="overlay tooltipRight js_hideTipOnMobile" target="_self" data-overlay-title="@lang('Jump Gate')" title="@lang('Jump Gate')">
+                                <a href="{{ route('jumpgate.index') }}" class="overlay tooltipRight js_hideTipOnMobile" target="_self" data-overlay-title="{{ __('t_ingame.layout.menu_jump_gate') }}" title="{{ __('t_ingame.layout.menu_jump_gate') }}">
                                     <div class="menuImage station highlighted ipiHintable" data-ipi-hint="ipiToolbarJumpgate"></div>
                                 </a>
                             @else
@@ -567,7 +567,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Facilities')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_facilities') }}</span>
                         </a>
                     </li>
 
@@ -576,7 +576,7 @@ Combat simulation save slots +20">
                             <a href="{{ route('merchant.resource-market') }}"
                                class="trader tooltipRight js_hideTipOnMobile "
                                target="_self"
-                               title="Resource Market">
+                               title="{{ __('t_ingame.layout.menu_resource_market_title') }}">
                                 <div class="menuImage traderOverview {{(Request::is('merchant*') ? 'highlighted' : '') }}">
                                 </div>
                             </a>
@@ -586,7 +586,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Merchant')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_merchant') }}</span>
                         </a>
                     </li>
 
@@ -595,7 +595,7 @@ Combat simulation save slots +20">
                             <a href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => 1, 'open' => 'all']) }}"
                                class="overlay tooltipRight js_hideTipOnMobile "
                                target="_blank"
-                               title="Technology">
+                               title="{{ __('t_ingame.layout.menu_technology_title') }}">
                                 <div class="menuImage research {{(Request::is('research') ? 'highlighted' : '') }}">
                                 </div>
                             </a>
@@ -605,7 +605,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Research')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_research') }}</span>
                         </a>
                     </li>
 
@@ -618,7 +618,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Shipyard')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_shipyard') }}</span>
                         </a>
                     </li>
 
@@ -631,7 +631,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Defense')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_defense') }}</span>
                         </a>
                     </li>
 
@@ -640,7 +640,7 @@ Combat simulation save slots +20">
                             <a href="{{ route('fleet.movement') }}"
                                class="tooltipRight js_hideTipOnMobile "
                                target="_self"
-                               title="Fleet movement">
+                               title="{{ __('t_ingame.layout.menu_fleet_movement_title') }}">
                                 <div class="menuImage fleet1 {{(Request::is('fleet*') ? 'highlighted' : '') }}">
                                 </div>
                             </a>
@@ -650,7 +650,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Fleet')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_fleet') }}</span>
                         </a>
                     </li>
 
@@ -663,7 +663,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Galaxy')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_galaxy') }}</span>
                         </a>
                     </li>
 
@@ -676,7 +676,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Alliance')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_alliance') }}</span>
                         </a>
                     </li>
 
@@ -689,7 +689,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Recruit Officers')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_officers') }}</span>
                         </a>
                     </li>
                     <li>
@@ -697,7 +697,7 @@ Combat simulation save slots +20">
                             <a href="{{ route('shop.index') }}#page=inventory"
                                class="tooltipRight js_hideTipOnMobile "
                                target="_self"
-                               title="Inventory">
+                               title="{{ __('t_ingame.layout.menu_inventory_title') }}">
                                 <div class="menuImage shop {{(Request::is('shop') ? 'highlighted' : '') }}">
                                 </div>
                             </a>
@@ -707,7 +707,7 @@ Combat simulation save slots +20">
                            accesskey=""
                            target="_self"
                         >
-                            <span class="textlabel">@lang('Shop')</span>
+                            <span class="textlabel">{{ __('t_ingame.layout.menu_shop') }}</span>
                         </a>
                     </li>
                 </ul>
@@ -750,23 +750,23 @@ Combat simulation save slots +20">
                     "hasAPassword": true
                 };
                 var hasAPassword = true;
-                var jsloca = {
-                    "INTERNAL_ERROR": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-                    "LOCA_ALL_YES": "yes",
-                    "LOCA_ALL_NO": "No",
-                    "LOCA_NOTIFY_ERROR": "Error",
-                    "LOCA_NOTIFY_INFO": "Info",
-                    "LOCA_NOTIFY_SUCCESS": "Success",
-                    "LOCA_NOTIFY_WARNING": "Warning",
-                    "COMBATSIM_PLANNING": "Planning",
-                    "COMBATSIM_PENDING": "Simulation running...",
-                    "COMBATSIM_DONE": "Complete",
-                    "MSG_RESTORE": "restore",
-                    "MSG_DELETE": "delete",
-                    "COPIED_TO_CLIPBOARD": "Copied to clipboard",
-                    "LOCA_ALL_NETWORK_ATTENTION": "Caution",
-                    "LOCA_NETWORK_MSG_GAMEOPERATOR": "Report this message to a game operator?"
-                };
+                var jsloca = {!! json_encode([
+                    'INTERNAL_ERROR'               => __('t_ingame.layout.js_internal_error'),
+                    'LOCA_ALL_YES'                 => __('t_ingame.shared.yes'),
+                    'LOCA_ALL_NO'                  => __('t_ingame.shared.no'),
+                    'LOCA_NOTIFY_ERROR'            => __('t_ingame.shared.error'),
+                    'LOCA_NOTIFY_INFO'             => __('t_ingame.layout.js_notify_info'),
+                    'LOCA_NOTIFY_SUCCESS'          => __('t_ingame.layout.js_notify_success'),
+                    'LOCA_NOTIFY_WARNING'          => __('t_ingame.layout.js_notify_warning'),
+                    'COMBATSIM_PLANNING'           => __('t_ingame.layout.js_combatsim_planning'),
+                    'COMBATSIM_PENDING'            => __('t_ingame.layout.js_combatsim_pending'),
+                    'COMBATSIM_DONE'               => __('t_ingame.layout.js_combatsim_done'),
+                    'MSG_RESTORE'                  => __('t_ingame.layout.js_msg_restore'),
+                    'MSG_DELETE'                   => __('t_ingame.layout.js_msg_delete'),
+                    'COPIED_TO_CLIPBOARD'          => __('t_ingame.layout.js_copied'),
+                    'LOCA_ALL_NETWORK_ATTENTION'   => __('t_ingame.shared.caution'),
+                    'LOCA_NETWORK_MSG_GAMEOPERATOR'=> __('t_ingame.layout.js_report_operator'),
+                ]) !!};
                 var session = "3c442273a6de4c8f79549e78f4c3ca50e7ea7580";
                 var isMobile = false;
                 var isMobileApp = false;
@@ -790,49 +790,31 @@ Combat simulation save slots +20">
                 var timeDiff = serverTime - localTime;
                 localTS = localTime.getTime();
                 var startServerTime = localTime.getTime() - (0) - localTime.getTimezoneOffset() * 60 * 1000;
-                var LocalizationStrings = {
-                    "timeunits": {
-                        "short": {
-                            "year": "y",
-                            "month": "m",
-                            "week": "w",
-                            "day": "d",
-                            "hour": "h",
-                            "minute": "m",
-                            "second": "s"
-                        }
-                    },
-                    "status": {
-                        "ready": "done"
-                    },
-                    "decimalPoint": ".",
-                    "thousandSeperator": ",",
-                    "unitMega": "M",
-                    "unitKilo": "K",
-                    "unitMilliard": "B",
-                    "question": "Question",
-                    "error": "Error",
-                    "loading": "load...",
-                    "yes": "yes",
-                    "no": "No",
-                    "ok": "Ok",
-                    "attention": "Caution",
-                    "outlawWarning": "You are about to attack a stronger player. If you do this, your attack defenses will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
-                    "lastSlotWarningMoon": "This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?",
-                    "lastSlotWarningPlanet": "This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?",
-                    "forcedVacationWarning": "Some game features are unavailable until your account is validated.",
-                    "moreDetails": "More details",
-                    "lessDetails": "Less detail",
-                    "planetOrder": {
-                        "lock": "Lock arrangement",
-                        "unlock": "Unlock arrangement"
-                    },
-                    "darkMatter": "Dark Matter",
-                    "activateItem": {
-                        "upgradeItemQuestion": "Would you like to replace the existing item? The old bonus will be lost in the process.",
-                        "upgradeItemQuestionHeader": "Replace item?"
-                    }
-                };
+                var LocalizationStrings = {!! json_encode([
+                    'timeunits'            => ['short' => ['year' => 'y', 'month' => 'm', 'week' => 'w', 'day' => 'd', 'hour' => 'h', 'minute' => 'm', 'second' => 's']],
+                    'status'               => ['ready' => __('t_ingame.layout.js_time_done')],
+                    'decimalPoint'         => '.',
+                    'thousandSeperator'    => ',',
+                    'unitMega'             => 'M',
+                    'unitKilo'             => 'K',
+                    'unitMilliard'         => 'B',
+                    'question'             => __('t_ingame.layout.js_question'),
+                    'error'                => __('t_ingame.shared.error'),
+                    'loading'              => __('t_ingame.layout.loading'),
+                    'yes'                  => __('t_ingame.shared.yes'),
+                    'no'                   => __('t_ingame.shared.no'),
+                    'ok'                   => __('t_ingame.layout.js_ok'),
+                    'attention'            => __('t_ingame.shared.caution'),
+                    'outlawWarning'        => __('t_ingame.layout.js_outlaw_warning'),
+                    'lastSlotWarningMoon'  => __('t_ingame.layout.js_last_slot_moon'),
+                    'lastSlotWarningPlanet'=> __('t_ingame.layout.js_last_slot_planet'),
+                    'forcedVacationWarning'=> __('t_ingame.layout.js_forced_vacation'),
+                    'moreDetails'          => __('t_ingame.layout.js_more_details'),
+                    'lessDetails'          => __('t_ingame.layout.js_less_details'),
+                    'planetOrder'          => ['lock' => __('t_ingame.layout.js_planet_lock'), 'unlock' => __('t_ingame.layout.js_planet_unlock')],
+                    'darkMatter'           => __('t_ingame.layout.res_dark_matter'),
+                    'activateItem'         => ['upgradeItemQuestion' => __('t_ingame.layout.js_activate_item_question'), 'upgradeItemQuestionHeader' => __('t_ingame.layout.js_activate_item_header')],
+                ]) !!};
                 var constants = {
                     "espionage": 6,
                     "missleattack": 10,
@@ -856,29 +838,29 @@ Combat simulation save slots +20">
                 var chatUrl = "{{ route('chat.send') }}";
                 var chatHistoryUrl = "{{ route('chat.history') }}";
                 var chatUrlLoadMoreMessages = "{{ route('chat.more') }}";
-                var chatLoca = {
-                    "TEXT_EMPTY": "Where is the message?",
-                    "TEXT_TOO_LONG": "The message is too long.",
-                    "SAME_USER": "You cannot write to yourself.",
-                    "IGNORED_USER": "You have ignored this player.",
-                    "NO_DATABASE_CONNECTION": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-                    "INVALID_PARAMETERS": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-                    "SEND_FAILED": "A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!",
-                    "LOCA_ALL_ERROR_NOTACTIVATED": "This function is only available after your accounts activation.",
-                    "X_NEW_CHATS": "#+# unread message(s)",
-                    "MORE_USERS": "show more"
-                };
-                var eventboxLoca = {
-                    "mission": "Mission",
-                    "missions": "Missions",
-                    "next misson": "DUMMY_KEY_N\u00e4chster_fertig",
-                    "type": "DUMMY_KEY_Art",
-                    "friendly": "own",
-                    "neutral": "friendly",
-                    "hostile": "hostile",
-                    "nextEvent": "Next",
-                    "nextEventText": "Type"
-                };
+                var chatLoca = {!! json_encode([
+                    'TEXT_EMPTY'               => __('t_ingame.layout.chat_text_empty'),
+                    'TEXT_TOO_LONG'            => __('t_ingame.layout.chat_text_too_long'),
+                    'SAME_USER'                => __('t_ingame.layout.chat_same_user'),
+                    'IGNORED_USER'             => __('t_ingame.layout.chat_ignored_user'),
+                    'NO_DATABASE_CONNECTION'   => __('t_ingame.layout.js_internal_error'),
+                    'INVALID_PARAMETERS'       => __('t_ingame.layout.js_internal_error'),
+                    'SEND_FAILED'              => __('t_ingame.layout.js_internal_error'),
+                    'LOCA_ALL_ERROR_NOTACTIVATED' => __('t_ingame.layout.chat_not_activated'),
+                    'X_NEW_CHATS'              => __('t_ingame.layout.chat_new_chats'),
+                    'MORE_USERS'               => __('t_ingame.layout.chat_more_users'),
+                ]) !!};
+                var eventboxLoca = {!! json_encode([
+                    'mission'      => __('t_ingame.layout.eventbox_mission'),
+                    'missions'     => __('t_ingame.layout.eventbox_missions'),
+                    'next misson'  => 'DUMMY_KEY_Nächster_fertig',
+                    'type'         => 'DUMMY_KEY_Art',
+                    'friendly'     => __('t_ingame.layout.eventbox_own'),
+                    'neutral'      => __('t_ingame.layout.eventbox_friendly'),
+                    'hostile'      => __('t_ingame.layout.eventbox_hostile'),
+                    'nextEvent'    => __('t_ingame.layout.eventbox_next'),
+                    'nextEventText'=> __('t_ingame.layout.eventbox_type'),
+                ]) !!};
 
                 var ajaxEventboxURI = "{{ route('fleet.eventbox.fetch') }}";
                 var ajaxRecallFleetURI = "{{ route('fleet.dispatch.recallfleet') }}";
@@ -1336,7 +1318,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                         //     "capableToFeed": 0,
                         //     "needFood": 0,
                         //     "singleFoodConsumption": 0,
-                        //     "tooltip": "@lang('Population')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"overmark\">100<\/span><\/td><\/tr><tr><th>@lang('Living Space')\n<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Satisfied')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>@lang('Hungry')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Growth rate')<\/th><td><span class=\"\">\u00b10<\/span><\/td><\/tr><tr><th>@lang('Bunker Space')\n<\/th><td><span class=\"middlemark\">100<\/span><\/td><\/tr><\/table>",
+                        //     "tooltip": "@lang('Population')|<table class=\"resourceTooltip\"><tr><th>{{ __('t_ingame.layout.res_available') }}:<\/th><td><span class=\"overmark\">100<\/span><\/td><\/tr><tr><th>@lang('Living Space')\n<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Satisfied')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>@lang('Hungry')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Growth rate')<\/th><td><span class=\"\">\u00b10<\/span><\/td><\/tr><tr><th>@lang('Bunker Space')\n<\/th><td><span class=\"middlemark\">100<\/span><\/td><\/tr><\/table>",
                         //     "classesListItem": ""
                         // },
                         // "food": {
@@ -1347,7 +1329,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                         //     "consumption": 0,
                         //     "timeTillFoodRunsOut": 0,
                         //     "vacationMode": "",
-                        //     "tooltip": "@lang('Food')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Overproduction')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>@lang('Consumption')<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Consumed in')<\/th><td><span class=\"overmark timeTillFoodRunsOut\">~<\/span><\/td><\/tr><\/table>",
+                        //     "tooltip": "@lang('Food')|<table class=\"resourceTooltip\"><tr><th>{{ __('t_ingame.layout.res_available') }}:<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_storage_capacity') }}<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Overproduction')<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_consumption') }}<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>@lang('Consumed in')<\/th><td><span class=\"overmark timeTillFoodRunsOut\">~<\/span><\/td><\/tr><\/table>",
                         //     "classesListItem": ""
                         // },
                         "metal": {
@@ -1355,7 +1337,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                             "storage": {!! $resources['metal']['storage'] !!},
                             "baseProduction": 0, // TODO: add base production separately?
                             "production": {!! $resources['metal']['production_second'] !!},
-                            "tooltip": "@lang('Metal')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['metal']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"\">{!! $resources['metal']['storage_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Current production'):<\/th><td><span class=\"@if ($resources['metal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['metal']['production_hour'] > 0)+@endif{!! $resources['metal']['production_hour_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Den Capacity'):<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>",
+                            "tooltip": "{{ __('t_ingame.layout.res_metal') }}|<table class=\"resourceTooltip\"><tr><th>{{ __('t_ingame.layout.res_available') }}:<\/th><td><span class=\"\">{!! $resources['metal']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_storage_capacity') }}<\/th><td><span class=\"\">{!! $resources['metal']['storage_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_current_production') }}:<\/th><td><span class=\"@if ($resources['metal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['metal']['production_hour'] > 0)+@endif{!! $resources['metal']['production_hour_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_den_capacity') }}:<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>",
                             "classesListItem": "",
                             "shopUrl": "#TODO_category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&item=859d82d316b83848f7365d21949b3e1e63c7841f&page=shop&panel1-1="
                         },
@@ -1364,7 +1346,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                             "storage": {!! $resources['crystal']['storage'] !!},
                             "baseProduction": 0, // TODO: add base production separately?
                             "production": {!! $resources['crystal']['production_second'] !!},
-                            "tooltip": "@lang('Crystal')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['crystal']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"\">{!! $resources['crystal']['storage_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Current production'):<\/th><td><span class=\"@if ($resources['crystal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['crystal']['production_hour'] > 0)+@endif{!! $resources['crystal']['production_hour_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Den Capacity'):<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>",
+                            "tooltip": "{{ __('t_ingame.layout.res_crystal') }}|<table class=\"resourceTooltip\"><tr><th>{{ __('t_ingame.layout.res_available') }}:<\/th><td><span class=\"\">{!! $resources['crystal']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_storage_capacity') }}<\/th><td><span class=\"\">{!! $resources['crystal']['storage_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_current_production') }}:<\/th><td><span class=\"@if ($resources['crystal']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['crystal']['production_hour'] > 0)+@endif{!! $resources['crystal']['production_hour_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_den_capacity') }}:<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>",
                             "classesListItem": "",
                             "shopUrl": "#TODO_page=shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&item=bb2f6843226ef598f0b567b92c51b283de90aa48&page=shop&panel1-1="
                         },
@@ -1373,18 +1355,18 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                             "storage": {!! $resources['deuterium']['storage'] !!},
                             "baseProduction": 0, // TODO: add base production separately?
                             "production": {!! $resources['deuterium']['production_second'] !!},
-                            "tooltip": "@lang('Deuterium')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['deuterium']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Storage capacity')<\/th><td><span class=\"\">{!! $resources['deuterium']['storage_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Current production'):<\/th><td><span class=\"@if ($resources['deuterium']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['deuterium']['production_hour'] > 0)+@endif{!! $resources['deuterium']['production_hour_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Den Capacity'):<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>",
+                            "tooltip": "{{ __('t_ingame.layout.res_deuterium') }}|<table class=\"resourceTooltip\"><tr><th>{{ __('t_ingame.layout.res_available') }}:<\/th><td><span class=\"\">{!! $resources['deuterium']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_storage_capacity') }}<\/th><td><span class=\"\">{!! $resources['deuterium']['storage_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_current_production') }}:<\/th><td><span class=\"@if ($resources['deuterium']['production_hour'] <= 0) overmark @else undermark @endif\">@if ($resources['deuterium']['production_hour'] > 0)+@endif{!! $resources['deuterium']['production_hour_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_den_capacity') }}:<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>",
                             "classesListItem": "",
                             "shopUrl": "#TODO_shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&item=cb72ed207dd871832a850ee29f1c1f83aa3f4f36&page=shop&panel1-1="
                         },
                         "energy": {
                             "amount": {!! $resources['energy']['amount'] !!},
-                            "tooltip": "@lang('Energy')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['energy']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>Current production:<\/th><td><span class=\"{{ $resources['energy']['production'] > 0 ? 'undermark' : 'overmark' }}\">{{ $resources['energy']['production'] > 0 ? '+' : '' }}{!! $resources['energy']['production_formatted'] !!}<\/span><\/td><\/tr><tr><th>@lang('Consumption')<\/th><td><span class=\"{{ $resources['energy']['consumption'] > 0 ? 'overmark' : '' }}\">{{ $resources['energy']['consumption'] > 0 ? '-' : '' }}{!! $resources['energy']['consumption_formatted'] !!}<\/span><\/td><\/tr><\/table>",
+                            "tooltip": "{{ __('t_ingame.layout.res_energy') }}|<table class=\"resourceTooltip\"><tr><th>{{ __('t_ingame.layout.res_available') }}:<\/th><td><span class=\"\">{!! $resources['energy']['amount_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_current_production') }}:<\/th><td><span class=\"{{ $resources['energy']['production'] > 0 ? 'undermark' : 'overmark' }}\">{{ $resources['energy']['production'] > 0 ? '+' : '' }}{!! $resources['energy']['production_formatted'] !!}<\/span><\/td><\/tr><tr><th>{{ __('t_ingame.layout.res_consumption') }}<\/th><td><span class=\"{{ $resources['energy']['consumption'] > 0 ? 'overmark' : '' }}\">{{ $resources['energy']['consumption'] > 0 ? '-' : '' }}{!! $resources['energy']['consumption_formatted'] !!}<\/span><\/td><\/tr><\/table>",
                             "classesListItem": ""
                         },
                         "darkmatter": {
                             "amount": {!! $resources['darkmatter']['amount'] !!},
-                            "tooltip": "@lang('Dark Matter')|<table class=\"resourceTooltip\"><tr><th>@lang('Available'):<\/th><td><span class=\"\">{!! $resources['darkmatter']['amount_formatted'] !!}<\/span><\/td><\/tr><\/table>",
+                            "tooltip": "{{ __('t_ingame.layout.res_dark_matter') }}|<table class=\"resourceTooltip\"><tr><th>{{ __('t_ingame.layout.res_available') }}:<\/th><td><span class=\"\">{!! $resources['darkmatter']['amount_formatted'] !!}<\/span><\/td><\/tr><\/table>",
                             "classesListItem": "",
                             "classes": "overlay",
                             "link": "#TODO_page=payment",
@@ -1418,14 +1400,14 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                     });
                 }
 
-                var planetMoveLoca = {
-                    "askTitle": "Resettle Planet",
-                    "askCancel": "Are you sure that you wish to cancel this planet relocation? The normal waiting time will thereby be maintained.",
-                    "yes": "yes",
-                    "no": "No",
-                    "success": "The planet relocation was successfully cancelled.",
-                    "error": "Error"
-                };
+                var planetMoveLoca = {!! json_encode([
+                    'askTitle' => __('t_ingame.layout.planet_move_ask_title'),
+                    'askCancel'=> __('t_ingame.layout.planet_move_ask_cancel'),
+                    'yes'      => __('t_ingame.shared.yes'),
+                    'no'       => __('t_ingame.shared.no'),
+                    'success'  => __('t_ingame.layout.planet_move_success'),
+                    'error'    => __('t_ingame.shared.error'),
+                ]) !!};
 
                 function openPlanetRenameGiveupBox() {
                     openOverlay("{{ route('planetabandon.overlay') }}", {
@@ -1434,25 +1416,25 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                     });
                 }
 
-                var locaPremium = {
-                    "buildingHalfOverlay": "Do you want to reduce the construction time by 50% of the total construction time () for <b>750 Dark Matter<\/b>?",
-                    "buildingFullOverlay": "Do you want to immediately complete the construction order for <b>750 Dark Matter<\/b>?",
-                    "shipsHalfOverlay": "Do you want to reduce the construction time by 50% of the total construction time () for <b>750 Dark Matter<\/b>?",
-                    "shipsFullOverlay": "Do you want to immediately complete the construction order for <b>750 Dark Matter<\/b>?",
-                    "researchHalfOverlay": "Do you want to reduce the research time by 50% of the total research time () for <b>750 Dark Matter<\/b>?",
-                    "researchFullOverlay": "Do you want to immediately complete the research order for <b>750 Dark Matter<\/b>?"
-                };
+                var locaPremium = {!! json_encode([
+                    'buildingHalfOverlay' => __('t_ingame.layout.premium_building_half'),
+                    'buildingFullOverlay' => __('t_ingame.layout.premium_building_full'),
+                    'shipsHalfOverlay'    => __('t_ingame.layout.premium_ships_half'),
+                    'shipsFullOverlay'    => __('t_ingame.layout.premium_ships_full'),
+                    'researchHalfOverlay' => __('t_ingame.layout.premium_research_half'),
+                    'researchFullOverlay' => __('t_ingame.layout.premium_research_full'),
+                ]) !!};
                 var priceBuilding = 750;
                 var priceResearch = 750;
                 var priceShips = 750;
                 var loca = loca || {};
-                loca = $.extend({}, loca, {
-                    "error": "Error",
-                    "errorNotEnoughDM": "Not enough Dark Matter available! Do you want to buy some now?",
-                    "notice": "Reference",
-                    "planetGiveupQuestion": "Are you sure you want to abandon the planet %planetName% %planetCoordinates%?",
-                    "moonGiveupQuestion": "Are you sure you want to abandon the moon %planetName% %planetCoordinates%?"
-                });
+                loca = $.extend({}, loca, {!! json_encode([
+                    'error'                => __('t_ingame.shared.error'),
+                    'errorNotEnoughDM'     => __('t_ingame.layout.loca_error_not_enough_dm'),
+                    'notice'               => __('t_ingame.layout.loca_notice'),
+                    'planetGiveupQuestion' => __('t_ingame.layout.loca_planet_giveup'),
+                    'moonGiveupQuestion'   => __('t_ingame.layout.loca_moon_giveup'),
+                ]) !!});
 
                 function type() {
                     var destination = document.getElementById(textDestination[currentIndex]);
@@ -1576,53 +1558,43 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                     $('#planet').find('h2 a img').toggleClass('hinted');
                 });
                 var player = {hasCommander: false};
-                var localizedBBCode = {
-                    "bold": "Bold",
-                    "italic": "Italic",
-                    "underline": "Underline",
-                    "stroke": "Strikethrough",
-                    "sub": "Subscript",
-                    "sup": "Superscript",
-                    "fontColor": "Font colour",
-                    "fontSize": "Font size",
-                    "backgroundColor": "Background colour",
-                    "backgroundImage": "Background image",
-                    "tooltip": "Tool-tip",
-                    "alignLeft": "Left align",
-                    "alignCenter": "Centre align",
-                    "alignRight": "Right align",
-                    "alignJustify": "Justify",
-                    "block": "Break",
-                    "code": "Code",
-                    "spoiler": "Spoiler",
-                    "moreopts": "More Options",
-                    "list": "List",
-                    "hr": "Horizontal line",
-                    "picture": "Image",
-                    "link": "Link",
-                    "email": "Email",
-                    "player": "Player",
-                    "item": "Item",
-                    "coordinates": "Coordinates",
-                    "preview": "Preview",
-                    "textPlaceHolder": "Text...",
-                    "playerPlaceHolder": "Player ID or name",
-                    "itemPlaceHolder": "Item ID",
-                    "coordinatePlaceHolder": "Galaxy:system:position",
-                    "charsLeft": "Characters remaining",
-                    "colorPicker": {
-                        "ok": "Ok",
-                        "cancel": "Cancel",
-                        "rgbR": "R",
-                        "rgbG": "G",
-                        "rgbB": "B"
-                    },
-                    "backgroundImagePicker": {
-                        "ok": "Ok",
-                        "repeatX": "Repeat horizontally",
-                        "repeatY": "Repeat vertically"
-                    }
-                }, itemNames = {
+                var localizedBBCode = {!! json_encode([
+                    'bold'               => __('t_ingame.messages.bbcode_bold'),
+                    'italic'             => __('t_ingame.messages.bbcode_italic'),
+                    'underline'          => __('t_ingame.messages.bbcode_underline'),
+                    'stroke'             => __('t_ingame.messages.bbcode_stroke'),
+                    'sub'                => __('t_ingame.messages.bbcode_sub'),
+                    'sup'                => __('t_ingame.messages.bbcode_sup'),
+                    'fontColor'          => __('t_ingame.messages.bbcode_font_color'),
+                    'fontSize'           => __('t_ingame.messages.bbcode_font_size'),
+                    'backgroundColor'    => __('t_ingame.messages.bbcode_bg_color'),
+                    'backgroundImage'    => __('t_ingame.messages.bbcode_bg_image'),
+                    'tooltip'            => __('t_ingame.messages.bbcode_tooltip'),
+                    'alignLeft'          => __('t_ingame.messages.bbcode_align_left'),
+                    'alignCenter'        => __('t_ingame.messages.bbcode_align_center'),
+                    'alignRight'         => __('t_ingame.messages.bbcode_align_right'),
+                    'alignJustify'       => __('t_ingame.messages.bbcode_align_justify'),
+                    'block'              => __('t_ingame.messages.bbcode_block'),
+                    'code'               => __('t_ingame.messages.bbcode_code'),
+                    'spoiler'            => __('t_ingame.messages.bbcode_spoiler'),
+                    'moreopts'           => __('t_ingame.messages.bbcode_moreopts'),
+                    'list'               => __('t_ingame.messages.bbcode_list'),
+                    'hr'                 => __('t_ingame.messages.bbcode_hr'),
+                    'picture'            => __('t_ingame.messages.bbcode_picture'),
+                    'link'               => __('t_ingame.messages.bbcode_link'),
+                    'email'              => __('t_ingame.messages.bbcode_email'),
+                    'player'             => __('t_ingame.messages.bbcode_player'),
+                    'item'               => __('t_ingame.messages.bbcode_item'),
+                    'coordinates'        => __('t_ingame.messages.bbcode_coordinates'),
+                    'preview'            => __('t_ingame.messages.bbcode_preview'),
+                    'textPlaceHolder'    => __('t_ingame.messages.bbcode_text_ph'),
+                    'playerPlaceHolder'  => __('t_ingame.messages.bbcode_player_ph'),
+                    'itemPlaceHolder'    => __('t_ingame.messages.bbcode_item_ph'),
+                    'coordinatePlaceHolder' => __('t_ingame.messages.bbcode_coord_ph'),
+                    'charsLeft'          => __('t_ingame.messages.bbcode_chars_left'),
+                    'colorPicker'        => ['ok' => __('t_ingame.messages.bbcode_ok'), 'cancel' => __('t_ingame.messages.bbcode_cancel'), 'rgbR' => 'R', 'rgbG' => 'G', 'rgbB' => 'B'],
+                    'backgroundImagePicker' => ['ok' => __('t_ingame.messages.bbcode_ok'), 'repeatX' => __('t_ingame.messages.bbcode_repeat_x'), 'repeatY' => __('t_ingame.messages.bbcode_repeat_y')],
+                ]) !!}, itemNames = {
                     "090a969b05d1b5dc458a6b1080da7ba08b84ec7f": "Bronze Crystal Booster",
                     "e254352ac599de4dd1f20f0719df0a070c623ca8": "Bronze Deuterium Booster",
                     "b956c46faa8e4e5d8775701c69dbfbf53309b279": "Bronze Metal Booster",
@@ -1699,7 +1671,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                     <div id="{{ $useCompactLayout ? 'myPlanets' : 'myWorlds' }}">
                         <div id="countColonies">
                             <p class="textCenter">
-                                <span>{{ $currentPlayer->planets->planetCount() }}/{{ $currentPlayer->getMaxPlanetAmount() }}</span> @lang('Planets')
+                                <span>{{ $currentPlayer->planets->planetCount() }}/{{ $currentPlayer->getMaxPlanetAmount() }}</span> {{ __('t_ingame.layout.planets') }}
                             </p>
                         </div>
                         <div id="planetList">
@@ -1718,14 +1690,14 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                         {{-- @lang('Lifeform'): Humans<br/> --}}
                                         {{ OGame\Facades\AppUtil::formatNumber($planet->getPlanetDiameter()) }}km ({{ $planet->getBuildingCount() }}/{{ $planet->getPlanetFieldMax() }})<br>
                                         {{ $planet->getPlanetTempMin() }} to {{ $planet->getPlanetTempMax() }}°C<br/>
-                                        <a href=&quot;{{ route('overview.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Overview')</a><br/>
-                                        <a href=&quot;{{ route('resources.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Resources')</a><br/>
-                                        <a href=&quot;{{ route('research.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Research')</a><br/>
-                                        <a href=&quot;{{ route('facilities.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Facilities')</a><br/>
-                                        <a href=&quot;{{ route('shipyard.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Shipyard')</a><br/>
-                                        <a href=&quot;{{ route('defense.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Defense')</a><br/>
-                                        <a href=&quot;{{ route('fleet.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Fleet')</a><br/>
-                                        <a href=&quot;{{ route('galaxy.index') }}?cp={{ $planet->getPlanetId() }}&quot;>@lang('Galaxy')</a><br/>"
+                                        <a href=&quot;{{ route('overview.index') }}?cp={{ $planet->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_overview') }}</a><br/>
+                                        <a href=&quot;{{ route('resources.index') }}?cp={{ $planet->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_resources') }}</a><br/>
+                                        <a href=&quot;{{ route('research.index') }}?cp={{ $planet->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_research') }}</a><br/>
+                                        <a href=&quot;{{ route('facilities.index') }}?cp={{ $planet->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_facilities') }}</a><br/>
+                                        <a href=&quot;{{ route('shipyard.index') }}?cp={{ $planet->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_shipyard') }}</a><br/>
+                                        <a href=&quot;{{ route('defense.index') }}?cp={{ $planet->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_defense') }}</a><br/>
+                                        <a href=&quot;{{ route('fleet.index') }}?cp={{ $planet->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_fleet') }}</a><br/>
+                                        <a href=&quot;{{ route('galaxy.index') }}?cp={{ $planet->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_galaxy') }}</a><br/>"
                                        class="planetlink {{ ($planet->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'active' : '' }} tooltipRight tooltipClose js_hideTipOnMobile ipiHintable"
                                        data-ipi-hint="ipiPlanetHomeplanet">
                                         @if ($useCompactLayout)
@@ -1769,12 +1741,12 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                         <a class="moonlink {{ ($moon->getPlanetId() === $currentPlanet->getPlanetId() && $currentPlayer->planets->allCount() > 1) ? 'active' : '' }} tooltipLeft tooltipClose js_hideTipOnMobile"
                                            title="<b>{{ $moon->getPlanetName() }} [{{ $moon->getPlanetCoordinates()->asString() }}]</b><br>
                                            {{ OGame\Facades\AppUtil::formatNumber($moon->getPlanetDiameter()) }}km ({{ $moon->getBuildingCount() }}/{{ $moon->getPlanetFieldMax() }})<br/>
-                                           <a href=&quot;{{ route('overview.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Overview')</a><br/>
-                                           <a href=&quot;{{ route('resources.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Resources')</a><br/>
-                                           <a href=&quot;{{ route('facilities.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Facilities')</a><br/>
-                                           <a href=&quot;{{ route('defense.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Defense')</a><br/>
-                                           <a href=&quot;{{ route('fleet.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Fleet')</a><br/>
-                                           <a href=&quot;{{ route('galaxy.index') }}?cp={{ $moon->getPlanetId() }}&quot;>@lang('Galaxy')</a><br/>"
+                                           <a href=&quot;{{ route('overview.index') }}?cp={{ $moon->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_overview') }}</a><br/>
+                                           <a href=&quot;{{ route('resources.index') }}?cp={{ $moon->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_resources') }}</a><br/>
+                                           <a href=&quot;{{ route('facilities.index') }}?cp={{ $moon->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_facilities') }}</a><br/>
+                                           <a href=&quot;{{ route('defense.index') }}?cp={{ $moon->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_defense') }}</a><br/>
+                                           <a href=&quot;{{ route('fleet.index') }}?cp={{ $moon->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_fleet') }}</a><br/>
+                                           <a href=&quot;{{ route('galaxy.index') }}?cp={{ $moon->getPlanetId() }}&quot;>{{ __('t_ingame.layout.menu_galaxy') }}</a><br/>"
                                            href="{{ $urlToMoonWithUpdatedParam }}"
                                            data-link="{{ $urlToMoonWithUpdatedParam }}"
                                            data-jumpgatelevel="0">
@@ -1851,48 +1823,39 @@ However, the Space Dock's engineers think that some of the remains can be salvag
             <div class="cb_playerlist_box"
                  style="display:none;">
             </div>
-            <span class="onlineCount">@lang(':count Contact(s) online', ['count' => $onlineBuddiesCount])</span>
+            <span class="onlineCount">{{ __('t_ingame.layout.contacts_online', ['count' => $onlineBuddiesCount]) }}</span>
         </li>
     </ul><!-- END Chat Bar List -->
 </div>
 <!-- END Chat Bar -->
 
 <button class="scroll_to_top">
-    <span class="arrow"></span>@lang('Back to top')
+    <span class="arrow"></span>{{ __('t_ingame.layout.back_to_top') }}
 </button>
 
 <div id="siteFooter">
     <div class="content" style="font-size:10px">
         <div class="fleft textLeft">
             <a href="#TODO_changelog&ajax=1" class="tooltip js_hideTipOnMobile overlay" data-class="noXScrollbar"
-               data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patch notes">
+               data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="{{ __('t_ingame.layout.patch_notes') }}">
                 {{ \OGame\Facades\GitInfoUtil::getAppVersion() }}</a>
             <a class="homeLink" href="https://github.com/lanedirt/ogamex" target="_blank">©
-                OGameX. @lang('All rights reserved.')</a>
+                OGameX. {{ __('t_ingame.layout.all_rights_reserved') }}</a>
         </div>
         <div class="fright textRight">
             <a href="{{ route('serversettings.overlay') }}" class="overlay"
-               data-overlay-title="@lang('Server Settings')" data-overlay-class="serversettingsoverlay"
-               data-overlay-popup-width="400" data-overlay-popup-height="510">@lang('Server Settings')</a>|
-            <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
-            @switch ($locale)
-                @case('en')
-                    <a href="{{ route('language.switch', ['lang' => 'en']) }}" class="bold">English</a>|
-                    <a href="{{ route('language.switch', ['lang' => 'nl']) }}">Dutch</a>|
-                    @break
-                @case('nl')
-                    <a href="{{ route('language.switch', ['lang' => 'en']) }}">English</a>|
-                    <a href="{{ route('language.switch', ['lang' => 'nl']) }}" class="bold">Dutch</a>|
-                    @break
-                @default
-                    <a href="{{ route('language.switch', ['lang' => 'en']) }}" class="bold">English</a>|
-                    <a href="{{ route('language.switch', ['lang' => 'nl']) }}">Dutch</a>|
-            @endswitch
-            <a href="#">Board</a>|
+               data-overlay-title="{{ __('t_ingame.layout.server_settings') }}" data-overlay-class="serversettingsoverlay"
+               data-overlay-popup-width="400" data-overlay-popup-height="510">{{ __('t_ingame.layout.server_settings') }}</a>|
+            <a href="http://wiki.ogame.org/" target="_blank">{{ __('t_ingame.layout.help') }}</a>|
+            @php $localeActive = $locale ?? app()->getLocale(); @endphp
+            <a href="{{ route('language.switch', ['lang' => 'en']) }}" @if($localeActive === 'en') class="bold" @endif>EN</a>|
+            <a href="{{ route('language.switch', ['lang' => 'it']) }}" @if($localeActive === 'it') class="bold" @endif>IT</a>|
+            <a href="{{ route('language.switch', ['lang' => 'nl']) }}" @if($localeActive === 'nl') class="bold" @endif>NL</a>|
+            <a href="#">{{ __('t_ingame.layout.board') }}</a>|
             <a class="overlay" href="{{ route('rules.ajax') }}"
-               data-overlay-title="Rules">@lang('Rules')</a>|
+               data-overlay-title="{{ __('t_ingame.layout.rules') }}">{{ __('t_ingame.layout.rules') }}</a>|
             <a class="overlay" href="{{ route('legal.ajax') }}"
-               data-overlay-title="Legal">@lang('Legal')</a>
+               data-overlay-title="{{ __('t_ingame.layout.legal') }}">{{ __('t_ingame.layout.legal') }}</a>
         </div>
     </div><!-- -->
 </div>
@@ -1967,46 +1930,42 @@ However, the Space Dock's engineers think that some of the remains can be salvag
 </div>
 <script type="text/javascript">var visibleChats = {"players": [], "associations": []};
     var bigChatLink = "{{ route('overview.index') }}";
-    var locaKeys = {
-        "bold": "@lang('Bold')",
-        "italic": "@lang('Italic')",
-        "underline": "@lang('Underline')",
-        "stroke": "@lang('Strikethrough')",
-        "sub": "@lang('Subscript')",
-        "sup": "@lang('Superscript')",
-        "fontColor": "@lang('Font colour')",
-        "fontSize": "@lang('Font size')",
-        "backgroundColor": "@lang('Background colour')",
-        "backgroundImage": "@lang('Background image')",
-        "tooltip": "@lang('Tool-tip')",
-        "alignLeft": "@lang('Left align')",
-        "alignCenter": "@lang('Centre align')",
-        "alignRight": "@lang('Right align')",
-        "alignJustify": "@lang('Justify')",
-        "block": "@lang('Break')",
-        "code": "@lang('Code')",
-        "spoiler": "@lang('Spoiler')",
-        "moreopts": "@lang('More Options')",
-        "list": "@lang('List')",
-        "hr": "@lang('Horizontal line')",
-        "picture": "@lang('Image')",
-        "link": "@lang('Link')",
-        "email": "@lang('Email')",
-        "player": "@lang('Player')",
-        "item": "@lang('Item')",
-        "coordinates": "@lang('Coordinates')",
-        "preview": "@lang('Preview')",
-        "textPlaceHolder": "@lang('Text...')",
-        "playerPlaceHolder": "@lang('Player ID or name')",
-        "itemPlaceHolder": "@lang('Item ID')",
-        "coordinatePlaceHolder": "@lang('Galaxy:system:position')",
-        "charsLeft": "@lang('Characters remaining')",
-        "colorPicker": {"ok": "@lang('Ok')", "cancel": "@lang('Cancel')", "rgbR": "R", "rgbG": "G", "rgbB": "B"},
-        "backgroundImagePicker": {
-            "ok": "Ok",
-            "repeatX": "@lang('Repeat horizontally')",
-            "repeatY": "@lang('Repeat vertically')"
-        }
-    };</script>
+    var locaKeys = {!! json_encode([
+        'bold'               => __('t_ingame.messages.bbcode_bold'),
+        'italic'             => __('t_ingame.messages.bbcode_italic'),
+        'underline'          => __('t_ingame.messages.bbcode_underline'),
+        'stroke'             => __('t_ingame.messages.bbcode_stroke'),
+        'sub'                => __('t_ingame.messages.bbcode_sub'),
+        'sup'                => __('t_ingame.messages.bbcode_sup'),
+        'fontColor'          => __('t_ingame.messages.bbcode_font_color'),
+        'fontSize'           => __('t_ingame.messages.bbcode_font_size'),
+        'backgroundColor'    => __('t_ingame.messages.bbcode_bg_color'),
+        'backgroundImage'    => __('t_ingame.messages.bbcode_bg_image'),
+        'tooltip'            => __('t_ingame.messages.bbcode_tooltip'),
+        'alignLeft'          => __('t_ingame.messages.bbcode_align_left'),
+        'alignCenter'        => __('t_ingame.messages.bbcode_align_center'),
+        'alignRight'         => __('t_ingame.messages.bbcode_align_right'),
+        'alignJustify'       => __('t_ingame.messages.bbcode_align_justify'),
+        'block'              => __('t_ingame.messages.bbcode_block'),
+        'code'               => __('t_ingame.messages.bbcode_code'),
+        'spoiler'            => __('t_ingame.messages.bbcode_spoiler'),
+        'moreopts'           => __('t_ingame.messages.bbcode_moreopts'),
+        'list'               => __('t_ingame.messages.bbcode_list'),
+        'hr'                 => __('t_ingame.messages.bbcode_hr'),
+        'picture'            => __('t_ingame.messages.bbcode_picture'),
+        'link'               => __('t_ingame.messages.bbcode_link'),
+        'email'              => __('t_ingame.messages.bbcode_email'),
+        'player'             => __('t_ingame.messages.bbcode_player'),
+        'item'               => __('t_ingame.messages.bbcode_item'),
+        'coordinates'        => __('t_ingame.messages.bbcode_coordinates'),
+        'preview'            => __('t_ingame.messages.bbcode_preview'),
+        'textPlaceHolder'    => __('t_ingame.messages.bbcode_text_ph'),
+        'playerPlaceHolder'  => __('t_ingame.messages.bbcode_player_ph'),
+        'itemPlaceHolder'    => __('t_ingame.messages.bbcode_item_ph'),
+        'coordinatePlaceHolder' => __('t_ingame.messages.bbcode_coord_ph'),
+        'charsLeft'          => __('t_ingame.messages.bbcode_chars_left'),
+        'colorPicker'        => ['ok' => __('t_ingame.messages.bbcode_ok'), 'cancel' => __('t_ingame.messages.bbcode_cancel'), 'rgbR' => 'R', 'rgbG' => 'G', 'rgbB' => 'B'],
+        'backgroundImagePicker' => ['ok' => __('t_ingame.messages.bbcode_ok'), 'repeatX' => __('t_ingame.messages.bbcode_repeat_x'), 'repeatY' => __('t_ingame.messages.bbcode_repeat_y')],
+    ]) !!};</script>
 </body>
 </html>

@@ -11,14 +11,14 @@
     <div id="defensescomponent" class="maincontent">
         <div id="defense">
             <header id="planet" data-anchor="technologyDetails">
-                <h2>@lang('Defense') - {{ $planet_name }}</h2>
+                <h2>{{ __('t_ingame.defense_page.page_title') }} - {{ $planet_name }}</h2>
             </header>
             <div id="technologydetails_wrapper">
                 <div id="technologydetails_content"></div>
             </div>
 
             <div id="technologies">
-                <h3>@lang('Defensive structures')</h3>
+                <h3>{{ __('t_ingame.defense_page.section_title') }}</h3>
                 <ul class="icons">
                     @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
                     @foreach ($units[0] as $building)
@@ -32,7 +32,7 @@
 
                 <div id="productionboxshipyardcomponent" class="productionboxshipyard injectedComponent parent defenses"><div class="content-box-s">
                         <div class="header">
-                            <h3>@lang('Shipyard')</h3>
+                            <h3>{{ __('t_resources.shipyard.title') }}</h3>
                         </div>
                         <div class="content">
                             {{-- Building is actively being built. --}}
@@ -44,7 +44,7 @@
                     </div>
                     <script type="text/javascript">
                         var scheduleBuildListEntryUrl = '{{ route('shipyard.addbuildrequest') }}';
-                        var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
+                        var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = '{{ __('t_ingame.buildings.last_inquiry_error') }}';
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
                     </script>
                 </div>
@@ -57,7 +57,7 @@
 
     <div id="technologydetailscomponent" class="technologydetails injectedComponent parent defenses">
         <script type="text/javascript">
-            var loca = {"LOCA_ALL_NOTICE":"Reference","LOCA_ALL_NETWORK_ATTENTION":"Caution","locaDemolishStructureQuestion":"Really downgrade TECHNOLOGY_NAME by one level?","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No","LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING":"One or more associated bonuses is already maxed out. Do you want to continue construction anyway?"};
+            var loca = {"LOCA_ALL_NOTICE":"{{ __('t_ingame.buildings.loca_notice') }}","LOCA_ALL_NETWORK_ATTENTION":"{{ __('t_ingame.shared.caution') }}","locaDemolishStructureQuestion":"{{ __('t_ingame.buildings.loca_demolish') }}","LOCA_ALL_YES":"{{ __('t_ingame.shared.yes') }}","LOCA_ALL_NO":"{{ __('t_ingame.shared.no') }}","LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING":"{{ __('t_ingame.buildings.loca_lifeform_cap') }}"};
 
             var technologyDetailsEndpoint = "{{ route('defense.ajax') }}";
             var selectCharacterClassEndpoint = "#TODO_page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=selectClass&ajax=1&asJson=1";

@@ -17,7 +17,7 @@
             <div id="alliance">
                 <div id="inhalt">
                     <div id="planet" class="planet-header ">
-                        <h2>Alliance</h2>
+                        <h2>{{ __('t_ingame.alliance.page_title') }}</h2>
                         <a class="toggleHeader" href="javascript:void(0);" data-name="alliance">
                             <img alt="" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22">
                         </a>
@@ -30,34 +30,34 @@
                                 {{-- User is in an alliance - show alliance management tabs --}}
                                 <li class="aktiv">
                                     <a class="overview navi" rel="{{ route('alliance.ajax.overview') }}" data-tab="overview">
-                                        <span>Overview</span>
+                                        <span>{{ __('t_ingame.alliance.tab_overview') }}</span>
                                     </a>
                                 </li>
                                 @if($member && $member->hasPermission(\OGame\Models\AllianceRank::PERMISSION_MANAGE_ALLY))
                                     <li>
                                         <a class="management navi" rel="{{ route('alliance.ajax.management') }}" data-tab="management">
-                                            <span>Management</span>
+                                            <span>{{ __('t_ingame.alliance.tab_management') }}</span>
                                         </a>
                                     </li>
                                 @endif
                                 @if($member && $member->hasPermission(\OGame\Models\AllianceRank::PERMISSION_SEND_CIRCULAR_MSG))
                                     <li>
                                         <a class="broadcast navi" rel="{{ route('alliance.ajax.broadcast') }}" data-tab="broadcast">
-                                            <span>Communication</span>
+                                            <span>{{ __('t_ingame.alliance.tab_communication') }}</span>
                                         </a>
                                     </li>
                                 @endif
                                 @if($member && $member->hasPermission(\OGame\Models\AllianceRank::PERMISSION_SEE_APPLICATIONS))
                                     <li>
                                         <a class="applications navi" rel="{{ route('alliance.ajax.applications') }}" data-tab="applications">
-                                            <span id="applicationTab">Applications ({{ $applications->count() }})<span class="newApplications undermark" style="display: {{ $applications->count() > 0 ? 'inline' : 'none' }}"></span></span>
+                                            <span id="applicationTab">{{ __('t_ingame.alliance.tab_applications') }} ({{ $applications->count() }})<span class="newApplications undermark" style="display: {{ $applications->count() > 0 ? 'inline' : 'none' }}"></span></span>
                                         </a>
                                     </li>
                                 @endif
                                 @if($member && $member->hasPermission(\OGame\Models\AllianceRank::PERMISSION_MANAGE_CLASSES))
                                     <li>
                                         <a class="classselection navi" rel="{{ route('alliance.ajax.classes') }}" data-tab="classselection">
-                                            <span>Alliance Classes</span>
+                                            <span>{{ __('t_ingame.alliance.tab_classes') }}</span>
                                         </a>
                                     </li>
                                 @endif
@@ -65,22 +65,22 @@
                                 {{-- User is not in an alliance - show create/search or apply options --}}
                                 @if($targetAllianceId)
                                     <li class="aktiv">
-                                        <a id="isNewApplication" rel="{{ route('alliance.ajax.handleapplication', ['alliance_id' => $targetAllianceId]) }}"><span>{{ __('apply') }}</span></a>
+                                        <a id="isNewApplication" rel="{{ route('alliance.ajax.handleapplication', ['alliance_id' => $targetAllianceId]) }}"><span>{{ __('t_ingame.alliance.tab_apply') }}</span></a>
                                         <input type="hidden" id="applied" value="">
                                     </li>
                                     <li>
                                         <a class="overlay ipiHintable" href="{{ route('search.overlay', ['category' => 4, 'ajax' => 1])  }}" data-ipi-hint="ipiAllianceSearch">
-                                            <span>Search alliance</span>
+                                            <span>{{ __('t_ingame.alliance.tab_search') }}</span>
                                         </a>
                                     </li>
                                 @else
                                     <li class="aktiv">
-                                        <a class="createNewAlliance ipiHintable" rel="{{ route('alliance.ajax.create')  }}" data-ipi-hint="ipiAllianceCreate"><span>Create alliance</span></a>
+                                        <a class="createNewAlliance ipiHintable" rel="{{ route('alliance.ajax.create')  }}" data-ipi-hint="ipiAllianceCreate"><span>{{ __('t_ingame.alliance.tab_create') }}</span></a>
                                         <input type="hidden" id="applied" value="">
                                     </li>
                                     <li>
                                         <a class="overlay ipiHintable" href="{{ route('search.overlay', ['category' => 4, 'ajax' => 1])  }}" data-ipi-hint="ipiAllianceSearch">
-                                            <span>Search alliance</span>
+                                            <span>{{ __('t_ingame.alliance.tab_search') }}</span>
                                         </a>
                                     </li>
                                 @endif
@@ -100,7 +100,120 @@
         <script type="text/javascript">
             var tab = "{{ $targetAllianceId ? 'handleApplication' : ($alliance ? 'overview' : 'createNewAlliance') }}";
             var appliedAllyId = {{ $targetAllianceId ?? 0 }};
-            var loca = {"LOCA_ALL_AJAXLOAD":"load...","LOCA_NETWORK_ALLY":"Alliance","LOCA_LEFTMENU_OVERVIEW":"Overview","LOCA_NETWORK_NAVI_OVERVIEW":"Management","LOCA_NETWORK_NAVI_COMUNICATE":"Communication","LOCA_NETWORK_APPLICATIONS":"Applications","LOCA_NETWORK_APPLY":"apply","LOCA_NETWORK_NAVI_NEWALLY":"Create alliance","LOCA_NETWORK_NAVI_SEARCHALLY":"Search alliance","LOCA_NETWORK_YOUR_ALLY":"Your alliance","LOCA_NETWORK_ALLY_LOGO":"Alliance logo","LOCA_ALL_NAME":"Name","LOCA_NETWORK_MEMBER_LIST":"Member List","LOCA_NETWORK_TAG":"Tag","LOCA_NETWORK_USERS":"Member","LOCA_NETWORK_YOUR_RANK":"Your Rank","LOCA_NETWORK_HOMEPAGE":"Homepage","LOCA_PREVIEW_ALLIANCE":"Open alliance page","LOCA_NETWORK_MEMBERS_RANK":"Rank","LOCA_GALAXY_RANK":"Rank","LOCA_NETWORK_USER_COORD":"Coords","LOCA_NETWORK_USER_JOIN":"Joined","LOCA_NETWORK_USER_INACTIVE":"Online","LOCA_NETWORK_FUNCTION":"Function","LOCA_NETWORK_ASSIGN_RANK":"Assign rank","LOCA_NETWORK_NO_MEMBERS":"No members found","LOCA_NETWORK_INTERN_AREA":"Internal Area","LOCA_NETWORK_EXTERN_AREA":"External Area","LOCA_NETWORK_ADDRESSEE":"To","LOCA_NETWORK_ALLPLAYERS":"all players","LOCA_NETWORK_RANK":"only rank:","LOCA_ALL_SEND":"Send","LOCA_NETWORK_NO_APPLICATIONS":"No applications found","LOCA_NETWORK_ALLY_APPLICATION_DATE":"Application date","LOCA_NETWORK_ACTION":"Action","LOCA_NETWORK_ALLY_ACCEPT_NEWMEMBER":"accept","LOCA_NETWORK_ALLY_DENIED_NEWMEMBER":"Deny applicant","LOCA_NETWORK_ALLY_REPORTED":"Report application","LOCA_WRITE_MSG_ANSWER":"answer","LOCA_NETWORK_ALLY_REASON":"Reason","LOCA_NETWORK_PRIVILEGES":"Configure privileges","LOCA_ALLIANCE_RIGHT_EXPLANATION":"Rights legend","LOCA_NETWORK_ALLY_RIGHTS_SEEAPPLICATIONS":"Show applications","LOCA_NETWORK_ALLY_RIGHTS_EDITAPPLICATIONS":"Process applications","LOCA_NETWORK_ALLY_RIGHTS_SEEMEMBERS":"Show member list","LOCA_NETWORK_ALLY_RIGHTS_KICKUSER":"Kick user","LOCA_NETWORK_ALLY_RIGHTS_SEEMEMBERONLINESTATUS_SHORT":"See online status","LOCA_NETWORK_ALLY_RIGHTS_SENDCIRCULARMSG":"Write circular message","LOCA_NETWORK_ALLY_RIGHTS_DELETEALLY":"Disband alliance","LOCA_NETWORK_ALLY_RIGHTS_MANAGEALLY":"Manage alliance","LOCA_NETWORK_ALLY_RIGHTS_RIGHTHAND_SHORT":"Right hand","LOCA_NETWORK_ALLY_RIGHTS_RIGHTHAND":"`Right Hand` (necessary to transfer founder rank)","LOCA_NETWORK_ALLY_RIGHTS_MANAGECLASSES":"Manage alliance class","LOCA_NETWORK_CREATE_RANK":"Create new rank","LOCA_NETWORK_RANKING_NAME":"Rank name","LOCA_NETWORK_NO_RANKS":"No ranks found","LOCA_NETWORK_RANK_DELETE":"Delete rank","LOCA_ALL_NETWORK_SAVE":"Save","LOCA_ALLIANCE_CAN_ONLY_GIVE_OWN_RANKS":"[b]Warning![\/b] You can only give permissions that you have yourself.","LOCA_NETWORK_TEXT_MANAGE":"Manage texts","LOCA_NETWORK_TEXT_INTERN":"Internal text","LOCA_NETWORK_TEXT_EXTERN":"External text","LOCA_NETWORK_TEXT_APPLICATION":"Application text","LOCA_NETWORK_SETTINGS":"Options","LOCA_NETWORK_ALLY_SLOTS_OPEN":"Possible (alliance open)","LOCA_NETWORK_ALLY_SLOTS_CLOSE":"Impossible (alliance closed)","LOCA_NETWORK_ALLY_RENAME_FOUNDERNAME":"Rename founder title as","LOCA_ALLY_RENAME_NEWCOMER":"Rename Newcomer rank","LOCA_NETWORK_ALLY_TAGNAME_EDIT":"Change alliance tag\/name","LOCA_NETWORK_ALLY_TAG_EDIT":"Change alliance tag","LOCA_NETWORK_ALLY_NAME_EDIT":"Change alliance name","LOCA_NETWORK_ALLY_TAG_NOW":"Former alliance tag","LOCA_NETWORK_ALLY_TAG_NEW":"New alliance tag","LOCA_NETWORK_ALLY_NAME_NOW":"Former alliance name","LOCA_NETWORK_ALLY_NAME_NEW":"New alliance name","LOCA_NETWORK_ALLY_DELETE_PASSON":"Delete alliance\/Pass alliance on","LOCA_NETWORK_ALLY_DELETE":"Delete this alliance","LOCA_ALLY_HANDOVER":"Handover alliance","LOCA_ALLY_TAKEOVER":"Take over alliance","LOCA_ALL_BUTTON_FORWARD":"Continue","LOCA_ALLY_TRANSFER_LONG":"Abandon this alliance?","LOCA_NETWORK_ALLY_CHANGE_FOUNDER":"Transfer the founder title to:","LOCA_ALLY_ERROR_NO_TRANSFER_MEMBERS":"None of the members have the required `right hand` right. You cannot hand over the alliance.","LOCA_ALLY_TAKEOVER_LONG":"Take over this alliance?","LOCA_NETWORK_ALLY_ERROR_FOUNDER_ACTIVE":"The founder is not inactive long enough in order to take over the alliance.","LOCA_ALL_OK":"Ok","LOCA_ALL_CANCEL":"Cancel","LOCA_ALLIANCE_CLASS_SELECTION_HEADER":"Class Selection","LOCA_ALLIANCE_CLASS_SELECTION_HEAD":"Select alliance class","LOCA_ALLIANCE_CLASS_SELECTION_NOTE":"Select an alliance class to receive special bonuses. You can change the alliance class in the alliance menu, provided you have the requisite permissions.","LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No","LOCA_NETWORK_ALLY_TAKEOVER_ARE_YOU_SURE":"Are you sure you want to pass on your alliance?","LOCA_NETWORK_ALLY_GIVEUP":"Really delete alliance?","LOCA_ALLY_TAKEOVER_QUESTION":"Are you sure that you want to take over this alliance?","LOCA_NETWORK_LEAVE_ALLY":"Leave alliance","locaAllyNameCharacter":"Alliance-Tag (3-30 characters)","locaAllyTagCharacter":"Alliance-Name (3-8 characters)","LOCA_NETWORK_ALLY_NEWALLYNAME":"Alliance name (3-30 characters)","LOCA_NETWORK_ALLY_NEWTAG":"Alliance Tag (3-8 characters)","LOCA_ALLIANCE_CLASS_SELECTION_BUTTON_DEACTIVATE":"Deactivate","LOCA_ALLIANCE_CLASS_NOTE_ACTIVATE_WITH_DM":"Do you want to activate the alliance class #allianceClassName# for #darkmatter# Dark Matter? In doing so, you will lose your current alliance class.","LOCA_ALLIANCE_CLASS_NOTE_ACTIVATE_WITH_ITEM":"Do you want to activate the alliance class #allianceClassName#? In doing so, you will lose your current alliance class.","LOCA_ALLIANCE_CLASS_NOTE_DEACTIVATE":"Do you really want to deactivate the alliance class #allianceClassName#? Reactivation requires an alliance class change item for 500,000 Dark Matter.","LOCA_ALLIANCE_CLASS_NOTE_ACTIVATE_APPEND_CURRENT_CLASS":"<br><br>Current alliance class: #currentAllianceClassName#<br><br>Last changed on: #lastAllianceClassChange#","LOCA_ALLIANCE_CLASS":"Alliance Class","LOCA_ALL_NOTICE":"Reference","LOCA_ALL_ERROR_LACKING_DM":"Not enough Dark Matter available! Do you want to buy some now?","LOCA_CHARACTERCLASS_SELECTION_BUTTON_DEACTIVATE":"Deactivate","LOCA_ALLIANCE_CREATION_DATE":"Created","LOCA_SETTINGS_SELECT_LANGUAGE":"Language:"};
+            var loca = {!! json_encode([
+                'LOCA_ALL_AJAXLOAD'                              => __('t_ingame.alliance.loca_loading'),
+                'LOCA_NETWORK_ALLY'                              => __('t_ingame.alliance.page_title'),
+                'LOCA_LEFTMENU_OVERVIEW'                         => __('t_ingame.alliance.tab_overview'),
+                'LOCA_NETWORK_NAVI_OVERVIEW'                     => __('t_ingame.alliance.tab_management'),
+                'LOCA_NETWORK_NAVI_COMUNICATE'                   => __('t_ingame.alliance.tab_communication'),
+                'LOCA_NETWORK_APPLICATIONS'                      => __('t_ingame.alliance.tab_applications'),
+                'LOCA_NETWORK_APPLY'                             => __('t_ingame.alliance.tab_apply'),
+                'LOCA_NETWORK_NAVI_NEWALLY'                      => __('t_ingame.alliance.tab_create'),
+                'LOCA_NETWORK_NAVI_SEARCHALLY'                   => __('t_ingame.alliance.tab_search'),
+                'LOCA_NETWORK_YOUR_ALLY'                         => __('t_ingame.alliance.your_alliance'),
+                'LOCA_NETWORK_ALLY_LOGO'                         => __('t_ingame.alliance.logo'),
+                'LOCA_ALL_NAME'                                  => __('t_ingame.alliance.name'),
+                'LOCA_NETWORK_MEMBER_LIST'                       => __('t_ingame.alliance.member_list'),
+                'LOCA_NETWORK_TAG'                               => __('t_ingame.alliance.tag'),
+                'LOCA_NETWORK_USERS'                             => __('t_ingame.alliance.member'),
+                'LOCA_NETWORK_YOUR_RANK'                         => __('t_ingame.alliance.your_rank'),
+                'LOCA_NETWORK_HOMEPAGE'                          => __('t_ingame.alliance.homepage'),
+                'LOCA_PREVIEW_ALLIANCE'                          => __('t_ingame.alliance.open_page'),
+                'LOCA_NETWORK_MEMBERS_RANK'                      => __('t_ingame.alliance.col_rank'),
+                'LOCA_GALAXY_RANK'                               => __('t_ingame.alliance.col_rank'),
+                'LOCA_NETWORK_USER_COORD'                        => __('t_ingame.alliance.col_coords'),
+                'LOCA_NETWORK_USER_JOIN'                         => __('t_ingame.alliance.col_joined'),
+                'LOCA_NETWORK_USER_INACTIVE'                     => __('t_ingame.alliance.col_online'),
+                'LOCA_NETWORK_FUNCTION'                          => __('t_ingame.alliance.col_function'),
+                'LOCA_NETWORK_ASSIGN_RANK'                       => __('t_ingame.alliance.assign_rank_btn'),
+                'LOCA_NETWORK_NO_MEMBERS'                        => __('t_ingame.alliance.no_members'),
+                'LOCA_NETWORK_INTERN_AREA'                       => __('t_ingame.alliance.internal_area'),
+                'LOCA_NETWORK_EXTERN_AREA'                       => __('t_ingame.alliance.external_area'),
+                'LOCA_NETWORK_ADDRESSEE'                         => __('t_ingame.alliance.addressee'),
+                'LOCA_NETWORK_ALLPLAYERS'                        => __('t_ingame.alliance.all_players'),
+                'LOCA_NETWORK_RANK'                              => __('t_ingame.alliance.only_rank'),
+                'LOCA_ALL_SEND'                                  => __('t_ingame.alliance.send_btn'),
+                'LOCA_NETWORK_NO_APPLICATIONS'                   => __('t_ingame.alliance.no_applications'),
+                'LOCA_NETWORK_ALLY_APPLICATION_DATE'             => __('t_ingame.alliance.app_date'),
+                'LOCA_NETWORK_ACTION'                            => __('t_ingame.alliance.action_col'),
+                'LOCA_NETWORK_ALLY_ACCEPT_NEWMEMBER'             => __('t_ingame.alliance.accept_btn'),
+                'LOCA_NETWORK_ALLY_DENIED_NEWMEMBER'             => __('t_ingame.alliance.deny_btn'),
+                'LOCA_NETWORK_ALLY_REPORTED'                     => __('t_ingame.alliance.report_btn'),
+                'LOCA_WRITE_MSG_ANSWER'                          => __('t_ingame.alliance.answer_btn'),
+                'LOCA_NETWORK_ALLY_REASON'                       => __('t_ingame.alliance.reason_label'),
+                'LOCA_NETWORK_PRIVILEGES'                        => __('t_ingame.alliance.configure_privileges'),
+                'LOCA_ALLIANCE_RIGHT_EXPLANATION'                => __('t_ingame.alliance.rights_legend'),
+                'LOCA_NETWORK_ALLY_RIGHTS_SEEAPPLICATIONS'       => __('t_ingame.alliance.perm_see_applications'),
+                'LOCA_NETWORK_ALLY_RIGHTS_EDITAPPLICATIONS'      => __('t_ingame.alliance.perm_edit_applications'),
+                'LOCA_NETWORK_ALLY_RIGHTS_SEEMEMBERS'            => __('t_ingame.alliance.perm_see_members'),
+                'LOCA_NETWORK_ALLY_RIGHTS_KICKUSER'              => __('t_ingame.alliance.perm_kick_user'),
+                'LOCA_NETWORK_ALLY_RIGHTS_SEEMEMBERONLINESTATUS_SHORT' => __('t_ingame.alliance.perm_see_online'),
+                'LOCA_NETWORK_ALLY_RIGHTS_SENDCIRCULARMSG'       => __('t_ingame.alliance.perm_send_circular'),
+                'LOCA_NETWORK_ALLY_RIGHTS_DELETEALLY'            => __('t_ingame.alliance.perm_disband'),
+                'LOCA_NETWORK_ALLY_RIGHTS_MANAGEALLY'            => __('t_ingame.alliance.perm_manage'),
+                'LOCA_NETWORK_ALLY_RIGHTS_RIGHTHAND_SHORT'       => __('t_ingame.alliance.perm_right_hand'),
+                'LOCA_NETWORK_ALLY_RIGHTS_RIGHTHAND'             => __('t_ingame.alliance.perm_right_hand_long'),
+                'LOCA_NETWORK_ALLY_RIGHTS_MANAGECLASSES'         => __('t_ingame.alliance.perm_manage_classes'),
+                'LOCA_NETWORK_CREATE_RANK'                       => __('t_ingame.alliance.create_rank_btn'),
+                'LOCA_NETWORK_RANKING_NAME'                      => __('t_ingame.alliance.col_rank_name'),
+                'LOCA_NETWORK_NO_RANKS'                          => __('t_ingame.alliance.no_ranks'),
+                'LOCA_NETWORK_RANK_DELETE'                       => __('t_ingame.alliance.delete_rank'),
+                'LOCA_ALL_NETWORK_SAVE'                          => __('t_ingame.alliance.save_btn'),
+                'LOCA_ALLIANCE_CAN_ONLY_GIVE_OWN_RANKS'          => __('t_ingame.alliance.rights_warning_loca'),
+                'LOCA_NETWORK_TEXT_MANAGE'                       => __('t_ingame.alliance.manage_texts'),
+                'LOCA_NETWORK_TEXT_INTERN'                       => __('t_ingame.alliance.internal_text'),
+                'LOCA_NETWORK_TEXT_EXTERN'                       => __('t_ingame.alliance.external_text'),
+                'LOCA_NETWORK_TEXT_APPLICATION'                  => __('t_ingame.alliance.application_text'),
+                'LOCA_NETWORK_SETTINGS'                          => __('t_ingame.alliance.options'),
+                'LOCA_NETWORK_ALLY_SLOTS_OPEN'                   => __('t_ingame.alliance.status_open'),
+                'LOCA_NETWORK_ALLY_SLOTS_CLOSE'                  => __('t_ingame.alliance.status_closed'),
+                'LOCA_NETWORK_ALLY_RENAME_FOUNDERNAME'           => __('t_ingame.alliance.rename_founder'),
+                'LOCA_ALLY_RENAME_NEWCOMER'                      => __('t_ingame.alliance.rename_newcomer'),
+                'LOCA_NETWORK_ALLY_TAGNAME_EDIT'                 => __('t_ingame.alliance.change_tag_name'),
+                'LOCA_NETWORK_ALLY_TAG_EDIT'                     => __('t_ingame.alliance.change_tag'),
+                'LOCA_NETWORK_ALLY_NAME_EDIT'                    => __('t_ingame.alliance.change_name'),
+                'LOCA_NETWORK_ALLY_TAG_NOW'                      => __('t_ingame.alliance.former_tag_short'),
+                'LOCA_NETWORK_ALLY_TAG_NEW'                      => __('t_ingame.alliance.new_tag_short'),
+                'LOCA_NETWORK_ALLY_NAME_NOW'                     => __('t_ingame.alliance.former_name_short'),
+                'LOCA_NETWORK_ALLY_NAME_NEW'                     => __('t_ingame.alliance.new_name_short'),
+                'LOCA_NETWORK_ALLY_DELETE_PASSON'                => __('t_ingame.alliance.delete_pass_on'),
+                'LOCA_NETWORK_ALLY_DELETE'                       => __('t_ingame.alliance.delete_btn'),
+                'LOCA_ALLY_HANDOVER'                             => __('t_ingame.alliance.handover'),
+                'LOCA_ALLY_TAKEOVER'                             => __('t_ingame.alliance.takeover_btn'),
+                'LOCA_ALL_BUTTON_FORWARD'                        => __('t_ingame.alliance.loca_continue'),
+                'LOCA_ALLY_TRANSFER_LONG'                        => __('t_ingame.alliance.confirm_abandon'),
+                'LOCA_NETWORK_ALLY_CHANGE_FOUNDER'               => __('t_ingame.alliance.loca_change_founder'),
+                'LOCA_ALLY_ERROR_NO_TRANSFER_MEMBERS'            => __('t_ingame.alliance.loca_no_transfer_error'),
+                'LOCA_ALLY_TAKEOVER_LONG'                        => __('t_ingame.alliance.confirm_takeover_long'),
+                'LOCA_NETWORK_ALLY_ERROR_FOUNDER_ACTIVE'         => __('t_ingame.alliance.loca_founder_inactive_error'),
+                'LOCA_ALL_OK'                                    => __('t_ingame.shared.caution') !== 'Caution' ? 'Ok' : 'Ok',
+                'LOCA_ALL_CANCEL'                                => __('t_ingame.shared.no') !== 'No' ? __('t_ingame.shared.no') : 'Cancel',
+                'LOCA_ALLIANCE_CLASS_SELECTION_HEADER'           => __('t_ingame.alliance.class_selection_header'),
+                'LOCA_ALLIANCE_CLASS_SELECTION_HEAD'             => __('t_ingame.alliance.select_class_title'),
+                'LOCA_ALLIANCE_CLASS_SELECTION_NOTE'             => __('t_ingame.alliance.select_class_note'),
+                'LOCA_ALL_NETWORK_ATTENTION'                     => __('t_ingame.shared.caution'),
+                'LOCA_ALL_YES'                                   => __('t_ingame.shared.yes'),
+                'LOCA_ALL_NO'                                    => __('t_ingame.shared.no'),
+                'LOCA_NETWORK_ALLY_TAKEOVER_ARE_YOU_SURE'        => __('t_ingame.alliance.confirm_pass_on'),
+                'LOCA_NETWORK_ALLY_GIVEUP'                       => __('t_ingame.alliance.confirm_disband'),
+                'LOCA_ALLY_TAKEOVER_QUESTION'                    => __('t_ingame.alliance.confirm_takeover'),
+                'LOCA_NETWORK_LEAVE_ALLY'                        => __('t_ingame.alliance.leave_btn'),
+                'locaAllyNameCharacter'                          => __('t_ingame.alliance.loca_ally_tag_chars'),
+                'locaAllyTagCharacter'                           => __('t_ingame.alliance.loca_ally_name_chars'),
+                'LOCA_NETWORK_ALLY_NEWALLYNAME'                  => __('t_ingame.alliance.loca_ally_name_label'),
+                'LOCA_NETWORK_ALLY_NEWTAG'                       => __('t_ingame.alliance.loca_ally_tag_label'),
+                'LOCA_ALLIANCE_CLASS_SELECTION_BUTTON_DEACTIVATE'=> __('t_ingame.alliance.loca_deactivate'),
+                'LOCA_ALLIANCE_CLASS_NOTE_ACTIVATE_WITH_DM'      => __('t_ingame.alliance.loca_activate_dm'),
+                'LOCA_ALLIANCE_CLASS_NOTE_ACTIVATE_WITH_ITEM'    => __('t_ingame.alliance.loca_activate_item'),
+                'LOCA_ALLIANCE_CLASS_NOTE_DEACTIVATE'            => __('t_ingame.alliance.loca_deactivate_note'),
+                'LOCA_ALLIANCE_CLASS_NOTE_ACTIVATE_APPEND_CURRENT_CLASS' => __('t_ingame.alliance.loca_class_change_append'),
+                'LOCA_ALLIANCE_CLASS'                            => __('t_ingame.alliance.class_label'),
+                'LOCA_ALL_NOTICE'                                => __('t_ingame.alliance.loca_reference'),
+                'LOCA_ALL_ERROR_LACKING_DM'                      => __('t_ingame.alliance.loca_no_dm'),
+                'LOCA_CHARACTERCLASS_SELECTION_BUTTON_DEACTIVATE'=> __('t_ingame.alliance.loca_deactivate'),
+                'LOCA_ALLIANCE_CREATION_DATE'                    => __('t_ingame.alliance.created'),
+                'LOCA_SETTINGS_SELECT_LANGUAGE'                  => __('t_ingame.alliance.loca_language'),
+            ]) !!};
             var alliance = new Alliance({tab: tab, token: '{{ csrf_token() }}', loca: loca});
             function manageTabs(id)
             {

@@ -31,36 +31,35 @@
         <select class="changeSite fright">
             @if ($currentPlayerIsAdmin ?? false)
                 @if ($highscoreAdminVisible ?? false)
-                    <option value="{{ $highscoreCurrentPlayerPage }}">@lang('Own position')</option>
+                    <option value="{{ $highscoreCurrentPlayerPage }}">{{ __('t_ingame.highscore.own_position') }}</option>
                 @else
-                    <option value="1">@lang('Own position') (-)</option>
+                    <option value="1">{{ __('t_ingame.highscore.own_position_hidden') }}</option>
                 @endif
             @else
-                <option value="{{ $highscoreCurrentPlayerPage }}">@lang('Own position')</option>
+                <option value="{{ $highscoreCurrentPlayerPage }}">{{ __('t_ingame.highscore.own_position') }}</option>
             @endif
             @for ($i = 1; $i <= ceil($highscorePlayerAmount / 100); $i++)
                 <option {{ $i == $highscoreCurrentPage ? 'selected="selected"' : '' }} value="{{ $i }}"> {{ ((($i-1) * 100) + 1)  }} - {{ $i * 100 }}</option>
             @endfor
         </select>
         <div class="fleft" id="highscoreHeadline">
-            Points
+            {{ __('t_ingame.highscore.points') }}
         </div>
         <table id="ranks" class="userHighscore">
             <thead>
             <tr>
                 <td class="position">
-                    Position
+                    {{ __('t_ingame.highscore.position') }}
                 </td>
                 <td class="movement"></td>
                 <td class="name">
-                    Player’s Name
-                    (Honour points)
+                    {{ __('t_ingame.highscore.player_name_honour') }}
                 </td>
                 <td class="sendmsg" align="center">
-                    Action
+                    {{ __('t_ingame.highscore.action') }}
                 </td>
                 <td class="score" align="center">
-                    Points
+                    {{ __('t_ingame.highscore.points') }}
                 </td>
             </tr>
             </thead>
@@ -105,7 +104,7 @@
                                     </a>
                                 </div>
                                 <div class="honorScore">
-                                    (<span class="undermark tooltip js_hideTipOnMobile" title="Honour points">0</span>)
+                                    (<span class="undermark tooltip js_hideTipOnMobile" title="{{ __('t_ingame.highscore.honour_points') }}">0</span>)
                                 </div>
                             </div>
                         </div>
@@ -113,9 +112,9 @@
 
                     <td class="sendmsg">
                         <div class="sendmsg_content">
-                            <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $highscorePlayer['id'] }}" title="{{ __('Write message') }}"><span class="icon icon_chat"></span></a>
+                            <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $highscorePlayer['id'] }}" title="{{ __('t_ingame.highscore.write_message') }}"><span class="icon icon_chat"></span></a>
                             @if($highscorePlayer['id'] != $player->getId() && !($highscorePlayer['is_admin'] ?? false))
-                                <a class="tooltip js_hideTipOnMobile icon sendBuddyRequest" title="{{ __('Buddy request') }}" data-playerid="{{ $highscorePlayer['id'] }}" data-playername="{{ $highscorePlayer['name'] }}" href="javascript:void(0);">
+                                <a class="tooltip js_hideTipOnMobile icon sendBuddyRequest" title="{{ __('t_ingame.highscore.buddy_request') }}" data-playerid="{{ $highscorePlayer['id'] }}" data-playername="{{ $highscorePlayer['name'] }}" href="javascript:void(0);">
                                     <span class="icon icon_user"></span>
                                 </a>
                             @endif
@@ -124,7 +123,7 @@
 
                     <td class="score">
                         @if($highscoreCurrentType == 3 && isset($highscorePlayer['total_ships']))
-                            <span class="tooltip" title="{{ __('Total ships') }}: {{ number_format($highscorePlayer['total_ships']) }}">
+                            <span class="tooltip" title="{{ __('t_ingame.highscore.total_ships') }}: {{ number_format($highscorePlayer['total_ships']) }}">
                                 {{ $highscorePlayer['points_formatted'] }}
                             </span>
                         @else
@@ -141,7 +140,43 @@
         <script type="text/javascript">
             // Initialize buddy dialog after it loads
             window.initBuddyDialog = function() {
-                var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
+                var locaKeys = {!! json_encode([
+                    'bold'               => __('t_ingame.messages.bbcode_bold'),
+                    'italic'             => __('t_ingame.messages.bbcode_italic'),
+                    'underline'          => __('t_ingame.messages.bbcode_underline'),
+                    'stroke'             => __('t_ingame.messages.bbcode_stroke'),
+                    'sub'                => __('t_ingame.messages.bbcode_sub'),
+                    'sup'                => __('t_ingame.messages.bbcode_sup'),
+                    'fontColor'          => __('t_ingame.messages.bbcode_font_color'),
+                    'fontSize'           => __('t_ingame.messages.bbcode_font_size'),
+                    'backgroundColor'    => __('t_ingame.messages.bbcode_bg_color'),
+                    'backgroundImage'    => __('t_ingame.messages.bbcode_bg_image'),
+                    'tooltip'            => __('t_ingame.messages.bbcode_tooltip'),
+                    'alignLeft'          => __('t_ingame.messages.bbcode_align_left'),
+                    'alignCenter'        => __('t_ingame.messages.bbcode_align_center'),
+                    'alignRight'         => __('t_ingame.messages.bbcode_align_right'),
+                    'alignJustify'       => __('t_ingame.messages.bbcode_align_justify'),
+                    'block'              => __('t_ingame.messages.bbcode_block'),
+                    'code'               => __('t_ingame.messages.bbcode_code'),
+                    'spoiler'            => __('t_ingame.messages.bbcode_spoiler'),
+                    'moreopts'           => __('t_ingame.messages.bbcode_moreopts'),
+                    'list'               => __('t_ingame.messages.bbcode_list'),
+                    'hr'                 => __('t_ingame.messages.bbcode_hr'),
+                    'picture'            => __('t_ingame.messages.bbcode_picture'),
+                    'link'               => __('t_ingame.messages.bbcode_link'),
+                    'email'              => __('t_ingame.messages.bbcode_email'),
+                    'player'             => __('t_ingame.messages.bbcode_player'),
+                    'item'               => __('t_ingame.messages.bbcode_item'),
+                    'coordinates'        => __('t_ingame.messages.bbcode_coordinates'),
+                    'preview'            => __('t_ingame.messages.bbcode_preview'),
+                    'textPlaceHolder'    => __('t_ingame.messages.bbcode_text_ph'),
+                    'playerPlaceHolder'  => __('t_ingame.messages.bbcode_player_ph'),
+                    'itemPlaceHolder'    => __('t_ingame.messages.bbcode_item_ph'),
+                    'coordinatePlaceHolder' => __('t_ingame.messages.bbcode_coord_ph'),
+                    'charsLeft'          => __('t_ingame.messages.bbcode_chars_left'),
+                    'colorPicker'        => ['ok' => __('t_ingame.messages.bbcode_ok'), 'cancel' => __('t_ingame.messages.bbcode_cancel'), 'rgbR' => 'R', 'rgbG' => 'G', 'rgbB' => 'B'],
+                    'backgroundImagePicker' => ['ok' => __('t_ingame.messages.bbcode_ok'), 'repeatX' => __('t_ingame.messages.bbcode_repeat_x'), 'repeatY' => __('t_ingame.messages.bbcode_repeat_y')],
+                ]) !!};
 
                 // Block BBCode preview AJAX calls temporarily to prevent 405 errors
                 var blockPreviewCalls = true;
@@ -193,18 +228,18 @@
                         data: form.serialize(),
                         success: function(response) {
                             if (response.success) {
-                                fadeBox('{{ __("Buddy request sent successfully!") }}', false);
+                                fadeBox('{{ __("t_ingame.highscore.buddy_request_sent") }}', false);
                                 form.closest('.ui-dialog-content').dialog('close');
                                 setTimeout(function() {
                                     form.closest('.overlayDiv').remove();
                                     form.closest('.ui-dialog').remove();
                                 }, 100);
                             } else {
-                                fadeBox(response.message || '{{ __("Failed to send buddy request.") }}', true);
+                                fadeBox(response.message || '{{ __("t_ingame.highscore.buddy_request_failed") }}', true);
                             }
                         },
                         error: function(xhr) {
-                            var errorMessage = '{{ __("Failed to send buddy request.") }}';
+                            var errorMessage = '{{ __("t_ingame.highscore.buddy_request_failed") }}';
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMessage = xhr.responseJSON.message;
                             }
@@ -231,7 +266,7 @@
 
                 // Initialize the dialog first
                 $dialog.dialog({
-                    title: '{{ __("Buddy request to") }} ' + playerName,
+                    title: '{{ __("t_ingame.highscore.buddy_request_to") }} ' + playerName,
                     width: 'auto',
                     height: 'auto',
                     modal: false,
@@ -293,7 +328,7 @@
 
                     if (playerId && playerName) {
                         // Confirm before ignoring
-                        if (confirm('{{ __("Are you sure you want to ignore") }} ' + playerName + '?')) {
+                        if (confirm('{{ __("t_ingame.highscore.are_you_sure_ignore") }} ' + playerName + '?')) {
                             $.ajax({
                                 url: '{{ route('buddies.ignore') }}',
                                 type: 'POST',
@@ -303,13 +338,13 @@
                                 },
                                 success: function(response) {
                                     if (response.success) {
-                                        fadeBox('{{ __("Player ignored successfully!") }}', false);
+                                        fadeBox('{{ __("t_ingame.highscore.player_ignored") }}', false);
                                     } else {
-                                        fadeBox(response.message || '{{ __("Failed to ignore player.") }}', true);
+                                        fadeBox(response.message || '{{ __("t_ingame.highscore.player_ignored_failed") }}', true);
                                     }
                                 },
                                 error: function(xhr) {
-                                    var errorMessage = '{{ __("Failed to ignore player.") }}';
+                                    var errorMessage = '{{ __("t_ingame.highscore.player_ignored_failed") }}';
                                     if (xhr.responseJSON && xhr.responseJSON.message) {
                                         errorMessage = xhr.responseJSON.message;
                                     }
@@ -323,7 +358,7 @@
             });
         </script>
         <div class="pagebar">
-            <a href="javascript:void(0);" class="scrollToTop">Back to top</a>
+            <a href="javascript:void(0);" class="scrollToTop">{{ __('t_ingame.layout.back_to_top') }}</a>
             &nbsp;
             @if ($highscoreCurrentPage > 1)
                 <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType]) }}', '#stat_list_content'); return false;">«</a>&nbsp;

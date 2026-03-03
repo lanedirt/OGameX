@@ -57,7 +57,7 @@ class OptionsController extends OGameController
             $player->setUsername($name);
             $player->save();
 
-            return array('success' => __('Settings saved'));
+            return array('success' => __('t_ingame.options.msg_settings_saved'));
         }
 
         return array();
@@ -81,9 +81,9 @@ class OptionsController extends OGameController
             if (!$vacationModeChecked) {
                 if ($player->canDeactivateVacationMode()) {
                     $player->deactivateVacationMode();
-                    return array('success' => __('Vacation mode has been deactivated.'));
+                    return array('success' => __('t_ingame.options.msg_vacation_deactivated'));
                 } else {
-                    return array('error' => __('You can only deactivate vacation mode after the minimum duration of 48 hours has passed.'));
+                    return array('error' => __('t_ingame.options.msg_vacation_min_duration'));
                 }
             }
             // If checkbox is still checked while in vacation mode, do nothing
@@ -93,9 +93,9 @@ class OptionsController extends OGameController
             if ($vacationModeChecked) {
                 if ($player->canActivateVacationMode()) {
                     $player->activateVacationMode();
-                    return array('success' => __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.'));
+                    return array('success' => __('t_ingame.options.msg_vacation_activated'));
                 } else {
-                    return array('error' => __('You cannot activate vacation mode while you have fleets in transit.'));
+                    return array('error' => __('t_ingame.options.msg_vacation_fleets_in_transit'));
                 }
             }
         }
@@ -123,19 +123,19 @@ class OptionsController extends OGameController
         if ($amount === '' || $amount === null) {
             $player->setEspionageProbesAmount(null);
             $player->save();
-            return array('success' => __('Settings saved'));
+            return array('success' => __('t_ingame.options.msg_settings_saved'));
         }
 
         // Validate that it's a positive integer
         $amount = (int) $amount;
         if ($amount < 1) {
-            return array('error' => __('Espionage probes amount must be at least 1'));
+            return array('error' => __('t_ingame.options.msg_probes_min_one'));
         }
 
         $player->setEspionageProbesAmount($amount);
         $player->save();
 
-        return array('success' => __('Settings saved'));
+        return array('success' => __('t_ingame.options.msg_settings_saved'));
     }
 
     /**

@@ -199,28 +199,28 @@
                 "MISSION_EXPEDITION": 15
             };
             var orderNames = {
-                "15": "Expedition",
-                "7": "Colonisation",
-                "8": "Recycle Debris Field",
-                "3": "Transport",
-                "4": "Deployment",
-                "6": "Espionage",
-                "5": "ACS Defend",
-                "1": "Attack",
-                "2": "ACS Attack",
-                "9": "Moon Destruction"
+                "15": "{{ __('t_ingame.fleet.mission_expedition') }}",
+                "7": "{{ __('t_ingame.fleet.mission_colonise') }}",
+                "8": "{{ __('t_ingame.fleet.mission_recycle') }}",
+                "3": "{{ __('t_ingame.fleet.mission_transport') }}",
+                "4": "{{ __('t_ingame.fleet.mission_deploy') }}",
+                "6": "{{ __('t_ingame.fleet.mission_espionage') }}",
+                "5": "{{ __('t_ingame.fleet.mission_acs_defend') }}",
+                "1": "{{ __('t_ingame.fleet.mission_attack') }}",
+                "2": "{{ __('t_ingame.fleet.mission_acs_attack') }}",
+                "9": "{{ __('t_ingame.fleet.mission_destroy_moon') }}"
             };
             var orderDescriptions = {
-                "1": "Attacks the fleet and defense of your opponent.",
-                "2": "Honourable battles can become dishonourable battles if strong players enter through ACS. The attacker`s sum of total military points in comparison to the defender`s sum of total military points is the decisive factor here.",
-                "3": "Transports your resources to other planets.",
-                "4": "Sends your fleet permanently to another planet of your empire.",
-                "5": "Defend the planet of your team-mate.",
-                "6": "Spy the worlds of foreign emperors.",
-                "7": "Colonizes a new planet.",
-                "8": "Send your recyclers to a debris field to collect the resources floating around there.",
-                "9": "Destroys the moon of your enemy.",
-                "15": "Send your ships to the furthest reaches of space to complete exciting quests."
+                "1": "{{ __('t_ingame.fleet.desc_attack') }}",
+                "2": "{{ __('t_ingame.fleet.desc_acs_attack') }}",
+                "3": "{{ __('t_ingame.fleet.desc_transport') }}",
+                "4": "{{ __('t_ingame.fleet.desc_deploy') }}",
+                "5": "{{ __('t_ingame.fleet.desc_acs_defend') }}",
+                "6": "{{ __('t_ingame.fleet.desc_espionage') }}",
+                "7": "{{ __('t_ingame.fleet.desc_colonise') }}",
+                "8": "{{ __('t_ingame.fleet.desc_recycle') }}",
+                "9": "{{ __('t_ingame.fleet.desc_destroy_moon') }}",
+                "15": "{{ __('t_ingame.fleet.desc_expedition') }}"
             };
 
             var currentPlanet = {
@@ -289,102 +289,102 @@
             var explorationCount = 1;
 
             var loca = {
-                "LOCA_FLEET_TITLE_MOVEMENTS": "To fleet movement",
-                "LOCA_FLEET_MOVEMENT": "Fleet movement",
-                "LOCA_FLEET_EDIT_STANDARTFLEET": "Edit standard fleets",
-                "LOCA_FLEET_STANDARD": "Standard fleets",
-                "LOCA_FLEET_HEADLINE_ONE": "Fleet Dispatch I",
-                "LOCA_FLEET_TOOLTIPP_SLOTS": "Used\/Total fleet slots",
-                "LOCA_FLEET_FLEETSLOTS": "Fleets",
-                "LOCA_FLEET_NO_FREE_SLOTS": "No fleet slots available",
-                "LOCA_FLEETSENDING_NO_TARGET": "You have to select a valid target.",
-                "LOCA_FLEET_TOOLTIPP_EXP_SLOTS": "Used\/Total expedition slots",
-                "LOCA_FLEET_EXPEDITIONS": "Expeditions",
-                "LOCA_ALL_NEVER": "Never",
-                "LOCA_FLEET_SEND_NOTAVAILABLE": "Fleet dispatch impossible",
-                "LOCA_FLEET_NO_SHIPS_ON_PLANET": "There are no ships on this planet.",
-                "LOCA_SHIPYARD_HEADLINE_BATTLESHIPS": "Combat ships",
-                "LOCA_SHIPYARD_HEADLINE_CIVILSHIPS": "Civil ships",
-                "LOCA_FLEET_SELECT_SHIPS_ALL": "Select all ships",
-                "LOCA_FLEET_SELECTION_RESET": "Reset choice",
-                "LOCA_API_FLEET_DATA": "This data can be entered into a compatible combat simulator:",
-                "LOCA_ALL_BUTTON_FORWARD": "Continue",
-                "LOCA_FLEET_NO_SELECTION": "Nothing has been selected",
-                "LOCA_ALL_TACTICAL_RETREAT": "Tactical retreat",
-                "LOCA_FLEET1_TACTICAL_RETREAT_CONSUMPTION_TOOLTIP": "Show Deuterium usage per tactical retreat",
-                "LOCA_FLEET_FUEL_CONSUMPTION": "Deuterium consumption",
-                "LOCA_FLEET_ERROR_OWN_VACATION": "No fleets can be sent from vacation mode!",
-                "LOCA_FLEET_CURRENTLY_OCCUPIED": "The fleet is currently in combat.",
-                "LOCA_FLEET_FREE_MARKET_SLOTS": "Offers",
-                "LOCA_FLEET_TOOLTIPP_FREE_MARKET_SLOTS": "Used\/Total trading fleets",
-                "LOCA_FLEET_HEADLINE_TWO": "Fleet Dispatch II",
-                "LOCA_FLEET_TAKEOFF_PLACE": "Origin",
-                "LOCA_FLEET_TARGET_PLACE": "Destination",
-                "LOCA_ALL_PLANET": "Planet",
-                "LOCA_ALL_MOON": "Moon",
-                "LOCA_FLEET_COORDINATES": "Coordinates",
-                "LOCA_FLEET_DISTANCE": "Distance",
-                "LOCA_FLEET_DEBRIS": "debris field",
-                "LOCA_FLEET_SHORTLINKS": "Shortcuts",
-                "LOCA_FLEET_FIGHT_ASSOCIATION": "Combat forces",
-                "LOCA_FLEET_BRIEFING": "Briefing",
-                "LOCA_FLEET_DURATION_ONEWAY": "Duration of flight (one way)",
-                "LOCA_FLEET_SPEED": "Speed:",
-                "LOCA_FLEET_SPEED_MAX_SHORT": "max.",
-                "LOCA_FLEET_ARRIVAL": "Arrival",
-                "LOCA_FLEET_TIME_CLOCK": "Clock",
-                "LOCA_FLEET_RETURN": "Return",
-                "LOCA_FLEET_HOLD_FREE": "Empty cargobays",
-                "LOCA_ALL_BUTTON_BACK": "Back",
-                "LOCA_FLEET_PLANET_UNHABITATED": "Uninhabited planet",
-                "LOCA_FLEET_NO_DEBIRS_FIELD": "No debris field",
-                "LOCA_FLEET_PLAYER_UMODE": "Player in vacation mode",
-                "LOCA_FLEET_ADMIN": "Admin or GM",
-                "LOCA_ALL_NOOBSECURE": "Noob protection",
-                "LOCA_GALAXY_ERROR_STRONG": "This planet can not be attacked as the player is to strong!",
-                "LOCA_FLEET_NO_MOON": "No moon available.",
-                "LOCA_FLEET_NO_RECYCLER": "No recycler available.",
-                "LOCA_ALL_NO_EVENT": "There are currently no events running.",
-                "LOCA_PLANETMOVE_ERROR_ALREADY_RESERVED": "This planet has already been reserved for a relocation.",
-                "LOCA_FLEET_ERROR_TARGET_MSG": "Fleets can not be sent to this target.",
-                "LOCA_FLEETSENDING_NOT_ENOUGH_FOIL": "Not enough deuterium!",
-                "LOCA_FLEET_HEADLINE_THREE": "Fleet Dispatch III",
-                "LOCA_FLEET_TARGET_FOR_MISSION": "Select mission for target",
-                "LOCA_FLEET_MISSION": "Mission",
-                "LOCA_FLEET_RESOURCE_LOAD": "Load resources",
-                "LOCA_FLEET_SELECTION_NOT_AVAILABLE": "You cannot start this mission.",
-                "LOCA_FLEET_RETREAT_AFTER_DEFENDER_RETREAT_TOOLTIP": "If this option is activated, your fleet will also withdraw without a fight if your opponent flees.",
-                "LOCA_FLEET_RETREAT_AFTER_DEFENDER_RETREAT": "Return upon retreat by defenders",
-                "LOCA_FLEET_TARGET": "Target",
-                "LOCA_FLEET_DURATION_FEDERATION": "Flight Duration (fleet union)",
-                "LOCA_ALL_TIME_HOUR": "h",
-                "LOCA_FLEET_HOLD_TIME": "Hold time",
-                "LOCA_FLEET_EXPEDITION_TIME": "Duration of expedition",
-                "LOCA_ALL_METAL": "Metal",
-                "LOCA_ALL_CRYSTAL": "Crystal",
-                "LOCA_ALL_DEUTERIUM": "Deuterium",
+                "LOCA_FLEET_TITLE_MOVEMENTS": "{{ __('t_ingame.fleet.to_movement') }}",
+                "LOCA_FLEET_MOVEMENT": "{{ __('t_ingame.fleet.movement_title') }}",
+                "LOCA_FLEET_EDIT_STANDARTFLEET": "{{ __('t_ingame.fleet.edit_standard_fleets') }}",
+                "LOCA_FLEET_STANDARD": "{{ __('t_ingame.fleet.standard_fleets') }}",
+                "LOCA_FLEET_HEADLINE_ONE": "{{ __('t_ingame.fleet.dispatch_1_title') }}",
+                "LOCA_FLEET_TOOLTIPP_SLOTS": "{{ __('t_ingame.fleet.tooltip_slots') }}",
+                "LOCA_FLEET_FLEETSLOTS": "{{ __('t_ingame.fleet.fleets') }}",
+                "LOCA_FLEET_NO_FREE_SLOTS": "{{ __('t_ingame.fleet.no_free_slots') }}",
+                "LOCA_FLEETSENDING_NO_TARGET": "{{ __('t_ingame.fleet.no_target') }}",
+                "LOCA_FLEET_TOOLTIPP_EXP_SLOTS": "{{ __('t_ingame.fleet.tooltip_exp_slots') }}",
+                "LOCA_FLEET_EXPEDITIONS": "{{ __('t_ingame.fleet.expeditions') }}",
+                "LOCA_ALL_NEVER": "{{ __('t_ingame.fleet.never') }}",
+                "LOCA_FLEET_SEND_NOTAVAILABLE": "{{ __('t_ingame.fleet.dispatch_impossible') }}",
+                "LOCA_FLEET_NO_SHIPS_ON_PLANET": "{{ __('t_ingame.fleet.no_ships') }}",
+                "LOCA_SHIPYARD_HEADLINE_BATTLESHIPS": "{{ __('t_ingame.fleet.combat_ships') }}",
+                "LOCA_SHIPYARD_HEADLINE_CIVILSHIPS": "{{ __('t_ingame.fleet.civil_ships') }}",
+                "LOCA_FLEET_SELECT_SHIPS_ALL": "{{ __('t_ingame.fleet.select_all_ships') }}",
+                "LOCA_FLEET_SELECTION_RESET": "{{ __('t_ingame.fleet.reset_choice') }}",
+                "LOCA_API_FLEET_DATA": "{{ __('t_ingame.fleet.api_data') }}",
+                "LOCA_ALL_BUTTON_FORWARD": "{{ __('t_ingame.fleet.continue') }}",
+                "LOCA_FLEET_NO_SELECTION": "{{ __('t_ingame.fleet.no_selection') }}",
+                "LOCA_ALL_TACTICAL_RETREAT": "{{ __('t_ingame.fleet.tactical_retreat') }}",
+                "LOCA_FLEET1_TACTICAL_RETREAT_CONSUMPTION_TOOLTIP": "{{ __('t_ingame.fleet.tactical_retreat_tooltip') }}",
+                "LOCA_FLEET_FUEL_CONSUMPTION": "{{ __('t_ingame.fleet.deuterium_consumption') }}",
+                "LOCA_FLEET_ERROR_OWN_VACATION": "{{ __('t_ingame.fleet.vacation_error') }}",
+                "LOCA_FLEET_CURRENTLY_OCCUPIED": "{{ __('t_ingame.fleet.in_combat') }}",
+                "LOCA_FLEET_FREE_MARKET_SLOTS": "{{ __('t_ingame.fleet.market_slots') }}",
+                "LOCA_FLEET_TOOLTIPP_FREE_MARKET_SLOTS": "{{ __('t_ingame.fleet.tooltip_market_slots') }}",
+                "LOCA_FLEET_HEADLINE_TWO": "{{ __('t_ingame.fleet.dispatch_2_title') }}",
+                "LOCA_FLEET_TAKEOFF_PLACE": "{{ __('t_ingame.fleet.origin') }}",
+                "LOCA_FLEET_TARGET_PLACE": "{{ __('t_ingame.fleet.destination') }}",
+                "LOCA_ALL_PLANET": "{{ __('t_ingame.fleet.planet') }}",
+                "LOCA_ALL_MOON": "{{ __('t_ingame.fleet.moon') }}",
+                "LOCA_FLEET_COORDINATES": "{{ __('t_ingame.fleet.coordinates') }}",
+                "LOCA_FLEET_DISTANCE": "{{ __('t_ingame.fleet.distance') }}",
+                "LOCA_FLEET_DEBRIS": "{{ __('t_ingame.fleet.debris_field_lower') }}",
+                "LOCA_FLEET_SHORTLINKS": "{{ __('t_ingame.fleet.shortcuts') }}",
+                "LOCA_FLEET_FIGHT_ASSOCIATION": "{{ __('t_ingame.fleet.combat_forces') }}",
+                "LOCA_FLEET_BRIEFING": "{{ __('t_ingame.fleet.briefing') }}",
+                "LOCA_FLEET_DURATION_ONEWAY": "{{ __('t_ingame.fleet.flight_duration') }}",
+                "LOCA_FLEET_SPEED": "{{ __('t_ingame.fleet.speed') }}",
+                "LOCA_FLEET_SPEED_MAX_SHORT": "{{ __('t_ingame.fleet.max_abbr') }}",
+                "LOCA_FLEET_ARRIVAL": "{{ __('t_ingame.fleet.arrival') }}",
+                "LOCA_FLEET_TIME_CLOCK": "{{ __('t_ingame.fleet.clock') }}",
+                "LOCA_FLEET_RETURN": "{{ __('t_ingame.fleet.return_trip') }}",
+                "LOCA_FLEET_HOLD_FREE": "{{ __('t_ingame.fleet.empty_cargobays') }}",
+                "LOCA_ALL_BUTTON_BACK": "{{ __('t_ingame.fleet.back') }}",
+                "LOCA_FLEET_PLANET_UNHABITATED": "{{ __('t_ingame.fleet.uninhabited_planet') }}",
+                "LOCA_FLEET_NO_DEBIRS_FIELD": "{{ __('t_ingame.fleet.no_debris_field') }}",
+                "LOCA_FLEET_PLAYER_UMODE": "{{ __('t_ingame.fleet.player_vacation') }}",
+                "LOCA_FLEET_ADMIN": "{{ __('t_ingame.fleet.admin_gm') }}",
+                "LOCA_ALL_NOOBSECURE": "{{ __('t_ingame.fleet.noob_protection') }}",
+                "LOCA_GALAXY_ERROR_STRONG": "{{ __('t_ingame.fleet.player_too_strong') }}",
+                "LOCA_FLEET_NO_MOON": "{{ __('t_ingame.fleet.no_moon') }}",
+                "LOCA_FLEET_NO_RECYCLER": "{{ __('t_ingame.fleet.no_recycler') }}",
+                "LOCA_ALL_NO_EVENT": "{{ __('t_ingame.fleet.no_events') }}",
+                "LOCA_PLANETMOVE_ERROR_ALREADY_RESERVED": "{{ __('t_ingame.fleet.planet_already_reserved') }}",
+                "LOCA_FLEET_ERROR_TARGET_MSG": "{{ __('t_ingame.fleet.cannot_send_to_target') }}",
+                "LOCA_FLEETSENDING_NOT_ENOUGH_FOIL": "{{ __('t_ingame.fleet.not_enough_deuterium') }}",
+                "LOCA_FLEET_HEADLINE_THREE": "{{ __('t_ingame.fleet.dispatch_3_title') }}",
+                "LOCA_FLEET_TARGET_FOR_MISSION": "{{ __('t_ingame.fleet.select_mission') }}",
+                "LOCA_FLEET_MISSION": "{{ __('t_ingame.fleet.mission_label') }}",
+                "LOCA_FLEET_RESOURCE_LOAD": "{{ __('t_ingame.fleet.load_resources') }}",
+                "LOCA_FLEET_SELECTION_NOT_AVAILABLE": "{{ __('t_ingame.fleet.cannot_start_mission') }}",
+                "LOCA_FLEET_RETREAT_AFTER_DEFENDER_RETREAT_TOOLTIP": "{{ __('t_ingame.fleet.retreat_tooltip') }}",
+                "LOCA_FLEET_RETREAT_AFTER_DEFENDER_RETREAT": "{{ __('t_ingame.fleet.retreat_on_defender') }}",
+                "LOCA_FLEET_TARGET": "{{ __('t_ingame.fleet.target_label') }}",
+                "LOCA_FLEET_DURATION_FEDERATION": "{{ __('t_ingame.fleet.federation_duration') }}",
+                "LOCA_ALL_TIME_HOUR": "{{ __('t_ingame.fleet.hour_abbr') }}",
+                "LOCA_FLEET_HOLD_TIME": "{{ __('t_ingame.fleet.hold_time') }}",
+                "LOCA_FLEET_EXPEDITION_TIME": "{{ __('t_ingame.fleet.expedition_duration') }}",
+                "LOCA_ALL_METAL": "{{ __('t_ingame.fleet.metal') }}",
+                "LOCA_ALL_CRYSTAL": "{{ __('t_ingame.fleet.crystal') }}",
+                "LOCA_ALL_DEUTERIUM": "{{ __('t_ingame.fleet.deuterium') }}",
                 // "LOCA_ALL_FOOD": "Food",
-                "LOCA_FLEET_LOAD_ROOM": "cargo bay",
-                "LOCA_FLEET_CARGO_SPACE": "Available space \/ Max. cargo space",
-                "LOCA_FLEET_SEND": "Send fleet",
-                "LOCA_ALL_NETWORK_ATTENTION": "Caution",
-                "LOCA_PLANETMOVE_BREAKUP_WARNING": "Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?",
-                "LOCA_ALL_YES": "yes",
-                "LOCA_ALL_NO": "No",
-                "LOCA_ALL_NOTICE": "Reference",
-                "LOCA_FLEETSENDING_MAX_PLANET_WARNING": "Attention! No further planets may be colonised at the moment. Two levels of astrotechnology research are necessary for each new colony. Do you still want to send your fleet?",
-                "LOCA_ALL_PLAYER": "Player",
-                "LOCA_FLEET_RESOURCES_ALL_LOAD": "Load all resources",
-                "LOCA_FLEET_RESOURCES_ALL": "all resources",
-                "LOCA_NETWORK_USERNAME": "Player\u2019s Name",
-                "LOCA_EVENTH_ENEMY_INFINITELY_SPACE": "Deep space",
-                "LOCA_FLEETSENDING_NO_MISSION_SELECTED": "No mission selected!",
-                "LOCA_EMPTY_SYSTEMS": "Empty Systems",
-                "LOCA_INACTIVE_SYSTEMS": "Inactive Systems",
-                "LOCA_NETWORK_ON": "On",
-                "LOCA_NETWORK_OFF": "Off",
+                "LOCA_FLEET_LOAD_ROOM": "{{ __('t_ingame.fleet.cargo_bay') }}",
+                "LOCA_FLEET_CARGO_SPACE": "{{ __('t_ingame.fleet.cargo_space') }}",
+                "LOCA_FLEET_SEND": "{{ __('t_ingame.fleet.send_fleet') }}",
+                "LOCA_ALL_NETWORK_ATTENTION": "{{ __('t_ingame.shared.caution') }}",
+                "LOCA_PLANETMOVE_BREAKUP_WARNING": "{{ __('t_ingame.buildings.planet_move_warning') }}",
+                "LOCA_ALL_YES": "{{ __('t_ingame.shared.yes') }}",
+                "LOCA_ALL_NO": "{{ __('t_ingame.shared.no') }}",
+                "LOCA_ALL_NOTICE": "{{ __('t_ingame.buildings.loca_notice') }}",
+                "LOCA_FLEETSENDING_MAX_PLANET_WARNING": "{{ __('t_ingame.fleet.max_planet_warning') }}",
+                "LOCA_ALL_PLAYER": "{{ __('t_ingame.fleet.player_label') }}",
+                "LOCA_FLEET_RESOURCES_ALL_LOAD": "{{ __('t_ingame.fleet.load_all_resources') }}",
+                "LOCA_FLEET_RESOURCES_ALL": "{{ __('t_ingame.fleet.all_resources') }}",
+                "LOCA_NETWORK_USERNAME": "{{ __('t_ingame.fleet.player_name') }}",
+                "LOCA_EVENTH_ENEMY_INFINITELY_SPACE": "{{ __('t_ingame.fleet.deep_space') }}",
+                "LOCA_FLEETSENDING_NO_MISSION_SELECTED": "{{ __('t_ingame.fleet.no_mission_selected') }}",
+                "LOCA_EMPTY_SYSTEMS": "{{ __('t_ingame.fleet.empty_systems') }}",
+                "LOCA_INACTIVE_SYSTEMS": "{{ __('t_ingame.fleet.inactive_systems') }}",
+                "LOCA_NETWORK_ON": "{{ __('t_ingame.fleet.network_on') }}",
+                "LOCA_NETWORK_OFF": "{{ __('t_ingame.fleet.network_off') }}",
                 // "LOCA_LOOT_FOOD": "Plunder food",
-                "LOCA_BASHING_SYSTEM_LIMIT_REACHED_ATTACK_MISSIONS_DISABLED": "Attack missions have been deactivated as a result of too many attacks on the target."
+                "LOCA_BASHING_SYSTEM_LIMIT_REACHED_ATTACK_MISSIONS_DISABLED": "{{ __('t_ingame.fleet.bashing_disabled') }}"
             };
             var locadyn = {
                 "locaAllOutlawWarning": "You are about to attack a stronger player. If you do this, your attack defenses will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
@@ -392,21 +392,21 @@
                 "locaOfficerbonusTooltipp": "+ 2 Fleet slots because of Admiral"
             };
             var errorCodeMap = {
-                "601": "An error has occurred",
-                "602": "Error, there is no moon",
-                "603": "Error, player can`t be approached because of newbie protection",
-                "604": "Player is too strong to be attacked",
-                "605": "Error, player is in vacation mode",
-                "606": "No fleets can be sent from vacation mode!",
-                "610": "Error, not enough ships available, send maximum number:",
-                "611": "Error, no ships available",
-                "612": "Error, no free fleet slots available",
-                "613": "Error, you don`t have enough deuterium",
-                "614": "Error, there is no planet there",
-                "615": "Error, not enough cargo capacity",
-                "616": "Multi-alarm",
-                "617": "Admin or GM",
-                "618": "Attack ban until 01.01.1970 01:00:00"
+                "601": "{{ __('t_ingame.fleet.err_generic') }}",
+                "602": "{{ __('t_ingame.fleet.err_no_moon') }}",
+                "603": "{{ __('t_ingame.fleet.err_newbie_protection') }}",
+                "604": "{{ __('t_ingame.fleet.err_too_strong') }}",
+                "605": "{{ __('t_ingame.fleet.err_vacation_mode') }}",
+                "606": "{{ __('t_ingame.fleet.err_own_vacation') }}",
+                "610": "{{ __('t_ingame.fleet.err_not_enough_ships') }}",
+                "611": "{{ __('t_ingame.fleet.err_no_ships') }}",
+                "612": "{{ __('t_ingame.fleet.err_no_slots') }}",
+                "613": "{{ __('t_ingame.fleet.err_no_deuterium') }}",
+                "614": "{{ __('t_ingame.fleet.err_no_planet') }}",
+                "615": "{{ __('t_ingame.fleet.err_no_cargo') }}",
+                "616": "{{ __('t_ingame.fleet.err_multi_alarm') }}",
+                "617": "{{ __('t_ingame.fleet.admin_gm') }}",
+                "618": "{{ __('t_ingame.fleet.err_attack_ban') }}"
             };
 
             var fleetDispatcher = null;
@@ -874,21 +874,21 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 <div class="c-right"></div>
                 @if ($shipAmount == 0)
                     <div id="warning">
-                        <h3>@lang('Fleet dispatch impossible')</h3>
+                        <h3>{{ __('t_ingame.fleet.dispatch_impossible') }}</h3>
                         <p>
                             <span class="icon icon_warning"></span>
-                            @lang('There are no ships on this planet.')
+                            {{ __('t_ingame.fleet.no_ships') }}
                         </p>
                     </div>
                 @else
                     <div class="fleetStatus" id="statusBarFleet">
                         <ul>
-                            <li><span class="title">@lang('Mission:')</span> <span
-                                        class="missionName">@lang('Nothing has been selected')</span></li>
-                            <li><span class="title">@lang('Target:')</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
+                            <li><span class="title">{{ __('t_ingame.fleet.mission_label') }}:</span> <span
+                                        class="missionName">{{ __('t_ingame.fleet.no_selection') }}</span></li>
+                            <li><span class="title">{{ __('t_ingame.fleet.target_label') }}:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
                                             class="planetIcon {{ $planet->isPlanet() ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile"
                                             title="{{ $planet->isPlanet() ? 'Planet' : 'Moon' }}"></figure>{{ $planet->getPlanetName() }}</span></li>
-                            <li><span class="title">@lang('Player\'s Name:')</span> <span
+                            <li><span class="title">{{ __('t_ingame.fleet.player_name_label') }}:</span> <span
                                         class="targetPlayerName">{{ $player->getUsername() }}</span></li>
                         </ul>
                     </div>
@@ -898,7 +898,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                   action="{{ route('overview.index') }}#TODO_page=fleet2">
                                 <div id="technologies">
                                     <div id="battleships">
-                                        <div class="header"><h2>@lang('Combat ships')</h2></div>
+                                        <div class="header"><h2>{{ __('t_ingame.fleet.combat_ships') }}</h2></div>
                                         <ul id="military" class="iconsUNUSED">
                                             @php /** @var OGame\ViewModels\UnitViewModel $object */ @endphp
                                             @foreach ($units[0] as $object)
@@ -922,7 +922,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         </ul>
                                     </div>
                                     <div id="civilships">
-                                        <div class="header"><h2>@lang('Civil ships')</h2></div>
+                                        <div class="header"><h2>{{ __('t_ingame.fleet.civil_ships') }}</h2></div>
                                         <ul id="civil" class="iconsUNUSED">
                                             @php /** @var OGame\ViewModels\QueueUnitViewModel $object */ @endphp
                                             @foreach ($units[1] as $object)
@@ -970,7 +970,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <a id="combatunits" class="overlay dark_highlight_tablet"
                                            data-overlay-inline="#zeuch666" data-overlay-title="Edit standard fleets">
                                             <span class="icon icon_combatunits"></span>
-                                            @lang('Standard fleets')
+                                            {{ __('t_ingame.fleet.standard_fleets') }}
                                         </a>
                                         <select class="combatunits" size="1" id="standardfleet">
                                             <option>-</option>
@@ -980,10 +980,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             </span>
                                     <a id="continueToFleet2" class="continue off" href="">
                                         <span class="ipiHintable" data-ipi-hint="ipiFleetContinueToPage2"
-                                              data-ipi-highlight-step="ipiFleetContinueToPage2">@lang('Continue')</span>
+                                              data-ipi-highlight-step="ipiFleetContinueToPage2">{{ __('t_ingame.fleet.continue') }}</span>
                                     </a>
                                     <div class="clearfloat"></div>
-                                    <p class="info">@lang('Nothing has been selected')</p>
+                                    <p class="info">{{ __('t_ingame.fleet.no_selection') }}</p>
                                 </div>
                             </div>
                             <div class="footer"></div>
@@ -999,7 +999,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
 
             <div id="inhalt">
                 <div id="planet" class="planet-header ">
-                    <h2>@lang('Fleet Dispatch II') - {{ $planet->getPlanetName() }}</h2>
+                    <h2>{{ __('t_ingame.fleet.dispatch_2_title') }} - {{ $planet->getPlanetName() }}</h2>
                     <a class="toggleHeader" data-name="fleet2">
                         <img alt="" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22">
                     </a>
@@ -1008,12 +1008,12 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                 <div class="c-right shortCorner"></div>
                 <div class="fleetStatus" id="statusBarFleet">
                     <ul>
-                        <li><span class="title">@lang('Mission:')</span> <span
-                                    class="missionName">@lang('Nothing has been selected')</span></li>
-                        <li><span class="title">@lang('Target:')</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
+                        <li><span class="title">{{ __('t_ingame.fleet.mission_label') }}:</span> <span
+                                    class="missionName">{{ __('t_ingame.fleet.no_selection') }}</span></li>
+                        <li><span class="title">{{ __('t_ingame.fleet.target_label') }}:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
                                         class="planetIcon {{ $planet->isPlanet() ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile" title="{{ $planet->isPlanet() ? 'Planet' : 'Moon' }}"></figure>{{ $planet->getPlanetName() }}</span>
                         </li>
-                        <li><span class="title">@lang('Player\'s Name:')</span> <span
+                        <li><span class="title">{{ __('t_ingame.fleet.player_name_label') }}:</span> <span
                                     class="targetPlayerName">{{ $player->getUsername() }}</span></li>
                     </ul>
                 </div>
@@ -1041,9 +1041,9 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             <table cellpadding="0" cellspacing="0" id="mission">
                                 <tbody>
                                 <tr>
-                                    <th><h2>@lang('Origin:')</h2></th>
+                                    <th><h2>{{ __('t_ingame.fleet.origin') }}:</h2></th>
                                     <th></th>
-                                    <th><h2>@lang('Destination:')</h2></th>
+                                    <th><h2>{{ __('t_ingame.fleet.destination') }}:</h2></th>
                                     <th></th>
                                 </tr>
                                 <tr>
@@ -1051,38 +1051,38 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <div class="planetname">{{ $planet->getPlanetName() }}</div>
                                         <div class="target">
                                             <a class="planet_source{{ $planet->isPlanet() ? '_selected' : '' }}">
-                                                <span class="textlabel">@lang('Planet')</span>
+                                                <span class="textlabel">{{ __('t_ingame.fleet.planet') }}</span>
                                             </a>
                                             <a class="moon_source{{ $planet->isMoon() ? '_selected' : '' }}">
-                                                <span class="textlabel">@lang('Moon')</span>
+                                                <span class="textlabel">{{ __('t_ingame.fleet.moon') }}</span>
                                             </a>
                                             <br class="clearfloat">
                                         </div>
                                         <div class="coords">
-                                            @lang('Coordinates:')
+                                            {{ __('t_ingame.fleet.coordinates') }}:
                                             <span style="color: #ffffff; font-weight: bold;">{{ $planet->getPlanetCoordinates()->asString() }}</span>
                                         </div>
                                     </td>
                                     <td id="distance">
                                         <div id="distanceValue">5</div>
-                                        <div class="coords">@lang('Distance')</div>
+                                        <div class="coords">{{ __('t_ingame.fleet.distance') }}</div>
                                     </td>
                                     <td id="target" class="border5px">
                                         <div class="planetname" id="targetPlanetName">{{ $planet->getPlanetName() }}</div>
                                         <div class="target">
                                             <a class="planet{{ $planet->isPlanet() ? '_selected' : '' }}" href="" id="pbutton">
-                                                <span class="textlabel">@lang('Planet')</span>
+                                                <span class="textlabel">{{ __('t_ingame.fleet.planet') }}</span>
                                             </a>
                                             <a class="moon{{ $planet->isMoon() ? '_selected' : '' }}" href="" id="mbutton">
-                                                <span class="textlabel">@lang('Moon')</span>
+                                                <span class="textlabel">{{ __('t_ingame.fleet.moon') }}</span>
                                             </a>
                                             <a class="debris" href="" id="dbutton">
-                                                <span class="textlabel">@lang('debris field')</span>
+                                                <span class="textlabel">{{ __('t_ingame.fleet.debris_field_lower') }}</span>
                                             </a>
                                             <br class="clearfloat">
                                         </div>
                                         <div class="coords">
-                                            @lang('Coordinates:')
+                                            {{ __('t_ingame.fleet.coordinates') }}:
                                             <br>
                                             <div class="coordsSection ipiHintable"
                                                  data-ipi-hint="ipiFleetDestinationCoordsSystem">
@@ -1104,7 +1104,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     </td>
                                     <td id="shortcuts">
                                         <div>
-                                            <span id="shortlinks tips">@lang('Shortcuts:')</span>
+                                            <span id="shortlinks tips">{{ __('t_ingame.fleet.shortcuts') }}:</span>
                                             <div class="glow">
                                                 <select size="1" class="planets" id="slbox">
                                                     <option value="-">-</option>
@@ -1122,7 +1122,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             </div>
                                         </div>
                                         <div style="padding-top: 12px;">
-                                            <span id="combatunits tips">@lang('Combat forces:')</span>
+                                            <span id="combatunits tips">{{ __('t_ingame.fleet.combat_forces') }}:</span>
                                             <div class="glow">
                                                 <select size="1" class="combatunits dropdownInitialized" id="aksbox"
                                                         name="acsValues" style="display: none;">
@@ -1147,7 +1147,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             <div class="move-box ui-sortable-handle"></div>
                         </div>
                         <div class="header">
-                            <h2>@lang('Select mission for target:')</h2>
+                            <h2>{{ __('t_ingame.fleet.select_mission') }}:</h2>
                         </div>
                         <div class="content">
                             <div class="ajax_loading" style="display: none;">
@@ -1156,74 +1156,74 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                 </div>
                             </div>
                             <div id="attackMissionsDisabledBashingLimit" style="display: none;"><span
-                                        class="icon icon_warning"></span> @lang('Attack missions have been deactivated as a result of too many attacks on the target.')
+                                        class="icon icon_warning"></span> {{ __('t_ingame.fleet.bashing_disabled') }}
                             </div>
                             <ul id="missions">
                                 <li id="button15" class="off ipiHintable" data-ipi-hint="ipiFleetMission15">
                                     <a id="missionButton15" href="" data-mission="15"
                                        data-ipi-highlight-step="ipiFleetMission15">
-                                        <span class="textlabel">@lang('Expedition')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_expedition') }}</span>
                                     </a>
                                 </li>
                                 <li id="button7" class="off ipiHintable" data-ipi-hint="ipiFleetMission7">
                                     <a id="missionButton7" href="" data-mission="7"
                                        data-ipi-highlight-step="ipiFleetMission7">
-                                        <span class="textlabel">@lang('Colonisation')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_colonise') }}</span>
                                     </a>
                                 </li>
                                 <li id="button8" class="off ipiHintable" data-ipi-hint="ipiFleetMission8">
                                     <a id="missionButton8" href="" data-mission="8"
                                        data-ipi-highlight-step="ipiFleetMission8">
-                                        <span class="textlabel">@lang('Recycle Debris Field')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_recycle') }}</span>
                                     </a>
                                 </li>
                                 <li id="button3" class="off ipiHintable" data-ipi-hint="ipiFleetMission3">
                                     <a id="missionButton3" href="" data-mission="3"
                                        data-ipi-highlight-step="ipiFleetMission3">
-                                        <span class="textlabel">@lang('Transport')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_transport') }}</span>
                                     </a>
                                 </li>
                                 <li id="button4" class="off ipiHintable" data-ipi-hint="ipiFleetMission4">
                                     <a id="missionButton4" href="" data-mission="4"
                                        data-ipi-highlight-step="ipiFleetMission4">
-                                        <span class="textlabel">@lang('Deployment')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_deploy') }}</span>
                                     </a>
                                 </li>
                                 <li id="button6" class="off ipiHintable" data-ipi-hint="ipiFleetMission6">
                                     <a id="missionButton6" href="" data-mission="6"
                                        data-ipi-highlight-step="ipiFleetMission6">
-                                        <span class="textlabel">@lang('Espionage')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_espionage') }}</span>
                                     </a>
                                 </li>
                                 <li id="button5" class="off ipiHintable" data-ipi-hint="ipiFleetMission5">
                                     <a id="missionButton5" href="" data-mission="5"
                                        data-ipi-highlight-step="ipiFleetMission5">
-                                        <span class="textlabel">@lang('ACS Defend')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_acs_defend') }}</span>
                                     </a>
                                 </li>
                                 <li id="button1" class="off ipiHintable" data-ipi-hint="ipiFleetMission1">
                                     <a id="missionButton1" href="" data-mission="1"
                                        data-ipi-highlight-step="ipiFleetMission1">
-                                        <span class="textlabel">@lang('Attack')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_attack') }}</span>
                                     </a>
                                 </li>
                                 <li id="button2" class="off ipiHintable" data-ipi-hint="ipiFleetMission2">
                                     <a id="missionButton2" href="" data-mission="2"
                                        data-ipi-highlight-step="ipiFleetMission2">
-                                        <span class="textlabel">@lang('ACS Attack')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_acs_attack') }}</span>
                                     </a>
                                 </li>
                                 <li id="button9" class="off ipiHintable" data-ipi-hint="ipiFleetMission9">
                                     <a id="missionButton9" href="" data-mission="9"
                                        data-ipi-highlight-step="ipiFleetMission9">
-                                        <span class="textlabel">@lang('Moon Destruction')</span>
+                                        <span class="textlabel">{{ __('t_ingame.fleet.mission_destroy_moon') }}</span>
                                     </a>
                                 </li>
                             </ul>
                             <br class="clearfloat">
                             <div id="missionNameWrapper" class="off">
-                                @lang('Mission:')
-                                <span id="missionName" class="missionName">@lang('Nothing has been selected')</span>
+                                {{ __('t_ingame.fleet.mission_label') }}:
+                                <span id="missionName" class="missionName">{{ __('t_ingame.fleet.no_selection') }}</span>
                                 <p class="mission_description"></p>
                             </div>
                             <div class="footer"></div>
@@ -1243,7 +1243,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                             <form name="sendForm" method="post"
                                   action="{{ route('overview.index') }}#TODO_page=ingame&amp;component=movement">
                                 <div id="mission">
-                                    <div class="briefing_overlay">@lang('You cannot start this mission.')</div>
+                                    <div class="briefing_overlay">{{ __('t_ingame.fleet.cannot_start_mission') }}</div>
                                     <div style="display:none">
                                         <input name="galaxy" type="hidden" value="7">
                                         <input name="system" type="hidden" value="158">
@@ -1260,8 +1260,8 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                         <!-- <input name="prioFood" type="hidden" value="1"> -->
 
                                     </div>
-                                    <div class="missionHeader">@lang('Briefing:')</div>
-                                    <div class="missionHeader">@lang('Load resources:')</div>
+                                    <div class="missionHeader">{{ __('t_ingame.fleet.briefing') }}:</div>
+                                    <div class="missionHeader">{{ __('t_ingame.fleet.load_resources') }}:</div>
                                     <!-- START: Briefing -->
                                     <div id="start" class="border5px">
                                         <ul id="fleetBriefingPart1" class="fleetBriefing">
@@ -1277,32 +1277,32 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                         </span>
                                             </li>
                                             <li>
-                                                @lang('Target:')
+                                                {{ __('t_ingame.fleet.target_label') }}:
                                                 <span class="value tooltip active tpd-hideOnClickOutside"
                                                       id="targetPlanet" title="">[{{ $planet->getPlanetCoordinates()->asString() }}] {{ $planet->getPlanetName() }}</span>
                                             </li>
                                             <li>
-                                                @lang('Duration of flight (one way):')
+                                                {{ __('t_ingame.fleet.flight_duration') }}:
                                                 <span class="value" id="duration">0:00:00 h</span>
                                             </li>
                                             <li>
-                                                @lang('Arrival:') <span class="value"><span
-                                                            id="arrivalTime">18.03.24 23:16:15</span> @lang('Clock')</span>
+                                                {{ __('t_ingame.fleet.arrival') }}: <span class="value"><span
+                                                            id="arrivalTime">18.03.24 23:16:15</span> {{ __('t_ingame.fleet.clock') }}</span>
                                             </li>
                                             <li>
-                                                @lang('Return:') <span class="value"><span
-                                                            id="returnTime">18.03.24 23:16:15</span> @lang('Clock')</span>
+                                                {{ __('t_ingame.fleet.return_trip') }}: <span class="value"><span
+                                                            id="returnTime">18.03.24 23:16:15</span> {{ __('t_ingame.fleet.clock') }}</span>
                                             </li>
                                             <li>
-                                                @lang('Deuterium consumption:')
+                                                {{ __('t_ingame.fleet.deuterium_consumption') }}:
                                                 <span class="value"><span id="consumption"><span class="undermark">0 (NaN%)</span></span></span>
                                             </li>
                                             <li>
-                                                @lang('Empty cargobays:') <span class="value" id="storage"><span
+                                                {{ __('t_ingame.fleet.empty_cargobays') }}: <span class="value" id="storage"><span
                                                             class="undermark">0</span></span>
                                             </li>
                                             <li id="holdtimeline" style="display: none;">
-                                                @lang('Hold time:')
+                                                {{ __('t_ingame.fleet.hold_time') }}:
                                                 <select name="holdingtime" id="holdingtime"
                                                         style="display: none;">
                                                     <option value="0">0</option>
@@ -1315,7 +1315,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                 </select>
                                             </li>
                                             <li id="expeditiontimeline">
-                                                @lang('Duration of expedition:')
+                                                {{ __('t_ingame.fleet.expedition_duration') }}:
                                                 <select name="expeditiontime" id="expeditiontime">
                                                     @for ($i = 1; $i <= $player->getResearchLevel('astrophysics'); $i++)
                                                         <option value="{{ $i }}" {{ $i == 1 ? 'selected' : '' }}>{{ $i }}</option>
@@ -1325,7 +1325,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             </li>
                                             <li>
                                                 <input type="hidden" name="speed" id="speed" value="10">
-                                                @lang('Speed:') (@lang('max.') <span id="maxspeed">1,000,000,000</span>)
+                                                {{ __('t_ingame.fleet.speed') }} ({{ __('t_ingame.fleet.max_abbr') }} <span id="maxspeed">1,000,000,000</span>)
                                             </li>
                                         </ul>
                                     </div>
@@ -1394,7 +1394,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                 </div>
                                             </div>
                                             <div class="fleet_dispatch_toggle_wrap" style="display: none;">
-                                                <span>@lang('Plunder food:')</span>
+                                                <span>{{ __('t_ingame.fleet.plunder_food') }}:</span>
                                                 <toggle-switch>
                                                     <input type="checkbox" value="None" id="lootFoodInput"
                                                            name="lootFoodOnAttack">
@@ -1413,10 +1413,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                                              data-ipi-highlight-step="ipiFleetCargoLoadAll">
                                                     </a>
                                                 </div>
-                                                @lang('all resources')
+                                                {{ __('t_ingame.fleet.all_resources') }}
                                             </div>
                                             <div id="loadRoom">
-                                                @lang('cargo bay:')
+                                                {{ __('t_ingame.fleet.cargo_bay') }}:
                                                 <div class="fleft bar_container" data-current-amount="0"
                                                      data-capacity="0">
                                                     <div class="filllevel_bar filllevel_overmark"></div>
@@ -1451,10 +1451,10 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                 <div id="naviActions">
                                     <a id="sendFleet" class="start ipiHintable off" href=""
                                        data-ipi-hint="ipiFleetSend">
-                                        <span style="padding-top:9px;">@lang('Send fleet')</span>
+                                        <span style="padding-top:9px;">{{ __('t_ingame.fleet.send_fleet') }}</span>
                                     </a>
                                     <a id="backToFleet1" class="back" href="">
-                                        <span style="font-size:12px; text-transform:uppercase;">@lang('Back')</span>
+                                        <span style="font-size:12px; text-transform:uppercase;">{{ __('t_ingame.fleet.back') }}</span>
                                     </a>
                                     <br class="clearfloat">
                                 </div>

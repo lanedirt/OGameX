@@ -7,21 +7,21 @@
 
 <div id="messagedetails">
 <div class="detail_msg_head">
-    <span class="msg_title new blue_txt"><span class="middlemark">@lang('Combat Report') {{ $defender_planet_name }} <figure
-                    class="planetIcon planet tooltip js_hideTipOnMobile" data-tooltip-title="Planet"></figure> <a
+    <span class="msg_title new blue_txt"><span class="middlemark">{{ __('t_ingame.messages.battle_report') }} {{ $defender_planet_name }} <figure
+                    class="planetIcon planet tooltip js_hideTipOnMobile" data-tooltip-title="{{ __('t_ingame.messages.battle_planet') }}"></figure> <a
                     href="{{ $defender_planet_link }}"
                     class="txt_link">[{{ $defender_planet_coords }}]</a></span></span>
     <span class="msg_date fright">{{ $report_datetime }}</span>
     <br>
-    <span class="msg_sender_label">From:</span>
-    <span class="msg_sender">Fleet Command</span>
+    <span class="msg_sender_label">{{ __('t_ingame.messages.battle_from') }}:</span>
+    <span class="msg_sender">{{ __('t_ingame.messages.battle_fleet_command') }}</span>
     <div class="footerHolder">
         <message-footer class="msg_actions">
             <message-footer-actions>
 
                 <gradient-button sq28="">
                     <button class="custom_btn tooltip msgFavouriteBtn" onclick="ogame.messages.flagArchived(this)"
-                            data-message-id="8196210" data-tooltip-title="mark as favourite"><img
+                            data-message-id="8196210" data-tooltip-title="{{ __('t_ingame.messages.battle_favourite') }}"><img
                                 src="/img/icons/basic/not_favorited.png" style="width:20px;height:20px;"></button>
                 </gradient-button>
 
@@ -34,15 +34,15 @@
                 </gradient-button>
                 <gradient-button sq28="">
                     <button class="custom_btn overlay tooltip msgShareBtn" data-message-id="8196210"
-                            data-overlay-title="share message"
+                            data-overlay-title="{{ __('t_ingame.messages.battle_share') }}"
                             data-target="https://s255-en.ogame.gameforge.com/game/index.php?page=componentOnly&amp;component=messagedetails&amp;action=loadShareReport&amp;ajax=1&amp;messageId=8196210"
-                            data-tooltip-title="share message"><img src="/img/icons/basic/share.png"
+                            data-tooltip-title="{{ __('t_ingame.messages.battle_share') }}"><img src="/img/icons/basic/share.png"
                                                                     style="width:20px;height:20px;"></button>
                 </gradient-button>
                 <gradient-button sq28="">
                     <button class="custom_btn tooltip msgAttackBtn"
                             onclick="window.location.href='https://s255-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;galaxy=2&amp;system=488&amp;position=1&amp;type=3&amp;mission=1';"
-                            data-message-id="8196210" data-tooltip-title="Attack">
+                            data-message-id="8196210" data-tooltip-title="{{ __('t_ingame.messages.battle_attack') }}">
                         <div class="msgAttackIconContainer"><img src="/img/icons/basic/attack.png"
                                                                  style="width:20px;height:20px;"></div>
                     </button>
@@ -52,14 +52,14 @@
                 <gradient-button sq28="">
                     <button class="custom_btn tooltip msgEspionageBtn"
                             onclick="sendShipsWithPopup(6,2,3,11,1,0); return false;" data-message-id="8196210"
-                            data-tooltip-title="Espionage"><img src="/img/icons/basic/espionage.png"
+                            data-tooltip-title="{{ __('t_ingame.messages.battle_espionage') }}"><img src="/img/icons/basic/espionage.png"
                                                                 style="width:20px;height:20px;"></button>
                 </gradient-button>
             </message-footer-actions>
             <message-footer-delete>
                 <gradient-button sq28="">
                     <button class="custom_btn tooltip msgDeleteBtn" onclick="ogame.messages.flagDeleted(this)"
-                            data-message-id="8196210" data-tooltip-title="delete"><img
+                            data-message-id="8196210" data-tooltip-title="{{ __('t_ingame.messages.battle_delete') }}"><img
                                 src="/img/icons/basic/refuse.png" style="width:20px;height:20px;"></button>
                 </gradient-button>
             </message-footer-delete>
@@ -82,7 +82,7 @@
 <div class="messageDetails">
     <div class="detailReport" data-combatreportid="8196210">
         <p class="detail_txt fleft">
-            @lang('Tactical retreat'):<span class="middlemark"> 1:100</span>
+            {{ __('t_ingame.messages.battle_tactical_retreat') }}:<span class="middlemark"> 1:100</span>
         </p>
         <p class="fleft">
             <span class="icon_info tooltip" style="margin: 5px" data-tooltip-title="Please note that Deathstars, Espionage Probes, Solar Satellites and any fleet on a ACS Defence mission cannot flee. Tactical retreats are also deactivated in honourable battles. A retreat may also have been manually deactivated or prevented by a lack of deuterium. Bandits and players with more than 500,000 points never retreat."> The defending fleet did not flee.</span>
@@ -109,7 +109,7 @@
             <div class="section_title">
                 <div class="c-left"></div>
                 <div class="c-right"></div>
-                <span class="title_txt">@lang('Total loot'):</span>
+                <span class="title_txt">{{ __('t_ingame.messages.battle_total_loot') }}:</span>
             </div>
             <ul class="detail_list clearfix">
                 <li class="resource_list_el_small">
@@ -140,9 +140,9 @@
             <div class="section_title">
                 <div class="c-left"></div>
                 <div class="c-right"></div>
-                <span class="title_txt">@lang('Debris (new)'):</span>
+                <span class="title_txt">{{ __('t_ingame.messages.battle_debris') }}:</span>
                 <span class="title_txt tooltipCustom" data-tooltip-title="{{ $debris_sum_formatted }}">{{ $debris_sum_formatted }}</span>
-                <span class="title_txt">=&gt; {{ $debris_recyclers_needed }} @lang('Recycler')</span>
+                <span class="title_txt">=&gt; {{ $debris_recyclers_needed }} {{ __('t_ingame.messages.battle_recycler') }}</span>
             </div>
             <ul class="detail_list clearfix">
                 <li class="resource_list_el_small">
@@ -163,9 +163,9 @@
             <div class="section_title">
                 <div class="c-left"></div>
                 <div class="c-right"></div>
-                <span class="title_txt">@lang('Mined after combat'):</span>
+                <span class="title_txt">{{ __('t_ingame.messages.battle_mined_after') }}:</span>
                 <span class="title_txt tooltipCustom" data-tooltip-title="{{ number_format($collected_debris_resources->sum(), 0, ',', '.') }}">{{ number_format($collected_debris_resources->sum(), 0, ',', '.') }}</span>
-                <span class="title_txt">=&gt; {{ $total_reapers_used }} @lang('Reaper')</span>
+                <span class="title_txt">=&gt; {{ $total_reapers_used }} {{ __('t_ingame.messages.battle_reaper') }}</span>
             </div>
             <ul class="detail_list clearfix">
                 <li class="resource_list_el_small">
@@ -199,9 +199,9 @@
             <div class="section_title">
                 <div class="c-left"></div>
                 <div class="c-right"></div>
-                <span class="title_txt">@lang('Debris fields (left)'):</span>
+                <span class="title_txt">{{ __('t_ingame.messages.battle_debris_left') }}:</span>
                 <span class="title_txt tooltipCustom" data-tooltip-title="{{ number_format($remaining_debris_resources->sum(), 0, ',', '.') }}">{{ number_format($remaining_debris_resources->sum(), 0, ',', '.') }}</span>
-                <span class="title_txt">=&gt; {{ $remaining_debris_recyclers_needed }} @lang('Recycler')</span>
+                <span class="title_txt">=&gt; {{ $remaining_debris_recyclers_needed }} {{ __('t_ingame.messages.battle_recycler') }}</span>
             </div>
             <ul class="detail_list clearfix">
                 <li class="resource_list_el_small">
@@ -222,8 +222,8 @@
 
         <br class="clearfloat">
         <div class="fightdetails">
-           @lang(' Honour points'):<br> (<span class="overmark">@lang('Dishonourable fight'): -0</span>)
-            @lang('vs'). (<span class="undermark">@lang('Honourable fight'): +0</span>)
+           {{ __('t_ingame.messages.battle_honour_points') }}:<br> (<span class="overmark">{{ __('t_ingame.messages.battle_dishonourable') }}: -0</span>)
+            {{ __('t_ingame.messages.battle_vs') }}. (<span class="undermark">{{ __('t_ingame.messages.battle_honourable') }}: +0</span>)
         </div>
 @if ($moon_created)
         <div class="og_video">
@@ -239,7 +239,7 @@
             </span>
             <br>
             <span style="color: #FFD700;">
-                @lang('A Light Fighter destroyed one Deathstar before the battle began!')
+                {{ __('t_ingame.messages.battle_hamill') }}
             </span>
         </div>
 @endif
@@ -251,19 +251,19 @@
                 <span id="attacker_select_combatreport" data-member-name="{{ $attacker_name }}">
                                               <span>{{ $attacker_name }} from {{ $attacker_planet_type }} {{ $attacker_planet_name }} [{{ $attacker_planet_coords }}]</span>
                                      </span>
-                <span class="participant_label {{ $attacker_class }}">@lang('Attacker'):</span>
+                <span class="participant_label {{ $attacker_class }}">{{ __('t_ingame.messages.battle_attacker') }}:</span>
             </div>
             <br class="clearfloat">
 
             <ul class="common_info fleft">
-                <li class="attackerCharacterClass">@lang('Class'): {{ $attacker_character_class ?? '' }}</li>
+                <li class="attackerCharacterClass">{{ __('t_ingame.messages.battle_class') }}: {{ $attacker_character_class ?? '' }}</li>
             </ul>
             <br class="clearfloat">
 
             <ul class="common_info fleft">
-                <li class="attackerWeapon">Weapons: {{ $attacker_weapons }}%</li>
-                <li class="attackerShield">Shields: {{ $attacker_shields }}%</li>
-                <li class="attackerCover">Armour: {{ $attacker_armor }}%</li>
+                <li class="attackerWeapon">{{ __('t_ingame.messages.battle_weapons') }}: {{ $attacker_weapons }}%</li>
+                <li class="attackerShield">{{ __('t_ingame.messages.battle_shields') }}: {{ $attacker_shields }}%</li>
+                <li class="attackerCover">{{ __('t_ingame.messages.battle_armour') }}: {{ $attacker_armor }}%</li>
             </ul>
             <br class="clearfloat">
 
@@ -271,7 +271,7 @@
                 <div class="c-left"></div>
                 <div class="c-right"></div>
                 <span class="title_txt textCenter">
-            <span class="h_battleships">@lang('Combat ships')</span>
+            <span class="h_battleships">{{ __('t_ingame.messages.battle_combat_ships') }}</span>
         </span>
             </div>
 
@@ -292,7 +292,7 @@
                 <div class="c-left"></div>
                 <div class="c-right"></div>
                 <span class="title_txt textCenter">
-                    <span class="h_civilships">@lang('Civil ships')</span>
+                    <span class="h_civilships">{{ __('t_ingame.messages.battle_civil_ships') }}</span>
                 </span>
             </div>
 
@@ -318,20 +318,20 @@
                             <span id="defender_select_combatreport" data-member-name="{{ $defender_name }}">
                                             <span class="tooltip js_hideTipOnMobile" data-tooltip-title="{{ $defender_name }} from {{ $defender_planet_name }} [{{ $defender_planet_coords }}]">{{ $defender_name }}</span>
                                     </span>
-                <span class="participant_label {{ $defender_class }}">@lang('Defender'):</span>
+                <span class="participant_label {{ $defender_class }}">{{ __('t_ingame.messages.battle_defender') }}:</span>
             </div>
             <br class="clearfloat">
 
             <ul class="common_info fleft">
-                <li class="defenderCharacterClass">@lang('Class'): {{ $defender_character_class ?? '' }}</li>
+                <li class="defenderCharacterClass">{{ __('t_ingame.messages.battle_class') }}: {{ $defender_character_class ?? '' }}</li>
             </ul>
 
             <br class="clearfloat">
 
             <ul class="common_info fleft">
-                <li class="defenderWeapon">@lang('Weapons'): {{ $defender_weapons }}%</li>
-                <li class="defenderShield">@lang('Shields'): {{ $defender_shields }}%</li>
-                <li class="defenderCover">@lang('Armour'): {{ $defender_armor }}%</li>
+                <li class="defenderWeapon">{{ __('t_ingame.messages.battle_weapons') }}: {{ $defender_weapons }}%</li>
+                <li class="defenderShield">{{ __('t_ingame.messages.battle_shields') }}: {{ $defender_shields }}%</li>
+                <li class="defenderCover">{{ __('t_ingame.messages.battle_armour') }}: {{ $defender_armor }}%</li>
                 <!-- <li class="resource_list_el_small">
                     <div class="resourceIconSmall population"></div>
                     <span class="res_value tooltipCustom overmark" data-tooltip-title="0">0</span>
@@ -343,7 +343,7 @@
                 <div class="c-left"></div>
                 <div class="c-right"></div>
                 <span class="title_txt textCenter">
-                <span class="h_battleships">@lang('Combat ships')</span>
+                <span class="h_battleships">{{ __('t_ingame.messages.battle_combat_ships') }}</span>
             </span>
             </div>
 
@@ -365,7 +365,7 @@
                 <div class="c-left"></div>
                 <div class="c-right"></div>
                 <span class="title_txt textCenter">
-                <span class="h_civilships">@lang('Civil ships')</span>
+                <span class="h_civilships">{{ __('t_ingame.messages.battle_civil_ships') }}</span>
             </span>
             </div>
 
@@ -386,7 +386,7 @@
                 <div class="c-left"></div>
                 <div class="c-right"></div>
                 <span class="title_txt textCenter">
-                <span class="h_civilships">@lang('Defences:')</span>
+                <span class="h_civilships">{{ __('t_ingame.messages.battle_defences') }}:</span>
             </span>
             </div>
 
@@ -410,7 +410,7 @@
         <div class="section_title">
             <div class="c-left"></div>
             <div class="c-right"></div>
-            <span class="title_txt">@lang('Repaired defences'): {{ $repaired_defenses_count }}</span>
+            <span class="title_txt">{{ __('t_ingame.messages.battle_repaired_def') }}: {{ $repaired_defenses_count }}</span>
         </div>
         <ul class="detail_list clearfix repairedDefensesContainer">
             @foreach ($repaired_defenses->units as $unit)
