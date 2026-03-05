@@ -461,4 +461,21 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         'description'      => 'Interplanetary Missiles destroy enemy defenses.',
         'description_long' => 'Interplanetary Missiles (IPM) are your offensive weapon to destroy the defenses of your target. Using state of the art tracking technology, each missile targets a certain number of defenses for destruction. Tipped with an anti-matter bomb, they deliver a destructive force so severe that destroyed shields and defenses cannot be repaired. The only way to counter these missiles is with ABMs.',
     ],
+
+    // ---- Shop Booster Items ----
+
+    'kraken' => [
+        'title'       => 'KRAKEN',
+        'description' => 'Reduces the building time of buildings currently under construction by <b>:duration</b>.',
+    ],
+
+    'detroid' => [
+        'title'       => 'DETROID',
+        'description' => 'Reduces the construction time of current shipyard-contracts by <b>:duration</b>.',
+    ],
+
+    'newtron' => [
+        'title'       => 'NEWTRON',
+        'description' => 'Reduces research time for all research that is currently in progress by <b>:duration</b>.',
+    ],
 ];

@@ -461,4 +461,21 @@ Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive
         'description'      => 'I Missili Interplanetari distruggono le difese nemiche.',
         'description_long' => 'I Missili Interplanetari (IPM) sono la tua arma offensiva per distruggere le difese del tuo bersaglio. Usando tecnologia di tracciamento all\'avanguardia, ogni missile prende di mira un certo numero di difese per la distruzione. Dotati di una bomba all\'antimateria, consegnano una forza distruttiva così grave che gli scudi e le difese distrutti non possono essere riparati. L\'unico modo per contrastare questi missili è con gli ABM.',
     ],
+
+    // ---- Oggetti Potenziamento Shop ----
+
+    'kraken' => [
+        'title'       => 'KRAKEN',
+        'description' => 'Riduce il tempo di costruzione degli edifici attualmente in costruzione di <b>:duration</b>.',
+    ],
+
+    'detroid' => [
+        'title'       => 'DETROID',
+        'description' => 'Riduce il tempo di costruzione dei contratti del cantiere navale attualmente in corso di <b>:duration</b>.',
+    ],
+
+    'newtron' => [
+        'title'       => 'NEWTRON',
+        'description' => 'Riduce il tempo di ricerca per tutte le ricerche attualmente in corso di <b>:duration</b>.',
+    ],
 ];

@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Outgame / Landing page - English
@@ -107,5 +106,4 @@ return [
         'wreckfield'      => 'Space Dock activated: some destroyed ships can be restored using the Space Dock.',
         'universe_big'    => 'Amount of Galaxies in the Universe',
     ],
-
 ];

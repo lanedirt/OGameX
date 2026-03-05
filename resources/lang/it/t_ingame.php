@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     // -------------------------------------------------------------------------
     // Pagina panoramica
     // -------------------------------------------------------------------------
@@ -606,7 +605,7 @@ return [
         'battle_planet'          => 'Pianeta',
         'battle_fleet_command'   => 'Comando flotta',
         'battle_from'            => 'Da',
-        'battle_tactical_retreat'=> 'Ritirata tattica',
+        'battle_tactical_retreat' => 'Ritirata tattica',
         'battle_total_loot'      => 'Bottino totale',
         'battle_debris'          => 'Detriti (nuovi)',
         'battle_recycler'        => 'Riciclatore',
@@ -631,6 +630,13 @@ return [
         'battle_delete'          => 'elimina',
         'battle_favourite'       => 'segna come preferito',
         'battle_hamill'          => 'Un Caccia Leggero ha distrutto un Incrociatore Stellare prima dell\'inizio della battaglia!',
+        'battle_retreat_tooltip'  => 'Le Stelle della Morte, le sonde spia, i satelliti solari e qualsiasi flotta in missione di difesa ACS non possono fuggire. Le ritirate tattiche sono disattivate anche nei combattimenti onorevoli. Una ritirata può anche essere stata disattivata manualmente o impedita dalla mancanza di deuterio. I banditi e i giocatori con più di 500.000 punti non si ritirano mai.',
+        'battle_no_flee'         => 'La flotta in difesa non è fuggita.',
+        'battle_rounds'          => 'Round',
+        'battle_start'           => 'Inizio',
+        'battle_player_from'     => 'da',
+        'battle_attacker_fires'  => 'L\':attacker spara un totale di :hits colpi contro il :defender con una forza totale di :strength. Gli scudi del :defender2 assorbono :absorbed punti di danno.',
+        'battle_defender_fires'  => 'Il :defender spara un totale di :hits colpi contro l\':attacker con una forza totale di :strength. Gli scudi dell\':attacker2 assorbono :absorbed punti di danno.',
     ],
 
     // -------------------------------------------------------------------------
@@ -1081,7 +1087,6 @@ return [
     // Layout (main.blade.php) — intestazione, menu, barra risorse, footer, JS loca
     // -------------------------------------------------------------------------
     'layout' => [
-
         // Barra intestazione
         'player'                    => 'Giocatore',
         'change_player_name'        => 'Cambia nome giocatore',
@@ -1259,16 +1264,171 @@ return [
 
     // ── Premium / Ufficiali ─────────────────────────────────────────────────
     'premium' => [
-        'recruit_officers'      => 'Recluta ufficiali',
-        'your_officers'         => 'I tuoi ufficiali',
-        'intro_text'            => 'Con i tuoi ufficiali puoi guidare il tuo impero a dimensioni oltre i tuoi sogni più sfrenati - tutto ciò di cui hai bisogno è un po\' di Materia Oscura e i tuoi lavoratori e consiglieri lavoreranno ancora più duramente!',
-        'info_dark_matter'      => 'Maggiori informazioni su: Materia Oscura',
-        'info_commander'        => 'Maggiori informazioni su: Comandante',
-        'info_admiral'          => 'Maggiori informazioni su: Ammiraglio',
-        'info_engineer'         => 'Maggiori informazioni su: Ingegnere',
-        'info_geologist'        => 'Maggiori informazioni su: Geologo',
-        'info_technocrat'       => 'Maggiori informazioni su: Tecnocrate',
-        'info_commanding_staff' => 'Maggiori informazioni su: Stato Maggiore',
+        'recruit_officers'           => 'Recluta ufficiali',
+        'your_officers'              => 'I tuoi ufficiali',
+        'intro_text'                 => 'Con i tuoi ufficiali puoi guidare il tuo impero a dimensioni oltre i tuoi sogni più sfrenati - tutto ciò di cui hai bisogno è un po\' di Materia Oscura e i tuoi lavoratori e consiglieri lavoreranno ancora più duramente!',
+        'info_dark_matter'           => 'Maggiori informazioni su: Materia Oscura',
+        'info_commander'             => 'Maggiori informazioni su: Comandante',
+        'info_admiral'               => 'Maggiori informazioni su: Ammiraglio',
+        'info_engineer'              => 'Maggiori informazioni su: Ingegnere',
+        'info_geologist'             => 'Maggiori informazioni su: Geologo',
+        'info_technocrat'            => 'Maggiori informazioni su: Tecnocrate',
+        'info_commanding_staff'      => 'Maggiori informazioni su: Stato Maggiore',
+        'hire_commander_tooltip'     => 'Assumi comandante|+40 preferiti, coda costruzione, scorciatoie, scanner trasporto, senza pubblicità* <span style=\'font-size: 10px; line-height: 10px\'>(*esclusi: riferimenti relativi al gioco)</span>',
+        'hire_admiral_tooltip'       => "Assumi ammiraglio|Slot flotta max +2,\nSpedizioni max +1,\nTasso fuga flotta migliorato,\nSlot salvataggio simulazione combattimento +20",
+        'hire_engineer_tooltip'      => 'Assumi ingegnere|Dimezza le perdite nelle difese, +10% produzione energia',
+        'hire_geologist_tooltip'     => 'Assumi geologo|+10% produzione miniere',
+        'hire_technocrat_tooltip'    => 'Assumi tecnocrate|+2 livelli spionaggio, 25% meno tempo di ricerca',
+        'remaining_officers'         => ':current di :max',
+        'benefit_fleet_slots_title'  => 'Puoi inviare più flotte contemporaneamente.',
+        'benefit_fleet_slots'        => 'Slot flotta max +1',
+        'benefit_energy_title'       => 'Le tue centrali elettriche e i satelliti solari producono il 2% di energia in più.',
+        'benefit_energy'             => '+2% produzione energia',
+        'benefit_mines_title'        => 'Le tue miniere producono il 2% in più.',
+        'benefit_mines'              => '+2% produzione miniere',
+        'benefit_espionage_title'    => '1 livello verrà aggiunto alla tua ricerca di spionaggio.',
+        'benefit_espionage'          => '+1 livelli spionaggio',
     ],
 
+    // ── Shop ────────────────────────────────────────────────────────────────
+    'shop' => [
+        'page_title'               => 'Negozio',
+        'tooltip_shop'             => 'Puoi acquistare oggetti qui.',
+        'tooltip_inventory'        => 'Qui puoi visualizzare una panoramica degli oggetti acquistati.',
+        'btn_shop'                 => 'Negozio',
+        'btn_inventory'            => 'Inventario',
+        'category_special_offers'  => 'Offerte speciali',
+        'category_all'             => 'tutti',
+        'category_resources'       => 'Risorse',
+        'category_buddy_items'     => 'Oggetti amico',
+        'category_construction'    => 'Costruzione',
+        'btn_get_more_resources'   => 'Ottieni più risorse',
+        'btn_purchase_dark_matter' => 'Acquista Materia Oscura',
+        'feature_coming_soon'      => 'Funzionalità in arrivo.',
+        // Livelli oggetto
+        'tier_gold'                => 'Oro',
+        'tier_silver'              => 'Argento',
+        'tier_bronze'              => 'Bronzo',
+        // Etichette tooltip schede oggetto
+        'tooltip_duration'         => 'Durata',
+        'duration_now'             => 'ora',
+        'tooltip_price'            => 'Prezzo',
+        'tooltip_in_inventory'     => 'In inventario',
+        'dark_matter'              => 'Materia Oscura',
+        'dm_abbreviation'          => 'MO',
+        'item_duration'            => 'Durata',
+        'now'                      => 'ora',
+        'item_price'               => 'Prezzo',
+        'item_in_inventory'        => 'In inventario',
+        // Chiavi JS loca (usate da inventory.js)
+        'loca_extend'              => 'Prolunga',
+        'loca_activate'            => 'Attiva',
+        'loca_buy_activate'        => 'Acquista e attiva',
+        'loca_buy_extend'          => 'Acquista e prolunga',
+        'loca_buy_dm'              => 'Non hai abbastanza Materia Oscura. Vuoi acquistarne altra adesso?',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Overlay di ricerca
+    // -------------------------------------------------------------------------
+
+    'search' => [
+        'input_hint'              => 'Inserisci il nome del giocatore, dell\'alleanza o del pianeta',
+        'search_btn'              => 'Cerca',
+        'tab_players'             => 'Nomi dei giocatori',
+        'tab_alliances'           => 'Alleanze/Tag',
+        'tab_planets'             => 'Nomi dei pianeti',
+        'no_search_term'          => 'Nessun termine di ricerca inserito',
+        'searching'               => 'Ricerca in corso...',
+        'search_failed'           => 'Ricerca fallita. Riprova.',
+        'no_results'              => 'Nessun risultato trovato',
+        'player_name'             => 'Nome giocatore',
+        'planet_name'             => 'Nome pianeta',
+        'coordinates'             => 'Coordinate',
+        'tag'                     => 'Tag',
+        'alliance_name'           => 'Nome alleanza',
+        'member'                  => 'Membri',
+        'points'                  => 'Punti',
+        'action'                  => 'Azione',
+        'apply_for_alliance'      => 'Candidati per questa alleanza',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Overlay delle note
+    // -------------------------------------------------------------------------
+
+    'notes' => [
+        'no_notes_found'          => 'Nessuna nota trovata',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Overlay abbandono/rinomina pianeta
+    // -------------------------------------------------------------------------
+
+    'planet_abandon' => [
+        // Descrizione pagina
+        'description'                   => 'Tramite questo menu puoi modificare i nomi dei pianeti e delle lune o abbandonarli completamente.',
+
+        // Sezione rinomina
+        'rename_heading'                => 'Rinomina',
+        'new_planet_name'               => 'Nuovo nome del pianeta',
+        'new_moon_name'                 => 'Nuovo nome della luna',
+        'rename_btn'                    => 'Rinomina',
+
+        // Tooltip (contenuto HTML – {{ }} lo codifica automaticamente negli attributi title)
+        'tooltip_rules_title'           => 'Regole',
+        'tooltip_rename_planet'         => 'Qui puoi rinominare il tuo pianeta.<br /><br />Il nome del pianeta deve avere una lunghezza compresa tra <span style="font-weight: bold;">2 e 20 caratteri</span>.<br />I nomi dei pianeti possono contenere lettere maiuscole e minuscole e numeri.<br />Possono contenere trattini, trattini bassi e spazi, che però non possono essere posizionati nel modo seguente:<br />- all\'inizio o alla fine del nome<br />- direttamente uno dopo l\'altro<br />- più di tre volte nel nome',
+        'tooltip_rename_moon'           => 'Qui puoi rinominare la tua luna.<br /><br />Il nome della luna deve avere una lunghezza compresa tra <span style="font-weight: bold;">2 e 20 caratteri</span>.<br />I nomi delle lune possono contenere lettere maiuscole e minuscole e numeri.<br />Possono contenere trattini, trattini bassi e spazi, che però non possono essere posizionati nel modo seguente:<br />- all\'inizio o alla fine del nome<br />- direttamente uno dopo l\'altro<br />- più di tre volte nel nome',
+
+        // Intestazioni sezione abbandono
+        'abandon_home_planet'           => 'Abbandona pianeta madre',
+        'abandon_moon'                  => 'Abbandona luna',
+        'abandon_colony'                => 'Abbandona colonia',
+        'abandon_home_planet_btn'       => 'Abbandona pianeta madre',
+        'abandon_moon_btn'              => 'Abbandona luna',
+        'abandon_colony_btn'            => 'Abbandona colonia',
+
+        // Avvisi abbandono
+        'home_planet_warning'           => 'Se abbandoni il tuo pianeta madre, al prossimo accesso verrai reindirizzato al pianeta che hai colonizzato successivamente.',
+        'items_lost_moon'               => 'Se hai attivato oggetti su una luna, questi verranno persi se abbandoni la luna.',
+        'items_lost_planet'             => 'Se hai attivato oggetti su un pianeta, questi verranno persi se abbandoni il pianeta.',
+
+        // Form conferma abbandono
+        'confirm_password'              => 'Conferma la cancellazione di :type [:coordinates] inserendo la tua password',
+        'confirm_btn'                   => 'Conferma',
+        'type_moon'                     => 'luna',
+        'type_planet'                   => 'pianeta',
+
+        // Messaggi di validazione (JS)
+        'validation_min_chars'          => 'Caratteri insufficienti',
+        'validation_pw_min'             => 'La password inserita è troppo corta (min. 4 caratteri)',
+        'validation_pw_max'             => 'La password inserita è troppo lunga (max. 20 caratteri)',
+        'validation_email'              => 'Devi inserire un indirizzo e-mail valido!',
+        'validation_special'            => 'Contiene caratteri non validi.',
+        'validation_underscore'         => 'Il nome non può iniziare o terminare con un trattino basso.',
+        'validation_hyphen'             => 'Il nome non può iniziare o terminare con un trattino.',
+        'validation_space'              => 'Il nome non può iniziare o terminare con uno spazio.',
+        'validation_max_underscores'    => 'Il nome non può contenere più di 3 trattini bassi in totale.',
+        'validation_max_hyphens'        => 'Il nome non può contenere più di 3 trattini.',
+        'validation_max_spaces'         => 'Il nome non può contenere più di 3 spazi in totale.',
+        'validation_consec_underscores' => 'Non è possibile usare due o più trattini bassi consecutivamente.',
+        'validation_consec_hyphens'     => 'Non è possibile usare due o più trattini consecutivamente.',
+        'validation_consec_spaces'      => 'Non è possibile usare due o più spazi consecutivamente.',
+
+        // Messaggi controller
+        'msg_invalid_planet_name'       => 'Il nuovo nome del pianeta non è valido. Riprova.',
+        'msg_invalid_moon_name'         => 'Il nuovo nome della luna non è valido. Riprova.',
+        'msg_planet_renamed'            => 'Pianeta rinominato con successo.',
+        'msg_moon_renamed'              => 'Luna rinominata con successo.',
+        'msg_wrong_password'            => 'Password errata!',
+        'msg_confirm_title'             => 'Conferma',
+        'msg_confirm_deletion'          => 'Se confermi la cancellazione di :type [:coordinates] (:name), tutti gli edifici, le navi e i sistemi di difesa presenti su quel :type verranno rimossi dal tuo account. Se hai oggetti attivi sul tuo :type, anche questi verranno persi quando lo abbandoni. Questo processo non può essere annullato!',
+        'msg_reference'                 => 'Avviso',
+        'msg_abandoned'                 => ':type abbandonato/a con successo!',
+        'msg_type_moon'                 => 'Luna',
+        'msg_type_planet'               => 'Pianeta',
+        'msg_yes'                       => 'Sì',
+        'msg_no'                        => 'No',
+        'msg_ok'                        => 'Ok',
+    ],
 ];

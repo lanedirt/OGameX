@@ -461,4 +461,21 @@ Na een gevecht is er tot 70% kans dat mislukte verdedigingsinstallaties weer in 
         'description'      => 'Interplanetaire raketten vernietigen vijandige verdedigingen.',
         'description_long' => 'Interplanetaire Raketten (IPR) zijn uw offensieve wapen om de verdedigingen van uw doelwit te vernietigen. Met behulp van geavanceerde volgingstechnologie richt elke raket zich op een bepaald aantal verdedigingen voor vernietiging. Voorzien van een antimateriebom leveren ze een zo ernstige destructieve kracht dat vernietigde schilden en verdedigingen niet kunnen worden gerepareerd. De enige manier om deze raketten te counteren is met ABR\'s.',
     ],
+
+    // ---- Shop Booster Items ----
+
+    'kraken' => [
+        'title'       => 'KRAKEN',
+        'description' => 'Verlaagt de bouwtijd van gebouwen die momenteel in aanbouw zijn met <b>:duration</b>.',
+    ],
+
+    'detroid' => [
+        'title'       => 'DETROID',
+        'description' => 'Verlaagt de constructietijd van huidige scheepswerf-contracten met <b>:duration</b>.',
+    ],
+
+    'newtron' => [
+        'title'       => 'NEWTRON',
+        'description' => 'Verlaagt de onderzoekstijd voor alle onderzoeken die momenteel bezig zijn met <b>:duration</b>.',
+    ],
 ];

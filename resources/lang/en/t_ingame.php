@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     // -------------------------------------------------------------------------
     // Overview page
     // -------------------------------------------------------------------------
@@ -183,7 +182,6 @@ return [
         'destroy_failed'    => 'Failed to destroy missiles',
         'error'             => 'An error occurred. Please try again.',
     ],
-
 
     // -------------------------------------------------------------------------
     // Fleet pages (dispatch + movement)
@@ -607,7 +605,7 @@ return [
         'battle_planet'          => 'Planet',
         'battle_fleet_command'   => 'Fleet Command',
         'battle_from'            => 'From',
-        'battle_tactical_retreat'=> 'Tactical retreat',
+        'battle_tactical_retreat' => 'Tactical retreat',
         'battle_total_loot'      => 'Total loot',
         'battle_debris'          => 'Debris (new)',
         'battle_recycler'        => 'Recycler',
@@ -632,6 +630,13 @@ return [
         'battle_delete'          => 'delete',
         'battle_favourite'       => 'mark as favourite',
         'battle_hamill'          => 'A Light Fighter destroyed one Deathstar before the battle began!',
+        'battle_retreat_tooltip'  => 'Please note that Deathstars, Espionage Probes, Solar Satellites and any fleet on a ACS Defence mission cannot flee. Tactical retreats are also deactivated in honourable battles. A retreat may also have been manually deactivated or prevented by a lack of deuterium. Bandits and players with more than 500,000 points never retreat.',
+        'battle_no_flee'         => 'The defending fleet did not flee.',
+        'battle_rounds'          => 'Rounds',
+        'battle_start'           => 'Start',
+        'battle_player_from'     => 'from',
+        'battle_attacker_fires'  => 'The :attacker fires a total of :hits shots at the :defender with a total strength of :strength. The :defender2\'s shields absorb :absorbed points of damage.',
+        'battle_defender_fires'  => 'The :defender fires a total of :hits shots at the :attacker with a total strength of :strength. The :attacker2\'s shields absorb :absorbed points of damage.',
     ],
 
     // -------------------------------------------------------------------------
@@ -1099,7 +1104,6 @@ return [
     // Layout (main.blade.php) — header, menu, resource bar, footer, JS loca
     // -------------------------------------------------------------------------
     'layout' => [
-
         // Header bar
         'player'                    => 'Player',
         'change_player_name'        => 'Change player name',
@@ -1277,16 +1281,171 @@ return [
 
     // ── Premium / Officers ──────────────────────────────────────────────────
     'premium' => [
-        'recruit_officers'      => 'Recruit Officers',
-        'your_officers'         => 'Your officers',
-        'intro_text'            => 'With your officers you can lead your empire to a size beyond your wildest dreams - all you need is some Dark Matter and your workers and advisers will work even harder!',
-        'info_dark_matter'      => 'More information about: Dark Matter',
-        'info_commander'        => 'More information about: Commander',
-        'info_admiral'          => 'More information about: Admiral',
-        'info_engineer'         => 'More information about: Engineer',
-        'info_geologist'        => 'More information about: Geologist',
-        'info_technocrat'       => 'More information about: Technocrat',
-        'info_commanding_staff' => 'More information about: Commanding Staff',
+        'recruit_officers'           => 'Recruit Officers',
+        'your_officers'              => 'Your officers',
+        'intro_text'                 => 'With your officers you can lead your empire to a size beyond your wildest dreams - all you need is some Dark Matter and your workers and advisers will work even harder!',
+        'info_dark_matter'           => 'More information about: Dark Matter',
+        'info_commander'             => 'More information about: Commander',
+        'info_admiral'               => 'More information about: Admiral',
+        'info_engineer'              => 'More information about: Engineer',
+        'info_geologist'             => 'More information about: Geologist',
+        'info_technocrat'            => 'More information about: Technocrat',
+        'info_commanding_staff'      => 'More information about: Commanding Staff',
+        'hire_commander_tooltip'     => 'Hire commander|+40 favorites, building queue, shortcuts, transport scanner, advertisement-free* <span style="font-size: 10px; line-height: 10px">(*excludes: game related references)</span>',
+        'hire_admiral_tooltip'       => "Hire admiral|Max. fleet slots +2,\nMax. expeditions +1,\nImproved fleet escape rate,\nCombat simulation save slots +20",
+        'hire_engineer_tooltip'      => 'Hire engineer|Halves losses to defenses, +10% energy production',
+        'hire_geologist_tooltip'     => 'Hire geologist|+10% mine production',
+        'hire_technocrat_tooltip'    => 'Hire technocrat|+2 espionage levels, 25% less research time',
+        'remaining_officers'         => ':current of :max',
+        'benefit_fleet_slots_title'  => 'You can dispatch more fleets at the same time.',
+        'benefit_fleet_slots'        => 'Max. fleet slots +1',
+        'benefit_energy_title'       => 'Your power stations and solar satellites produce 2% more energy.',
+        'benefit_energy'             => '+2% energy production',
+        'benefit_mines_title'        => 'Your mines produce 2% more.',
+        'benefit_mines'              => '+2% mine production',
+        'benefit_espionage_title'    => '1 level will be added to your espionage research.',
+        'benefit_espionage'          => '+1 espionage levels',
     ],
 
+    // ── Shop ────────────────────────────────────────────────────────────────
+    'shop' => [
+        'page_title'               => 'Shop',
+        'tooltip_shop'             => 'You can buy items here.',
+        'tooltip_inventory'        => 'You can get an overview of your purchased items here.',
+        'btn_shop'                 => 'Shop',
+        'btn_inventory'            => 'Inventory',
+        'category_special_offers'  => 'Special offers',
+        'category_all'             => 'all',
+        'category_resources'       => 'Resources',
+        'category_buddy_items'     => 'Buddy Items',
+        'category_construction'    => 'Construction',
+        'btn_get_more_resources'   => 'Get more resources',
+        'btn_purchase_dark_matter' => 'Purchase Dark Matter',
+        'feature_coming_soon'      => 'Feature coming soon.',
+        // Item tiers
+        'tier_gold'                => 'Gold',
+        'tier_silver'              => 'Silver',
+        'tier_bronze'              => 'Bronze',
+        // Tooltip labels inside item cards
+        'tooltip_duration'         => 'Duration',
+        'duration_now'             => 'now',
+        'tooltip_price'            => 'Price',
+        'tooltip_in_inventory'     => 'In Inventory',
+        'dark_matter'              => 'Dark Matter',
+        'dm_abbreviation'          => 'DM',
+        'item_duration'            => 'Duration',
+        'now'                      => 'now',
+        'item_price'               => 'Price',
+        'item_in_inventory'        => 'In Inventory',
+        // JS loca keys (consumed by inventory.js)
+        'loca_extend'              => 'Extend',
+        'loca_activate'            => 'Activate',
+        'loca_buy_activate'        => 'Buy and activate',
+        'loca_buy_extend'          => 'Buy and extend',
+        'loca_buy_dm'              => 'You don\'t have enough Dark Matter. Would you like to purchase some now?',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Search overlay
+    // -------------------------------------------------------------------------
+
+    'search' => [
+        'input_hint'              => 'Put in player, alliance or planet name',
+        'search_btn'              => 'Search',
+        'tab_players'             => 'Player names',
+        'tab_alliances'           => 'Alliances/Tags',
+        'tab_planets'             => 'Planet names',
+        'no_search_term'          => 'No search term entered',
+        'searching'               => 'Searching...',
+        'search_failed'           => 'Search failed. Please try again.',
+        'no_results'              => 'No results found',
+        'player_name'             => 'Player Name',
+        'planet_name'             => 'Planet Name',
+        'coordinates'             => 'Coordinates',
+        'tag'                     => 'Tag',
+        'alliance_name'           => 'Alliance name',
+        'member'                  => 'Member',
+        'points'                  => 'Points',
+        'action'                  => 'Action',
+        'apply_for_alliance'      => 'Apply for this alliance',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Notes overlay
+    // -------------------------------------------------------------------------
+
+    'notes' => [
+        'no_notes_found'          => 'No notes found',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Planet abandon / rename overlay
+    // -------------------------------------------------------------------------
+
+    'planet_abandon' => [
+        // Page description
+        'description'                   => 'Using this menu you can change planet names and moons or completely abandon them.',
+
+        // Rename section
+        'rename_heading'                => 'Rename',
+        'new_planet_name'               => 'New planet name',
+        'new_moon_name'                 => 'New name of the moon',
+        'rename_btn'                    => 'Rename',
+
+        // Tooltips (HTML content – escaped automatically by {{ }} in title attributes)
+        'tooltip_rules_title'           => 'Rules',
+        'tooltip_rename_planet'         => 'You can rename your planet here.<br /><br />The planet name has to be between <span style="font-weight: bold;">2 and 20 characters</span> long.<br />Planet names may comprise of lower and upper case letters as well as numbers.<br />They may contain hyphens, underscores and spaces - however these may not be placed as follows:<br />- at the beginning or at the end of the name<br />- directly next to one another<br />- more than three times in the name',
+        'tooltip_rename_moon'           => 'You can rename your moon here.<br /><br />The moon name has to be between <span style="font-weight: bold;">2 and 20 characters</span> long.<br />Moon names may comprise of lower and upper case letters as well as numbers.<br />They may contain hyphens, underscores and spaces - however these may not be placed as follows:<br />- at the beginning or at the end of the name<br />- directly next to one another<br />- more than three times in the name',
+
+        // Abandon section headings
+        'abandon_home_planet'           => 'Abandon home planet',
+        'abandon_moon'                  => 'Abandon Moon',
+        'abandon_colony'                => 'Abandon Colony',
+        'abandon_home_planet_btn'       => 'Abandon Home Planet',
+        'abandon_moon_btn'              => 'Abandon moon',
+        'abandon_colony_btn'            => 'Abandon Colony',
+
+        // Abandon warnings
+        'home_planet_warning'           => 'If you abandon your home planet, immediately upon your next login you will be directed to the planet that you colonised next.',
+        'items_lost_moon'               => 'If you have activated items on a moon, they will be lost if you abandon the moon.',
+        'items_lost_planet'             => 'If you have activated items on a planet, they will be lost if you abandon the planet.',
+
+        // Abandon confirm form
+        'confirm_password'              => 'Please confirm deletion of :type [:coordinates] by putting in your password',
+        'confirm_btn'                   => 'Confirm',
+        'type_moon'                     => 'moon',
+        'type_planet'                   => 'planet',
+
+        // Validation messages (JS)
+        'validation_min_chars'          => 'Not enough characters',
+        'validation_pw_min'             => 'The entered password is too short (min. 4 characters)',
+        'validation_pw_max'             => 'The entered password is too long (max. 20 characters)',
+        'validation_email'              => 'You need to enter a valid email address!',
+        'validation_special'            => 'Contains invalid characters.',
+        'validation_underscore'         => 'Your name may not start or end with an underscore.',
+        'validation_hyphen'             => 'Your name may not start or finish with a hyphen.',
+        'validation_space'              => 'Your name may not start or end with a space.',
+        'validation_max_underscores'    => 'Your name may not contain more than 3 underscores in total.',
+        'validation_max_hyphens'        => 'Your name may not contain more than 3 hyphens.',
+        'validation_max_spaces'         => 'Your name may not include more than 3 spaces in total.',
+        'validation_consec_underscores' => 'You may not use two or more underscores one after the other.',
+        'validation_consec_hyphens'     => 'You may not use two or more hyphens consecutively.',
+        'validation_consec_spaces'      => 'You may not use two or more spaces one after the other.',
+
+        // Controller messages
+        'msg_invalid_planet_name'       => 'The new planet name is invalid. Please try again.',
+        'msg_invalid_moon_name'         => 'The new moon name is invalid. Please try again.',
+        'msg_planet_renamed'            => 'Planet renamed successfully.',
+        'msg_moon_renamed'              => 'Moon renamed successfully.',
+        'msg_wrong_password'            => 'Wrong password!',
+        'msg_confirm_title'             => 'Confirm',
+        'msg_confirm_deletion'          => 'If you confirm the deletion of the :type [:coordinates] (:name), all buildings, ships and defense systems that are located on that :type will be removed from your account. If you have items active on your :type, these will also be lost when you give up the :type. This process cannot be reversed!',
+        'msg_reference'                 => 'Reference',
+        'msg_abandoned'                 => ':type has been abandoned successfully!',
+        'msg_type_moon'                 => 'Moon',
+        'msg_type_planet'               => 'Planet',
+        'msg_yes'                       => 'Yes',
+        'msg_no'                        => 'No',
+        'msg_ok'                        => 'Ok',
+    ],
 ];

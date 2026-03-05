@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     // -------------------------------------------------------------------------
     // Overzichtspagina
     // -------------------------------------------------------------------------
@@ -606,7 +605,7 @@ return [
         'battle_planet'          => 'Planeet',
         'battle_fleet_command'   => 'Vlootcommando',
         'battle_from'            => 'Van',
-        'battle_tactical_retreat'=> 'Tactische terugtrekking',
+        'battle_tactical_retreat' => 'Tactische terugtrekking',
         'battle_total_loot'      => 'Totale buit',
         'battle_debris'          => 'Puin (nieuw)',
         'battle_recycler'        => 'Recycler',
@@ -631,6 +630,13 @@ return [
         'battle_delete'          => 'verwijderen',
         'battle_favourite'       => 'markeer als favoriet',
         'battle_hamill'          => 'Een Lichte Jager heeft een Dodestar vernietigd voordat de strijd begon!',
+        'battle_retreat_tooltip'  => 'Let op: Dodestarren, Spionagesondes, Zonne-energiesatellieten en elke vloot op een ACS-verdedigingsmissie kunnen niet vluchten. Tactische terugtrekkingen zijn ook gedeactiveerd in eervolle gevechten. Een terugtrekking kan ook handmatig zijn gedeactiveerd of verhinderd door een gebrek aan deuterium. Bandieten en spelers met meer dan 500.000 punten trekken zich nooit terug.',
+        'battle_no_flee'         => 'De verdedigende vloot is niet gevlucht.',
+        'battle_rounds'          => 'Rondes',
+        'battle_start'           => 'Start',
+        'battle_player_from'     => 'van',
+        'battle_attacker_fires'  => 'De :attacker vuurt in totaal :hits schoten op de :defender met een totale sterkte van :strength. De schilden van de :defender2 absorberen :absorbed punten schade.',
+        'battle_defender_fires'  => 'De :defender vuurt in totaal :hits schoten op de :attacker met een totale sterkte van :strength. De schilden van de :attacker2 absorberen :absorbed punten schade.',
     ],
 
     // -------------------------------------------------------------------------
@@ -1081,7 +1087,6 @@ return [
     // Layout (main.blade.php) — header, menu, resourcebalk, footer, JS loca
     // -------------------------------------------------------------------------
     'layout' => [
-
         // Headerbalk
         'player'                    => 'Speler',
         'change_player_name'        => 'Spelernaam wijzigen',
@@ -1259,16 +1264,171 @@ return [
 
     // ── Premium / Officieren ────────────────────────────────────────────────
     'premium' => [
-        'recruit_officers'      => 'Officieren werven',
-        'your_officers'         => 'Jouw officieren',
-        'intro_text'            => 'Met jouw officieren kun je jouw imperium leiden naar een omvang voorbij je stoutste dromen - alles wat je nodig hebt is wat Donkere Materie en jouw werkers en adviseurs zullen nog harder werken!',
-        'info_dark_matter'      => 'Meer informatie over: Donkere Materie',
-        'info_commander'        => 'Meer informatie over: Commandant',
-        'info_admiral'          => 'Meer informatie over: Admiraal',
-        'info_engineer'         => 'Meer informatie over: Ingenieur',
-        'info_geologist'        => 'Meer informatie over: Geoloog',
-        'info_technocrat'       => 'Meer informatie over: Technocraat',
-        'info_commanding_staff' => 'Meer informatie over: Commandostaf',
+        'recruit_officers'           => 'Officieren werven',
+        'your_officers'              => 'Jouw officieren',
+        'intro_text'                 => 'Met jouw officieren kun je jouw imperium leiden naar een omvang voorbij je stoutste dromen - alles wat je nodig hebt is wat Donkere Materie en jouw werkers en adviseurs zullen nog harder werken!',
+        'info_dark_matter'           => 'Meer informatie over: Donkere Materie',
+        'info_commander'             => 'Meer informatie over: Commandant',
+        'info_admiral'               => 'Meer informatie over: Admiraal',
+        'info_engineer'              => 'Meer informatie over: Ingenieur',
+        'info_geologist'             => 'Meer informatie over: Geoloog',
+        'info_technocrat'            => 'Meer informatie over: Technocraat',
+        'info_commanding_staff'      => 'Meer informatie over: Commandostaf',
+        'hire_commander_tooltip'     => 'Commandant inhuren|+40 favorieten, bouwrij, snelkoppelingen, transportscanner, reclamevrij* <span style=\'font-size: 10px; line-height: 10px\'>(*uitgezonderd: spelgerelateerde referenties)</span>',
+        'hire_admiral_tooltip'       => "Admiraal inhuren|Max. vlootslots +2,\nMax. expedities +1,\nVerbeterde vluchtsnelheid vloot,\nOpslagslots gevechtssimulatie +20",
+        'hire_engineer_tooltip'      => 'Ingenieur inhuren|Halveert verliezen bij verdedigingen, +10% energieproductie',
+        'hire_geologist_tooltip'     => 'Geoloog inhuren|+10% mijnproductie',
+        'hire_technocrat_tooltip'    => 'Technocraat inhuren|+2 spionageniveaus, 25% minder onderzoekstijd',
+        'remaining_officers'         => ':current van :max',
+        'benefit_fleet_slots_title'  => 'Je kunt meer vloten tegelijkertijd sturen.',
+        'benefit_fleet_slots'        => 'Max. vlootslots +1',
+        'benefit_energy_title'       => 'Jouw energiecentrales en zonnesatellieten produceren 2% meer energie.',
+        'benefit_energy'             => '+2% energieproductie',
+        'benefit_mines_title'        => 'Jouw mijnen produceren 2% meer.',
+        'benefit_mines'              => '+2% mijnproductie',
+        'benefit_espionage_title'    => '1 niveau wordt toegevoegd aan jouw spionageonderzoek.',
+        'benefit_espionage'          => '+1 spionageniveaus',
     ],
 
+    // ── Shop ────────────────────────────────────────────────────────────────
+    'shop' => [
+        'page_title'               => 'Shop',
+        'tooltip_shop'             => 'Je kunt hier items kopen.',
+        'tooltip_inventory'        => 'Hier kun je een overzicht zien van je gekochte items.',
+        'btn_shop'                 => 'Shop',
+        'btn_inventory'            => 'Inventaris',
+        'category_special_offers'  => 'Speciale aanbiedingen',
+        'category_all'             => 'alle',
+        'category_resources'       => 'Grondstoffen',
+        'category_buddy_items'     => 'Buddy-items',
+        'category_construction'    => 'Constructie',
+        'btn_get_more_resources'   => 'Meer grondstoffen kopen',
+        'btn_purchase_dark_matter' => 'Donkere Materie kopen',
+        'feature_coming_soon'      => 'Functie komt binnenkort.',
+        // Item niveaus
+        'tier_gold'                => 'Goud',
+        'tier_silver'              => 'Zilver',
+        'tier_bronze'              => 'Brons',
+        // Tooltip-labels in itemkaarten
+        'tooltip_duration'         => 'Duur',
+        'duration_now'             => 'nu',
+        'tooltip_price'            => 'Prijs',
+        'tooltip_in_inventory'     => 'In inventaris',
+        'dark_matter'              => 'Donkere Materie',
+        'dm_abbreviation'          => 'DM',
+        'item_duration'            => 'Looptijd',
+        'now'                      => 'nu',
+        'item_price'               => 'Prijs',
+        'item_in_inventory'        => 'In inventaris',
+        // JS loca-sleutels (gebruikt door inventory.js)
+        'loca_extend'              => 'Verlengen',
+        'loca_activate'            => 'Activeren',
+        'loca_buy_activate'        => 'Kopen en activeren',
+        'loca_buy_extend'          => 'Kopen en verlengen',
+        'loca_buy_dm'              => 'Je hebt niet genoeg Donkere Materie. Wil je er nu wat kopen?',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Zoek-overlay
+    // -------------------------------------------------------------------------
+
+    'search' => [
+        'input_hint'              => 'Voer speler-, alliantie- of planeetnaam in',
+        'search_btn'              => 'Zoeken',
+        'tab_players'             => 'Spelernamen',
+        'tab_alliances'           => 'Allianties/Tags',
+        'tab_planets'             => 'Planeetnamen',
+        'no_search_term'          => 'Geen zoekterm ingevoerd',
+        'searching'               => 'Zoeken...',
+        'search_failed'           => 'Zoeken mislukt. Probeer het opnieuw.',
+        'no_results'              => 'Geen resultaten gevonden',
+        'player_name'             => 'Spelernaam',
+        'planet_name'             => 'Planeetnaam',
+        'coordinates'             => 'Coördinaten',
+        'tag'                     => 'Tag',
+        'alliance_name'           => 'Alliantienaam',
+        'member'                  => 'Leden',
+        'points'                  => 'Punten',
+        'action'                  => 'Actie',
+        'apply_for_alliance'      => 'Solliciteer bij deze alliantie',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Notitie-overlay
+    // -------------------------------------------------------------------------
+
+    'notes' => [
+        'no_notes_found'          => 'Geen notities gevonden',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Planeet verlaten/hernoemen overlay
+    // -------------------------------------------------------------------------
+
+    'planet_abandon' => [
+        // Paginabeschrijving
+        'description'                   => 'Via dit menu kun je planeetnamen en manen wijzigen of ze volledig verlaten.',
+
+        // Hernoemen sectie
+        'rename_heading'                => 'Hernoemen',
+        'new_planet_name'               => 'Nieuwe planeetnaam',
+        'new_moon_name'                 => 'Nieuwe naam van de maan',
+        'rename_btn'                    => 'Hernoemen',
+
+        // Tooltips (HTML-inhoud – {{ }} codeert automatisch in title-attributen)
+        'tooltip_rules_title'           => 'Regels',
+        'tooltip_rename_planet'         => 'Je kunt je planeet hier hernoemen.<br /><br />De planeetnaam moet tussen de <span style="font-weight: bold;">2 en 20 tekens</span> lang zijn.<br />Planeetnamen mogen bestaan uit kleine en grote letters en cijfers.<br />Ze mogen koppeltekens, underscores en spaties bevatten - deze mogen echter niet als volgt worden geplaatst:<br />- aan het begin of einde van de naam<br />- direct naast elkaar<br />- meer dan drie keer in de naam',
+        'tooltip_rename_moon'           => 'Je kunt je maan hier hernoemen.<br /><br />De maannaam moet tussen de <span style="font-weight: bold;">2 en 20 tekens</span> lang zijn.<br />Maannamen mogen bestaan uit kleine en grote letters en cijfers.<br />Ze mogen koppeltekens, underscores en spaties bevatten - deze mogen echter niet als volgt worden geplaatst:<br />- aan het begin of einde van de naam<br />- direct naast elkaar<br />- meer dan drie keer in de naam',
+
+        // Verlaten sectiekoppen
+        'abandon_home_planet'           => 'Thuisplaneet verlaten',
+        'abandon_moon'                  => 'Maan verlaten',
+        'abandon_colony'                => 'Kolonie verlaten',
+        'abandon_home_planet_btn'       => 'Thuisplaneet verlaten',
+        'abandon_moon_btn'              => 'Maan verlaten',
+        'abandon_colony_btn'            => 'Kolonie verlaten',
+
+        // Waarschuwingen bij verlaten
+        'home_planet_warning'           => 'Als je je thuisplaneet verlaat, word je bij je volgende login doorgestuurd naar de planeet die je daarna hebt gekoloniseerd.',
+        'items_lost_moon'               => 'Als je items hebt geactiveerd op een maan, gaan deze verloren als je de maan verlaat.',
+        'items_lost_planet'             => 'Als je items hebt geactiveerd op een planeet, gaan deze verloren als je de planeet verlaat.',
+
+        // Formulier bevestiging verlaten
+        'confirm_password'              => 'Bevestig de verwijdering van :type [:coordinates] door je wachtwoord in te voeren',
+        'confirm_btn'                   => 'Bevestigen',
+        'type_moon'                     => 'maan',
+        'type_planet'                   => 'planeet',
+
+        // Validatieberichten (JS)
+        'validation_min_chars'          => 'Niet genoeg tekens',
+        'validation_pw_min'             => 'Het ingevoerde wachtwoord is te kort (min. 4 tekens)',
+        'validation_pw_max'             => 'Het ingevoerde wachtwoord is te lang (max. 20 tekens)',
+        'validation_email'              => 'Je moet een geldig e-mailadres invoeren!',
+        'validation_special'            => 'Bevat ongeldige tekens.',
+        'validation_underscore'         => 'Je naam mag niet beginnen of eindigen met een underscore.',
+        'validation_hyphen'             => 'Je naam mag niet beginnen of eindigen met een koppelteken.',
+        'validation_space'              => 'Je naam mag niet beginnen of eindigen met een spatie.',
+        'validation_max_underscores'    => 'Je naam mag niet meer dan 3 underscores in totaal bevatten.',
+        'validation_max_hyphens'        => 'Je naam mag niet meer dan 3 koppeltekens bevatten.',
+        'validation_max_spaces'         => 'Je naam mag niet meer dan 3 spaties in totaal bevatten.',
+        'validation_consec_underscores' => 'Je mag niet twee of meer underscores achter elkaar gebruiken.',
+        'validation_consec_hyphens'     => 'Je mag niet twee of meer koppeltekens achter elkaar gebruiken.',
+        'validation_consec_spaces'      => 'Je mag niet twee of meer spaties achter elkaar gebruiken.',
+
+        // Controllerberichten
+        'msg_invalid_planet_name'       => 'De nieuwe planeetnaam is ongeldig. Probeer het opnieuw.',
+        'msg_invalid_moon_name'         => 'De nieuwe maannaam is ongeldig. Probeer het opnieuw.',
+        'msg_planet_renamed'            => 'Planeet succesvol hernoemd.',
+        'msg_moon_renamed'              => 'Maan succesvol hernoemd.',
+        'msg_wrong_password'            => 'Verkeerd wachtwoord!',
+        'msg_confirm_title'             => 'Bevestigen',
+        'msg_confirm_deletion'          => 'Als je de verwijdering van :type [:coordinates] (:name) bevestigt, worden alle gebouwen, schepen en verdedigingssystemen op die :type van je account verwijderd. Als je actieve items op je :type hebt, gaan deze ook verloren wanneer je de :type opgeeft. Dit proces kan niet ongedaan worden gemaakt!',
+        'msg_reference'                 => 'Melding',
+        'msg_abandoned'                 => ':type is succesvol verlaten!',
+        'msg_type_moon'                 => 'Maan',
+        'msg_type_planet'               => 'Planeet',
+        'msg_yes'                       => 'Ja',
+        'msg_no'                        => 'Nee',
+        'msg_ok'                        => 'Ok',
+    ],
 ];

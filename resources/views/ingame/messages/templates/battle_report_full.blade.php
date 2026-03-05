@@ -85,14 +85,14 @@
             {{ __('t_ingame.messages.battle_tactical_retreat') }}:<span class="middlemark"> 1:100</span>
         </p>
         <p class="fleft">
-            <span class="icon_info tooltip" style="margin: 5px" data-tooltip-title="Please note that Deathstars, Espionage Probes, Solar Satellites and any fleet on a ACS Defence mission cannot flee. Tactical retreats are also deactivated in honourable battles. A retreat may also have been manually deactivated or prevented by a lack of deuterium. Bandits and players with more than 500,000 points never retreat."> The defending fleet did not flee.</span>
+            <span class="icon_info tooltip" style="margin: 5px" data-tooltip-title="{{ __('t_ingame.messages.battle_retreat_tooltip') }}"> {{ __('t_ingame.messages.battle_no_flee') }}</span>
         </p>
         <!-- Rundenpagenator -->
         <ul class="combat_round_list">
-            <li>Rounds: </li>
+            <li>{{ __('t_ingame.messages.battle_rounds') }}: </li>
             <li class="round_id" data-round="0">
                 <span class="list_placeholder"></span>
-                <a href="#">Start</a>
+                <a href="#">{{ __('t_ingame.messages.battle_start') }}</a>
                 <span class="list_placeholder"></span>
             </li>
 @foreach ($rounds as $round)
@@ -249,7 +249,7 @@
             <div class="common_info">
 
                 <span id="attacker_select_combatreport" data-member-name="{{ $attacker_name }}">
-                                              <span>{{ $attacker_name }} from {{ $attacker_planet_type }} {{ $attacker_planet_name }} [{{ $attacker_planet_coords }}]</span>
+                                              <span>{{ $attacker_name }} {{ __('t_ingame.messages.battle_player_from') }} {{ $attacker_planet_type }} {{ $attacker_planet_name }} [{{ $attacker_planet_coords }}]</span>
                                      </span>
                 <span class="participant_label {{ $attacker_class }}">{{ __('t_ingame.messages.battle_attacker') }}:</span>
             </div>
@@ -316,7 +316,7 @@
         <div class="combat_participant defender defeated">
             <div class="common_info">
                             <span id="defender_select_combatreport" data-member-name="{{ $defender_name }}">
-                                            <span class="tooltip js_hideTipOnMobile" data-tooltip-title="{{ $defender_name }} from {{ $defender_planet_name }} [{{ $defender_planet_coords }}]">{{ $defender_name }}</span>
+                                            <span class="tooltip js_hideTipOnMobile" data-tooltip-title="{{ $defender_name }} {{ __('t_ingame.messages.battle_player_from') }} {{ $defender_planet_name }} [{{ $defender_planet_coords }}]">{{ $defender_name }}</span>
                                     </span>
                 <span class="participant_label {{ $defender_class }}">{{ __('t_ingame.messages.battle_defender') }}:</span>
             </div>
@@ -428,12 +428,24 @@
         <!-- WF information -->
         <!-- attacker WF information -->
         <p class="detail_txt">
-            The <span class="{{ $attacker_class }}">Attacker</span> fires a total of <span class="statistic_attacker hits">173</span> shots at the <span class="{{ $defender_class }}">Defender</span> with a total strength of <span class="statistic_attacker strength">67.042</span>.
-            The <span class="{{ $defender_class }}">defender</span>`s shields absorb <span class="statistic_defender absorbed">275</span> points of damage.
+            {!! __('t_ingame.messages.battle_attacker_fires', [
+                'attacker' => '<span class="' . $attacker_class . '">' . __('t_ingame.messages.battle_attacker') . '</span>',
+                'hits' => '<span class="statistic_attacker hits">173</span>',
+                'defender' => '<span class="' . $defender_class . '">' . __('t_ingame.messages.battle_defender') . '</span>',
+                'strength' => '<span class="statistic_attacker strength">67.042</span>',
+                'defender2' => '<span class="' . $defender_class . '">' . lcfirst(__('t_ingame.messages.battle_defender')) . '</span>',
+                'absorbed' => '<span class="statistic_defender absorbed">275</span>',
+            ]) !!}
         </p>
         <p class="detail_txt">
-            The <span class="{{ $defender_class }}">Defender</span> fires a total of <span class="statistic_defender hits">5</span> shots at the <span class="{{ $attacker_class }}">Attacker</span> with a total strength of <span class="statistic_defender strength">1.145</span>.
-            The <span class="{{ $attacker_class }}">attacker</span>`s shields absorb <span class="statistic_attacker absorbed">308</span> points of damage.
+            {!! __('t_ingame.messages.battle_defender_fires', [
+                'defender' => '<span class="' . $defender_class . '">' . __('t_ingame.messages.battle_defender') . '</span>',
+                'hits' => '<span class="statistic_defender hits">5</span>',
+                'attacker' => '<span class="' . $attacker_class . '">' . __('t_ingame.messages.battle_attacker') . '</span>',
+                'strength' => '<span class="statistic_defender strength">1.145</span>',
+                'attacker2' => '<span class="' . $attacker_class . '">' . lcfirst(__('t_ingame.messages.battle_attacker')) . '</span>',
+                'absorbed' => '<span class="statistic_attacker absorbed">308</span>',
+            ]) !!}
         </p>
         <!-- WF information END -->
 

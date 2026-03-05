@@ -122,13 +122,13 @@
                                 </a>
                             </div>
                             <div class="remaining tooltip " title="">
-                                <span class="remDate">0 of 5</span>
+                                <span class="remDate">{{ __('t_ingame.premium.remaining_officers', ['current' => 0, 'max' => 5]) }}</span>
                             </div>
                         </div>
                     </li>
 
                     <li class="allOfficers off">
-                        <span title="You can dispatch more fleets at the same time." class="tooltipCustom tooltipTop">Max. fleet slots +1</span><span title="Your power stations and solar satellites produce 2% more energy." class="tooltipCustom tooltipTop">+2% energy production</span><span title="Your mines produce 2% more." class="tooltipCustom tooltipTop">+2% mine production</span><span title="1 levels will be added to your espionage research." class="tooltipCustom tooltipTop">+1 espionage levels</span>            </li>
+                        <span title="{{ __('t_ingame.premium.benefit_fleet_slots_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_fleet_slots') }}</span><span title="{{ __('t_ingame.premium.benefit_energy_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_energy') }}</span><span title="{{ __('t_ingame.premium.benefit_mines_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_mines') }}</span><span title="{{ __('t_ingame.premium.benefit_espionage_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_espionage') }}</span>            </li>
                 </ul>
                 <br class="clearfloat">
                 <div class="footer"></div>

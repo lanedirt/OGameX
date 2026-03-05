@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Outgame / Landing page - Nederlands
@@ -107,5 +106,4 @@ return [
         'wreckfield'       => 'Ruimtedok geactiveerd: sommige vernietigde schepen kunnen worden hersteld met het Ruimtedok.',
         'universe_big'     => 'Aantal sterrenstelsels in het Universum',
     ],
-
 ];

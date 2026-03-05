@@ -37,7 +37,7 @@ class PlanetAbandonController extends OGameController
 
         // Validate planet name
         if ($player->planets->current()->isValidPlanetName($planetName) === false) {
-            $errorText = $player->planets->current()->isMoon() ? __('The new moon name is invalid. Please try again.') : __('The new planet name is invalid. Please try again.');
+            $errorText = $player->planets->current()->isMoon() ? __('t_ingame.planet_abandon.msg_invalid_moon_name') : __('t_ingame.planet_abandon.msg_invalid_planet_name');
 
             return response()->json([
                 'status' => 'error',
@@ -52,7 +52,7 @@ class PlanetAbandonController extends OGameController
         // Update planet name
         $player->planets->current()->setPlanetName($planetName);
 
-        $successText = $player->planets->current()->isMoon() ? __('Moon renamed successfully.') : __('Planet renamed successfully.');
+        $successText = $player->planets->current()->isMoon() ? __('t_ingame.planet_abandon.msg_moon_renamed') : __('t_ingame.planet_abandon.msg_planet_renamed');
 
         // Return JSON response
         return response()->json([
@@ -82,7 +82,7 @@ class PlanetAbandonController extends OGameController
                 'status' => 'error',
                 'errorbox' => [
                     'type' => 'fadeBox',
-                    'text' => __('Wrong password!'),
+                    'text' => __('t_ingame.planet_abandon.msg_wrong_password'),
                     'failed' => true,
                 ],
                 'newAjaxToken' => csrf_token(),
@@ -100,14 +100,14 @@ class PlanetAbandonController extends OGameController
         return response()->json([
             'errorbox' => [
                 'type' => 'decision',
-                'title' => __('Confirm'),
-                'text' => __('If you confirm the deletion of the :type [:coordinates] (:name), all buildings, ships and defense systems that are located on that :type will be removed from your account. If you have items active on your :type, these will also be lost when you give up the :type. This process cannot be reversed!', [
-                    'type' => $isMoon ? __('moon') : __('planet'),
+                'title' => __('t_ingame.planet_abandon.msg_confirm_title'),
+                'text' => __('t_ingame.planet_abandon.msg_confirm_deletion', [
+                    'type' => $isMoon ? __('t_ingame.planet_abandon.type_moon') : __('t_ingame.planet_abandon.type_planet'),
                     'coordinates' => $planetToDelete->getPlanetCoordinates()->asString(),
                     'name' => $planetToDelete->getPlanetName()
                 ]),
-                'buttonOk' => __('Yes'),
-                'buttonNOk' => __('No'),
+                'buttonOk' => __('t_ingame.planet_abandon.msg_yes'),
+                'buttonNOk' => __('t_ingame.planet_abandon.msg_no'),
                 'okFunction' => 'submit_planet_delete_form',
                 'nokFunction' => 'reload',
             ],
@@ -139,7 +139,7 @@ class PlanetAbandonController extends OGameController
                 'status' => 'error',
                 'errorbox' => [
                     'type' => 'fadeBox',
-                    'text' => __('Wrong password!'),
+                    'text' => __('t_ingame.planet_abandon.msg_wrong_password'),
                     'failed' => true,
                 ],
                 'newAjaxToken' => csrf_token(),
@@ -167,11 +167,11 @@ class PlanetAbandonController extends OGameController
             'status' => 'success',
             'errorbox' => [
                 'type' => 'notify',
-                'title' => __('Reference'),
-                'text' => __(':type has been abandoned successfully!', [
-                    'type' => $isMoon ? __('Moon') : __('Planet')
+                'title' => __('t_ingame.planet_abandon.msg_reference'),
+                'text' => __('t_ingame.planet_abandon.msg_abandoned', [
+                    'type' => $isMoon ? __('t_ingame.planet_abandon.msg_type_moon') : __('t_ingame.planet_abandon.msg_type_planet')
                 ]),
-                'buttonOk' => __('Ok'),
+                'buttonOk' => __('t_ingame.planet_abandon.msg_ok'),
                 'okFunction' => 'reloadPage',
             ],
             'newAjaxToken' => csrf_token(),

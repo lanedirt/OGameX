@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Outgame / Landing page - Italiano
@@ -107,5 +106,4 @@ return [
         'wreckfield'       => 'Cantiere Spaziale attivato: alcune navi distrutte possono essere ripristinate tramite il Cantiere Spaziale.',
         'universe_big'     => 'Numero di Galassie nell\'Universo',
     ],
-
 ];

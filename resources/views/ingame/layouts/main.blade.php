@@ -307,25 +307,23 @@
             </div>
             <div id="officers" class="  fright">
                 <a href="#TODO_=premium&amp;openDetail=2" class="tooltipHTML   commander js_hideTipOnMobile "
-                   title="Hire commander|&amp;#43;40 favorites, building queue, shortcuts, transport scanner, advertisement-free* <span style=&quot;font-size: 10px; line-height: 10px&quot;>(*excludes: game related references)</span>">
+                   title="{!! __('t_ingame.premium.hire_commander_tooltip') !!}">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
-                <a href="#TODO_page=premium&amp;openDetail=3" class="tooltipHTML    admiral js_hideTipOnMobile " title="Hire admiral|Max. fleet slots +2,
-Max. expeditions +1,
-Improved fleet escape rate,
-Combat simulation save slots +20">
+                <a href="#TODO_page=premium&amp;openDetail=3" class="tooltipHTML    admiral js_hideTipOnMobile "
+                   title="{!! __('t_ingame.premium.hire_admiral_tooltip') !!}">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
                 <a href="#TODO_page=premium&amp;openDetail=4" class="tooltipHTML    engineer js_hideTipOnMobile "
-                   title="Hire engineer|Halves losses to defenses, +10% energy production">
+                   title="{!! __('t_ingame.premium.hire_engineer_tooltip') !!}">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
                 <a href="#TODO_page=premium&amp;openDetail=5" class="tooltipHTML    geologist js_hideTipOnMobile "
-                   title="Hire geologist|+10% mine production">
+                   title="{!! __('t_ingame.premium.hire_geologist_tooltip') !!}">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
                 <a href="#TODO_page=premium&amp;openDetail=6" class="tooltipHTML    technocrat js_hideTipOnMobile "
-                   title="Hire technocrat|+2 espionage levels, 25% less research time">
+                   title="{!! __('t_ingame.premium.hire_technocrat_tooltip') !!}">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
             </div>
