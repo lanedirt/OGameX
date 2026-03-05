@@ -3,6 +3,7 @@
 namespace Tests\Console;
 
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\User;
 use OGame\Models\WreckField;
@@ -302,5 +303,72 @@ class CleanupWreckFieldsCommandTest extends TestCase
 
         $this->assertNotNull($wreckFieldAfter, 'Repairing wreck field should not be deleted if less than 72 hours');
         $this->assertEquals('repairing', $wreckFieldAfter->status);
+    }
+
+    public function test_auto_deployment_sends_message_to_player(): void
+    {
+        // Create a wreck field that started repairs more than 72 hours ago
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $this->planet->galaxy;
+        $wreckField->system = $this->planet->system;
+        $wreckField->planet = $this->planet->planet;
+        $wreckField->owner_player_id = $this->user->id;
+        $wreckField->status = 'repairing';
+        $wreckField->created_at = now()->subHours(80);
+        $wreckField->expires_at = now()->addHours(10);
+        $wreckField->repair_started_at = now()->subHours(73); // More than 72 hours ago
+        $wreckField->repair_completed_at = now()->subHours(73)->addMinutes(30); // 30 min repair time
+        $wreckField->space_dock_level = 5;
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 100, 'repair_progress' => 0]
+        ];
+        $wreckField->save();
+
+        // Run the command
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
+
+        // Verify the message was sent to the player
+        $message = Message::where('user_id', $this->user->id)
+            ->where('key', 'wreck_field_repair_completed')
+            ->first();
+
+        $this->assertNotNull($message, 'Message should be sent to player when ships are auto-deployed');
+        $this->assertEquals('wreck_field_repair_completed', $message->key);
+        $this->assertArrayHasKey('planet', $message->params);
+        $this->assertArrayHasKey('ship_count', $message->params);
+
+        // Verify the ship count is correct (35 or 36 for level 5 = 35.7% cap)
+        $expectedShips = (int) floor(100 * 0.357);
+        $this->assertEquals((string) $expectedShips, $message->params['ship_count']);
+    }
+
+    public function test_auto_deployment_does_not_send_message_for_recent_repairs(): void
+    {
+        // Create a wreck field that started repairs less than 72 hours ago
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $this->planet->galaxy;
+        $wreckField->system = $this->planet->system;
+        $wreckField->planet = $this->planet->planet;
+        $wreckField->owner_player_id = $this->user->id;
+        $wreckField->status = 'repairing';
+        $wreckField->created_at = now()->subHours(10);
+        $wreckField->expires_at = now()->addHours(62);
+        $wreckField->repair_started_at = now()->subHours(10); // Only 10 hours ago
+        $wreckField->repair_completed_at = now()->subHours(9)->addMinutes(30);
+        $wreckField->space_dock_level = 5;
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 100, 'repair_progress' => 0]
+        ];
+        $wreckField->save();
+
+        // Run the command
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
+
+        // Verify no message was sent
+        $message = Message::where('user_id', $this->user->id)
+            ->where('key', 'wreck_field_repair_completed')
+            ->first();
+
+        $this->assertNull($message, 'No message should be sent for repairs that started less than 72 hours ago');
     }
 }

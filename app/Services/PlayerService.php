@@ -697,7 +697,11 @@ class PlayerService
                             ->first();
 
                         if ($fleetMissionLock) {
-                            $fleetMissionService->updateMission($mission);
+                            try {
+                                $fleetMissionService->updateMission($mission);
+                            } catch (Exception $e) {
+                                throw new Exception('Could not update fleet mission with ID ' . $mission->id . ': ' . $e->getMessage());
+                            }
                         } else {
                             throw new Exception('Could not acquire update fleet mission update lock.');
                         }

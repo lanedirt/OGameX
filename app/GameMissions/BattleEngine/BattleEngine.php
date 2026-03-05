@@ -317,8 +317,14 @@ abstract class BattleEngine
         $wreckFieldPercentage = (100.0 - $this->settings->debrisFieldFromShips()) / 100;
 
         // Only ships (not defenses) can go into wreck fields
+        // Exclusions: espionage probes and solar satellites never create wrecks
         foreach ($defenderUnitsLost->units as $unit) {
             if ($unit->amount > 0 && $unit->unitObject->type === GameObjectType::Ship) {
+                // Skip espionage probes and solar satellites - they don't create wreckages
+                if (in_array($unit->unitObject->machine_name, ['espionage_probe', 'solar_satellite'], true)) {
+                    continue;
+                }
+
                 $wreckFieldCount = (int) floor($unit->amount * $wreckFieldPercentage);
                 if ($wreckFieldCount > 0) {
                     $wreckFieldData[] = [

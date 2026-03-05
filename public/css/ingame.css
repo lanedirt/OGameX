@@ -6329,17 +6329,6 @@ div.content-box-s .header h3 {
 
 #messages #planet.shortHeader { background-image: url("/img/icons/969c4e267c1a550aad41b8fd1debe4.jpg"); }
 #chat #planet.shortHeader { background-image: url("/img/icons/c02c34215b665f753ae3e062c680d9.jpg"); }
-#chat #planet h2 {
-    color: #fff;
-    font: bold 18px/22px Verdana,Arial,Helvetica,sans-serif;
-    height: 22px;
-    margin: 0 0 0 144px;
-    overflow: hidden;
-    padding-top: 7px;
-    white-space: nowrap;
-    width: 470px;
-    text-overflow: ellipsis;
-}
 
 #resourceSettings #planet.shortHeader { background-image: url("/img/icons/8a1aa7b42b1d117d9ebb04c97b6d6d.jpg"); }
 #movement #planet.shortHeader { background-image: url("/img/icons/9b0237402cdb812513f8a513a7d8e3.jpg"); }
@@ -10452,22 +10441,6 @@ figure.planetIcon.planet {
     position: absolute;
 }
 
-#chatpartner a {
-    text-decoration: underline;
-    color: inherit;
-}
-#chatpartner a.txt_link {
-    text-decoration: none;
-    float: left;
-}
-#chatpartner a.txt_link img {
-    vertical-align: middle;
-    margin-right: 2px;
-}
-#otherPlayerAllianceTag {
-    float: left;
-    margin: 0 3px 0 0;
-}
 #otherPlayerName {
     overflow: hidden;
     display: inline-block;
@@ -13972,9 +13945,6 @@ div#buddyCopyOverlay .code {
 /* ***************** Single Chat ******************************************** */
 
 .largeChatContainer { max-height: 500px; overflow: hidden; }
-#chat .largeChatContainer { overflow-y: auto; }
-#chat .largeChatContainer ul.chat { margin: 0; padding: 5px; list-style: none; }
-#chat .largeChatContainer ul.chat .chat_msg:first-child { margin-top: 0; }
 
 .chat_msg .msg_title { width: 270px; }
 

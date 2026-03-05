@@ -12,6 +12,7 @@ use OGame\GameConstants\UniverseConstants;
 use OGame\Http\Controllers\OGameController;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\DarkMatterService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
@@ -412,5 +413,32 @@ class DeveloperShortcutsController extends OGameController
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Failed to update dark matter: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Impersonate another user by username from the developer shortcuts page.
+     */
+    public function impersonate(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'username' => ['required', 'string'],
+        ]);
+
+        $currentUser = $request->user();
+        $targetUser = User::where('username', $validated['username'])->first();
+
+        if (!$targetUser) {
+            return redirect()->back()->with('error', __('User not found.'));
+        }
+
+        if ($currentUser && $currentUser->id === $targetUser->id) {
+            return redirect()->back()->with('error', __('You cannot impersonate yourself.'));
+        }
+
+        $manager = app('impersonate');
+        $manager->take($currentUser, $targetUser);
+
+        return redirect()->route('overview.index')
+            ->with('success', __('Now impersonating :username', ['username' => $targetUser->username]));
     }
 }
