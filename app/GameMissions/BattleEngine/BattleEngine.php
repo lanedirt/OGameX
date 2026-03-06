@@ -64,6 +64,9 @@ abstract class BattleEngine
         $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($primaryAttacker->player->getUser()) * 100);
 
         // Combine all attacker fleets for loot calculation
+        // TODO: In multi-attacker ACS battles, cargo capacity should be calculated per-fleet
+        // using each fleet owner's tech levels, then summed. Currently uses the initiator's
+        // tech for the combined fleet, which can over- or under-estimate total cargo capacity.
         $combinedAttackerFleet = new UnitCollection();
         foreach ($this->attackers as $attacker) {
             $combinedAttackerFleet->addCollection($attacker->units);

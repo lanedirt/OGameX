@@ -89,7 +89,6 @@ class AttackMission extends GameMission
         }
 
         $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, true);
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
         // Trigger defender planet update to make sure the battle uses up-to-date info.
         $defenderPlanet->update();
@@ -228,7 +227,12 @@ class AttackMission extends GameMission
                     // Fleet survived - create return mission with survivors
                     $fleetOwner = $this->playerServiceFactory->make($fleetResult->playerId);
 
-                    // Resources = surviving cargo (mission resources that survived) + loot share
+                    // TODO: Calculate per-fleet loot share (proportional to surviving cargo capacity)
+                    // and surviving cargo (mission resources proportional to cargo survival rate).
+                    // Currently lootShare and survivingCargo are zero — loot/cargo distribution
+                    // across multiple ACS fleets is slated for a future PR.
+                    // TODO: Include Reaper-collected debris share for multi-attacker battles.
+                    // Currently Reaper debris collection only works for single-attacker path.
                     $totalResources = new Resources(
                         $fleetResult->survivingCargo->metal->get() + $fleetResult->lootShare->metal->get(),
                         $fleetResult->survivingCargo->crystal->get() + $fleetResult->lootShare->crystal->get(),
@@ -405,6 +409,8 @@ class AttackMission extends GameMission
             }
         }
 
+        // TODO: In multi-attacker ACS battles, send battle report to all participating players,
+        // not just the initiator. Currently only the initiator and defender receive it.
         if ($attackerDestroyedFirstRound) {
             // Send simplified "fleet lost contact" message to attacker (no fleet or tech info)
             $coordinates = '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]';
