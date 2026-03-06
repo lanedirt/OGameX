@@ -5,6 +5,7 @@ namespace Tests;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -31,6 +32,14 @@ abstract class AccountTestCase extends TestCase
     protected int $userPlanetAmount = 2;
 
     protected int $currentPlanetId = 0;
+
+    /**
+     * Default computer technology level for newly created users.
+     * Tests that require a different level can override this property.
+     *
+     * @var int
+     */
+    protected int $defaultComputerTechnologyLevel = 5;
 
     /**
      * Test user main planet.
@@ -62,7 +71,7 @@ abstract class AccountTestCase extends TestCase
         parent::setUp();
 
         // Set default test time to 2024-01-01 00:00:00 to ensure all tests have the same starting point.
-        $this->travelTo(Carbon::create(2024, 1, 1, 0, 0, 0));
+        $this->travelTo(Date::create(2024, 1, 1, 0, 0, 0));
 
         // Set default server settings for all tests.
         $settingsService = resolve(SettingsService::class);
@@ -84,9 +93,6 @@ abstract class AccountTestCase extends TestCase
 
         // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();
-
-        // We should now automatically be logged in. Retrieve meta fields to verify.
-        $this->retrieveMetaFields();
     }
 
     /**
@@ -142,6 +148,28 @@ abstract class AccountTestCase extends TestCase
 
         // Check if we are authenticated after registration.
         $this->assertAuthenticated();
+
+        // Update currentUserId and planetService to reflect the new user.
+        $this->retrieveMetaFields();
+
+        // Set default computer technology level for newly created users.
+        $this->setDefaultComputerTechnology();
+    }
+
+    /**
+     * Set default computer technology level for newly created users.
+     * Tests that require a different level can override $defaultComputerTechnologyLevel.
+     *
+     * @return void
+     */
+    protected function setDefaultComputerTechnology(): void
+    {
+        if ($this->defaultComputerTechnologyLevel === 0) {
+            // Skip setting if level is 0 (default game behavior).
+            return;
+        }
+
+        $this->playerSetResearchLevel('computer_technology', $this->defaultComputerTechnologyLevel);
     }
 
     /**
@@ -940,6 +968,6 @@ abstract class AccountTestCase extends TestCase
      */
     protected function resetTestTime(): void
     {
-        Carbon::setTestNow($this->defaultTestTime);
+        $this->travelTo($this->defaultTestTime);
     }
 }
