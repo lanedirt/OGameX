@@ -14,7 +14,7 @@
     <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} @lang('Clock')</td>
     <td class="missionFleet">
         <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltip"
-             alt="" data-tooltip-title="@lang('ACS Attack')"/>
+             alt="" data-tooltip-title="@lang('Attack')"/>
     </td>
 
     <td class="originFleet">{{ $fleet_event_row->union_fleet_count }} / {{ $fleet_event_row->union_max_fleets }}</td>
@@ -91,11 +91,10 @@
             ---
         </td>
         <td class="descFleet">
-            @if ($member_fleet->user_id === auth()->id())
-                @lang('Own fleet')
-            @elseif ($member_fleet->user_id !== null)
+            @if ($member_fleet->user_id !== null && $member_fleet->user_id !== auth()->id())
                 <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $member_fleet->user_id }}" title="{{ $member_fleet->player_name }}"><span class="icon icon_chat"></span></a>
             @endif
+            @lang('Own fleet')
         </td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"

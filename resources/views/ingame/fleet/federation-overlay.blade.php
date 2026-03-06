@@ -14,7 +14,7 @@
             </div>
             <div class="col">
                 <span class="textBeefy">@lang('Union name')</span>
-                <input class="textInput fix" id="groupNameInput" type="text" value="" name="groupname">
+                <input class="textInput fix" id="groupNameInput" type="text" value="{{ $unionName ?? '' }}" name="groupname">
             </div>
             <br class="clearfloat">
         </div>

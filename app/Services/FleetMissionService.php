@@ -219,9 +219,9 @@ class FleetMissionService
      */
     public function missionTypeToLabel(int $missionType): string
     {
-        // ACS Attack (type 2) uses the same class as Attack (type 1) but needs a different label
+        // ACS Attack (type 2) uses the same class as Attack (type 1) and displays as "Attack"
         if ($missionType === 2) {
-            return 'ACS Attack';
+            return 'Attack';
         }
 
         return GameMissionFactory::getMissionById($missionType, [])->getName();

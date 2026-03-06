@@ -394,10 +394,82 @@ class FleetEventsController extends OGameController
                 continue;
             }
 
-            // Use the first fleet (initiator) as the basis for the summary row
-            $initiator = $memberFleets[0];
+            // Fetch ALL fleet missions in this union (including other players' fleets)
+            // so the expanded view and tooltip show the complete union composition.
+            $allUnionMissions = $union->activeFleetMissions()
+                ->where('canceled', 0)
+                ->orderBy('union_slot')
+                ->get();
+
+            // Build view models for all union member fleets
+            $allMemberViewModels = [];
+            // Index the current player's already-built view models by mission ID for reuse
+            $ownFleetViewModels = [];
             foreach ($memberFleets as $fleet) {
-                if ($fleet->id < $initiator->id) {
+                $ownFleetViewModels[$fleet->id] = $fleet;
+            }
+
+            foreach ($allUnionMissions as $row) {
+                if (isset($ownFleetViewModels[$row->id])) {
+                    // Reuse existing view model for current player's fleets
+                    $vm = $ownFleetViewModels[$row->id];
+                } else {
+                    // Build view model for foreign fleet
+                    $vm = new FleetEventRowViewModel();
+                    $vm->id = $row->id;
+                    $vm->real_mission_id = $row->id;
+                    $vm->mission_type = $row->mission_type;
+                    $vm->mission_label = $fleetMissionService->missionTypeToLabel($row->mission_type);
+                    $vm->mission_time_arrival = $row->time_arrival;
+                    $vm->time_departure = $row->time_departure;
+                    $vm->is_return_trip = false;
+                    $vm->is_recallable = false;
+                    $vm->active_recall_time = 0;
+                    $vm->union_id = $row->union_id;
+                    $vm->union_slot = $row->union_slot;
+                    $vm->user_id = $row->user_id;
+                    $vm->friendly_status = 'friendly';
+
+                    // Origin
+                    $vm->origin_planet_name = '';
+                    $vm->origin_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
+                    $vm->origin_planet_type = PlanetType::from($row->type_from);
+                    if ($row->planet_id_from !== null) {
+                        $originPlanet = $planetServiceFactory->make($row->planet_id_from);
+                        if ($originPlanet !== null) {
+                            $vm->origin_planet_name = $originPlanet->getPlanetName();
+                            $vm->origin_planet_coords = $originPlanet->getPlanetCoordinates();
+                        }
+                    }
+
+                    // Destination
+                    $vm->destination_planet_name = '';
+                    $vm->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
+                    $vm->destination_planet_type = PlanetType::from($row->type_to);
+                    if ($row->planet_id_to !== null) {
+                        $destPlanet = $planetServiceFactory->make($row->planet_id_to);
+                        if ($destPlanet !== null) {
+                            $vm->destination_planet_name = $destPlanet->getPlanetName();
+                            $vm->destination_planet_coords = $destPlanet->getPlanetCoordinates();
+                        }
+                    }
+
+                    $vm->fleet_unit_count = $fleetMissionService->getFleetUnitCount($row);
+                    $vm->fleet_units = $fleetMissionService->getFleetUnits($row);
+                    $vm->resources = new Resources(0, 0, 0, 0);
+                }
+
+                // Resolve player name for all fleets
+                $user = User::find($row->user_id);
+                $vm->player_name = $user !== null ? $user->username : 'Unknown';
+
+                $allMemberViewModels[] = $vm;
+            }
+
+            // Use the initiator (slot 1) as the basis for the summary row
+            $initiator = $allMemberViewModels[0];
+            foreach ($allMemberViewModels as $fleet) {
+                if (($fleet->union_slot ?? PHP_INT_MAX) < ($initiator->union_slot ?? PHP_INT_MAX)) {
                     $initiator = $fleet;
                 }
             }
@@ -407,7 +479,7 @@ class FleetEventsController extends OGameController
             $summaryRow->id = $unionId; // Use union ID as the row ID
             $summaryRow->union_id = $unionId;
             $summaryRow->mission_type = 2;
-            $summaryRow->mission_label = 'ACS Attack';
+            $summaryRow->mission_label = 'Attack';
             $summaryRow->mission_time_arrival = $union->time_arrival;
             $summaryRow->time_departure = $initiator->time_departure;
             $summaryRow->is_return_trip = false;
@@ -422,7 +494,7 @@ class FleetEventsController extends OGameController
             $summaryRow->origin_planet_type = $initiator->origin_planet_type;
 
             // Union stats
-            $summaryRow->union_fleet_count = $union->activeFleetMissions()->count();
+            $summaryRow->union_fleet_count = count($allMemberViewModels);
             $summaryRow->union_max_fleets = $union->max_fleets;
             $summaryRow->union_player_count = $union->getUniquePlayerCount();
             $summaryRow->union_max_players = $union->max_players;
@@ -430,12 +502,8 @@ class FleetEventsController extends OGameController
             // Total fleet unit count across all member fleets and per-player breakdown
             $totalUnits = 0;
             $playerBreakdown = [];
-            foreach ($memberFleets as $fleet) {
+            foreach ($allMemberViewModels as $fleet) {
                 $totalUnits += $fleet->fleet_unit_count;
-
-                // Resolve player name
-                $user = User::find($fleet->user_id);
-                $fleet->player_name = $user !== null ? $user->username : 'Unknown';
 
                 // Group by player, then by origin for union tooltip
                 $playerId = $fleet->user_id ?? 0;
@@ -470,8 +538,8 @@ class FleetEventsController extends OGameController
             $summaryRow->active_recall_time = 0;
             $summaryRow->union_player_breakdown = array_values($playerBreakdown);
 
-            // Attach member fleets for expanded view
-            $summaryRow->union_member_fleets = $memberFleets;
+            // Attach all member fleets (own + foreign) for expanded view
+            $summaryRow->union_member_fleets = $allMemberViewModels;
 
             $nonUnionEvents[] = $summaryRow;
         }

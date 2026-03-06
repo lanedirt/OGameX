@@ -1130,10 +1130,17 @@ class FleetController extends OGameController
             }
         }
 
+        // Determine the union name to pre-fill in the overlay
+        $unionName = 'KV' . $fleetMissionId;
+        if (isset($union) && $union instanceof FleetUnion) {
+            $unionName = $union->name ?? ('KV' . $union->id);
+        }
+
         return view('ingame.fleet.federation-overlay')->with([
             'fleetMissionId' => $fleetMissionId,
             'playerName' => $player->getUsername(false),
             'unionMembers' => $unionMembers,
+            'unionName' => $unionName,
         ]);
     }
 
