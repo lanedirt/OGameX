@@ -14,6 +14,7 @@ use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Lab404\Impersonate\Models\Impersonate;
 use OGame\Enums\CharacterClass;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -81,9 +82,10 @@ use Spatie\Permission\Traits\HasRoles;
  */
 class User extends Authenticatable
 {
-    use Notifiable;
     use HasFactory;
     use HasRoles;
+    use Impersonate;
+    use Notifiable;
 
     /**
      * Disable use of default "remember_token" laravel behavior.
@@ -262,5 +264,21 @@ class User extends Authenticatable
     public function hasCharacterClass(): bool
     {
         return $this->character_class !== null;
+    }
+
+    /**
+     * Only admins can impersonate other users.
+     */
+    public function canImpersonate(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Users can be impersonated except when they are the same as the impersonator (enforced in UI).
+     */
+    public function canBeImpersonated(): bool
+    {
+        return true;
     }
 }

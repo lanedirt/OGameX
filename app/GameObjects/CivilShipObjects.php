@@ -10,6 +10,7 @@ use OGame\GameObjects\Models\Fields\GameObjectRapidfire;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;
 use OGame\GameObjects\Models\Fields\GameObjectSpeedUpgrade;
 use OGame\GameObjects\Models\ShipObject;
+use OGame\Models\Enums\PlanetType;
 
 class CivilShipObjects
 {
@@ -191,6 +192,7 @@ class CivilShipObjects
             new GameObjectRequirement('laser_technology', 4),
         ];
         $crawler->price = new GameObjectPrice(2000, 2000, 1000, 0);
+        $crawler->valid_planet_types = [PlanetType::Planet];
         $crawler->properties = new GameObjectProperties($crawler, 4000, 1, 1, 0, 0, 0);
 
         $crawler->assets = new GameObjectAssets();
