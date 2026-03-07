@@ -24,11 +24,11 @@ class BuildingObjects
         // --- Metal Mine ---
         $metalMine = new BuildingObject();
         $metalMine->id = 1;
-        $metalMine->title = __('Metal Mine');
+        $metalMine->title = __('t_resources.metal_mine.title');
         $metalMine->machine_name = 'metal_mine';
         $metalMine->class_name = 'metalMine';
-        $metalMine->description = __('Used in the extraction of metal ore, metal mines are of primary importance to all emerging and established empires.');
-        $metalMine->description_long = 'Metal is the primary resource used in the foundation of your Empire. At greater depths, the mines can produce more output of viable metal for use in the construction of buildings, ships, defense systems, and research. As the mines drill deeper, more energy is required for maximum production. As metal is the most abundant of all resources available, its value is considered to be the lowest of all resources for trading.';
+        $metalMine->description = __('t_resources.metal_mine.description');
+        $metalMine->description_long = __('t_resources.metal_mine.description_long');
 
         $metalMine->price = new GameObjectPrice(60, 15, 0, 0, 1.5);
         $metalMine->valid_planet_types = [PlanetType::Planet];
@@ -48,11 +48,11 @@ class BuildingObjects
         // --- Crystal Mine ---
         $crystalMine = new BuildingObject();
         $crystalMine->id = 2;
-        $crystalMine->title = __('Crystal Mine');
+        $crystalMine->title = __('t_resources.crystal_mine.title');
         $crystalMine->machine_name = 'crystal_mine';
         $crystalMine->class_name = 'crystalMine';
-        $crystalMine->description = __('Crystals are the main resource used to build electronic circuits and form certain alloy compounds.');
-        $crystalMine->description_long = 'Crystal mines supply the main resource used to produce electronic circuits and from certain alloy compounds. Mining crystal consumes some one and half times more energy than a mining metal, making crystal more valuable. Almost all ships and all buildings require crystal. Most crystals required to build spaceships, however, are very rare, and like metal can only be found at a certain depth. Therefore, building mines in deeper strata will increase the amount of crystal produced.';
+        $crystalMine->description = __('t_resources.crystal_mine.description');
+        $crystalMine->description_long = __('t_resources.crystal_mine.description_long');
 
         $crystalMine->price = new GameObjectPrice(48, 24, 0, 0, 1.6);
         $crystalMine->valid_planet_types = [PlanetType::Planet];
@@ -72,11 +72,11 @@ class BuildingObjects
         // --- Deuterium Synthesizer ---
         $deuteriumSynthesizer = new BuildingObject();
         $deuteriumSynthesizer->id = 3;
-        $deuteriumSynthesizer->title = 'Deuterium Synthesizer';
+        $deuteriumSynthesizer->title = __('t_resources.deuterium_synthesizer.title');
         $deuteriumSynthesizer->machine_name = 'deuterium_synthesizer';
         $deuteriumSynthesizer->class_name = 'deuteriumSynthesizer';
-        $deuteriumSynthesizer->description = 'Deuterium Synthesizers draw the trace Deuterium content from the water on a planet.';
-        $deuteriumSynthesizer->description_long = 'Deuterium is also called heavy hydrogen. It is a stable isotope of hydrogen with a natural abundance in the oceans of colonies of approximately one atom in 6500 of hydrogen (~154 PPM). Deuterium thus accounts for approximately 0.015% (on a weight basis, 0.030%) of all. Deuterium is processed by special synthesizers which can separate the water from the Deuterium using specially designed centrifuges. The upgrade of the synthesizer allows for increasing the amount of Deuterium deposits processed. Deuterium is used when carrying out sensor phalanx scans, viewing galaxies, as fuel for ships, and performing specialized research upgrades.';
+        $deuteriumSynthesizer->description = __('t_resources.deuterium_synthesizer.description');
+        $deuteriumSynthesizer->description_long = __('t_resources.deuterium_synthesizer.description_long');
 
         $deuteriumSynthesizer->price = new GameObjectPrice(225, 75, 0, 0, 1.5);
         $deuteriumSynthesizer->valid_planet_types = [PlanetType::Planet];
@@ -96,11 +96,11 @@ class BuildingObjects
         // --- Solar Plant ---
         $solarPlant = new BuildingObject();
         $solarPlant->id = 4;
-        $solarPlant->title = 'Solar Plant';
+        $solarPlant->title = __('t_resources.solar_plant.title');
         $solarPlant->machine_name = 'solar_plant';
         $solarPlant->class_name = 'solarPlant';
-        $solarPlant->description = 'Solar power plants absorb energy from solar radiation. All mines need energy to operate.';
-        $solarPlant->description_long = 'Gigantic solar arrays are used to generate power for the mines and the deuterium synthesizer. As the solar plant is upgraded, the surface area of the photovoltaic cells covering the planet increases, resulting in a higher energy output across the power grids of your planet.';
+        $solarPlant->description = __('t_resources.solar_plant.description');
+        $solarPlant->description_long = __('t_resources.solar_plant.description_long');
 
         $solarPlant->price = new GameObjectPrice(75, 30, 0, 0, 1.5);
         $solarPlant->valid_planet_types = [PlanetType::Planet];
@@ -118,16 +118,11 @@ class BuildingObjects
         // --- Fusion Reactor ---
         $fusionReactor = new BuildingObject();
         $fusionReactor->id = 12;
-        $fusionReactor->title = 'Fusion Reactor';
+        $fusionReactor->title = __('t_resources.fusion_plant.title');
         $fusionReactor->machine_name = 'fusion_plant';
         $fusionReactor->class_name = 'fusionPlant';
-        $fusionReactor->description = 'The fusion reactor uses deuterium to produce energy.';
-        $fusionReactor->description_long = 'In fusion power plants, hydrogen nuclei are fused into helium nuclei under enormous temperature and pressure, releasing tremendous amounts of energy. For each gram of Deuterium consumed, up to 41,32*10^-13 Joule of energy can be produced; with 1 g you are able to produce 172 MWh energy.
-
-        Larger reactor complexes use more deuterium and can produce more energy per hour. The energy effect could be increased by researching energy technology.
-
-        The energy production of the fusion plant is calculated like that:
-        30 * [Level Fusion Plant] * (1,05 + [Level Energy Technology] * 0,01) ^ [Level Fusion Plant]';
+        $fusionReactor->description = __('t_resources.fusion_plant.description');
+        $fusionReactor->description_long = __('t_resources.fusion_plant.description_long');
 
         $fusionReactor->price = new GameObjectPrice(900, 360, 180, 0, 1.8);
         $fusionReactor->valid_planet_types = [PlanetType::Planet];
@@ -151,13 +146,11 @@ class BuildingObjects
         // --- Metal Storage ---
         $metalStorage = new BuildingObject();
         $metalStorage->id = 22;
-        $metalStorage->title = 'Metal Storage';
+        $metalStorage->title = __('t_resources.metal_store.title');
         $metalStorage->machine_name = 'metal_store';
         $metalStorage->class_name = 'metalStorage';
-        $metalStorage->description = 'Provides storage for excess metal.';
-        $metalStorage->description_long = 'This giant storage facility is used to store metal ore. Each level of upgrading increases the amount of metal ore that can be stored. If the stores are full, no further metal will be mined.
-
-        The Metal Storage protects a certain percentage of the mine`s daily production (max. 10 percent).';
+        $metalStorage->description = __('t_resources.metal_store.description');
+        $metalStorage->description_long = __('t_resources.metal_store.description_long');
 
         $metalStorage->price = new GameObjectPrice(1000, 0, 0, 0, 2);
 
@@ -173,14 +166,11 @@ class BuildingObjects
         // --- Crystal Storage ---
         $crystalStorage = new BuildingObject();
         $crystalStorage->id = 23;
-        $crystalStorage->title = 'Crystal Storage';
+        $crystalStorage->title = __('t_resources.crystal_store.title');
         $crystalStorage->machine_name = 'crystal_store';
         $crystalStorage->class_name = 'crystalStorage';
-        $crystalStorage->description = 'Provides storage for excess crystal.';
-
-        $crystalStorage->description_long = 'The unprocessed crystal will be stored in these giant storage halls in the meantime. With each level of upgrade, it increases the amount of crystal can be stored. If the crystal stores are full, no further crystal will be mined.
-
-        The Crystal Storage protects a certain percentage of the mine`s daily production (max. 10 percent).';
+        $crystalStorage->description = __('t_resources.crystal_store.description');
+        $crystalStorage->description_long = __('t_resources.crystal_store.description_long');
         $crystalStorage->price = new GameObjectPrice(1000, 500, 0, 0, 2);
         $crystalStorage->storage = new GameObjectStorage();
         $crystalStorage->storage->crystal = 'return  5000 * floor(2.5 * exp(20 * $object_level / 33));';
@@ -194,13 +184,11 @@ class BuildingObjects
         // --- Deuterium Tank ---
         $deuteriumTank = new BuildingObject();
         $deuteriumTank->id = 24;
-        $deuteriumTank->title = 'Deuterium Tank';
+        $deuteriumTank->title = __('t_resources.deuterium_store.title');
         $deuteriumTank->machine_name = 'deuterium_store';
         $deuteriumTank->class_name = 'deuteriumStorage';
-        $deuteriumTank->description = 'Giant tanks for storing newly-extracted deuterium.';
-        $deuteriumTank->description_long = 'The Deuterium tank is for storing newly-synthesized deuterium. Once it is processed by the synthesizer, it is piped into this tank for later use. With each upgrade of the tank, the total storage capacity is increased. Once the capacity is reached, no further Deuterium will be synthesized.
-
-        The Deuterium Tank protects a certain percentage of the synthesizer`s daily production (max. 10 percent).';
+        $deuteriumTank->description = __('t_resources.deuterium_store.description');
+        $deuteriumTank->description_long = __('t_resources.deuterium_store.description_long');
 
         $deuteriumTank->price = new GameObjectPrice(1000, 1000, 0, 0, 2);
         $deuteriumTank->storage = new GameObjectStorage();

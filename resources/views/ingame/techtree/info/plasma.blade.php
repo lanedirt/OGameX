@@ -2,10 +2,10 @@
 <table class="general_details">
     <thead>
     <tr>
-        <th>Level</th>
-        <th>Metal bonus %</th>
-        <th>Crystal bonus %</th>
-        <th>Deuterium bonus %</th>
+        <th>{{ __('t_ingame.techtree.col_level') }}</th>
+        <th>{{ __('t_ingame.techtree.plasma_metal_bonus') }}</th>
+        <th>{{ __('t_ingame.techtree.plasma_crystal_bonus') }}</th>
+        <th>{{ __('t_ingame.techtree.plasma_deuterium_bonus') }}</th>
     </tr>
     </thead>
     <tbody>

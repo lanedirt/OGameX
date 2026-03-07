@@ -12,15 +12,15 @@
     <!-- JAVASCRIPT -->
     <script type="text/javascript">
         var textContent = [];
-        textContent[0] = "@lang('Diameter'):";
+        textContent[0] = "{{ __('t_ingame.overview.diameter') }}:";
         textContent[1] = "{!! $planet_diameter !!}km (<span>{{ $building_count }}<\/span>\/<span>{{ $max_building_count }}<\/span>)";
-        textContent[2] = "@lang('Temperature'):";
+        textContent[2] = "{{ __('t_ingame.overview.temperature') }}:";
         textContent[3] = "{!! $planet_temp_min !!}\u00b0C to {!! $planet_temp_max !!}\u00b0C";
-        textContent[4] = "@lang('Position'):";
-        textContent[5] = "<a  href=\"{{ route('galaxy.index', ['galaxy' => $planet_galaxy, 'system' => $planet_system, 'position' => $planet_position])  }}\" >[{!! $planet_coordinates !!}]<\/a>";
-        textContent[6] = "@lang('Points'):";
-        textContent[7] = "<a href='{{ route('highscore.index')  }}'>{{ $user_points }} (Place {!! $user_rank !!} of {!! $max_rank !!})<\/a>";
-        textContent[8] = "@lang('Honour points'):";
+        textContent[4] = "{{ __('t_ingame.overview.position') }}:";
+        textContent[5] = "<a  href=\"{{ route('galaxy.index', ['galaxy' => 4, 'system' => 4, 'position' => 4])  }}\" >[{!! $planet_coordinates !!}]<\/a>";
+        textContent[6] = "{{ __('t_ingame.overview.points') }}:";
+        textContent[7] = "<a href='{{ route('highscore.index')  }}'>{{ $user_points }} ({{ __('t_ingame.overview.score_place') }} {!! $user_rank !!} {{ __('t_ingame.overview.score_of') }} {!! $max_rank !!})<\/a>";
+        textContent[8] = "{{ __('t_ingame.overview.honour_points') }}:";
         textContent[9] = "0";
 
         var textDestination = [];
@@ -40,12 +40,12 @@
 
         @if($planet_move)
         var planetMoveLoca = {
-            "askTitle": "Resettle Planet",
-            "askCancel": "Are you sure that you wish to cancel this planet relocation? The reserved position will be released.",
-            "yes": "yes",
-            "no": "No",
-            "success": "The planet relocation was successfully cancelled.",
-            "error": "Error"
+            "askTitle": "{{ __('t_ingame.planet_move.resettle_title') }}",
+            "askCancel": "{{ __('t_ingame.planet_move.cancel_confirm') }}",
+            "yes": "{{ __('t_ingame.shared.yes') }}",
+            "no": "{{ __('t_ingame.shared.no') }}",
+            "success": "{{ __('t_ingame.planet_move.cancel_success') }}",
+            "error": "{{ __('t_ingame.shared.error') }}"
         };
         var planetMoveCooldown = {{ $planet_move_countdown }};
         new SimpleCountdownTimer('#moveCountdown', {{ $planet_move_countdown }}, '{{ route('overview.index') }}');
@@ -59,7 +59,7 @@
         function cancelProduction(id, listid, question) {
             cancelProduction_id = id;
             production_listid = listid;
-            errorBoxDecision("Caution", "" + question + "", "yes", "No", cancelProductionStart);
+            errorBoxDecision("{{ __('t_ingame.shared.caution') }}", "" + question + "", "{{ __('t_ingame.shared.yes') }}", "{{ __('t_ingame.shared.no') }}", cancelProductionStart);
         }
 
         function cancelProductionStart() {
@@ -69,7 +69,7 @@
         function cancelResearch(id, listid, question) {
             cancelProduction_id = id;
             production_listid = listid;
-            errorBoxDecision("Caution", "" + question + "", "yes", "No", cancelResearchStart);
+            errorBoxDecision("{{ __('t_ingame.shared.caution') }}", "" + question + "", "{{ __('t_ingame.shared.yes') }}", "{{ __('t_ingame.shared.no') }}", cancelResearchStart);
         }
 
         function cancelResearchStart() {
@@ -103,7 +103,7 @@
                     <div id="moon">
                         <a href="{{ request()->url() }}?{{ http_build_query([...request()->query(), 'cp' => $other_planet->getPlanetId()]) }}"
                            class="tooltipBottom js_hideTipOnMobile"
-                           title="@lang('Switch to moon') {{ $other_planet->getPlanetName() }}">
+                           title="{{ __('t_ingame.overview.switch_to_moon') }} {{ $other_planet->getPlanetName() }}">
                             <img alt="{{ $other_planet->getPlanetName() }}" src="{!! asset('img/moons/big/' . $other_planet->getPlanetImageType() . '.gif') !!}">
                         </a>
                     </div>
@@ -111,7 +111,7 @@
                     <div id="planet_as_moon">
                         <a href="{{ request()->url() }}?{{ http_build_query([...request()->query(), 'cp' => $other_planet->getPlanetId()]) }}"
                            class="tooltipBottom js_hideTipOnMobile"
-                           title="@lang('Switch to planet') {{ $other_planet->getPlanetName() }}">
+                           title="{{ __('t_ingame.overview.switch_to_planet') }} {{ $other_planet->getPlanetName() }}">
                             <img alt="{{ $other_planet->getPlanetName() }}" src="{!! asset('img/planets/' . $other_planet->getPlanetBiomeType() . '_moon_view.jpg') !!}">
                         </a>
                     </div>
@@ -121,11 +121,11 @@
                     <h2>
                         <a href="javascript:void(0);" class="openPlanetRenameGiveupBox">
 
-                            <p class="planetNameOverview">@lang('Overview') -</p>
+                            <p class="planetNameOverview">{{ __('t_ingame.overview.page_title') }} -</p>
                             <span id="planetNameHeader">
                             {{ $planet_name }}
                         </span>
-                            <img class="hinted tooltip" title="@lang('Abandon/Rename Planet')"
+                            <img class="hinted tooltip" title="{{ __('t_ingame.overview.abandon_rename_title') }}"
                                  src="/img/icons/1f57d944fff38ee51d49c027f574ef.gif" width="16" height="16"/>
                         </a>
                     </h2>
@@ -199,10 +199,10 @@
                                 <span class="planetMoveProgress fleft">
                                     @if(count($planet_move_blockers) > 0)
                                         <span class="tooltip planetMoveIcons planetMoveBreakup icon"
-                                              title="The following things are currently standing in the way of your planet relocation: {{ implode(', ', $planet_move_blockers) }}"></span>
+                                              title="{{ __('t_ingame.planet_move.blockers_title') }} {{ implode(', ', $planet_move_blockers) }}"></span>
                                     @else
                                         <span class="tooltip planetMoveIcons planetMoveOk icon"
-                                              title="Nothing can get in the way of the planet´s planned relocation now."></span>
+                                              title="{{ __('t_ingame.planet_move.no_blockers') }}"></span>
                                     @endif
                                     <span id="moveProgress">
                                         <a id="moveCountdown" class="tooltip js_hideTipOnMobile undermark"
@@ -212,7 +212,7 @@
                                         <a class="tooltip js_hideTipOnMobile cancelMove icon_link"
                                            href="javascript:void(0);"
                                            rel="{{ route('planetMove.cancel') }}"
-                                           title="cancel">
+                                           title="{{ __('t_ingame.planet_move.cancel') }}">
                                             <span class="icon icon_quit"></span>
                                         </a>
                                     </span>
@@ -232,26 +232,23 @@
                                     $cooldownFormatted = implode(' ', $cooldownParts);
                                 @endphp
                                 <span class="tooltip planetMoveIcons planetMoveInactive icon"
-                                      title="Time until next possible relocation"></span>
+                                      title="{{ __('t_ingame.planet_move.cooldown_title') }}"></span>
                                 <span id="moveCountdown" class="status_abbr_longinactive tooltip fleft"
-                                      title="Time until next possible relocation">{{ $cooldownFormatted }}</span>
+                                      title="{{ __('t_ingame.planet_move.cooldown_title') }}">{{ $cooldownFormatted }}</span>
                             @else
                                 <a class="tooltipLeft dark_highlight_tablet fleft"
                                    href='{{ route('galaxy.index') }}'
-                                   title="@lang('The relocation allows you to move your planets to another position in a distant system of your choosing.<br /><br />
-The actual relocation first takes place 24 hours after activation. In this time, you can use your planets as normal. A countdown shows you how much time remains prior to the relocation.<br /><br />
-Once the countdown has run down and the planet is to be moved, none of your fleets that are stationed there can be active. At this time, there should also be nothing in construction, nothing being repaired and nothing researched. If there is a construction task, a repair task or a fleet still active upon the countdown`s expiry, the relocation will be cancelled.<br /><br />
-If the relocation is successful, you will be charged 240.000 Dark Matter. The planets, the buildings and the stored resources including moon will be moved immediately. Your fleets travel to the new coordinates automatically with the speed of the slowest ship. The jump gate to a relocated moon is deactivated for 24 hours.')"
-                                   data-tooltip-button="To galaxy">
+                                   title="{{ __('t_ingame.planet_move.explanation') }}"
+                                   data-tooltip-button="{{ __('t_ingame.planet_move.to_galaxy') }}">
                                     <span class="planetMoveIcons settings planetMoveDefault icon fleft"></span>
-                                    <span class="planetMoveOverviewMoveLink">@lang('Relocate')</span>
+                                    <span class="planetMoveOverviewMoveLink">{{ __('t_ingame.planet_move.relocate') }}</span>
                                 </a>
                             @endif
                         </div>
 
                         <a class="dark_highlight_tablet float_right openPlanetRenameGiveupBox"
                            href="javascript:void(0);">
-                            <span class="planetMoveOverviewGivUpLink">@lang('Abandon/Rename')</span>
+                            <span class="planetMoveOverviewGivUpLink">{{ __('t_ingame.overview.abandon_rename') }}</span>
                             <span class="planetMoveIcons settings planetMoveGiveUp icon"></span>
                         </a>
                     </div>
@@ -279,7 +276,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
                 <div id="productionboxbuildingcomponent" class="productionboxbuilding injectedComponent parent overview">
                     <div class="content-box-s">
                         <div class="header">
-                            <h3>@lang('Buildings')</h3>
+                            <h3>{{ __('t_ingame.overview.buildings') }}</h3>
                         </div>
                         <div class="content">
                             <table cellpadding="0" cellspacing="0" class="construction active">
@@ -329,7 +326,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
             <div class="productionBoxResearch boxColumn research">
                 <div id="productionboxresearchcomponent" class="productionboxresearch injectedComponent parent overview">
                     <div class="content-box-s">
-                        <div class="header"><h3>@lang('Research')</h3></div>
+                        <div class="header"><h3>{{ __('t_ingame.overview.research') }}</h3></div>
                         <div class="content">
                             {{-- Building is actively being built. --}}
                             @include ('ingame.shared.buildqueue.research-active', ['build_active' => $research_active])
@@ -374,7 +371,7 @@ If the relocation is successful, you will be charged 240.000 Dark Matter. The pl
 
                 <div id="productionboxshipyardcomponent" class="productionboxshipyard injectedComponent parent overview">
                     <div class="content-box-s">
-                        <div class="header"><h3>@lang('Shipyard')</h3></div>
+                        <div class="header"><h3>{{ __('t_resources.shipyard.title') }}</h3></div>
                         <div class="content">
                             {{-- Building is actively being built. --}}
                             @include ('ingame.shared.buildqueue.unit-active', ['build_active' => $ship_active, 'build_queue_countdown' => $ship_queue_time_countdown])

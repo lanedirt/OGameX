@@ -59,10 +59,10 @@
         receiverId = _receiverId;
 
         errorBoxDecision(
-            "Caution",
+            "{{ __('t_ingame.shared.caution') }}",
             _question,
-            "yes",
-            "No",
+            "{{ __('t_ingame.shared.yes') }}",
+            "{{ __('t_ingame.shared.no') }}",
             reportMessageCallback
         );
     }

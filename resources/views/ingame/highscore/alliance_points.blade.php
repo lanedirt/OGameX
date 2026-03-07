@@ -28,7 +28,7 @@
         </div>
         <select class="changeSite fright">
             @if($currentUserAllianceId)
-                <option value="{{ $highscoreCurrentAlliancePage }}">Own position</option>
+                <option value="{{ $highscoreCurrentAlliancePage }}">{{ __('t_ingame.highscore.own_position') }}</option>
             @endif
             @for ($i = 1; $i <= ceil($highscoreAllianceAmount / 100); $i++)
                 <option {{ $i == $highscoreCurrentPage ? 'selected="selected"' : '' }} value="{{ $i }}"> {{ ((($i-1) * 100) + 1)  }} - {{ $i * 100 }}</option>
@@ -36,13 +36,13 @@
         </select>
         <div class="fleft" id="highscoreHeadline">
             @if($highscoreCurrentType == 0)
-                Points
+                {{ __('t_ingame.highscore.points') }}
             @elseif($highscoreCurrentType == 1)
-                Economy
+                {{ __('t_ingame.highscore.economy') }}
             @elseif($highscoreCurrentType == 2)
-                Research
+                {{ __('t_ingame.highscore.research') }}
             @elseif($highscoreCurrentType == 3)
-                Military
+                {{ __('t_ingame.highscore.military') }}
             @endif
         </div>
 
@@ -50,17 +50,17 @@
             <thead>
             <tr>
                 <td class="position">
-                    Position
+                    {{ __('t_ingame.highscore.position') }}
                 </td>
                 <td class="movement"></td>
                 <td class="name">
-                    Alliance
+                    {{ __('t_ingame.highscore.alliance') }}
                 </td>
                 <td class="member_count" align="center">
-                    Member
+                    {{ __('t_ingame.highscore.member') }}
                 </td>
-                <td align="center" class="score tooltip js_hideTipOnMobile" title="Average points">
-                    Points
+                <td align="center" class="score tooltip js_hideTipOnMobile" title="{{ __('t_ingame.highscore.average_points') }}">
+                    {{ __('t_ingame.highscore.points') }}
                 </td>
             </tr>
             </thead>
@@ -95,7 +95,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" style="text-align: center;">No alliances found</td>
+                    <td colspan="5" style="text-align: center;">{{ __('t_ingame.highscore.no_alliances_found') }}</td>
                 </tr>
             @endforelse
             </tbody>
@@ -108,7 +108,7 @@
             });
         </script>
         <div class="pagebar">
-            <a href="javascript:void(0);" class="scrollToTop">Back to top</a>
+            <a href="javascript:void(0);" class="scrollToTop">{{ __('t_ingame.layout.back_to_top') }}</a>
             &nbsp;
             @if ($highscoreCurrentPage > 1)
                 <a href="javascript:void(0);" class="" onclick="ajaxCall('{{ route('highscore.ajax', ['page' => 1, 'type' => $highscoreCurrentType, 'category' => 2]) }}', '#stat_list_content'); return false;">«</a>&nbsp;
