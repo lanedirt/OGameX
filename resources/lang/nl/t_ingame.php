@@ -456,7 +456,7 @@ return [
         'discovery_underway'           => 'Er is al een verkenningsschip op weg naar deze planeet.',
         'discovery_locked'             => 'U heeft het onderzoek om nieuwe levensvormen te ontdekken nog niet ontgrendeld.',
         'discovery_title'              => 'Verkenningsschip',
-        'discovery_question'           => "Wilt u een verkenningsschip naar deze planeet sturen?\n<br>Metaal: 5000 Kristal: 1000 Deuterium: 500",
+        'discovery_question'           => 'Wilt u een verkenningsschip naar deze planeet sturen?<br/>Metaal: 5000 Kristal: 1000 Deuterium: 500',
 
         // Phalanx-resultaatdialoog (JS-strings in Blade-rendered scriptblok)
         'sensor_report'                => 'sensorrapport',

@@ -284,13 +284,13 @@
                 }
 
                 @if($darkMatter < $merchantCost)
-                    errorBoxNotify(LocalizationStrings.error, '{{ __('t_merchant.insufficient_dm_call', ['cost' => number_format($merchantCost)]) }}');
+                    errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.insufficient_dm_call', ['cost' => number_format($merchantCost)])));
                     return false;
                 @endif
 
                 var button = $(this);
                 var originalText = button.text();
-                button.attr('disabled', 'disabled').text('{{ __('t_merchant.calling_merchant') }}');
+                button.attr('disabled', 'disabled').text(@json(__('t_merchant.calling_merchant')));
 
                 // Call the merchant via AJAX
                 $.ajax({
@@ -346,13 +346,13 @@
                                 $('.js_selectResource[data-resource-type="' + selectedResource + '"]').addClass('oldTraderActive');
                             }, 50);
                         } else {
-                            errorBoxNotify(LocalizationStrings.error, response.message || '{{ __('t_merchant.failed_to_call') }}');
+                            errorBoxNotify(LocalizationStrings.error, response.message || @json(__('t_merchant.failed_to_call')));
                             button.removeAttr('disabled').text(originalText);
                         }
                     },
                     error: function(xhr) {
                         var response = xhr.responseJSON;
-                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '{{ __('t_merchant.error_retry') }}');
+                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_retry')));
                         button.removeAttr('disabled').text(originalText);
                     }
                 });

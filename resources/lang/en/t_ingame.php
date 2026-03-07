@@ -456,7 +456,7 @@ return [
         'discovery_underway'           => 'An Exploration Ship is already on approach to this planet.',
         'discovery_locked'             => 'You haven\'t unlocked the research to discover new lifeforms yet.',
         'discovery_title'              => 'Exploration Ship',
-        'discovery_question'           => "Do you want to dispatch an exploration ship to this planet?\n<br>Metal: 5000 Crystal: 1000 Deuterium: 500",
+        'discovery_question'           => 'Do you want to dispatch an exploration ship to this planet?<br/>Metal: 5000 Crystal: 1000 Deuterium: 500',
 
         // Phalanx result dialog (JS strings inside Blade-rendered script block)
         'sensor_report'                => 'sensor report',

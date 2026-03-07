@@ -456,7 +456,7 @@ return [
         'discovery_underway'           => 'Una nave da esplorazione è già diretta verso questo pianeta.',
         'discovery_locked'             => 'Non hai ancora sbloccato la ricerca per scoprire nuove forme di vita.',
         'discovery_title'              => 'Nave da esplorazione',
-        'discovery_question'           => "Vuoi inviare una nave da esplorazione su questo pianeta?\n<br>Metallo: 5000 Cristallo: 1000 Deuterio: 500",
+        'discovery_question'           => 'Vuoi inviare una nave da esplorazione su questo pianeta?<br/>Metallo: 5000 Cristallo: 1000 Deuterio: 500',
 
         // Dialogo risultati phalanx (stringhe JS nel blocco script Blade-rendered)
         'sensor_report'                => 'rapporto sensore',

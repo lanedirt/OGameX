@@ -130,7 +130,7 @@
                     </div>
                     <script type="text/javascript">
                         var scheduleBuildListEntryUrl = '{{ route("facilities.addbuildrequest.post") }}';
-                        var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = '{{ __('t_ingame.buildings.last_inquiry_error') }}';
+                        var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = @json(__('t_ingame.buildings.last_inquiry_error'));
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
                     </script>
                 </div>
@@ -1056,7 +1056,7 @@
 
     <div id="technologydetailscomponent" class="technologydetails injectedComponent parent facilities">
         <script type="text/javascript">
-            var loca = {"LOCA_ALL_NOTICE":"{{ __('t_ingame.buildings.loca_notice') }}","LOCA_ALL_NETWORK_ATTENTION":"{{ __('t_ingame.shared.caution') }}","locaDemolishStructureQuestion":"{{ __('t_ingame.buildings.loca_demolish') }}","LOCA_ALL_YES":"{{ __('t_ingame.shared.yes') }}","LOCA_ALL_NO":"{{ __('t_ingame.shared.no') }}","LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING":"{{ __('t_ingame.buildings.loca_lifeform_cap') }}"};
+            var loca = @json(['LOCA_ALL_NOTICE' => __('t_ingame.buildings.loca_notice'), 'LOCA_ALL_NETWORK_ATTENTION' => __('t_ingame.shared.caution'), 'locaDemolishStructureQuestion' => __('t_ingame.buildings.loca_demolish'), 'LOCA_ALL_YES' => __('t_ingame.shared.yes'), 'LOCA_ALL_NO' => __('t_ingame.shared.no'), 'LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING' => __('t_ingame.buildings.loca_lifeform_cap')]);
 
             var technologyDetailsEndpoint = "{{ route('facilities.ajax') }}";
             var selectCharacterClassEndpoint = "#TODO_page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=selectClass&ajax=1&asJson=1";

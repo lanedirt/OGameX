@@ -228,18 +228,18 @@
                         data: form.serialize(),
                         success: function(response) {
                             if (response.success) {
-                                fadeBox('{{ __("t_ingame.highscore.buddy_request_sent") }}', false);
+                                fadeBox(@json(__('t_ingame.highscore.buddy_request_sent')), false);
                                 form.closest('.ui-dialog-content').dialog('close');
                                 setTimeout(function() {
                                     form.closest('.overlayDiv').remove();
                                     form.closest('.ui-dialog').remove();
                                 }, 100);
                             } else {
-                                fadeBox(response.message || '{{ __("t_ingame.highscore.buddy_request_failed") }}', true);
+                                fadeBox(response.message || @json(__('t_ingame.highscore.buddy_request_failed')), true);
                             }
                         },
                         error: function(xhr) {
-                            var errorMessage = '{{ __("t_ingame.highscore.buddy_request_failed") }}';
+                            var errorMessage = @json(__('t_ingame.highscore.buddy_request_failed'));
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMessage = xhr.responseJSON.message;
                             }
@@ -266,7 +266,7 @@
 
                 // Initialize the dialog first
                 $dialog.dialog({
-                    title: '{{ __("t_ingame.highscore.buddy_request_to") }} ' + playerName,
+                    title: @json(__('t_ingame.highscore.buddy_request_to')) + ' ' + playerName,
                     width: 'auto',
                     height: 'auto',
                     modal: false,
@@ -328,7 +328,7 @@
 
                     if (playerId && playerName) {
                         // Confirm before ignoring
-                        if (confirm('{{ __("t_ingame.highscore.are_you_sure_ignore") }} ' + playerName + '?')) {
+                        if (confirm(@json(__('t_ingame.highscore.are_you_sure_ignore')) + ' ' + playerName + '?')) {
                             $.ajax({
                                 url: '{{ route('buddies.ignore') }}',
                                 type: 'POST',
@@ -338,13 +338,13 @@
                                 },
                                 success: function(response) {
                                     if (response.success) {
-                                        fadeBox('{{ __("t_ingame.highscore.player_ignored") }}', false);
+                                        fadeBox(@json(__('t_ingame.highscore.player_ignored')), false);
                                     } else {
-                                        fadeBox(response.message || '{{ __("t_ingame.highscore.player_ignored_failed") }}', true);
+                                        fadeBox(response.message || @json(__('t_ingame.highscore.player_ignored_failed')), true);
                                     }
                                 },
                                 error: function(xhr) {
-                                    var errorMessage = '{{ __("t_ingame.highscore.player_ignored_failed") }}';
+                                    var errorMessage = @json(__('t_ingame.highscore.player_ignored_failed'));
                                     if (xhr.responseJSON && xhr.responseJSON.message) {
                                         errorMessage = xhr.responseJSON.message;
                                     }

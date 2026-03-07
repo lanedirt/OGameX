@@ -372,7 +372,7 @@
 
             // Set dialog title and configuration for overlay
             @if($isOverlay)
-            var merchantTitle = '{{ __('t_merchant.trader_buying') }}' + ' ' + '{{ ucfirst($merchantType) }}' + '.';
+            var merchantTitle = @json(__('t_merchant.trader_buying') . ' ' . ucfirst($merchantType) . '.');
             if (typeof $('.overlayDiv.traderlayer').dialog === 'function') {
                 $('.overlayDiv.traderlayer').dialog('option', 'title', merchantTitle);
                 $('.ui-widget-overlay').css({
@@ -502,36 +502,36 @@
             @endforeach
 
             if (!formData.receive_resource || formData.give_amount === 0) {
-                errorBoxNotify(LocalizationStrings.error, '{{ __('t_merchant.please_select_resource') }}');
+                errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.please_select_resource')));
                 return false;
             }
 
             if (formData.give_amount > offer_amount) {
-                errorBoxNotify(LocalizationStrings.error, '{{ __('t_merchant.not_enough_resources') }}');
+                errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.not_enough_resources')));
                 return false;
             }
 
             // Submit the trade
             $.post('{{ route('merchant.trade') }}', formData, function(response) {
                 if (response.success) {
-                    fadeBox(response.message || '{{ __('t_merchant.trade_completed_success') }}', false);
+                    fadeBox(response.message || @json(__('t_merchant.trade_completed_success')), false);
                     setTimeout(function() {
                         // Reload the page to show updated resources
                         window.location.reload();
                     }, 1000);
                 } else {
-                    errorBoxNotify(LocalizationStrings.error, response.message || '{{ __('t_merchant.trade_failed') }}');
+                    errorBoxNotify(LocalizationStrings.error, response.message || @json(__('t_merchant.trade_failed')));
                 }
             }).fail(function(xhr) {
                 var response = xhr.responseJSON;
-                errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '{{ __('t_merchant.error_retry') }}');
+                errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_retry')));
             });
         }
 
         function callTrader() {
             errorBoxDecision(
-                '{{ __('t_ingame.shared.caution') }}',
-                '{{ __('t_merchant.new_rate_confirmation') }}',
+                @json(__('t_ingame.shared.caution')),
+                @json(__('t_merchant.new_rate_confirmation')),
                 LocalizationStrings.yes,
                 LocalizationStrings.no,
                 function() {
@@ -540,16 +540,16 @@
                         type: merchantType
                     }, function(response) {
                         if (response.success) {
-                            fadeBox('{{ __('t_merchant.merchant_called_success') }}', false);
+                            fadeBox(@json(__('t_merchant.merchant_called_success')), false);
                             setTimeout(function() {
                                 location.reload();
                             }, 1000);
                         } else {
-                            errorBoxNotify(LocalizationStrings.error, response.message || '{{ __('t_merchant.failed_to_call') }}');
+                            errorBoxNotify(LocalizationStrings.error, response.message || @json(__('t_merchant.failed_to_call')));
                         }
                     }).fail(function(xhr) {
                         var response = xhr.responseJSON;
-                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '{{ __('t_merchant.error_retry') }}');
+                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_retry')));
                     });
                 }
             );

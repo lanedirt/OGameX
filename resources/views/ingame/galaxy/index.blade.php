@@ -38,107 +38,111 @@
             var contentLink = "{{ route('galaxy.ajax') }}";
             var galaxyContentLink = "{{ route('galaxy.ajax') }}";
             var preserveSystemOnPlanetChange = false;
-            var galaxyLoca = {
-                "reservationSuccess": "{{ __('t_ingame.galaxy.relocate_success') }}",
-                "questionTitle":      "{{ __('t_ingame.galaxy.relocate_title') }}",
-                "question":           "{{ __('t_ingame.galaxy.relocate_question', ['cost' => number_format($planet_relocation_cost)]) }}",
-                "deuteriumNeeded":    "{{ __('t_ingame.galaxy.deut_needed_relocate') }}",
-                "fleetAttacking":     "{{ __('t_ingame.galaxy.fleet_attacking') }}",
-                "fleetUnderway":      "{{ __('t_ingame.galaxy.fleet_underway') }}",
-                "discoverySend":      "{{ __('t_ingame.galaxy.discovery_send') }}\n",
-                "discoverySuccess":   "{{ __('t_ingame.galaxy.discovery_success') }}\n",
-                "discoveryUnavailable": "{{ __('t_ingame.galaxy.discovery_unavailable') }}\n",
-                "discoveryUnderway":  "{{ __('t_ingame.galaxy.discovery_underway') }}\n",
-                "discoveryLocked":    "{{ __('t_ingame.galaxy.discovery_locked') }}\n",
-                "discoverQuestionTitle": "{{ __('t_ingame.galaxy.discovery_title') }}\n",
-                "discoverQuestionText":  "{{ __('t_ingame.galaxy.discovery_question') }}"
-            };
-            var loca = {
-                "LOCA_FLEET_EXPEDITION_TYPE":                    "{{ __('t_ingame.fleet.mission_expedition') }}",
-                "LOCA_FLEET_DEBRIS":                             "{{ __('t_ingame.fleet.debris_field_lower') }}",
-                "LOCA_UNAVAILABLE_PHALANXSYSTEM":                "{{ __('t_ingame.galaxy.phalanx_restricted') }}",
-                "LOCA_PHALANX_SYSTEM_BUTTON":                    "{{ __('t_ingame.galaxy.system_phalanx') }}",
-                "LOCA_SPY_SYSTEM_BUTTON":                        "{{ __('t_ingame.galaxy.system_espionage') }}",
-                "locaErrorNoRequiredResearch":                   "{{ __('t_ingame.galaxy.astro_required') }}",
-                "LOCA_GALAXY_ERROR_INACCESSIBLE_DUE_TO_VACATION":"{{ __('t_ingame.galaxy.vacation_error') }}",
-                "LOCA_FLEET_PLAYER_UMODE":                       "{{ __('t_ingame.fleet.player_vacation') }}",
-                "LOCA_LEFTMENU_GALAXY":                          "{{ __('t_ingame.galaxy.galaxy_nav') }}",
-                "LOCA_GALAXY_HEADLINE_SUNSYSTEM":                "{{ __('t_ingame.galaxy.system') }}",
-                "LOCA_GALAXY_LETS_GO":                           "{{ __('t_ingame.galaxy.go') }}",
-                "LOCA_ALL_PLANET":                               "{{ __('t_ingame.fleet.planet') }}",
-                "LOCA_ALL_NAME":                                 "{{ __('t_ingame.galaxy.name_col') }}",
-                "LOCA_ALL_MOON":                                 "{{ __('t_ingame.fleet.moon') }}",
-                "LOCA_ALL_DEBRIS_FIELD_SHORT":                   "{{ __('t_ingame.galaxy.debris_short') }}",
-                "LOCA_GALAXY_PLAYER_STATUS":                     "{{ __('t_ingame.galaxy.player_status') }}",
-                "LOCA_NETWORK_ALLY":                             "{{ __('t_ingame.galaxy.alliance') }}",
-                "LOCA_NETWORK_ACTION":                           "{{ __('t_ingame.galaxy.action') }}",
-                "LOCA_GALAXY_PLANETS_SETTLED":                   "{{ __('t_ingame.galaxy.planets_colonized') }}",
-                "LOCA_TECH_ESPIONAGEPROBE_SNAME":                "{{ __('t_ingame.galaxy.probes_short') }}",
-                "LOCA_TECH_RECYCLER_SNAME":                      "{{ __('t_ingame.galaxy.recycler_short') }}",
-                "LOCA_TECH_INTERPLANETARYMISSILE_SNAME":         "{{ __('t_ingame.galaxy.ipm_short') }}",
-                "LOCA_GALAXY_SLOTS_FULL":                        "{{ __('t_ingame.galaxy.used_slots') }}",
-                "LOCA_GALAXY_LEGEND":                            "{{ __('t_ingame.galaxy.legend') }}",
-                "LOCA_GALAXY_PLAYER_STATUS_A":                   "{{ __('t_ingame.galaxy.status_admin_abbr') }}",
-                "LOCA_GALAXY_LEGEND_ADMIN":                      "{{ __('t_ingame.galaxy.legend_admin') }}",
-                "LOCA_GALAXY_PLAYER_STATUS_S":                   "{{ __('t_ingame.galaxy.status_strong_abbr') }}",
-                "LOCA_GALAXY_LEGEND_STRONG_PLAYER":              "{{ __('t_ingame.galaxy.legend_strong') }}",
-                "LOCA_GALAXY_PLAYER_STATUS_N":                   "{{ __('t_ingame.galaxy.status_noob_abbr') }}",
-                "LOCA_GALAXY_LEGEND_NOOB":                       "{{ __('t_ingame.galaxy.legend_noob') }}",
-                "LOCA_GALAXY_PLAYER_STATUS_OUTLAW":              "{{ __('t_ingame.galaxy.status_outlaw_abbr') }}",
-                "LOCA_GALAXY_LEGEND_OUTLAW":                     "{{ __('t_ingame.galaxy.legend_outlaw') }}",
-                "LOCA_GALAXY_PLAYER_STATUS_U":                   "{{ __('t_ingame.galaxy.status_vacation_abbr') }}",
-                "LOCA_STATION_JUMP_VACATION":                    "{{ __('t_ingame.galaxy.vacation_mode') }}",
-                "LOCA_GALAXY_PLAYER_STATUS_G":                   "{{ __('t_ingame.galaxy.status_banned_abbr') }}",
-                "LOCA_GALAXY_LEGEND_BANNED":                     "{{ __('t_ingame.galaxy.legend_banned') }}",
-                "LOCA_GALAXY_PLAYER_STATUS_I":                   "{{ __('t_ingame.galaxy.status_inactive_abbr') }}",
-                "LOCA_GALAXY_LEGEND_SEVEN_DAYS_INACTIVE":        "{{ __('t_ingame.galaxy.legend_inactive_7') }}",
-                "LOCA_GALAXY_PLAYER_STATUS_I_LONG":              "{{ __('t_ingame.galaxy.status_longinactive_abbr') }}",
-                "LOCA_GALAXY_LEGEND_TWENTYEIGHT_DAYS_INACTIVE":  "{{ __('t_ingame.galaxy.legend_inactive_28') }}",
-                "LOCA_GALAXY_PLAYER_STATUS_EP":                  "{{ __('t_ingame.galaxy.status_honorable_abbr') }}",
-                "LOCA_GALAXY_LEGEND_HONORABLE_TARGET":           "{{ __('t_ingame.galaxy.legend_honorable') }}",
-                "LOCA_ALL_ACTIVITY":                             "{{ __('t_ingame.galaxy.activity') }}",
-                "LOCA_FLEET_NO_ACTION_AVAILABLE":                "{{ __('t_ingame.galaxy.no_action') }}",
-                "LOCA_ALL_TIME_MINUTE":                          "{{ __('t_ingame.galaxy.time_minute_abbr') }}",
-                "LOCA_GALAXY_MOON_DIAMETER_KM":                  "{{ __('t_ingame.galaxy.moon_diameter_km') }}",
-                "LOCA_OVERVIEW_JS_KM":                           "{{ __('t_ingame.galaxy.km') }}",
-                "LOCA_ALL_METAL":                                "{{ __('t_ingame.fleet.metal') }}",
-                "LOCA_ALL_CRYSTAL":                              "{{ __('t_ingame.fleet.crystal') }}",
-                "LOCA_ALL_DEUTERIUM":                            "{{ __('t_ingame.fleet.deuterium') }}",
-                "LOCA_GALAXY_PATHFINDER_NEEDED":                 "{{ __('t_ingame.galaxy.pathfinders_needed') }}",
-                "LOCA_GALAXY_RECYCLER_NEEDED":                   "{{ __('t_ingame.galaxy.recyclers_needed') }}",
-                "LOCA_GALAXY_DEBRIS_REDUCE":                     "{{ __('t_ingame.galaxy.mine_debris') }}",
-                "LOCA_PHALANX_ERROR_NOT_ENOUTH_DEUT":            "{{ __('t_ingame.galaxy.phalanx_no_deut') }}",
-                "LOCA_GALAXY_USE_PHALANX":                       "{{ __('t_ingame.galaxy.use_phalanx') }}",
-                "LOCA_GALAXY_ERROR_COLONIZATION":                "{{ __('t_ingame.galaxy.colonize_error') }}",
-                "LOCA_ALL_PLAYER":                               "{{ __('t_ingame.fleet.player_label') }}",
-                "LOCA_GALAXY_RANKING":                           "{{ __('t_ingame.galaxy.ranking') }}",
-                "LOCA_MESSAGES_ESPIONAGEREPORT":                 "{{ __('t_ingame.galaxy.espionage_report') }}",
-                "LOCA_FLEET_MISSILEATTACK":                      "{{ __('t_ingame.galaxy.missile_attack') }}",
-                "LOCA_GALAXY_RANK":                              "{{ __('t_ingame.galaxy.rank') }}",
-                "LOCA_NETWORK_USERS":                            "{{ __('t_ingame.galaxy.alliance_member') }}",
-                "LOCA_ALLIANCE_CLASS":                           "{{ __('t_ingame.galaxy.alliance_class') }}",
-                "LOCA_FLEET_NO_FREE_SLOTS":                      "{{ __('t_ingame.fleet.no_free_slots') }}",
-                "LOCA_ALL_AJAXLOAD":                             "{{ __('t_ingame.fleet.load_dots') }}",
-                "LOCA_EVENTH_ENEMY_INFINITELY_SPACE":            "{{ __('t_ingame.fleet.deep_space') }}",
-                "LOCA_FLEET_NO_ESPIONAGE":                       "{{ __('t_ingame.galaxy.espionage_not_possible') }}",
-                "LOCA_FLEET_ESPIONAGE":                          "{{ __('t_ingame.galaxy.espionage') }}",
-                "LOCA_HEADER_GETADMIRAL":                        "{{ __('t_ingame.galaxy.hire_admiral') }}",
-                "LOCA_ALL_DARKMATTER":                           "{{ __('t_ingame.galaxy.dark_matter') }}",
-                "LOCA_OUTLAW_EXPLANATION":                       "{{ __('t_ingame.galaxy.outlaw_explanation') }}",
-                "LOCA_GALAXY_LEGEND_HONORABLE_TARGET_EXPLANATION":"{{ __('t_ingame.galaxy.honorable_target_explanation') }}",
-                "LOCA_GALAXY_SYSTEM_DISCOVERY":                  "{{ __('t_ingame.galaxy.discoveries') }}",
-                "LOCA_GALAXY_SYSTEM_DISCOVERY_TOOLTIP":          "{{ __('t_ingame.galaxy.discoveries_tooltip') }}",
-                "LOCA_EXPEDITION_FLEET_TEMPLATE":                "{{ __('t_ingame.galaxy.expedition_fleet') }}",
-                "LOCA_FLEET_SEND":                               "{{ __('t_ingame.fleet.send_fleet') }}",
-                "LOCA_ALL_SEND":                                 "{{ __('t_ingame.galaxy.send') }}",
-                "LOCA_FLEET_TEMPLATE_ADMIRAL_NEEDED":            "{{ __('t_ingame.galaxy.admiral_needed') }}"
-            };
+            @php
+                $galaxyLocaData = [
+                    'reservationSuccess'   => __('t_ingame.galaxy.relocate_success'),
+                    'questionTitle'        => __('t_ingame.galaxy.relocate_title'),
+                    'question'             => __('t_ingame.galaxy.relocate_question', ['cost' => number_format($planet_relocation_cost)]),
+                    'deuteriumNeeded'      => __('t_ingame.galaxy.deut_needed_relocate'),
+                    'fleetAttacking'       => __('t_ingame.galaxy.fleet_attacking'),
+                    'fleetUnderway'        => __('t_ingame.galaxy.fleet_underway'),
+                    'discoverySend'        => __('t_ingame.galaxy.discovery_send') . "\n",
+                    'discoverySuccess'     => __('t_ingame.galaxy.discovery_success') . "\n",
+                    'discoveryUnavailable' => __('t_ingame.galaxy.discovery_unavailable') . "\n",
+                    'discoveryUnderway'    => __('t_ingame.galaxy.discovery_underway') . "\n",
+                    'discoveryLocked'      => __('t_ingame.galaxy.discovery_locked') . "\n",
+                    'discoverQuestionTitle'=> __('t_ingame.galaxy.discovery_title') . "\n",
+                    'discoverQuestionText' => __('t_ingame.galaxy.discovery_question'),
+                ];
+                $locaData = [
+                    'LOCA_FLEET_EXPEDITION_TYPE'                     => __('t_ingame.fleet.mission_expedition'),
+                    'LOCA_FLEET_DEBRIS'                              => __('t_ingame.fleet.debris_field_lower'),
+                    'LOCA_UNAVAILABLE_PHALANXSYSTEM'                 => __('t_ingame.galaxy.phalanx_restricted'),
+                    'LOCA_PHALANX_SYSTEM_BUTTON'                     => __('t_ingame.galaxy.system_phalanx'),
+                    'LOCA_SPY_SYSTEM_BUTTON'                         => __('t_ingame.galaxy.system_espionage'),
+                    'locaErrorNoRequiredResearch'                    => __('t_ingame.galaxy.astro_required'),
+                    'LOCA_GALAXY_ERROR_INACCESSIBLE_DUE_TO_VACATION' => __('t_ingame.galaxy.vacation_error'),
+                    'LOCA_FLEET_PLAYER_UMODE'                        => __('t_ingame.fleet.player_vacation'),
+                    'LOCA_LEFTMENU_GALAXY'                           => __('t_ingame.galaxy.galaxy_nav'),
+                    'LOCA_GALAXY_HEADLINE_SUNSYSTEM'                 => __('t_ingame.galaxy.system'),
+                    'LOCA_GALAXY_LETS_GO'                            => __('t_ingame.galaxy.go'),
+                    'LOCA_ALL_PLANET'                                => __('t_ingame.fleet.planet'),
+                    'LOCA_ALL_NAME'                                  => __('t_ingame.galaxy.name_col'),
+                    'LOCA_ALL_MOON'                                  => __('t_ingame.fleet.moon'),
+                    'LOCA_ALL_DEBRIS_FIELD_SHORT'                    => __('t_ingame.galaxy.debris_short'),
+                    'LOCA_GALAXY_PLAYER_STATUS'                      => __('t_ingame.galaxy.player_status'),
+                    'LOCA_NETWORK_ALLY'                              => __('t_ingame.galaxy.alliance'),
+                    'LOCA_NETWORK_ACTION'                            => __('t_ingame.galaxy.action'),
+                    'LOCA_GALAXY_PLANETS_SETTLED'                    => __('t_ingame.galaxy.planets_colonized'),
+                    'LOCA_TECH_ESPIONAGEPROBE_SNAME'                 => __('t_ingame.galaxy.probes_short'),
+                    'LOCA_TECH_RECYCLER_SNAME'                       => __('t_ingame.galaxy.recycler_short'),
+                    'LOCA_TECH_INTERPLANETARYMISSILE_SNAME'          => __('t_ingame.galaxy.ipm_short'),
+                    'LOCA_GALAXY_SLOTS_FULL'                         => __('t_ingame.galaxy.used_slots'),
+                    'LOCA_GALAXY_LEGEND'                             => __('t_ingame.galaxy.legend'),
+                    'LOCA_GALAXY_PLAYER_STATUS_A'                    => __('t_ingame.galaxy.status_admin_abbr'),
+                    'LOCA_GALAXY_LEGEND_ADMIN'                       => __('t_ingame.galaxy.legend_admin'),
+                    'LOCA_GALAXY_PLAYER_STATUS_S'                    => __('t_ingame.galaxy.status_strong_abbr'),
+                    'LOCA_GALAXY_LEGEND_STRONG_PLAYER'               => __('t_ingame.galaxy.legend_strong'),
+                    'LOCA_GALAXY_PLAYER_STATUS_N'                    => __('t_ingame.galaxy.status_noob_abbr'),
+                    'LOCA_GALAXY_LEGEND_NOOB'                        => __('t_ingame.galaxy.legend_noob'),
+                    'LOCA_GALAXY_PLAYER_STATUS_OUTLAW'               => __('t_ingame.galaxy.status_outlaw_abbr'),
+                    'LOCA_GALAXY_LEGEND_OUTLAW'                      => __('t_ingame.galaxy.legend_outlaw'),
+                    'LOCA_GALAXY_PLAYER_STATUS_U'                    => __('t_ingame.galaxy.status_vacation_abbr'),
+                    'LOCA_STATION_JUMP_VACATION'                     => __('t_ingame.galaxy.vacation_mode'),
+                    'LOCA_GALAXY_PLAYER_STATUS_G'                    => __('t_ingame.galaxy.status_banned_abbr'),
+                    'LOCA_GALAXY_LEGEND_BANNED'                      => __('t_ingame.galaxy.legend_banned'),
+                    'LOCA_GALAXY_PLAYER_STATUS_I'                    => __('t_ingame.galaxy.status_inactive_abbr'),
+                    'LOCA_GALAXY_LEGEND_SEVEN_DAYS_INACTIVE'         => __('t_ingame.galaxy.legend_inactive_7'),
+                    'LOCA_GALAXY_PLAYER_STATUS_I_LONG'               => __('t_ingame.galaxy.status_longinactive_abbr'),
+                    'LOCA_GALAXY_LEGEND_TWENTYEIGHT_DAYS_INACTIVE'   => __('t_ingame.galaxy.legend_inactive_28'),
+                    'LOCA_GALAXY_PLAYER_STATUS_EP'                   => __('t_ingame.galaxy.status_honorable_abbr'),
+                    'LOCA_GALAXY_LEGEND_HONORABLE_TARGET'            => __('t_ingame.galaxy.legend_honorable'),
+                    'LOCA_ALL_ACTIVITY'                              => __('t_ingame.galaxy.activity'),
+                    'LOCA_FLEET_NO_ACTION_AVAILABLE'                 => __('t_ingame.galaxy.no_action'),
+                    'LOCA_ALL_TIME_MINUTE'                           => __('t_ingame.galaxy.time_minute_abbr'),
+                    'LOCA_GALAXY_MOON_DIAMETER_KM'                   => __('t_ingame.galaxy.moon_diameter_km'),
+                    'LOCA_OVERVIEW_JS_KM'                            => __('t_ingame.galaxy.km'),
+                    'LOCA_ALL_METAL'                                 => __('t_ingame.fleet.metal'),
+                    'LOCA_ALL_CRYSTAL'                               => __('t_ingame.fleet.crystal'),
+                    'LOCA_ALL_DEUTERIUM'                             => __('t_ingame.fleet.deuterium'),
+                    'LOCA_GALAXY_PATHFINDER_NEEDED'                  => __('t_ingame.galaxy.pathfinders_needed'),
+                    'LOCA_GALAXY_RECYCLER_NEEDED'                    => __('t_ingame.galaxy.recyclers_needed'),
+                    'LOCA_GALAXY_DEBRIS_REDUCE'                      => __('t_ingame.galaxy.mine_debris'),
+                    'LOCA_PHALANX_ERROR_NOT_ENOUTH_DEUT'             => __('t_ingame.galaxy.phalanx_no_deut'),
+                    'LOCA_GALAXY_USE_PHALANX'                        => __('t_ingame.galaxy.use_phalanx'),
+                    'LOCA_GALAXY_ERROR_COLONIZATION'                 => __('t_ingame.galaxy.colonize_error'),
+                    'LOCA_ALL_PLAYER'                                => __('t_ingame.fleet.player_label'),
+                    'LOCA_GALAXY_RANKING'                            => __('t_ingame.galaxy.ranking'),
+                    'LOCA_MESSAGES_ESPIONAGEREPORT'                  => __('t_ingame.galaxy.espionage_report'),
+                    'LOCA_FLEET_MISSILEATTACK'                       => __('t_ingame.galaxy.missile_attack'),
+                    'LOCA_GALAXY_RANK'                               => __('t_ingame.galaxy.rank'),
+                    'LOCA_NETWORK_USERS'                             => __('t_ingame.galaxy.alliance_member'),
+                    'LOCA_ALLIANCE_CLASS'                            => __('t_ingame.galaxy.alliance_class'),
+                    'LOCA_FLEET_NO_FREE_SLOTS'                       => __('t_ingame.fleet.no_free_slots'),
+                    'LOCA_ALL_AJAXLOAD'                              => __('t_ingame.fleet.load_dots'),
+                    'LOCA_EVENTH_ENEMY_INFINITELY_SPACE'             => __('t_ingame.fleet.deep_space'),
+                    'LOCA_FLEET_NO_ESPIONAGE'                        => __('t_ingame.galaxy.espionage_not_possible'),
+                    'LOCA_FLEET_ESPIONAGE'                           => __('t_ingame.galaxy.espionage'),
+                    'LOCA_HEADER_GETADMIRAL'                         => __('t_ingame.galaxy.hire_admiral'),
+                    'LOCA_ALL_DARKMATTER'                            => __('t_ingame.galaxy.dark_matter'),
+                    'LOCA_OUTLAW_EXPLANATION'                        => __('t_ingame.galaxy.outlaw_explanation'),
+                    'LOCA_GALAXY_LEGEND_HONORABLE_TARGET_EXPLANATION' => __('t_ingame.galaxy.honorable_target_explanation'),
+                    'LOCA_GALAXY_SYSTEM_DISCOVERY'                   => __('t_ingame.galaxy.discoveries'),
+                    'LOCA_GALAXY_SYSTEM_DISCOVERY_TOOLTIP'           => __('t_ingame.galaxy.discoveries_tooltip'),
+                    'LOCA_EXPEDITION_FLEET_TEMPLATE'                 => __('t_ingame.galaxy.expedition_fleet'),
+                    'LOCA_FLEET_SEND'                                => __('t_ingame.fleet.send_fleet'),
+                    'LOCA_ALL_SEND'                                  => __('t_ingame.galaxy.send'),
+                    'LOCA_FLEET_TEMPLATE_ADMIRAL_NEEDED'             => __('t_ingame.galaxy.admiral_needed'),
+                ];
+            @endphp
+            var galaxyLoca = @json($galaxyLocaData);
+            var loca = @json($locaData);
             var shipsendingDone = 1;
             var premiumLink = "#?page=premium&openDetail=3";
             var sendDiscoverSystemUrl = "";
             var missleAttackLink = "#?page=ajax&component=missileattacklayer&width=669&height=250";
             var canSwitchGalaxy = true;
-            var notEnoughDeuteriumMessage = "{{ __('t_ingame.galaxy.deut_needed_relocate') }}";
+            var notEnoughDeuteriumMessage = @json(__('t_ingame.galaxy.deut_needed_relocate'));
             var toGalaxyLink = "#?page=ingame&component=galaxy&galaxy=2&system=3";
             var mobile = false;
             var inProgress = false;
@@ -683,7 +687,7 @@
                 var diff = Math.floor((date - now) / 1000);
 
                 if (diff < 0) {
-                    return '{{ __('t_ingame.galaxy.arrived') }}';
+                    return @json(__('t_ingame.galaxy.arrived'));
                 }
 
                 var hours = Math.floor(diff / 3600);
@@ -804,18 +808,18 @@
                         data: form.serialize(),
                         success: function(response) {
                             if (response.success) {
-                                fadeBox('{{ __('t_ingame.buddy.request_sent') }}', false);
+                                fadeBox(@json(__('t_ingame.buddy.request_sent')), false);
                                 form.closest('.ui-dialog-content').dialog('close');
                                 setTimeout(function() {
                                     form.closest('.overlayDiv').remove();
                                     form.closest('.ui-dialog').remove();
                                 }, 100);
                             } else {
-                                fadeBox(response.message || '{{ __('t_ingame.buddy.request_failed') }}', true);
+                                fadeBox(response.message || @json(__('t_ingame.buddy.request_failed')), true);
                             }
                         },
                         error: function(xhr) {
-                            var errorMessage = '{{ __('t_ingame.buddy.request_failed') }}';
+                            var errorMessage = @json(__('t_ingame.buddy.request_failed'));
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMessage = xhr.responseJSON.message;
                             }
@@ -842,7 +846,7 @@
 
                 // Initialize the dialog first
                 $dialog.dialog({
-                    title: '{{ __('t_ingame.buddy.request_to') }} ' + playerName,
+                    title: @json(__('t_ingame.buddy.request_to')) + ' ' + playerName,
                     width: 'auto',
                     height: 'auto',
                     modal: false,
@@ -902,7 +906,7 @@
 
                 if (playerId && playerName) {
                     // Confirm before ignoring
-                    if (confirm('{{ __('t_ingame.buddy.ignore_confirm') }} ' + playerName + '?')) {
+                    if (confirm(@json(__('t_ingame.buddy.ignore_confirm')) + ' ' + playerName + '?')) {
                         $.ajax({
                             url: '{{ route('buddies.ignore') }}',
                             type: 'POST',
@@ -912,13 +916,13 @@
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    fadeBox('{{ __('t_ingame.buddy.ignore_success') }}', false);
+                                    fadeBox(@json(__('t_ingame.buddy.ignore_success')), false);
                                 } else {
-                                    fadeBox(response.message || '{{ __('t_ingame.buddy.ignore_failed') }}', true);
+                                    fadeBox(response.message || @json(__('t_ingame.buddy.ignore_failed')), true);
                                 }
                             },
                             error: function(xhr) {
-                                var errorMessage = '{{ __('t_ingame.buddy.ignore_failed') }}';
+                                var errorMessage = @json(__('t_ingame.buddy.ignore_failed'));
                                 if (xhr.responseJSON && xhr.responseJSON.message) {
                                     errorMessage = xhr.responseJSON.message;
                                 }

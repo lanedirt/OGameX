@@ -72,7 +72,7 @@
                     </div>
                     <script type="text/javascript">
                         var scheduleBuildListEntryUrl = '{{ route('research.addbuildrequest.post') }}';
-                        var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = '{{ __('t_ingame.buildings.last_inquiry_error') }}';
+                        var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = @json(__('t_ingame.buildings.last_inquiry_error'));
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
                     </script>
                 </div>
@@ -81,10 +81,10 @@
             </div>
         </div>
         <script type="text/javascript">
-            var LOCA_PLANETMOVE_BREAKUP_WARNING = '{{ __('t_ingame.buildings.planet_move_warning') }}';
-            var LOCA_ALL_NETWORK_ATTENTION = '{{ __('t_ingame.shared.caution') }}';
-            var LOCA_ALL_YES = '{{ __('t_ingame.shared.yes') }}';
-            var LOCA_ALL_NO = '{{ __('t_ingame.shared.no') }}';
+            var LOCA_PLANETMOVE_BREAKUP_WARNING = @json(__('t_ingame.buildings.planet_move_warning'));
+            var LOCA_ALL_NETWORK_ATTENTION = @json(__('t_ingame.shared.caution'));
+            var LOCA_ALL_YES = @json(__('t_ingame.shared.yes'));
+            var LOCA_ALL_NO = @json(__('t_ingame.shared.no'));
 
             var planetMoveInProgress = {{ $planet_move_in_progress ? 'true' : 'false' }};
             var lastBuildingSlot = {"showWarning":false,"slotWarning":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item (e.g. <a href=\"#page&#61;shop#page&#61;shop&amp;category&#61;c18170d3125b9941ef3a86bd28dded7bf2066a6a&amp;item&#61;04e58444d6d0beb57b3e998edc34c60f8318825a\" class=\"tooltipHTML itemLink\">Gold Planet Fields<\/a>) to obtain more slots. Are you sure you want to build this building?"};
@@ -93,7 +93,7 @@
 
     <div id="technologydetailscomponent" class="technologydetails injectedComponent parent research">
         <script type="text/javascript">
-            var loca = {"LOCA_ALL_NOTICE":"{{ __('t_ingame.buildings.loca_notice') }}","LOCA_ALL_NETWORK_ATTENTION":"{{ __('t_ingame.shared.caution') }}","locaDemolishStructureQuestion":"{{ __('t_ingame.buildings.loca_demolish') }}","LOCA_ALL_YES":"{{ __('t_ingame.shared.yes') }}","LOCA_ALL_NO":"{{ __('t_ingame.shared.no') }}","LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING":"{{ __('t_ingame.buildings.loca_lifeform_cap') }}"};
+            var loca = @json(['LOCA_ALL_NOTICE' => __('t_ingame.buildings.loca_notice'), 'LOCA_ALL_NETWORK_ATTENTION' => __('t_ingame.shared.caution'), 'locaDemolishStructureQuestion' => __('t_ingame.buildings.loca_demolish'), 'LOCA_ALL_YES' => __('t_ingame.shared.yes'), 'LOCA_ALL_NO' => __('t_ingame.shared.no'), 'LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING' => __('t_ingame.buildings.loca_lifeform_cap')]);
 
             var technologyDetailsEndpoint = "{{ route('research.ajax') }}";
             var selectCharacterClassEndpoint = "#TODO_page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=selectClass&ajax=1&asJson=1";
