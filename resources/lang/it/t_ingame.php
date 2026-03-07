@@ -1111,9 +1111,9 @@ return [
 
         // Barra risorse
         'res_available'             => 'Disponibile',
-        'res_storage_capacity'      => 'Capacità magazzino',
+        'res_storage_capacity'      => 'Capacità del deposito',
         'res_current_production'    => 'Produzione attuale',
-        'res_den_capacity'          => 'Capacità tana',
+        'res_den_capacity'          => 'Capacità del nascondiglio',
         'res_consumption'           => 'Consumo',
         'res_purchase_dm'           => 'Acquista Materia Oscura',
         'res_metal'                 => 'Metallo',
@@ -1123,17 +1123,17 @@ return [
         'res_dark_matter'           => 'Materia Oscura',
 
         // Menu laterale — etichette voci
-        'menu_overview'             => 'Panoramica',
+        'menu_overview'             => 'Riepilogo',
         'menu_resources'            => 'Risorse',
         'menu_facilities'           => 'Strutture',
         'menu_merchant'             => 'Mercante',
         'menu_research'             => 'Ricerca',
-        'menu_shipyard'             => 'Cantiere navale',
+        'menu_shipyard'             => 'Cantiere Spaziale',
         'menu_defense'              => 'Difesa',
         'menu_fleet'                => 'Flotta',
         'menu_galaxy'               => 'Galassia',
         'menu_alliance'             => 'Alleanza',
-        'menu_officers'             => 'Recluta ufficiali',
+        'menu_officers'             => 'Sala ufficiali',
         'menu_shop'                 => 'Negozio',
         'menu_directives'           => 'Direttive',
 
@@ -1264,7 +1264,7 @@ return [
 
     // ── Premium / Ufficiali ─────────────────────────────────────────────────
     'premium' => [
-        'recruit_officers'           => 'Recluta ufficiali',
+        'recruit_officers'           => 'Sala ufficiali',
         'your_officers'              => 'I tuoi ufficiali',
         'intro_text'                 => 'Con i tuoi ufficiali puoi guidare il tuo impero a dimensioni oltre i tuoi sogni più sfrenati - tutto ciò di cui hai bisogno è un po\' di Materia Oscura e i tuoi lavoratori e consiglieri lavoreranno ancora più duramente!',
         'info_dark_matter'           => 'Maggiori informazioni su: Materia Oscura',

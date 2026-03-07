@@ -71,9 +71,9 @@ La Cisterna di Deuterio protegge una certa percentuale della produzione giornali
     ],
 
     'shipyard' => [
-        'title'            => 'Cantiere Navale',
-        'description'      => 'Tutti i tipi di navi e strutture difensive vengono costruiti nel cantiere navale planetario.',
-        'description_long' => 'Il cantiere navale planetario è responsabile della costruzione di astronavi e meccanismi difensivi. Man mano che il cantiere navale viene potenziato, può produrre una varietà più ampia di veicoli a una velocità molto maggiore. Se sul pianeta è presente una fabbrica di naniti, la velocità di costruzione delle navi aumenta enormemente.',
+        'title'            => 'Cantiere Spaziale',
+        'description'      => 'Tutti i tipi di navi e strutture difensive vengono costruiti nel Cantiere Spaziale planetario.',
+        'description_long' => 'Il Cantiere Spaziale planetario è responsabile della costruzione di astronavi e meccanismi difensivi. Man mano che il Cantiere Spaziale viene potenziato, può produrre una varietà più ampia di veicoli a una velocità molto maggiore. Se sul pianeta è presente una fabbrica di naniti, la velocità di costruzione delle navi aumenta enormemente.',
     ],
 
     'research_lab' => [
@@ -471,7 +471,7 @@ Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive
 
     'detroid' => [
         'title'       => 'DETROID',
-        'description' => 'Riduce il tempo di costruzione dei contratti del cantiere navale attualmente in corso di <b>:duration</b>.',
+        'description' => 'Riduce il tempo di costruzione dei contratti del Cantiere Spaziale attualmente in corso di <b>:duration</b>.',
     ],
 
     'newtron' => [

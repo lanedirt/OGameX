@@ -19,3 +19,6 @@ yarn-error.log
 rust/*/target
 # Compiled rust apps (rust modules are recompiled during container start)
 storage/rust-libs/*.so
+memory.md
+.claude/settings.local.json
+/ogame_OR

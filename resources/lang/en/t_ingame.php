@@ -1291,7 +1291,7 @@ return [
         'info_geologist'             => 'More information about: Geologist',
         'info_technocrat'            => 'More information about: Technocrat',
         'info_commanding_staff'      => 'More information about: Commanding Staff',
-        'hire_commander_tooltip'     => 'Hire commander|+40 favorites, building queue, shortcuts, transport scanner, advertisement-free* <span style="font-size: 10px; line-height: 10px">(*excludes: game related references)</span>',
+        'hire_commander_tooltip'     => 'Hire commander|+40 favorites, building queue, shortcuts, transport scanner, advertisement-free* <span style=\'font-size: 10px; line-height: 10px\'>(*excludes: game related references)</span>',
         'hire_admiral_tooltip'       => "Hire admiral|Max. fleet slots +2,\nMax. expeditions +1,\nImproved fleet escape rate,\nCombat simulation save slots +20",
         'hire_engineer_tooltip'      => 'Hire engineer|Halves losses to defenses, +10% energy production',
         'hire_geologist_tooltip'     => 'Hire geologist|+10% mine production',

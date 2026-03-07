@@ -7,13 +7,10 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\User;
 use OGame\Services\CoordinateDistanceCalculator;
 use OGame\Services\SettingsService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CoordinateDistanceCalculatorTest extends TestCase
 {
-    use RefreshDatabase;
-
     private CoordinateDistanceCalculator $calculator;
     private SettingsService $settingsService;
 
