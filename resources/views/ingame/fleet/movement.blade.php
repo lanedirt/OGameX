@@ -138,7 +138,7 @@
                     var overlayUrl = $(this).attr("href");
                     openOverlay(overlayUrl, {
                         'class': 'federation-layer',
-                        title: '@lang('Fleet union')'
+                        title: '{{ __('t_ingame.fleet.fleet_union') }}'
                     });
                     return false;
                 });

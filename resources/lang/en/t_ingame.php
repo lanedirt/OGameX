@@ -283,6 +283,21 @@ return [
         'desc_destroy_moon'        => 'Destroys the moon of your enemy.',
         'desc_expedition'          => 'Send your ships to the furthest reaches of space to complete exciting quests.',
 
+        // ACS Attack – federation overlay
+        'fleet_union'              => 'Fleet union',
+        'union_name'               => 'Union name',
+        'buddy_list'               => 'Buddy list',
+        'buddy_list_loading'       => 'Loading...',
+        'buddy_list_empty'         => 'No buddies available',
+        'buddy_list_error'         => 'Failed to load buddies',
+        'search_user'              => 'Search user',
+        'search'                   => 'Search',
+        'union_user'               => 'Union user',
+        'invite'                   => 'Invite',
+        'kick'                     => 'Kick',
+        'ok'                       => 'Ok',
+        'own_fleet'                => 'Own fleet',
+
         // Briefing section (no trailing colons — add : in template where needed)
         'briefing'                 => 'Briefing',
         'load_resources'           => 'Load resources',

@@ -94,11 +94,11 @@
             @if ($member_fleet->user_id !== null && $member_fleet->user_id !== auth()->id())
                 <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $member_fleet->user_id }}" title="{{ $member_fleet->player_name }}"><span class="icon icon_chat"></span></a>
             @endif
-            @lang('Own fleet')
+            {{ __('t_ingame.fleet.own_fleet') }}
         </td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="@lang('Own fleet') | {{ $member_fleet->mission_label }}" alt=""/>
+                 title="{{ __('t_ingame.fleet.own_fleet') }} | {{ $member_fleet->mission_label }}" alt=""/>
         </td>
 
         <td class="originFleet">

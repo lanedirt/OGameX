@@ -10,27 +10,27 @@
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <div class="wrap">
             <div class="col textCenter">
-                <a id="switch" href="javascript:void(0);" class="textBeefy">@lang('Search user')</a>
+                <a id="switch" href="javascript:void(0);" class="textBeefy">{{ __('t_ingame.fleet.search_user') }}</a>
             </div>
             <div class="col">
-                <span class="textBeefy">@lang('Union name')</span>
+                <span class="textBeefy">{{ __('t_ingame.fleet.union_name') }}</span>
                 <input class="textInput fix" id="groupNameInput" type="text" value="{{ $unionName ?? '' }}" name="groupname">
             </div>
             <br class="clearfloat">
         </div>
         <div class="wrap" style="position:relative">
             <div class="wrapInner">
-                <div class="textBeefy">@lang('Buddy list'):</div>
+                <div class="textBeefy">{{ __('t_ingame.fleet.buddy_list') }}:</div>
                     <ul size="7" id="buddyselect" class="ui-selectable">
-                        <li class="empty">@lang('Loading...')</li>
+                        <li class="empty">{{ __('t_ingame.fleet.buddy_list_loading') }}</li>
                     </ul>
                 </div>
                 <div class="buttonWrap">
-                        <input type="button" onclick="addUserToUnion(); return false" class="btn_blue" value="@lang('Invite') &gt;&gt;">
-                        <input type="button" onclick="removeUserFromUnion(); return false" class="btn_blue" value="&lt;&lt; @lang('Kick')">
+                        <input type="button" onclick="addUserToUnion(); return false" class="btn_blue" value="{{ __('t_ingame.fleet.invite') }} &gt;&gt;">
+                        <input type="button" onclick="removeUserFromUnion(); return false" class="btn_blue" value="&lt;&lt; {{ __('t_ingame.fleet.kick') }}">
                 </div>
                 <div class="wrapInner">
-                    <div class="textBeefy">@lang('Union user'): (1/5)</div>
+                    <div class="textBeefy">{{ __('t_ingame.fleet.union_user') }}: (1/5)</div>
                     <ul size="7" id="participantselect" class="ui-selectable">
                         <li ref="current" class="undermark">{{ $playerName }}</li>
                         @foreach ($unionMembers as $memberName)
@@ -40,17 +40,17 @@
                 </div><!-- float1 -->
                    <br class="clearfloat">
             </div>
-            <input type="submit" id="fleetOK" class="btn_blue float_right buttonOK" value="@lang('Ok')">
+            <input type="submit" id="fleetOK" class="btn_blue float_right buttonOK" value="{{ __('t_ingame.fleet.ok') }}">
         </form>
         <form action="#" name="unionUserSearch" id="unionUserSearch" onsubmit="submit_unionUserSearch(); return false;">
             <div id="searchFed">
                 <div id="honorWarning">
-                    @lang('Honourable battles can become dishonourable battles if strong players enter through ACS. The attackers` sum of total military points in comparison to the defenders` sum of total military points is the decisive factor here.')
+                    {{ __('t_ingame.fleet.desc_acs_attack') }}
                 </div>
                 <div class="wrap" style="display:none;">
-                    <span class="textBeefy">@lang('Search user'):</span>
+                    <span class="textBeefy">{{ __('t_ingame.fleet.search_user') }}:</span>
                     <input class="textInput fix" type="text" name="addtogroup">
-                    <input type="submit" class="btn_blue" value="@lang('Search')">
+                    <input type="submit" class="btn_blue" value="{{ __('t_ingame.fleet.search') }}">
                     </div>
             </div><!-- float2 -->
         </form>
@@ -75,13 +75,13 @@ function submit_unionUserSearch(){ajaxFormSubmit('unionUserSearch','{{ route('fl
                     buddyList.append('<li ref="' + buddy.username + '" class="ui-selectee">' + buddy.username + '</li>');
                 });
             } else {
-                buddyList.append('<li class="empty">@lang('No buddies available')</li>');
+                buddyList.append('<li class="empty">{{ __('t_ingame.fleet.buddy_list_empty') }}</li>');
             }
 
             initFederationLayer();
         },
         error: function() {
-            jQuery('#buddyselect').html('<li class="empty">@lang('Failed to load buddies')</li>');
+            jQuery('#buddyselect').html('<li class="empty">{{ __('t_ingame.fleet.buddy_list_error') }}</li>');
             initFederationLayer();
         }
     });
