@@ -149,7 +149,14 @@
     </div>
     <div id="technologydetailscomponent" class="technologydetails injectedComponent parent supplies">
         <script type="text/javascript">
-            var loca = @json(['LOCA_ALL_NOTICE' => __('t_ingame.buildings.loca_notice'), 'LOCA_ALL_NETWORK_ATTENTION' => __('t_ingame.shared.caution'), 'locaDemolishStructureQuestion' => __('t_ingame.buildings.loca_demolish'), 'LOCA_ALL_YES' => __('t_ingame.shared.yes'), 'LOCA_ALL_NO' => __('t_ingame.shared.no'), 'LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING' => __('t_ingame.buildings.loca_lifeform_cap')]);
+            var loca = {!! json_encode([
+                'LOCA_ALL_NOTICE' => __('t_ingame.buildings.loca_notice'),
+                'LOCA_ALL_NETWORK_ATTENTION' => __('t_ingame.shared.caution'),
+                'locaDemolishStructureQuestion' => __('t_ingame.buildings.loca_demolish'),
+                'LOCA_ALL_YES' => __('t_ingame.shared.yes'),
+                'LOCA_ALL_NO' => __('t_ingame.shared.no'),
+                'LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING' => __('t_ingame.buildings.loca_lifeform_cap'),
+            ]) !!};
 
             var technologyDetailsEndpoint = "{{ route('resources.ajax') }}";
             var selectCharacterClassEndpoint = "#TODO_page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=selectClass&ajax=1&asJson=1";
