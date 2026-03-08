@@ -211,6 +211,7 @@ return [
         'tooltip_market_slots'     => 'Gebruikt/Totaal handelsvloten',
 
         // Waarschuwing / onmogelijke staten
+        'fleet_dispatch'           => 'Vloot versturen',
         'dispatch_impossible'      => 'Vloot versturen onmogelijk',
         'no_ships'                 => 'Er zijn geen schepen op deze planeet.',
         'in_combat'                => 'De vloot is momenteel in gevecht.',

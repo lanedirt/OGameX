@@ -211,6 +211,7 @@ return [
         'tooltip_market_slots'     => 'Used/Total trading fleets',
 
         // Warning / impossible states
+        'fleet_dispatch'           => 'Fleet dispatch',
         'dispatch_impossible'      => 'Fleet dispatch impossible',
         'no_ships'                 => 'There are no ships on this planet.',
         'in_combat'                => 'The fleet is currently in combat.',

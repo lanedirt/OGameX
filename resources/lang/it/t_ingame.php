@@ -211,6 +211,7 @@ return [
         'tooltip_market_slots'     => 'Usati/Totali flotte commerciali',
 
         // Avvisi / stati impossibili
+        'fleet_dispatch'           => 'Invio flotta',
         'dispatch_impossible'      => 'Invio flotta impossibile',
         'no_ships'                 => 'Non ci sono navi su questo pianeta.',
         'in_combat'                => 'La flotta è attualmente in combattimento.',
