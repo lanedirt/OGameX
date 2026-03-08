@@ -11,7 +11,7 @@
     <div id="content">
         <div id="buttonz">
             <div class="header">
-                <h2>News feed</h2>
+                <h2>{{ __('t_ingame.messages.news_feed') }}</h2>
             </div>
             <div class="content">
                 <div class="js_tabs tabs_wrap ui-tabs ui-corner-all ui-widget ui-widget-content">
@@ -30,7 +30,7 @@
                                 @endif
                                 <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="54" width="54">
                                 <div class="marker"></div>
-                                <span class="icon_caption">Fleets</span>
+                                <span class="icon_caption">{{ __('t_ingame.messages.tab_fleets') }}</span>
                             </a>
                         </li>
                         <li id="tabs-nfCommunication"
@@ -46,7 +46,7 @@
                                 @endif
                                 <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="54" width="54">
                                 <div class="marker"></div>
-                                <span class="icon_caption">Communication</span>
+                                <span class="icon_caption">{{ __('t_ingame.messages.tab_communication') }}</span>
                             </a>
                         </li>
                         <li id="tabs-nfEconomy" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
@@ -61,7 +61,7 @@
                                 @endif
                                 <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="54" width="54">
                                 <div class="marker"></div>
-                                <span class="icon_caption">Economy</span>
+                                <span class="icon_caption">{{ __('t_ingame.messages.tab_economy') }}</span>
                             </a>
                         </li>
                         <li id="tabs-nfUniverse" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
@@ -76,7 +76,7 @@
                                 @endif
                                 <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="54" width="54">
                                 <div class="marker"></div>
-                                <span class="icon_caption">Universe</span>
+                                <span class="icon_caption">{{ __('t_ingame.messages.tab_universe') }}</span>
                             </a>
                         </li>
                         <li id="tabs-nfSystem" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
@@ -91,7 +91,7 @@
                                 @endif
                                 <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="54" width="54">
                                 <div class="marker"></div>
-                                <span class="icon_caption">OGame</span>
+                                <span class="icon_caption">{{ __('t_ingame.messages.tab_system') }}</span>
                             </a>
                         </li>
                         <li id="tabs-nfFavorites" class="list_item ui-tabs-tab ui-corner-top ui-state-default ui-tab"
@@ -106,7 +106,7 @@
                                 @endif
                                 <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="54" width="54">
                                 <div class="marker"></div>
-                                <span class="icon_caption">Favourites</span>
+                                <span class="icon_caption">{{ __('t_ingame.messages.tab_favourites') }}</span>
                             </a>
                         </li>
                     </ul>
@@ -143,10 +143,10 @@
             function deleteBuddy() {
                 var $thisObj = $(this);
                 errorBoxDecision(
-                    'Delete buddy',
+                    '{{ __('t_ingame.messages.delete_buddy_title') }}',
                     $thisObj.attr("ref"),
-                    'yes',
-                    'No',
+                    '{{ __('t_ingame.shared.yes') }}',
+                    '{{ __('t_ingame.shared.no') }}',
                     function () {
                         var buddyAction = 10;
                         var actionId = $thisObj.attr("id");
@@ -205,7 +205,7 @@
 
                 } else {
                     if (e.keyCode === 13) {
-                        fadeBox("Too few characters! Please put in at least 2 characters.", true);
+                        fadeBox("{{ __('t_ingame.messages.too_few_chars') }}", true);
                     }
                 }
             }
@@ -269,10 +269,10 @@
                 }
 
                 errorBoxDecision(
-                    "Caution",
-                    "Report this message to a game operator?",
-                    "yes",
-                    "No",
+                    "{{ __('t_ingame.shared.caution') }}",
+                    "{{ __('t_ingame.messages.report_to_operator') }}",
+                    "{{ __('t_ingame.shared.yes') }}",
+                    "{{ __('t_ingame.shared.no') }}",
                     sendReport
                 );
 
@@ -299,41 +299,41 @@
         <script language="javascript">
             // passing variables to javascript
             var localizedBBCode = {
-                "bold": "Bold",
-                "italic": "Italic",
-                "underline": "Underline",
-                "stroke": "Strikethrough",
-                "sub": "Subscript",
-                "sup": "Superscript",
-                "fontColor": "Font colour",
-                "fontSize": "Font size",
-                "backgroundColor": "Background colour",
-                "backgroundImage": "Background image",
-                "tooltip": "Tool-tip",
-                "alignLeft": "Left align",
-                "alignCenter": "Centre align",
-                "alignRight": "Right align",
-                "alignJustify": "Justify",
-                "block": "Break",
-                "code": "Code",
-                "spoiler": "Spoiler",
-                "moreopts": "More Options",
-                "list": "List",
-                "hr": "Horizontal line",
-                "picture": "Image",
-                "link": "Link",
-                "email": "Email",
-                "player": "Player",
-                "item": "Item",
-                "coordinates": "Coordinates",
-                "preview": "Preview",
-                "textPlaceHolder": "Text...",
-                "playerPlaceHolder": "Player ID or name",
-                "itemPlaceHolder": "Item ID",
-                "coordinatePlaceHolder": "Galaxy:system:position",
-                "charsLeft": "Characters remaining",
-                "colorPicker": {"ok": "Ok", "cancel": "Cancel", "rgbR": "R", "rgbG": "G", "rgbB": "B"},
-                "backgroundImagePicker": {"ok": "Ok", "repeatX": "Repeat horizontally", "repeatY": "Repeat vertically"}
+                "bold":                "{{ __('t_ingame.messages.bbcode_bold') }}",
+                "italic":              "{{ __('t_ingame.messages.bbcode_italic') }}",
+                "underline":           "{{ __('t_ingame.messages.bbcode_underline') }}",
+                "stroke":              "{{ __('t_ingame.messages.bbcode_stroke') }}",
+                "sub":                 "{{ __('t_ingame.messages.bbcode_sub') }}",
+                "sup":                 "{{ __('t_ingame.messages.bbcode_sup') }}",
+                "fontColor":           "{{ __('t_ingame.messages.bbcode_font_color') }}",
+                "fontSize":            "{{ __('t_ingame.messages.bbcode_font_size') }}",
+                "backgroundColor":     "{{ __('t_ingame.messages.bbcode_bg_color') }}",
+                "backgroundImage":     "{{ __('t_ingame.messages.bbcode_bg_image') }}",
+                "tooltip":             "{{ __('t_ingame.messages.bbcode_tooltip') }}",
+                "alignLeft":           "{{ __('t_ingame.messages.bbcode_align_left') }}",
+                "alignCenter":         "{{ __('t_ingame.messages.bbcode_align_center') }}",
+                "alignRight":          "{{ __('t_ingame.messages.bbcode_align_right') }}",
+                "alignJustify":        "{{ __('t_ingame.messages.bbcode_align_justify') }}",
+                "block":               "{{ __('t_ingame.messages.bbcode_block') }}",
+                "code":                "{{ __('t_ingame.messages.bbcode_code') }}",
+                "spoiler":             "{{ __('t_ingame.messages.bbcode_spoiler') }}",
+                "moreopts":            "{{ __('t_ingame.messages.bbcode_moreopts') }}",
+                "list":                "{{ __('t_ingame.messages.bbcode_list') }}",
+                "hr":                  "{{ __('t_ingame.messages.bbcode_hr') }}",
+                "picture":             "{{ __('t_ingame.messages.bbcode_picture') }}",
+                "link":                "{{ __('t_ingame.messages.bbcode_link') }}",
+                "email":               "{{ __('t_ingame.messages.bbcode_email') }}",
+                "player":              "{{ __('t_ingame.messages.bbcode_player') }}",
+                "item":                "{{ __('t_ingame.messages.bbcode_item') }}",
+                "coordinates":         "{{ __('t_ingame.messages.bbcode_coordinates') }}",
+                "preview":             "{{ __('t_ingame.messages.bbcode_preview') }}",
+                "textPlaceHolder":     "{{ __('t_ingame.messages.bbcode_text_ph') }}",
+                "playerPlaceHolder":   "{{ __('t_ingame.messages.bbcode_player_ph') }}",
+                "itemPlaceHolder":     "{{ __('t_ingame.messages.bbcode_item_ph') }}",
+                "coordinatePlaceHolder":"{{ __('t_ingame.messages.bbcode_coord_ph') }}",
+                "charsLeft":           "{{ __('t_ingame.messages.bbcode_chars_left') }}",
+                "colorPicker":         {"ok": "{{ __('t_ingame.messages.bbcode_ok') }}", "cancel": "{{ __('t_ingame.messages.bbcode_cancel') }}", "rgbR": "R", "rgbG": "G", "rgbB": "B"},
+                "backgroundImagePicker":{"ok": "{{ __('t_ingame.messages.bbcode_ok') }}", "repeatX": "{{ __('t_ingame.messages.bbcode_repeat_x') }}", "repeatY": "{{ __('t_ingame.messages.bbcode_repeat_y') }}"}
             };
             var itemNames = {
                 "1aa36213cb676fd5baad5edc2bee4fbe117a778b": "Researchers",
@@ -451,11 +451,11 @@
                 "859d82d316b83848f7365d21949b3e1e63c7841f": "Metal Package"
             };
             var loca = {
-                "LOCA_SETTINGS_NEWSFEED": "News feed",
-                "LOCA_ALL_AJAXLOAD": "load...",
-                "LOCA_GALAXY_ERROR_OCCURED": "An error has occurred",
-                "LOCA_MSG_ADD_FAV": "mark as favourite",
-                "LOCA_MSG_DELETE_FAV": "remove from favourites"
+                "LOCA_SETTINGS_NEWSFEED":    "{{ __('t_ingame.messages.news_feed') }}",
+                "LOCA_ALL_AJAXLOAD":         "{{ __('t_ingame.messages.loading') }}",
+                "LOCA_GALAXY_ERROR_OCCURED": "{{ __('t_ingame.messages.error_occurred') }}",
+                "LOCA_MSG_ADD_FAV":          "{{ __('t_ingame.messages.mark_favourite') }}",
+                "LOCA_MSG_DELETE_FAV":       "{{ __('t_ingame.messages.remove_favourite') }}"
             };
 
             (function ($) {

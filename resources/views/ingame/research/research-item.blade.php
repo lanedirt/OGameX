@@ -12,19 +12,19 @@
         data-start="1713521207"
         data-end="1713604880"
         data-total="61608"
-        title="{{ $building->object->title }}<br/>@lang('Under construction')"
+        title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.under_construction') }}"
     @elseif (!$building->requirements_met)
         data-status="off"
-        title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"
+        title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.requirements_not_met') }}"
     @elseif ($building->research_lab_upgrading)
         data-status="disabled"
-        title="{{ $building->object->title }}<br/>@lang('Research Lab is being expanded.')"
+        title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.research_lab_expanding') }}"
     @elseif (!$building->enough_resources)
         data-status="disabled"
-        title="{{ $building->object->title }}<br/>@lang('Not enough resources!')"
+        title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.not_enough_resources') }}"
     @elseif ($build_queue_max)
         data-status="disabled"
-        title="{{ $building->object->title }}<br/>@lang('Queue is full')"
+        title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.queue_full') }}"
     @else
         data-status="on"
         title="{{ $building->object->title }}"

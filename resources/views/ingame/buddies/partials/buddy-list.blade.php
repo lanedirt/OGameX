@@ -9,7 +9,7 @@
             // Determine online/offline status
             $isOnline = $buddy->isOnline();
             $statusClass = $isOnline ? 'online' : 'offline';
-            $statusTitle = $isOnline ? 'On' : 'Off';
+            $statusTitle = $isOnline ? __('t_buddies.ui.status_on') : __('t_buddies.ui.status_off');
 
             // Get player service for the buddy
             $buddyPlayer = app(\OGame\Services\PlayerService::class, ['player_id' => $buddy->id]);
@@ -86,7 +86,7 @@
 @else
     <tr>
         <td colspan="7" class="textCenter">
-            <p class="box_highlight textCenter no_buddies">No buddies found</p>
+            <p class="box_highlight textCenter no_buddies">{{ __('t_buddies.ui.no_buddies_found') }}</p>
         </td>
     </tr>
 @endif

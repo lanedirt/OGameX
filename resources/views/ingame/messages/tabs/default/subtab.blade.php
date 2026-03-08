@@ -23,7 +23,7 @@
             @endphp
             @if (count($messages) === 0)
                 <li class="no_msg">
-                    There are currently no messages available in this tab
+                    {{ __('t_ingame.messages.no_messages') }}
                 </li>
                 <br>
             @endif
@@ -34,12 +34,12 @@
                         <span class="msg_title blue_txt">{{ $message->getSubject() }}</span>
                         <span class="fright">
                             <a href="javascript: void(0);" class="fright">
-                                <span class="icon_nf icon_refuse js_actionKill tooltip js_hideTipOnMobile" title="delete"></span>
+                                <span class="icon_nf icon_refuse js_actionKill tooltip js_hideTipOnMobile" title="{{ __('t_ingame.messages.battle_delete') }}"></span>
                             </a>
                             <span class="msg_date fright">{{ $message->getDateFormatted() }}</span>
                         </span>
                         <br>
-                        <span class="msg_sender_label">From:</span>
+                        <span class="msg_sender_label">{{ __('t_ingame.messages.from') }}:</span>
                         <span class="msg_sender">{{ $message->getFrom() }}</span>
                     </div>
                     <span class="msg_content">

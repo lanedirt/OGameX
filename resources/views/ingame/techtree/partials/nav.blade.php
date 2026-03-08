@@ -3,22 +3,22 @@
     <ul>
         <li>
             <a class="overlay" data-action="technologytree" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $objectId]) }}">
-                @lang('Techtree')
+                {{ __('t_ingame.techtree.tab_techtree') }}
             </a>
         </li>
         <li>
             <a class="overlay" data-action="applications" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 4, 'object_id' => $objectId]) }}">
-                @lang('Applications')
+                {{ __('t_ingame.techtree.tab_applications') }}
             </a>
         </li>
         <li>
             <a class="overlay" data-action="technologyinformation" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $objectId]) }}">
-                @lang('Techinfo')
+                {{ __('t_ingame.techtree.tab_techinfo') }}
             </a>
         </li>
         <li>
             <a class="overlay" data-action="technologies" data-overlay-same="true" href="{{ route('techtree.ajax', ['tab' => 3, 'object_id' => $objectId]) }}">
-                @lang('Technology')
+                {{ __('t_ingame.techtree.tab_technology') }}
             </a>
         </li>
     </ul>

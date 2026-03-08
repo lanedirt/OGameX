@@ -1,8 +1,8 @@
-<div id="technologytree" data-title="@lang('Technology') - {{ $object->title }}">
+<div id="technologytree" data-title="{{ __('t_ingame.techtree.page_title') }} - {{ $object->title }}">
     @include('ingame.techtree.partials.nav', ['currentAction' => 'applications', 'objectId' => $object->id])
 
     <div class="content applications">
-        <p class="hint">{{$object->title}} @lang('is a requirement for'):</p>
+        <p class="hint">{{$object->title}} {{ __('t_ingame.techtree.is_requirement_for') }}:</p>
         <ul class="applications">
             @php /** @var OGame\GameObjects\Models\Techtree\TechtreeRequiredBy $required */ @endphp
             @foreach ($required_by as $required)
