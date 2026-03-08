@@ -5,16 +5,16 @@
             <thead>
             <tr>
                 <th>
-                    Level
+                    {{ __('t_ingame.techtree.col_level') }}
                 </th>
                 <th>
-                    Energy Balance
+                    {{ __('t_ingame.techtree.production_energy_balance') }}
                 </th>
                 <th>
-                    Difference
+                    {{ __('t_ingame.techtree.col_difference') }}
                 </th>
                 <th>
-                    Difference/Level
+                    {{ __('t_ingame.techtree.col_diff_per_level') }}
                 </th>
             </tr>
             </thead>
@@ -59,22 +59,22 @@
             <thead>
                 <tr>
                     <th>
-                        Level
+                        {{ __('t_ingame.techtree.col_level') }}
                     </th>
                     <th>
-                        Energy Balance
+                        {{ __('t_ingame.techtree.production_energy_balance') }}
                     </th>
                     <th>
-                        Difference
+                        {{ __('t_ingame.techtree.col_difference') }}
                     </th>
                     <th>
-                        Difference/Level
+                        {{ __('t_ingame.techtree.col_diff_per_level') }}
                     </th>
                     <th>
-                        Deuterium consumption
+                        {{ __('t_ingame.techtree.production_deuterium_consumption') }}
                     </th>
                     <th>
-                        Difference
+                        {{ __('t_ingame.techtree.col_difference') }}
                     </th>
                 </tr>
             </thead>
@@ -132,25 +132,25 @@
             <thead>
                 <tr>
                     <th>
-                        Level
+                        {{ __('t_ingame.techtree.col_level') }}
                     </th>
                     <th>
-                        Production/h
+                        {{ __('t_ingame.techtree.production_per_hour') }}
                     </th>
                     <th>
-                        Difference
+                        {{ __('t_ingame.techtree.col_difference') }}
                     </th>
                     <th>
-                        Difference/Level
+                        {{ __('t_ingame.techtree.col_diff_per_level') }}
                     </th>
                     <th>
-                        Energy Balance:
+                        {{ __('t_ingame.techtree.production_energy_balance') }}:
                     </th>
                     <th>
-                        Difference
+                        {{ __('t_ingame.techtree.col_difference') }}
                     </th>
                     <th>
-                        Protected
+                        {{ __('t_ingame.techtree.col_protected') }}
                     </th>
                 </tr>
             </thead>

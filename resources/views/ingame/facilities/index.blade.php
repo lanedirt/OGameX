@@ -13,15 +13,15 @@
             <div class="c-left"></div>
             <div class="c-right"></div>
             <header data-anchor="technologyDetails" data-technologydetails-size="large" style="background-image:url('{{ asset('img/headers/facilities/' . $header_filename . '.jpg') }}');">
-                <h2>Facilities - {{ $planet_name }}</h2>
+                <h2>{{ __('t_ingame.facilities_page.page_title') }} - {{ $planet_name }}</h2>
                 @if (isset($jump_gate_level) && $jump_gate_level > 0)
                     <div id="slot01" class="slot">
-                        <a href="{{ route('jumpgate.index') }}" class="overlay" data-overlay-title="@lang('Use Jump Gate')">@lang('Jump Gate')</a>
+                        <a href="{{ route('jumpgate.index') }}" class="overlay" data-overlay-title="{{ __('t_ingame.facilities_page.use_jump_gate') }}">{{ __('t_ingame.facilities_page.jump_gate') }}</a>
                     </div>
                 @endif
                 @if (isset($alliance_depot_level) && $alliance_depot_level > 0)
                     <div id="slot01" class="slot">
-                        <a href="{{ route('alliance-depot.index') }}" class="overlay" data-overlay-class="allydepot" data-overlay-title="@lang('Alliance Depot')">@lang('Alliance Depot')</a>
+                        <a href="{{ route('alliance-depot.index') }}" class="overlay" data-overlay-class="allydepot" data-overlay-title="{{ __('t_ingame.facilities_page.alliance_depot') }}">{{ __('t_ingame.facilities_page.alliance_depot') }}</a>
                     </div>
                 @endif
             </header>
@@ -30,7 +30,7 @@
             </div>
             <div id="technologies">
                 <h3>
-                    @lang('Facility buildings')
+                    {{ __('t_ingame.facilities_page.section_title') }}
                 </h3>
                 <ul class="icons">
                     @php /** @var OGame\ViewModels\BuildingViewModel $building */ @endphp
@@ -47,34 +47,34 @@
                                 data-start="1713521207"
                                 data-end="1713604880"
                                 data-total="61608"
-                                title="{{ $building->object->title }}<br/>@lang('Under construction')"
+                                title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.under_construction') }}"
                             @elseif ($is_in_vacation_mode)
                                 data-status="disabled"
-                                title="{{ $building->object->title }}<br/>@lang('Error, player is in vacation mode')"
+                                title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.vacation_mode_error') }}"
                             @elseif (!$building->requirements_met)
                                 data-status="off"
-                                title="{{ $building->object->title }}<br/>@lang('Requirements are not met!')"
+                                title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.requirements_not_met') }}"
                             @elseif (!$building->character_class_met)
                                 data-status="disabled"
-                                title="{{ $building->object->title }}<br/>@lang('Wrong character class!')"
+                                title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.wrong_class') }}"
                             @elseif (!$building->valid_planet_type)
                                 data-status="disabled"
-                                title="{{ $building->object->title }}<br/>@lang('You can\'t construct that building on a moon!')"
+                                title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.no_moon_building') }}"
                             @elseif ($building->ship_or_defense_in_progress && ($building->object->machine_name === 'shipyard' || $building->object->machine_name === 'nano_factory'))
                                 data-status="disabled"
-                            title="{{ $building->object->title }}<br/>@lang('The shipyard is still busy')"
+                            title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.shipyard_busy') }}"
                             @elseif ($building->research_in_progress && $building->object->machine_name == 'research_lab')
                                 data-status="disabled"
-                                title="{{ $building->object->title }}<br/>@lang('Research is currently being carried out!')"
+                                title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.research_in_progress') }}"
                             @elseif (!$building->enough_resources)
                                 data-status="disabled"
-                                title="{{ $building->object->title }}<br/>@lang('Not enough resources!')"
+                                title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.not_enough_resources') }}"
                             @elseif ($build_queue_max)
                                 data-status="disabled"
-                                title="{{ $building->object->title }}<br/>@lang('Queue is full')"
+                                title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.queue_full') }}"
                             @elseif (($building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Building || $building->object->type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) && $building->fields_exceeded)
                                 data-status="disabled"
-                                title="{{ $building->object->title }}<br/>@lang('Not enough fields!')"
+                                title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.not_enough_fields') }}"
                             @else
                                 data-status="on"
                                 title="{{ $building->object->title }}"
@@ -95,7 +95,7 @@
                             @else
                                 <button
                                         class="upgrade tooltip hideOthers js_hideTipOnMobile"
-                                        aria-label="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}" title="Expand {!! $building->object->title !!} on level {!! ($building->current_level + 1) !!}"
+                                        aria-label="{{ __('t_ingame.buildings.expand_button', ['title' => $building->object->title, 'level' => $building->current_level + 1]) }}" title="{{ __('t_ingame.buildings.expand_button', ['title' => $building->object->title, 'level' => $building->current_level + 1]) }}"
                                         data-technology="{{ $building->object->id }}" @if (!$building->object->consumesPlanetField) data-is-spaceprovider="1" @else data-is-spaceprovider="" @endif @if ($building->uses_last_field) data-is-last-field="1" @endif>
                                 </button>
                             @endif
@@ -118,7 +118,7 @@
             <div class="productionBoxBuildings boxColumn building">
                 <div id="productionboxbuildingcomponent" class="productionboxbuilding injectedComponent parent facilities"><div class="content-box-s">
                         <div class="header">
-                            <h3>@lang('Buildings')</h3>
+                            <h3>{{ __('t_ingame.overview.buildings') }}</h3>
                         </div>
                         <div class="content">
                             {{-- Building is actively being built. --}}
@@ -130,7 +130,7 @@
                     </div>
                     <script type="text/javascript">
                         var scheduleBuildListEntryUrl = '{{ route("facilities.addbuildrequest.post") }}';
-                        var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = 'Your last action could not be processed. Please try again.';
+                        var LOCA_ERROR_INQUIRY_NOT_WORKED_TRYAGAIN = @json(__('t_ingame.buildings.last_inquiry_error'));
                         redirectPremiumLink = '#TODO_index.php?page=premium&showDarkMatter=1'
                     </script>
                 </div>
@@ -356,7 +356,7 @@
             };
 
             window.burnWreckField = function() {
-                if (confirm('{{ __("Are you sure you want to burn up this wreck field? This action cannot be undone.") }}')) {
+                if (confirm('{{ __('t_ingame.facilities_page.burn_confirm') }}')) {
                     $.post('{{ route("facilities.burnwreckfield") }}', {
                         _token: "{{ csrf_token() }}"
                     })
@@ -1056,7 +1056,14 @@
 
     <div id="technologydetailscomponent" class="technologydetails injectedComponent parent facilities">
         <script type="text/javascript">
-            var loca = {"LOCA_ALL_NOTICE":"Reference","LOCA_ALL_NETWORK_ATTENTION":"Caution","locaDemolishStructureQuestion":"Really downgrade TECHNOLOGY_NAME by one level?","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No","LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING":"One or more associated bonuses is already maxed out. Do you want to continue construction anyway?"};
+            var loca = {!! json_encode([
+                'LOCA_ALL_NOTICE' => __('t_ingame.buildings.loca_notice'),
+                'LOCA_ALL_NETWORK_ATTENTION' => __('t_ingame.shared.caution'),
+                'locaDemolishStructureQuestion' => __('t_ingame.buildings.loca_demolish'),
+                'LOCA_ALL_YES' => __('t_ingame.shared.yes'),
+                'LOCA_ALL_NO' => __('t_ingame.shared.no'),
+                'LOCA_LIFEFORM_BONUS_CAP_REACHED_WARNING' => __('t_ingame.buildings.loca_lifeform_cap'),
+            ]) !!};
 
             var technologyDetailsEndpoint = "{{ route('facilities.ajax') }}";
             var selectCharacterClassEndpoint = "#TODO_page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=selectClass&ajax=1&asJson=1";

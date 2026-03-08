@@ -29,7 +29,7 @@
                     @endforeach
                 @else
                     <tr class="alt">
-                        <td colspan="4" align="center">No notes found</td>
+                        <td colspan="4" align="center">{{ __('t_ingame.notes.no_notes_found') }}</td>
                     </tr>
                 @endif
             </tbody>

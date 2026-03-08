@@ -3,7 +3,7 @@
     <span class="msg_title new blue_txt">{!! $subject !!}</span>
     <span class="msg_date fright">{{ $date }}</span>
     <br/>
-    <span class="msg_sender_label">@lang('From'): </span>
+    <span class="msg_sender_label">{{ __('t_ingame.messages.from') }}: </span>
     <span class="msg_sender">{{ $from }}</span>
 
     <!-- only if comments are allowed (Only shared reports and broadcasts have comments): -->
@@ -14,49 +14,49 @@
                           title="This data can be entered into a compatible combat simulator:<br/><input value='sr-en-256-265b38b75e565e12526a560bf4f5c83bfce4c5c5' readonly onclick='select()' style='width:360px'></input>"></span>
         </div>
         <a href="#TODOpage=shareReportOverlay&messageId=1645218"
-           data-overlay-title="share message" title='share message'
+           data-overlay-title="{{ __('t_ingame.messages.battle_share') }}" title='{{ __('t_ingame.messages.battle_share') }}'
            class="icon_nf_link fleft overlay tooltip js_hideTipOnMobile"
         >
                     <span class="icon_nf icon_share tooltip js_hideTipOnMobile"
-                          title='share message'></span>
+                          title='{{ __('t_ingame.messages.battle_share') }}'></span>
         </a>
 
         <a href="{{ route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet_type, 'mission' => 1]) }}" class="icon_nf_link fleft">
-                    <span class="icon_nf icon_attack tooltip js_hideTipOnMobile" title='Attack'>
+                    <span class="icon_nf icon_attack tooltip js_hideTipOnMobile" title='{{ __('t_ingame.messages.battle_attack') }}'>
                                                 </span>
         </a>
         <a href="#" onClick="sendShipsWithPopup(6,1,4,10,1,0); return false;" class="icon_nf_link fleft">
                     <span class="icon_nf icon_espionage tooltip js_hideTipOnMobile"
-                          title='Espionage'>
+                          title='{{ __('t_ingame.messages.battle_espionage') }}'>
                                                 </span>
         </a>
         <a href="javascript:void(0);" class="icon_nf_link fright">
                     <span class="icon_nf icon_refuse js_actionKillDetail tooltip js_hideTipOnMobile"
-                          title='delete'></span>
+                          title='{{ __('t_ingame.messages.battle_delete') }}'></span>
         </a>
     </div>
 </div>
 <div class="detail_msg_ctn">
 
     <div class="detail_txt">
-        <span>@lang('Player')&nbsp;&nbsp;<span class="status_abbr_active">{!! $playername !!}</span></span>
+        <span>{{ __('t_ingame.messages.spy_player') }}&nbsp;&nbsp;<span class="status_abbr_active">{!! $playername !!}</span></span>
     </div>
     <div class="detail_txt">
-        <span>@lang('Class'):<span class="status_abbr_inactive">&nbsp;@lang('Unknown')</span></span>
+        <span>{{ __('t_ingame.messages.spy_class') }}:<span class="status_abbr_inactive">&nbsp;{{ __('t_ingame.messages.spy_unknown') }}</span></span>
     </div>
     <div class="detail_txt">
-        <span>@lang('Alliance Class'):&nbsp;<span class="alliance_class small none">@lang('No alliance class selected')</span></span>
+        <span>{{ __('t_ingame.messages.spy_alliance_class') }}:&nbsp;<span class="alliance_class small none">{{ __('t_ingame.messages.spy_no_alliance_class') }}</span></span>
     </div>
     <div class="detail_txt">
-        @lang('Chance of counter-espionage'): {{ $counter_espionage_chance }}%
+        {{ __('t_ingame.messages.spy_counter_esp') }}: {{ $counter_espionage_chance }}%
         <div class="">
-            @lang('Your espionage does not show abnormalities in the atmosphere of the planet. There appears to have been no activity on the planet within the last hour.')
+            {{ __('t_ingame.messages.spy_no_activity') }}
         </div>
     </div>
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">@lang('Resources')</span>
+        <span class="title_txt">{{ __('t_ingame.messages.spy_resources') }}</span>
     </div>
     <ul class="detail_list clearfix" data-type="resources">
         <li class="resource_list_el tooltipCustom" title="{{ $resources->metal->getFormattedFull() }}">
@@ -92,7 +92,7 @@
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">@lang('debris field')</span>
+        <span class="title_txt">{{ __('t_ingame.messages.spy_debris_field') }}</span>
     </div>
     <ul class="detail_list clearfix" data-type="resources">
         <li class="resource_list_el tooltipCustom" title="{{ $debris->metal->getFormattedFull() }}">
@@ -112,7 +112,7 @@
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">@lang('Fleets')</span>
+        <span class="title_txt">{{ __('t_ingame.messages.spy_fleets') }}</span>
     </div>
     <ul class="detail_list clearfix" data-type="ships">
         @php /** @var OGame\ViewModels\UnitViewModel $unit */ @endphp
@@ -125,14 +125,14 @@
                 <span class="fright" style="margin-right: 10px;">{{ $unit->amount }}</span>
             </li>
         @empty
-            @lang('We were unable to retrieve any reliable information of this type from the scan.')
+            {{ __('t_ingame.messages.spy_no_info') }}
         @endforelse
     </ul>
 
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">@lang('Defense')</span>
+        <span class="title_txt">{{ __('t_ingame.messages.spy_defense') }}</span>
     </div>
     <ul class="detail_list clearfix" data-type="defense">
         @php /** @var OGame\ViewModels\UnitViewModel $unit */ @endphp
@@ -145,14 +145,14 @@
                 <span class="fright" style="margin-right: 10px;">{{ $unit->amount }}</span>
             </li>
         @empty
-            @lang('We were unable to retrieve any reliable information of this type from the scan.')
+            {{ __('t_ingame.messages.spy_no_info') }}
         @endforelse
     </ul>
 
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">@lang('Building')</span>
+        <span class="title_txt">{{ __('t_ingame.messages.spy_building') }}</span>
     </div>
 
     <ul class="detail_list clearfix" data-type="buildings">
@@ -166,7 +166,7 @@
                 <span class="fright" style="margin-right: 10px;">{{ $unit->amount }}</span>
             </li>
         @empty
-            @lang('We were unable to retrieve any reliable information of this type from the scan.')
+            {{ __('t_ingame.messages.spy_no_info') }}
         @endforelse
     </ul>
 
@@ -247,7 +247,7 @@
     <div class="section_title">
         <div class="c-left"></div>
         <div class="c-right"></div>
-        <span class="title_txt">@lang('Research')</span>
+        <span class="title_txt">{{ __('t_ingame.messages.spy_research') }}</span>
     </div>
 
     <ul class="detail_list clearfix" data-type="research">
@@ -260,7 +260,7 @@
                 <span class="fright" style="margin-right: 10px;">{{ $unit->amount }}</span>
             </li>
         @empty
-            @lang('We were unable to retrieve any reliable information of this type from the scan.')
+            {{ __('t_ingame.messages.spy_no_info') }}
         @endforelse
     </ul>
 
@@ -277,7 +277,7 @@
                     <bonus-item-heading>
                         <div></div>
                         <div aria-label="Lifeform experience level bonus">Lifeform experience level bonus</div>
-                        <div class="info tooltip js_hideTipOnMobile" title="Increasing the experience level of your lifeforms gives you a 0.1% bonus per level to all lifeform technologies on planets where these lifeforms are active. The bonus is only available while these lifeforms are active on the planet. All lifeform technologies on the planet benefit from this bonus, not just those of the active lifeform. You can increase your lifeform experience level by sending people on discovery missions using the Humans’ Intergalactic Envoys tech. Once you’ve discovered all lifeforms, you’ll receive a random amount of experience each time you would have discovered a new lifeform. The maximum experience level for this bonus is level 100 (10% bonus).">
+                        <div class="info tooltip js_hideTipOnMobile" title="Increasing the experience level of your lifeforms gives you a 0.1% bonus per level to all lifeform technologies on planets where these lifeforms are active. The bonus is only available while these lifeforms are active on the planet. All lifeform technologies on the planet benefit from this bonus, not just those of the active lifeform. You can increase your lifeform experience level by sending people on discovery missions using the Humans' Intergalactic Envoys tech. Once you've discovered all lifeforms, you'll receive a random amount of experience each time you would have discovered a new lifeform. The maximum experience level for this bonus is level 100 (10% bonus).">
                             <span class="icon icon_info"></span>
                         </div>
                     </bonus-item-heading>
@@ -770,7 +770,7 @@
                                     </bonus-item>
                                     <bonus-item w68 flex-direction-row justify-content-evenly>
                                         <fuel-icon icon-blue sq16 class="tooltip js_hideTipOnMobile" title="Fuel consumption %" aria-label="Fuel consumption %"></fuel-icon>
-                                        <div class="info tooltip js_hideTipOnMobile" title="Fuel can only be reduced by a maximum of 90% of the base value. Even with server settings, your ships’ fuel consumption cannot be reduced below 10%.">
+                                        <div class="info tooltip js_hideTipOnMobile" title="Fuel can only be reduced by a maximum of 90% of the base value. Even with server settings, your ships' fuel consumption cannot be reduced below 10%.">
                                             <span class="icon icon_info"></span>
                                         </div>
                                     </bonus-item>

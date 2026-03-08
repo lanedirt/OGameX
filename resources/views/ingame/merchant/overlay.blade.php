@@ -7,8 +7,8 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td class="freeStorage">@lang('Free storage capacity')</td>
-                    <td class="tradingRate">@lang('Exchange rate')</td>
+                    <td class="freeStorage">{{ __('t_merchant.free_storage_capacity') }}</td>
+                    <td class="tradingRate">{{ __('t_merchant.exchange_rate') }}</td>
                 </tr>
 
                 @php
@@ -43,14 +43,14 @@
                         <td class="resIcon noCenter">
                             <div class="resourceIcon {{ $resourceKey }}"></div>
                         </td>
-                        <td class="noCenter">@lang($resourceNames[$resourceKey])</td>
+                        <td class="noCenter">{{ __('t_merchant.' . $resourceKey) }}</td>
 
                         @if($isSelling)
                             <td id="toSell">
                                 <span id="{{ $resourceId }}_value_label">{{ number_format($currentAmount, 0, '.', ',') }}</span>
                             </td>
                             <td>&nbsp;</td>
-                            <td>@lang('Being sold')</td>
+                            <td>{{ __('t_merchant.being_sold') }}</td>
                             <td class="rate">
                                 @php
                                     // Base trade rates: metal=3.00, crystal=2.00, deuterium=1.00
@@ -62,7 +62,7 @@
                                         default => 1.00
                                     };
                                 @endphp
-                                <span class="tooltipHTML tooltipRight" data-tooltip-title="@lang('Get new exchange rate!')">
+                                <span class="tooltipHTML tooltipRight" data-tooltip-title="{{ __('t_merchant.get_new_exchange_rate') }}">
                                     {{ number_format($baseRate, 2, '.', '') }}
                                 </span>
                             </td>
@@ -75,11 +75,11 @@
                             </td>
                             <td>
                                 <a href="javascript:void(0);" onclick="setMaxValue({{ $resourceId }}); return false;"
-                                   class="tooltip js_hideTipOnMobile setMaxValue" data-tooltip-title="@lang('Exchange maximum amount')">
+                                   class="tooltip js_hideTipOnMobile setMaxValue" data-tooltip-title="{{ __('t_merchant.exchange_maximum_amount') }}">
                                 </a>
                             </td>
                             <td><span id="{{ $resourceId }}_storage">{{ number_format($freeStorageAmount, 0, '.', ',') }}</span></td>
-                            <td class="rate tooltipHTML tooltipRight" data-tooltip-title="@lang('Get new exchange rate!')">
+                            <td class="rate tooltipHTML tooltipRight" data-tooltip-title="{{ __('t_merchant.get_new_exchange_rate') }}">
                                 <span class="undermark">{{ number_format($activeMerchant['trade_rates']['receive'][$resourceKey]['rate'], 2, '.', '') }}</span>
                             </td>
                         @endif
@@ -88,22 +88,22 @@
 
                 <tr>
                     <td colspan="6" style="padding:10px">
-                        <span>@lang('A trader only delivers as much resources as there is free storage capacity.')</span>
+                        <span>{{ __('t_merchant.trader_delivery_notice') }}</span>
                     </td>
                 </tr>
 
                 <tr>
                     <td colspan="3" rowspan="2">
                         <input type="button" tabindex="3" name="tradebutton" class="btn_blue"
-                               value="@lang('Trade resources!')" onclick="trySubmit();">
+                               value="{{ __('t_merchant.trade_resources') }}" onclick="trySubmit();">
                     </td>
                     <td colspan="3" class="newRate">
                         <a href="javascript:void(0);" tabindex="4" name="tradebuttonRate"
                            class="buttonTraderNewRate" data-merchant-type="{{ $merchantType }}">
-                            @lang('New exchange rate')
+                            {{ __('t_merchant.new_exchange_rate') }}
                         </a>
-                        @lang('Costs:')
-                        3,500 @lang('Dark Matter')
+                        {{ __('t_merchant.costs') }}
+                        3,500 {{ __('t_merchant.dark_matter') }}
                     </td>
                 </tr>
             </table>
@@ -170,7 +170,7 @@
         initTooltips();
 
         // Set dialog title
-        var merchantTitle = '@lang("There is a trader here buying")' + ' ' + '{{ ucfirst($merchantType) }}' + '.';
+        var merchantTitle = @json(__('t_merchant.trader_buying') . ' ' . ucfirst($merchantType) . '.');
         if (typeof $('.overlayDiv.traderlayer').dialog === 'function') {
             $('.overlayDiv.traderlayer').dialog('option', 'title', merchantTitle);
         }
@@ -300,13 +300,13 @@
         @endforeach
 
         if (!formData.receive_resource || formData.give_amount === 0) {
-            errorBoxNotify(LocalizationStrings.error, '@lang("Please select a resource to receive.")');
+            errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.please_select_resource')));
             return false;
         }
 
         // Use a small tolerance (1 unit) for floating point comparison
         if (formData.give_amount > offer_amount + 1) {
-            errorBoxNotify(LocalizationStrings.error, '@lang("You don\'t have enough resources to trade.")');
+            errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.not_enough_resources')));
             return false;
         }
 
@@ -318,23 +318,23 @@
         // Submit the trade
         $.post('{{ route('merchant.trade') }}', formData, function(response) {
             if (response.success) {
-                fadeBox(response.message || '@lang("Trade completed successfully!")', false);
+                fadeBox(response.message || @json(__('t_merchant.trade_completed_success')), false);
                 setTimeout(function() {
                     location.reload();
                 }, 1000);
             } else {
-                errorBoxNotify(LocalizationStrings.error, response.message || '@lang("Trade failed.")');
+                errorBoxNotify(LocalizationStrings.error, response.message || @json(__('t_merchant.trade_failed')));
             }
         }).fail(function(xhr) {
             var response = xhr.responseJSON;
-            errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred. Please try again.")');
+            errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_retry')));
         });
     }
 
     function callTrader() {
         errorBoxDecision(
-            '@lang("Caution")',
-            '@lang("Do you want to get a new exchange rate for 3,500 Dark Matter? This will replace your current merchant.")',
+            @json(__('t_ingame.shared.caution')),
+            @json(__('t_merchant.new_rate_confirmation')),
             LocalizationStrings.yes,
             LocalizationStrings.no,
             function() {
@@ -343,16 +343,16 @@
                     type: merchantType
                 }, function(response) {
                     if (response.success) {
-                        fadeBox('@lang("New merchant called successfully!")', false);
+                        fadeBox(@json(__('t_merchant.merchant_called_success')), false);
                         setTimeout(function() {
                             location.reload();
                         }, 1000);
                     } else {
-                        errorBoxNotify(LocalizationStrings.error, response.message || '@lang("Failed to call merchant.")');
+                        errorBoxNotify(LocalizationStrings.error, response.message || @json(__('t_merchant.failed_to_call')));
                     }
                 }).fail(function(xhr) {
                     var response = xhr.responseJSON;
-                    errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred. Please try again.")');
+                    errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_retry')));
                 });
             }
         );
