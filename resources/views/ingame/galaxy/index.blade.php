@@ -14,12 +14,12 @@
             <div id="galaxyContent">
                 <div class="galaxyTable" style="background: #000; border: none !important;">
                     <div class="galaxyRow ctGalaxyFleetInfo" id="fleetstatusrow" style="text-align: center;">
-                        <span class="fleetStatus" style="color: #B00001; font-weight: bold; font-size: 12px;">@lang('Player in vacation mode')</span>
+                        <span class="fleetStatus" style="color: #B00001; font-weight: bold; font-size: 12px;">{{ __('t_ingame.fleet.player_vacation') }}</span>
                     </div>
                     <div class="galaxyRow" style="display: flex; justify-content: center; align-items: center; padding: 10px 0 30px 0;">
                         <span style="color: #B00001; font-weight: bold; text-align: center; display: flex; align-items: center; gap: 5px;">
                             <span class="icon icon_warning" style="display: inline-block; margin: 0 !important; vertical-align: middle;"></span>
-                            <span style="display: inline-block; line-height: 16px; vertical-align: middle;">@lang('You cannot use the galaxy view whilst in vacation mode!')</span>
+                            <span style="display: inline-block; line-height: 16px; vertical-align: middle;">{{ __('t_ingame.galaxy.vacation_error') }}</span>
                             <span class="icon icon_warning" style="display: inline-block; margin: 0 !important; vertical-align: middle;"></span>
                         </span>
                     </div>
@@ -38,14 +38,111 @@
             var contentLink = "{{ route('galaxy.ajax') }}";
             var galaxyContentLink = "{{ route('galaxy.ajax') }}";
             var preserveSystemOnPlanetChange = false;
-            var galaxyLoca = {"reservationSuccess":"The position has been reserved for you. The colony\u00b4s relocation has begun.","questionTitle":"Resettle Planet","question":"Are you sure you want to relocate your planet to these coordinates? To finance the relocation you`ll need {{ number_format($planet_relocation_cost) }} Dark Matter.","deuteriumNeeded":"You don`t have enough Deuterium! You need 10 Units of Deuterium.","fleetAttacking":"Fleet is attacking!","fleetUnderway":"Fleet is en-route","discoverySend":"Dispatch exploration ship\n","discoverySuccess":"Exploration ship dispatched\n","discoveryUnavailable":"You can\u2019t dispatch an exploration ship to this location.\n","discoveryUnderway":"An Exploration Ship is already on approach to this planet.\n","discoveryLocked":"You haven\u2019t unlocked the research to discover new lifeforms yet.\n","discoverQuestionTitle":"Exploration Ship\n","discoverQuestionText":"Do you want to dispatch an exploration ship to this planet?\n<br>Metal: 5000 Crystal: 1000 Deuterium: 500"};
-            var loca = {"LOCA_FLEET_EXPEDITION_TYPE":"Expedition","LOCA_FLEET_DEBRIS":"debris field","LOCA_UNAVAILABLE_PHALANXSYSTEM":"The system phalanx can only be used by the alliance class Researcher!","LOCA_PHALANX_SYSTEM_BUTTON":"System Phalanx","LOCA_SPY_SYSTEM_BUTTON":"System Espionage","locaErrorNoRequiredResearch":"You have to research Astrophysics first.","LOCA_GALAXY_ERROR_INACCESSIBLE_DUE_TO_VACATION":"You cannot use the galaxy view whilst in vacation mode!","LOCA_FLEET_PLAYER_UMODE":"Player in vacation mode","LOCA_LEFTMENU_GALAXY":"Galaxy","LOCA_GALAXY_HEADLINE_SUNSYSTEM":"System","LOCA_GALAXY_LETS_GO":"Go!","LOCA_ALL_PLANET":"Planet","LOCA_ALL_NAME":"Name","LOCA_ALL_MOON":"Moon","LOCA_ALL_DEBRIS_FIELD_SHORT":"DF","LOCA_GALAXY_PLAYER_STATUS":"Player (Status)","LOCA_NETWORK_ALLY":"Alliance","LOCA_NETWORK_ACTION":"Action","LOCA_GALAXY_PLANETS_SETTLED":"Planets colonized","LOCA_TECH_ESPIONAGEPROBE_SNAME":"Esp.Probe","LOCA_TECH_RECYCLER_SNAME":"Recy.","LOCA_TECH_INTERPLANETARYMISSILE_SNAME":"IPM.","LOCA_GALAXY_SLOTS_FULL":"Used slots","LOCA_GALAXY_LEGEND":"Legend","LOCA_GALAXY_PLAYER_STATUS_A":"A","LOCA_GALAXY_LEGEND_ADMIN":"Administrator","LOCA_GALAXY_PLAYER_STATUS_S":"s","LOCA_GALAXY_LEGEND_STRONG_PLAYER":"stronger player","LOCA_GALAXY_PLAYER_STATUS_N":"n","LOCA_GALAXY_LEGEND_NOOB":"weaker player (newbie)","LOCA_GALAXY_PLAYER_STATUS_OUTLAW":"o","LOCA_GALAXY_LEGEND_OUTLAW":"Outlaw (temporary)","LOCA_GALAXY_PLAYER_STATUS_U":"v","LOCA_STATION_JUMP_VACATION":"Vacation Mode","LOCA_GALAXY_PLAYER_STATUS_G":"b","LOCA_GALAXY_LEGEND_BANNED":"banned","LOCA_GALAXY_PLAYER_STATUS_I":"i","LOCA_GALAXY_LEGEND_SEVEN_DAYS_INACTIVE":"7 days inactive","LOCA_GALAXY_PLAYER_STATUS_I_LONG":"I","LOCA_GALAXY_LEGEND_TWENTYEIGHT_DAYS_INACTIVE":"28 days inactive","LOCA_GALAXY_PLAYER_STATUS_EP":"hp","LOCA_GALAXY_LEGEND_HONORABLE_TARGET":"Honorable target","LOCA_ALL_ACTIVITY":"Activity","LOCA_FLEET_NO_ACTION_AVAILABLE":"No actions available.","LOCA_ALL_TIME_MINUTE":"m","LOCA_GALAXY_MOON_DIAMETER_KM":"Diameter of moon in km","LOCA_OVERVIEW_JS_KM":"km","LOCA_ALL_METAL":"Metal","LOCA_ALL_CRYSTAL":"Crystal","LOCA_ALL_DEUTERIUM":"Deuterium","LOCA_GALAXY_PATHFINDER_NEEDED":"Pathfinders needed","LOCA_GALAXY_RECYCLER_NEEDED":"Recyclers needed","LOCA_GALAXY_DEBRIS_REDUCE":"Mine","LOCA_PHALANX_ERROR_NOT_ENOUTH_DEUT":"Not enough deuterium to deploy phalanx.","LOCA_GALAXY_USE_PHALANX":"Use phalanx","LOCA_GALAXY_ERROR_COLONIZATION":"It is not possible to colonize a planet without a colony ship.","LOCA_ALL_PLAYER":"Player","LOCA_GALAXY_RANKING":"Ranking","LOCA_MESSAGES_ESPIONAGEREPORT":"Espionage report","LOCA_FLEET_MISSILEATTACK":"Missile Attack","LOCA_GALAXY_RANK":"Rank","LOCA_NETWORK_USERS":"Member","LOCA_ALLIANCE_CLASS":"Alliance Class","LOCA_FLEET_NO_FREE_SLOTS":"No fleet slots available","LOCA_ALL_AJAXLOAD":"load...","LOCA_EVENTH_ENEMY_INFINITELY_SPACE":"Deep space","LOCA_FLEET_NO_ESPIONAGE":"Espionage not possible","LOCA_FLEET_ESPIONAGE":"Espionage","LOCA_HEADER_GETADMIRAL":"Hire admiral","LOCA_ALL_DARKMATTER":"Dark Matter","LOCA_OUTLAW_EXPLANATION":"If you are an outlaw, you no longer have any attack protection and can be attacked by all players.","LOCA_GALAXY_LEGEND_HONORABLE_TARGET_EXPLANATION":"In battle against this target you can receive honour points and plunder 50% more loot.","LOCA_GALAXY_SYSTEM_DISCOVERY":"Discoveries","LOCA_GALAXY_SYSTEM_DISCOVERY_TOOLTIP":"Launch a discovery mission to all possible locations","LOCA_EXPEDITION_FLEET_TEMPLATE":"Expedition Fleet","LOCA_FLEET_SEND":"Send fleet","LOCA_ALL_SEND":"send","LOCA_FLEET_TEMPLATE_ADMIRAL_NEEDED":"You need an Admiral to use this feature."};
+            @php
+                $galaxyLocaData = [
+                    'reservationSuccess'   => __('t_ingame.galaxy.relocate_success'),
+                    'questionTitle'        => __('t_ingame.galaxy.relocate_title'),
+                    'question'             => __('t_ingame.galaxy.relocate_question', ['cost' => number_format($planet_relocation_cost)]),
+                    'deuteriumNeeded'      => __('t_ingame.galaxy.deut_needed_relocate'),
+                    'fleetAttacking'       => __('t_ingame.galaxy.fleet_attacking'),
+                    'fleetUnderway'        => __('t_ingame.galaxy.fleet_underway'),
+                    'discoverySend'        => __('t_ingame.galaxy.discovery_send') . "\n",
+                    'discoverySuccess'     => __('t_ingame.galaxy.discovery_success') . "\n",
+                    'discoveryUnavailable' => __('t_ingame.galaxy.discovery_unavailable') . "\n",
+                    'discoveryUnderway'    => __('t_ingame.galaxy.discovery_underway') . "\n",
+                    'discoveryLocked'      => __('t_ingame.galaxy.discovery_locked') . "\n",
+                    'discoverQuestionTitle'=> __('t_ingame.galaxy.discovery_title') . "\n",
+                    'discoverQuestionText' => __('t_ingame.galaxy.discovery_question'),
+                ];
+                $locaData = [
+                    'LOCA_FLEET_EXPEDITION_TYPE'                     => __('t_ingame.fleet.mission_expedition'),
+                    'LOCA_FLEET_DEBRIS'                              => __('t_ingame.fleet.debris_field_lower'),
+                    'LOCA_UNAVAILABLE_PHALANXSYSTEM'                 => __('t_ingame.galaxy.phalanx_restricted'),
+                    'LOCA_PHALANX_SYSTEM_BUTTON'                     => __('t_ingame.galaxy.system_phalanx'),
+                    'LOCA_SPY_SYSTEM_BUTTON'                         => __('t_ingame.galaxy.system_espionage'),
+                    'locaErrorNoRequiredResearch'                    => __('t_ingame.galaxy.astro_required'),
+                    'LOCA_GALAXY_ERROR_INACCESSIBLE_DUE_TO_VACATION' => __('t_ingame.galaxy.vacation_error'),
+                    'LOCA_FLEET_PLAYER_UMODE'                        => __('t_ingame.fleet.player_vacation'),
+                    'LOCA_LEFTMENU_GALAXY'                           => __('t_ingame.galaxy.galaxy_nav'),
+                    'LOCA_GALAXY_HEADLINE_SUNSYSTEM'                 => __('t_ingame.galaxy.system'),
+                    'LOCA_GALAXY_LETS_GO'                            => __('t_ingame.galaxy.go'),
+                    'LOCA_ALL_PLANET'                                => __('t_ingame.fleet.planet'),
+                    'LOCA_ALL_NAME'                                  => __('t_ingame.galaxy.name_col'),
+                    'LOCA_ALL_MOON'                                  => __('t_ingame.fleet.moon'),
+                    'LOCA_ALL_DEBRIS_FIELD_SHORT'                    => __('t_ingame.galaxy.debris_short'),
+                    'LOCA_GALAXY_PLAYER_STATUS'                      => __('t_ingame.galaxy.player_status'),
+                    'LOCA_NETWORK_ALLY'                              => __('t_ingame.galaxy.alliance'),
+                    'LOCA_NETWORK_ACTION'                            => __('t_ingame.galaxy.action'),
+                    'LOCA_GALAXY_PLANETS_SETTLED'                    => __('t_ingame.galaxy.planets_colonized'),
+                    'LOCA_TECH_ESPIONAGEPROBE_SNAME'                 => __('t_ingame.galaxy.probes_short'),
+                    'LOCA_TECH_RECYCLER_SNAME'                       => __('t_ingame.galaxy.recycler_short'),
+                    'LOCA_TECH_INTERPLANETARYMISSILE_SNAME'          => __('t_ingame.galaxy.ipm_short'),
+                    'LOCA_GALAXY_SLOTS_FULL'                         => __('t_ingame.galaxy.used_slots'),
+                    'LOCA_GALAXY_LEGEND'                             => __('t_ingame.galaxy.legend'),
+                    'LOCA_GALAXY_PLAYER_STATUS_A'                    => __('t_ingame.galaxy.status_admin_abbr'),
+                    'LOCA_GALAXY_LEGEND_ADMIN'                       => __('t_ingame.galaxy.legend_admin'),
+                    'LOCA_GALAXY_PLAYER_STATUS_S'                    => __('t_ingame.galaxy.status_strong_abbr'),
+                    'LOCA_GALAXY_LEGEND_STRONG_PLAYER'               => __('t_ingame.galaxy.legend_strong'),
+                    'LOCA_GALAXY_PLAYER_STATUS_N'                    => __('t_ingame.galaxy.status_noob_abbr'),
+                    'LOCA_GALAXY_LEGEND_NOOB'                        => __('t_ingame.galaxy.legend_noob'),
+                    'LOCA_GALAXY_PLAYER_STATUS_OUTLAW'               => __('t_ingame.galaxy.status_outlaw_abbr'),
+                    'LOCA_GALAXY_LEGEND_OUTLAW'                      => __('t_ingame.galaxy.legend_outlaw'),
+                    'LOCA_GALAXY_PLAYER_STATUS_U'                    => __('t_ingame.galaxy.status_vacation_abbr'),
+                    'LOCA_STATION_JUMP_VACATION'                     => __('t_ingame.galaxy.vacation_mode'),
+                    'LOCA_GALAXY_PLAYER_STATUS_G'                    => __('t_ingame.galaxy.status_banned_abbr'),
+                    'LOCA_GALAXY_LEGEND_BANNED'                      => __('t_ingame.galaxy.legend_banned'),
+                    'LOCA_GALAXY_PLAYER_STATUS_I'                    => __('t_ingame.galaxy.status_inactive_abbr'),
+                    'LOCA_GALAXY_LEGEND_SEVEN_DAYS_INACTIVE'         => __('t_ingame.galaxy.legend_inactive_7'),
+                    'LOCA_GALAXY_PLAYER_STATUS_I_LONG'               => __('t_ingame.galaxy.status_longinactive_abbr'),
+                    'LOCA_GALAXY_LEGEND_TWENTYEIGHT_DAYS_INACTIVE'   => __('t_ingame.galaxy.legend_inactive_28'),
+                    'LOCA_GALAXY_PLAYER_STATUS_EP'                   => __('t_ingame.galaxy.status_honorable_abbr'),
+                    'LOCA_GALAXY_LEGEND_HONORABLE_TARGET'            => __('t_ingame.galaxy.legend_honorable'),
+                    'LOCA_ALL_ACTIVITY'                              => __('t_ingame.galaxy.activity'),
+                    'LOCA_FLEET_NO_ACTION_AVAILABLE'                 => __('t_ingame.galaxy.no_action'),
+                    'LOCA_ALL_TIME_MINUTE'                           => __('t_ingame.galaxy.time_minute_abbr'),
+                    'LOCA_GALAXY_MOON_DIAMETER_KM'                   => __('t_ingame.galaxy.moon_diameter_km'),
+                    'LOCA_OVERVIEW_JS_KM'                            => __('t_ingame.galaxy.km'),
+                    'LOCA_ALL_METAL'                                 => __('t_ingame.fleet.metal'),
+                    'LOCA_ALL_CRYSTAL'                               => __('t_ingame.fleet.crystal'),
+                    'LOCA_ALL_DEUTERIUM'                             => __('t_ingame.fleet.deuterium'),
+                    'LOCA_GALAXY_PATHFINDER_NEEDED'                  => __('t_ingame.galaxy.pathfinders_needed'),
+                    'LOCA_GALAXY_RECYCLER_NEEDED'                    => __('t_ingame.galaxy.recyclers_needed'),
+                    'LOCA_GALAXY_DEBRIS_REDUCE'                      => __('t_ingame.galaxy.mine_debris'),
+                    'LOCA_PHALANX_ERROR_NOT_ENOUTH_DEUT'             => __('t_ingame.galaxy.phalanx_no_deut'),
+                    'LOCA_GALAXY_USE_PHALANX'                        => __('t_ingame.galaxy.use_phalanx'),
+                    'LOCA_GALAXY_ERROR_COLONIZATION'                 => __('t_ingame.galaxy.colonize_error'),
+                    'LOCA_ALL_PLAYER'                                => __('t_ingame.fleet.player_label'),
+                    'LOCA_GALAXY_RANKING'                            => __('t_ingame.galaxy.ranking'),
+                    'LOCA_MESSAGES_ESPIONAGEREPORT'                  => __('t_ingame.galaxy.espionage_report'),
+                    'LOCA_FLEET_MISSILEATTACK'                       => __('t_ingame.galaxy.missile_attack'),
+                    'LOCA_GALAXY_RANK'                               => __('t_ingame.galaxy.rank'),
+                    'LOCA_NETWORK_USERS'                             => __('t_ingame.galaxy.alliance_member'),
+                    'LOCA_ALLIANCE_CLASS'                            => __('t_ingame.galaxy.alliance_class'),
+                    'LOCA_FLEET_NO_FREE_SLOTS'                       => __('t_ingame.fleet.no_free_slots'),
+                    'LOCA_ALL_AJAXLOAD'                              => __('t_ingame.fleet.load_dots'),
+                    'LOCA_EVENTH_ENEMY_INFINITELY_SPACE'             => __('t_ingame.fleet.deep_space'),
+                    'LOCA_FLEET_NO_ESPIONAGE'                        => __('t_ingame.galaxy.espionage_not_possible'),
+                    'LOCA_FLEET_ESPIONAGE'                           => __('t_ingame.galaxy.espionage'),
+                    'LOCA_HEADER_GETADMIRAL'                         => __('t_ingame.galaxy.hire_admiral'),
+                    'LOCA_ALL_DARKMATTER'                            => __('t_ingame.galaxy.dark_matter'),
+                    'LOCA_OUTLAW_EXPLANATION'                        => __('t_ingame.galaxy.outlaw_explanation'),
+                    'LOCA_GALAXY_LEGEND_HONORABLE_TARGET_EXPLANATION' => __('t_ingame.galaxy.honorable_target_explanation'),
+                    'LOCA_GALAXY_SYSTEM_DISCOVERY'                   => __('t_ingame.galaxy.discoveries'),
+                    'LOCA_GALAXY_SYSTEM_DISCOVERY_TOOLTIP'           => __('t_ingame.galaxy.discoveries_tooltip'),
+                    'LOCA_EXPEDITION_FLEET_TEMPLATE'                 => __('t_ingame.galaxy.expedition_fleet'),
+                    'LOCA_FLEET_SEND'                                => __('t_ingame.fleet.send_fleet'),
+                    'LOCA_ALL_SEND'                                  => __('t_ingame.galaxy.send'),
+                    'LOCA_FLEET_TEMPLATE_ADMIRAL_NEEDED'             => __('t_ingame.galaxy.admiral_needed'),
+                ];
+            @endphp
+            var galaxyLoca = @json($galaxyLocaData);
+            var loca = @json($locaData);
             var shipsendingDone = 1;
             var premiumLink = "#?page=premium&openDetail=3";
             var sendDiscoverSystemUrl = "";
             var missleAttackLink = "#?page=ajax&component=missileattacklayer&width=669&height=250";
             var canSwitchGalaxy = true;
-            var notEnoughDeuteriumMessage = "You don`t have enough Deuterium! You need 10 Units of Deuterium.";
+            var notEnoughDeuteriumMessage = @json(__('t_ingame.galaxy.deut_needed_relocate'));
             var toGalaxyLink = "#?page=ingame&component=galaxy&galaxy=2&system=3";
             var mobile = false;
             var inProgress = false;
@@ -158,21 +255,21 @@
                     <span class="galaxy_icons prev" onclick="submitOnKey('ArrowDown');"></span>
                     <input id="galaxy_input" class="hideNumberSpin" maxlength="3" type="number" pattern="[0-9]*" value="2" name="galaxy" tabindex="2">
                     <span class="galaxy_icons next" onclick="submitOnKey('ArrowUp');"></span>
-                    <span class="galaxy_icons solarsystem tooltip" title="System"></span>
+                    <span class="galaxy_icons solarsystem tooltip" title="{{ __('t_ingame.galaxy.system') }}"></span>
                     <span class="galaxy_icons prev ipiHintable" onclick="submitOnKey('ArrowLeft');" data-ipi-hint="ipiGalaxySwitchGalaxy"></span>
                     <input id="system_input" class="hideNumberSpin" maxlength="3" type="number" pattern="[0-9]*" value="3" tabindex="2" name="system">
                     <span class="galaxy_icons next ipiHintable" onclick="submitOnKey('ArrowRight');" data-ipi-hint="ipiGalaxySwitchGalaxy"></span>
-                    <div class="btn_blue" onclick="submitForm();">Go!</div>
+                    <div class="btn_blue" onclick="submitForm();">{{ __('t_ingame.galaxy.go') }}</div>
                     <div class="systembuttons">
-                        <a class="btn_blue tooltip phalanxlink btn_system_action" href="javascript:void(0);" title="System Phalanx" disabled="disabled">
-                            <img alt="" src="/img/icons/1cae570e41fc188133be9d548d6523.gif" class="icon_allianceBonus" style="filter:grayscale(1);"> System Phalanx
+                        <a class="btn_blue tooltip phalanxlink btn_system_action" href="javascript:void(0);" title="{{ __('t_ingame.galaxy.system_phalanx') }}" disabled="disabled">
+                            <img alt="" src="/img/icons/1cae570e41fc188133be9d548d6523.gif" class="icon_allianceBonus" style="filter:grayscale(1);"> {{ __('t_ingame.galaxy.system_phalanx') }}
                         </a>
-                        <a class="btn_blue tooltip spysystemlink btn_system_action" disabled="disabled" title="System Espionage">
-                            <img alt="" src="/img/icons/1cae570e41fc188133be9d548d6523.gif" class="icon_allianceBonus" style="filter:grayscale(1);"> System Espionage
+                        <a class="btn_blue tooltip spysystemlink btn_system_action" disabled="disabled" title="{{ __('t_ingame.galaxy.system_espionage') }}">
+                            <img alt="" src="/img/icons/1cae570e41fc188133be9d548d6523.gif" class="icon_allianceBonus" style="filter:grayscale(1);"> {{ __('t_ingame.galaxy.system_espionage') }}
                         </a>
 
-                        <div id="discoverSystemBtn" class="btn_blue tooltip discoverSystemLink btn_system_action" title="Launch a discovery mission to all possible locations" disabled="disabled">
-                            <div class="disabled"></div>&nbsp;Discoveries
+                        <div id="discoverSystemBtn" class="btn_blue tooltip discoverSystemLink btn_system_action" title="{{ __('t_ingame.galaxy.discoveries_tooltip') }}" disabled="disabled">
+                            <div class="disabled"></div>&nbsp;{{ __('t_ingame.galaxy.discoveries') }}
                         </div>
                     </div>
                 </form>
@@ -186,19 +283,19 @@
                     <div class="galaxyRow ctGalaxyHead">
                         <div class="galaxyCell span11">
                             <div id="probes">
-                                Esp.Probe:<span id="probeValue">0</span>
+                                {{ __('t_ingame.galaxy.probes_short') }}:<span id="probeValue">0</span>
                             </div>
                             <div id="recycler">
-                                Recy.:<span id="recyclerValue">0</span>
+                                {{ __('t_ingame.galaxy.recycler_short') }}:<span id="recyclerValue">0</span>
                             </div>
                             <div id="rockets">
-                                IPM.:<span id="missileValue">0</span>
+                                {{ __('t_ingame.galaxy.ipm_short') }}:<span id="missileValue">0</span>
                             </div>
                             <div id="slots">
-                                Used slots:<span id="slotUsed">0</span>/<span id="slotValue">0</span>
+                                {{ __('t_ingame.galaxy.used_slots') }}:<span id="slotUsed">0</span>/<span id="slotValue">0</span>
                             </div>
                             <div id="galaxyHeaderDiscoveryCount">
-                                Discoveries: 0/3950
+                                {{ __('t_ingame.galaxy.discoveries') }}: 0/3950
                             </div>
                         </div>
 
@@ -211,13 +308,13 @@
                         </div>
                     </div>
                     <div class="galaxyRow ctGalaxyHead headBold">
-                        <div class="galaxyCell span1-2">Planet</div>
-                        <div class="galaxyCell cellPlanetName">Name</div>
-                        <div class="galaxyCell cellMoon">Moon</div>
-                        <div class="galaxyCell cellDebris">DF</div>
-                        <div class="galaxyCell cellPlayerName">Player (Status)</div>
-                        <div class="galaxyCell cellAlliance">Alliance</div>
-                        <div class="galaxyCell cellAction">Action</div>
+                        <div class="galaxyCell span1-2">{{ __('t_ingame.galaxy.planet_col') }}</div>
+                        <div class="galaxyCell cellPlanetName">{{ __('t_ingame.galaxy.name_col') }}</div>
+                        <div class="galaxyCell cellMoon">{{ __('t_ingame.galaxy.moon_col') }}</div>
+                        <div class="galaxyCell cellDebris">{{ __('t_ingame.galaxy.debris_short') }}</div>
+                        <div class="galaxyCell cellPlayerName">{{ __('t_ingame.galaxy.player_status') }}</div>
+                        <div class="galaxyCell cellAlliance">{{ __('t_ingame.galaxy.alliance') }}</div>
+                        <div class="galaxyCell cellAction">{{ __('t_ingame.galaxy.action') }}</div>
                     </div>
                     <div class="galaxyRow ctContentRow" id="galaxyRow1">
                         <div class="galaxyCell cellPosition">1</div>
@@ -373,7 +470,7 @@
                         <div class="expeditionDebrisSlotBoxCell cellPosition">16</div>
                         <div class="expeditionDebrisSlotBox" id="galaxyRow16">
                             <div>
-                                <h3 class="title float_left">Deep space:</h3>
+                                <h3 class="title float_left">{{ __('t_ingame.fleet.deep_space') }}:</h3>
                             </div>
                             <div id="expeditionDebrisSlotDebrisContainer">
 
@@ -381,13 +478,13 @@
                             <div id="expeditionDebrisSlotActions">
                                 <div id="galaxyExpeditionFleetTemplateContainer"
                                      class="tooltip hideTooltipOnMouseenter disabled"
-                                     title="You need an Admiral to use this feature."
+                                     title="{{ __('t_ingame.galaxy.admiral_needed') }}"
                                 >
                                     <a id="expeditionFleetTemplateBtn"
                                        class="dark_highlight_tablet"
                                     >
                                         <span class="icon icon_combatunits"></span>
-                                        <span class="expedtionFleetTemplateBtnTitle">Expedition Fleet</span>
+                                        <span class="expedtionFleetTemplateBtnTitle">{{ __('t_ingame.galaxy.expedition_fleet') }}</span>
                                     </a>
                                     <select class="expeditionFleetTemplateSelect" size="1" title="test"
                                             id="expeditionFleetTemplateSelect" disabled>
@@ -396,17 +493,17 @@
                                 </div>
 
                                 <div id="expeditionbutton" class="btn_blue float_right btn_system_action" onClick="doExpedition();">
-                                    Expedition
+                                    {{ __('t_ingame.fleet.mission_expedition') }}
                                 </div>
                                 <div id="sendExpeditionFleetTemplateFleet" class="btn_blue float_right btn_system_action" style="display: none" onClick="sendExpedtionFleetFromTemplate()" disabled>
-                                    send
+                                    {{ __('t_ingame.galaxy.send') }}
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="galaxyRow ctGalaxyFleetInfo" id="fleetstatusrow"></div>
                     <div class="galaxyRow ctGalaxyFooter">
-                        <div id="colonized"><span id="amountColonized">0</span>&nbsp;Planets colonized</div>
+                        <div id="colonized"><span id="amountColonized">0</span>&nbsp;{{ __('t_ingame.galaxy.planets_colonized') }}</div>
                         <div id="legend" class="filterCell">
                             <a href="javascript: void(0);"
                                class="tooltipRel tooltipClose"
@@ -420,35 +517,35 @@
                 </div>
             </div>
             <div id="legendTT" style="display: none;" class="htmlTooltip">
-                <h1>Legend</h1>
+                <h1>{{ __('t_ingame.galaxy.legend') }}</h1>
                 <div class="splitLine"></div>
                 <dl>
-                    <dt class="abbreviation status_abbr_admin">A</dt>
-                    <dd class="description">Administrator</dd>
+                    <dt class="abbreviation status_abbr_admin">{{ __('t_ingame.galaxy.status_admin_abbr') }}</dt>
+                    <dd class="description">{{ __('t_ingame.galaxy.legend_admin') }}</dd>
 
-                    <dt class="abbreviation status_abbr_strong">s</dt>
-                    <dd class="description">stronger player</dd>
+                    <dt class="abbreviation status_abbr_strong">{{ __('t_ingame.galaxy.status_strong_abbr') }}</dt>
+                    <dd class="description">{{ __('t_ingame.galaxy.legend_strong') }}</dd>
 
-                    <dt class="abbreviation status_abbr_noob">n</dt>
-                    <dd class="description">weaker player (newbie)</dd>
+                    <dt class="abbreviation status_abbr_noob">{{ __('t_ingame.galaxy.status_noob_abbr') }}</dt>
+                    <dd class="description">{{ __('t_ingame.galaxy.legend_noob') }}</dd>
 
-                    <dt class="abbreviation status_abbr_outlaw">o</dt>
-                    <dd class="description">Outlaw (temporary)</dd>
+                    <dt class="abbreviation status_abbr_outlaw">{{ __('t_ingame.galaxy.status_outlaw_abbr') }}</dt>
+                    <dd class="description">{{ __('t_ingame.galaxy.legend_outlaw') }}</dd>
 
-                    <dt class="abbreviation status_abbr_vacation">v</dt>
-                    <dd class="description">Vacation Mode</dd>
+                    <dt class="abbreviation status_abbr_vacation">{{ __('t_ingame.galaxy.status_vacation_abbr') }}</dt>
+                    <dd class="description">{{ __('t_ingame.galaxy.vacation_mode') }}</dd>
 
-                    <dt class="abbreviation status_abbr_banned">b</dt>
-                    <dd class="description">banned</dd>
+                    <dt class="abbreviation status_abbr_banned">{{ __('t_ingame.galaxy.status_banned_abbr') }}</dt>
+                    <dd class="description">{{ __('t_ingame.galaxy.legend_banned') }}</dd>
 
-                    <dt class="abbreviation status_abbr_inactive">i</dt>
-                    <dd class="description">7 days inactive</dd>
+                    <dt class="abbreviation status_abbr_inactive">{{ __('t_ingame.galaxy.status_inactive_abbr') }}</dt>
+                    <dd class="description">{{ __('t_ingame.galaxy.legend_inactive_7') }}</dd>
 
-                    <dt class="abbreviation status_abbr_longinactive">I</dt>
-                    <dd class="description">28 days inactive</dd>
+                    <dt class="abbreviation status_abbr_longinactive">{{ __('t_ingame.galaxy.status_longinactive_abbr') }}</dt>
+                    <dd class="description">{{ __('t_ingame.galaxy.legend_inactive_28') }}</dd>
 
-                    <dt class="abbreviation status_abbr_honorableTarget">hp</dt>
-                    <dd class="description">Honorable target</dd>
+                    <dt class="abbreviation status_abbr_honorableTarget">{{ __('t_ingame.galaxy.status_honorable_abbr') }}</dt>
+                    <dd class="description">{{ __('t_ingame.galaxy.legend_honorable') }}</dd>
                 </dl>
             </div>
         </div>
@@ -505,10 +602,10 @@
             function showPhalanxResults(data) {
                 // Build OGame-style phalanx dialog
                 var coords = data.target.galaxy + ':' + data.target.system + ':' + data.target.position;
-                var dialog_title = coords + ' sensor report';
+                var dialog_title = coords + ' {{ __('t_ingame.galaxy.sensor_report') }}';
 
                 if (data.target.planet_name && data.target.player_name) {
-                    dialog_title = data.target.planet_name + ' ' + coords + ' (' + data.target.player_name + ') sensor report';
+                    dialog_title = data.target.planet_name + ' ' + coords + ' (' + data.target.player_name + ') {{ __('t_ingame.galaxy.sensor_report') }}';
                 }
 
                 // If error, wrap error_message in div
@@ -524,7 +621,7 @@
                 // Refresh button inside title
                 modal_html += '<a class="refreshPhalanxLink tooltip js_hideTipOnMobile overlay fleft" data-overlay-same="true" ';
                 modal_html += 'href="javascript:void(0)" onclick="refreshPhalanxContent(' + data.target.galaxy + ',' + data.target.system + ',' + data.target.position + ')" ';
-                modal_html += 'data-tooltip-title="Refresh">';
+                modal_html += 'data-tooltip-title="{{ __('t_ingame.galaxy.refresh') }}">';
                 modal_html += '<span class="icon icon_reload"></span>';
                 modal_html += '</a>';
 
@@ -590,7 +687,7 @@
                 var diff = Math.floor((date - now) / 1000);
 
                 if (diff < 0) {
-                    return 'Arrived';
+                    return @json(__('t_ingame.galaxy.arrived'));
                 }
 
                 var hours = Math.floor(diff / 3600);
@@ -711,18 +808,18 @@
                         data: form.serialize(),
                         success: function(response) {
                             if (response.success) {
-                                fadeBox('{{ __("Buddy request sent successfully!") }}', false);
+                                fadeBox(@json(__('t_ingame.buddy.request_sent')), false);
                                 form.closest('.ui-dialog-content').dialog('close');
                                 setTimeout(function() {
                                     form.closest('.overlayDiv').remove();
                                     form.closest('.ui-dialog').remove();
                                 }, 100);
                             } else {
-                                fadeBox(response.message || '{{ __("Failed to send buddy request.") }}', true);
+                                fadeBox(response.message || @json(__('t_ingame.buddy.request_failed')), true);
                             }
                         },
                         error: function(xhr) {
-                            var errorMessage = '{{ __("Failed to send buddy request.") }}';
+                            var errorMessage = @json(__('t_ingame.buddy.request_failed'));
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMessage = xhr.responseJSON.message;
                             }
@@ -749,7 +846,7 @@
 
                 // Initialize the dialog first
                 $dialog.dialog({
-                    title: '{{ __("Buddy request to") }} ' + playerName,
+                    title: @json(__('t_ingame.buddy.request_to')) + ' ' + playerName,
                     width: 'auto',
                     height: 'auto',
                     modal: false,
@@ -809,7 +906,7 @@
 
                 if (playerId && playerName) {
                     // Confirm before ignoring
-                    if (confirm('{{ __("Are you sure you want to ignore") }} ' + playerName + '?')) {
+                    if (confirm(@json(__('t_ingame.buddy.ignore_confirm')) + ' ' + playerName + '?')) {
                         $.ajax({
                             url: '{{ route('buddies.ignore') }}',
                             type: 'POST',
@@ -819,13 +916,13 @@
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    fadeBox('{{ __("Player ignored successfully!") }}', false);
+                                    fadeBox(@json(__('t_ingame.buddy.ignore_success')), false);
                                 } else {
-                                    fadeBox(response.message || '{{ __("Failed to ignore player.") }}', true);
+                                    fadeBox(response.message || @json(__('t_ingame.buddy.ignore_failed')), true);
                                 }
                             },
                             error: function(xhr) {
-                                var errorMessage = '{{ __("Failed to ignore player.") }}';
+                                var errorMessage = @json(__('t_ingame.buddy.ignore_failed'));
                                 if (xhr.responseJSON && xhr.responseJSON.message) {
                                     errorMessage = xhr.responseJSON.message;
                                 }

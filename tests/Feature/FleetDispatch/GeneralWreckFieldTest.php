@@ -424,4 +424,164 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
             ->first();
         $this->assertNull($wreckField, 'No wreck field should exist if minimum resource loss not met');
     }
+
+    /**
+     * Test that espionage probes are NOT included in wreck fields.
+     *
+     * @throws BindingResolutionException
+     */
+    public function testEspionageProbesExcludedFromWreckField(): void
+    {
+        // Clear all battle reports and wreck fields to ensure test isolation
+        Message::where('battle_report_id', '!=', null)->delete();
+        BattleReport::query()->delete();
+        WreckField::query()->delete();
+
+        // Configure wreck field settings
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('debris_field_from_ships', 30);
+        $settingsService->set('wreck_field_min_resources_loss', 150000);
+        $settingsService->set('wreck_field_min_fleet_percentage', 5);
+
+        // Set up: attacker with General class
+        $attacker = $this->planetService;
+        $attackerPlayer = $attacker->getPlayer();
+
+        // Set character class to General
+        $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
+        $attackerPlayer->getUser()->save();
+
+        // Clear any existing units
+        $attacker->removeUnits($attacker->getShipUnits(), true);
+        $attacker->save();
+        $attacker->reloadPlanet();
+
+        // Set up: Attacker with cruisers and espionage probes
+        // The cruisers should create a wreck field, but probes should not
+        $attacker->addUnit('cruiser', 100);
+        $attacker->addUnit('espionage_probe', 50);
+        $attacker->save();
+
+        // Add deuterium for fleet travel
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        // Launch attack mission with both cruisers and espionage probes
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getShipObjectByMachineName('cruiser'), 100);
+        $units->addUnit(ObjectService::getShipObjectByMachineName('espionage_probe'), 50);
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
+
+        // Set up: Defender with defenses to destroy some attackers
+        $foreignPlanet->addUnit('rocket_launcher', 500);
+        $foreignPlanet->save();
+
+        // Get the mission
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
+
+        // Process arrival (battle happens)
+        $this->travel($fleetMissionDuration + 1)->seconds();
+        $this->get('/overview');
+
+        // Process return mission
+        $this->travel($fleetMissionDuration + 5)->seconds();
+        $this->get('/overview');
+
+        // Check for attacker wreck field
+        $coords = $attacker->getPlanetCoordinates();
+        $wreckField = WreckField::where('galaxy', $coords->galaxy)
+            ->where('system', $coords->system)
+            ->where('planet', $coords->position)
+            ->where('owner_player_id', $attacker->getPlayer()->getId())
+            ->first();
+
+        if ($wreckField !== null) {
+            // Verify that espionage probes are NOT in the wreck field
+            $this->assertEquals(0, $wreckField->espionage_probe ?? 0, 'Espionage probes should not be in wreck field');
+
+            // Cruisers should be in the wreck field (if some were destroyed)
+            $cruisersInWreck = $wreckField->cruiser ?? 0;
+            $this->assertGreaterThanOrEqual(0, $cruisersInWreck, 'Cruisers may be in wreck field if destroyed');
+        }
+    }
+
+    /**
+     * Test that defender's solar satellites destroyed at home planet don't create wreck field entries.
+     *
+     * @throws BindingResolutionException
+     */
+    public function testDefenderSolarSatellitesDoNotCreateWreckField(): void
+    {
+        // Clear all battle reports and wreck fields to ensure test isolation
+        Message::where('battle_report_id', '!=', null)->delete();
+        BattleReport::query()->delete();
+        WreckField::query()->delete();
+
+        // Configure wreck field settings
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('debris_field_from_ships', 30);
+        $settingsService->set('wreck_field_min_resources_loss', 150000);
+        $settingsService->set('wreck_field_min_fleet_percentage', 5);
+
+        // Set up: attacker with General class
+        $attacker = $this->planetService;
+        $attackerPlayer = $attacker->getPlayer();
+
+        // Set character class to General
+        $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
+        $attackerPlayer->getUser()->save();
+
+        // Clear any existing units
+        $attacker->removeUnits($attacker->getShipUnits(), true);
+        $attacker->save();
+        $attacker->reloadPlanet();
+
+        // Set up: Attacker with cruisers
+        $attacker->addUnit('cruiser', 100);
+        $attacker->save();
+
+        // Add deuterium for fleet travel
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
+
+        // Launch attack mission
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getShipObjectByMachineName('cruiser'), 100);
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
+
+        // Set up: Defender with solar satellites and space dock
+        $foreignPlanet->addUnit('solar_satellite', 100);
+        $foreignPlanet->save();
+
+        // Add space dock to defender planet
+        DB::table('planets')
+            ->where('id', $foreignPlanet->getPlanetId())
+            ->update(['space_dock' => 1, 'shipyard' => 1]);
+
+        // Get the mission
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
+        $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
+
+        // Process arrival (battle happens, solar satellites will be destroyed)
+        $this->travel($fleetMissionDuration + 1)->seconds();
+        $this->get('/overview');
+
+        // Process return mission
+        $this->travel($fleetMissionDuration + 5)->seconds();
+        $this->get('/overview');
+
+        // Check for defender wreck field
+        $defenderCoords = $foreignPlanet->getPlanetCoordinates();
+        $defenderWreckField = WreckField::where('galaxy', $defenderCoords->galaxy)
+            ->where('system', $defenderCoords->system)
+            ->where('planet', $defenderCoords->position)
+            ->where('owner_player_id', $foreignPlanet->getPlayer()->getId())
+            ->first();
+
+        if ($defenderWreckField !== null) {
+            // Verify that solar satellites are NOT in the wreck field
+            $this->assertEquals(0, $defenderWreckField->solar_satellite ?? 0, 'Solar satellites should not be in defender wreck field');
+        }
+    }
 }

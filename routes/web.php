@@ -51,6 +51,9 @@ use OGame\Http\Controllers\TechtreeController;
 
 Route::redirect('/', '/overview', 301);
 
+// Language switcher — accessible to both guests and authenticated users.
+Route::get('/lang/{lang}', [LanguageController::class, 'switchLang'])->name('language.switch');
+
 // Public AJAX endpoints (no auth required).
 Route::get('/ajax/main/rules', [RulesController::class, 'ajaxRules'])->name('rules.ajax');
 Route::get('/ajax/main/legal', [RulesController::class, 'ajaxLegal'])->name('legal.ajax');
@@ -200,6 +203,8 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::get('/highscore', [HighscoreController::class, 'index'])->name('highscore.index');
     Route::post('/ajax/highscore', [HighscoreController::class, 'ajax'])->name('highscore.ajax');
 
+    Route::impersonate();
+
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
@@ -240,7 +245,6 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::get('/overlay/payment/iframe', [PaymentController::class, 'iframe'])->name('payment.iframesrc');
 
     Route::get('/overlay/server-settings', [ServerSettingsController::class, 'overlay'])->name('serversettings.overlay');
-    Route::get('/lang/{lang}', [LanguageController::class, 'switchLang'])->name('language.switch');
 });
 
 // Group: all logged in pages:
@@ -257,6 +261,7 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     Route::get('/admin/developer-shortcuts', [DeveloperShortcutsController::class, 'index'])->name('admin.developershortcuts.index');
     Route::post('/admin/developer-shortcuts', [DeveloperShortcutsController::class, 'update'])->name('admin.developershortcuts.update');
     Route::post('/admin/developer-shortcuts/resources', [DeveloperShortcutsController::class, 'updateResources'])->name('admin.developershortcuts.update-resources');
+    Route::post('/admin/developer-shortcuts/impersonate', [DeveloperShortcutsController::class, 'impersonate'])->name('admin.developershortcuts.impersonate');
     Route::post('/admin/developershortcuts/create-at-coords', [DeveloperShortcutsController::class, 'createAtCoords'])->name('admin.developershortcuts.create-at-coords');
     Route::post('/admin/developershortcuts/create-debris', [DeveloperShortcutsController::class, 'createDebris'])->name('admin.developershortcuts.create-debris');
     Route::post('/admin/developershortcuts/update-dark-matter', [DeveloperShortcutsController::class, 'updateDarkMatter'])->name('admin.developershortcuts.update-dark-matter');

@@ -494,7 +494,7 @@
             e.preventDefault();
 
             if (offerPercentage >= maxPercentage) {
-                errorBoxNotify(LocalizationStrings.error, '{{ __('t_merchant.offer_at_maximum') }}', 'OK');
+                errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.offer_at_maximum')), 'OK');
                 return;
             }
 
@@ -502,9 +502,9 @@
             if (darkMatter < cost) {
                 errorBoxDecision(
                     LocalizationStrings.error,
-                    '{{ __('t_merchant.not_enough_dark_matter') }}',
-                    '{{ __('t_merchant.yes') }}',
-                    '{{ __('t_merchant.no') }}',
+                    @json(__('t_merchant.not_enough_dark_matter')),
+                    @json(__('t_merchant.yes')),
+                    @json(__('t_merchant.no')),
                     function() {
                         // User clicked yes - do nothing, just close
                     }
@@ -533,7 +533,7 @@
 
                     updateScrapOffer();
                     updateBargainButton();
-                    fadeBox('{{ __('t_merchant.negotiation_successful') }}', false);
+                    fadeBox(@json(__('t_merchant.negotiation_successful')), false);
                 } else {
                     errorBoxNotify(LocalizationStrings.error, response.message);
                 }
@@ -561,7 +561,7 @@
             });
 
             if (!hasItems) {
-                errorBoxNotify(LocalizationStrings.error, '{{ __('t_merchant.select_items_to_scrap') }}');
+                errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.select_items_to_scrap')));
                 return;
             }
 
@@ -593,7 +593,7 @@
                     });
                 } else {
                     // Regular error
-                    errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '{{ __('t_merchant.error_occurred') }}');
+                    errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_occurred')));
                 }
             });
         });
@@ -603,19 +603,19 @@
             // Build confirmation message with item list
             var itemListHtml = '<div style="text-align: left; margin-left: 30px">';
             $.each(items, function(id, amount) {
-                var itemName = itemNames[id] || '{{ __('t_merchant.unknown_item') }}';
+                var itemName = itemNames[id] || @json(__('t_merchant.unknown_item'));
                 itemListHtml += amount + 'x ' + itemName + '<br>';
             });
             itemListHtml += '</div>';
 
-            var confirmMessage = '{{ __('t_merchant.scrap_confirmation') }}<br><br>' + itemListHtml;
+            var confirmMessage = @json(__('t_merchant.scrap_confirmation')) + '<br><br>' + itemListHtml;
 
             // Show confirmation dialog
             errorBoxDecision(
-                '{{ __('t_merchant.scrap_merchant') }}',
+                @json(__('t_merchant.scrap_merchant')),
                 confirmMessage,
-                '{{ __('t_merchant.yes') }}',
-                '{{ __('t_merchant.no') }}',
+                @json(__('t_merchant.yes')),
+                @json(__('t_merchant.no')),
                 function() {
                     // User confirmed - execute the scrap
                     $.post('{{ route('merchant.scrap.execute') }}', {
@@ -634,7 +634,7 @@
                         }
                     }).fail(function(xhr) {
                         var response = xhr.responseJSON;
-                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '{{ __('t_merchant.error_occurred') }}');
+                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_occurred')));
                     });
                 }
             );

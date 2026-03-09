@@ -120,6 +120,8 @@ class FleetSpeedTypeTest extends AccountTestCase
     {
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('fleet_speed_war', 1);
+        $settingsService->set('ignore_empty_systems_on', 0);
+        $settingsService->set('ignore_inactive_systems_on', 0);
 
         $this->playerSetResearchLevel('combustion_drive', 10);
         $this->planetAddUnit('light_fighter', 1);

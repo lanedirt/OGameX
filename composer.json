@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
+        "lab404/laravel-impersonate": "^1.7",
         "laravel/fortify": "^1.21",
         "laravel/framework": "^12.0",
         "laravel/reverb": "^1.7",
@@ -25,7 +26,7 @@
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.0",
-        "phpunit/phpunit": "^12.5",
+        "phpunit/phpunit": "^13.0",
         "spatie/laravel-ignition": "^2.4"
     },
     "autoload": {

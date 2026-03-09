@@ -534,14 +534,14 @@ class GalaxyController extends OGameController
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);',
-                    'title' => 'Buddy request to player',
+                    'title' => __('t_buddies.ui.buddy_request_to_player'),
                     'playerName' => $player->getUsername(),
                 ],
                 'ignore' => [
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);',
-                    'title' => 'Ignore player',
+                    'title' => __('t_buddies.ui.ignore_player_title'),
                     'playerName' => $player->getUsername(),
                 ],
                 'support' => [

@@ -2,39 +2,25 @@
 <div id="abandonplanet">
     <img src="{!! asset('img/planets/big/' . $currentPlanet->getPlanetBiomeType() . '_' . $currentPlanet->getPlanetImageType() . '.png') !!}"
          class="float_left"/>
-    <p class="desc_txt">@lang('Using this menu you can change planet names and moons or completely abandon them.')</p>
+    <p class="desc_txt">{{ __('t_ingame.planet_abandon.description') }}</p>
     <table cellpadding="0" cellspacing="0">
         <tbody>
         <tr class="head">
-            <th colspan="3">Rename</th>
+            <th colspan="3">{{ __('t_ingame.planet_abandon.rename_heading') }}</th>
         </tr>
         <tr>
             <td colspan="3" class="ipiHintable" data-ipi-hint="ipiPlanetSettingsName">
                 <form id="planetMaintenance" class="formValidation"
                       onsubmit="clearField(); $('#newPlanetName').val($('#planetName').val()); ajaxFormSubmit('planetMaintenance', '{{ route('planetabandon.rename') }}', planetRenamed); return false;">
-                    <input type="hidden" id="newPlanetName" name="newPlanetName" value="{{ $isMoon ? 'New name of the moon' : 'New planet name ' }}">
+                    <input type="hidden" id="newPlanetName" name="newPlanetName" value="{{ $isMoon ? __('t_ingame.planet_abandon.new_moon_name') : __('t_ingame.planet_abandon.new_planet_name') }}">
                     <input type='hidden' name='_token' value='{{ csrf_token() }}'/>
 
                     @if ($isMoon)
-                        <a title="Rules|You can rename your moon here.&lt;br /&gt;
-&lt;br /&gt;
-The moon name has to be between &lt;span style=&quot;font-weight: bold;&quot;&gt;2 and 20 characters&lt;/span&gt; long.&lt;br /&gt;
-Moon names may comprise of lower and upper case letters as well as numbers.&lt;br /&gt;
-They may contain hyphens, underscores and spaces - however these may not be placed as follows:&lt;br /&gt;
-- at the beginning or at the end of the name&lt;br /&gt;
-- directly next to one another&lt;br /&gt;
-- more than three times in the name"
+                        <a title="{{ __('t_ingame.planet_abandon.tooltip_rules_title') }}|{{ __('t_ingame.planet_abandon.tooltip_rename_moon') }}"
                        href="javascript:void(0);"
                        class="tooltipHTML tooltipLeft help"></a>
                     @else
-                        <a title="Rules|You can rename your planet here.&lt;br /&gt;
-&lt;br /&gt;
-The planet name has to be between &lt;span style=&quot;font-weight: bold;&quot;&gt;2 and 20 characters&lt;/span&gt; long.&lt;br /&gt;
-Planet names may comprise of lower and upper case letters as well as numbers.&lt;br /&gt;
-They may contain hyphens, underscores and spaces - however these may not be placed as follows:&lt;br /&gt;
-- at the beginning or at the end of the name&lt;br /&gt;
-- directly next to one another&lt;br /&gt;
-- more than three times in the name"
+                        <a title="{{ __('t_ingame.planet_abandon.tooltip_rules_title') }}|{{ __('t_ingame.planet_abandon.tooltip_rename_planet') }}"
                        href="javascript:void(0);"
                        class="tooltipHTML tooltipLeft help"></a>
                     @endif
@@ -44,22 +30,22 @@ They may contain hyphens, underscores and spaces - however these may not be plac
                             maxlength="20"
                             size="25"
                             id="planetName"
-                            value="{{ $isMoon ? 'New name of the moon' : 'New planet name' }}"
+                            value="{{ $isMoon ? __('t_ingame.planet_abandon.new_moon_name') : __('t_ingame.planet_abandon.new_planet_name') }}"
                             onFocus="clearField()"
                             onBlur="fillField()"
                     />
-                    <input class="btn_blue float_right" type="submit" value="Rename" name="aktion"/>
+                    <input class="btn_blue float_right" type="submit" value="{{ __('t_ingame.planet_abandon.rename_btn') }}" name="aktion"/>
                 </form>
             </td>
         </tr>
         <tr class="head">
             <th colspan="3" class="second" id="giveupHeadline" rel="1">
                 @if ($isCurrentPlanetHomePlanet)
-                    @lang('Abandom home planet')
+                    {{ __('t_ingame.planet_abandon.abandon_home_planet') }}
                 @elseif ($isMoon)
-                    @lang('Abandon Moon')
+                    {{ __('t_ingame.planet_abandon.abandon_moon') }}
                 @else
-                    @lang('Abandon Colony')
+                    {{ __('t_ingame.planet_abandon.abandon_colony') }}
                 @endif
             </th>
         </tr>
@@ -67,7 +53,7 @@ They may contain hyphens, underscores and spaces - however these may not be plac
         @if ($isCurrentPlanetHomePlanet)
             <tr>
                 <td colspan="3">
-                    @lang('If you abandon your home planet, immediately upon your next login you will be directed to the planet that you colonised next.')
+                    {{ __('t_ingame.planet_abandon.home_planet_warning') }}
                 </td>
             </tr>
         @endif
@@ -78,11 +64,11 @@ They may contain hyphens, underscores and spaces - however these may not be plac
             <td>
                 <a id="block" class="start btn_blue float_right">
                     @if ($isCurrentPlanetHomePlanet)
-                        @lang('Abandon Home Planet')
+                        {{ __('t_ingame.planet_abandon.abandon_home_planet_btn') }}
                     @elseif ($isMoon)
-                        @lang('Abandon moon')
+                        {{ __('t_ingame.planet_abandon.abandon_moon_btn') }}
                     @else
-                        @lang('Abandon Colony')
+                        {{ __('t_ingame.planet_abandon.abandon_colony_btn') }}
                     @endif
                 </a>
             </td>
@@ -93,18 +79,18 @@ They may contain hyphens, underscores and spaces - however these may not be plac
                     <input type='hidden' name='_token' value='{{ csrf_token() }}'/>
                     <div id="giveUpNotification">
                         @if ($isMoon)
-                            @lang('If you have activated items on a moon, they will be lost if you abandon the moon.')
+                            {{ __('t_ingame.planet_abandon.items_lost_moon') }}
                         @else
-                            @lang('If you have activated items on a planet, they will be lost if you abandon the planet.')
+                            {{ __('t_ingame.planet_abandon.items_lost_planet') }}
                         @endif
                     </div>
                     <div class="validate" id="validate" style="display:none;">
-                        <p class="margin_10_0">@lang('Please confirm deletion of :type [:coordinates] by putting in your password', [
-                            'type' => $isMoon ? __('moon') : __('planet'),
+                        <p class="margin_10_0">{{ __('t_ingame.planet_abandon.confirm_password', [
+                            'type' => $isMoon ? __('t_ingame.planet_abandon.type_moon') : __('t_ingame.planet_abandon.type_planet'),
                             'coordinates' => $currentPlanet->getPlanetCoordinates()->asString()
-                        ])</p>
+                        ]) }}</p>
                         <input class="text w200 pw_field" type="password" name="password" maxlength="1024" size="25"/>
-                        <input class="btn_blue" type="submit" value="@lang('Confirm')"/>
+                        <input class="btn_blue" type="submit" value="{{ __('t_ingame.planet_abandon.confirm_btn') }}"/>
                     </div>
                 </form>
             </td>
@@ -114,6 +100,23 @@ They may contain hyphens, underscores and spaces - however these may not be plac
 
     <script type="text/javascript">
         (function ($) {
+            var locaValidation = {
+                minSize: {!! json_encode(__('t_ingame.planet_abandon.validation_min_chars')) !!},
+                pwMinSize: {!! json_encode(__('t_ingame.planet_abandon.validation_pw_min')) !!},
+                pwMaxSize: {!! json_encode(__('t_ingame.planet_abandon.validation_pw_max')) !!},
+                email: {!! json_encode(__('t_ingame.planet_abandon.validation_email')) !!},
+                noSpecialCharacters: {!! json_encode(__('t_ingame.planet_abandon.validation_special')) !!},
+                noBeginOrEndUnderscore: {!! json_encode(__('t_ingame.planet_abandon.validation_underscore')) !!},
+                noBeginOrEndHyphen: {!! json_encode(__('t_ingame.planet_abandon.validation_hyphen')) !!},
+                noBeginOrEndWhitespace: {!! json_encode(__('t_ingame.planet_abandon.validation_space')) !!},
+                notMoreThanThreeUnderscores: {!! json_encode(__('t_ingame.planet_abandon.validation_max_underscores')) !!},
+                notMoreThanThreeHyphen: {!! json_encode(__('t_ingame.planet_abandon.validation_max_hyphens')) !!},
+                notMoreThanThreeWhitespaces: {!! json_encode(__('t_ingame.planet_abandon.validation_max_spaces')) !!},
+                noCollocateUnderscores: {!! json_encode(__('t_ingame.planet_abandon.validation_consec_underscores')) !!},
+                noCollocateHyphen: {!! json_encode(__('t_ingame.planet_abandon.validation_consec_hyphens')) !!},
+                noCollocateWhitespaces: {!! json_encode(__('t_ingame.planet_abandon.validation_consec_spaces')) !!}
+            };
+
             $.fn.validationEngineLanguage = function () {
             };
             $.validationEngineLanguage = {
@@ -121,59 +124,59 @@ They may contain hyphens, underscores and spaces - however these may not be plac
                     $.validationEngineLanguage.allRules = {
                         "minSize": {
                             "regex": "none",
-                            "alertText": "Not enough characters"
+                            "alertText": locaValidation.minSize
                         },
                         "pwMinSize": {
                             "regex": /^.{ 4,}$/,
-                            "alertText": "The entered password is to short (min. 4 characters)"
+                            "alertText": locaValidation.pwMinSize
                         },
                         "pwMaxSize": {
                             "regex": /^.{0, 20}$/,
-                            "alertText": "The entered password is to long (max. 20 characters)"
+                            "alertText": locaValidation.pwMaxSize
                         },
                         "email": {
                             "regex": /^[a-zA-Z0-9_\.\-]+\@([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9]{2,4}$/,
-                            "alertText": "You need to enter a valid email address!"
+                            "alertText": locaValidation.email
                         },
                         "noSpecialCharacters": {
                             "regex": /^[a-zA-Z0-9\-_\s]+$/,
-                            "alertText": "Contains invalid characters."
+                            "alertText": locaValidation.noSpecialCharacters
                         },
                         "noBeginOrEndUnderscore": {
                             "regex": /^([^_]+(.*[^_])?)?$/,
-                            "alertText": "Your name may not start or end with an underscore."
+                            "alertText": locaValidation.noBeginOrEndUnderscore
                         },
                         "noBeginOrEndHyphen": {
                             "regex": /^([^\-]+(.*[^\-])?)?$/,
-                            "alertText": "Your name may not start or finish with a hyphen."
+                            "alertText": locaValidation.noBeginOrEndHyphen
                         },
                         "noBeginOrEndWhitespace": {
                             "regex": /^([^\s]+(.*[^\s])?)?$/,
-                            "alertText": "Your name may not start or end with a space."
+                            "alertText": locaValidation.noBeginOrEndWhitespace
                         },
                         "notMoreThanThreeUnderscores": {
                             "regex": /^[^_]*(_[^_]*){0,3}$/,
-                            "alertText": "Your name may not contain more than 3 underscores in total."
+                            "alertText": locaValidation.notMoreThanThreeUnderscores
                         },
                         "notMoreThanThreeHyphen": {
                             "regex": /^[^\-]*(\-[^\-]*){0,3}$/,
-                            "alertText": "Your name may not contain more than 3 hyphens."
+                            "alertText": locaValidation.notMoreThanThreeHyphen
                         },
                         "notMoreThanThreeWhitespaces": {
                             "regex": /^[^\s]*(\s[^\s]*){0,3}$/,
-                            "alertText": "Your name may not include more than 3 spaces in total."
+                            "alertText": locaValidation.notMoreThanThreeWhitespaces
                         },
                         "noCollocateUnderscores": {
                             "regex": /^[^_]*(_[^_]+)*_?$/,
-                            "alertText": "You may not use two or more underscores one after the other."
+                            "alertText": locaValidation.noCollocateUnderscores
                         },
                         "noCollocateHyphen": {
                             "regex": /^[^\-]*(\-[^\-]+)*-?$/,
-                            "alertText": "You may not use two or more hyphens consecutively."
+                            "alertText": locaValidation.noCollocateHyphen
                         },
                         "noCollocateWhitespaces": {
                             "regex": /^[^\s]*(\s[^\s]+)*\s?$/,
-                            "alertText": "You may not use two or more spaces one after the other."
+                            "alertText": locaValidation.noCollocateWhitespaces
                         }
 
                     }
@@ -183,7 +186,7 @@ They may contain hyphens, underscores and spaces - however these may not be plac
         })(jQuery);
     </script>
     <script language="javascript">
-        var defaultName = "{{ $isMoon ? 'New name of the moon' : 'New planet name' }}";
+        var defaultName = {!! json_encode($isMoon ? __('t_ingame.planet_abandon.new_moon_name') : __('t_ingame.planet_abandon.new_planet_name')) !!};
     </script>
     <script>
         initFormValidation();

@@ -4,8 +4,11 @@ namespace OGame\Console\Commands\Scheduler;
 
 use Illuminate\Console\Command;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Factories\PlayerServiceFactory;
+use OGame\GameMessages\WreckFieldRepairCompleted;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\WreckField;
+use OGame\Services\MessageService;
 use OGame\Services\ObjectService;
 
 class CleanupWreckFields extends Command
@@ -156,6 +159,15 @@ class CleanupWreckFields extends Command
 
         if ($totalDeployed > 0) {
             $this->info("Auto-deployed {$totalDeployed} ships from wreck field at {$wreckField->galaxy}:{$wreckField->system}:{$wreckField->planet}");
+
+            // Send message to player about auto-deployment
+            $playerServiceFactory = resolve(PlayerServiceFactory::class);
+            $playerService = $playerServiceFactory->make($wreckField->owner_player_id);
+            $messageService = resolve(MessageService::class, ['player' => $playerService]);
+            $messageService->sendSystemMessageToPlayer($playerService, WreckFieldRepairCompleted::class, [
+                'planet' => '[planet]' . $planet->getPlanetId() . '[/planet]',
+                'ship_count' => (string) $totalDeployed,
+            ]);
         }
     }
 }

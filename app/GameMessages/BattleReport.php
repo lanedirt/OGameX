@@ -76,14 +76,6 @@ class BattleReport extends GameMessage
     {
         $this->loadBattleReportModel();
 
-        // Load planet by coordinate.
-        $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
-
-        if ($planet === null) {
-            return __('Planet has been deleted and battle report is no longer available.');
-        }
-
         $params = $this->getBattleReportParams();
         return view('ingame.messages.templates.battle_report', $params)->render();
     }
@@ -94,17 +86,6 @@ class BattleReport extends GameMessage
     public function getBodyFull(): string
     {
         $this->loadBattleReportModel();
-
-        // Load planet by coordinate.
-        $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
-
-        if ($planet === null) {
-            // TODO: add feature test for this behavior to make sure deleting a planet
-            // properly handles any existing battle reports by either deleting them or making
-            // them unavailable. This also affects other messages that use the planet name.
-            return __('Planet has been deleted and battle report is no longer available.');
-        }
 
         $params = $this->getBattleReportParams();
         return view('ingame.messages.templates.battle_report_full', $params)->render();
@@ -136,22 +117,25 @@ class BattleReport extends GameMessage
         // TODO: add feature test for code below and check edgecases, such as when the planet has been deleted and
         // does not exist anymore. What should we show in that case?
 
-        // Load planet by coordinate.
+        // Load planet by coordinate. Planet may be null if it was destroyed (e.g. after a
+        // successful moon destruction). In that case we fall back to the coordinates and
+        // player ID stored in the battle report model so the report remains readable.
         $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
         $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
+
+        // Resolve defender planet display values, using stored data when planet no longer exists.
+        $defenderPlanetName   = $planet?->getPlanetName()                      ?? $coordinate->asString();
+        $defenderPlanetCoords = $planet?->getPlanetCoordinates()->asString()   ?? $coordinate->asString();
+        $defenderPlanetGalaxy = $planet?->getPlanetCoordinates()->galaxy       ?? $this->battleReportModel->planet_galaxy;
+        $defenderPlanetSystem = $planet?->getPlanetCoordinates()->system       ?? $this->battleReportModel->planet_system;
+        $defenderPlanetPos    = $planet?->getPlanetCoordinates()->position     ?? $this->battleReportModel->planet_position;
 
         // Handle defender
         if ($this->battleReportModel->planet_user_id === null) {
             $defender_name = __('Unknown');
             $defender = null;
         } else {
-            // If planet owner is the same as the player, we load the player by planet owner which is already loaded.
-            if ($this->battleReportModel->planet_user_id === $planet->getPlayer()->getId()) {
-                $defender = $this->playerServiceFactory->make($planet->getPlayer()->getId());
-            } else {
-                // Load player by user_id from the battle report
-                $defender = $this->playerServiceFactory->make($this->battleReportModel->planet_user_id);
-            }
+            $defender = $this->playerServiceFactory->make($this->battleReportModel->planet_user_id);
             $defender_name = $defender->getUsername(false);
         }
 
@@ -401,9 +385,9 @@ class BattleReport extends GameMessage
             'defender_class' => ($winner === 'defender') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
             'attacker_character_class' => isset($this->battleReportModel->attacker['character_class']) ? $this->battleReportModel->attacker['character_class'] : null,
             'defender_character_class' => isset($this->battleReportModel->defender['character_class']) ? $this->battleReportModel->defender['character_class'] : null,
-            'defender_planet_name' => $planet->getPlanetName(),
-            'defender_planet_coords' => $planet->getPlanetCoordinates()->asString(),
-            'defender_planet_link' => route('galaxy.index', ['galaxy' => $planet->getPlanetCoordinates()->galaxy, 'system' => $planet->getPlanetCoordinates()->system, 'position' => $planet->getPlanetCoordinates()->position]),
+            'defender_planet_name' => $defenderPlanetName,
+            'defender_planet_coords' => $defenderPlanetCoords,
+            'defender_planet_link' => route('galaxy.index', ['galaxy' => $defenderPlanetGalaxy, 'system' => $defenderPlanetSystem, 'position' => $defenderPlanetPos]),
             'attacker_losses' => AppUtil::formatNumberLong($attackerLosses),
             'defender_losses' => AppUtil::formatNumberLong($defenderLosses),
             'loot' => AppUtil::formatNumberShort($lootResources->sum()),

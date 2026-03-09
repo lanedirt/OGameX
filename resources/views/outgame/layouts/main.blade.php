@@ -20,7 +20,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="language" content="en"/>
+    <meta name="language" content="{{ app()->getLocale() }}"/>
     <meta name="author" content="OGameX"/>
     <meta name="publisher" content="OGameX"/>
     <meta name="copyright" content="OGameX"/>
@@ -47,29 +47,29 @@
                 newLang: function () {
                     $.validationEngineLanguage.allRules = {
                         "required": {
-                            "alertText": "This field is required",
-                            "alertTextCheckboxMultiple": "Make a decision",
-                            "alertTextCheckboxe": "You must accept the T&Cs."
+                            "alertText": {!! json_encode(__('t_external.validation.required')) !!},
+                            "alertTextCheckboxMultiple": {!! json_encode(__('t_external.validation.make_decision')) !!},
+                            "alertTextCheckboxe": {!! json_encode(__('t_external.validation.accept_terms')) !!}
                         },
                         "length": {
                             "regex": /^.{3,20}$/,
-                            "alertText": "Between 3 and 20 characters allowed."
+                            "alertText": {!! json_encode(__('t_external.validation.length')) !!}
                         },
                         "pwLength": {
                             "regex": /^.{4,20}$/,
-                            "alertText": "Between 4 and 20 characters allowed."
+                            "alertText": {!! json_encode(__('t_external.validation.pw_length')) !!}
                         },
                         "email": {
                             "regex": /^[a-zA-Z0-9_.\-]+@([a-zA-Z0-9\-]+\.)+[a-zA-Z0-9]{2,4}$/,
-                            "alertText": "You need to enter a valid email address!"
+                            "alertText": {!! json_encode(__('t_external.validation.email')) !!}
                         },
                         "noSpecialCharacters": {
                             "regex": /^[a-zA-Z0-9\s_\-]+$/,
-                            "alertText": "Contains invalid characters."
+                            "alertText": {!! json_encode(__('t_external.validation.invalid_chars')) !!}
                         },
                         "noBeginOrEndUnderscore": {
                             "regex": /^([^_]+(.*[^_])?)?$/,
-                            "alertText": "Your name may not start or end with an underscore."
+                            "alertText": {!! json_encode(__('t_external.validation.no_begin_end_underscore')) !!}
                         },
                         "noBeginOrEndHyphen": {
                             "regex": /^([^\-]+(.*[^\-])?)?$/,
@@ -77,11 +77,11 @@
                         },
                         "noBeginOrEndWhitespace": {
                             "regex": /^([^\s]+(.*[^\s])?)?$/,
-                            "alertText": "Your name may not start or end with a space."
+                            "alertText": {!! json_encode(__('t_external.validation.no_begin_end_whitespace')) !!}
                         },
                         "notMoreThanThreeUnderscores": {
                             "regex": /^[^_]*(_[^_]*){0,3}$/,
-                            "alertText": "Your name may not contain more than 3 underscores in total."
+                            "alertText": {!! json_encode(__('t_external.validation.max_three_underscores')) !!}
                         },
                         "notMoreThanThreeHyphen": {
                             "regex": /^[^\-]*(\-[^\-]*){0,3}$/,
@@ -89,11 +89,11 @@
                         },
                         "notMoreThanThreeWhitespaces": {
                             "regex": /^[^\s]*(\s[^\s]*){0,3}$/,
-                            "alertText": "Your name may not include more than 3 spaces in total."
+                            "alertText": {!! json_encode(__('t_external.validation.max_three_whitespaces')) !!}
                         },
                         "noCollocateUnderscores": {
                             "regex": /^[^_]*(_[^_]+)*_?$/,
-                            "alertText": "You may not use two or more underscores one after the other."
+                            "alertText": {!! json_encode(__('t_external.validation.no_consecutive_underscores')) !!}
                         },
                         "noCollocateHyphen": {
                             "regex": /^[^\-]*(\-[^\-]+)*-?$/,
@@ -101,23 +101,23 @@
                         },
                         "noCollocateWhitespaces": {
                             "regex": /^[^\s]*(\s[^\s]+)*\s?$/,
-                            "alertText": "You may not use two or more spaces one after the other."
+                            "alertText": {!! json_encode(__('t_external.validation.no_consecutive_whitespaces')) !!}
                         },
                         "ajaxUser": {
                             "file": "../validateUser.php",
-                            "alertTextOk": "This username is available.",
-                            "alertTextLoad": "Please wait, loading...",
-                            "alertText": "This username is not available anymore."
+                            "alertTextOk": {!! json_encode(__('t_external.validation.username_available')) !!},
+                            "alertTextLoad": {!! json_encode(__('t_external.validation.username_loading')) !!},
+                            "alertText": {!! json_encode(__('t_external.validation.username_taken')) !!}
                         },
                         "ajaxName": {
                             "file": "../validateUser.php",
-                            "alertTextOk": "This username is available.",
-                            "alertTextLoad": "This username is available."
+                            "alertTextOk": {!! json_encode(__('t_external.validation.username_available')) !!},
+                            "alertTextLoad": {!! json_encode(__('t_external.validation.username_available')) !!}
                         },
-                        "alertText": "This username is not available anymore.",
+                        "alertText": {!! json_encode(__('t_external.validation.username_taken')) !!},
                         "onlyLetter": {
                             "regex": /^[a-zA-Z ']+$/,
-                            "alertText": "Use characters only."
+                            "alertText": {!! json_encode(__('t_external.validation.only_letters')) !!}
                         }
                     }
                 }
@@ -136,18 +136,15 @@
         var emailOnlyLogin = 1;
     </script>
 </head>
-<body class='en'>
+<body class='{{ app()->getLocale() }}'>
 <div id="dieIE6">
     <div class="logo_gf"></div>
     <div class="logo_ogame"></div>
-    <h1 class="ie6_header">Your browser is not up to date.</h1>
+    <h1 class="ie6_header">{{ __('t_external.browser_warning.title') }}</h1>
 
-    <p class="ie6_desc">Your Internet Explorer version does not correspond to the existing standards and is not
-        supported by this website anymore.</p>
-    <p class="ie6_desc_box">To use this website please update your web browser to a current version or use another web
-        browser. If you are already using the latest version, please reload the page to display it properly.</p>
-    <p class="ie6_desc">Here`s a list of the most popular browsers. Click on one of the symbols to get to the download
-        page:</p>
+    <p class="ie6_desc">{{ __('t_external.browser_warning.desc1') }}</p>
+    <p class="ie6_desc_box">{{ __('t_external.browser_warning.desc2') }}</p>
+    <p class="ie6_desc">{{ __('t_external.browser_warning.desc3') }}</p>
 
     <div class="browser_downloads">
         <a href="http://windows.microsoft.com/en-GB/internet-explorer/download-ie" target="_blank"
@@ -165,16 +162,16 @@
 <div id="start">
     <div id="header">
         <h1>
-            <a href="{{ route('login') }}" title="OGameX - Conquer the universe">
-                OGame - Conquer the universe </a>
+            <a href="{{ route('login') }}" title="{{ __('t_external.login.page_title') }}">
+                {{ __('t_external.login.page_title') }} </a>
         </h1>
-        <a id="loginBtn" href="javascript:void(0)" title="Login">
-            Login </a>
+        <a id="loginBtn" href="javascript:void(0)" title="{{ __('t_external.login.btn') }}">
+            {{ __('t_external.login.btn') }} </a>
         <div id="login">
             <form id="loginForm" name="loginForm" method="post" action="{{ route('login') }}">
                 {{ csrf_field() }}
                 <div class="input-wrap">
-                    <label for="usernameLogin">Email address:</label>
+                    <label for="usernameLogin">{{ __('t_external.login.email_label') }}</label>
                     <div class="black-border">
                         <input class="js_userName"
                                type="text"
@@ -188,7 +185,7 @@
                     </div>
                 </div>
                 <div class="input-wrap">
-                    <label for="passwordLogin">Password:</label>
+                    <label for="passwordLogin">{{ __('t_external.login.password_label') }}</label>
                     <div class="black-border">
                         <input type="password"
                                onKeyDown="hideLoginErrorBox();"
@@ -200,22 +197,21 @@
                 </div>
                 <div class="input-wrap">
                     <label for="serverLogin">
-                        Universe: </label>
+                        {{ __('t_external.login.universe_label') }} </label>
                     <div class="black-border">
                         <select class="js_uniUrl" id="serverLogin" name="uni">
                             <option value="s1">
-                                1. Universe
+                                {{ __('t_external.login.universe_option_1') }}
                             </option>
                         </select>
                     </div>
                 </div>
-                <input type="submit" id="loginSubmit" value="Log in"/>
-                <a href="#" id="pwLost" target="_blank" title="Forgot your password?">Forgot your password?</a>
+                <input type="submit" id="loginSubmit" value="{{ __('t_external.login.submit') }}"/>
+                <a href="#" id="pwLost" target="_blank" title="{{ __('t_external.login.forgot_password') }}">{{ __('t_external.login.forgot_password') }}</a>
                 <br/>
-                <a href="#" id="emailLost" target="_blank" title="Forgot your email address?">Forgot your email
-                    address?</a>
+                <a href="#" id="emailLost" target="_blank" title="{{ __('t_external.login.forgot_email') }}">{{ __('t_external.login.forgot_email') }}</a>
                 <p id="TermsAndConditionsAcceptWithLogin">
-                    With the login I accept the <a class="" href="#" target="_blank" title="T&Cs">T&Cs</a></p>
+                    {!! __('t_external.login.terms_accept_html') !!}</p>
             </form>
         </div>
     </div>
@@ -239,10 +235,10 @@
                 <input type="hidden" name="errorCodeOn" value="1"/>
                 <input type="hidden" name="is_utf8" value="1"/>
 
-                <h2>PLAY FOR FREE!</h2>
+                <h2>{{ __('t_external.register.play_free') }}</h2>
                 <div class="input-wrap">
                     <div class="input-wrap">
-                        <label for="email">Email address:</label>
+                        <label for="email">{{ __('t_external.register.email_label') }}</label>
                         <div class="black-border">
                             <input class="validate[required,custom[email]]"
                                    type="text"
@@ -254,7 +250,7 @@
                     </div>
                 </div>
                 <div class="input-wrap">
-                    <label for="password">Password:</label>
+                    <label for="password">{{ __('t_external.register.password_label') }}</label>
                     <div class="black-border">
                         <input class="validate[required,custom[pwLength]]"
                                type="password"
@@ -271,192 +267,12 @@
 
                 </div>
                 <div class="input-wrap first">
-                    <label for="server">Universe: (<a class="overlay" data-type="ajax" href="/ajax/main/distinctions">Distinctions</a>)</label>
-                    <!--<div id="server" style="position:relative;">
-                        <table cellspacing="0"
-                               cellpadding="0"
-                               onclick="switch_uni_selection()"
-                               onmouseover="this.style.cursor='pointer'"
-                               class="server_table"
-                        >
-                            <tr>
-                                <td id="uni_select_box" class="select" style="height:19px;overflow:hidden;">
-                                    <span id="uni_name" class="margin-uni-selection">PLEASE_SELECT_UNI</span>
-                                </td>
-                                <td style="width:18px; background: url(img/outgame/69677f0e9f1a6f9da264837a284c2d.png) no-repeat scroll 0 0 #8D9AA7;"></td>
-                            </tr>
-                        </table>
-                        <input class="js_uniUrl" type="hidden" name="uni_url" id="uni_domain"/>
-                        <div id="uni_selection">
-                            <script type="text/javascript">
-                                select_uni('s128', 'Betelgeuse','exodus-server-old');
-                            </script>
-
-                            <div id="row-0"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s128', 'Betelgeuse ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-0');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-0');"
-                                 data-tooltip='{"general":{"name":"128","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"20000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"4","fleet":"2"},"size":{"galaxies_max":"7","planets_max":"15","planet_field_bonus":"25","systems_max":"499"},"combat":{"debris_field_factor_ships":"70","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Betelgeuse                                            </div>
-
-                            <div id="row-1"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s129', 'Cygnus ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-1');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-1');"
-                                 data-tooltip='{"general":{"name":"129","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"5","fleet":"4"},"size":{"galaxies_max":"9","planets_max":"15","planet_field_bonus":"25","systems_max":"499"},"combat":{"debris_field_factor_ships":"70","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Cygnus                                            </div>
-
-                            <div id="row-2"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s130', 'Deimos ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-2');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-2');"
-                                 data-tooltip='{"general":{"name":"130","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"2","fleet":"1"},"size":{"galaxies_max":"9","planets_max":"15","planet_field_bonus":"0","systems_max":"499"},"combat":{"debris_field_factor_ships":"30","debris_field_factor_def":"30","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Deimos                                            </div>
-
-                            <div id="row-3"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s131', 'Eridanus ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-3');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-3');"
-                                 data-tooltip='{"general":{"name":"131","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"3","fleet":"3"},"size":{"galaxies_max":"9","planets_max":"15","planet_field_bonus":"0","systems_max":"499"},"combat":{"debris_field_factor_ships":"50","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Eridanus                                            </div>
-
-                            <div id="row-4"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s132', 'Fidis ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-4');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-4');"
-                                 data-tooltip='{"general":{"name":"132","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"2","fleet":"1"},"size":{"galaxies_max":"9","planets_max":"15","planet_field_bonus":"0","systems_max":"499"},"combat":{"debris_field_factor_ships":"70","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Fidis                                            </div>
-
-                            <div id="row-5"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s133', 'Ganimed ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-5');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-5');"
-                                 data-tooltip='{"general":{"name":"133","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"4","fleet":"4"},"size":{"galaxies_max":"9","planets_max":"15","planet_field_bonus":"0","systems_max":"499"},"combat":{"debris_field_factor_ships":"70","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"0"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Ganimed                                            </div>
-
-                            <div id="row-6"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s134', 'Hyperion ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-6');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-6');"
-                                 data-tooltip='{"general":{"name":"134","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"2","fleet":"2"},"size":{"galaxies_max":"7","planets_max":"15","planet_field_bonus":"25","systems_max":"499"},"combat":{"debris_field_factor_ships":"60","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Hyperion                                            </div>
-
-                            <div id="row-7"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s135', 'Izar ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-7');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-7');"
-                                 data-tooltip='{"general":{"name":"135","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"5","fleet":"5"},"size":{"galaxies_max":"9","planets_max":"15","planet_field_bonus":"25","systems_max":"499"},"combat":{"debris_field_factor_ships":"30","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Izar                                            </div>
-
-                            <div id="row-8"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s136', 'Japetus ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-8');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-8');"
-                                 data-tooltip='{"general":{"name":"136","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"3","fleet":"3"},"size":{"galaxies_max":"6","planets_max":"15","planet_field_bonus":"25","systems_max":"499"},"combat":{"debris_field_factor_ships":"30","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Japetus                                            </div>
-
-                            <div id="row-9"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s137', 'Kallisto ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-9');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-9');"
-                                 data-tooltip='{"general":{"name":"137","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"22500"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"4","fleet":"1"},"size":{"galaxies_max":"5","planets_max":"15","planet_field_bonus":"25","systems_max":"499"},"combat":{"debris_field_factor_ships":"30","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Kallisto                                            </div>
-
-                            <div id="row-10"
-                                 class="server-row exodus-server-old uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s138', 'Libra ','exodus-server-old');"
-                                 onmouseover="highlightRow('row-10');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-10');"
-                                 data-tooltip='{"general":{"name":"138","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"4","fleet":"4"},"size":{"galaxies_max":"7","planets_max":"15","planet_field_bonus":"0","systems_max":"499"},"combat":{"debris_field_factor_ships":"70","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Old Universe: This universe is highly advanced and is therefore only recommended to experienced players."}'
-                            >
-                                Libra                                            </div>
-
-                            <div id="row-11"
-                                 class="server-row exodus-server-normal uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s140', 'Nusakan ','exodus-server-normal');"
-                                 onmouseover="highlightRow('row-11');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-11');"
-                                 data-tooltip='{"general":{"name":"140","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"3","fleet":"2"},"size":{"galaxies_max":"6","planets_max":"15","planet_field_bonus":"25","systems_max":"499"},"combat":{"debris_field_factor_ships":"70","debris_field_factor_def":"70","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Normal universe"}'
-                            >
-                                Nusakan                                            </div>
-
-                            <div id="row-12"
-                                 class="server-row exodus-server-normal uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s141', 'Oberon ','exodus-server-normal');"
-                                 onmouseover="highlightRow('row-12');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-12');"
-                                 data-tooltip='{"general":{"name":"141","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"5","fleet":"5"},"size":{"galaxies_max":"6","planets_max":"15","planet_field_bonus":"0","systems_max":"499"},"combat":{"debris_field_factor_ships":"70","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Normal universe"}'
-                            >
-                                Oberon                                            </div>
-
-                            <div id="row-13"
-                                 class="server-row exodus-server-normal uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s142', 'Polaris ','exodus-server-normal');"
-                                 onmouseover="highlightRow('row-13');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-13');"
-                                 data-tooltip='{"general":{"name":"142","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"5","fleet":"2"},"size":{"galaxies_max":"6","planets_max":"15","planet_field_bonus":"25","systems_max":"499"},"combat":{"debris_field_factor_ships":"50","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Normal universe"}'
-                            >
-                                Polaris                                            </div>
-
-                            <div id="row-14"
-                                 class="server-row exodus-server-normal uni_span margin-uni-selection"
-                                 title=""
-                                 onclick="select_uni('s143', 'Quaoar ','exodus-server-normal');"
-                                 onmouseover="highlightRow('row-14');this.style.cursor='pointer'"
-                                 onmouseout="unHighlightRow('row-14');"
-                                 data-tooltip='{"general":{"name":"143","language":"en","noob_protection_factor":"2","noob_protection_advanced":"0","expedition":"1","dark_matter_signup_gift":"8000"},"jumpgate":{"enabled":"1","basic_duration":"3600","minimum_duration":"3600"},"speed":{"server":"5","fleet":"2"},"size":{"galaxies_max":"6","planets_max":"15","planet_field_bonus":"25","systems_max":"499"},"combat":{"debris_field_factor_ships":"50","debris_field_factor_def":"0","espionage_raids":"0"},"wreckfield":{"enabled":"1"},"alliance":{"aks":"1"},"exodusInfo":"Normal universe"}'
-                            >
-                                Quaoar                                            </div>
-                        </div>
-                    </div>
-                    <div id="universeDistinction" class="formError" style="top: -24px;">
-                        <div class="formErrorContent">
-                            <div class="icon"></div>
-                            <div class="formErrorArrow"></div>
-                        </div>
-                    </div>-->
+                    <label for="server">{{ __('t_external.register.universe_label') }} (<a class="overlay" data-type="ajax" href="/ajax/main/distinctions">{{ __('t_external.register.distinctions') }}</a>)</label>
                 </div>
                 <div class="input-wrap expand">
                     <input type="hidden" id="agb" name="agb" value="on"/>
                     <label id="agbLabel">
-                        <span>Our <a class="" target="_blank" href="#" title="T&Cs"> T&Cs </a> and <a class=""
-                                                                                                      target="_blank"
-                                                                                                      href="#"
-                                                                                                      title="Privacy Policy"> Privacy Policy </a> apply in the game</span>
+                        <span>{!! __('t_external.register.terms_html') !!}</span>
                     </label>
                     @if ($errors->has('email'))
                         <span class="help-block">
@@ -469,7 +285,7 @@
                                     </span>
                     @endif
                     <div>
-                        <input type="submit" id="regSubmit" value="Register"/>
+                        <input type="submit" id="regSubmit" value="{{ __('t_external.register.submit') }}"/>
                     </div>
                     <div id="ipadapp">
                         <a href="#"
@@ -491,11 +307,16 @@
     <div id="footerContent">
         <div class="linksAndCopyright">
             <div id="footerLinks">
-                <a class="overlay" data-type="ajax" href="/ajax/main/legal">Legal</a> |
-                <a class="overlay" data-type="ajax" href="/ajax/main/privacy-policy">Privacy Policy</a> |
-                <a class="overlay" data-type="ajax" href="/ajax/main/terms">T&Cs</a> |
-                <a class="overlay" data-type="ajax" href="/ajax/main/contact">Contact</a> |
-                <a class="overlay" data-type="ajax" href="/ajax/main/rules">Rules</a>
+                <a class="overlay" data-type="ajax" href="/ajax/main/legal">{{ __('t_external.footer.legal') }}</a> |
+                <a class="overlay" data-type="ajax" href="/ajax/main/privacy-policy">{{ __('t_external.footer.privacy_policy') }}</a> |
+                <a class="overlay" data-type="ajax" href="/ajax/main/terms">{{ __('t_external.footer.terms') }}</a> |
+                <a class="overlay" data-type="ajax" href="/ajax/main/contact">{{ __('t_external.footer.contact') }}</a> |
+                <a class="overlay" data-type="ajax" href="/ajax/main/rules">{{ __('t_external.footer.rules') }}</a>
+                <br/>
+                @php $outgameLocale = app()->getLocale(); @endphp
+                <a href="{{ route('language.switch', ['lang' => 'en']) }}" @if($outgameLocale === 'en') style="font-weight:bold" @endif>EN</a> |
+                <a href="{{ route('language.switch', ['lang' => 'it']) }}" @if($outgameLocale === 'it') style="font-weight:bold" @endif>IT</a> |
+                <a href="{{ route('language.switch', ['lang' => 'nl']) }}" @if($outgameLocale === 'nl') style="font-weight:bold" @endif>NL</a>
                 <br/>
                 <div class="align_center">
                     <a href="#" target="_blank">
@@ -505,7 +326,7 @@
                         <div class="socialMediaLogo fbLogo">Facebook</div>
                     </a>
                 </div>
-                <p id="copyright">© OGameX. All rights reserved. {{ \OGame\Facades\GitInfoUtil::getAppVersion() }} </p>
+                <p id="copyright">{{ __('t_external.footer.copyright') }} {{ \OGame\Facades\GitInfoUtil::getAppVersion() }} </p>
             </div>
         </div>
     </div>
@@ -513,17 +334,17 @@
 <!-- OVERLAY DIVISION -->
 <script type="text/javascript">
     checkIpadApp();
-    JSLoca = new Array('Login', 'Close');
+    JSLoca = new Array({!! json_encode(__('t_external.js.login')) !!}, {!! json_encode(__('t_external.js.close')) !!});
 
-    var global_language = "en";
-    var text_age_check_failed = "We are sorry, but you are not eligible to register. Please see our T&C for more information.";
+    var global_language = "{{ app()->getLocale() }}";
+    var text_age_check_failed = {!! json_encode(__('t_external.js.age_check_failed')) !!};
 </script>
 <script type="text/javascript">
     $(document).ready(function () {
         ogame.characteristics.init({
             "speed_fleet": {
                 "css": "speed_fleet",
-                "text": "Fleet Speed: the higher the value, the less time you have left to react to an attack.",
+                "text": {!! json_encode(__('t_external.universe_characteristics.fleet_speed')) !!},
                 "valueCategory": "speed",
                 "valueKey": "fleet",
                 "valueAppendix": "x",
@@ -531,7 +352,7 @@
             },
             "speed_economy": {
                 "css": "speed_economy",
-                "text": "Economy Speed: the higher the value, the faster constructions and research will be completed and resources gathered.",
+                "text": {!! json_encode(__('t_external.universe_characteristics.economy_speed')) !!},
                 "valueCategory": "speed",
                 "valueKey": "server",
                 "valueAppendix": "x",
@@ -539,7 +360,7 @@
             },
             "debris_field_factor_ships": {
                 "css": "ships_in_debris_field",
-                "text": "Some of the ships destroyed in battle will enter the debris field.",
+                "text": {!! json_encode(__('t_external.universe_characteristics.debris_ships')) !!},
                 "valueCategory": "combat",
                 "valueKey": "debris_field_factor_ships",
                 "valueAppendix": "%",
@@ -548,7 +369,7 @@
             },
             "defence_in_debris_field": {
                 "css": "defence_in_debris_field",
-                "text": "Some of the defensive structures destroyed in battle will enter the debris field.",
+                "text": {!! json_encode(__('t_external.universe_characteristics.debris_defence')) !!},
                 "valueCategory": "combat",
                 "valueKey": "debris_field_factor_def",
                 "valueAppendix": "%",
@@ -557,7 +378,7 @@
             },
             "dark_matter_signup_gift": {
                 "css": "dm",
-                "text": "You will receive Dark Matter as a reward for confirming your email address.",
+                "text": {!! json_encode(__('t_external.universe_characteristics.dark_matter_gift')) !!},
                 "valueCategory": "general",
                 "valueKey": "dark_matter_signup_gift",
                 "type": "range",
@@ -565,7 +386,7 @@
             },
             "aks_on": {
                 "css": "aks_on",
-                "text": "Alliance battle system activated",
+                "text": {!! json_encode(__('t_external.universe_characteristics.aks_on')) !!},
                 "valueCategory": "alliance",
                 "valueKey": "aks",
                 "condition": "tooltip.alliance.aks",
@@ -573,7 +394,7 @@
             },
             "planet_fields": {
                 "css": "planet_fields",
-                "text": "The maximum amount of building slots has been increased.",
+                "text": {!! json_encode(__('t_external.universe_characteristics.planet_fields')) !!},
                 "valueCategory": "size",
                 "valueKey": "planet_field_bonus",
                 "type": "range",
@@ -581,14 +402,14 @@
             },
             "wreckfield": {
                 "css": "wreck_field",
-                "text": "Space Dock activated: some destroyed ships can be restored using the Space Dock.",
+                "text": {!! json_encode(__('t_external.universe_characteristics.wreckfield')) !!},
                 "valueCategory": "wreckfield",
                 "valueKey": "enabled",
                 "type": "binary"
             },
             "universe_big": {
                 "css": "universe_big",
-                "text": "Amount of Galaxies in the Universe",
+                "text": {!! json_encode(__('t_external.universe_characteristics.universe_big')) !!},
                 "valueCategory": "size",
                 "valueKey": "galaxies_max",
                 "condition": "tooltip.size.galaxies_max > 9",

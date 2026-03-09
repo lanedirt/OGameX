@@ -1,10 +1,10 @@
-<!-- Plasma -->
+<!-- Astrophysics -->
 <table class="general_details">
     <thead>
     <tr>
-        <th>Level</th>
-        <th>Maximum colonies</th>
-        <th>Maximum expeditions</th>
+        <th>{{ __('t_ingame.techtree.col_level') }}</th>
+        <th>{{ __('t_ingame.techtree.astrophysics_max_colonies') }}</th>
+        <th>{{ __('t_ingame.techtree.astrophysics_max_expeditions') }}</th>
     </tr>
     </thead>
     <tbody>
@@ -25,7 +25,7 @@
 </table>
 
 <ul class="additional_information">
-    <li>Positions 3 and 13 can be populated from level 4 onwards.</li>
-    <li>Positions 2 and 14 can be populated from level 6 onwards.</li>
-    <li>Positions 1 and 15 can be populated from level 8 onwards.</li>
+    <li>{{ __('t_ingame.techtree.astrophysics_note_1') }}</li>
+    <li>{{ __('t_ingame.techtree.astrophysics_note_2') }}</li>
+    <li>{{ __('t_ingame.techtree.astrophysics_note_3') }}</li>
 </ul>
