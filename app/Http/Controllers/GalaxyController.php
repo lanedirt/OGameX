@@ -423,7 +423,7 @@ class GalaxyController extends OGameController
             $targetCoordinate = new Coordinate($galaxy, $system, $position);
             $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
 
-            if ($distance <= $missileRange) {
+            if ($distance <= $missileRange && $currentPlanet->getObjectAmount('interplanetary_missile') > 0) {
                 $canMissileAttack = true;
                 $missileAttackLink = route('galaxy.missile-attack.overlay', [
                     'galaxy' => $galaxy,
