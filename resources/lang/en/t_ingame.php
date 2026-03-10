@@ -285,6 +285,11 @@ return [
 
         // ACS Attack – federation overlay
         'fleet_union'              => 'Fleet union',
+        'union_created'            => 'Fleet union created successfully.',
+        'union_edited'             => 'Fleet union successfully edited.',
+        'err_union_max_fleets'     => 'A maximum of 16 fleets can attack.',
+        'err_union_max_players'    => 'A maximum of 5 players can attack.',
+        'err_union_too_slow'       => 'You are too slow to join this fleet.',
         'union_name'               => 'Union name',
         'buddy_list'               => 'Buddy list',
         'buddy_list_loading'       => 'Loading...',

@@ -1123,7 +1123,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
     /**
      * Test that sending a fleet to join a full union returns an error fadeBox
-     * with the message "A maximum of 16 fleets can attack".
+     * with the max fleets error message.
      */
     public function testSendFleetToFullUnionShowsMaxFleetsError(): void
     {
@@ -1178,6 +1178,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $response->assertStatus(200);
         $data = $response->json();
         $this->assertFalse($data['success']);
-        $this->assertEquals('A maximum of 16 fleets can attack', $data['errors'][0]['message']);
+        $this->assertEquals(__('t_ingame.fleet.err_union_max_fleets'), $data['errors'][0]['message']);
     }
 }

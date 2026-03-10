@@ -543,7 +543,7 @@ class FleetController extends OGameController
             $union = FleetUnion::find($unionId);
             if ($union !== null) {
                 if ($union->hasReachedMaxFleets()) {
-                    return $this->validationErrorResponse('A maximum of 16 fleets can attack');
+                    return $this->validationErrorResponse(__('t_ingame.fleet.err_union_max_fleets'));
                 }
 
                 // Pre-validate max players (only if this would be a new player in the union)
@@ -551,7 +551,7 @@ class FleetController extends OGameController
                     ->where('user_id', $player->getId())
                     ->exists();
                 if ($isNewPlayer && $union->hasReachedMaxPlayers()) {
-                    return $this->validationErrorResponse('A maximum of 5 players can attack');
+                    return $this->validationErrorResponse(__('t_ingame.fleet.err_union_max_players'));
                 }
 
                 // Pre-validate timing: calculate would-be arrival and check against union delay limit
@@ -565,7 +565,7 @@ class FleetController extends OGameController
                 $wouldArriveAt = time() + $flightDuration;
                 $maxArrival = $union->time_arrival + $fleetUnionService->getMaxDelayTime($union);
                 if ($wouldArriveAt > $maxArrival) {
-                    return $this->validationErrorResponse('You are to slow to join this fleet');
+                    return $this->validationErrorResponse(__('t_ingame.fleet.err_union_too_slow'));
                 }
             }
         }
@@ -628,7 +628,7 @@ class FleetController extends OGameController
         $responseMessage = '';
         switch ($mission_type) {
             case 6: // Espionage
-                $responseMessage = __('Send espionage probe to:');
+                $responseMessage = __('t_ingame.fleet.fleet_dispatch');
                 $probeCount = $player->getEspionageProbesAmount() ?? 1;
                 $units->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), $probeCount);
                 break;
@@ -837,7 +837,7 @@ class FleetController extends OGameController
                 'token' => csrf_token(),
                 'errorbox' => [
                     'type' => 'fadeBox',
-                    'text' => __('Fleet union successfully edited.'),
+                    'text' => __('t_ingame.fleet.union_edited'),
                     'failed' => false,
                 ],
             ])->header('Content-Type', 'text/plain');
@@ -858,7 +858,7 @@ class FleetController extends OGameController
                 'token' => csrf_token(),
                 'errorbox' => [
                     'type' => 'fadeBox',
-                    'text' => __('Fleet union created successfully.'),
+                    'text' => __('t_ingame.fleet.union_created'),
                     'failed' => false,
                 ],
             ])->header('Content-Type', 'text/plain');
