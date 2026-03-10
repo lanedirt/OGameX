@@ -87,7 +87,7 @@
                     </div>
                 @endif
 
-                <input type="submit" class="btn_blue" value="{{ __('t_ingame.galaxy.fire') }}">
+                <input type="submit" class="btn_blue" value="{{ __('t_ingame.galaxy.fire') }}"{{ $available_missiles == 0 ? ' disabled' : '' }}>
             </div>
         </form>
     @endif
