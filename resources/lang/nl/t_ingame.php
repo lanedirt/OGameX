@@ -461,6 +461,10 @@ return [
 
         // Phalanx-resultaatdialoog (JS-strings in Blade-rendered scriptblok)
         'sensor_report'                => 'sensorrapport',
+        'sensor_report_from'           => 'Sensorrapport van',
+        'own_fleet'                    => 'Eigen vloot',
+        'enemy_fleet'                  => 'Vijandige vloot',
+        'friendly_fleet'               => 'Vriendelijke vloot',
         'refresh'                      => 'Vernieuwen',
         'arrived'                      => 'Aangekomen',
 

@@ -461,6 +461,10 @@ return [
 
         // Dialogo risultati phalanx (stringhe JS nel blocco script Blade-rendered)
         'sensor_report'                => 'rapporto sensore',
+        'sensor_report_from'           => 'Rapporto sensore da',
+        'own_fleet'                    => 'Flotta propria',
+        'enemy_fleet'                  => 'Flotta nemica',
+        'friendly_fleet'               => 'Flotta amica',
         'refresh'                      => 'Aggiorna',
         'arrived'                      => 'Arrivata',
 
