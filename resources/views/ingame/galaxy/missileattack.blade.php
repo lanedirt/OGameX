@@ -137,7 +137,6 @@
             var missileCount = parseInt($('#missileCount').val());
             var maxMissiles = parseInt($('#missileCount').data('max'));
 
-{{-- Fix #1054: Disable - fire button if missile count is 0 --}}
             if (isNaN(missileCount) || missileCount < 1) {
                 fadeBox('{{ __('t_ingame.galaxy.valid_missile_count') }}', 1);
                 return;
@@ -181,12 +180,12 @@
                             }
                         }, 1500);
                     } else {
-                        fadeBox(response.error || @json(__('t_ingame.galaxy.launch_failed')), 1);
+                        fadeBox(response.error || '{{ __('t_ingame.galaxy.launch_failed') }}', 1);
                         $submitBtn.prop('disabled', false);
                     }
                 },
                 error: function(xhr) {
-                    var errorMessage = @json(__('t_ingame.facilities_destroy.error'));
+                    var errorMessage = '{{ __('t_ingame.facilities_destroy.error') }}';
 
                     if (xhr.responseJSON && xhr.responseJSON.error) {
                         errorMessage = xhr.responseJSON.error;
