@@ -69,10 +69,10 @@
                     <li class="baseSpeed">{{ $movement['fleet_speed'] }}</li>
                     @if (!empty($movement['fleet_owner_id']) && isset($scanner_player_id) && (int)$movement['fleet_owner_id'] !== $scanner_player_id)
                         <li class="sendMail">
-                            <a href="{{ route('messages.index', ['category' => 1, 'user_id' => $movement['fleet_owner_id']]) }}"
-                               class="sendMail tooltip"
-                               title="{{ __('t_ingame.highscore.write_message') }}"
-                               target="_top">
+                            <a href="javascript:void(0)"
+                               class="sendMail js_openChat tooltip"
+                               data-playerid="{{ $movement['fleet_owner_id'] }}"
+                               title="{{ __('t_ingame.highscore.write_message') }}">
                                 <span class="icon icon_chat"></span>
                             </a>
                         </li>
