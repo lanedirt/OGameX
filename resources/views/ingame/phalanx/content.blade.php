@@ -31,7 +31,7 @@
                     <li class="countDown">
                         <span class="friendly textBeefy" id="counter-phalanx-{{ $movement['mission_id'] }}">Loading...</span>
                     </li>
-                    <li class="arrivalTime">{{ date('H:i:s', $movement['display_time']) }} Time</li>
+                    <li class="arrivalTime">{{ date('H:i:s', $movement['display_time']) }} Clock</li>
                     <li class="descFleet">{{ $movement['fleet_direction'] }}</li>
                     <li class="missionFleet">
                         <img src="/img/fleet/{{ $movement['mission_type'] }}.gif">
@@ -40,7 +40,7 @@
                     <li class="originFleet">
                         <figure class="planetIcon planet"></figure>
                         @if (!empty($movement['origin']['planet_name']))
-                            <span class="planetName">{{ $movement['origin']['planet_name'] }}</span>
+                            <span class="planetName" style="font-weight: bold; color: #fff;">{{ $movement['origin']['planet_name'] }}</span>
                         @endif
                     </li>
                     <li class="coordsOrigin">
@@ -67,7 +67,7 @@
                     </li>
                     <li class="descSpeed">Speed</li>
                     <li class="baseSpeed">{{ $movement['fleet_speed'] }}</li>
-                    @if (!empty($movement['fleet_owner_id']) && isset($scanner_player_id) && $movement['fleet_owner_id'] !== $scanner_player_id)
+                    @if (!empty($movement['fleet_owner_id']) && isset($scanner_player_id) && (int)$movement['fleet_owner_id'] !== $scanner_player_id)
                         <li class="sendMail">
                             <a href="{{ route('messages.index', ['category' => 1, 'user_id' => $movement['fleet_owner_id']]) }}"
                                class="sendMail tooltip"
