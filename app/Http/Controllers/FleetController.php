@@ -544,10 +544,10 @@ class FleetController extends OGameController
                 break;
             case 8: // Recycle
                 if ($position === UniverseConstants::EXPEDITION_POSITION) {
-                    $responseMessage = __('Send pathfinder to:');
+                    $responseMessage = __('t_ingame.fleet.fleet_dispatch');
                     $units->addUnit(ObjectService::getUnitObjectByMachineName('pathfinder'), $shipCount);
                 } else {
-                    $responseMessage = __('Send recycler to:');
+                    $responseMessage = __('t_ingame.fleet.fleet_dispatch');
                     $units->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), $shipCount);
                 }
                 break;
