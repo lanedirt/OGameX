@@ -68,7 +68,7 @@ class GalaxyController extends OGameController
             $galaxy = (int)$galaxy_qs;
             $system = (int)$system_qs;
         }
-// Fix #1054: Hide - missile icon if no missiles are available on active planet
+
         return view('ingame.galaxy.index')->with([
             'current_galaxy' => $galaxy,
             'current_system' => $system,
@@ -534,14 +534,14 @@ class GalaxyController extends OGameController
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);',
-                    'title' => __('t_buddies.ui.buddy_request_to_player'),
+                    'title' => 'Buddy request to player',
                     'playerName' => $player->getUsername(),
                 ],
                 'ignore' => [
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);',
-                    'title' => __('t_buddies.ui.ignore_player_title'),
+                    'title' => 'Ignore player',
                     'playerName' => $player->getUsername(),
                 ],
                 'support' => [
