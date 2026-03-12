@@ -136,11 +136,8 @@
             // Validate missile count
             var missileCount = parseInt($('#missileCount').val());
             var maxMissiles = parseInt($('#missileCount').data('max'));
-<<<<<<< Updated upstream
 
-=======
 {{-- Fix #1054: Disable - fire button if missile count is 0 --}}
->>>>>>> Stashed changes
             if (isNaN(missileCount) || missileCount < 1) {
                 fadeBox('{{ __('t_ingame.galaxy.valid_missile_count') }}', 1);
                 return;
