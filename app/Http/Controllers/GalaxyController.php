@@ -109,7 +109,7 @@ class GalaxyController extends OGameController
 
         $planets = [];
         foreach ($planet_list as $planet) {
-            $planetService = $planetServiceFactory->makeFromModel($planet);
+            $planetService = $planetServiceFactory->makeFromModel($planet instanceof Planet ? $planet : new Planet((array)$planet));
             $planets[$planet->planet] = $planetService;
         }
 
@@ -413,29 +413,24 @@ class GalaxyController extends OGameController
 
         // Check if missile attack is possible:
         // - Must be foreign planet (not own)
-        // - Must have missiles available
-        // - Target must be within range
+        // - Target must be within range (missiles = 0 is allowed: overlay shows disabled button)
         $canMissileAttack = false;
         $missileAttackLink = route('galaxy.index');
 
         if ($planet->getPlayer()->getId() !== $this->playerService->getId()) {
             $currentPlanet = $this->playerService->planets->current();
-            $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+            $missileRange = $this->playerService->getMissileRange();
+            $targetCoordinate = new Coordinate($galaxy, $system, $position);
+            $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
 
-            if ($availableMissiles > 0) {
-                $missileRange = $this->playerService->getMissileRange();
-                $targetCoordinate = new Coordinate($galaxy, $system, $position);
-                $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
-
-                if ($distance <= $missileRange) {
-                    $canMissileAttack = true;
-                    $missileAttackLink = route('galaxy.missile-attack.overlay', [
-                        'galaxy' => $galaxy,
-                        'system' => $system,
-                        'position' => $position,
-                        'type' => $planet->getPlanetType()->value,
-                    ]);
-                }
+            if ($distance <= $missileRange && $currentPlanet->getObjectAmount('interplanetary_missile') > 0) {
+                $canMissileAttack = true;
+                $missileAttackLink = route('galaxy.missile-attack.overlay', [
+                    'galaxy' => $galaxy,
+                    'system' => $system,
+                    'position' => $position,
+                    'type' => $planet->getPlanetType()->value,
+                ]);
             }
         }
 
@@ -534,14 +529,14 @@ class GalaxyController extends OGameController
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);',
-                    'title' => 'Buddy request to player',
+                    'title' => __('t_buddies.ui.buddy_request_to_player'),
                     'playerName' => $player->getUsername(),
                 ],
                 'ignore' => [
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);',
-                    'title' => 'Ignore player',
+                    'title' => __('t_buddies.ui.ignore_player_title'),
                     'playerName' => $player->getUsername(),
                 ],
                 'support' => [
@@ -865,12 +860,6 @@ class GalaxyController extends OGameController
         $currentPlanet = $player->planets->current();
         $data['available_missiles'] = $currentPlanet->getObjectAmount('interplanetary_missile');
         $data['missile_range'] = $player->getMissileRange();
-
-        // Validate basic requirements
-        if ($data['available_missiles'] <= 0) {
-            $data['error'] = __('No missiles available');
-            return view('ingame.galaxy.missileattack', $data);
-        }
 
         // Load target planet
         $targetCoordinate = new Coordinate($galaxy, $system, $position);

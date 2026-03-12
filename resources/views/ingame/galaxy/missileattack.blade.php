@@ -87,7 +87,7 @@
                     </div>
                 @endif
 
-                <input type="submit" class="btn_blue" value="{{ __('t_ingame.galaxy.fire') }}">
+                <input type="submit" class="btn_blue" value="{{ __('t_ingame.galaxy.fire') }}"{{ $available_missiles == 0 ? ' disabled' : '' }}>
             </div>
         </form>
     @endif
@@ -180,12 +180,12 @@
                             }
                         }, 1500);
                     } else {
-                        fadeBox(response.error || '{{ __('t_ingame.galaxy.launch_failed') }}', 1);
+                        fadeBox(response.error || @json(__('t_ingame.galaxy.launch_failed')), 1);
                         $submitBtn.prop('disabled', false);
                     }
                 },
                 error: function(xhr) {
-                    var errorMessage = '{{ __('t_ingame.facilities_destroy.error') }}';
+                    var errorMessage = @json(__('t_ingame.facilities_destroy.error'));
 
                     if (xhr.responseJSON && xhr.responseJSON.error) {
                         errorMessage = xhr.responseJSON.error;
