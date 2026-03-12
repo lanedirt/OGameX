@@ -638,11 +638,11 @@
                         "lossesInThisRound": null,
                         "statistic": {"hits": 0, "absorbedDamage": 0, "fullStrength": 0},
                         "losses": null,
-                        "ships": {
+                        "ships": [{
 @foreach ($defender_units_start->units as $unit)
                             "{{ $unit->unitObject->id }}": {{ $unit->amount }},
 @endforeach
-                        }
+                        }]
                     },
                     // Actual rounds starting from round 1.
 @foreach ($rounds as $round)
