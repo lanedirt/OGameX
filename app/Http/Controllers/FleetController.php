@@ -534,21 +534,20 @@ class FleetController extends OGameController
         }
 
         // Validate mission type and set units to be sent.
-        // Fix #1054
         $units = new UnitCollection();
         $responseMessage = '';
         switch ($mission_type) {
             case 6: // Espionage
-                $responseMessage = __(key: 'Send espionage probe to:');
+                $responseMessage = __('Send espionage probe to:');
                 $probeCount = $player->getEspionageProbesAmount() ?? 1;
                 $units->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), $probeCount);
                 break;
             case 8: // Recycle
                 if ($position === UniverseConstants::EXPEDITION_POSITION) {
-                    $responseMessage = __('Send pathfinder to:');
+                    $responseMessage = __('t_ingame.fleet.fleet_dispatch');
                     $units->addUnit(ObjectService::getUnitObjectByMachineName('pathfinder'), $shipCount);
                 } else {
-                    $responseMessage = __('Send recycler to:');
+                    $responseMessage = __('t_ingame.fleet.fleet_dispatch');
                     $units->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), $shipCount);
                 }
                 break;
