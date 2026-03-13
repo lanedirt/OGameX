@@ -533,7 +533,7 @@ class FleetController extends OGameController
             $shipCount = 1;
         }
 
-        // Validate mission type and set units to be sent.
+       // Validate mission type and set units to be sent.
         $units = new UnitCollection();
         $responseMessage = '';
         switch ($mission_type) {
