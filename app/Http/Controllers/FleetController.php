@@ -538,16 +538,16 @@ class FleetController extends OGameController
         $responseMessage = '';
         switch ($mission_type) {
             case 6: // Espionage
-                $responseMessage = __('t_ingame.fleet.fleet_dispatch');
+                $responseMessage = __('Send espionage probe to:');
                 $probeCount = $player->getEspionageProbesAmount() ?? 1;
                 $units->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), $probeCount);
                 break;
             case 8: // Recycle
                 if ($position === UniverseConstants::EXPEDITION_POSITION) {
-                    $responseMessage = __('t_ingame.fleet.fleet_dispatch');
+                    $responseMessage = __('Send pathfinder to:');
                     $units->addUnit(ObjectService::getUnitObjectByMachineName('pathfinder'), $shipCount);
                 } else {
-                    $responseMessage = __('t_ingame.fleet.fleet_dispatch');
+                    $responseMessage = __('Send recycler to:');
                     $units->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), $shipCount);
                 }
                 break;
