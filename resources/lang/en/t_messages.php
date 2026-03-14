@@ -404,6 +404,17 @@ Application message:
         'body' => 'The planet :planet_name has been successfully relocated from the coordinates [coordinates]:old_coordinates[/coordinates] to [coordinates]:new_coordinates[/coordinates].',
     ],
 
+    // Fleet union invite
+    'fleet_union_invite' => [
+        'from' => 'Fleet Command',
+        'subject' => 'Invitation to alliance combat',
+        'body' => ':sender_name invited you to mission :union_name against :target_player on [:target_coords], the fleet has been timed for :arrival_time.
+
+CAUTION: Time of arrival can change due to joining fleets. Each new fleet may extend this time by a maximum of 30 %, otherwise it won`t be allowed to join.
+
+NOTE: The total strength of all participants compared to the total strength of defenders determines whether it will be an honourable battle or not.',
+    ],
+
     // Building upgrade messages
     'Shipyard is being upgraded.' => 'Shipyard is being upgraded.',
     'Nanite Factory is being upgraded.' => 'Nanite Factory is being upgraded.',

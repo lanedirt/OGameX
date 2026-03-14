@@ -18,7 +18,7 @@ if ($fleet_event->is_return_trip) {
     <span class="timer tooltip" title="{{ date('d.m.Y H:i:s', $fleet_event->timer_time) }}" id="timer_{{ $fleet_event->id }}">{{ $fleet_event->remaining_time > 0 ? __('t_ingame.fleet.load_dots') : '-' }}</span>
     <span class="absTime">{{ date('H:i:s', $fleet_event->timer_time) }} {{ __('t_ingame.fleet.clock') }}</span>
     <span class="mission {{ $fleet_event->friendly_status }} textBeefy">{{ $fleet_event->mission_label }}{{ $fleet_event->is_return_trip ? ' (R)' : '' }}</span>
-    <span class="allianceName"></span>
+    <span class="allianceName">{{ $fleet_event->alliance_name }}</span>
 
     <span class="originData">
         <span class="originCoords tooltip" title="">
@@ -173,6 +173,20 @@ if ($fleet_event->is_return_trip) {
         <span class="nextTimer tooltip" title="{{ date('d.m.Y H:i:s', $fleet_event->return_time_arrival) }}" id="timerNext_{{ $fleet_event->id }}">{{ __('t_ingame.fleet.load_dots') }}</span>
         <span class="nextabsTime">{{ date('H:i:s', $fleet_event->return_time_arrival) }} {{ __('t_ingame.fleet.clock') }}</span>
         <span class="nextMission friendly textBeefy">{{ __('t_ingame.fleet.return_trip') }}</span>
+    @endif
+
+    @if ($fleet_event->can_create_federation)
+        <span class="fedAttack" id="federation_{{ $fleet_event->id }}">
+            @if ($fleet_event->union_id)
+                <a href="{{ route('fleet.federation.overlay', ['fleet' => $fleet_event->id, 'union' => $fleet_event->union_id]) }}" class="openOverlay tooltip icon" data-title="@lang('Fleet union')" data-overlay-class="federation-layer" data-fleet-id="{{ $fleet_event->id }}" title="@lang('fleet union')">
+                    <img src="/img/icons/2ff25995f98351834db4b5aa048c68.gif" height="16" width="16">
+                </a>
+            @else
+                <a href="{{ route('fleet.federation.overlay', ['fleet' => $fleet_event->id]) }}" class="openOverlay tooltip icon" data-title="@lang('Fleet union')" data-overlay-class="federation-layer" data-fleet-id="{{ $fleet_event->id }}" title="@lang('fleet union')">
+                    <img src="/img/icons/2ff25995f98351834db4b5aa048c68.gif" height="16" width="16">
+                </a>
+            @endif
+        </span>
     @endif
 
     <span class="openDetails">

@@ -74,6 +74,16 @@ class FleetUnion extends Model
     }
 
     /**
+     * Get all invites for this union.
+     *
+     * @return HasMany<FleetUnionInvite, $this>
+     */
+    public function invites(): HasMany
+    {
+        return $this->hasMany(FleetUnionInvite::class, 'fleet_union_id');
+    }
+
+    /**
      * Get all fleet missions in this union.
      */
     public function fleetMissions(): HasMany
