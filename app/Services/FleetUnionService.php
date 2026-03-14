@@ -108,6 +108,14 @@ class FleetUnionService
             throw new Exception(__('t_acs.error_not_buddy_or_ally'));
         }
 
+        // Validate fleet targets the same location as the union
+        if ($mission->galaxy_to !== $union->galaxy_to
+            || $mission->system_to !== $union->system_to
+            || $mission->position_to !== $union->position_to
+            || $mission->type_to !== $union->planet_type_to) {
+            throw new Exception(__('t_ingame.fleet.err_union_target_mismatch'));
+        }
+
         // Validate fleet can arrive within delay limit
         $maxArrival = $union->time_arrival + $this->getMaxDelayTime($union);
         if ($mission->time_arrival > $maxArrival) {
@@ -129,6 +137,11 @@ class FleetUnionService
             // Fleet arrives later - update union arrival time (within delay limit)
             $union->time_arrival = $mission->time_arrival;
             $union->save();
+
+            // Also sync all existing union members to the new (later) arrival time.
+            // The mission itself has not been saved yet (union_id not in DB), so
+            // activeFleetMissions() only returns already-joined missions.
+            $union->activeFleetMissions()->update(['time_arrival' => $mission->time_arrival]);
         }
 
         $mission->save();

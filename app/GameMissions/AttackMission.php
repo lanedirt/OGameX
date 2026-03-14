@@ -208,8 +208,8 @@ class AttackMission extends GameMission
             // Multi-attacker battle - process each fleet separately
             foreach ($battleResult->attackerFleetResults as $fleetResult) {
                 $fleetMission = FleetMission::find($fleetResult->fleetMissionId);
-                if (!$fleetMission) {
-                    continue; // Fleet may have been recalled/deleted
+                if (!$fleetMission || $fleetMission->canceled) {
+                    continue; // Fleet may have been recalled or deleted
                 }
 
                 if ($fleetResult->completelyDestroyed || !$fleetResult->hasSurvivors()) {

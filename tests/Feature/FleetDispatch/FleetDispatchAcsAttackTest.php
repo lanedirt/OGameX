@@ -1180,4 +1180,88 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->assertFalse($data['success']);
         $this->assertEquals(__('t_ingame.fleet.err_union_max_fleets'), $data['errors'][0]['message']);
     }
+
+    /**
+     * Test that when a slower fleet joins a union, ALL existing member missions (including
+     * the initiator) have their time_arrival synced to the late joiner's arrival time, so
+     * the battle fires when every fleet has arrived — not before.
+     *
+     * The union arrival and initiator mission arrival are pinned to a known far-future
+     * timestamp to give a predictable 30% delay window regardless of actual flight speeds.
+     */
+    public function testLateJoinerSyncsAllMemberArrivalTimes(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        // Send initiator fleet
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Create union
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'TimingSyncTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        // Pin union and initiator to a far-future timestamp so the 30% delay window is
+        // large and well-defined (30% of 10 000 s = 3 000 s >> 100 s used below).
+        $baseArrivalTime = time() + 10000;
+        $initiatorMission->time_arrival = $baseArrivalTime;
+        $initiatorMission->save();
+        $union = FleetUnion::find($unionId);
+        $union->time_arrival = $baseArrivalTime;
+        $union->save();
+
+        // Create ally fleet mission
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        // Set ally arrival 100 s after base — well within the 3 000 s delay limit.
+        $lateArrivalTime = $baseArrivalTime + 100;
+        $allyMission->time_arrival = $lateArrivalTime;
+        $allyMission->save();
+
+        // Join the union as the late fleet
+        $union->refresh();
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        // The initiator's mission time_arrival must be bumped to the late joiner's time.
+        $initiatorMission->refresh();
+        $this->assertEquals(
+            $lateArrivalTime,
+            $initiatorMission->time_arrival,
+            'Initiator time_arrival must be synced to the late joiner so the battle fires when all fleets arrive'
+        );
+
+        // The union record must also reflect the new arrival time.
+        $union->refresh();
+        $this->assertEquals(
+            $lateArrivalTime,
+            $union->time_arrival,
+            'Union time_arrival must be updated to reflect the latest fleet arrival'
+        );
+    }
 }

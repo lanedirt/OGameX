@@ -363,7 +363,11 @@ class FleetController extends OGameController
         $unionId = (int)request()->input('union');
         if ($unionId > 0 && in_array(1, $enabledMissions, true)) {
             $union = FleetUnion::find($unionId);
-            if ($union !== null) {
+            if ($union !== null
+                && $union->galaxy_to === $targetCoordinates->galaxy
+                && $union->system_to === $targetCoordinates->system
+                && $union->position_to === $targetCoordinates->position
+                && $union->planet_type_to === $planetType->value) {
                 $flightDuration = $fleetMissionService->calculateFleetMissionDuration(
                     $currentPlanet,
                     $targetCoordinates,
