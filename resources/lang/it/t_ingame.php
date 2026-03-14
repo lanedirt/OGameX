@@ -479,6 +479,7 @@ return [
         'fire'                         => 'Fuoco',
         'valid_missile_count'          => 'Inserisci un numero valido di missili',
         'not_enough_missiles'          => 'Non hai abbastanza missili',
+        'insufficient_range'           => 'Gittata insufficiente (livello di ricerca unità polverizzatrice) dei tuoi missili interplanetari!',
         'launched_success'             => 'Missili lanciati con successo!',
         'launch_failed'                => 'Lancio dei missili fallito',
     ],
