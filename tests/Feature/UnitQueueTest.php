@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use Exception;
 use OGame\Models\Resources;
+use OGame\Models\UnitQueue;
+use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\AccountTestCase;
 
@@ -557,5 +559,35 @@ class UnitQueueTest extends AccountTestCase
         // Verify ship is in queue
         $response = $this->get('/shipyard');
         $response->assertStatus(200);
+    }
+
+    /**
+     * Verify that adding a research object to the unit queue is rejected.
+     * Only ship and defense objects should be accepted by the unit queue.
+     *
+     * @throws Exception
+     */
+    public function testUnitQueueRejectsResearchObject(): void
+    {
+        // Get a research object (plasma_technology).
+        $researchObject = ObjectService::getObjectByMachineName('plasma_technology');
+
+        // Attempt to add the research object to the unit queue via the shipyard endpoint.
+        $response = $this->post('/shipyard/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $researchObject->id,
+            'amount' => 1,
+        ]);
+
+        // The response should indicate failure, not success.
+        $response->assertStatus(200);
+        $responseData = $response->json();
+        $this->assertFalse($responseData['success'], 'Adding a research object to the unit queue should be rejected.');
+
+        // Verify that no unit queue entry was created for the research object.
+        $queueEntry = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('object_id', $researchObject->id)
+            ->first();
+        $this->assertNull($queueEntry, 'A unit queue entry should not have been created for a research object.');
     }
 }

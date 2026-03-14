@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Models\UnitQueue;
 use OGame\ViewModels\Queue\UnitQueueListViewModel;
 use OGame\ViewModels\Queue\UnitQueueViewModel;
@@ -165,7 +166,12 @@ class UnitQueueService
             return;
         }
 
-        $object = ObjectService::getUnitObjectById($object_id);
+        $object = ObjectService::getObjectById($object_id);
+
+        // Only ships and defense units can be added to the unit queue.
+        if ($object->type !== GameObjectType::Ship && $object->type !== GameObjectType::Defense) {
+            throw new Exception('Only ships and defense units can be added to the unit queue.');
+        }
 
         // Check if user satisifes requirements to build this object.
         $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet);

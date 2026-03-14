@@ -153,7 +153,14 @@ abstract class AbstractUnitsController extends OGameController
         $building_id = $request->input('technologyId');
         $amount = $request->input('amount');
 
-        $this->queue->add($player->planets->current(), $building_id, $amount);
+        try {
+            $this->queue->add($player->planets->current(), $building_id, $amount);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
