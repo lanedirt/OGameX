@@ -943,7 +943,7 @@ class GalaxyController extends OGameController
             'system' => 'required|integer|min:1',
             'position' => 'required|integer|min:1|max:15',
             'type' => 'required|integer',
-            'missile_count' => 'required|integer|min:1',
+            'missile_count' => 'required|integer|min:0',
             'target_priority' => 'required|integer|min:0|max:7',
         ]);
 
@@ -953,6 +953,14 @@ class GalaxyController extends OGameController
         $type = $validated['type'];
         $missileCount = $validated['missile_count'];
         $targetPriority = $validated['target_priority'];
+
+        // Check if missile count is 0 - insufficient range
+        if ($missileCount === 0) {
+            return response()->json([
+                'success' => false,
+                'error' => __('t_ingame.galaxy.insufficient_range'),
+            ], 400);
+        }
 
         // Get current planet
         $currentPlanet = $player->planets->current();

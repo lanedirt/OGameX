@@ -479,6 +479,7 @@ return [
         'fire'                         => 'Vuur',
         'valid_missile_count'          => 'Voer een geldig aantal raketten in',
         'not_enough_missiles'          => 'U heeft niet genoeg raketten',
+        'insufficient_range'           => 'Onvoldoende bereik (onderzoeksniveau impulsaandrijving) van uw interplanetaire raketten!',
         'launched_success'             => 'Raketten succesvol gelanceerd!',
         'launch_failed'                => 'Lancering van raketten mislukt',
     ],
