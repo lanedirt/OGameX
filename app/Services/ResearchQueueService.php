@@ -5,6 +5,7 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Date;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
 use OGame\ViewModels\Queue\ResearchQueueListViewModel;
@@ -117,7 +118,12 @@ class ResearchQueueService
             throw new Exception('Maximum number of items already in queue.');
         }
 
-        $object = ObjectService::getResearchObjectById($research_object_id);
+        $object = ObjectService::getObjectById($research_object_id);
+
+        // Only research objects can be added to the research queue.
+        if ($object->type !== GameObjectType::Research) {
+            throw new Exception('Only research objects can be added to the research queue.');
+        }
 
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the research queue.

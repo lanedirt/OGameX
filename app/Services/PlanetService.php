@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Abstracts\GameObject;
@@ -1440,8 +1441,19 @@ class PlanetService
                 // Check if this is a downgrade
                 $is_downgrade = $item->is_downgrade ?? false;
 
-                // Update building level
-                $this->setObjectLevel($item->object_id, $item->object_level_target, $save_planet);
+                // Update building level. If the object type is invalid (e.g. a research object somehow
+                // ended up in the building queue due to a prior bug), skip it gracefully. The item is
+                // already marked processed above, so it will not be retried on the next page load.
+                try {
+                    $this->setObjectLevel($item->object_id, $item->object_level_target, $save_planet);
+                } catch (RuntimeException $e) {
+                    Log::error('Building queue item skipped due to invalid object type.', [
+                        'planet_id' => $this->getPlanetId(),
+                        'object_id' => $item->object_id,
+                        'object_level_target' => $item->object_level_target,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
 
                 // Update production/storage stats for subsequent resource calculations
                 $this->updateResourceProductionStats(false);
@@ -1486,6 +1498,11 @@ class PlanetService
     public function setObjectLevel(int $object_id, int $level, bool $save_planet = true): void
     {
         $object = ObjectService::getObjectById($object_id);
+
+        if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
+            throw new RuntimeException('setObjectLevel() can only be used for buildings and stations, not: ' . $object->machine_name);
+        }
+
         $this->planet->{$object->machine_name} = $level;
         if ($save_planet) {
             $this->save();

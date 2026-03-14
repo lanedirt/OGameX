@@ -80,6 +80,11 @@ class BuildingQueueService
         // Check if user satisfies requirements to build this object.
         $building = ObjectService::getObjectById($building_id);
 
+        // Only buildings and stations can be added to the building queue.
+        if ($building->type !== GameObjectType::Building && $building->type !== GameObjectType::Station) {
+            throw new Exception('Only buildings and stations can be added to the building queue.');
+        }
+
         // Check if building can be built on this planet type (planet or moon).
         $correct_planet_type = ObjectService::objectValidPlanetType($building->machine_name, $planet);
         if (!$correct_planet_type) {
@@ -114,7 +119,7 @@ class BuildingQueueService
 
         // Check if planet has enough fields for this building (only for buildings that consume fields)
         // Ships, defense units, and certain other objects don't consume planet fields
-        if (($building->type === GameObjectType::Building || $building->type === GameObjectType::Station) && $building->consumesPlanetField) {
+        if ($building->consumesPlanetField) {
             $currentBuildingCount = $planet->getBuildingCount();
             $maxFields = $planet->getPlanetFieldMax();
 

@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
+use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use Tests\AccountTestCase;
 
@@ -329,5 +331,34 @@ class ResearchQueueTest extends AccountTestCase
         $response = $this->get('/research');
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'hyperspace_drive', 21, 'Hyperspace Drive is not at level 21 after research time has passed.');
+    }
+
+    /**
+     * Verify that adding a building object to the research queue is rejected.
+     * Only research-type objects should be accepted by the research queue.
+     *
+     * @throws Exception
+     */
+    public function testResearchQueueRejectsBuildingObject(): void
+    {
+        // Get a building object (metal_mine).
+        $buildingObject = ObjectService::getObjectByMachineName('metal_mine');
+
+        // Attempt to add the building to the research queue via the research endpoint.
+        $response = $this->post('/research/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $buildingObject->id,
+        ]);
+
+        // The response should indicate failure, not success.
+        $response->assertStatus(200);
+        $responseData = $response->json();
+        $this->assertFalse($responseData['success'], 'Adding a building object to the research queue should be rejected.');
+
+        // Verify that no research queue entry was created for the building object.
+        $queueEntry = ResearchQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('object_id', $buildingObject->id)
+            ->first();
+        $this->assertNull($queueEntry, 'A research queue entry should not have been created for a building object.');
     }
 }

@@ -639,4 +639,41 @@ class BuildQueueTest extends AccountTestCase
             "Starting: $starting_metal, Current: $current_metal"
         );
     }
+
+    /**
+     * Verify that adding a research object to the building queue is rejected.
+     * This is a regression test for a bug where plasma_technology (id=122) could be
+     * added to building_queues via a crafted HTTP request, then written to the planets
+     * table causing "Unknown column 'plasma_technology' in 'field list'" SQL errors.
+     *
+     * @throws Exception
+     */
+    public function testBuildQueueRejectsResearchObject(): void
+    {
+        // Get the plasma_technology research object (id=122).
+        $researchObject = ObjectService::getObjectByMachineName('plasma_technology');
+
+        // Attempt to add plasma_technology to the building queue via the resources endpoint.
+        $response = $this->post('/resources/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $researchObject->id,
+        ]);
+
+        // The response should indicate failure, not success.
+        $response->assertStatus(200);
+        $responseData = $response->json();
+        $this->assertFalse($responseData['success'], 'Adding a research object to the building queue should be rejected.');
+
+        // Verify that no building queue entry was created for the research object.
+        $queueEntry = BuildingQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('object_id', $researchObject->id)
+            ->first();
+        $this->assertNull($queueEntry, 'A building queue entry should not have been created for a research object.');
+
+        // Verify that the planet model does not have plasma_technology set as a dirty attribute.
+        // Travel forward in time to trigger planet update.
+        $this->travel(1)->hours();
+        $response = $this->get('/resources');
+        $response->assertStatus(200);
+    }
 }

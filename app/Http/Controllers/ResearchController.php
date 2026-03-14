@@ -176,7 +176,15 @@ class ResearchController extends OGameController
         }
 
         $building_id = $request->input('technologyId');
-        $this->queue->add($player, $player->planets->current(), $building_id);
+
+        try {
+            $this->queue->add($player, $player->planets->current(), $building_id);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
