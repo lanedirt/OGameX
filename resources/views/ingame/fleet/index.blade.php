@@ -1122,6 +1122,9 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                             </div>
                                         </div>
                                         <div style="padding-top: 12px;">
+                                            {{-- TODO: show the player their synchronized arrival time when a union is
+                                                 selected. The live arrival time update logic is in ingame.js
+                                                 (FleetDispatcher.prototype refreshFleetTimes / MISSION_UNIONATTACK block). --}}
                                             <span id="combatunits tips">{{ __('t_ingame.fleet.combat_forces') }}:</span>
                                             <div class="glow">
                                                 <select size="1" class="combatunits" id="aksbox"

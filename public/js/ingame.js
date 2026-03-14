@@ -65776,6 +65776,12 @@ FleetDispatcher.prototype.refreshFleetTimes = function () {
       let durationAKS = parseInt(union.time - serverTime.getTime() / 1000);
       let unionArrivalTime = formatTime(durationAKS);
       $('#durationAKS').html(unionArrivalTime);
+      // TODO: Show the player the actual synchronized arrival time they will be locked to.
+      // If this fleet arrives earlier than the union, it will be delayed to union.time.
+      // If this fleet arrives later (within the 30% delay window), all union members
+      // will be pushed to this fleet's arrival time. The live #arrivalTime display above
+      // should reflect the post-sync arrival time so the player knows exactly when their
+      // fleet will land before confirming dispatch.
     }
   }
 };

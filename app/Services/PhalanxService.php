@@ -305,7 +305,9 @@ class PhalanxService
             return 'Your fleet';
         }
 
-        // If attack mission (type 1 = Attack)
+        // If attack mission (type 1 = Attack) or ACS Attack (type 2)
+        // TODO: ACS Attack (type 2) fleets are not yet shown in Phalanx scan results.
+        // Each union member fleet needs to be displayed individually, matching OGame behaviour.
         if ($mission_type === 1) {
             return 'Enemy fleet';
         }
