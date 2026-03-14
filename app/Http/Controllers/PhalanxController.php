@@ -135,6 +135,7 @@ class PhalanxController extends OGameController
         $content_html = view('ingame.phalanx.content', [
             'fleet_movements' => $fleet_movements,
             'server_time' => time(),
+            'scanner_player_id' => $player->getId(),
         ])->render();
 
         // Return scan results

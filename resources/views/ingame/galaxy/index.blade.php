@@ -602,10 +602,10 @@
             function showPhalanxResults(data) {
                 // Build OGame-style phalanx dialog
                 var coords = data.target.galaxy + ':' + data.target.system + ':' + data.target.position;
-                var dialog_title = coords + ' {{ __('t_ingame.galaxy.sensor_report') }}';
+                var dialog_title = '{{ ucfirst(__('t_ingame.galaxy.sensor_report')) }} ' + coords;
 
                 if (data.target.planet_name && data.target.player_name) {
-                    dialog_title = data.target.planet_name + ' ' + coords + ' (' + data.target.player_name + ') {{ __('t_ingame.galaxy.sensor_report') }}';
+                    dialog_title = '{{ __('t_ingame.galaxy.sensor_report_from') }} ' + data.target.planet_name + ' ' + coords + ' (' + data.target.player_name + ')';
                 }
 
                 // If error, wrap error_message in div
@@ -619,7 +619,7 @@
                 modal_html += '<span id="phalanx-title" class="ui-dialog-title">' + dialog_title;
 
                 // Refresh button inside title
-                modal_html += '<a class="refreshPhalanxLink tooltip js_hideTipOnMobile overlay fleft" data-overlay-same="true" ';
+                modal_html += '<a class="refreshPhalanxLink tooltip js_hideTipOnMobile fleft" ';
                 modal_html += 'href="javascript:void(0)" onclick="refreshPhalanxContent(' + data.target.galaxy + ',' + data.target.system + ',' + data.target.position + ')" ';
                 modal_html += 'data-tooltip-title="{{ __('t_ingame.galaxy.refresh') }}">';
                 modal_html += '<span class="icon icon_reload"></span>';

@@ -461,6 +461,10 @@ return [
 
         // Phalanx result dialog (JS strings inside Blade-rendered script block)
         'sensor_report'                => 'sensor report',
+        'sensor_report_from'           => 'Sensor report from',
+        'own_fleet'                    => 'Own fleet',
+        'enemy_fleet'                  => 'Enemy fleet',
+        'friendly_fleet'               => 'Friendly fleet',
         'refresh'                      => 'Refresh',
         'arrived'                      => 'Arrived',
 
