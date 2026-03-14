@@ -477,6 +477,7 @@ return [
         'not_enough_missiles'          => 'U heeft niet genoeg raketten',
         'launched_success'             => 'Raketten succesvol gelanceerd!',
         'launch_failed'                => 'Lancering van raketten mislukt',
+        'insufficient_range'           => 'Onvoldoende bereik (onderzoeksniveau impulsaandrijving) van uw interplanetaire raketten!',
     ],
 
     // -------------------------------------------------------------------------

@@ -423,7 +423,7 @@ class GalaxyController extends OGameController
             $targetCoordinate = new Coordinate($galaxy, $system, $position);
             $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
 
-            if ($distance <= $missileRange && $currentPlanet->getObjectAmount('interplanetary_missile') > 0) {
+            if ($distance <= $missileRange) {
                 $canMissileAttack = true;
                 $missileAttackLink = route('galaxy.missile-attack.overlay', [
                     'galaxy' => $galaxy,
@@ -932,7 +932,7 @@ class GalaxyController extends OGameController
             'system' => 'required|integer|min:1',
             'position' => 'required|integer|min:1|max:15',
             'type' => 'required|integer',
-            'missile_count' => 'required|integer|min:1',
+            'missile_count' => 'required|integer|min:0',
             'target_priority' => 'required|integer|min:0|max:7',
         ]);
 
@@ -948,10 +948,17 @@ class GalaxyController extends OGameController
 
         // Check if player has enough missiles
         $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+        if ($missileCount === 0 || $availableMissiles === 0) {
+            return response()->json([
+                'success' => false,
+                'error' => __('t_ingame.galaxy.insufficient_range'),
+                'close_overlay' => true,
+            ], 400);
+        }
         if ($missileCount > $availableMissiles) {
             return response()->json([
                 'success' => false,
-                'error' => __('Not enough missiles available'),
+                'error' => __('t_ingame.galaxy.not_enough_missiles'),
             ], 400);
         }
 
