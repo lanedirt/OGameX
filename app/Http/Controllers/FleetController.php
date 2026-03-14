@@ -301,8 +301,14 @@ class FleetController extends OGameController
             $targetCoordinates = $targetPlanet->getPlanetCoordinates();
         } else {
             $targetPlayerId = 99999;
-            $targetPlanetName = '?';
-            $targetPlayerName = 'Deep space';
+            // Position 16 is the expedition/deep space position
+            if ($position === UniverseConstants::EXPEDITION_POSITION) {
+                $targetPlanetName = 'Deep space';
+                $targetPlayerName = 'Deep space';
+            } else {
+                $targetPlanetName = '?';
+                $targetPlayerName = 'Deep space';
+            }
             $targetCoordinates = new Coordinate($galaxy, $system, $position);
             $targetInhabited = false;
         }
