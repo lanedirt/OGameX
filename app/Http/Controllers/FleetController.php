@@ -301,7 +301,7 @@ class FleetController extends OGameController
             $targetCoordinates = $targetPlanet->getPlanetCoordinates();
         } else {
             $targetPlayerId = 99999;
-            $targetPlanetName = '?';
+            $targetPlanetName = 'Deep space';
             $targetPlayerName = 'Deep space';
             $targetCoordinates = new Coordinate($galaxy, $system, $position);
             $targetInhabited = false;
