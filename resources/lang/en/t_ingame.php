@@ -477,6 +477,7 @@ return [
         'not_enough_missiles'          => 'You do not have enough missiles',
         'launched_success'             => 'Missiles launched successfully!',
         'launch_failed'                => 'Failed to launch missiles',
+        'insufficient_range'           => 'Insufficient range (research level impulse drive) of your interplanetary missiles!',
     ],
 
     // -------------------------------------------------------------------------
