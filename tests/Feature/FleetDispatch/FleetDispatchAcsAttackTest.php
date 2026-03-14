@@ -136,7 +136,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
             'user_id' => $targetUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 8,
+            'planet' => 13, // Position 13 is outside the allocator range (4-12), preventing collisions
         ]);
 
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
@@ -164,7 +164,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
             'user_id' => $allyUser->id,
             'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
             'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 9,
+            'planet' => 14, // Position 14 is outside the allocator range (4-12), preventing collisions
         ]);
 
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
