@@ -419,14 +419,6 @@
             $(function () {
                 fleetDispatcher = new FleetDispatcher(window);
                 fleetDispatcher.init();
-
-                // Fix #1102: ensure the JS reserves exactly the fuel cost that the PHP backend
-                // will consume, accounting for the character class multiplier now applied
-                // server-side in dispatchCheckTarget. Math.ceil guarantees JS never
-                // under-reserves vs. PHP's (int)(round(raw) * multiplier) truncation.
-                fleetDispatcher.getDeuteriumOnPlanetWithoutConsumption = function () {
-                    return Math.max(0, Math.floor(this.deuteriumOnPlanet) - Math.ceil(this.getConsumption()));
-                };
             });
 
             var apiDataJson = {
