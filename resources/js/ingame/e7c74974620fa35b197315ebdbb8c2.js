@@ -34204,7 +34204,18 @@ FleetDispatcher.prototype.selectMaxCrystal = function () {
 };
 
 FleetDispatcher.prototype.getDeuteriumOnPlanetWithoutConsumption = function () {
-  return Math.max(0, this.deuteriumOnPlanet - this.getConsumption());
+  let consumption = this.getConsumption();
+  // For missions with a return trip, fuel must cover both outbound and return legs (2x one-way cost).
+  // One-way missions (deploy, colonize, missile attack) only need fuel for a single leg.
+  let oneWayMissions = [
+    this.fleetHelper.MISSION_DEPLOY,
+    this.fleetHelper.MISSION_COLONIZE,
+    this.fleetHelper.MISSION_MISSILEATTACK
+  ];
+  if (!oneWayMissions.includes(this.mission)) {
+    consumption *= 2;
+  }
+  return Math.max(0, this.deuteriumOnPlanet - consumption);
 };
 
 FleetDispatcher.prototype.selectMinCrystal = function () {
