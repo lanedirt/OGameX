@@ -64,7 +64,7 @@ return [
         'under_construction'     => 'In aanbouw',
         'vacation_mode_error'    => 'Fout, speler is in vakantiemodus',
         'requirements_not_met'   => 'Vereisten zijn niet vervuld!',
-        'wrong_class'            => 'Verkeerde karakterklasse!',
+        'wrong_class'            => 'Je moet de bijbehorende klasse activeren om dit te bouwen',
         'no_moon_building'       => 'Je kunt dat gebouw niet op een maan bouwen!',
         'not_enough_resources'   => 'Niet genoeg grondstoffen!',
         'queue_full'             => 'Wachtrij is vol',

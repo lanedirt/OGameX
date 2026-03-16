@@ -64,7 +64,7 @@ return [
         'under_construction'     => 'Under construction',
         'vacation_mode_error'    => 'Error, player is in vacation mode',
         'requirements_not_met'   => 'Requirements are not met!',
-        'wrong_class'            => 'Wrong character class!',
+        'wrong_class'            => 'You need to activate the matching class to build this.',
         'no_moon_building'       => "You can't construct that building on a moon!",
         'not_enough_resources'   => 'Not enough resources!',
         'queue_full'             => 'Queue is full',
