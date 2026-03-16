@@ -16,15 +16,15 @@
                     <span class="icon icon_reply"></span>
                 </a>
                 <span class="status">
-                    <span class="tooltip icon icon_user @if(!$isBuddy) grayscale @endif" data-tooltip-title="Buddy"></span>
-                    <span class="tooltip icon allianceMember @if(!$isAllianceMember) grayscale @endif" data-tooltip-title="Your alliance"></span>
-                    <span class="tooltip playerstatus {{ ($isBuddy || $isAllianceMember) ? ($chatPartner->isOnline() ? 'online' : 'offline') : 'disallowed' }}" data-tooltip-title="{{ ($isBuddy || $isAllianceMember) ? ($chatPartner->isOnline() ? 'online' : 'offline') : 'Status not visible' }}"></span>
+                    <span class="tooltip icon icon_user @if(!$isBuddy) grayscale @endif" data-tooltip-title="{{ __('t_ingame.chat.buddy_tooltip') }}"></span>
+                    <span class="tooltip icon allianceMember @if(!$isAllianceMember) grayscale @endif" data-tooltip-title="{{ __('t_ingame.chat.alliance_tooltip') }}"></span>
+                    <span class="tooltip playerstatus {{ ($isBuddy || $isAllianceMember) ? ($chatPartner->isOnline() ? 'online' : 'offline') : 'disallowed' }}" data-tooltip-title="{{ ($isBuddy || $isAllianceMember) ? ($chatPartner->isOnline() ? __('t_ingame.chat.status_online') : __('t_ingame.chat.status_offline')) : __('t_ingame.chat.status_not_visible') }}"></span>
                 </span>
-                <span id="chatpartner" class="tooltipHTML js_hideTipOnMobile" title="Highscore ranking: {{ $chatPartnerRank }}|Alliance: {{ $chatPartnerAlliance ? e($chatPartnerAlliance->alliance_name) : '-' }}">
+                <span id="chatpartner" class="tooltipHTML js_hideTipOnMobile" title="{{ __('t_ingame.chat.highscore_ranking') }}: {{ $chatPartnerRank }}|{{ __('t_ingame.chat.alliance_label') }}: {{ $chatPartnerAlliance ? e($chatPartnerAlliance->alliance_name) : '-' }}">
                     @if($chatPartnerAlliance)<a href="{{ route('alliance.index') }}" id="otherPlayerAllianceTag">{{ $chatPartnerAlliance->alliance_tag }}</a> @endif<a href="{{ route('chat.index', ['playerId' => $chatPartner->id]) }}" id="otherPlayerName">{{ $chatPartner->username }}</a>
                     @if(isset($chatPartnerPlanet) && $chatPartnerPlanet)
                         <a href="{{ route('galaxy.index', ['galaxy' => $chatPartnerPlanet->galaxy, 'system' => $chatPartnerPlanet->system]) }}" class="txt_link">
-                            <img src="{{ asset($chatPartnerPlanetImage) }}" width="16" height="16" alt="Planet">
+                            <img src="{{ asset($chatPartnerPlanetImage) }}" width="16" height="16" alt="{{ __('t_ingame.chat.planet_alt') }}">
                             <span>[{{ $chatPartnerPlanet->galaxy }}:{{ $chatPartnerPlanet->system }}:{{ $chatPartnerPlanet->planet }}]</span>
                         </a>
                     @endif
@@ -191,8 +191,8 @@
                     <span class="icon icon_reply"></span>
                 </a>
                 <span class="status">
-                    <span class="tooltip icon allianceMember" data-tooltip-title="Your alliance"></span>
-                    <span class="tooltip playerstatus online" data-tooltip-title="online"></span>
+                    <span class="tooltip icon allianceMember" data-tooltip-title="{{ __('t_ingame.chat.alliance_tooltip') }}"></span>
+                    <span class="tooltip playerstatus online" data-tooltip-title="{{ __('t_ingame.chat.status_online') }}"></span>
                 </span>
                 <span id="chatpartner">
                     <span id="otherPlayerName" style="color: orange">{{ $alliance->alliance_tag }} - Alliance Chat</span>
@@ -362,13 +362,13 @@
                                     <div class="msg_status"></div>
                                     <div class="msg_head">
                                         <span class="status">
-                                            <span class="tooltip icon allianceMember" data-tooltip-title="Your alliance"></span>
+                                            <span class="tooltip icon allianceMember" data-tooltip-title="{{ __('t_ingame.chat.alliance_tooltip') }}"></span>
                                             <span title="" class="tooltip playerstatus blank"></span>
                                             <span class="icon" style="background: none;"></span>
                                         </span>
                                         <span class="msg_title blue_txt">
                                             {{ $alliance->alliance_tag }}
-                                            <span style="color: orange">Alliance Chat</span>
+                                            <span style="color: orange">{{ __('t_ingame.chat.alliance_chat') }}</span>
                                         </span>
                                         <span class="msg_date fright">@if($latestAllianceMessage){{ $latestAllianceMessage->created_at->format('d.m.Y H:i:s') }}@endif</span><br>
                                     </div>
@@ -391,7 +391,7 @@
                                     <div class="msg_head">
                                         <span class="status">
                                             <span class="tooltip icon icon_user grayscale" data-tooltip-title=""></span>
-                                            <span class="tooltip playerstatus disallowed" data-tooltip-title="Status not visible"></span>
+                                            <span class="tooltip playerstatus disallowed" data-tooltip-title="{{ __('t_ingame.chat.status_not_visible') }}"></span>
                                         </span>
                                         <span class="msg_title blue_txt">
                                             {{ $conversation['partner_name'] }}
@@ -517,7 +517,7 @@
                                         <li class="playerlist_item @if($loop->iteration % 2 === 0) odd @endif @if($chatPartner && $chatPartner->id === $stranger->id) active @endif" data-playerid="{{ $stranger->id }}" data-filterchatactive="on" data-filteronline="off">
                                             <a href="{{ route('chat.index', ['playerId' => $stranger->id]) }}" style="text-decoration: none; color: inherit; display: block;">
                                                 <p class="playername">
-                                                    <span class="playerstatus tooltip disallowed" data-tooltip-title="Status not visible">
+                                                    <span class="playerstatus tooltip disallowed" data-tooltip-title="{{ __('t_ingame.chat.status_not_visible') }}">
                                                     </span>
                                                     {{ $stranger->username }}
                                                 </p>

@@ -72,7 +72,7 @@
                 </div>
                 <div class="content">
                     <p class="stimulus clearfix">
-                        <a href="javascript:void(0);" class="tooltipHTML help rules" data-tooltip-title="@lang('Rules|Usually the scrap merchant will pay back 35% of the construction costs of ships and defence systems. However you can only receive as many resources back as you have space for in your storage.<br /><br />With the help of Dark Matter you can renegotiate. In doing so, the percentage of the construction costs that the scrap merchant pays you will increase by 5 - 14%. Each round of negotiations are 2,000 Dark Matter more expensive than the last. The scrap merchant will pay out no more than 75% of the construction costs.')"></a>
+                        <a href="javascript:void(0);" class="tooltipHTML help rules" data-tooltip-title="{{ __('t_merchant.scrap_rules') }}"></a>
                         @lang('The scrap merchant accepts used ships and defence systems.')
                     </p>
 

@@ -245,8 +245,12 @@ return [
         'reset_choice'             => 'Selectie resetten',
         'api_data'                 => 'Deze gegevens kunnen worden ingevoerd in een compatibele gevechtssimulator:',
         'tactical_retreat'         => 'Tactische terugtrekking',
-        'tactical_retreat_tooltip' => 'Toon deuteriumverbruik per tactische terugtrekking',
-        'continue'                 => 'Doorgaan',
+        'tactical_retreat_tooltip'         => 'Toon deuteriumverbruik per tactische terugtrekking',
+        'tactical_retreat_label'           => 'Tactische terugtrekking:',
+        'tactical_retreat_full_tooltip'    => 'Tactische terugtrekking|Vloten kunnen automatisch terugtrekken als ze worden aangevallen door een superieure kracht die vijf keer sterker is dan zichzelf. De beslissende factor hierin zijn de vlootpunten van de aanvaller in vergelijking met jouw vlootpunten. Verdedigingsfaciliteiten worden niet meegerekend.<br /><br />Civiele schepen tellen slechts voor 25%, zonne-satellieten en spionagedrones worden niet meegerekend. <br /><br />Selecteer de optie *nooit* als je de automatische terugtrekking wilt deactiveren.<br /><br />Vastgehouden vloten zijn in principe niet in staat terug te trekken. Death Stars, Spionagedrones en Zonne-satellieten zijn ook niet in staat terug te trekken.<br /><br />Gebruik de Admiraal om je vloten in staat te stellen terug te trekken van krachten die drie keer zo groot zijn als de jouwe.<br /><br />De optie `tactische terugtrekking` eindigt met 500.000 punten.',
+        'tactical_retreat_admiral_tooltip' => 'Tactische terugtrekking|Gebruik de Admiraal om je vloten in staat te stellen terug te trekken van krachten die drie keer zo groot zijn als de jouwe.',
+        'add_new_template'                 => 'Nieuw sjabloon toevoegen',
+        'continue'                         => 'Doorgaan',
         'back'                     => 'Terug',
 
         // Stap 2 – bestemming
@@ -362,6 +366,22 @@ return [
         'err_no_cargo'             => 'Fout, onvoldoende laadruimte',
         'err_multi_alarm'          => 'Multi-alarm',
         'err_attack_ban'           => 'Aanvalverbod',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chatpagina
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'buddy_tooltip'      => 'Buddy',
+        'alliance_tooltip'   => 'Jouw alliantie',
+        'alliance_chat'      => 'Alliantiechat',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Status niet zichtbaar',
+        'highscore_ranking'  => 'Highscore rangschikking',
+        'alliance_label'     => 'Alliantie',
+        'planet_alt'         => 'Planeet',
     ],
 
     // -------------------------------------------------------------------------

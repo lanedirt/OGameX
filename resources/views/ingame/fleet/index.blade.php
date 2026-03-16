@@ -505,8 +505,8 @@
                             </table>
                             <a href="javascript: void(0);" class="btn_blue float_right overlay" id="addNewTpl"
                                onclick="setShipsFleet({&quot;202&quot;:0,&quot;203&quot;:0,&quot;204&quot;:0,&quot;205&quot;:0,&quot;206&quot;:0,&quot;207&quot;:0,&quot;208&quot;:0,&quot;209&quot;:0,&quot;210&quot;:0,&quot;211&quot;:0,&quot;212&quot;:0,&quot;213&quot;:0,&quot;214&quot;:0,&quot;215&quot;:0,&quot;218&quot;:0,&quot;219&quot;:0}, &quot;&quot;, 0)"
-                               data-overlay-inline="#fleetTemplatesEdit" data-overlay-title="Add new template">
-                                Add new template
+                               data-overlay-inline="#fleetTemplatesEdit" data-overlay-title="{{ __('t_ingame.fleet.add_new_template') }}">
+                                {{ __('t_ingame.fleet.add_new_template') }}
                             </a>
                             <br class="clearfloat">
                         </div><!-- #fleetzOverview -->
@@ -821,48 +821,28 @@
                 <div class="fleetStatus">
                     <div id="slots" class="fleft">
                         <div class="fleft tactical_retreat">
-                            <a title="Tactical retreat|Fleets are able to automatically retreat if they are attacked by a superior force five times stronger than themselves. The crucial factor in this are the attacker&amp;#96;s fleet points in comparison to your fleet points. Defense facilities are not considered.<br />
-<br />
-Civil ships only count 25%, solar satellites and espionage probes are not considered. <br />
-<br />
-Select the option *never* if you would like to deactivate the automatic retreat.<br />
-<br />
-Held fleets are in principle not able to retreat. Death Stars, Espionage Probes and Solar Satellites are also unable to retreat.<br />
-<br />
-Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.<br />
-<br />
-The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points." href="javascript:void(0);"
+                            <a title="{{ __('t_ingame.fleet.tactical_retreat_full_tooltip') }}" href="javascript:void(0);"
                                class="tooltipHTML tooltipRight help"></a>
                             <form class="fleft" name="tacticalRetreat" method="POST" action="">
-                            <span class="tooltipHTML tooltipRight" title="Tactical retreat|Fleets are able to automatically retreat if they are attacked by a superior force five times stronger than themselves. The crucial factor in this are the attacker&amp;#96;s fleet points in comparison to your fleet points. Defense facilities are not considered.<br />
-<br />
-Civil ships only count 25%, solar satellites and espionage probes are not considered. <br />
-<br />
-Select the option *never* if you would like to deactivate the automatic retreat.<br />
-<br />
-Held fleets are in principle not able to retreat. Death Stars, Espionage Probes and Solar Satellites are also unable to retreat.<br />
-<br />
-Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.<br />
-<br />
-The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
-                                Tactical retreat:
+                            <span class="tooltipHTML tooltipRight" title="{{ __('t_ingame.fleet.tactical_retreat_full_tooltip') }}">
+                                {{ __('t_ingame.fleet.tactical_retreat_label') }}
                             </span>
                                 <input onclick="ajaxFormSubmit('tacticalRetreat', '{{ route('overview.index') }}#TODO_tacticalRetreat&amp;tacticalRetreatState=0');"
                                        type="radio" name="tacticalRetreat" value="0">
-                                Never
+                                {{ __('t_ingame.fleet.never') }}
                                 <input onclick="ajaxFormSubmit('tacticalRetreat', '{{ route('overview.index') }}#TODO_tacticalRetreat&amp;tacticalRetreatState=5');"
                                        checked="&quot;checked&quot;" type="radio" name="tacticalRetreat" value="5"> 5:1
                                 <input type="radio" disabled="disabled" name="tacticalRetreat">
                                 <a href="{{ route('premium.index', ['openDetail' => '3']) }}"
                                    class="disabled tooltipHTML"
-                                   title="Tactical retreat|Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.">
+                                   title="{{ __('t_ingame.fleet.tactical_retreat_admiral_tooltip') }}">
                                     3:1
                                 </a>
                             </form>
                         </div>
-                        <div class="fleft tooltip" title="Show Deuterium usage per tactical retreat">
+                        <div class="fleft tooltip" title="{{ __('t_ingame.fleet.tactical_retreat_tooltip') }}">
                         <span>
-                            Deuterium consumption:
+                            {{ __('t_ingame.fleet.deuterium_consumption') }}:
                         </span>
                             5
                         </div>
@@ -968,7 +948,7 @@ The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                     </div>
                                     <div class="firstcol fleft">
                                         <a id="combatunits" class="overlay dark_highlight_tablet"
-                                           data-overlay-inline="#zeuch666" data-overlay-title="Edit standard fleets">
+                                           data-overlay-inline="#zeuch666" data-overlay-title="{{ __('t_ingame.fleet.edit_standard_fleets') }}">
                                             <span class="icon icon_combatunits"></span>
                                             {{ __('t_ingame.fleet.standard_fleets') }}
                                         </a>

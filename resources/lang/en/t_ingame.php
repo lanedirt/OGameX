@@ -245,8 +245,12 @@ return [
         'reset_choice'             => 'Reset choice',
         'api_data'                 => 'This data can be entered into a compatible combat simulator:',
         'tactical_retreat'         => 'Tactical retreat',
-        'tactical_retreat_tooltip' => 'Show Deuterium usage per tactical retreat',
-        'continue'                 => 'Continue',
+        'tactical_retreat_tooltip'         => 'Show Deuterium usage per tactical retreat',
+        'tactical_retreat_label'           => 'Tactical retreat:',
+        'tactical_retreat_full_tooltip'    => 'Tactical retreat|Fleets are able to automatically retreat if they are attacked by a superior force five times stronger than themselves. The crucial factor in this are the attacker`s fleet points in comparison to your fleet points. Defense facilities are not considered.<br /><br />Civil ships only count 25%, solar satellites and espionage probes are not considered. <br /><br />Select the option *never* if you would like to deactivate the automatic retreat.<br /><br />Held fleets are in principle not able to retreat. Death Stars, Espionage Probes and Solar Satellites are also unable to retreat.<br /><br />Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.<br /><br />The `tactical retreat` option ends with 500,000 points.',
+        'tactical_retreat_admiral_tooltip' => 'Tactical retreat|Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.',
+        'add_new_template'                 => 'Add new template',
+        'continue'                         => 'Continue',
         'back'                     => 'Back',
 
         // Step 2 – destination
@@ -362,6 +366,22 @@ return [
         'err_no_cargo'             => 'Error, not enough cargo capacity',
         'err_multi_alarm'          => 'Multi-alarm',
         'err_attack_ban'           => 'Attack ban',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chat page
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'buddy_tooltip'      => 'Buddy',
+        'alliance_tooltip'   => 'Your alliance',
+        'alliance_chat'      => 'Alliance Chat',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Status not visible',
+        'highscore_ranking'  => 'Highscore ranking',
+        'alliance_label'     => 'Alliance',
+        'planet_alt'         => 'Planet',
     ],
 
     // -------------------------------------------------------------------------

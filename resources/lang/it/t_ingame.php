@@ -245,8 +245,12 @@ return [
         'reset_choice'             => 'Azzera selezione',
         'api_data'                 => 'Questi dati possono essere inseriti in un simulatore di combattimento compatibile:',
         'tactical_retreat'         => 'Ritirata tattica',
-        'tactical_retreat_tooltip' => 'Mostra il consumo di Deuterio per ritirata tattica',
-        'continue'                 => 'Continua',
+        'tactical_retreat_tooltip'         => 'Mostra il consumo di Deuterio per ritirata tattica',
+        'tactical_retreat_label'           => 'Ritirata tattica:',
+        'tactical_retreat_full_tooltip'    => 'Ritirata tattica|Le flotte possono ritirarsi automaticamente se vengono attaccate da una forza superiore cinque volte più forte di loro. Il fattore cruciale in questo caso sono i punti flotta dell\'attaccante in confronto ai tuoi punti flotta. Le difese non vengono considerate.<br /><br />Le navi civili contano solo per il 25%, i satelliti solari e le sonde di spionaggio non vengono considerati. <br /><br />Seleziona l\'opzione *mai* se desideri disattivare la ritirata automatica.<br /><br />Le flotte in attesa non sono in grado di ritirarsi. Le Morte Nere, le Sonde di Spionaggio e i Satelliti Solari non possono ritirarsi.<br /><br />Usa l\'Ammiraglio per consentire alle tue flotte di ritirarsi da forze tre volte più grandi delle tue.<br /><br />L\'opzione `ritirata tattica` termina con 500.000 punti.',
+        'tactical_retreat_admiral_tooltip' => 'Ritirata tattica|Usa l\'Ammiraglio per consentire alle tue flotte di ritirarsi da forze tre volte più grandi delle tue.',
+        'add_new_template'                 => 'Aggiungi nuovo modello',
+        'continue'                         => 'Continua',
         'back'                     => 'Indietro',
 
         // Step 2 – destinazione
@@ -362,6 +366,22 @@ return [
         'err_no_cargo'             => 'Errore, capacità di carico insufficiente',
         'err_multi_alarm'          => 'Multi-allarme',
         'err_attack_ban'           => 'Divieto di attacco',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Pagina Chat
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'buddy_tooltip'      => 'Buddy',
+        'alliance_tooltip'   => 'La tua alleanza',
+        'alliance_chat'      => 'Chat Alleanza',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Stato non visibile',
+        'highscore_ranking'  => 'Posizione in classifica',
+        'alliance_label'     => 'Alleanza',
+        'planet_alt'         => 'Pianeta',
     ],
 
     // -------------------------------------------------------------------------
