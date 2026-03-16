@@ -4,7 +4,7 @@
     <div class="sprite sprite_large building {{ $object->class_name }}">
         @if ($has_requirements)
             <button class="technology_tree  tooltip js_hideTipOnMobile overlay ipiHintable"
-                    aria-label="@lang('Open techtree')"
+                    aria-label="{{ __('t_ingame.ajax_object.open_techtree') }}"
                     data-target="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}"
                     data-ipi-hint="ipiTechnologyTreefusionPlant"
                     data-tooltip-title="Open techtree">
@@ -12,9 +12,9 @@
             </button>
         @else
             <button class="technology_tree no_prerequisites tooltip js_hideTipOnMobile overlay ipiHintable"
-                    aria-label="@lang('Open techtree')" title="@lang('No requirements available')"
+                    aria-label="{{ __('t_ingame.ajax_object.open_techtree') }}" title="{{ __('t_ingame.ajax_object.no_requirements') }}"
                     data-target="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}"
-                    data-ipi-hint="ipiTechnologyTreedeuteriumSynthesizer"> @lang('Techtree')
+                    data-ipi-hint="ipiTechnologyTreedeuteriumSynthesizer"> {{ __('t_ingame.ajax_object.techtree') }}
             </button>
         @endif
 
@@ -32,16 +32,16 @@
         <div class="information">
             @if ($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                 <span class="amount" data-value="{{ $next_level }}">
-                     @lang('Number'): {!! $current_level !!}
+                     {{ __('t_ingame.ajax_object.number') }}: {!! $current_level !!}
                 </span>
             @else
                 <span class="level" data-value="{{ $next_level }}">
-                    @lang('Level') {!! $current_level !!}
+                    {{ __('t_ingame.shared.level') }} {!! $current_level !!}
                 </span>
             @endif
             <ul class="narrow">
 
-                <li class="build_duration"><strong>@lang('Production duration:')</strong>
+                <li class="build_duration"><strong>{{ __('t_ingame.ajax_object.production_duration') }}</strong>
                     <time class="value tooltip" datetime="{{ $production_datetime }}" title="">{!! $production_time !!}
                         <!--
                         For event discounts
@@ -53,7 +53,7 @@
                 </li>
 
                 @if ($energy_difference > 0)
-                    <li class="additional_energy_consumption"><strong>@lang('Energy needed:')</strong>
+                    <li class="additional_energy_consumption"><strong>{{ __('t_ingame.ajax_object.energy_needed') }}</strong>
                         <span class="value tooltip"
                               data-value="{{ $energy_difference }}"
                               title="">{{ $energy_difference }}
@@ -61,7 +61,7 @@
                     </li>
                 @elseif ($energy_difference < 0)
                     <li class="energy_production">
-                        <strong>@lang('Production'):</strong>
+                        <strong>{{ __('t_ingame.ajax_object.production') }}:</strong>
                         <span class="value tooltip" data-value="{{ $production_next->energy->get() }}" title="">{{ $production_next->energy->getFormattedLong() }}
                             <span class="bonus" data-value="{{ ($energy_difference * -1) }}">
                                 (+{{ \OGame\Facades\AppUtil::formatNumberLong($energy_difference * -1) }})
@@ -74,9 +74,9 @@
 
             <div class="costs">
                 @if ($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
-                    <p>@lang('Costs per piece'):</p>
+                    <p>{{ __('t_ingame.ajax_object.costs_per_piece') }}:</p>
                 @else
-                    <p>@lang('Required to improve to level') {!! $next_level !!}:</p>
+                    <p>{{ __('t_ingame.ajax_object.required_to_improve') }} {!! $next_level !!}:</p>
                 @endif
 
                 <ul class="ipiHintable" data-ipi-hint="">
@@ -224,7 +224,7 @@
                             @endif>
                         <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
                              data-ipi-hint="ipiTechnologyTearDown{{ $object->class_name }}"></div>
-                        <span class="label tooltip" title="{{ $is_in_vacation_mode ? __('You are not able to build while in vacation mode') : '' }}">tear down</span>
+                        <span class="label tooltip" title="{{ $is_in_vacation_mode ? __('t_ingame.ajax_object.vacation_mode') : '' }}">{{ __('t_ingame.ajax_object.tear_down_btn') }}</span>
                     </button>
                 @endif
             @endif
@@ -245,16 +245,16 @@
                             @php
                                 $tooltip = false;
                                 if ($is_in_vacation_mode) {
-                                    $tooltip = __('You are not able to build while in vacation mode');
+                                    $tooltip = __('t_ingame.ajax_object.vacation_mode');
                                 } elseif (!$character_class_met) {
                                     $tooltip = __('Wrong character class!');
                                 } elseif ($disabled_shipyard_upgrading) {
-                                    $tooltip = __('Shipyard is being upgraded');
+                                    $tooltip = __('t_ingame.ajax_object.shipyard_upgrading');
                                 } elseif ($ships_being_built) {
-                                    $tooltip = __('The Shipyard is still busy');
+                                    $tooltip = __('t_ingame.ajax_object.shipyard_busy');
                                 }
                             @endphp
-                        <span class="tooltip" title="{{ is_string($tooltip) ? $tooltip : (($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) && $fields_exceeded ? __('Not enough fields!') : '') }}">
+                        <span class="tooltip" title="{{ is_string($tooltip) ? $tooltip : (($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) && $fields_exceeded ? __('t_ingame.ajax_object.not_enough_fields') : '') }}">
                             @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
                                 Build
                             @elseif (!empty($build_active->id))
@@ -278,7 +278,7 @@
     <div class="description">
         @if ($storage)
             <div class="capacity">
-                <span class="label">@lang('Storage capacity:')</span>
+                <span class="label">{{ __('t_ingame.ajax_object.storage_capacity') }}</span>
                 <meter min="0" max="{{ $max_storage }}" low="{{ (int)($max_storage * 0.9) }}" high="{{ $max_storage }}" optimum="0" value="{{ $current_storage }}"></meter>
                 <span class="description">
                         <span class="good">{{ number_format($current_storage, 0, ',', '.') }}</span> / {{ number_format($max_storage, 0, ',', '.') }}
@@ -288,15 +288,15 @@
             <div class="fill_capacity_info">
                 <div class="arrow_description"></div>
                 <div class="action">
-                    <div class="description">@lang('Gain resources to immediately refill your storage')</div>
-                    <a class="offers btn btn_confirm fright" href="{{ route('merchant.index') }}#animation=false&page=traderResources">@lang('View offers')</a>
+                    <div class="description">{{ __('t_ingame.ajax_object.gain_resources') }}</div>
+                    <a class="offers btn btn_confirm fright" href="{{ route('merchant.index') }}#animation=false&page=traderResources">{{ __('t_ingame.ajax_object.view_offers') }}</a>
                 </div>
             </div>
         @endif
 
         @if ($is_missile_silo && $current_level > 0)
             <div class="capacity">
-                <span class="label">@lang('Storage capacity:')</span>
+                <span class="label">{{ __('t_ingame.ajax_object.storage_capacity') }}</span>
                 <meter min="0" max="{{ $max_missiles }}" low="{{ (int)($max_missiles * 0.9) }}" high="{{ $max_missiles - 0.1 }}" optimum="0" value="{{ $current_missiles }}"></meter>
                 <span class="description">
                     <span class="@if($current_missiles >= $max_missiles * 0.9) criticial @else good @endif">{{ $current_missiles }}</span> / {{ $max_missiles }}
@@ -307,19 +307,19 @@
                 <div class="fill_capacity_info">
                     <div class="arrow_description"></div>
                     <div class="action">
-                        <div class="description">@lang('Destroy Rockets to make more space in your missile silo')</div>
+                        <div class="description">{{ __('t_ingame.ajax_object.destroy_rockets_desc') }}</div>
                         <a class="rockets btn btn_confirm fright overlay"
                            href="{{ route('facilities.destroy-rockets-overlay') }}"
                            data-overlay-class="rocketlayer"
-                           data-overlay-title="@lang('Destroy rockets')"
-                           data-overlay-width="684px">@lang('Destroy rockets')</a>
+                           data-overlay-title="{{ __('t_ingame.ajax_object.destroy_rockets_btn') }}"
+                           data-overlay-width="684px">{{ __('t_ingame.ajax_object.destroy_rockets_btn') }}</a>
                     </div>
                 </div>
             @endif
         @endif
 
         <div class="txt_box">
-            <button class="details tooltip js_hideTipOnMobile overlay" aria-label="@lang('More details')" title="@lang('More details')"
+            <button class="details tooltip js_hideTipOnMobile overlay" aria-label="{{ __('t_ingame.ajax_object.more_details') }}" title="{{ __('t_ingame.ajax_object.more_details') }}"
                     data-target="{{ route('techtree.ajax', ['tab' => 2, 'object_id' => $object->id]) }}"
                     data-overlay-title="{{ $title }}"> ?
             </button>

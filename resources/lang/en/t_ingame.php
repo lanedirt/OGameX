@@ -49,10 +49,15 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Caution',
-        'yes'     => 'yes',
-        'no'      => 'No',
-        'error'   => 'Error',
+        'caution'        => 'Caution',
+        'yes'            => 'yes',
+        'no'             => 'No',
+        'error'          => 'Error',
+        'ok'             => 'OK',
+        'error_occurred' => 'An error occurred.',
+        'level'          => 'Level',
+        'duration'       => 'Duration',
+        'dark_matter'    => 'Dark Matter',
     ],
 
     // -------------------------------------------------------------------------
@@ -126,6 +131,9 @@ return [
     'shipyard_page' => [
         'battleships' => 'Battleships',
         'civil_ships' => 'Civil ships',
+        'no_units_idle_tooltip' => 'At the moment there are no ships or defense built on this planet. Click here to get to the shipyard.',
+        'no_units_idle' => 'No ships/defense in construction.',
+        'to_shipyard' => '(To shipyard)',
     ],
 
     // -------------------------------------------------------------------------
@@ -1376,7 +1384,25 @@ return [
     // -------------------------------------------------------------------------
 
     'notes' => [
-        'no_notes_found'          => 'No notes found',
+        'no_notes_found'       => 'No notes found',
+        'add_note'             => 'Add note',
+        'new_note'             => 'New Note',
+        'edit_note'            => 'Edit note',
+        'subject_label'        => 'Subject',
+        'your_subject'         => 'Your subject:',
+        'subject_placeholder'  => 'Your subject',
+        'date_label'           => 'Date',
+        'priority_label'       => 'Priority:',
+        'priority_important'   => 'Important',
+        'priority_normal'      => 'Normal',
+        'priority_unimportant' => 'Unimportant',
+        'your_message'         => 'Your message:',
+        'save_btn'             => 'Save',
+        'select_action'        => 'Select action',
+        'delete_marked'        => 'Delete marked notes',
+        'delete_all'           => 'Delete all notes',
+        'unsaved_warning'      => 'The message has not been saved. All changes will be lost if you leave the page.',
+        'save_question'        => 'Should the changes be saved?',
     ],
 
     // -------------------------------------------------------------------------
@@ -1448,5 +1474,124 @@ return [
         'msg_yes'                       => 'Yes',
         'msg_no'                        => 'No',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Build queue (shared: buildings, research, shipyard)
+    // -------------------------------------------------------------------------
+
+    'buildqueue' => [
+        'improve_to'               => 'Improve to',
+        'downgrade_to'             => 'Downgrade to',
+        'halve_time'               => 'Halve time',
+        'halve_cost'               => 'Costs: :amount DM',
+        'halve_tooltip_building'   => 'Reduces construction time by 50% of the total construction time.',
+        'halve_tooltip_research'   => 'Reduces research time by 50% of the total research time.',
+        'complete'                 => 'Complete',
+        'complete_tooltip'         => 'Instantly completes the current shipyard production.',
+        'building_duration'        => 'Building duration',
+        'total_time'               => 'Total time',
+        'question_halve_building'  => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time for :dm_cost?',
+        'question_halve_research'  => 'Do you want to reduce the research time of the current research project by 50% of the total research time for :dm_cost?',
+        'question_complete_unit'   => 'Do you want to immediately complete the construction order for :dm_cost?',
+        'question_halve_unit'      => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time (:time_reduction) for :dm_cost?',
+        'no_building_idle_tooltip' => 'At the moment there is no building being built on this planet. Click here to go to the build page.',
+        'no_building_idle'         => 'No buildings in construction.',
+        'no_research_idle_tooltip' => 'There is no research done at the moment. Click here to get to your research lab.',
+        'no_research_idle'         => 'There is no research in progress at the moment.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Jump Gate dialog
+    // -------------------------------------------------------------------------
+
+    'jumpgate' => [
+        'select_target'      => 'Select jump target',
+        'origin_coordinates' => 'Origin coordinates',
+        'standard_target'    => 'Standard Jump Gate Target',
+        'target_coordinates' => 'Target coordinates',
+        'not_ready'          => 'Jump Gate is not ready!',
+        'cooldown_time'      => 'Time until next jump',
+        'select_ships'       => 'Select ships',
+        'select_all'         => 'Select all available ships',
+        'reset_selection'    => 'Reset selection',
+        'jump_btn'           => 'Jump',
+        'ok_btn'             => 'OK',
+        'valid_target'       => 'You must select a valid target.',
+        'no_ships'           => 'No ships were selected!',
+        'jump_success'       => 'Jump has been executed successfully.',
+        'jump_error'         => 'An error occurred during the jump.',
+        'error_occurred'     => 'An error occurred.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Alliance Depot dialog
+    // -------------------------------------------------------------------------
+
+    'alliance_depot' => [
+        'description'         => 'The alliance depot supplies fuel to friendly fleets in orbit helping with defence. For each upgrade level of the alliance depot, a special demand of deuterium per hour can be sent to an orbiting fleet.',
+        'no_fleets'           => 'There are no holding fleets!',
+        'capacity'            => 'Capacity',
+        'fleet_owner'         => 'Fleet owner',
+        'ships'               => 'Ships',
+        'hold_time'           => 'Hold time',
+        'extend'              => 'Extend',
+        'supply_cost'         => 'Supply costs Deuterium / h',
+        'start_supply'        => 'Start supply rockets',
+        'please_select_fleet' => 'Please select a fleet.',
+        'hours_between'       => 'Extension hours must be between 1 and 32.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Server settings overlay (user-facing panel)
+    // -------------------------------------------------------------------------
+
+    'serversettings_overlay' => [
+        'acs_enabled'          => 'Alliance Combat System enabled',
+        'dm_bonus'             => 'Dark Matter bonus:',
+        'debris_defense'       => 'Defensive structures in debris fields:',
+        'debris_ships'         => 'Destroyed ships in debris fields:',
+        'debris_deuterium'     => 'Deuterium in debris fields',
+        'fleet_deut_reduction' => 'Fleet Deuterium consumption reduction:',
+        'fleet_speed_war'      => 'War fleet speed:',
+        'fleet_speed_holding'  => 'Holding fleet speed:',
+        'fleet_speed_peace'    => 'Peaceful fleet speed:',
+        'ignore_empty'         => 'Empty systems are ignored',
+        'ignore_inactive'      => 'Inactive systems are ignored',
+        'num_galaxies'         => 'Number of galaxies:',
+        'planet_field_bonus'   => 'Planet field bonus:',
+        'dev_speed'            => 'Development speed:',
+        'research_speed'       => 'Research speed:',
+        'dm_regen_enabled'     => 'Dark Matter regeneration enabled',
+        'dm_regen_amount'      => 'Dark Matter regeneration amount:',
+        'dm_regen_period'      => 'Dark Matter regeneration period:',
+        'days'                 => 'days',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Ajax object panel (build/research/unit info overlay)
+    // -------------------------------------------------------------------------
+
+    'ajax_object' => [
+        'open_techtree'        => 'Open techtree',
+        'techtree'             => 'Techtree',
+        'no_requirements'      => 'No requirements available',
+        'number'               => 'Number',
+        'production_duration'  => 'Production duration:',
+        'energy_needed'        => 'Energy needed:',
+        'production'           => 'Production',
+        'costs_per_piece'      => 'Costs per piece',
+        'required_to_improve'  => 'Required to improve to level',
+        'storage_capacity'     => 'Storage capacity:',
+        'gain_resources'       => 'Gain resources to immediately refill your storage',
+        'view_offers'          => 'View offers',
+        'destroy_rockets_desc' => 'Destroy Rockets to make more space in your missile silo',
+        'destroy_rockets_btn'  => 'Destroy rockets',
+        'more_details'         => 'More details',
+        'vacation_mode'        => 'You are not able to build while in vacation mode',
+        'shipyard_upgrading'   => 'Shipyard is being upgraded',
+        'shipyard_busy'        => 'The Shipyard is still busy',
+        'not_enough_fields'    => 'Not enough fields!',
+        'tear_down_btn'        => 'tear down',
     ],
 ];

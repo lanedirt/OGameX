@@ -42,12 +42,12 @@
 
                 </div>
             </td>
-            <td class="desc ausbau">@lang('Improve to')
-                <span class="level">@lang('Level') {!! $build_active->level_target !!}</span>
+            <td class="desc ausbau">{{ __('t_ingame.buildqueue.improve_to') }}
+                <span class="level">{{ __('t_ingame.shared.level') }} {!! $build_active->level_target !!}</span>
             </td>
         </tr>
         <tr class="data">
-            <td class="desc">@lang('Duration'):</td>
+            <td class="desc">{{ __('t_ingame.shared.duration') }}:</td>
         </tr>
         <tr class="data">
             <td class="desc timer">
@@ -61,12 +61,12 @@
                     $halvingCost = $halvingService->calculateHalvingCost($build_active->time_total, 'research');
                 @endphp
                 <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile research "
-                   title="@lang('Reduces research time by 50% of the total research time.')"
+                   title="{{ __('t_ingame.buildqueue.halve_tooltip_research') }}"
                    href="javascript:void(0);"
                    rel="{{ route('research.halveresearch') }}?queue_item_id={{ $build_active->id }}">
-                    <div class="build-faster-img" alt="@lang('Halve time')"></div>
-                    <span class="build-txt">@lang('Halve time')</span>
-                    <span class="dm_cost">@lang('Costs:') {{ number_format($halvingCost) }} DM</span>
+                    <div class="build-faster-img" alt="{{ __('t_ingame.buildqueue.halve_time') }}"></div>
+                    <span class="build-txt">{{ __('t_ingame.buildqueue.halve_time') }}</span>
+                    <span class="dm_cost">{{ __('t_ingame.buildqueue.halve_cost', ['amount' => number_format($halvingCost)]) }}</span>
                 </a>
             </td>
         </tr>
@@ -74,14 +74,14 @@
     </table>
     <script type="text/javascript">
         var cancelBuildListEntryUrl = '{{ route('research.cancelbuildrequest') }}';
-        var questionresearch = 'Do you want to reduce the research time of the current research project by 50% of the total research time for <span style="font-weight: bold;">{{ number_format($halvingCost) }} Dark Matter</span>?';
+        var questionresearch = '{!! __('t_ingame.buildqueue.question_halve_research', ['dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('t_ingame.shared.dark_matter') . '</span>']) !!}';
         var priceresearch = {{ $halvingCost }};
         var referrerPage = $.deparam.querystring().page;
 
         new CountdownTimer('researchCountdown', {{ $build_active->time_countdown }}, '{{ url()->current() }}', null, true, 3)
 
         function cancelbuilding(id, listId, question) {
-            errorBoxDecision('Caution', "" + question + "", 'yes', 'No', function () {
+            errorBoxDecision('{{ __('t_ingame.shared.caution') }}', "" + question + "", '{{ __('t_ingame.shared.yes') }}', '{{ __('t_ingame.shared.no') }}', function () {
                 buildListActionCancel(id, listId)
             });
         }
@@ -93,8 +93,8 @@
             <tr>
                 <td colspan="2" class="idle">
                     <a class="tooltip js_hideTipOnMobile
-                                   " title="@lang('There is no research done at the moment. Click here to get to your research lab.')" href="{{ url()->current() }}">
-                        @lang('There is no research in progress at the moment.')</a>
+                                   " title="{{ __('t_ingame.buildqueue.no_research_idle_tooltip') }}" href="{{ url()->current() }}">
+                        {{ __('t_ingame.buildqueue.no_research_idle') }}</a>
                 </td>
             </tr>
         </tbody>

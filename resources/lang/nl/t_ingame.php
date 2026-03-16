@@ -49,10 +49,15 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Waarschuwing',
-        'yes'     => 'ja',
-        'no'      => 'Nee',
-        'error'   => 'Fout',
+        'caution'        => 'Waarschuwing',
+        'yes'            => 'ja',
+        'no'             => 'Nee',
+        'error'          => 'Fout',
+        'ok'             => 'OK',
+        'error_occurred' => 'Er is een fout opgetreden.',
+        'level'          => 'Niveau',
+        'duration'       => 'Duur',
+        'dark_matter'    => 'Donkere materie',
     ],
 
     // -------------------------------------------------------------------------
@@ -126,6 +131,9 @@ return [
     'shipyard_page' => [
         'battleships' => 'Gevechtsschepen',
         'civil_ships' => 'Civiele schepen',
+        'no_units_idle_tooltip' => 'Er worden momenteel geen schepen of verdedigingen gebouwd op deze planeet. Klik hier om naar de scheepswerf te gaan.',
+        'no_units_idle' => 'Geen schepen/verdediging in aanbouw.',
+        'to_shipyard' => '(Naar scheepswerf)',
     ],
 
     // -------------------------------------------------------------------------
@@ -1359,7 +1367,25 @@ return [
     // -------------------------------------------------------------------------
 
     'notes' => [
-        'no_notes_found'          => 'Geen notities gevonden',
+        'no_notes_found'       => 'Geen notities gevonden',
+        'add_note'             => 'Notitie toevoegen',
+        'new_note'             => 'Nieuwe notitie',
+        'edit_note'            => 'Notitie bewerken',
+        'subject_label'        => 'Onderwerp',
+        'your_subject'         => 'Jouw onderwerp:',
+        'subject_placeholder'  => 'Jouw onderwerp',
+        'date_label'           => 'Datum',
+        'priority_label'       => 'Prioriteit:',
+        'priority_important'   => 'Belangrijk',
+        'priority_normal'      => 'Normaal',
+        'priority_unimportant' => 'Onbelangrijk',
+        'your_message'         => 'Jouw bericht:',
+        'save_btn'             => 'Opslaan',
+        'select_action'        => 'Actie selecteren',
+        'delete_marked'        => 'Geselecteerde notities verwijderen',
+        'delete_all'           => 'Alle notities verwijderen',
+        'unsaved_warning'      => 'Het bericht is niet opgeslagen. Alle wijzigingen gaan verloren als je de pagina verlaat.',
+        'save_question'        => 'Wil je de wijzigingen opslaan?',
     ],
 
     // -------------------------------------------------------------------------
@@ -1431,5 +1457,124 @@ return [
         'msg_yes'                       => 'Ja',
         'msg_no'                        => 'Nee',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Bouwwachtrij (gedeeld: gebouwen, onderzoek, scheepswerf)
+    // -------------------------------------------------------------------------
+
+    'buildqueue' => [
+        'improve_to'               => 'Verbeteren naar',
+        'downgrade_to'             => 'Degraderen naar',
+        'halve_time'               => 'Halveer tijd',
+        'halve_cost'               => 'Kosten: :amount DM',
+        'halve_tooltip_building'   => 'Reduceert de bouwtijd met 50% van de totale bouwtijd.',
+        'halve_tooltip_research'   => 'Reduceert de onderzoekstijd met 50% van de totale onderzoekstijd.',
+        'complete'                 => 'Voltooien',
+        'complete_tooltip'         => 'Voltooit onmiddellijk de huidige productie van de scheepswerf.',
+        'building_duration'        => 'Bouwduur',
+        'total_time'               => 'Totale tijd',
+        'question_halve_building'  => 'Wil je de bouwtijd van het huidige project met 50% van de totale bouwtijd verlagen voor :dm_cost?',
+        'question_halve_research'  => 'Wil je de onderzoekstijd van het huidige project met 50% van de totale onderzoekstijd verlagen voor :dm_cost?',
+        'question_complete_unit'   => 'Wil je de constructieopdracht onmiddellijk voltooien voor :dm_cost?',
+        'question_halve_unit'      => 'Wil je de bouwtijd van het huidige project met 50% van de totale bouwtijd (:time_reduction) verlagen voor :dm_cost?',
+        'no_building_idle_tooltip' => 'Er worden momenteel geen gebouwen gebouwd op dit planeet. Klik hier om naar de bouwpagina te gaan.',
+        'no_building_idle'         => 'Geen gebouwen in aanbouw.',
+        'no_research_idle_tooltip' => 'Er is momenteel geen onderzoek bezig. Klik hier om naar je onderzoekslab te gaan.',
+        'no_research_idle'         => 'Er is momenteel geen onderzoek gaande.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Springpoort-dialoog
+    // -------------------------------------------------------------------------
+
+    'jumpgate' => [
+        'select_target'      => 'Springdoel selecteren',
+        'origin_coordinates' => 'Broncoördinaten',
+        'standard_target'    => 'Standaard springpoort doel',
+        'target_coordinates' => 'Doelcoördinaten',
+        'not_ready'          => 'Springpoort is niet klaar!',
+        'cooldown_time'      => 'Tijd tot volgende sprong',
+        'select_ships'       => 'Schepen selecteren',
+        'select_all'         => 'Alle beschikbare schepen selecteren',
+        'reset_selection'    => 'Selectie wissen',
+        'jump_btn'           => 'Springen',
+        'ok_btn'             => 'OK',
+        'valid_target'       => 'Je moet een geldig doel selecteren.',
+        'no_ships'           => 'Geen schepen geselecteerd!',
+        'jump_success'       => 'Sprong succesvol uitgevoerd.',
+        'jump_error'         => 'Er is een fout opgetreden tijdens de sprong.',
+        'error_occurred'     => 'Er is een fout opgetreden.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Alliantiedepot-dialoog
+    // -------------------------------------------------------------------------
+
+    'alliance_depot' => [
+        'description'         => 'Het alliantiedepot levert brandstof aan vriendelijke vloten in een baan rondom een planeet. Voor elk upgradeniveau van het alliantiedepot kan een bepaalde hoeveelheid deuterium per uur naar een orbiterende vloot worden gestuurd.',
+        'no_fleets'           => 'Er zijn geen wachtende vloten!',
+        'capacity'            => 'Capaciteit',
+        'fleet_owner'         => 'Vloot eigenaar',
+        'ships'               => 'Schepen',
+        'hold_time'           => 'Wachttijd',
+        'extend'              => 'Uitbreiden',
+        'supply_cost'         => 'Aanvoerkosten deuterium / u',
+        'start_supply'        => 'Bevoorradingsraketten starten',
+        'please_select_fleet' => 'Selecteer een vloot.',
+        'hours_between'       => 'Uitbreidingsuren moeten tussen 1 en 32 zijn.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Serverinstellingen overlay (gebruikerspaneel)
+    // -------------------------------------------------------------------------
+
+    'serversettings_overlay' => [
+        'acs_enabled'          => 'Alliantie gevechtssysteem ingeschakeld',
+        'dm_bonus'             => 'Donkere materie bonus:',
+        'debris_defense'       => 'Verdedigingsstructuren in puin velden:',
+        'debris_ships'         => 'Vernietigde schepen in puin velden:',
+        'debris_deuterium'     => 'Deuterium in puin velden',
+        'fleet_deut_reduction' => 'Vermindering deuterium verbruik vloot:',
+        'fleet_speed_war'      => 'Oorlogsvlootsnelheid:',
+        'fleet_speed_holding'  => 'Wachtvlootsnelheid:',
+        'fleet_speed_peace'    => 'Vredesvlootsnelheid:',
+        'ignore_empty'         => 'Lege systemen worden genegeerd',
+        'ignore_inactive'      => 'Inactieve systemen worden genegeerd',
+        'num_galaxies'         => 'Aantal sterrenstelsels:',
+        'planet_field_bonus'   => 'Planetenveld bonus:',
+        'dev_speed'            => 'Ontwikkelingssnelheid:',
+        'research_speed'       => 'Onderzoekssnelheid:',
+        'dm_regen_enabled'     => 'Donkere materie regeneratie ingeschakeld',
+        'dm_regen_amount'      => 'Hoeveelheid donkere materie regeneratie:',
+        'dm_regen_period'      => 'Periode donkere materie regeneratie:',
+        'days'                 => 'dagen',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Ajax object paneel (gebouwen / onderzoek / eenheden)
+    // -------------------------------------------------------------------------
+
+    'ajax_object' => [
+        'open_techtree'        => 'Technologieboom openen',
+        'techtree'             => 'Technologieboom',
+        'no_requirements'      => 'Geen vereisten beschikbaar',
+        'number'               => 'Aantal',
+        'production_duration'  => 'Productieduur:',
+        'energy_needed'        => 'Energie nodig:',
+        'production'           => 'Productie',
+        'costs_per_piece'      => 'Kosten per stuk',
+        'required_to_improve'  => 'Vereist om te verbeteren naar niveau',
+        'storage_capacity'     => 'Opslagcapaciteit:',
+        'gain_resources'       => 'Ontvang grondstoffen om je opslag onmiddellijk te vullen',
+        'view_offers'          => 'Aanbiedingen bekijken',
+        'destroy_rockets_desc' => 'Vernietig raketten om ruimte te maken in je raketopslag',
+        'destroy_rockets_btn'  => 'Raketten vernietigen',
+        'more_details'         => 'Meer details',
+        'vacation_mode'        => 'Je kunt niet bouwen terwijl je in vakantiemodus bent',
+        'shipyard_upgrading'   => 'Scheepswerf wordt geüpgraded',
+        'shipyard_busy'        => 'De scheepswerf is nog bezig',
+        'not_enough_fields'    => 'Niet genoeg velden!',
+        'tear_down_btn'        => 'afbreken',
     ],
 ];
