@@ -64,7 +64,7 @@ return [
         'under_construction'     => 'In costruzione',
         'vacation_mode_error'    => 'Errore, il giocatore è in modalità vacanza',
         'requirements_not_met'   => 'I requisiti non sono soddisfatti!',
-        'wrong_class'            => 'Classe personaggio sbagliata!',
+        'wrong_class'            => 'Devi attivare la classe corrispondente per poterlo costruire.',
         'no_moon_building'       => "Non puoi costruire quell'edificio sulla luna!",
         'not_enough_resources'   => 'Risorse insufficienti!',
         'queue_full'             => 'La coda è piena',
