@@ -1954,16 +1954,16 @@
         },
         {
             "name": "laravel/ui",
-            "version": "v4.6.1",
+            "version": "v4.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/ui.git",
-                "reference": "7d6ffa38d79f19c9b3e70a751a9af845e8f41d88"
+                "reference": "4acfa331aa073f169a22d87851dc51eb2f7ac6be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/ui/zipball/7d6ffa38d79f19c9b3e70a751a9af845e8f41d88",
-                "reference": "7d6ffa38d79f19c9b3e70a751a9af845e8f41d88",
+                "url": "https://api.github.com/repos/laravel/ui/zipball/4acfa331aa073f169a22d87851dc51eb2f7ac6be",
+                "reference": "4acfa331aa073f169a22d87851dc51eb2f7ac6be",
                 "shasum": ""
             },
             "require": {
@@ -2011,9 +2011,9 @@
                 "ui"
             ],
             "support": {
-                "source": "https://github.com/laravel/ui/tree/v4.6.1"
+                "source": "https://github.com/laravel/ui/tree/v4.6.2"
             },
-            "time": "2025-01-28T15:15:29+00:00"
+            "time": "2026-03-10T20:00:50+00:00"
         },
         {
             "name": "league/commonmark",
