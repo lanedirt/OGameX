@@ -25,6 +25,7 @@ return [
         'switch_to_planet'     => 'Passa al pianeta',
         'abandon_rename'       => 'Abbandona/Rinomina',
         'abandon_rename_title' => 'Abbandona/Rinomina Pianeta',
+        'abandon_rename_modal' => 'Abbandona/Rinomina :planet_name',
     ],
 
     // -------------------------------------------------------------------------
@@ -88,6 +89,22 @@ return [
         'loca_lifeform_cap'      => 'Uno o più bonus associati hanno già raggiunto il massimo. Vuoi continuare la costruzione comunque?',
         'last_inquiry_error'     => "Impossibile elaborare l'ultima azione. Per favore riprova.",
         'planet_move_warning'    => 'Attenzione! Questa missione potrebbe essere ancora in corso quando inizia il periodo di ricollocazione e, in tal caso, il processo verrà annullato. Vuoi davvero continuare con questo lavoro?',
+
+        // Coda di costruzione — stato inattivo
+        'idle_no_units'          => 'Nessuna nave/difesa in costruzione.',
+        'idle_to_shipyard'       => '(Al cantiere navale)',
+        'idle_tooltip_units'     => 'Al momento non sono in costruzione navi o difese su questo pianeta. Clicca qui per andare al cantiere navale.',
+        'idle_no_buildings'      => 'Nessun edificio in costruzione.',
+        'idle_tooltip_buildings' => 'Al momento non è in costruzione nessun edificio su questo pianeta. Clicca qui per andare alla pagina di costruzione.',
+        'idle_no_research'       => 'Non è in corso nessuna ricerca al momento.',
+        'idle_tooltip_research'  => 'Al momento non è in corso nessuna ricerca. Clicca qui per andare al laboratorio di ricerca.',
+
+        // Coda di costruzione — dimezzamento / cancellazione
+        'halve_tooltip'          => 'Riduce il tempo di costruzione del 50% del tempo di costruzione totale.',
+        'halve_time'             => 'Dimezza il tempo',
+        'costs_dm'               => 'Costo: :amount MO',
+        'question_halve'         => 'Vuoi ridurre il tempo di costruzione del progetto attuale del 50% del tempo totale per :dm_cost?',
+        'cancel_production'      => 'Annulla la produzione di :title livello :level?',
     ],
 
     // -------------------------------------------------------------------------
@@ -118,10 +135,14 @@ return [
     // -------------------------------------------------------------------------
 
     'research_page' => [
-        'basic'    => 'Ricerca di base',
-        'drive'    => 'Ricerca dei propulsori',
-        'advanced' => 'Ricerche avanzate',
-        'combat'   => 'Ricerca da combattimento',
+        'basic'          => 'Ricerca di base',
+        'drive'          => 'Ricerca dei propulsori',
+        'advanced'       => 'Ricerche avanzate',
+        'combat'         => 'Ricerca da combattimento',
+
+        // Coda ricerche — dimezzamento
+        'halve_tooltip'  => 'Riduce il tempo di ricerca del 50% del tempo di ricerca totale.',
+        'question_halve' => 'Vuoi ridurre il tempo di ricerca del progetto attuale del 50% del tempo totale per :dm_cost?',
     ],
 
     // -------------------------------------------------------------------------
@@ -366,6 +387,17 @@ return [
         'err_no_cargo'             => 'Errore, capacità di carico insufficiente',
         'err_multi_alarm'          => 'Multi-allarme',
         'err_attack_ban'           => 'Divieto di attacco',
+
+        // Slot flotta — etichette e bonus
+        'general_slot_bonus'       => '+ 2 Slot flotta grazie al Generale',
+        'admiral_slot_bonus'       => '+ 2 Slot flotta grazie all\'Ammiraglio',
+
+        // Ritirata tattica — tooltip HTML completo
+        'tactical_retreat_body'    => 'Ritirata tattica|Le flotte possono ritirarsi automaticamente se vengono attaccate da una forza superiore cinque volte più forte di loro. Il fattore cruciale sono i punti flotta dell\'attaccante in confronto ai tuoi punti flotta. Le difese non vengono considerate.<br /><br />Le navi civili contano solo per il 25%, i satelliti solari e le sonde spia non vengono considerati. <br /><br />Seleziona l\'opzione *mai* se desideri disattivare la ritirata automatica.<br /><br />Le flotte bloccate non possono ritirarsi. Anche le Stelle della Morte, le Sonde Spia e i Satelliti Solari non possono ritirarsi.<br /><br />Usa l\'Ammiraglio per abilitare le tue flotte a ritirarsi da forze tre volte più grandi della tua.<br /><br />L\'opzione `ritirata tattica` termina con 500.000 punti.',
+        'tactical_retreat_admiral' => 'Ritirata tattica|Usa l\'Ammiraglio per abilitare le tue flotte a ritirarsi da forze tre volte più grandi della tua.',
+
+        // Avvisi JS (locadyn)
+        'bash_warning'             => 'In questo universo sono consentiti 0 attacchi in un periodo di 24 ore. Questo attacco probabilmente supererebbe questo limite. Vuoi davvero lanciarlo?',
     ],
 
     // -------------------------------------------------------------------------
@@ -913,6 +945,10 @@ return [
         'msg_kick_error'                => 'Impossibile espellere il membro',
         'msg_invalid_action'            => 'Azione non valida',
         'msg_error'                     => 'Si è verificato un errore',
+
+        // Nomi di rango predefiniti (fallback se il valore DB è null)
+        'rank_founder_default'          => 'Fondatore',
+        'rank_newcomer_default'         => 'Nuovo arrivato',
     ],
 
     // -------------------------------------------------------------------
@@ -1131,6 +1167,8 @@ return [
         'unread_messages'           => 'messaggi non letti',
         'loading'                   => 'caricamento...',
         'no_fleet_movement'         => 'Nessun movimento di flotta',
+        'no_ships_in_wreck'         => 'Nessuna nave nel campo di rottami',
+        'no_wreck_available'        => 'Nessun campo di rottami disponibile',
         'under_attack'              => 'Sei sotto attacco!',
 
         // Classe personaggio
@@ -1596,5 +1634,171 @@ return [
         'shipyard_busy'        => 'Il cantiere spaziale è ancora occupato',
         'not_enough_fields'    => 'Campi insufficienti!',
         'tear_down_btn'        => 'demolisci',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Pannello admin (impostazioni server + scorciatoie sviluppatore)
+    // -------------------------------------------------------------------------
+
+    'admin' => [
+        // Titolo pagina / pulsante salva
+        'title'                         => 'Impostazioni server',
+        'save'                          => 'Salva impostazioni',
+
+        // Intestazioni sezioni – impostazioni server
+        'section_basic'                 => 'Impostazioni di base.',
+        'section_changes_note'          => 'Puoi modificare le impostazioni del server qui sotto. Le modifiche saranno applicate immediatamente.',
+        'section_income_note'           => 'Nota: i valori di reddito base sono moltiplicati per la velocità economica.',
+        'section_new_player'            => 'Impostazioni nuovo giocatore.',
+        'section_dm_regen'              => 'Impostazioni rigenerazione Materia Oscura.',
+        'section_relocation'            => 'Impostazioni ricollocazione pianeta.',
+        'section_alliance'              => 'Impostazioni alleanza.',
+        'section_battle'                => 'Impostazioni battaglia.',
+        'section_expedition'            => 'Impostazioni spedizioni.',
+        'section_expedition_slots'      => 'Slot spedizioni e moltiplicatori ricompensa.',
+        'section_expedition_weights'    => 'Pesi esiti spedizioni.',
+        'section_highscore'             => 'Impostazioni classifica.',
+        'section_galaxy'                => 'Impostazioni galassia.',
+
+        // Impostazioni di base
+        'universe_name'                 => 'Nome universo:',
+        'economy_speed'                 => 'Velocità economica:',
+        'research_speed'                => 'Velocità di ricerca:',
+        'fleet_speed_war'               => 'Velocità flotte da guerra:',
+        'fleet_speed_holding'           => 'Velocità flotte di presidio:',
+        'fleet_speed_peaceful'          => 'Velocità flotte pacifiche:',
+        'planet_fields_bonus'           => 'Bonus campi pianeta',
+
+        // Reddito base
+        'income_metal'                  => 'Reddito base metallo per ora:',
+        'income_crystal'                => 'Reddito base cristallo per ora:',
+        'income_deuterium'              => 'Reddito base deuterio per ora:',
+        'income_energy'                 => 'Reddito base energia per ora:',
+
+        // Nuovo giocatore
+        'registration_planet_amount'    => 'Numero di pianeti da assegnare al giocatore alla registrazione',
+        'dm_bonus'                      => 'Bonus Materia Oscura:',
+
+        // Rigenerazione Materia Oscura
+        'dm_regen_description'          => 'Abilita la rigenerazione periodica di Materia Oscura per tutti i giocatori. Disabilitata di default per rispettare il comportamento ufficiale del gioco. Se abilitata, i giocatori riceveranno Materia Oscura automaticamente all\'intervallo configurato.',
+        'dm_regen_enabled'              => 'Rigenerazione Materia Oscura abilitata:',
+        'dm_regen_amount'               => 'Quantità di rigenerazione Materia Oscura:',
+        'dm_regen_period'               => 'Periodo di rigenerazione Materia Oscura (secondi):',
+
+        // Ricollocazione pianeta
+        'relocation_cost'               => 'Costo ricollocazione pianeta (Materia Oscura):',
+        'relocation_duration'           => 'Durata ricollocazione pianeta (secondi):',
+
+        // Alleanza
+        'alliance_cooldown'             => 'Periodo di attesa alleanza (giorni):',
+        'alliance_cooldown_desc'        => 'Giorni che un giocatore deve aspettare dopo aver lasciato un\'alleanza prima di unirsi/crearne un\'altra',
+
+        // Battaglia
+        'battle_engine'                 => 'Motore di battaglia:',
+        'battle_engine_desc'            => 'Il motore di battaglia Rust è fino a 200x più performante di PHP. Passa a PHP solo se Rust non può essere eseguito sul tuo server.',
+        'acs'                           => 'Sistema di Combattimento Alleanza:',
+        'debris_ships'                  => 'Navi distrutte nei campi di detriti:',
+        'debris_defense'                => 'Strutture difensive nei campi di detriti:',
+        'debris_deuterium'              => 'Deuterio nei campi di detriti:',
+        'wreck_min_resources'           => 'Distruzione minima per campi di relitti:',
+        'wreck_min_resources_desc'      => 'Valore minimo di risorse che deve essere perso per la formazione di un campo di relitti.',
+        'wreck_min_fleet_pct'           => 'Percentuale minima di distruzione della flotta:',
+        'wreck_min_fleet_pct_desc'      => 'Percentuale minima della flotta del difensore che deve essere distrutta per la formazione di un campo di relitti.',
+        'wreck_lifetime'                => 'Durata campo di relitti (ore):',
+        'wreck_lifetime_desc'           => 'Ore prima che un campo di relitti scada se non riparato.',
+        'wreck_repair_max'              => 'Tempo massimo di riparazione (ore):',
+        'wreck_repair_max_desc'         => 'Tempo massimo per le riparazioni delle navi nel Bacino Spaziale.',
+        'wreck_repair_min'              => 'Tempo minimo di riparazione (minuti):',
+        'wreck_repair_min_desc'         => 'Tempo minimo prima che le navi possano essere riparate nel Bacino Spaziale.',
+        'moon_chance'                   => 'Probabilità massima luna:',
+        'hamill_probability'            => 'Probabilità Manovra Hamill (1 su X):',
+
+        // Slot spedizioni e moltiplicatori
+        'expedition_slots_desc'         => 'I slot bonus spedizioni si aggiungono agli slot base dalla ricerca di Astrofisica. I moltiplicatori di ricompensa sono moltiplicativi con la velocità economica e si applicano agli importi finali (1.0 = default, 2.0 = ricompense doppie).',
+        'expedition_bonus_slots'        => 'Slot spedizioni bonus:',
+        'expedition_multiplier_res'     => 'Moltiplicatore ricompensa risorse:',
+        'expedition_multiplier_ships'   => 'Moltiplicatore ricompensa navi:',
+        'expedition_multiplier_dm'      => 'Moltiplicatore ricompensa Materia Oscura:',
+        'expedition_multiplier_items'   => 'Moltiplicatore ricompensa oggetti:',
+
+        // Pesi esiti spedizioni
+        'expedition_weights_desc'       => 'I pesi degli esiti determinano la probabilità relativa di ogni risultato della spedizione. Valori più alti significano occorrenza più frequente. I pesi sono relativi tra loro (es. peso 20 è il doppio di peso 10). Imposta a 0 per disabilitare un esito.',
+        'expedition_weights_defaults'   => 'Percentuali predefinite:',
+        'expedition_weights_values'     => 'Nulla: 25% | Risorse: 35% | Navi: 17% | Ritardo: 7,5% | Accelerazione: 2,75% | Materia Oscura: 7,5% | Pirati: 3% | Alieni: 1,5% | Oggetti: 0,5% | Mercante: 0,4% | Buco Nero: 0,2%',
+        'weight_ships'                  => 'Peso navi:',
+        'weight_resources'              => 'Peso risorse:',
+        'weight_delay'                  => 'Peso ritardo:',
+        'weight_speedup'                => 'Peso accelerazione:',
+        'weight_nothing'                => 'Peso nulla/fallito:',
+        'weight_black_hole'             => 'Peso buco nero:',
+        'weight_pirates'                => 'Peso pirati:',
+        'weight_aliens'                 => 'Peso alieni:',
+        'weight_dm'                     => 'Peso Materia Oscura:',
+        'weight_merchant'               => 'Peso mercante:',
+        'weight_items'                  => 'Peso oggetti:',
+
+        // Classifica
+        'highscore_admin_visible'       => 'Mostra admin in classifica:',
+        'highscore_admin_visible_desc'  => 'Se abilitato, gli utenti admin appaiono nelle classifiche con nomi evidenziati in arancione. Se disabilitato (default), gli admin sono esclusi dalle classifiche.',
+
+        // Galassia
+        'galaxy_ignore_empty'           => 'I sistemi vuoti sono ignorati:',
+        'galaxy_ignore_inactive'        => 'I sistemi inattivi sono ignorati:',
+        'galaxy_count'                  => 'Numero di galassie:',
+
+        // Scorciatoie sviluppatore
+        'dev_title'                     => 'Scorciatoie sviluppatore',
+        'dev_masquerade'                => 'Impersona utente',
+        'dev_username'                  => 'Nome utente:',
+        'dev_username_placeholder'      => 'Inserisci nome utente',
+        'dev_masquerade_btn'            => 'Impersona',
+        'dev_update_planet'             => 'Aggiorna pianeta corrente:',
+        'dev_set_mines'                 => 'Imposta tutte le miniere al livello 30',
+        'dev_set_storages'              => 'Imposta tutti i magazzini al livello 15',
+        'dev_set_shipyard'              => 'Imposta tutte le strutture cantiere al livello 12',
+        'dev_set_research'              => 'Imposta tutte le ricerche al livello 10',
+        'dev_add_units'                 => 'Aggiungi X unità al pianeta corrente:',
+        'dev_units_amount'              => 'Quantità di unità da aggiungere:',
+        'dev_light_fighter'             => 'Caccia leggero',
+        'dev_set_building'              => 'Imposta livello edificio sul pianeta corrente:',
+        'dev_level_to_set'              => 'Livello da impostare:',
+        'dev_set_research_level'        => 'Imposta livello ricerca per il giocatore corrente:',
+        'dev_class_settings'            => 'Impostazioni Classe Personaggio',
+        'dev_disable_free_class'        => 'Disabilita Cambi Classe Gratuiti',
+        'dev_enable_free_class'         => 'Abilita Cambi Classe Gratuiti',
+        'dev_reset_class'               => 'Reimposta Classe Personaggio',
+        'dev_goto_class'                => 'Vai alla Selezione Classe',
+        'dev_reset_planet'              => 'Reimposta pianeta',
+        'dev_reset_buildings'           => 'Imposta tutti gli edifici al livello 0',
+        'dev_reset_research'            => 'Imposta tutte le ricerche al livello 0',
+        'dev_reset_units'               => 'Rimuovi tutte le unità',
+        'dev_reset_resources'           => 'Imposta tutte le risorse a 0',
+        'dev_add_resources'             => 'Aggiungi / sottrai risorse alle coordinate:',
+        'dev_resources_desc'            => 'Puoi inserire valori positivi o negativi per aggiungere o sottrarre alla risorsa selezionata. Supporta suffissi k/m/b (es. 1k, 2m, 3b)',
+        'dev_coordinates'               => 'Coordinate:',
+        'dev_galaxy'                    => 'Galassia:',
+        'dev_system'                    => 'Sistema:',
+        'dev_position'                  => 'Posizione:',
+        'dev_resources_label'           => 'Risorse da aggiungere/sottrarre:',
+        'dev_update_resources_planet'   => 'Aggiorna Risorse (pianeta)',
+        'dev_update_resources_moon'     => 'Aggiorna Risorse (luna)',
+        'dev_create_planet_moon'        => 'Crea pianeta/luna alle coordinate:',
+        'dev_moon_size'                 => 'Dimensione luna (per Crea Luna):',
+        'dev_debris_amount'             => 'Quantità detriti:',
+        'dev_x_factor'                  => 'Fattore X (10-20):',
+        'dev_create_planet'             => 'Crea Pianeta',
+        'dev_create_moon'               => 'Crea Luna',
+        'dev_delete_planet'             => 'Elimina Pianeta',
+        'dev_delete_moon'               => 'Elimina Luna',
+        'dev_create_debris'             => 'Crea/elimina campo di detriti alle coordinate:',
+        'dev_debris_resources_label'    => 'Risorse da aggiungere:',
+        'dev_create_debris_btn'         => 'Crea/Aggiungi Campo di Detriti',
+        'dev_delete_debris_btn'         => 'Elimina Campo di Detriti',
+        'dev_quick_shortcut_desc'       => 'Scorciatoia rapida per testare la classe Scopritore:',
+        'dev_create_expedition_debris'  => 'Crea Detriti Spedizione (Posizione 16)',
+        'dev_add_dm'                    => 'Aggiungi / sottrai Materia Oscura per il giocatore alle coordinate:',
+        'dev_dm_desc'                   => 'Inserisci un valore positivo per aggiungere o negativo per sottrarre Materia Oscura. Supporta suffissi k/m/b.',
+        'dev_dm_amount'                 => 'Quantità Materia Oscura:',
+        'dev_update_dm'                 => 'Aggiorna Materia Oscura',
     ],
 ];

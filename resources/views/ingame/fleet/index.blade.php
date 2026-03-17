@@ -387,9 +387,9 @@
                 "LOCA_BASHING_SYSTEM_LIMIT_REACHED_ATTACK_MISSIONS_DISABLED": "{{ __('t_ingame.fleet.bashing_disabled') }}"
             };
             var locadyn = {
-                "locaAllOutlawWarning": "You are about to attack a stronger player. If you do this, your attack defenses will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?",
-                "localBashWarning": "In this universe, 0 attacks are permitted within a 24-hour period. This attack would probably exceed this limit. Do you really wish to launch it?",
-                "locaOfficerbonusTooltipp": "+ 2 Fleet slots because of Admiral"
+                "locaAllOutlawWarning": "{{ __('t_ingame.layout.js_outlaw_warning') }}",
+                "localBashWarning": "{{ __('t_ingame.fleet.bash_warning') }}",
+                "locaOfficerbonusTooltipp": "{{ __('t_ingame.fleet.admiral_slot_bonus') }}"
             };
             var errorCodeMap = {
                 "601": "{{ __('t_ingame.fleet.err_generic') }}",
@@ -796,24 +796,24 @@
                 <div class="fleetStatus">
                     <div id="slots" class="fleft">
                         <div class="fleft">
-                            <span class="tooltip advice {{ $fleetSlotsInUse >= $fleetSlotsMax ? 'overmark' : '' }}" title="Used/Total fleet slots"><span>Fleets:</span> {{ $fleetSlotsInUse }}/{{ $fleetSlotsMax }}</span>
-                            <div class="tooltip bonus dark_highlight_tablet" title="+ 2 Fleet slots because of General">
+                            <span class="tooltip advice {{ $fleetSlotsInUse >= $fleetSlotsMax ? 'overmark' : '' }}" title="{{ __('t_ingame.fleet.tooltip_slots') }}"><span>{{ __('t_ingame.fleet.fleets') }}:</span> {{ $fleetSlotsInUse }}/{{ $fleetSlotsMax }}</span>
+                            <div class="tooltip bonus dark_highlight_tablet" title="{{ __('t_ingame.fleet.general_slot_bonus') }}">
                                 <span class="sprite characterclass small warrior"></span>
                             </div>
                         </div>
                         <div class="fleft">
-                                        <span class="tooltip advice {{ $expeditionSlotsInUse >= $expeditionSlotsMax ? 'overmark' : '' }}" title="Used/Total expedition slots">
-                            <span>Expeditions:</span>
+                                        <span class="tooltip advice {{ $expeditionSlotsInUse >= $expeditionSlotsMax ? 'overmark' : '' }}" title="{{ __('t_ingame.fleet.tooltip_exp_slots') }}">
+                            <span>{{ __('t_ingame.fleet.expeditions') }}:</span>
                             {{ $expeditionSlotsInUse }}/{{ $expeditionSlotsMax }}
                         </span>
                         </div>
                     </div>
 
                     <div id="movements" class="fright">
-                        <a class="tooltip js_hideTipOnMobile dark_highlight_tablet" title="To fleet movement"
+                        <a class="tooltip js_hideTipOnMobile dark_highlight_tablet" title="{{ __('t_ingame.fleet.to_movement') }}"
                            href="{{ route('fleet.movement') }}">
                             <img src="/img/icons/f9cb590cdf265f499b0e2e5d91fc75.gif">
-                            <span>Fleet movement</span>
+                            <span>{{ __('t_ingame.fleet.movement_title') }}</span>
                         </a>
                     </div>
                     <br class="clearfloat">
@@ -867,7 +867,7 @@
                                         class="missionName">{{ __('t_ingame.fleet.no_selection') }}</span></li>
                             <li><span class="title">{{ __('t_ingame.fleet.target_label') }}:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
                                             class="planetIcon {{ $planet->isPlanet() ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile"
-                                            title="{{ $planet->isPlanet() ? 'Planet' : 'Moon' }}"></figure>{{ $planet->getPlanetName() }}</span></li>
+                                            title="{{ $planet->isPlanet() ? __('t_ingame.fleet.planet') : __('t_ingame.fleet.moon') }}"></figure>{{ $planet->getPlanetName() }}</span></li>
                             <li><span class="title">{{ __('t_ingame.fleet.player_name_label') }}:</span> <span
                                         class="targetPlayerName">{{ $player->getUsername() }}</span></li>
                         </ul>
@@ -991,7 +991,7 @@
                         <li><span class="title">{{ __('t_ingame.fleet.mission_label') }}:</span> <span
                                     class="missionName">{{ __('t_ingame.fleet.no_selection') }}</span></li>
                         <li><span class="title">{{ __('t_ingame.fleet.target_label') }}:</span> <span class="targetName">[{{ $planet->getPlanetCoordinates()->asString() }}] <figure
-                                        class="planetIcon {{ $planet->isPlanet() ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile" title="{{ $planet->isPlanet() ? 'Planet' : 'Moon' }}"></figure>{{ $planet->getPlanetName() }}</span>
+                                        class="planetIcon {{ $planet->isPlanet() ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile" title="{{ $planet->isPlanet() ? __('t_ingame.fleet.planet') : __('t_ingame.fleet.moon') }}"></figure>{{ $planet->getPlanetName() }}</span>
                         </li>
                         <li><span class="title">{{ __('t_ingame.fleet.player_name_label') }}:</span> <span
                                     class="targetPlayerName">{{ $player->getUsername() }}</span></li>
@@ -1092,7 +1092,7 @@
                                                         @if ($planet_record->getPlanetId() !== $planet->getPlanetId())
                                                         <option
                                                             value="{{ $planet_record->getPlanetCoordinates()->galaxy }}#{{ $planet_record->getPlanetCoordinates()->system }}#{{ $planet_record->getPlanetCoordinates()->position }}#{{ $planet_record->getPlanetType() }}#{{ $planet_record->getPlanetName() }}"
-                                                            data-html-prepend="<figure class=&quot;planetIcon {{ $planet_record->getPlanetType() === PlanetType::Planet ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile&quot; title=&quot;{{ $planet_record->getPlanetType() === PlanetType::Planet ? 'Planet' : 'Moon' }}&quot;></figure>"
+                                                            data-html-prepend="<figure class=&quot;planetIcon {{ $planet_record->getPlanetType() === PlanetType::Planet ? 'planet' : 'moon' }} tooltip js_hideTipOnMobile&quot; title=&quot;{{ $planet_record->getPlanetType() === PlanetType::Planet ? __('t_ingame.fleet.planet') : __('t_ingame.fleet.moon') }}&quot;></figure>"
                                                             >
                                                             {{ $planet_record->getPlanetName() }} [{{ $planet_record->getPlanetCoordinates()->asString() }}]
                                                         </option>

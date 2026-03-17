@@ -86,7 +86,7 @@
             });
         }
     </script>
-{{-- No buildings are being built. --}}
+{{-- No research is being done. --}}
 @else
     <table cellspacing="0" cellpadding="0" class="construction active">
         <tbody>

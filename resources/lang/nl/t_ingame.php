@@ -25,6 +25,7 @@ return [
         'switch_to_planet'     => 'Schakel naar planeet',
         'abandon_rename'       => 'Verlaten/Hernoemen',
         'abandon_rename_title' => 'Planeet verlaten/hernoemen',
+        'abandon_rename_modal' => 'Verlaten/Hernoemen: :planet_name',
     ],
 
     // -------------------------------------------------------------------------
@@ -88,6 +89,22 @@ return [
         'loca_lifeform_cap'      => 'Een of meer gekoppelde bonussen hebben al het maximum bereikt. Wilt u toch doorgaan met de bouw?',
         'last_inquiry_error'     => 'Uw laatste actie kon niet worden verwerkt. Probeer het opnieuw.',
         'planet_move_warning'    => 'Waarschuwing! Deze missie kan nog actief zijn wanneer de verplaatsingsperiode begint. Als dat zo is, wordt het proces geannuleerd. Wilt u toch doorgaan met deze taak?',
+
+        // Bouwwachtrij — inactieve status
+        'idle_no_units'          => 'Geen schepen/verdediging in aanbouw.',
+        'idle_to_shipyard'       => '(Naar scheepswerf)',
+        'idle_tooltip_units'     => 'Er worden momenteel geen schepen of verdedigingen gebouwd op deze planeet. Klik hier om naar de scheepswerf te gaan.',
+        'idle_no_buildings'      => 'Geen gebouwen in aanbouw.',
+        'idle_tooltip_buildings' => 'Er wordt momenteel geen gebouw gebouwd op deze planeet. Klik hier om naar de bouwpagina te gaan.',
+        'idle_no_research'       => 'Er is momenteel geen onderzoek bezig.',
+        'idle_tooltip_research'  => 'Er wordt momenteel geen onderzoek gedaan. Klik hier om naar uw onderzoekslaboratorium te gaan.',
+
+        // Bouwwachtrij — halvering / annulering
+        'halve_tooltip'          => 'Verlaagt de bouwtijd met 50% van de totale bouwtijd.',
+        'halve_time'             => 'Halveer tijd',
+        'costs_dm'               => 'Kosten: :amount DM',
+        'question_halve'         => 'Wilt u de bouwtijd van het huidige bouwproject met 50% van de totale bouwtijd verkorten voor :dm_cost?',
+        'cancel_production'      => 'Productie van :title niveau :level annuleren?',
     ],
 
     // -------------------------------------------------------------------------
@@ -118,10 +135,14 @@ return [
     // -------------------------------------------------------------------------
 
     'research_page' => [
-        'basic'    => 'Basisonderzoek',
-        'drive'    => 'Aandrijvingsonderzoek',
-        'advanced' => 'Geavanceerde onderzoeken',
-        'combat'   => 'Gevechtsonderzoek',
+        'basic'          => 'Basisonderzoek',
+        'drive'          => 'Aandrijvingsonderzoek',
+        'advanced'       => 'Geavanceerde onderzoeken',
+        'combat'         => 'Gevechtsonderzoek',
+
+        // Onderzoekswachtrij — halvering
+        'halve_tooltip'  => 'Verlaagt de onderzoekstijd met 50% van de totale onderzoekstijd.',
+        'question_halve' => 'Wilt u de onderzoekstijd van het huidige onderzoeksproject met 50% van de totale onderzoekstijd verkorten voor :dm_cost?',
     ],
 
     // -------------------------------------------------------------------------
@@ -366,6 +387,17 @@ return [
         'err_no_cargo'             => 'Fout, onvoldoende laadruimte',
         'err_multi_alarm'          => 'Multi-alarm',
         'err_attack_ban'           => 'Aanvalverbod',
+
+        // Vlootslot — labels en bonussen
+        'general_slot_bonus'       => '+ 2 Vlootslots dankzij de Generaal',
+        'admiral_slot_bonus'       => '+ 2 Vlootslots dankzij de Admiraal',
+
+        // Tactische terugtrekking — volledige HTML-tooltip
+        'tactical_retreat_body'    => 'Tactische terugtrekking|Vloten kunnen automatisch terugtrekken als ze worden aangevallen door een superieure macht die vijf keer sterker is. De doorslaggevende factor zijn de vlootpunten van de aanvaller in vergelijking met uw vlootpunten. Verdedigingsfaciliteiten worden niet meegerekend.<br /><br />Burgerschepen tellen slechts voor 25%, zonnepanelen en spionagesonden worden niet meegerekend. <br /><br />Selecteer de optie *nooit* als u de automatische terugtrekking wilt deactiveren.<br /><br />Vastgehouden vloten kunnen in principe niet terugtrekken. Doodsterren, Spionagesonden en Zonnepanelen kunnen ook niet terugtrekken.<br /><br />Gebruik de Admiraal om uw vloten te laten terugtrekken van krachten die drie keer groter zijn dan uw eigen vloot.<br /><br />De optie `tactische terugtrekking` eindigt bij 500.000 punten.',
+        'tactical_retreat_admiral' => 'Tactische terugtrekking|Gebruik de Admiraal om uw vloten te laten terugtrekken van krachten die drie keer groter zijn dan uw eigen vloot.',
+
+        // Waarschuwingen JS (locadyn)
+        'bash_warning'             => 'In dit universum zijn 0 aanvallen toegestaan binnen een periode van 24 uur. Deze aanval zou deze limiet waarschijnlijk overschrijden. Wilt u hem toch lanceren?',
     ],
 
     // -------------------------------------------------------------------------
@@ -913,6 +945,10 @@ return [
         'msg_kick_error'                => 'Kon lid niet verwijderen',
         'msg_invalid_action'            => 'Ongeldige actie',
         'msg_error'                     => 'Er is een fout opgetreden',
+
+        // Standaard rangnamen (fallback als DB-waarde null is)
+        'rank_founder_default'          => 'Oprichter',
+        'rank_newcomer_default'         => 'Nieuwkomer',
     ],
 
     // -------------------------------------------------------------------
@@ -1131,6 +1167,8 @@ return [
         'unread_messages'           => 'ongelezen bericht(en)',
         'loading'                   => 'laden...',
         'no_fleet_movement'         => 'Geen vlootbeweging',
+        'no_ships_in_wreck'         => 'Geen schepen in het wrakveldd',
+        'no_wreck_available'        => 'Geen wrakveld beschikbaar',
         'under_attack'              => 'Je wordt aangevallen!',
 
         // Karakterklasse
@@ -1596,5 +1634,171 @@ return [
         'shipyard_busy'        => 'De scheepswerf is nog bezig',
         'not_enough_fields'    => 'Niet genoeg velden!',
         'tear_down_btn'        => 'afbreken',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Admin paneel (serverinstellingen + ontwikkelaarssnelkoppelingen)
+    // -------------------------------------------------------------------------
+
+    'admin' => [
+        // Paginatitel / opslaan knop
+        'title'                         => 'Serverinstellingen',
+        'save'                          => 'Instellingen opslaan',
+
+        // Sectie-koppen – serverinstellingen
+        'section_basic'                 => 'Basisinstellingen.',
+        'section_changes_note'          => 'U kunt de serverinstellingen hieronder wijzigen. Wijzigingen worden onmiddellijk toegepast.',
+        'section_income_note'           => 'Opmerking: basisinkomenswaarden worden hieronder vermenigvuldigd met de economische snelheid.',
+        'section_new_player'            => 'Instellingen nieuwe speler.',
+        'section_dm_regen'              => 'Instellingen donkere materie regeneratie.',
+        'section_relocation'            => 'Instellingen planetverplaatsing.',
+        'section_alliance'              => 'Alliantie-instellingen.',
+        'section_battle'                => 'Gevechtsinstellingen.',
+        'section_expedition'            => 'Expeditie-instellingen.',
+        'section_expedition_slots'      => 'Expeditie-slots en beloningsveelvouden.',
+        'section_expedition_weights'    => 'Expeditie-uitkomstgewichten.',
+        'section_highscore'             => 'Highscore-instellingen.',
+        'section_galaxy'                => 'Galaxie-instellingen.',
+
+        // Basisinstellingen
+        'universe_name'                 => 'Universum naam:',
+        'economy_speed'                 => 'Economische snelheid:',
+        'research_speed'                => 'Onderzoekssnelheid:',
+        'fleet_speed_war'               => 'Oorlogsvlootsnelheid:',
+        'fleet_speed_holding'           => 'Bezettingsvlootsnelheid:',
+        'fleet_speed_peaceful'          => 'Vredelievende vlootsnelheid:',
+        'planet_fields_bonus'           => 'Planet velden bonus',
+
+        // Basisinkomen
+        'income_metal'                  => 'Basis metaalinkomen per uur:',
+        'income_crystal'                => 'Basis kristalinkomen per uur:',
+        'income_deuterium'              => 'Basis deuteriuminkomen per uur:',
+        'income_energy'                 => 'Basis energie-inkomen per uur:',
+
+        // Nieuwe speler
+        'registration_planet_amount'    => 'Aantal planeten om aan speler te geven bij registratie',
+        'dm_bonus'                      => 'Donkere Materie bonus:',
+
+        // DM regeneratie
+        'dm_regen_description'          => 'Schakel periodieke regeneratie van Donkere Materie in voor alle spelers. Dit is standaard uitgeschakeld om overeen te komen met het officiële spelgedrag. Wanneer ingeschakeld, ontvangen spelers automatisch Donkere Materie op het geconfigureerde interval.',
+        'dm_regen_enabled'              => 'Donkere Materie regeneratie ingeschakeld:',
+        'dm_regen_amount'               => 'Hoeveelheid Donkere Materie regeneratie:',
+        'dm_regen_period'               => 'Periode Donkere Materie regeneratie (seconden):',
+
+        // Planetverplaatsing
+        'relocation_cost'               => 'Kosten planetverplaatsing (Donkere Materie):',
+        'relocation_duration'           => 'Duur planetverplaatsing (seconden):',
+
+        // Alliantie
+        'alliance_cooldown'             => 'Alliantie wachttijd (dagen):',
+        'alliance_cooldown_desc'        => 'Dagen dat een speler moet wachten na het verlaten van een alliantie voordat hij/zij een andere kan aansluiten/aanmaken',
+
+        // Gevecht
+        'battle_engine'                 => 'Gevechtsmotor:',
+        'battle_engine_desc'            => 'De Rust gevechtsmotor is tot 200x beter presterend dan PHP. Schakel alleen over naar PHP als Rust niet op uw server kan worden uitgevoerd.',
+        'acs'                           => 'Alliantie Gevechts Systeem:',
+        'debris_ships'                  => 'Vernietigde schepen in puin velden:',
+        'debris_defense'                => 'Defensieve structuren in puin velden:',
+        'debris_deuterium'              => 'Deuterium in puin velden:',
+        'wreck_min_resources'           => 'Minimale vernietiging voor wrak velden:',
+        'wreck_min_resources_desc'      => 'Minimale resourcewaarde die verloren moet gaan voor de vorming van een wrak veld.',
+        'wreck_min_fleet_pct'           => 'Minimaal percentage vlootvernietiging:',
+        'wreck_min_fleet_pct_desc'      => 'Minimaal percentage van de verdedigervloot dat vernietigd moet worden voor de vorming van een wrak veld.',
+        'wreck_lifetime'                => 'Wrak veld levensduur (uren):',
+        'wreck_lifetime_desc'           => 'Uren voordat een wrak veld verloopt als het niet gerepareerd is.',
+        'wreck_repair_max'              => 'Maximale reparatietijd (uren):',
+        'wreck_repair_max_desc'         => 'Maximale tijd voor scheepsreparaties in het Ruimtedok.',
+        'wreck_repair_min'              => 'Minimale reparatietijd (minuten):',
+        'wreck_repair_min_desc'         => 'Minimale tijd voordat schepen gerepareerd kunnen worden in het Ruimtedok.',
+        'moon_chance'                   => 'Maximale maankans:',
+        'hamill_probability'            => 'Hamill Manoeuvre Kans (1 op X kans):',
+
+        // Expeditie slots & veelvouden
+        'expedition_slots_desc'         => 'Bonus expeditie-slots worden toegevoegd aan de basisslots van Astrofysica onderzoek. Beloningsveelvouden zijn multiplicatief met economische snelheid en gelden voor de uiteindelijke beloningsbedragen (1.0 = standaard, 2.0 = dubbele beloningen).',
+        'expedition_bonus_slots'        => 'Bonus expeditie-slots:',
+        'expedition_multiplier_res'     => 'Beloningsveelvoud resources:',
+        'expedition_multiplier_ships'   => 'Beloningsveelvoud schepen:',
+        'expedition_multiplier_dm'      => 'Beloningsveelvoud Donkere Materie:',
+        'expedition_multiplier_items'   => 'Beloningsveelvoud items:',
+
+        // Expeditie uitkomstgewichten
+        'expedition_weights_desc'       => 'Uitkomstgewichten bepalen de relatieve kans van elk expeditieresultaat. Hogere waarden betekenen frequentere voorkomst. Gewichten zijn relatief ten opzichte van elkaar (bijv. gewicht 20 is twee keer zo waarschijnlijk als gewicht 10). Stel in op 0 om een uitkomst uit te schakelen.',
+        'expedition_weights_defaults'   => 'Standaard percentages:',
+        'expedition_weights_values'     => 'Niets: 25% | Bronnen: 35% | Schepen: 17% | Vertraging: 7,5% | Versnelling: 2,75% | Donkere Materie: 7,5% | Piraten: 3% | Buitenaardse wezens: 1,5% | Items: 0,5% | Koopman: 0,4% | Zwart Gat: 0,2%',
+        'weight_ships'                  => 'Gewicht schepen:',
+        'weight_resources'              => 'Gewicht resources:',
+        'weight_delay'                  => 'Gewicht vertraging:',
+        'weight_speedup'                => 'Gewicht versnelling:',
+        'weight_nothing'                => 'Gewicht niets/mislukt:',
+        'weight_black_hole'             => 'Gewicht zwart gat:',
+        'weight_pirates'                => 'Gewicht piraten:',
+        'weight_aliens'                 => 'Gewicht buitenaardse wezens:',
+        'weight_dm'                     => 'Gewicht Donkere Materie:',
+        'weight_merchant'               => 'Gewicht koopman:',
+        'weight_items'                  => 'Gewicht items:',
+
+        // Highscore
+        'highscore_admin_visible'       => 'Toon admins in highscore:',
+        'highscore_admin_visible_desc'  => 'Indien ingeschakeld, verschijnen admin-gebruikers in highscores met oranje gemarkeerde namen. Indien uitgeschakeld (standaard), worden admins volledig uitgesloten van ranglijsten.',
+
+        // Galaxie
+        'galaxy_ignore_empty'           => 'Lege systemen worden genegeerd:',
+        'galaxy_ignore_inactive'        => 'Inactieve systemen worden genegeerd:',
+        'galaxy_count'                  => 'Aantal galaxieën:',
+
+        // Ontwikkelaarssnelkoppelingen
+        'dev_title'                     => 'Ontwikkelaarssnelkoppelingen',
+        'dev_masquerade'                => 'Vermomd als gebruiker',
+        'dev_username'                  => 'Gebruikersnaam:',
+        'dev_username_placeholder'      => 'Voer gebruikersnaam in',
+        'dev_masquerade_btn'            => 'Vermom',
+        'dev_update_planet'             => 'Huidig planeet bijwerken:',
+        'dev_set_mines'                 => 'Stel alle mijnen in op niveau 30',
+        'dev_set_storages'              => 'Stel alle opslagplaatsen in op niveau 15',
+        'dev_set_shipyard'              => 'Stel alle scheepswerffaciliteiten in op niveau 12',
+        'dev_set_research'              => 'Stel al het onderzoek in op niveau 10',
+        'dev_add_units'                 => 'Voeg X eenheden toe aan het huidige planeet:',
+        'dev_units_amount'              => 'Aantal toe te voegen eenheden:',
+        'dev_light_fighter'             => 'Lichte jager',
+        'dev_set_building'              => 'Stel gebouwniveau in op huidig planeet:',
+        'dev_level_to_set'              => 'In te stellen niveau:',
+        'dev_set_research_level'        => 'Stel onderzoeksniveau in voor huidige speler:',
+        'dev_class_settings'            => 'Karakterklasse-instellingen',
+        'dev_disable_free_class'        => 'Gratis klasse-wijzigingen uitschakelen',
+        'dev_enable_free_class'         => 'Gratis klasse-wijzigingen inschakelen',
+        'dev_reset_class'               => 'Karakterklasse resetten',
+        'dev_goto_class'                => 'Naar klasseselectie',
+        'dev_reset_planet'              => 'Planeet resetten',
+        'dev_reset_buildings'           => 'Stel alle gebouwen in op niveau 0',
+        'dev_reset_research'            => 'Stel al het onderzoek in op niveau 0',
+        'dev_reset_units'               => 'Verwijder alle eenheden',
+        'dev_reset_resources'           => 'Stel alle resources in op 0',
+        'dev_add_resources'             => 'Resources toevoegen/aftrekken op coördinaten:',
+        'dev_resources_desc'            => 'U kunt positieve of negatieve waarden invoeren om toe te voegen of af te trekken van de geselecteerde resource. Ondersteunt k/m/b-achtervoegsels (bijv. 1k, 2m, 3b)',
+        'dev_coordinates'               => 'Coördinaten:',
+        'dev_galaxy'                    => 'Galaxie:',
+        'dev_system'                    => 'Systeem:',
+        'dev_position'                  => 'Positie:',
+        'dev_resources_label'           => 'Resources toevoegen/aftrekken:',
+        'dev_update_resources_planet'   => 'Resources bijwerken (planeet)',
+        'dev_update_resources_moon'     => 'Resources bijwerken (maan)',
+        'dev_create_planet_moon'        => 'Planeet/maan aanmaken op coördinaten:',
+        'dev_moon_size'                 => 'Maangrootte (voor Maan aanmaken):',
+        'dev_debris_amount'             => 'Puinhoeveelheid:',
+        'dev_x_factor'                  => 'X factor (10-20):',
+        'dev_create_planet'             => 'Planeet aanmaken',
+        'dev_create_moon'               => 'Maan aanmaken',
+        'dev_delete_planet'             => 'Planeet verwijderen',
+        'dev_delete_moon'               => 'Maan verwijderen',
+        'dev_create_debris'             => 'Puin veld aanmaken/verwijderen op coördinaten:',
+        'dev_debris_resources_label'    => 'Toe te voegen resources:',
+        'dev_create_debris_btn'         => 'Puin veld aanmaken/toevoegen',
+        'dev_delete_debris_btn'         => 'Puin veld verwijderen',
+        'dev_quick_shortcut_desc'       => 'Snelkoppeling voor het testen van de Ontdekker-klasse:',
+        'dev_create_expedition_debris'  => 'Expeditie puin aanmaken (Positie 16)',
+        'dev_add_dm'                    => 'Donkere Materie toevoegen/aftrekken voor speler op coördinaten:',
+        'dev_dm_desc'                   => 'Voer een positieve waarde in om Donkere Materie toe te voegen of een negatieve waarde om af te trekken. Ondersteunt k/m/b-achtervoegsels.',
+        'dev_dm_amount'                 => 'Hoeveelheid Donkere Materie:',
+        'dev_update_dm'                 => 'Donkere Materie bijwerken',
     ],
 ];

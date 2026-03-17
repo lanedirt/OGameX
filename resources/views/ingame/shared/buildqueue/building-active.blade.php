@@ -10,15 +10,15 @@
                 <div>
                     <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile tpd-hideOnClickOutside"
                        style="display: block;"
-                       onclick="cancelbuilding({{ $build_active->object->id }}, {{ $build_active->id }}, &quot;Cancel production of {!! $build_active->object->title !!} level {!! $build_active->level_target !!}?&quot;); return false;"
+                       onclick="cancelbuilding({{ $build_active->object->id }}, {{ $build_active->id }}, &quot;{!! __('t_ingame.buildings.cancel_production', ['title' => $build_active->object->title, 'level' => $build_active->level_target]) !!}&quot;); return false;"
                        title="">
                         <img class="queuePic" width="40" height="40"
                              src="{!! asset('img/objects/buildings/' . $build_active->object->assets->imgSmall) !!}"
                              alt="{{ $build_active->object->title }}">
                     </a>
                     <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile abortNow"
-                       onclick="cancelbuilding({{ $build_active->object->id }}, {{ $build_active->id }}, &quot;Cancel production of {!! $build_active->object->title !!} level {!! $build_active->level_target !!}?&quot;); return false;"
-                       title="Cancel production of {!! $build_active->object->title !!} level {!! $build_active->level_target !!}?">
+                       onclick="cancelbuilding({{ $build_active->object->id }}, {{ $build_active->id }}, &quot;{!! __('t_ingame.buildings.cancel_production', ['title' => $build_active->object->title, 'level' => $build_active->level_target]) !!}&quot;); return false;"
+                       title="{!! __('t_ingame.buildings.cancel_production', ['title' => $build_active->object->title, 'level' => $build_active->level_target]) !!}">
                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="15" width="15">
                     </a>
                 </div>
