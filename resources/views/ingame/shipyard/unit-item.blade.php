@@ -22,7 +22,10 @@
     title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.requirements_not_met') }}"
     @elseif (!$building->character_class_met)
         data-status="disabled"
-    title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.wrong_class') }}"
+    @php
+        $wrongClassKey = ['reaper' => 'wrong_class_general', 'crawler' => 'wrong_class_collector', 'pathfinder' => 'wrong_class_discoverer'][strtolower($building->object->machine_name)] ?? 'wrong_class';
+    @endphp
+    title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.' . $wrongClassKey) }}"
     @elseif (!$building->enough_resources)
         data-status="disabled"
     title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.not_enough_resources') }}"
@@ -44,7 +47,8 @@
         sprite_medium medium
         @else
         sprite_small small
-        @endif{{ $building->object->class_name }}">
+        @endif{{ $building->object->class_name }}"
+        title="{{ $building->object->title }}">
         @if ($building->currently_building)
             <span class="targetamount" data-value="{{ $building->amount + $building->currently_building_amount }}" data-bonus="0">
                 {{ $building->amount + $building->currently_building_amount }}

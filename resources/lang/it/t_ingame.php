@@ -64,6 +64,7 @@ return [
         'under_construction'     => 'In costruzione',
         'vacation_mode_error'    => 'Errore, il giocatore è in modalità vacanza',
         'requirements_not_met'   => 'I requisiti non sono soddisfatti!',
+        'wrong_class'            => 'Non hai la classe giocatore richiesta per questa unità.',
         'wrong_class_general'    => 'Per poter costruire questa nave, devi aver selezionato la classe Generale.',
         'wrong_class_collector'  => 'Per poter costruire questa nave, devi aver selezionato la classe Collezionista.',
         'wrong_class_discoverer' => 'Per poter costruire questa nave, devi aver selezionato la classe Scopritore.',
