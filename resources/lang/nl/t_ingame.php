@@ -64,6 +64,7 @@ return [
         'under_construction'     => 'In aanbouw',
         'vacation_mode_error'    => 'Fout, speler is in vakantiemodus',
         'requirements_not_met'   => 'Vereisten zijn niet vervuld!',
+        'wrong_class'            => 'Je hebt niet de vereiste spelersklasse voor dit gebouw.',
         'wrong_class_general'    => 'Om dit schip te kunnen bouwen, moet je de klasse Generaal hebben geselecteerd.',
         'wrong_class_collector'  => 'Om dit schip te kunnen bouwen, moet je de klasse Verzamelaar hebben geselecteerd.',
         'wrong_class_discoverer' => 'Om dit schip te kunnen bouwen, moet je de klasse Ontdekker hebben geselecteerd.',
