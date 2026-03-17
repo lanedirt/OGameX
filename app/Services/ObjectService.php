@@ -531,7 +531,7 @@ class ObjectService
         }
 
         if ($price->energy->get() > 0) {
-            $max_build_amount[] = floor($planet->energy()->get() / $price->energy->get());
+            $max_build_amount[] = floor($planet->energyProduction()->get() / $price->energy->get());
         }
 
         // Add silo capacity limit to the array for missiles
