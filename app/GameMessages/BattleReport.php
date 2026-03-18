@@ -140,6 +140,9 @@ class BattleReport extends GameMessage
         }
 
         // Handle attacker
+        // TODO: ACS Attack sends multiple attacking fleets (one per union member). The battle report
+        // currently only renders a single attacker entry. Per-player ship counts, losses, and the
+        // round-start fleet breakdown need to be extended to show all participating attackers.
         $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
         $attackerPlanetId = $this->battleReportModel->attacker['planet_id'] ?? null;
 

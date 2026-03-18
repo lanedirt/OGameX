@@ -52,4 +52,80 @@ class FleetEventRowViewModel
     public int $fleet_unit_count;
     public UnitCollection $fleet_units;
     public Resources $resources;
+
+    /**
+     * @var bool Whether this fleet can open the federation (union) overlay.
+     * True for attack missions (type 1 to create, type 2 to edit).
+     */
+    public bool $can_create_federation = false;
+
+    /**
+     * @var string The alliance/union name displayed on the movement row (e.g. "KV12345").
+     */
+    public string $alliance_name = '';
+
+    /**
+     * @var bool Whether this row is a union summary row (grouping multiple ACS Attack fleets).
+     */
+    public bool $is_union_summary = false;
+
+    /**
+     * @var int|null The union ID this fleet belongs to.
+     */
+    public ?int $union_id = null;
+
+    /**
+     * @var int Number of fleets in this union.
+     */
+    public int $union_fleet_count = 0;
+
+    /**
+     * @var int Maximum number of fleets allowed in this union.
+     */
+    public int $union_max_fleets = 16;
+
+    /**
+     * @var int Number of unique players in this union.
+     */
+    public int $union_player_count = 0;
+
+    /**
+     * @var int Maximum number of players allowed in this union.
+     */
+    public int $union_max_players = 5;
+
+    /**
+     * @var array<FleetEventRowViewModel> Individual fleet rows within this union (for expanded view).
+     */
+    public array $union_member_fleets = [];
+
+    /**
+     * @var int|null The union slot number (1 = initiator).
+     */
+    public int|null $union_slot = null;
+
+    /**
+     * @var int|null The user ID who owns this fleet.
+     */
+    public int|null $user_id = null;
+
+    /**
+     * @var string The player name who owns this fleet (used in union member rows).
+     */
+    public string $player_name = '';
+
+    /**
+     * @var array<array{player_name: string, origins: array<array{planet_name: string, coords: string, fleet_count: int, ship_count: int}>}> Per-player breakdown for union tooltip.
+     */
+    public array $union_player_breakdown = [];
+
+    /**
+     * @var int|null The user ID of the destination planet owner (for chat button).
+     */
+    public int|null $destination_player_id = null;
+
+    /**
+     * @var string The username of the destination planet owner (for chat button).
+     */
+    public string $destination_player_name = '';
 }

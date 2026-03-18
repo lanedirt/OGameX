@@ -32,6 +32,7 @@ use OGame\GameMessages\ExpeditionMerchantFound;
 use OGame\GameMessages\FleetDeployment;
 use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMessages\FleetLostContact;
+use OGame\GameMessages\FleetUnionInvite;
 use OGame\GameMessages\MissileAttackReport;
 use OGame\GameMessages\MissileDefenseReport;
 use OGame\GameMessages\MoonDestroyed;
@@ -103,6 +104,9 @@ class GameMessageFactory
         // Alliance messages
         'alliance_broadcast' => AllianceBroadcast::class,
         'alliance_application_received' => AllianceApplicationReceived::class,
+
+        // Fleet union messages
+        'fleet_union_invite' => FleetUnionInvite::class,
 
         // Planet relocation messages
         'planet_relocation_success' => PlanetRelocationSuccess::class,

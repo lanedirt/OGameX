@@ -108,6 +108,14 @@ class FleetUnionService
             throw new Exception(__('t_acs.error_not_buddy_or_ally'));
         }
 
+        // Validate fleet targets the same location as the union
+        if ($mission->galaxy_to !== $union->galaxy_to
+            || $mission->system_to !== $union->system_to
+            || $mission->position_to !== $union->position_to
+            || $mission->type_to !== $union->planet_type_to) {
+            throw new Exception(__('t_ingame.fleet.err_union_target_mismatch'));
+        }
+
         // Validate fleet can arrive within delay limit
         $maxArrival = $union->time_arrival + $this->getMaxDelayTime($union);
         if ($mission->time_arrival > $maxArrival) {
@@ -129,6 +137,11 @@ class FleetUnionService
             // Fleet arrives later - update union arrival time (within delay limit)
             $union->time_arrival = $mission->time_arrival;
             $union->save();
+
+            // Also sync all existing union members to the new (later) arrival time.
+            // The mission itself has not been saved yet (union_id not in DB), so
+            // activeFleetMissions() only returns already-joined missions.
+            $union->activeFleetMissions()->update(['time_arrival' => $mission->time_arrival]);
         }
 
         $mission->save();
@@ -162,16 +175,52 @@ class FleetUnionService
         /** @var FleetUnion $union */
         $union = $mission->union;
 
-        // Remove from union
+        // Remove from union and revert to regular attack
         $mission->union_id = null;
         $mission->union_slot = null;
+        $mission->mission_type = 1;
         $mission->save();
 
         // Check if union is now empty
         if ($union->activeFleetMissions()->count() === 0) {
             // Delete the empty union
             $union->delete();
+            return;
         }
+
+        // Compact remaining slots: renumber by current slot order starting from 1
+        $remainingMissions = $union->activeFleetMissions()
+            ->orderBy('union_slot')
+            ->get();
+
+        $slot = 1;
+        foreach ($remainingMissions as $remainingMission) {
+            if ($remainingMission->union_slot !== $slot) {
+                $remainingMission->union_slot = $slot;
+                $remainingMission->save();
+            }
+            $slot++;
+        }
+
+        // Update union ownership to the new slot 1 fleet's owner
+        $newInitiator = $union->activeFleetMissions()->where('union_slot', 1)->first();
+        if ($newInitiator !== null && $union->user_id !== $newInitiator->user_id) {
+            $union->user_id = $newInitiator->user_id;
+            $union->save();
+        }
+    }
+
+    /**
+     * Check if a player can join a union (ally/buddy of creator).
+     * Used for UI filtering to show available unions.
+     *
+     * @param FleetUnion $union
+     * @param int $playerId
+     * @return bool
+     */
+    public function canPlayerJoinUnion(FleetUnion $union, int $playerId): bool
+    {
+        return $this->isAllyOrBuddy($union->user_id, $playerId);
     }
 
     /**

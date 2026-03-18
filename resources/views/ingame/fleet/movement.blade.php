@@ -56,7 +56,7 @@
                 var data = $.parseJSON(response);
                 errorBoxAsArray(data["errorbox"]);
                 token = data.token;
-                $("#federation_" + data["fleetID"]).children().attr("href", "#federationlayer&ajax=1&union=" + data["unionID"] + "&fleet=" + data["fleetID"] + "&target=" + data["targetID"]);
+                $("#federation_" + data["fleetID"]).children().attr("href", "{{ route('fleet.federation.overlay') }}?fleet=" + data["fleetID"] + "&union=" + data["unionID"]);
                 $("#FederationLayer").parent('.overlayDiv').dialog('close');
                 $("#FederationLayer").remove();
             }
@@ -113,6 +113,7 @@
                             {{ $fleet_event->return_remaining_time }}
                         );
                     @endif
+
                 @endforeach
 
                 initMovement();
@@ -130,6 +131,18 @@
                     });
                     return false;
                 });
+
+                // Federation (fleet union) overlay handler
+                $("#movement a.openOverlay[data-overlay-class='federation-layer']").off('click').on('click', function (e) {
+                    e.preventDefault();
+                    var overlayUrl = $(this).attr("href");
+                    openOverlay(overlayUrl, {
+                        'class': 'federation-layer',
+                        title: '{{ __('t_ingame.fleet.fleet_union') }}'
+                    });
+                    return false;
+                });
+
             });
         </script>
     </div>
