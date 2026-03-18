@@ -514,6 +514,7 @@ class ObjectService
                 return 0;
             }
         }
+        $object = self::getObjectByMachineName($machine_name);
         $price = self::getObjectPrice($machine_name, $planet);
 
         // Calculate max build amount based on price
@@ -531,7 +532,13 @@ class ObjectService
         }
 
         if ($price->energy->get() > 0) {
-            $max_build_amount[] = floor($planet->energyProduction()->get() / $price->energy->get());
+            // Terraformer (33) and Space Dock (36) only require total energy production to be
+            // at the required level, regardless of how much is currently consumed by mines.
+            // All other objects (e.g. Graviton Technology 199) require free/net energy surplus.
+            $energyAvailable = in_array($object->id, [33, 36])
+                ? $planet->energyProduction()->get()
+                : $planet->energy()->get();
+            $max_build_amount[] = floor($energyAvailable / $price->energy->get());
         }
 
         // Add silo capacity limit to the array for missiles
