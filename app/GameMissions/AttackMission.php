@@ -7,7 +7,6 @@ use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\DebrisFieldHarvest;
 use OGame\GameMessages\FleetLostContact;
 use OGame\GameMissions\Abstracts\GameMission;
-use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
@@ -82,17 +81,24 @@ class AttackMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
+        // In a union, only the initiator (slot 1) should execute the battle.
+        // Non-initiator missions are collected by collectAttackingFleets() and their
+        // return missions are handled by the multi-attacker processing block.
+        if ($mission->isInUnion() && $mission->union_slot !== 1) {
+            return;
+        }
+
         $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, true);
-        $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
         // Trigger defender planet update to make sure the battle uses up-to-date info.
         $defenderPlanet->update();
 
-        $attackerPlayer = $origin_planet->getPlayer();
-        $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
+        // Collect all attacking fleets (single or union)
+        $attackerFleets = $this->collectAttackingFleets($mission);
 
-        // Create AttackerFleet for the mission
-        $attackerFleet = AttackerFleet::fromFleetMission($mission, $this->fleetMissionService, $this->playerServiceFactory, true);
+        // Get the initiator (first fleet) for things like origin planet
+        $initiatorFleet = $attackerFleets[0];
+        $attackerPlayer = $initiatorFleet->player;
 
         // Collect all defending fleets (planet owner + ACS defend fleets)
         $defenders = $this->collectDefendingFleets($defenderPlanet);
@@ -100,12 +106,12 @@ class AttackMission extends GameMission
         // Execute the battle logic using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine([$attackerFleet], $defenderPlanet, $defenders, $this->settings);
+                $battleEngine = new PhpBattleEngine($attackerFleets, $defenderPlanet, $defenders, $this->settings);
                 break;
             case 'rust':
             default:
                 // Default to RustBattleEngine if no specific engine is configured
-                $battleEngine = new RustBattleEngine([$attackerFleet], $defenderPlanet, $defenders, $this->settings);
+                $battleEngine = new RustBattleEngine($attackerFleets, $defenderPlanet, $defenders, $this->settings);
                 break;
         }
 
@@ -191,6 +197,83 @@ class AttackMission extends GameMission
 
                         $defendMission->save();
                     }
+                }
+            }
+        }
+
+        // Process attacker fleet results (handle multi-fleet ACS battles)
+        // Only use this loop for multi-attacker battles (count > 1)
+        // Single-attacker battles use the original logic below
+        if (count($battleResult->attackerFleetResults) > 1) {
+            // Multi-attacker battle - process each fleet separately
+            foreach ($battleResult->attackerFleetResults as $fleetResult) {
+                $fleetMission = FleetMission::find($fleetResult->fleetMissionId);
+                if (!$fleetMission || $fleetMission->canceled) {
+                    continue; // Fleet may have been recalled or deleted
+                }
+
+                if ($fleetResult->completelyDestroyed || !$fleetResult->hasSurvivors()) {
+                    // Fleet completely destroyed - no return mission
+                    $fleetMission->processed = 1;
+                    $fleetMission->save();
+
+                    // Send fleet lost contact message to the fleet owner
+                    $fleetOwner = $this->playerServiceFactory->make($fleetResult->playerId);
+                    $coordinates = '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]';
+                    $this->messageService->sendSystemMessageToPlayer($fleetOwner, FleetLostContact::class, [
+                        'coordinates' => $coordinates,
+                    ]);
+                } else {
+                    // Fleet survived - create return mission with survivors
+                    $fleetOwner = $this->playerServiceFactory->make($fleetResult->playerId);
+
+                    // TODO: Calculate per-fleet loot share (proportional to surviving cargo capacity)
+                    // and surviving cargo (mission resources proportional to cargo survival rate).
+                    // Currently lootShare and survivingCargo are zero — loot/cargo distribution
+                    // across multiple ACS fleets is slated for a future PR.
+                    // TODO: Include Reaper-collected debris share for multi-attacker battles.
+                    // Currently Reaper debris collection only works for single-attacker path.
+                    $totalResources = new Resources(
+                        $fleetResult->survivingCargo->metal->get() + $fleetResult->lootShare->metal->get(),
+                        $fleetResult->survivingCargo->crystal->get() + $fleetResult->lootShare->crystal->get(),
+                        $fleetResult->survivingCargo->deuterium->get() + $fleetResult->lootShare->deuterium->get(),
+                        0
+                    );
+
+                    // Ensure total doesn't exceed surviving cargo capacity
+                    $remainingCargoCapacity = $fleetResult->unitsResult->getTotalCargoCapacity($fleetOwner);
+                    if ($totalResources->sum() > $remainingCargoCapacity) {
+                        $totalResources = LootService::distributeLoot($totalResources, $remainingCargoCapacity);
+                    }
+
+                    // Calculate natural return duration based on surviving ships and owner's tech.
+                    // In original OGame, post-battle returns use each fleet's own natural speed,
+                    // not the synced union speed. The origin planet provides correct tech levels
+                    // for speed calculation, and distance is symmetric.
+                    $originPlanet = $this->planetServiceFactory->makeForPlayer(
+                        $fleetOwner,
+                        $fleetMission->planet_id_from
+                    );
+                    $naturalReturnDuration = $this->fleetMissionService->calculateFleetMissionDuration(
+                        $originPlanet,
+                        $defenderPlanet->getPlanetCoordinates(),
+                        $fleetResult->unitsResult,
+                        $this,
+                        10
+                    );
+
+                    // Calculate wreck field for General class attacker
+                    // General perk: wreck field from attacker's lost ships is transported back with the return mission
+                    $attackerWreckFieldData = null;
+                    $characterClassService = resolve(CharacterClassService::class);
+                    if ($characterClassService->isGeneral($fleetOwner->getUser())) {
+                        $attackerWreckFieldData = $this->calculateAttackerWreckField($fleetResult->unitsLost, $fleetResult->unitsStart);
+                    }
+
+                    // Mark outbound mission as processed and create return mission with survivors
+                    $fleetMission->processed = 1;
+                    $fleetMission->save();
+                    $this->startReturn($fleetMission, $totalResources, $fleetResult->unitsResult, 0, $attackerWreckFieldData, $naturalReturnDuration);
                 }
             }
         }
@@ -326,6 +409,8 @@ class AttackMission extends GameMission
             }
         }
 
+        // TODO: In multi-attacker ACS battles, send battle report to all participating players,
+        // not just the initiator. Currently only the initiator and defender receive it.
         if ($attackerDestroyedFirstRound) {
             // Send simplified "fleet lost contact" message to attacker (no fleet or tech info)
             $coordinates = '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]';
@@ -389,64 +474,70 @@ class AttackMission extends GameMission
             ]);
         }
 
-        // Mark the arrival mission as processed
-        $mission->processed = 1;
-        $mission->save();
+        // Mark the arrival mission as processed and create return mission
+        // Single-attacker battles: use original return processing
+        // Multi-attacker battles (ACS): each fleet is handled individually above
+        if (count($battleResult->attackerFleetResults) === 1) {
+            // Single-attacker battle - mark as processed and create return
+            $mission->processed = 1;
+            $mission->save();
 
-        // Create and start the return mission (if attacker has remaining units).
-        // Calculate survival rate based on cargo capacity before and after battle
-        $originalCargoCapacity = $battleResult->attackerUnitsStart->getTotalCargoCapacity($attackerPlayer);
-        $remainingCargoCapacity = $battleResult->attackerUnitsResult->getTotalCargoCapacity($attackerPlayer);
+            // Create and start the return mission (if single attacker has remaining units).
+            $originalCargoCapacity = $battleResult->attackerUnitsStart->getTotalCargoCapacity($attackerPlayer);
+            $remainingCargoCapacity = $battleResult->attackerUnitsResult->getTotalCargoCapacity($attackerPlayer);
 
-        // Handle edge case: if original capacity is 0, survival rate is 0
-        $survivalRate = $originalCargoCapacity > 0
-            ? $remainingCargoCapacity / $originalCargoCapacity
-            : 0;
+            // Handle edge case: if original capacity is 0, survival rate is 0
+            $survivalRate = $originalCargoCapacity > 0
+                ? $remainingCargoCapacity / $originalCargoCapacity
+                : 0;
 
-        // Calculate resources remaining on surviving ships
-        $remainingResources = new Resources(
-            max(0, (int)($mission->metal * $survivalRate)),
-            max(0, (int)($mission->crystal * $survivalRate)),
-            max(0, (int)($mission->deuterium * $survivalRate)),
-            0
-        );
+            // Calculate resources remaining on surviving ships
+            $remainingResources = new Resources(
+                max(0, (int)($mission->metal * $survivalRate)),
+                max(0, (int)($mission->crystal * $survivalRate)),
+                max(0, (int)($mission->deuterium * $survivalRate)),
+                0
+            );
 
-        // Calculate loot remaining on surviving ships
-        // Loot is also subject to the survival rate (if cargo ships carrying loot are destroyed, loot is lost)
-        $remainingLoot = new Resources(
-            max(0, (int)($battleResult->loot->metal->get() * $survivalRate)),
-            max(0, (int)($battleResult->loot->crystal->get() * $survivalRate)),
-            max(0, (int)($battleResult->loot->deuterium->get() * $survivalRate)),
-            0
-        );
+            // Calculate loot remaining on surviving ships
+            // Loot is also subject to the survival rate (if cargo ships carrying loot are destroyed, loot is lost)
+            $remainingLoot = new Resources(
+                max(0, (int)($battleResult->loot->metal->get() * $survivalRate)),
+                max(0, (int)($battleResult->loot->crystal->get() * $survivalRate)),
+                max(0, (int)($battleResult->loot->deuterium->get() * $survivalRate)),
+                0
+            );
 
-        // Total resources = remaining mission resources + remaining loot + collected debris (from attacker Reapers)
-        $totalResources = new Resources(
-            $remainingResources->metal->get() + $remainingLoot->metal->get() + $attackerCollectedDebris->metal->get(),
-            $remainingResources->crystal->get() + $remainingLoot->crystal->get() + $attackerCollectedDebris->crystal->get(),
-            $remainingResources->deuterium->get() + $remainingLoot->deuterium->get() + $attackerCollectedDebris->deuterium->get(),
-            0
-        );
+            // Total resources = remaining mission resources + remaining loot + collected debris (from attacker Reapers)
+            $totalResources = new Resources(
+                $remainingResources->metal->get() + $remainingLoot->metal->get() + $attackerCollectedDebris->metal->get(),
+                $remainingResources->crystal->get() + $remainingLoot->crystal->get() + $attackerCollectedDebris->crystal->get(),
+                $remainingResources->deuterium->get() + $remainingLoot->deuterium->get() + $attackerCollectedDebris->deuterium->get(),
+                0
+            );
 
-        // Ensure total doesn't exceed remaining capacity
-        if ($totalResources->sum() > $remainingCargoCapacity) {
-            $totalResources = LootService::distributeLoot($totalResources, $remainingCargoCapacity);
+            // Ensure total doesn't exceed remaining capacity
+            if ($totalResources->sum() > $remainingCargoCapacity) {
+                $totalResources = LootService::distributeLoot($totalResources, $remainingCargoCapacity);
+            }
+
+            // Calculate wreck field for General class attacker
+            // General perk: wreck field from attacker's lost ships is transported back with the return mission
+            $attackerWreckFieldData = null;
+            $characterClassService = resolve(CharacterClassService::class);
+            if ($characterClassService->isGeneral($attackerPlayer->getUser())) {
+                // Calculate attacker's lost units (start - result = lost)
+                $attackerUnitsLost = clone $battleResult->attackerUnitsStart;
+                $attackerUnitsLost->subtractCollection($battleResult->attackerUnitsResult);
+
+                // Calculate wreck field data if conditions are met
+                $attackerWreckFieldData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart);
+            }
+
+            $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult, 0, $attackerWreckFieldData);
         }
-
-        // Calculate wreck field for General class attacker
-        // General perk: wreck field from attacker's lost ships is transported back with the return mission
-        $attackerWreckFieldData = null;
-        $characterClassService = resolve(CharacterClassService::class);
-        if ($characterClassService->isGeneral($attackerPlayer->getUser())) {
-            // Calculate attacker's lost units (start - result = lost)
-            $attackerUnitsLost = clone $battleResult->attackerUnitsStart;
-            $attackerUnitsLost->subtractCollection($battleResult->attackerUnitsResult);
-
-            // Calculate wreck field data if conditions are met
-            $attackerWreckFieldData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart);
-        }
-
-        $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult, 0, $attackerWreckFieldData);
+        // End of single-attacker return processing
+        // Note: For multi-attacker battles, each fleet is already processed above with its own return mission
     }
 
     /**
