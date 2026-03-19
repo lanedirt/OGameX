@@ -53,7 +53,7 @@ class MissileDefenseReport extends GameMessage
         }
 
         // Build message body
-        $body = 'Your planet ';
+        $body = __('t_messages.missile_defense_report.your_planet');
 
         // Planet link
         if ($planetId > 0) {
@@ -62,18 +62,18 @@ class MissileDefenseReport extends GameMessage
             $body .= $planetName . ' [coordinates]' . $planetCoords . '[/coordinates]';
         }
 
-        $body .= ' has been attacked by interplanetary missiles from <b>' . $attackerName . '</b>!';
+        $body .= __('t_messages.missile_defense_report.attacked_by_prefix') . $attackerName . '</b>!';
         $body .= '<br><br>';
 
         // Missile statistics
-        $body .= '<b>Incoming Missiles:</b> ' . $missilesIncoming . '<br>';
+        $body .= __('t_messages.missile_defense_report.incoming_label') . $missilesIncoming . '<br>';
         if ($missilesIntercepted > 0) {
-            $body .= '<b>Missiles Intercepted:</b> ' . $missilesIntercepted . '<br>';
+            $body .= __('t_messages.missile_defense_report.intercepted_label') . $missilesIntercepted . '<br>';
         }
         $body .= '<br>';
 
         // Add defense list with bold header
-        $body .= '<b>Defenses Hit</b><br>';
+        $body .= __('t_messages.missile_defense_report.defenses_hit_label');
 
         if (!empty($defensesData)) {
             foreach ($defensesData as $defenseInfo) {
@@ -86,7 +86,7 @@ class MissileDefenseReport extends GameMessage
                 $body .= $after . '(-' . $destroyed . ')<br>';
             }
         } else {
-            $body .= 'None<br>';
+            $body .= __('t_messages.missile_defense_report.none');
         }
 
         return $this->replacePlaceholders($body);

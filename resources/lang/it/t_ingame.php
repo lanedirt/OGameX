@@ -108,6 +108,26 @@ return [
     ],
 
     // -------------------------------------------------------------------------
+    // Coda costruzione (building-active.blade.php)
+    // -------------------------------------------------------------------------
+
+    'building_queue' => [
+        'construction_started'         => 'Costruzione edificio avviata.',
+        'cancel_production_confirm'    => 'Annullare la produzione di :name livello :level?',
+        'downgrade_to'                 => 'Degrada a',
+        'improve_to'                   => 'Migliora a',
+        'level_label'                  => 'Livello',
+        'duration_label'               => 'Durata',
+        'halve_time_tooltip'           => 'Riduce il tempo di costruzione del 50% del tempo totale di costruzione.',
+        'halve_time_btn'               => 'Dimezza il tempo',
+        'dm_cost'                      => 'Costo: :amount MO',
+        'dark_matter'                  => 'Materia Oscura',
+        'question_halve'               => 'Vuoi ridurre il tempo di costruzione del progetto attuale del 50% del tempo totale di costruzione per :dm_cost?',
+        'no_buildings_in_construction' => 'Nessun edificio in costruzione.',
+        'no_buildings_tooltip'         => 'Al momento non c\'è nessun edificio in costruzione su questo pianeta. Clicca qui per andare alla pagina di costruzione.',
+    ],
+
+    // -------------------------------------------------------------------------
     // Pagina risorse (miniere / edifici di stoccaggio)
     // -------------------------------------------------------------------------
 
@@ -518,6 +538,12 @@ return [
         'discovery_locked'             => 'Non hai ancora sbloccato la ricerca per scoprire nuove forme di vita.',
         'discovery_title'              => 'Nave da esplorazione',
         'discovery_question'           => 'Vuoi inviare una nave da esplorazione su questo pianeta?<br/>Metallo: 5000 Cristallo: 1000 Deuterio: 500',
+
+        // Etichette popup azione giocatore (clic sulla riga della galassia)
+        'alliance_page'                => 'Pagina alleanza',
+        'alliance_apply'               => 'Candidati',
+        'contact_support'              => 'Contatta il supporto',
+        'write_message'                => 'Scrivi messaggio',
 
         // Dialogo risultati phalanx (stringhe JS nel blocco script Blade-rendered)
         'sensor_report'                => 'rapporto sensore',
@@ -1614,26 +1640,59 @@ return [
     // -------------------------------------------------------------------------
 
     'ajax_object' => [
-        'open_techtree'        => 'Apri albero tecnologico',
-        'techtree'             => 'Albero tecnologico',
-        'no_requirements'      => 'Nessun prerequisito disponibile',
-        'number'               => 'Quantità',
-        'production_duration'  => 'Durata produzione:',
-        'energy_needed'        => 'Energia necessaria:',
-        'production'           => 'Produzione',
-        'costs_per_piece'      => 'Costi per unità',
-        'required_to_improve'  => 'Richiesto per migliorare al livello',
-        'storage_capacity'     => 'Capacità di stoccaggio:',
-        'gain_resources'       => 'Ottieni risorse per ricaricare immediatamente il tuo deposito',
-        'view_offers'          => 'Visualizza offerte',
-        'destroy_rockets_desc' => 'Distruggi i razzi per fare spazio nel tuo silo missilistico',
-        'destroy_rockets_btn'  => 'Distruggi razzi',
-        'more_details'         => 'Maggiori dettagli',
-        'vacation_mode'        => 'Non puoi costruire mentre sei in modalità vacanza',
-        'shipyard_upgrading'   => 'Il cantiere spaziale è in fase di potenziamento',
-        'shipyard_busy'        => 'Il cantiere spaziale è ancora occupato',
-        'not_enough_fields'    => 'Campi insufficienti!',
-        'tear_down_btn'        => 'demolisci',
+        'open_techtree'             => 'Apri albero tecnologico',
+        'techtree'                  => 'Albero tecnologico',
+        'no_requirements'           => 'Nessun prerequisito disponibile',
+        'number'                    => 'Numero',
+        'production_duration'       => 'Durata di produzione:',
+        'energy_needed'             => 'Energia necessaria:',
+        'production'                => 'Produzione',
+        'costs_per_piece'           => 'Costo per unità',
+        'required_to_improve'       => 'Necessario per migliorare al livello',
+        'storage_capacity'          => 'Capacità di stoccaggio:',
+        'gain_resources'            => 'Acquista risorse per riempire immediatamente il tuo deposito',
+        'view_offers'               => 'Visualizza offerte',
+        'destroy_rockets_desc'      => 'Distruggi i missili per liberare spazio nel tuo silos missilistico',
+        'destroy_rockets_btn'       => 'Distruggi missili',
+        'more_details'              => 'Più dettagli',
+        'vacation_mode'             => 'Non puoi costruire mentre sei in modalità vacanza',
+        'shipyard_upgrading'        => 'Il cantiere navale è in potenziamento',
+        'shipyard_busy'             => 'Il cantiere navale è ancora occupato',
+        'not_enough_fields'         => 'Campi insufficienti!',
+        'tear_down_btn'             => 'Demolisci',
+
+        // Build / improve button labels
+        'build'                     => 'Costruisci',
+        'improve'                   => 'Migliora',
+        'in_queue'                  => 'In coda',
+        'max_btn'                   => '[max. :amount]',
+        'cancel_expansion_confirm'  => 'Annullare il potenziamento di :name al livello :level?',
+
+        // Tooltip states
+        'wrong_character_class'     => 'Classe personaggio errata!',
+
+        // Deconstruction tooltip
+        'deconstruction_costs'      => 'Costi di demolizione',
+        'ion_technology_bonus'      => 'Bonus tecnologia ionica:',
+
+        // Resource labels
+        'level'                     => 'Livello',
+        'duration'                  => 'Durata:',
+        'metal'                     => 'Metallo',
+        'crystal'                   => 'Cristallo',
+        'deuterium'                 => 'Deuterio',
+        'energy'                    => 'Energia',
+
+        // JS loca
+        'error'                     => 'Errore',
+        'commander_queue_info'      => 'Hai bisogno di un Comandante per poter usare la coda di costruzione. Vuoi saperne di più sui vantaggi del Comandante?',
+        'start_with_dm'             => 'Avvia con MO',
+        'no_rocket_silo_capacity'   => 'Capacità insufficiente. Potenzia il silos missilistico.',
+        'detail_now'                => 'ora',
+        'err_dm_price_too_low'      => 'Con un prezzo di 0 MO il margine di profitto è troppo basso per il mercante!',
+        'err_resource_limit'        => 'Il mercante può consegnarti risorse solo fino a un totale di 10.000.000',
+        'err_storage_capacity'      => 'Capacità di stoccaggio insufficiente. - Vuoi espandere il tuo deposito?',
+        'err_no_dark_matter'        => 'Materia Oscura insufficiente! Vuoi acquistarne ora?',
     ],
 
     // -------------------------------------------------------------------------
@@ -1730,6 +1789,7 @@ return [
         'weight_delay'                  => 'Peso ritardo:',
         'weight_speedup'                => 'Peso accelerazione:',
         'weight_nothing'                => 'Peso nulla/fallito:',
+
         'weight_black_hole'             => 'Peso buco nero:',
         'weight_pirates'                => 'Peso pirati:',
         'weight_aliens'                 => 'Peso alieni:',
@@ -1747,6 +1807,7 @@ return [
         'galaxy_count'                  => 'Numero di galassie:',
 
         // Scorciatoie sviluppatore
+
         'dev_title'                     => 'Scorciatoie sviluppatore',
         'dev_masquerade'                => 'Impersona utente',
         'dev_username'                  => 'Nome utente:',
@@ -1756,6 +1817,7 @@ return [
         'dev_set_mines'                 => 'Imposta tutte le miniere al livello 30',
         'dev_set_storages'              => 'Imposta tutti i magazzini al livello 15',
         'dev_set_shipyard'              => 'Imposta tutte le strutture cantiere al livello 12',
+
         'dev_set_research'              => 'Imposta tutte le ricerche al livello 10',
         'dev_add_units'                 => 'Aggiungi X unità al pianeta corrente:',
         'dev_units_amount'              => 'Quantità di unità da aggiungere:',
@@ -1766,6 +1828,7 @@ return [
         'dev_class_settings'            => 'Impostazioni Classe Personaggio',
         'dev_disable_free_class'        => 'Disabilita Cambi Classe Gratuiti',
         'dev_enable_free_class'         => 'Abilita Cambi Classe Gratuiti',
+
         'dev_reset_class'               => 'Reimposta Classe Personaggio',
         'dev_goto_class'                => 'Vai alla Selezione Classe',
         'dev_reset_planet'              => 'Reimposta pianeta',
@@ -1798,6 +1861,7 @@ return [
         'dev_create_expedition_debris'  => 'Crea Detriti Spedizione (Posizione 16)',
         'dev_add_dm'                    => 'Aggiungi / sottrai Materia Oscura per il giocatore alle coordinate:',
         'dev_dm_desc'                   => 'Inserisci un valore positivo per aggiungere o negativo per sottrarre Materia Oscura. Supporta suffissi k/m/b.',
+
         'dev_dm_amount'                 => 'Quantità Materia Oscura:',
         'dev_update_dm'                 => 'Aggiorna Materia Oscura',
     ],

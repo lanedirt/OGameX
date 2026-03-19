@@ -108,6 +108,26 @@ return [
     ],
 
     // -------------------------------------------------------------------------
+    // Bouwwachtrij gedeelde partial (building-active.blade.php)
+    // -------------------------------------------------------------------------
+
+    'building_queue' => [
+        'construction_started'         => 'Gebouwconstructie gestart.',
+        'cancel_production_confirm'    => 'Productie van :name niveau :level annuleren?',
+        'downgrade_to'                 => 'Degradeer naar',
+        'improve_to'                   => 'Verbeteren naar',
+        'level_label'                  => 'Niveau',
+        'duration_label'               => 'Duur',
+        'halve_time_tooltip'           => 'Vermindert de bouwtijd met 50% van de totale bouwtijd.',
+        'halve_time_btn'               => 'Halveer tijd',
+        'dm_cost'                      => 'Kosten: :amount DO',
+        'dark_matter'                  => 'Donkere Materie',
+        'question_halve'               => 'Wilt u de bouwtijd van het huidige project met 50% van de totale bouwtijd verminderen voor :dm_cost?',
+        'no_buildings_in_construction' => 'Geen gebouwen in aanbouw.',
+        'no_buildings_tooltip'         => 'Er is momenteel geen gebouw in aanbouw op deze planeet. Klik hier om naar de bouwpagina te gaan.',
+    ],
+
+    // -------------------------------------------------------------------------
     // Grondstoffenpagina (mijnen / opslaggebouwen)
     // -------------------------------------------------------------------------
 
@@ -518,6 +538,12 @@ return [
         'discovery_locked'             => 'U heeft het onderzoek om nieuwe levensvormen te ontdekken nog niet ontgrendeld.',
         'discovery_title'              => 'Verkenningsschip',
         'discovery_question'           => 'Wilt u een verkenningsschip naar deze planeet sturen?<br/>Metaal: 5000 Kristal: 1000 Deuterium: 500',
+
+        // Speler-actie popup labels (klik op een galaxyrij)
+        'alliance_page'                => 'Alliantiepagina',
+        'alliance_apply'               => 'Aanmelden',
+        'contact_support'              => 'Neem contact op met support',
+        'write_message'                => 'Schrijf bericht',
 
         // Phalanx-resultaatdialoog (JS-strings in Blade-rendered scriptblok)
         'sensor_report'                => 'sensorrapport',
@@ -1614,26 +1640,59 @@ return [
     // -------------------------------------------------------------------------
 
     'ajax_object' => [
-        'open_techtree'        => 'Technologieboom openen',
-        'techtree'             => 'Technologieboom',
-        'no_requirements'      => 'Geen vereisten beschikbaar',
-        'number'               => 'Aantal',
-        'production_duration'  => 'Productieduur:',
-        'energy_needed'        => 'Energie nodig:',
-        'production'           => 'Productie',
-        'costs_per_piece'      => 'Kosten per stuk',
-        'required_to_improve'  => 'Vereist om te verbeteren naar niveau',
-        'storage_capacity'     => 'Opslagcapaciteit:',
-        'gain_resources'       => 'Ontvang grondstoffen om je opslag onmiddellijk te vullen',
-        'view_offers'          => 'Aanbiedingen bekijken',
-        'destroy_rockets_desc' => 'Vernietig raketten om ruimte te maken in je raketopslag',
-        'destroy_rockets_btn'  => 'Raketten vernietigen',
-        'more_details'         => 'Meer details',
-        'vacation_mode'        => 'Je kunt niet bouwen terwijl je in vakantiemodus bent',
-        'shipyard_upgrading'   => 'Scheepswerf wordt geüpgraded',
-        'shipyard_busy'        => 'De scheepswerf is nog bezig',
-        'not_enough_fields'    => 'Niet genoeg velden!',
-        'tear_down_btn'        => 'afbreken',
+        'open_techtree'             => 'Open technologieboom',
+        'techtree'                  => 'Technologieboom',
+        'no_requirements'           => 'Geen vereisten beschikbaar',
+        'number'                    => 'Aantal',
+        'production_duration'       => 'Productieduur:',
+        'energy_needed'             => 'Benodigde energie:',
+        'production'                => 'Productie',
+        'costs_per_piece'           => 'Kosten per stuk',
+        'required_to_improve'       => 'Vereist om te verbeteren naar niveau',
+        'storage_capacity'          => 'Opslagcapaciteit:',
+        'gain_resources'            => 'Koop grondstoffen om je opslag direct te vullen',
+        'view_offers'               => 'Bekijk aanbiedingen',
+        'destroy_rockets_desc'      => 'Vernietig raketten om ruimte te maken in je rakettsilo',
+        'destroy_rockets_btn'       => 'Vernietig raketten',
+        'more_details'              => 'Meer details',
+        'vacation_mode'             => 'Je kunt niet bouwen terwijl je in vakantiemodus bent',
+        'shipyard_upgrading'        => 'Scheepswerf wordt geüpgraded',
+        'shipyard_busy'             => 'De scheepswerf is nog bezig',
+        'not_enough_fields'         => 'Niet genoeg velden!',
+        'tear_down_btn'             => 'Afbreken',
+
+        // Build / improve button labels
+        'build'                     => 'Bouwen',
+        'improve'                   => 'Verbeteren',
+        'in_queue'                  => 'In wachtrij',
+        'max_btn'                   => '[max. :amount]',
+        'cancel_expansion_confirm'  => 'Uitbreiding van :name naar niveau :level annuleren?',
+
+        // Tooltip states
+        'wrong_character_class'     => 'Verkeerde karakterklasse!',
+
+        // Deconstruction tooltip
+        'deconstruction_costs'      => 'Afbraakkosten',
+        'ion_technology_bonus'      => 'Bonus ionentechnologie:',
+
+        // Resource labels
+        'level'                     => 'Niveau',
+        'duration'                  => 'Duur:',
+        'metal'                     => 'Metaal',
+        'crystal'                   => 'Kristal',
+        'deuterium'                 => 'Deuterium',
+        'energy'                    => 'Energie',
+
+        // JS loca
+        'error'                     => 'Fout',
+        'commander_queue_info'      => 'Je hebt een Commandant nodig om de bouwwachtrij te kunnen gebruiken. Wil je meer weten over de voordelen van een Commandant?',
+        'start_with_dm'             => 'Starten met DO',
+        'no_rocket_silo_capacity'   => 'Onvoldoende capaciteit. Upgrade rakettsilo.',
+        'detail_now'                => 'nu',
+        'err_dm_price_too_low'      => 'Met een prijs van 0 DO is de winstmarge te laag voor de handelaar!',
+        'err_resource_limit'        => 'De handelaar kan alleen grondstoffen leveren tot een totaalbedrag van 10.000.000',
+        'err_storage_capacity'      => 'Onvoldoende opslagcapaciteit. - Wil je je opslag uitbreiden?',
+        'err_no_dark_matter'        => 'Onvoldoende Donkere Materie beschikbaar! Wil je nu wat kopen?',
     ],
 
     // -------------------------------------------------------------------------

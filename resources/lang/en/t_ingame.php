@@ -108,6 +108,26 @@ return [
     ],
 
     // -------------------------------------------------------------------------
+    // Building queue shared partial (building-active.blade.php)
+    // -------------------------------------------------------------------------
+
+    'building_queue' => [
+        'construction_started'         => 'Building construction started.',
+        'cancel_production_confirm'    => 'Cancel production of :name level :level?',
+        'downgrade_to'                 => 'Downgrade to',
+        'improve_to'                   => 'Improve to',
+        'level_label'                  => 'Level',
+        'duration_label'               => 'Duration',
+        'halve_time_tooltip'           => 'Reduces construction time by 50% of the total construction time.',
+        'halve_time_btn'               => 'Halve time',
+        'dm_cost'                      => 'Costs: :amount DM',
+        'dark_matter'                  => 'Dark Matter',
+        'question_halve'               => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time for :dm_cost?',
+        'no_buildings_in_construction' => 'No buildings in construction.',
+        'no_buildings_tooltip'         => 'At the moment there is no building being built on this planet. Click here to go to the build page.',
+    ],
+
+    // -------------------------------------------------------------------------
     // Resources page (mines / storage buildings)
     // -------------------------------------------------------------------------
 
@@ -518,6 +538,12 @@ return [
         'discovery_locked'             => 'You haven\'t unlocked the research to discover new lifeforms yet.',
         'discovery_title'              => 'Exploration Ship',
         'discovery_question'           => 'Do you want to dispatch an exploration ship to this planet?<br/>Metal: 5000 Crystal: 1000 Deuterium: 500',
+
+        // Player action popup labels (galaxy row click)
+        'alliance_page'                => 'Alliance Page',
+        'alliance_apply'               => 'Apply',
+        'contact_support'              => 'Contact support',
+        'write_message'                => 'Write message',
 
         // Phalanx result dialog (JS strings inside Blade-rendered script block)
         'sensor_report'                => 'sensor report',
@@ -1631,26 +1657,59 @@ return [
     // -------------------------------------------------------------------------
 
     'ajax_object' => [
-        'open_techtree'        => 'Open techtree',
-        'techtree'             => 'Techtree',
-        'no_requirements'      => 'No requirements available',
-        'number'               => 'Number',
-        'production_duration'  => 'Production duration:',
-        'energy_needed'        => 'Energy needed:',
-        'production'           => 'Production',
-        'costs_per_piece'      => 'Costs per piece',
-        'required_to_improve'  => 'Required to improve to level',
-        'storage_capacity'     => 'Storage capacity:',
-        'gain_resources'       => 'Gain resources to immediately refill your storage',
-        'view_offers'          => 'View offers',
-        'destroy_rockets_desc' => 'Destroy Rockets to make more space in your missile silo',
-        'destroy_rockets_btn'  => 'Destroy rockets',
-        'more_details'         => 'More details',
-        'vacation_mode'        => 'You are not able to build while in vacation mode',
-        'shipyard_upgrading'   => 'Shipyard is being upgraded',
-        'shipyard_busy'        => 'The Shipyard is still busy',
-        'not_enough_fields'    => 'Not enough fields!',
-        'tear_down_btn'        => 'tear down',
+        'open_techtree'             => 'Open techtree',
+        'techtree'                  => 'Techtree',
+        'no_requirements'           => 'No requirements available',
+        'number'                    => 'Number',
+        'production_duration'       => 'Production duration:',
+        'energy_needed'             => 'Energy needed:',
+        'production'                => 'Production',
+        'costs_per_piece'           => 'Costs per piece',
+        'required_to_improve'       => 'Required to improve to level',
+        'storage_capacity'          => 'Storage capacity:',
+        'gain_resources'            => 'Gain resources to immediately refill your storage',
+        'view_offers'               => 'View offers',
+        'destroy_rockets_desc'      => 'Destroy Rockets to make more space in your missile silo',
+        'destroy_rockets_btn'       => 'Destroy rockets',
+        'more_details'              => 'More details',
+        'vacation_mode'             => 'You are not able to build while in vacation mode',
+        'shipyard_upgrading'        => 'Shipyard is being upgraded',
+        'shipyard_busy'             => 'The Shipyard is still busy',
+        'not_enough_fields'         => 'Not enough fields!',
+        'tear_down_btn'             => 'tear down',
+
+        // Build / improve button labels
+        'build'                     => 'Build',
+        'improve'                   => 'Improve',
+        'in_queue'                  => 'In queue',
+        'max_btn'                   => '[max. :amount]',
+        'cancel_expansion_confirm'  => 'Cancel expansion of :name to level :level?',
+
+        // Tooltip states
+        'wrong_character_class'     => 'Wrong character class!',
+
+        // Deconstruction tooltip
+        'deconstruction_costs'      => 'Deconstruction costs',
+        'ion_technology_bonus'      => 'Ion technology bonus:',
+
+        // Resource labels (used in aria-labels)
+        'level'                     => 'Level',
+        'duration'                  => 'Duration:',
+        'metal'                     => 'Metal',
+        'crystal'                   => 'Crystal',
+        'deuterium'                 => 'Deuterium',
+        'energy'                    => 'Energy',
+
+        // JS loca
+        'error'                     => 'Error',
+        'commander_queue_info'      => 'You need a Commander to be able to use the building queue. Would you like to learn more about the advantages of a Commander?',
+        'start_with_dm'             => 'Start with DM',
+        'no_rocket_silo_capacity'   => 'Not enough capacity. Upgrade missile silo.',
+        'detail_now'                => 'now',
+        'err_dm_price_too_low'      => 'With a price of 0 DM the profit margin is too low for the merchant!',
+        'err_resource_limit'        => 'The merchant can only deliver resources to an amount totalling 10.000.000 to you',
+        'err_storage_capacity'      => 'Not enough storage capacity. - Would you like to expand your storage?',
+        'err_no_dark_matter'        => 'Not enough Dark Matter available! Do you want to buy some now?',
     ],
 
     // -------------------------------------------------------------------------

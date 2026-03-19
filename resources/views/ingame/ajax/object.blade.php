@@ -7,8 +7,8 @@
                     aria-label="{{ __('t_ingame.ajax_object.open_techtree') }}"
                     data-target="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $object->id]) }}"
                     data-ipi-hint="ipiTechnologyTreefusionPlant"
-                    data-tooltip-title="Open techtree">
-                Techtree
+                    data-tooltip-title="{{ __('t_ingame.ajax_object.open_techtree') }}">
+                {{ __('t_ingame.ajax_object.techtree') }}
             </button>
         @else
             <button class="technology_tree no_prerequisites tooltip js_hideTipOnMobile overlay ipiHintable"
@@ -20,7 +20,7 @@
 
         @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Research)
             @if (!empty($build_active_current) && $build_active_current->object->id == $object->id)
-                <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="" onclick="cancelbuilding({{ $object->id }},{{ $build_active_current->id }},'Cancel expansion of {{ $object->title }} to level {{ $build_active_current->level_target }}?'); return false;"></a>
+                <a role="button" href="javascript:void(0);" class="tooltip abort_link js_hideTipOnMobile" title="" onclick="cancelbuilding({{ $object->id }},{{ $build_active_current->id }},'{{ __('t_ingame.ajax_object.cancel_expansion_confirm', ['name' => $object->title, 'level' => $build_active_current->level_target]) }}'); return false;"></a>
             @endif
         @endif
     </div>
@@ -87,7 +87,7 @@
                         @else
                         sufficient
                         @endif" data-value="{{ $price->metal->get() }}"
-                            aria-label="{!! $price->metal->getFormattedLong() !!}  @lang('Metal')" title="{!! $price->metal->getFormattedLong() !!}  @lang('Metal')">
+                            aria-label="{!! $price->metal->getFormattedLong() !!}  {{ __('t_ingame.ajax_object.metal') }}" title="{!! $price->metal->getFormattedLong() !!}  {{ __('t_ingame.ajax_object.metal') }}">
                             {!! $price->metal->getFormatted() !!}
                         </li>
                     @endif
@@ -98,7 +98,7 @@
                         @else
                         sufficient
                         @endif" data-value="{{ $price->crystal->get() }}"
-                                aria-label="{!! $price->crystal->getFormattedLong() !!}  @lang('Crystal')" title="{!! $price->crystal->getFormattedLong() !!}  @lang('Crystal')">
+                                aria-label="{!! $price->crystal->getFormattedLong() !!}  {{ __('t_ingame.ajax_object.crystal') }}" title="{!! $price->crystal->getFormattedLong() !!}  {{ __('t_ingame.ajax_object.crystal') }}">
                                 {!! $price->crystal->getFormatted() !!}
                             </li>
                     @endif
@@ -109,7 +109,7 @@
                         @else
                         sufficient
                         @endif" data-value="{{ $price->deuterium->get() }}"
-                                aria-label="{!! $price->deuterium->getFormattedLong() !!}  @lang('Deuterium')" title="{!! $price->deuterium->getFormattedLong() !!}  @lang('Deuterium')">
+                                aria-label="{!! $price->deuterium->getFormattedLong() !!}  {{ __('t_ingame.ajax_object.deuterium') }}" title="{!! $price->deuterium->getFormattedLong() !!}  {{ __('t_ingame.ajax_object.deuterium') }}">
                                 {!! $price->deuterium->getFormatted() !!}
                             </li>
                     @endif
@@ -120,7 +120,7 @@
                         @else
                         sufficient
                         @endif" data-value="{{ $price->energy->get() }}"
-                                aria-label="{!! $price->energy->getFormattedLong() !!}  @lang('Energy')" title="{!! $price->energy->getFormattedLong() !!}  @lang('Energy')">
+                                aria-label="{!! $price->energy->getFormattedLong() !!}  {{ __('t_ingame.ajax_object.energy') }}" title="{!! $price->energy->getFormattedLong() !!}  {{ __('t_ingame.ajax_object.energy') }}">
                                 {!! $price->energy->getFormatted() !!}
                             </li>
                     @endif
@@ -130,38 +130,38 @@
 
             @if ($can_downgrade && $downgrade_price !== null)
             <div id="demolition_costs_tooltip" class="htmlTooltip">
-                <h1>Deconstruction costs</h1>
+                <h1>{{ __('t_ingame.ajax_object.deconstruction_costs') }}</h1>
 
                 <div class="splitLine"></div>
 
                 <table class="demolition_costs">
                     @if ($ion_technology_level > 0)
                     <tr class="demolition_costs_bonus">
-                        <th>Ion technology bonus:</th>
+                        <th>{{ __('t_ingame.ajax_object.ion_technology_bonus') }}</th>
                         <td data-value="{{ $ion_technology_bonus }}">-{{ $ion_technology_bonus }}%</td>
                     </tr>
                     @endif
                     @if ($downgrade_price->metal->get() > 0)
                     <tr class="metal">
-                        <th>Metal:</th>
+                        <th>{{ __('t_ingame.ajax_object.metal') }}:</th>
                         <td class="sufficient" data-value="{{ $downgrade_price->metal->get() }}">{{ $downgrade_price->metal->getFormatted() }}</td>
                     </tr>
                     @endif
                     @if ($downgrade_price->crystal->get() > 0)
                     <tr class="crystal">
-                        <th>Crystal:</th>
+                        <th>{{ __('t_ingame.ajax_object.crystal') }}:</th>
                         <td class="sufficient" data-value="{{ $downgrade_price->crystal->get() }}">{{ $downgrade_price->crystal->getFormatted() }}</td>
                     </tr>
                     @endif
                     @if ($downgrade_price->deuterium->get() > 0)
                     <tr class="deuterium">
-                        <th>Deuterium:</th>
+                        <th>{{ __('t_ingame.ajax_object.deuterium') }}:</th>
                         <td class="sufficient" data-value="{{ $downgrade_price->deuterium->get() }}">{{ $downgrade_price->deuterium->getFormatted() }}</td>
                     </tr>
                     @endif
                     @if ($downgrade_duration_formatted)
                     <tr class="demolition_duration">
-                        <th>Duration:</th>
+                        <th>{{ __('t_ingame.ajax_object.duration') }}</th>
                         <td>
                             <time datetime="{{ $downgrade_duration_formatted }}"></time>{{ $downgrade_duration_formatted }}
                         </td>
@@ -171,36 +171,36 @@
             </div>
 
             <div id="demolition_costs_tooltip_oneTimeelement" class="htmlTooltip" style="display: none">
-                <h1>Deconstruction costs</h1>
+                <h1>{{ __('t_ingame.ajax_object.deconstruction_costs') }}</h1>
                 <div class="splitLine"></div>
                 <table class="demolition_costs">
                     @if ($ion_technology_level > 0)
                     <tr class="demolition_costs_bonus">
-                        <th>Ion technology bonus:</th>
+                        <th>{{ __('t_ingame.ajax_object.ion_technology_bonus') }}</th>
                         <td data-value="{{ $ion_technology_bonus }}">-{{ $ion_technology_bonus }}%</td>
                     </tr>
                     @endif
                     @if ($downgrade_price->metal->get() > 0)
                     <tr class="metal">
-                        <th>Metal:</th>
+                        <th>{{ __('t_ingame.ajax_object.metal') }}:</th>
                         <td class="sufficient" data-value="{{ $downgrade_price->metal->get() }}">{{ $downgrade_price->metal->getFormatted() }}</td>
                     </tr>
                     @endif
                     @if ($downgrade_price->crystal->get() > 0)
                     <tr class="crystal">
-                        <th>Crystal:</th>
+                        <th>{{ __('t_ingame.ajax_object.crystal') }}:</th>
                         <td class="sufficient" data-value="{{ $downgrade_price->crystal->get() }}">{{ $downgrade_price->crystal->getFormatted() }}</td>
                     </tr>
                     @endif
                     @if ($downgrade_price->deuterium->get() > 0)
                     <tr class="deuterium">
-                        <th>Deuterium:</th>
+                        <th>{{ __('t_ingame.ajax_object.deuterium') }}:</th>
                         <td class="sufficient" data-value="{{ $downgrade_price->deuterium->get() }}">{{ $downgrade_price->deuterium->getFormatted() }}</td>
                     </tr>
                     @endif
                     @if ($downgrade_duration_formatted)
                     <tr class="demolition_duration">
-                        <th>Duration:</th>
+                        <th>{{ __('t_ingame.ajax_object.duration') }}</th>
                         <td>
                             <time datetime="{{ $downgrade_duration_formatted }}"></time>{{ $downgrade_duration_formatted }}
                         </td>
@@ -212,9 +212,9 @@
 
             @if ($max_build_amount && ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense))
                 <div class="build_amount">
-                    <label for="build_amount">Number:</label>
+                    <label for="build_amount">{{ __('t_ingame.ajax_object.number') }}:</label>
                     <input type="text" name="build_amount" id="build_amount" min="0" max="{{ $max_build_amount }}" onfocus="clearInput(this);" onkeyup="checkIntInput(this, 1, {{ $max_build_amount }});event.stopPropagation();">
-                    <button class="maximum">[max. {{ $max_build_amount }}]</button>
+                    <button class="maximum">{{ __('t_ingame.ajax_object.max_btn', ['amount' => $max_build_amount]) }}</button>
                 </div>
             @elseif ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station)
                 @if ($can_downgrade && $current_level > 0)
@@ -247,7 +247,7 @@
                                 if ($is_in_vacation_mode) {
                                     $tooltip = __('t_ingame.ajax_object.vacation_mode');
                                 } elseif (!$character_class_met) {
-                                    $tooltip = __('Wrong character class!');
+                                    $tooltip = __('t_ingame.ajax_object.wrong_character_class');
                                 } elseif ($disabled_shipyard_upgrading) {
                                     $tooltip = __('t_ingame.ajax_object.shipyard_upgrading');
                                 } elseif ($ships_being_built) {
@@ -256,11 +256,11 @@
                             @endphp
                         <span class="tooltip" title="{{ is_string($tooltip) ? $tooltip : (($object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type === \OGame\GameObjects\Models\Enums\GameObjectType::Station) && $fields_exceeded ? __('t_ingame.ajax_object.not_enough_fields') : '') }}">
                             @if ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense)
-                                Build
+                                {{ __('t_ingame.ajax_object.build') }}
                             @elseif (!empty($build_active->id))
-                                In queue
+                                {{ __('t_ingame.ajax_object.in_queue') }}
                             @else
-                                Improve
+                                {{ __('t_ingame.ajax_object.improve') }}
                             @endif
                         </span>
                     </button>
@@ -361,7 +361,7 @@
 
     $(".build-it_disabled:not(.isWorking)")
         .click(function () {
-            errorBoxDecision('Error', 'You need a Commander to be able to use the building queue. Would you like to learn more about the advantages of a Commander?', 'yes', 'No', function () {
+            errorBoxDecision('{{ __('t_ingame.ajax_object.error') }}', '{{ __('t_ingame.ajax_object.commander_queue_info') }}', '{{ __('t_ingame.shared.yes') }}', '{{ __('t_ingame.shared.no') }}', function () {
                 window.location.href = '{{ route('premium.index', ['openDetail' => 2]) }}'
             });
         });
@@ -370,18 +370,18 @@
     loca = $.extend({},
         loca,
         {
-            'allError': 'Error',
-            'infoBuildlist': 'You need a Commander to be able to use the building queue. Would you like to learn more about the advantages of a Commander?',
-            'allYes': 'yes',
-            'allNo': 'No',
-            'allOk': 'Ok',
-            'noRocketsiloCapacity': 'Not enough capacity. Upgrade missile silo.',
-            'allDetailNow': 'now'
+            'allError': '{{ __('t_ingame.ajax_object.error') }}',
+            'infoBuildlist': '{{ __('t_ingame.ajax_object.commander_queue_info') }}',
+            'allYes': '{{ __('t_ingame.shared.yes') }}',
+            'allNo': '{{ __('t_ingame.shared.no') }}',
+            'allOk': '{{ __('t_ingame.shared.ok') }}',
+            'noRocketsiloCapacity': '{{ __('t_ingame.ajax_object.no_rocket_silo_capacity') }}',
+            'allDetailNow': '{{ __('t_ingame.ajax_object.detail_now') }}'
         }
     );
 
     var buttonClass = "build-it";
-    var overlayTitle = 'Start with DM';
+    var overlayTitle = '{{ __('t_ingame.ajax_object.start_with_dm') }}';
     var showSlotWarning = 1;
     var buttonState = 1;
     var techID = 1;
@@ -396,12 +396,12 @@
     var showErrorOnPremiumbutton = 0;
 
     var errorlist = {
-        '2000': 'With a price of 0 DM the profit margin is too low for the merchant!',
-        '100': 'The merchant can only deliver resources to an amount totalling 10.000.000 to you',
-        '10': 'Not enough storage capacity. - Would you like to expand your storage?',
-        '20': 'Not enough storage capacity. - Would you like to expand your storage?',
-        '30': 'Not enough storage capacity. - Would you like to expand your storage?',
-        '1000': 'Not enough Dark Matter available! Do you want to buy some now?'
+        '2000': '{{ __('t_ingame.ajax_object.err_dm_price_too_low') }}',
+        '100': '{{ __('t_ingame.ajax_object.err_resource_limit') }}',
+        '10': '{{ __('t_ingame.ajax_object.err_storage_capacity') }}',
+        '20': '{{ __('t_ingame.ajax_object.err_storage_capacity') }}',
+        '30': '{{ __('t_ingame.ajax_object.err_storage_capacity') }}',
+        '1000': '{{ __('t_ingame.ajax_object.err_no_dark_matter') }}'
     };
 
     var isBuildlistNeeded = 0;

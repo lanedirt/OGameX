@@ -362,6 +362,14 @@ Missiles intercepted: :missiles_intercepted
 Missiles hit: :missiles_hit
 
 Defenses destroyed: :defenses_destroyed',
+        // Sub-keys used by MissileAttackReport::getBody() override
+        'missile_singular'   => 'missile',
+        'missile_plural'     => 'missiles',
+        'from_your_planet'   => ' from your planet ',
+        'smashed_into'       => ' smashed into the planet ',
+        'intercepted_label'  => '<b>Missiles Intercepted:</b> ',
+        'defenses_hit_label' => '<b>Defenses Hit</b><br>',
+        'none'               => 'None<br>',
     ],
 
     // ------------------------
@@ -376,6 +384,13 @@ Missiles intercepted: :missiles_intercepted
 Missiles hit: :missiles_hit
 
 Defenses destroyed: :defenses_destroyed',
+        // Sub-keys used by MissileDefenseReport::getBody() override
+        'your_planet'        => 'Your planet ',
+        'attacked_by_prefix' => ' has been attacked by interplanetary missiles from <b>',
+        'incoming_label'     => '<b>Incoming Missiles:</b> ',
+        'intercepted_label'  => '<b>Missiles Intercepted:</b> ',
+        'defenses_hit_label' => '<b>Defenses Hit</b><br>',
+        'none'               => 'None<br>',
     ],
 
     // ------------------------

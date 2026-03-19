@@ -272,7 +272,7 @@ abstract class AbstractBuildingsController extends OGameController
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Building construction started.',
+            'message' => __('t_ingame.building_queue.construction_started'),
         ]);
     }
 
