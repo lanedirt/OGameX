@@ -532,10 +532,9 @@ class ObjectService
         }
 
         if ($price->energy->get() > 0) {
-            // Terraformer (33) and Space Dock (36) only require total energy production to be
-            // at the required level, regardless of how much is currently consumed by mines.
-            // All other objects (e.g. Graviton Technology 199) require free/net energy surplus.
-            $energyAvailable = in_array($object->id, [33, 36])
+            // Terraformer and Space Dock only require total energy production capacity.
+            // All other objects (e.g. Graviton Technology) require free/net energy surplus.
+            $energyAvailable = in_array($machine_name, ['terraformer', 'space_dock'])
                 ? $planet->energyProduction()->get()
                 : $planet->energy()->get();
             $max_build_amount[] = floor($energyAvailable / $price->energy->get());
