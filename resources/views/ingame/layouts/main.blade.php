@@ -276,6 +276,8 @@
                     </div>
                 </div>
             </div>
+                {{-- Module extension point: additional resource tiles (e.g. population/food from Lifeforms) --}}
+                @moduleSlot('layout.resources_bar', ['currentPlanet' => $currentPlanet, 'currentPlayer' => $currentPlayer])
         </div>
         <div id="commandercomponent" class="">
             <!-- <div id="lifeform" class="fleft">
@@ -1372,6 +1374,8 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                             "img": "/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif"
                         }
                     },
+        {{-- Module extension point: additional resource bar JS (e.g. population/food timers) --}}
+        @moduleSlot('layout.resources_bar_js', ['currentPlanet' => $currentPlanet])
                     "techs": {
                         // TODO: add tech levels as far as they are available
                     },

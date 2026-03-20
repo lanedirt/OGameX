@@ -32,6 +32,14 @@ abstract class GameObject
      */
     public string $class_name = '';
 
+    /**
+     * Optional module-defined sub-type discriminator.
+     * Allows modules to semantically distinguish their objects while still
+     * routing through existing queue services via the primary $type.
+     * Example: 'lifeform_building', 'lifeform_tech'
+     */
+    public ?string $subType = null;
+
     public string $description;
     public string $description_long;
 

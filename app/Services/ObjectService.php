@@ -33,6 +33,24 @@ use RuntimeException;
 class ObjectService
 {
     /**
+     * Module-registered game objects. Populated by modules via registerModuleObjects().
+     *
+     * @var array<\OGame\GameObjects\Models\Abstracts\GameObject>
+     */
+    private static array $moduleObjects = [];
+
+    /**
+     * Register additional game objects provided by a module.
+     * Call this in your module's bootModule() method.
+     *
+     * @param array<\OGame\GameObjects\Models\Abstracts\GameObject> $objects
+     */
+    public static function registerModuleObjects(array $objects): void
+    {
+        self::$moduleObjects = array_merge(self::$moduleObjects, $objects);
+    }
+
+    /**
      * Get all objects.
      *
      * @return array<GameObject>
@@ -40,7 +58,8 @@ class ObjectService
     public static function getObjects(): array
     {
         return [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
-                ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
+                ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get(),
+                ...self::$moduleObjects];
     }
 
     /**
