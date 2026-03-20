@@ -77,7 +77,7 @@ class ModulesController extends OGameController
         if (!file_exists($this->disabledFile)) {
             return [];
         }
-        return json_decode(file_get_contents($this->disabledFile), true) ?? [];
+        return json_decode((string) file_get_contents($this->disabledFile), true) ?? [];
     }
 
     private function saveDisabled(array $disabled): void

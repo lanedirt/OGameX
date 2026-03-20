@@ -68,7 +68,7 @@ abstract class ModuleServiceProvider extends ServiceProvider
         if (!file_exists($file)) {
             return false;
         }
-        $disabled = json_decode(file_get_contents($file), true) ?? [];
+        $disabled = json_decode((string) file_get_contents($file), true) ?? [];
         return in_array(static::class, $disabled, true);
     }
 
@@ -80,7 +80,7 @@ abstract class ModuleServiceProvider extends ServiceProvider
     {
         $path = $this->modulePath('module.json');
         if (file_exists($path)) {
-            return json_decode(file_get_contents($path), true) ?? [];
+            return json_decode((string) file_get_contents($path), true) ?? [];
         }
         return ['name' => $this->moduleId(), 'description' => '', 'version' => '?'];
     }
