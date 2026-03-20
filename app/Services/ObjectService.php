@@ -35,7 +35,7 @@ class ObjectService
     /**
      * Module-registered game objects. Populated by modules via registerModuleObjects().
      *
-     * @var array<\OGame\GameObjects\Models\Abstracts\GameObject>
+     * @var array<GameObject>
      */
     private static array $moduleObjects = [];
 
@@ -43,7 +43,7 @@ class ObjectService
      * Register additional game objects provided by a module.
      * Call this in your module's bootModule() method.
      *
-     * @param array<\OGame\GameObjects\Models\Abstracts\GameObject> $objects
+     * @param array<GameObject> $objects
      */
     public static function registerModuleObjects(array $objects): void
     {

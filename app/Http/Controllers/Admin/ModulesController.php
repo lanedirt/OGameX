@@ -42,7 +42,7 @@ class ModulesController extends OGameController
             ];
         }
 
-        return view('ingame.admin.modules', compact('modules'));
+        return view('ingame.admin.modules', ['modules' => $modules]);
     }
 
     /**
