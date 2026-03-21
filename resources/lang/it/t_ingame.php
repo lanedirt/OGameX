@@ -122,6 +122,7 @@ return [
         // Input costruzione / pulsante max
         'number_label'         => 'Numero:',
         'max_btn'              => '[max. :amount]',
+        'cancel_expansion_confirm' => 'Annullare il potenziamento di :name al livello :level?',
         // Pulsanti azione
         'tear_down_btn'        => 'demoli',
         'build'                => 'Costruisci',
@@ -176,6 +177,13 @@ return [
         'online'              => 'online',
         'offline'             => 'offline',
         'status_not_visible'  => 'Stato non visibile',
+        'buddy_tooltip'       => 'Buddy',
+        'alliance_tooltip'    => 'La tua alleanza',
+        'status_online'       => 'Online',
+        'status_offline'      => 'Offline',
+        'highscore_ranking'   => 'Posizione in classifica',
+        'alliance_label'      => 'Alleanza',
+        'planet_alt'          => 'Pianeta',
     ],
 
     // -------------------------------------------------------------------------
@@ -472,22 +480,6 @@ return [
     ],
 
     // -------------------------------------------------------------------------
-    // Pagina Chat
-    // -------------------------------------------------------------------------
-
-    'chat' => [
-        'buddy_tooltip'      => 'Buddy',
-        'alliance_tooltip'   => 'La tua alleanza',
-        'alliance_chat'      => 'Chat Alleanza',
-        'status_online'      => 'Online',
-        'status_offline'     => 'Offline',
-        'status_not_visible' => 'Stato non visibile',
-        'highscore_ranking'  => 'Posizione in classifica',
-        'alliance_label'     => 'Alleanza',
-        'planet_alt'         => 'Pianeta',
-    ],
-
-    // -------------------------------------------------------------------------
     // Pagina Galassia
     // -------------------------------------------------------------------------
 
@@ -615,10 +607,6 @@ return [
         'launched_success'             => 'Missili lanciati con successo!',
         'launch_failed'                => 'Lancio dei missili fallito',
 
-        // Azioni giocatore in galassia
-        'alliance_page'                => 'Pagina Alleanza',
-        'apply'                        => 'Candidati',
-        'contact_support'              => 'Contatta il supporto',
     ],
 
     // -------------------------------------------------------------------------
@@ -1689,66 +1677,6 @@ return [
         'dm_regen_amount'      => 'Quantità rigenerazione Materia Oscura:',
         'dm_regen_period'      => 'Periodo rigenerazione Materia Oscura:',
         'days'                 => 'giorni',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Pannello oggetto Ajax (edifici / ricerche / unità)
-    // -------------------------------------------------------------------------
-
-    'ajax_object' => [
-        'open_techtree'             => 'Apri albero tecnologico',
-        'techtree'                  => 'Albero tecnologico',
-        'no_requirements'           => 'Nessun prerequisito disponibile',
-        'number'                    => 'Numero',
-        'production_duration'       => 'Durata di produzione:',
-        'energy_needed'             => 'Energia necessaria:',
-        'production'                => 'Produzione',
-        'costs_per_piece'           => 'Costo per unità',
-        'required_to_improve'       => 'Necessario per migliorare al livello',
-        'storage_capacity'          => 'Capacità di stoccaggio:',
-        'gain_resources'            => 'Acquista risorse per riempire immediatamente il tuo deposito',
-        'view_offers'               => 'Visualizza offerte',
-        'destroy_rockets_desc'      => 'Distruggi i missili per liberare spazio nel tuo silos missilistico',
-        'destroy_rockets_btn'       => 'Distruggi missili',
-        'more_details'              => 'Più dettagli',
-        'vacation_mode'             => 'Non puoi costruire mentre sei in modalità vacanza',
-        'shipyard_upgrading'        => 'Il cantiere navale è in potenziamento',
-        'shipyard_busy'             => 'Il cantiere navale è ancora occupato',
-        'not_enough_fields'         => 'Campi insufficienti!',
-        'tear_down_btn'             => 'Demolisci',
-
-        // Build / improve button labels
-        'build'                     => 'Costruisci',
-        'improve'                   => 'Migliora',
-        'in_queue'                  => 'In coda',
-        'max_btn'                   => '[max. :amount]',
-        'cancel_expansion_confirm'  => 'Annullare il potenziamento di :name al livello :level?',
-
-        // Tooltip states
-        'wrong_character_class'     => 'Classe personaggio errata!',
-
-        // Deconstruction tooltip
-        'deconstruction_costs'      => 'Costi di demolizione',
-        'ion_technology_bonus'      => 'Bonus tecnologia ionica:',
-
-        // Resource labels
-        'level'                     => 'Livello',
-        'duration'                  => 'Durata:',
-        'metal'                     => 'Metallo',
-        'crystal'                   => 'Cristallo',
-        'deuterium'                 => 'Deuterio',
-        'energy'                    => 'Energia',
-
-        // JS loca
-        'error'                     => 'Errore',
-        'commander_queue_info'      => 'Hai bisogno di un Comandante per poter usare la coda di costruzione. Vuoi saperne di più sui vantaggi del Comandante?',
-        'start_with_dm'             => 'Avvia con MO',
-        'no_rocket_silo_capacity'   => 'Capacità insufficiente. Potenzia il silos missilistico.',
-        'detail_now'                => 'ora',
-        'err_dm_price_too_low'      => 'Con un prezzo di 0 MO il margine di profitto è troppo basso per il mercante!',
-        'err_resource_limit'        => 'Il mercante può consegnarti risorse solo fino a un totale di 10.000.000',
-        'err_storage_capacity'      => 'Capacità di stoccaggio insufficiente. - Vuoi espandere il tuo deposito?',
-        'err_no_dark_matter'        => 'Materia Oscura insufficiente! Vuoi acquistarne ora?',
     ],
 
     // -------------------------------------------------------------------------

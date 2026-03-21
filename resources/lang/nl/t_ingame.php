@@ -122,6 +122,7 @@ return [
         // Bouwinvoer / max knop
         'number_label'         => 'Aantal:',
         'max_btn'              => '[max. :amount]',
+        'cancel_expansion_confirm' => 'Uitbreiding van :name naar niveau :level annuleren?',
         // Actieknoppen
         'tear_down_btn'        => 'slopen',
         'build'                => 'Bouwen',
@@ -176,6 +177,13 @@ return [
         'online'              => 'online',
         'offline'             => 'offline',
         'status_not_visible'  => 'Status niet zichtbaar',
+        'buddy_tooltip'       => 'Buddy',
+        'alliance_tooltip'    => 'Jouw alliantie',
+        'status_online'       => 'Online',
+        'status_offline'      => 'Offline',
+        'highscore_ranking'   => 'Highscore rangschikking',
+        'alliance_label'      => 'Alliantie',
+        'planet_alt'          => 'Planeet',
     ],
 
     // -------------------------------------------------------------------------
@@ -472,22 +480,6 @@ return [
     ],
 
     // -------------------------------------------------------------------------
-    // Chatpagina
-    // -------------------------------------------------------------------------
-
-    'chat' => [
-        'buddy_tooltip'      => 'Buddy',
-        'alliance_tooltip'   => 'Jouw alliantie',
-        'alliance_chat'      => 'Alliantiechat',
-        'status_online'      => 'Online',
-        'status_offline'     => 'Offline',
-        'status_not_visible' => 'Status niet zichtbaar',
-        'highscore_ranking'  => 'Highscore rangschikking',
-        'alliance_label'     => 'Alliantie',
-        'planet_alt'         => 'Planeet',
-    ],
-
-    // -------------------------------------------------------------------------
     // Melkweg-pagina
     // -------------------------------------------------------------------------
 
@@ -615,10 +607,6 @@ return [
         'launched_success'             => 'Raketten succesvol gelanceerd!',
         'launch_failed'                => 'Lancering van raketten mislukt',
 
-        // Speler acties in melkwegstelsel
-        'alliance_page'                => 'Alliantiepagina',
-        'apply'                        => 'Aanmelden',
-        'contact_support'              => 'Neem contact op met support',
     ],
 
     // -------------------------------------------------------------------------
@@ -1689,66 +1677,6 @@ return [
         'dm_regen_amount'      => 'Hoeveelheid donkere materie regeneratie:',
         'dm_regen_period'      => 'Periode donkere materie regeneratie:',
         'days'                 => 'dagen',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Ajax object paneel (gebouwen / onderzoek / eenheden)
-    // -------------------------------------------------------------------------
-
-    'ajax_object' => [
-        'open_techtree'             => 'Open technologieboom',
-        'techtree'                  => 'Technologieboom',
-        'no_requirements'           => 'Geen vereisten beschikbaar',
-        'number'                    => 'Aantal',
-        'production_duration'       => 'Productieduur:',
-        'energy_needed'             => 'Benodigde energie:',
-        'production'                => 'Productie',
-        'costs_per_piece'           => 'Kosten per stuk',
-        'required_to_improve'       => 'Vereist om te verbeteren naar niveau',
-        'storage_capacity'          => 'Opslagcapaciteit:',
-        'gain_resources'            => 'Koop grondstoffen om je opslag direct te vullen',
-        'view_offers'               => 'Bekijk aanbiedingen',
-        'destroy_rockets_desc'      => 'Vernietig raketten om ruimte te maken in je rakettsilo',
-        'destroy_rockets_btn'       => 'Vernietig raketten',
-        'more_details'              => 'Meer details',
-        'vacation_mode'             => 'Je kunt niet bouwen terwijl je in vakantiemodus bent',
-        'shipyard_upgrading'        => 'Scheepswerf wordt geüpgraded',
-        'shipyard_busy'             => 'De scheepswerf is nog bezig',
-        'not_enough_fields'         => 'Niet genoeg velden!',
-        'tear_down_btn'             => 'Afbreken',
-
-        // Build / improve button labels
-        'build'                     => 'Bouwen',
-        'improve'                   => 'Verbeteren',
-        'in_queue'                  => 'In wachtrij',
-        'max_btn'                   => '[max. :amount]',
-        'cancel_expansion_confirm'  => 'Uitbreiding van :name naar niveau :level annuleren?',
-
-        // Tooltip states
-        'wrong_character_class'     => 'Verkeerde karakterklasse!',
-
-        // Deconstruction tooltip
-        'deconstruction_costs'      => 'Afbraakkosten',
-        'ion_technology_bonus'      => 'Bonus ionentechnologie:',
-
-        // Resource labels
-        'level'                     => 'Niveau',
-        'duration'                  => 'Duur:',
-        'metal'                     => 'Metaal',
-        'crystal'                   => 'Kristal',
-        'deuterium'                 => 'Deuterium',
-        'energy'                    => 'Energie',
-
-        // JS loca
-        'error'                     => 'Fout',
-        'commander_queue_info'      => 'Je hebt een Commandant nodig om de bouwwachtrij te kunnen gebruiken. Wil je meer weten over de voordelen van een Commandant?',
-        'start_with_dm'             => 'Starten met DO',
-        'no_rocket_silo_capacity'   => 'Onvoldoende capaciteit. Upgrade rakettsilo.',
-        'detail_now'                => 'nu',
-        'err_dm_price_too_low'      => 'Met een prijs van 0 DO is de winstmarge te laag voor de handelaar!',
-        'err_resource_limit'        => 'De handelaar kan alleen grondstoffen leveren tot een totaalbedrag van 10.000.000',
-        'err_storage_capacity'      => 'Onvoldoende opslagcapaciteit. - Wil je je opslag uitbreiden?',
-        'err_no_dark_matter'        => 'Onvoldoende Donkere Materie beschikbaar! Wil je nu wat kopen?',
     ],
 
     // -------------------------------------------------------------------------

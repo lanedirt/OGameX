@@ -122,6 +122,7 @@ return [
         // Build input / max button
         'number_label'         => 'Number:',
         'max_btn'              => '[max. :amount]',
+        'cancel_expansion_confirm' => 'Cancel expansion of :name to level :level?',
         // Action buttons
         'tear_down_btn'        => 'tear down',
         'build'                => 'Build',
@@ -176,6 +177,13 @@ return [
         'online'              => 'online',
         'offline'             => 'offline',
         'status_not_visible'  => 'Status not visible',
+        'buddy_tooltip'       => 'Buddy',
+        'alliance_tooltip'    => 'Your alliance',
+        'status_online'       => 'Online',
+        'status_offline'      => 'Offline',
+        'highscore_ranking'   => 'Highscore ranking',
+        'alliance_label'      => 'Alliance',
+        'planet_alt'          => 'Planet',
     ],
 
     // -------------------------------------------------------------------------
@@ -472,22 +480,6 @@ return [
     ],
 
     // -------------------------------------------------------------------------
-    // Chat page
-    // -------------------------------------------------------------------------
-
-    'chat' => [
-        'buddy_tooltip'      => 'Buddy',
-        'alliance_tooltip'   => 'Your alliance',
-        'alliance_chat'      => 'Alliance Chat',
-        'status_online'      => 'Online',
-        'status_offline'     => 'Offline',
-        'status_not_visible' => 'Status not visible',
-        'highscore_ranking'  => 'Highscore ranking',
-        'alliance_label'     => 'Alliance',
-        'planet_alt'         => 'Planet',
-    ],
-
-    // -------------------------------------------------------------------------
     // Galaxy page
     // -------------------------------------------------------------------------
 
@@ -615,10 +607,6 @@ return [
         'launched_success'             => 'Missiles launched successfully!',
         'launch_failed'                => 'Failed to launch missiles',
 
-        // Galaxy player actions
-        'alliance_page'                => 'Alliance Page',
-        'apply'                        => 'Apply',
-        'contact_support'              => 'Contact support',
     ],
 
     // -------------------------------------------------------------------------
@@ -1706,66 +1694,6 @@ return [
         'dm_regen_amount'      => 'Dark Matter regeneration amount:',
         'dm_regen_period'      => 'Dark Matter regeneration period:',
         'days'                 => 'days',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Ajax object panel (build/research/unit info overlay)
-    // -------------------------------------------------------------------------
-
-    'ajax_object' => [
-        'open_techtree'             => 'Open techtree',
-        'techtree'                  => 'Techtree',
-        'no_requirements'           => 'No requirements available',
-        'number'                    => 'Number',
-        'production_duration'       => 'Production duration:',
-        'energy_needed'             => 'Energy needed:',
-        'production'                => 'Production',
-        'costs_per_piece'           => 'Costs per piece',
-        'required_to_improve'       => 'Required to improve to level',
-        'storage_capacity'          => 'Storage capacity:',
-        'gain_resources'            => 'Gain resources to immediately refill your storage',
-        'view_offers'               => 'View offers',
-        'destroy_rockets_desc'      => 'Destroy Rockets to make more space in your missile silo',
-        'destroy_rockets_btn'       => 'Destroy rockets',
-        'more_details'              => 'More details',
-        'vacation_mode'             => 'You are not able to build while in vacation mode',
-        'shipyard_upgrading'        => 'Shipyard is being upgraded',
-        'shipyard_busy'             => 'The Shipyard is still busy',
-        'not_enough_fields'         => 'Not enough fields!',
-        'tear_down_btn'             => 'tear down',
-
-        // Build / improve button labels
-        'build'                     => 'Build',
-        'improve'                   => 'Improve',
-        'in_queue'                  => 'In queue',
-        'max_btn'                   => '[max. :amount]',
-        'cancel_expansion_confirm'  => 'Cancel expansion of :name to level :level?',
-
-        // Tooltip states
-        'wrong_character_class'     => 'Wrong character class!',
-
-        // Deconstruction tooltip
-        'deconstruction_costs'      => 'Deconstruction costs',
-        'ion_technology_bonus'      => 'Ion technology bonus:',
-
-        // Resource labels (used in aria-labels)
-        'level'                     => 'Level',
-        'duration'                  => 'Duration:',
-        'metal'                     => 'Metal',
-        'crystal'                   => 'Crystal',
-        'deuterium'                 => 'Deuterium',
-        'energy'                    => 'Energy',
-
-        // JS loca
-        'error'                     => 'Error',
-        'commander_queue_info'      => 'You need a Commander to be able to use the building queue. Would you like to learn more about the advantages of a Commander?',
-        'start_with_dm'             => 'Start with DM',
-        'no_rocket_silo_capacity'   => 'Not enough capacity. Upgrade missile silo.',
-        'detail_now'                => 'now',
-        'err_dm_price_too_low'      => 'With a price of 0 DM the profit margin is too low for the merchant!',
-        'err_resource_limit'        => 'The merchant can only deliver resources to an amount totalling 10.000.000 to you',
-        'err_storage_capacity'      => 'Not enough storage capacity. - Would you like to expand your storage?',
-        'err_no_dark_matter'        => 'Not enough Dark Matter available! Do you want to buy some now?',
     ],
 
     // -------------------------------------------------------------------------
