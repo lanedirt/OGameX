@@ -89,42 +89,93 @@ return [
         'loca_lifeform_cap'      => 'One or more associated bonuses is already maxed out. Do you want to continue construction anyway?',
         'last_inquiry_error'     => 'Your last action could not be processed. Please try again.',
         'planet_move_warning'    => 'Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be canceled. Do you really want to continue with this job?',
-
-        // Build queue — idle state (no unit/building/research active)
-        'idle_no_units'          => 'No ships/defense in construction.',
-        'idle_to_shipyard'       => '(To shipyard)',
-        'idle_tooltip_units'     => 'At the moment there are no ships or defense built on this planet. Click here to get to the shipyard.',
-        'idle_no_buildings'      => 'No buildings in construction.',
-        'idle_tooltip_buildings' => 'At the moment there is no building being built on this planet. Click here to go to the build page.',
-        'idle_no_research'       => 'There is no research in progress at the moment.',
-        'idle_tooltip_research'  => 'There is no research done at the moment. Click here to get to your research lab.',
-
-        // Build queue — active halving / cancellation
-        'halve_tooltip'          => 'Reduces construction time by 50% of the total construction time.',
-        'halve_time'             => 'Halve time',
-        'costs_dm'               => 'Costs: :amount DM',
-        'question_halve'         => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time for :dm_cost?',
-        'cancel_production'      => 'Cancel production of :title level :level?',
+        // Controller success messages
+        'building_started'       => 'Building construction started.',
     ],
 
     // -------------------------------------------------------------------------
-    // Building queue shared partial (building-active.blade.php)
+    // Ajax object modal (object.blade.php)
     // -------------------------------------------------------------------------
 
-    'building_queue' => [
-        'construction_started'         => 'Building construction started.',
-        'cancel_production_confirm'    => 'Cancel production of :name level :level?',
-        'downgrade_to'                 => 'Downgrade to',
-        'improve_to'                   => 'Improve to',
-        'level_label'                  => 'Level',
-        'duration_label'               => 'Duration',
-        'halve_time_tooltip'           => 'Reduces construction time by 50% of the total construction time.',
-        'halve_time_btn'               => 'Halve time',
-        'dm_cost'                      => 'Costs: :amount DM',
-        'dark_matter'                  => 'Dark Matter',
-        'question_halve'               => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time for :dm_cost?',
-        'no_buildings_in_construction' => 'No buildings in construction.',
-        'no_buildings_tooltip'         => 'At the moment there is no building being built on this planet. Click here to go to the build page.',
+    'ajax_object' => [
+        // Techtree button
+        'open_techtree'        => 'Open techtree',
+        'techtree'             => 'Techtree',
+        'no_requirements'      => 'No requirements available',
+        // Info panel
+        'number'               => 'Number',
+        'level'                => 'Level',
+        'production_duration'  => 'Production duration:',
+        'energy_needed'        => 'Energy needed:',
+        'production'           => 'Production',
+        'costs_per_piece'      => 'Costs per piece',
+        'required_to_improve'  => 'Required to improve to level',
+        // Resource labels in cost lists
+        'metal'                => 'Metal',
+        'crystal'              => 'Crystal',
+        'deuterium'            => 'Deuterium',
+        'energy'               => 'Energy',
+        // Deconstruction tooltip table
+        'deconstruction_costs' => 'Deconstruction costs',
+        'ion_technology_bonus' => 'Ion technology bonus:',
+        'duration'             => 'Duration:',
+        // Build input / max button
+        'number_label'         => 'Number:',
+        'max_btn'              => '[max. :amount]',
+        // Action buttons
+        'tear_down_btn'        => 'tear down',
+        'build'                => 'Build',
+        'in_queue'             => 'In queue',
+        'improve'              => 'Improve',
+        // Storage / missile silo
+        'storage_capacity'     => 'Storage capacity:',
+        'gain_resources'       => 'Gain resources to immediately refill your storage',
+        'view_offers'          => 'View offers',
+        'destroy_rockets_desc' => 'Destroy Rockets to make more space in your missile silo',
+        'destroy_rockets_btn'  => 'Destroy rockets',
+        // More details button
+        'more_details'         => 'More details',
+        // Upgrade button tooltips
+        'vacation_mode'        => 'You are not able to build while in vacation mode',
+        'wrong_character_class'=> 'Wrong character class!',
+        'shipyard_upgrading'   => 'Shipyard is being upgraded',
+        'shipyard_busy'        => 'The Shipyard is still busy',
+        'not_enough_fields'    => 'Not enough fields!',
+        // JS loca object
+        'error'                => 'Error',
+        'commander_queue_info' => 'You need a Commander to be able to use the building queue. Would you like to learn more about the advantages of a Commander?',
+        'start_with_dm'        => 'Start with DM',
+        'no_rocket_silo_capacity' => 'Not enough capacity. Upgrade missile silo.',
+        'detail_now'           => 'now',
+        // JS errorlist
+        'err_dm_price_too_low' => 'With a price of 0 DM the profit margin is too low for the merchant!',
+        'err_resource_limit'   => 'The merchant can only deliver resources to an amount totalling 10.000.000 to you',
+        'err_storage_capacity' => 'Not enough storage capacity. - Would you like to expand your storage?',
+        'err_no_dark_matter'   => 'Not enough Dark Matter available! Do you want to buy some now?',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chat page (chat/index.blade.php)
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'no_messages_yet'     => 'No messages yet. Start the conversation!',
+        'submit'              => 'Submit',
+        'list_title'          => 'List of your chats',
+        'buddy'               => 'Buddy',
+        'your_alliance'       => 'Your alliance',
+        'alliance_chat'       => 'Alliance Chat',
+        'alliance_group_chat' => 'Alliance group chat',
+        'buddies'             => 'Buddies',
+        'alliance'            => 'Alliance',
+        'strangers'           => 'Strangers',
+        'no_buddies'          => 'No buddies',
+        'no_strangers'        => 'No strangers',
+        'no_conversations'    => 'No conversations yet.',
+        'player_list'         => 'Player list',
+        'online'              => 'online',
+        'offline'             => 'offline',
+        'status_not_visible'  => 'Status not visible',
     ],
 
     // -------------------------------------------------------------------------
@@ -563,6 +614,11 @@ return [
         'not_enough_missiles'          => 'You do not have enough missiles',
         'launched_success'             => 'Missiles launched successfully!',
         'launch_failed'                => 'Failed to launch missiles',
+
+        // Galaxy player actions
+        'alliance_page'                => 'Alliance Page',
+        'apply'                        => 'Apply',
+        'contact_support'              => 'Contact support',
     ],
 
     // -------------------------------------------------------------------------

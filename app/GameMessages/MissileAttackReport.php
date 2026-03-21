@@ -89,11 +89,11 @@ class MissileAttackReport extends GameMessage
         $missilesIntercepted = $params['missiles_intercepted'] ?? 0;
 
         if ($missilesIntercepted > 0) {
-            $body .= __('t_messages.missile_attack_report.intercepted_label') . $missilesIntercepted . '<br><br>';
+            $body .= '<b>' . __('t_messages.missile_attack_report.intercepted_label') . '</b> ' . $missilesIntercepted . '<br><br>';
         }
 
         // Add defense list with bold header
-        $body .= __('t_messages.missile_attack_report.defenses_hit_label');
+        $body .= '<b>' . __('t_messages.missile_attack_report.defenses_hit_label') . '</b><br>';
 
         if (!empty($defensesData)) {
             foreach ($defensesData as $defenseInfo) {
@@ -106,7 +106,7 @@ class MissileAttackReport extends GameMessage
                 $body .= $after . '(-' . $destroyed . ')<br>';
             }
         } else {
-            $body .= __('t_messages.missile_attack_report.none');
+            $body .= __('t_messages.missile_attack_report.none') . '<br>';
         }
 
         return $this->replacePlaceholders($body);

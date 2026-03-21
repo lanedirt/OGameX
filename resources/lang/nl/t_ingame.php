@@ -89,42 +89,93 @@ return [
         'loca_lifeform_cap'      => 'Een of meer gekoppelde bonussen hebben al het maximum bereikt. Wilt u toch doorgaan met de bouw?',
         'last_inquiry_error'     => 'Uw laatste actie kon niet worden verwerkt. Probeer het opnieuw.',
         'planet_move_warning'    => 'Waarschuwing! Deze missie kan nog actief zijn wanneer de verplaatsingsperiode begint. Als dat zo is, wordt het proces geannuleerd. Wilt u toch doorgaan met deze taak?',
-
-        // Bouwwachtrij — inactieve status
-        'idle_no_units'          => 'Geen schepen/verdediging in aanbouw.',
-        'idle_to_shipyard'       => '(Naar scheepswerf)',
-        'idle_tooltip_units'     => 'Er worden momenteel geen schepen of verdedigingen gebouwd op deze planeet. Klik hier om naar de scheepswerf te gaan.',
-        'idle_no_buildings'      => 'Geen gebouwen in aanbouw.',
-        'idle_tooltip_buildings' => 'Er wordt momenteel geen gebouw gebouwd op deze planeet. Klik hier om naar de bouwpagina te gaan.',
-        'idle_no_research'       => 'Er is momenteel geen onderzoek bezig.',
-        'idle_tooltip_research'  => 'Er wordt momenteel geen onderzoek gedaan. Klik hier om naar uw onderzoekslaboratorium te gaan.',
-
-        // Bouwwachtrij — halvering / annulering
-        'halve_tooltip'          => 'Verlaagt de bouwtijd met 50% van de totale bouwtijd.',
-        'halve_time'             => 'Halveer tijd',
-        'costs_dm'               => 'Kosten: :amount DM',
-        'question_halve'         => 'Wilt u de bouwtijd van het huidige bouwproject met 50% van de totale bouwtijd verkorten voor :dm_cost?',
-        'cancel_production'      => 'Productie van :title niveau :level annuleren?',
+        // Controller succesberichten
+        'building_started'       => 'Bouw gestart.',
     ],
 
     // -------------------------------------------------------------------------
-    // Bouwwachtrij gedeelde partial (building-active.blade.php)
+    // Ajax object modal (object.blade.php)
     // -------------------------------------------------------------------------
 
-    'building_queue' => [
-        'construction_started'         => 'Gebouwconstructie gestart.',
-        'cancel_production_confirm'    => 'Productie van :name niveau :level annuleren?',
-        'downgrade_to'                 => 'Degradeer naar',
-        'improve_to'                   => 'Verbeteren naar',
-        'level_label'                  => 'Niveau',
-        'duration_label'               => 'Duur',
-        'halve_time_tooltip'           => 'Vermindert de bouwtijd met 50% van de totale bouwtijd.',
-        'halve_time_btn'               => 'Halveer tijd',
-        'dm_cost'                      => 'Kosten: :amount DO',
-        'dark_matter'                  => 'Donkere Materie',
-        'question_halve'               => 'Wilt u de bouwtijd van het huidige project met 50% van de totale bouwtijd verminderen voor :dm_cost?',
-        'no_buildings_in_construction' => 'Geen gebouwen in aanbouw.',
-        'no_buildings_tooltip'         => 'Er is momenteel geen gebouw in aanbouw op deze planeet. Klik hier om naar de bouwpagina te gaan.',
+    'ajax_object' => [
+        // Techtree knop
+        'open_techtree'        => 'Technologieboom openen',
+        'techtree'             => 'Technologieboom',
+        'no_requirements'      => 'Geen vereisten beschikbaar',
+        // Info paneel
+        'number'               => 'Aantal',
+        'level'                => 'Niveau',
+        'production_duration'  => 'Productieduur:',
+        'energy_needed'        => 'Benodigde energie:',
+        'production'           => 'Productie',
+        'costs_per_piece'      => 'Kosten per stuk',
+        'required_to_improve'  => 'Vereist om te verbeteren naar niveau',
+        // Resourcelabels in kostenlijsten
+        'metal'                => 'Metaal',
+        'crystal'              => 'Kristal',
+        'deuterium'            => 'Deuterium',
+        'energy'               => 'Energie',
+        // Deconstructie tooltip tabel
+        'deconstruction_costs' => 'Deconstructiekosten',
+        'ion_technology_bonus' => 'Bonus iontechnologie:',
+        'duration'             => 'Duur:',
+        // Bouwinvoer / max knop
+        'number_label'         => 'Aantal:',
+        'max_btn'              => '[max. :amount]',
+        // Actieknoppen
+        'tear_down_btn'        => 'slopen',
+        'build'                => 'Bouwen',
+        'in_queue'             => 'In wachtrij',
+        'improve'              => 'Verbeteren',
+        // Opslag / raketsilos
+        'storage_capacity'     => 'Opslagcapaciteit:',
+        'gain_resources'       => 'Haal grondstoffen op om je opslag direct bij te vullen',
+        'view_offers'          => 'Aanbiedingen bekijken',
+        'destroy_rockets_desc' => 'Vernietig raketten om ruimte te maken in je raketsilos',
+        'destroy_rockets_btn'  => 'Raketten vernietigen',
+        // Meer details knop
+        'more_details'         => 'Meer details',
+        // Verbeter knop tooltips
+        'vacation_mode'        => 'Je kunt niet bouwen terwijl je in vakantiestand bent',
+        'wrong_character_class'=> 'Verkeerde karakterklasse!',
+        'shipyard_upgrading'   => 'Scheepswerf wordt opgewaardeerd',
+        'shipyard_busy'        => 'De scheepswerf is nog bezet',
+        'not_enough_fields'    => 'Niet genoeg velden!',
+        // JS loca object
+        'error'                => 'Fout',
+        'commander_queue_info' => 'Je hebt een Commandant nodig om de bouwwachtrij te gebruiken. Wil je meer weten over de voordelen van een Commandant?',
+        'start_with_dm'        => 'Starten met DM',
+        'no_rocket_silo_capacity' => 'Onvoldoende capaciteit. Upgrade raketsilos.',
+        'detail_now'           => 'nu',
+        // JS errorlist
+        'err_dm_price_too_low' => 'Met een prijs van 0 DM is de winstmarge te laag voor de handelaar!',
+        'err_resource_limit'   => 'De handelaar kan je maximaal 10.000.000 grondstoffen leveren',
+        'err_storage_capacity' => 'Onvoldoende opslagcapaciteit. - Wil je je opslag uitbreiden?',
+        'err_no_dark_matter'   => 'Onvoldoende Donkere Materie beschikbaar! Wil je nu wat kopen?',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chatpagina (chat/index.blade.php)
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'no_messages_yet'     => 'Nog geen berichten. Start het gesprek!',
+        'submit'              => 'Versturen',
+        'list_title'          => 'Lijst van je chats',
+        'buddy'               => 'Vriend',
+        'your_alliance'       => 'Jouw alliantie',
+        'alliance_chat'       => 'Alliantieschat',
+        'alliance_group_chat' => 'Alliantie groepschat',
+        'buddies'             => 'Vrienden',
+        'alliance'            => 'Alliantie',
+        'strangers'           => 'Onbekenden',
+        'no_buddies'          => 'Geen vrienden',
+        'no_strangers'        => 'Geen onbekenden',
+        'no_conversations'    => 'Nog geen gesprekken.',
+        'player_list'         => 'Spelerslijst',
+        'online'              => 'online',
+        'offline'             => 'offline',
+        'status_not_visible'  => 'Status niet zichtbaar',
     ],
 
     // -------------------------------------------------------------------------
@@ -563,6 +614,11 @@ return [
         'not_enough_missiles'          => 'U heeft niet genoeg raketten',
         'launched_success'             => 'Raketten succesvol gelanceerd!',
         'launch_failed'                => 'Lancering van raketten mislukt',
+
+        // Speler acties in melkwegstelsel
+        'alliance_page'                => 'Alliantiepagina',
+        'apply'                        => 'Aanmelden',
+        'contact_support'              => 'Neem contact op met support',
     ],
 
     // -------------------------------------------------------------------------

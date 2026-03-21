@@ -47,7 +47,7 @@
                         @endforeach
                         @if($chatMessages->isEmpty())
                             <li class="chat_msg">
-                                <span class="msg_content">No messages yet. Start the conversation!</span>
+                                <span class="msg_content">{{ __('t_ingame.chat.no_messages_yet') }}</span>
                             </li>
                         @endif
                     </ul>
@@ -55,7 +55,7 @@
                 <div class="replyText" data-msgid="0"></div>
                 <div class="editor_wrap">
                     <div><textarea name="text" class="new_msg_textarea"></textarea></div>
-                    <a href="#" class="btn_blue fright send_new_msg">Submit</a>
+                    <a href="#" class="btn_blue fright send_new_msg">{{ __('t_ingame.chat.submit') }}</a>
                 </div>
             </div>
             <div class="footer">
@@ -195,7 +195,7 @@
                     <span class="tooltip playerstatus online" data-tooltip-title="{{ __('t_ingame.chat.status_online') }}"></span>
                 </span>
                 <span id="chatpartner">
-                    <span id="otherPlayerName" style="color: orange">{{ $alliance->alliance_tag }} - Alliance Chat</span>
+                    <span id="otherPlayerName" style="color: orange">{{ $alliance->alliance_tag }} - {{ __('t_ingame.chat.alliance_chat') }}</span>
                 </span>
             </div>
             <div class="content clearfix">
@@ -215,7 +215,7 @@
                         @endforeach
                         @if($chatAllianceMessages->isEmpty())
                             <li class="chat_msg">
-                                <span class="msg_content">No messages yet. Start the conversation!</span>
+                                <span class="msg_content">{{ __('t_ingame.chat.no_messages_yet') }}</span>
                             </li>
                         @endif
                     </ul>
@@ -223,7 +223,7 @@
                 <div class="replyText" data-msgid="0"></div>
                 <div class="editor_wrap">
                     <div><textarea name="text" class="new_msg_textarea"></textarea></div>
-                    <a href="#" class="btn_blue fright send_new_msg">Submit</a>
+                    <a href="#" class="btn_blue fright send_new_msg">{{ __('t_ingame.chat.submit') }}</a>
                 </div>
             </div>
             <div class="footer">
@@ -351,7 +351,7 @@
             <h2 class="header">
                 <span class="c-right"></span>
                 <span class="c-left"></span>
-                List of your chats
+                {{ __('t_ingame.chat.list_title') }}
             </h2>
             <div class="content clearfix">
                 <div id="chatMsgListContainer">
@@ -412,7 +412,7 @@
                         @if(empty($conversations) && !$alliance)
                             <li class="msg last">
                                 <div class="msg_head">
-                                    <span class="msg_title">No conversations yet.</span>
+                                    <span class="msg_title">{{ __('t_ingame.chat.no_conversations') }}</span>
                                 </div>
                             </li>
                         @endif
@@ -431,19 +431,19 @@
             <h2 class="header">
                 <span class="c-right"></span>
                 <span class="c-left"></span>
-                Player list
+                {{ __('t_ingame.chat.player_list') }}
             </h2>
             <div class="content">
                 <div class="playerlist_box js_accordion ui-accordion ui-widget ui-helper-reset" style="overflow: hidden;" role="tablist">
                     <h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab" tabindex="0">
-                        <span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>Buddies
+                        <span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>{{ __('t_ingame.chat.buddies') }}
                     </h3>
                     <div class="ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content ui-accordion-content-active" role="tabpanel" style="padding: 0px; overflow: hidden;">
                         <div class="playerlist_top_box"></div>
                         <div class="scrollContainer">
                             <ul class="playerlist">
                                 @if($buddyUsers->isEmpty())
-                                    <li class="no_buddies">No buddies</li>
+                                    <li class="no_buddies">{{ __('t_ingame.chat.no_buddies') }}</li>
                                 @else
                                     @foreach($buddyUsers as $buddy)
                                         <li class="playerlist_item @if($loop->iteration % 2 === 0) odd @endif @if($chatPartner && $chatPartner->id === $buddy->id) active @endif" data-playerid="{{ $buddy->id }}" data-filterchatactive="off" data-filteronline="off">
@@ -468,13 +468,13 @@
                 @if($alliance)
                     <div class="playerlist_box js_accordion ui-accordion ui-widget ui-helper-reset" style="overflow: hidden;" role="tablist">
                         <h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab" tabindex="0">
-                            <span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>Alliance
+                            <span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>{{ __('t_ingame.chat.alliance') }}
                         </h3>
                         <div class="ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content ui-accordion-content-active" role="tabpanel" style="padding: 0px; overflow: hidden;">
                             <div class="playerlist_top_box">
                                 <a href="{{ route('chat.index', ['allianceId' => $alliance->id]) }}" class="playerlist openAssociationChat" data-associationid="{{ $alliance->id }}" style="text-decoration: none; color: inherit; display: block;">
                                     <span title="" class="playerstatus tooltip blank"></span>
-                                    <span style="color: orange">Alliance Chat</span>
+                                    <span style="color: orange">{{ __('t_ingame.chat.alliance_chat') }}</span>
                                     <span class="new_msg_count noMessage" data-new-messages="0" data-associationid="{{ $alliance->id }}">
                                         0
                                     </span>
@@ -504,14 +504,14 @@
 
                 <div class="playerlist_box js_accordion ui-accordion ui-widget ui-helper-reset" style="overflow: hidden;" role="tablist">
                     <h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab" tabindex="0">
-                        <span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>Strangers
+                        <span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>{{ __('t_ingame.chat.strangers') }}
                     </h3>
                     <div class="ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content ui-accordion-content-active" role="tabpanel" style="padding: 0px; overflow: hidden;">
                         <div class="playerlist_top_box"></div>
                         <div class="scrollContainer">
                             <ul class="playerlist">
                                 @if($strangers->isEmpty())
-                                    <li class="no_buddies">No strangers</li>
+                                    <li class="no_buddies">{{ __('t_ingame.chat.no_strangers') }}</li>
                                 @else
                                     @foreach($strangers as $stranger)
                                         <li class="playerlist_item @if($loop->iteration % 2 === 0) odd @endif @if($chatPartner && $chatPartner->id === $stranger->id) active @endif" data-playerid="{{ $stranger->id }}" data-filterchatactive="on" data-filteronline="off">

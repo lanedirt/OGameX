@@ -36,7 +36,7 @@
                 </span>
             @else
                 <span class="level" data-value="{{ $next_level }}">
-                    {{ __('t_ingame.shared.level') }} {!! $current_level !!}
+                    {{ __('t_ingame.ajax_object.level') }} {!! $current_level !!}
                 </span>
             @endif
             <ul class="narrow">
@@ -212,7 +212,7 @@
 
             @if ($max_build_amount && ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Defense))
                 <div class="build_amount">
-                    <label for="build_amount">{{ __('t_ingame.ajax_object.number') }}:</label>
+                    <label for="build_amount">{{ __('t_ingame.ajax_object.number_label') }}</label>
                     <input type="text" name="build_amount" id="build_amount" min="0" max="{{ $max_build_amount }}" onfocus="clearInput(this);" onkeyup="checkIntInput(this, 1, {{ $max_build_amount }});event.stopPropagation();">
                     <button class="maximum">{{ __('t_ingame.ajax_object.max_btn', ['amount' => $max_build_amount]) }}</button>
                 </div>
@@ -361,7 +361,7 @@
 
     $(".build-it_disabled:not(.isWorking)")
         .click(function () {
-            errorBoxDecision('{{ __('t_ingame.ajax_object.error') }}', '{{ __('t_ingame.ajax_object.commander_queue_info') }}', '{{ __('t_ingame.shared.yes') }}', '{{ __('t_ingame.shared.no') }}', function () {
+            errorBoxDecision(@json(__('t_ingame.ajax_object.error')), @json(__('t_ingame.ajax_object.commander_queue_info')), @json(__('t_ingame.shared.yes')), @json(__('t_ingame.shared.no')), function () {
                 window.location.href = '{{ route('premium.index', ['openDetail' => 2]) }}'
             });
         });
@@ -370,18 +370,18 @@
     loca = $.extend({},
         loca,
         {
-            'allError': '{{ __('t_ingame.ajax_object.error') }}',
-            'infoBuildlist': '{{ __('t_ingame.ajax_object.commander_queue_info') }}',
-            'allYes': '{{ __('t_ingame.shared.yes') }}',
-            'allNo': '{{ __('t_ingame.shared.no') }}',
-            'allOk': '{{ __('t_ingame.shared.ok') }}',
-            'noRocketsiloCapacity': '{{ __('t_ingame.ajax_object.no_rocket_silo_capacity') }}',
-            'allDetailNow': '{{ __('t_ingame.ajax_object.detail_now') }}'
+            'allError': @json(__('t_ingame.ajax_object.error')),
+            'infoBuildlist': @json(__('t_ingame.ajax_object.commander_queue_info')),
+            'allYes': @json(__('t_ingame.shared.yes')),
+            'allNo': @json(__('t_ingame.shared.no')),
+            'allOk': 'Ok',
+            'noRocketsiloCapacity': @json(__('t_ingame.ajax_object.no_rocket_silo_capacity')),
+            'allDetailNow': @json(__('t_ingame.ajax_object.detail_now'))
         }
     );
 
     var buttonClass = "build-it";
-    var overlayTitle = '{{ __('t_ingame.ajax_object.start_with_dm') }}';
+    var overlayTitle = @json(__('t_ingame.ajax_object.start_with_dm'));
     var showSlotWarning = 1;
     var buttonState = 1;
     var techID = 1;
@@ -396,12 +396,12 @@
     var showErrorOnPremiumbutton = 0;
 
     var errorlist = {
-        '2000': '{{ __('t_ingame.ajax_object.err_dm_price_too_low') }}',
-        '100': '{{ __('t_ingame.ajax_object.err_resource_limit') }}',
-        '10': '{{ __('t_ingame.ajax_object.err_storage_capacity') }}',
-        '20': '{{ __('t_ingame.ajax_object.err_storage_capacity') }}',
-        '30': '{{ __('t_ingame.ajax_object.err_storage_capacity') }}',
-        '1000': '{{ __('t_ingame.ajax_object.err_no_dark_matter') }}'
+        '2000': @json(__('t_ingame.ajax_object.err_dm_price_too_low')),
+        '100': @json(__('t_ingame.ajax_object.err_resource_limit')),
+        '10': @json(__('t_ingame.ajax_object.err_storage_capacity')),
+        '20': @json(__('t_ingame.ajax_object.err_storage_capacity')),
+        '30': @json(__('t_ingame.ajax_object.err_storage_capacity')),
+        '1000': @json(__('t_ingame.ajax_object.err_no_dark_matter'))
     };
 
     var isBuildlistNeeded = 0;

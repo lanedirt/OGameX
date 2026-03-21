@@ -89,42 +89,93 @@ return [
         'loca_lifeform_cap'      => 'Uno o più bonus associati hanno già raggiunto il massimo. Vuoi continuare la costruzione comunque?',
         'last_inquiry_error'     => "Impossibile elaborare l'ultima azione. Per favore riprova.",
         'planet_move_warning'    => 'Attenzione! Questa missione potrebbe essere ancora in corso quando inizia il periodo di ricollocazione e, in tal caso, il processo verrà annullato. Vuoi davvero continuare con questo lavoro?',
-
-        // Coda di costruzione — stato inattivo
-        'idle_no_units'          => 'Nessuna nave/difesa in costruzione.',
-        'idle_to_shipyard'       => '(Al cantiere navale)',
-        'idle_tooltip_units'     => 'Al momento non sono in costruzione navi o difese su questo pianeta. Clicca qui per andare al cantiere navale.',
-        'idle_no_buildings'      => 'Nessun edificio in costruzione.',
-        'idle_tooltip_buildings' => 'Al momento non è in costruzione nessun edificio su questo pianeta. Clicca qui per andare alla pagina di costruzione.',
-        'idle_no_research'       => 'Non è in corso nessuna ricerca al momento.',
-        'idle_tooltip_research'  => 'Al momento non è in corso nessuna ricerca. Clicca qui per andare al laboratorio di ricerca.',
-
-        // Coda di costruzione — dimezzamento / cancellazione
-        'halve_tooltip'          => 'Riduce il tempo di costruzione del 50% del tempo di costruzione totale.',
-        'halve_time'             => 'Dimezza il tempo',
-        'costs_dm'               => 'Costo: :amount MO',
-        'question_halve'         => 'Vuoi ridurre il tempo di costruzione del progetto attuale del 50% del tempo totale per :dm_cost?',
-        'cancel_production'      => 'Annulla la produzione di :title livello :level?',
+        // Messaggi di successo controller
+        'building_started'       => 'Costruzione avviata.',
     ],
 
     // -------------------------------------------------------------------------
-    // Coda costruzione (building-active.blade.php)
+    // Modal oggetto Ajax (object.blade.php)
     // -------------------------------------------------------------------------
 
-    'building_queue' => [
-        'construction_started'         => 'Costruzione edificio avviata.',
-        'cancel_production_confirm'    => 'Annullare la produzione di :name livello :level?',
-        'downgrade_to'                 => 'Degrada a',
-        'improve_to'                   => 'Migliora a',
-        'level_label'                  => 'Livello',
-        'duration_label'               => 'Durata',
-        'halve_time_tooltip'           => 'Riduce il tempo di costruzione del 50% del tempo totale di costruzione.',
-        'halve_time_btn'               => 'Dimezza il tempo',
-        'dm_cost'                      => 'Costo: :amount MO',
-        'dark_matter'                  => 'Materia Oscura',
-        'question_halve'               => 'Vuoi ridurre il tempo di costruzione del progetto attuale del 50% del tempo totale di costruzione per :dm_cost?',
-        'no_buildings_in_construction' => 'Nessun edificio in costruzione.',
-        'no_buildings_tooltip'         => 'Al momento non c\'è nessun edificio in costruzione su questo pianeta. Clicca qui per andare alla pagina di costruzione.',
+    'ajax_object' => [
+        // Pulsante techtree
+        'open_techtree'        => 'Apri albero tecnologico',
+        'techtree'             => 'Albero tecnologico',
+        'no_requirements'      => 'Nessun requisito disponibile',
+        // Pannello info
+        'number'               => 'Numero',
+        'level'                => 'Livello',
+        'production_duration'  => 'Durata della produzione:',
+        'energy_needed'        => 'Energia necessaria:',
+        'production'           => 'Produzione',
+        'costs_per_piece'      => 'Costo per unità',
+        'required_to_improve'  => 'Necessario per migliorare al livello',
+        // Etichette risorse nelle liste costi
+        'metal'                => 'Metallo',
+        'crystal'              => 'Cristallo',
+        'deuterium'            => 'Deuterio',
+        'energy'               => 'Energia',
+        // Tabella tooltip decostruzione
+        'deconstruction_costs' => 'Costi di decostruzione',
+        'ion_technology_bonus' => 'Bonus tecnologia ionica:',
+        'duration'             => 'Durata:',
+        // Input costruzione / pulsante max
+        'number_label'         => 'Numero:',
+        'max_btn'              => '[max. :amount]',
+        // Pulsanti azione
+        'tear_down_btn'        => 'demoli',
+        'build'                => 'Costruisci',
+        'in_queue'             => 'In coda',
+        'improve'              => 'Migliora',
+        // Magazzino / silos missili
+        'storage_capacity'     => 'Capacità di stoccaggio:',
+        'gain_resources'       => 'Ottieni risorse per ricaricare immediatamente il tuo magazzino',
+        'view_offers'          => 'Vedi offerte',
+        'destroy_rockets_desc' => 'Distruggi i razzi per fare spazio nel silos missilistico',
+        'destroy_rockets_btn'  => 'Distruggi razzi',
+        // Pulsante maggiori dettagli
+        'more_details'         => 'Maggiori dettagli',
+        // Tooltip pulsante migliora
+        'vacation_mode'        => 'Non puoi costruire in modalità vacanza',
+        'wrong_character_class'=> 'Classe personaggio errata!',
+        'shipyard_upgrading'   => 'Il cantiere navale è in fase di potenziamento',
+        'shipyard_busy'        => 'Il cantiere navale è ancora occupato',
+        'not_enough_fields'    => 'Campi insufficienti!',
+        // Oggetto JS loca
+        'error'                => 'Errore',
+        'commander_queue_info' => 'Hai bisogno di un Comandante per usare la coda costruzioni. Vuoi saperne di più sui vantaggi del Comandante?',
+        'start_with_dm'        => 'Avvia con MO',
+        'no_rocket_silo_capacity' => 'Capacità insufficiente. Potenzia il silos missilistico.',
+        'detail_now'           => 'ora',
+        // JS errorlist
+        'err_dm_price_too_low' => 'Con un prezzo di 0 MO il margine di profitto è troppo basso per il mercante!',
+        'err_resource_limit'   => 'Il mercante può consegnarti risorse per un totale massimo di 10.000.000',
+        'err_storage_capacity' => 'Capacità di stoccaggio insufficiente. - Vuoi espandere il tuo magazzino?',
+        'err_no_dark_matter'   => 'Materia Oscura insufficiente! Vuoi acquistarne altra ora?',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Pagina Chat (chat/index.blade.php)
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'no_messages_yet'     => 'Nessun messaggio ancora. Inizia la conversazione!',
+        'submit'              => 'Invia',
+        'list_title'          => 'Elenco delle tue chat',
+        'buddy'               => 'Amico',
+        'your_alliance'       => 'La tua alleanza',
+        'alliance_chat'       => 'Chat alleanza',
+        'alliance_group_chat' => 'Chat di gruppo alleanza',
+        'buddies'             => 'Amici',
+        'alliance'            => 'Alleanza',
+        'strangers'           => 'Sconosciuti',
+        'no_buddies'          => 'Nessun amico',
+        'no_strangers'        => 'Nessuno sconosciuto',
+        'no_conversations'    => 'Nessuna conversazione.',
+        'player_list'         => 'Lista giocatori',
+        'online'              => 'online',
+        'offline'             => 'offline',
+        'status_not_visible'  => 'Stato non visibile',
     ],
 
     // -------------------------------------------------------------------------
@@ -563,6 +614,11 @@ return [
         'not_enough_missiles'          => 'Non hai abbastanza missili',
         'launched_success'             => 'Missili lanciati con successo!',
         'launch_failed'                => 'Lancio dei missili fallito',
+
+        // Azioni giocatore in galassia
+        'alliance_page'                => 'Pagina Alleanza',
+        'apply'                        => 'Candidati',
+        'contact_support'              => 'Contatta il supporto',
     ],
 
     // -------------------------------------------------------------------------

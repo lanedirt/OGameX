@@ -2,38 +2,10 @@
 
 return [
     // ------------------------
-    'welcome_message' => [
-        'from' => 'OGameX',
-        'subject' => 'Benvenuto in OGameX!',
-        'body' => 'Saluti Imperatore :player!
-
-Congratulazioni per aver iniziato la tua illustre carriera. Sarò qui per guidarti nei tuoi primi passi.
-
-A sinistra puoi vedere il menu che ti permette di supervisionare e governare il tuo impero galattico.
-
-Hai già visto la Panoramica. Risorse e Strutture ti permettono di costruire edifici per aiutarti ad espandere il tuo impero. Inizia costruendo una Centrale Solare per raccogliere energia per le tue miniere.
-
-Poi espandi la Miniera di Metallo e la Miniera di Cristallo per produrre risorse vitali. Altrimenti, dai semplicemente uno sguardo in giro da solo. Presto ti sentirai a casa, ne sono sicuro.
-
-Puoi trovare ulteriori aiuti, consigli e tattiche qui:
-
-Chat Discord: Discord Server
-Forum: OGameX Forum
-Supporto: Supporto Gioco
-
-Troverai solo annunci attuali e modifiche al gioco nei forum.
-
-
-Ora sei pronto per il futuro. Buona fortuna!
-
-Questo messaggio verrà eliminato tra 7 giorni.',
-    ],
-
-    // ------------------------
     'return_of_fleet_with_resources' => [
         'from' => 'Comando Flotta',
         'subject' => 'Ritorno di una flotta',
-        'body' => 'La tua flotta sta tornando da :from a :to e ha consegnato le sue merci:
+        'body' => 'La tua flotta sta tornando da :from a :to e ha consegnato il suo carico:
 
 Metallo: :metal
 Cristallo: :crystal
@@ -53,7 +25,7 @@ La flotta non consegna merci.',
     'fleet_deployment_with_resources' => [
         'from' => 'Comando Flotta',
         'subject' => 'Ritorno di una flotta',
-        'body' => 'Una delle tue flotte da :from ha raggiunto :to e ha consegnato le sue merci:
+        'body' => 'Una delle tue flotte da :from ha raggiunto :to e ha consegnato il suo carico:
 
 Metallo: :metal
 Cristallo: :crystal
@@ -71,7 +43,7 @@ Deuterio: :deuterium',
     'transport_arrived' => [
         'from' => 'Comando Flotta',
         'subject' => 'Raggiungimento di un pianeta',
-        'body' => 'La tua flotta da :from raggiunge :to e consegna le sue merci:
+        'body' => 'La tua flotta da :from raggiunge :to e consegna il suo carico:
 Metallo: :metal Cristallo: :crystal Deuterio: :deuterium',
     ],
 
@@ -79,7 +51,7 @@ Metallo: :metal Cristallo: :crystal Deuterio: :deuterium',
     'transport_received' => [
         'from' => 'Comando Flotta',
         'subject' => 'Flotta in arrivo',
-        'body' => 'Una flotta in arrivo da :from ha raggiunto il tuo pianeta :to e ha consegnato le sue merci:
+        'body' => 'Una flotta in arrivo da :from ha raggiunto il tuo pianeta :to e ha consegnato il suo carico:
 Metallo: :metal Cristallo: :crystal Deuterio: :deuterium',
     ],
 
@@ -100,15 +72,15 @@ Metallo: :metal Cristallo: :crystal Deuterio: :deuterium',
     // ------------------------
     'colony_established' => [
         'from' => 'Comando Flotta',
-        'subject' => 'Rapporto di Insediamento',
-        'body' => 'La flotta è arrivata alle coordinate assegnate :coordinates, ha trovato un nuovo pianeta e sta iniziando a svilupparlo immediatamente.',
+        'subject' => 'Rapporto insediamento',
+        'body' => 'La flotta è arrivata alle coordinate assegnate :coordinates, ha trovato un nuovo pianeta e ha iniziato subito a svilupparlo.',
     ],
 
     // ------------------------
     'colony_establish_fail_astrophysics' => [
         'from' => 'Coloni',
-        'subject' => 'Rapporto di Insediamento',
-        'body' => 'La flotta è arrivata alle coordinate assegnate :coordinates e accerta che il pianeta è adatto alla colonizzazione. Poco dopo aver iniziato a sviluppare il pianeta, i coloni si rendono conto che le loro conoscenze di astrofisica non sono sufficienti per completare la colonizzazione di un nuovo pianeta.',
+        'subject' => 'Rapporto insediamento',
+        'body' => 'La flotta è arrivata alle coordinate assegnate :coordinates e ha accertato che il pianeta è adatto alla colonizzazione. Poco dopo aver iniziato a sviluppare il pianeta, i coloni si rendono conto che le loro conoscenze di astrofisica non sono sufficienti per completare la colonizzazione di un nuovo pianeta.',
     ],
 
     // ------------------------
@@ -134,42 +106,18 @@ Metallo: :metal Cristallo: :crystal Deuterio: :deuterium',
     'fleet_lost_contact' => [
         'from' => 'Comando Flotta',
         'subject' => 'Il contatto con la flotta attaccante è stato perso. :coordinates',
-        'body' => '(Ciò significa che è stata distrutta al primo round.)',
+        'body' => '(Significa che è stata distrutta al primo round.)',
     ],
 
     // ------------------------
     'debris_field_harvest' => [
         'from' => 'Flotta',
-        'subject' => 'Rapporto di raccolta dal campo di detriti a :coordinates',
-        'body' => 'La tua :ship_name (:ship_amount navi) ha una capacità di stivaggio totale di :storage_capacity. Al bersaglio :to, :metal Metallo, :crystal Cristallo e :deuterium Deuterio flottano nello spazio. Hai raccolto :harvested_metal Metallo, :harvested_crystal Cristallo e :harvested_deuterium Deuterio.',
+        'subject' => 'Rapporto raccolta dal CR di :coordinates',
+        'body' => 'I tuoi :ship_name (:ship_amount navi) hanno una capacità totale di stoccaggio di :storage_capacity. Al bersaglio :to, :metal Metallo, :crystal Cristallo e :deuterium Deuterio fluttuano nello spazio. Hai raccolto :harvested_metal Metallo, :harvested_crystal Cristallo e :harvested_deuterium Deuterio.',
     ],
 
     // ------------------------
-    // Buddy Request Received
-    'buddy_request_received' => [
-        'from' => 'Amici',
-        'subject' => 'Richiesta di amicizia',
-        'body' => 'Hai ricevuto una nuova richiesta di amicizia da :sender_name.<span style="display:none;">:buddy_request_id</span>',
-    ],
-
-    // ------------------------
-    // Buddy Request Accepted
-    'buddy_request_accepted' => [
-        'from' => 'Amici',
-        'subject' => 'Richiesta di amicizia accettata',
-        'body' => 'Il giocatore :accepter_name ti ha aggiunto alla sua lista amici.',
-    ],
-
-    // ------------------------
-    // Buddy Removed
-    'buddy_removed' => [
-        'from' => 'Amici',
-        'subject' => 'Sei stato eliminato da una lista amici',
-        'body' => 'Il giocatore :remover_name ti ha rimosso dalla sua lista amici.',
-    ],
-
-    // ------------------------
-    // Missile Attack Report (Attacker)
+    // Missile Attack Report (Attaccante)
     'missile_attack_report' => [
         'from' => 'Comando Flotta',
         'subject' => 'Attacco missilistico su :target_coords',
@@ -180,18 +128,18 @@ Missili intercettati: :missiles_intercepted
 Missili colpiti: :missiles_hit
 
 Difese distrutte: :defenses_destroyed',
-        // Sub-keys used by MissileAttackReport::getBody() override
+        // Sub-keys usate da MissileAttackReport::getBody()
         'missile_singular'   => 'missile',
         'missile_plural'     => 'missili',
         'from_your_planet'   => ' dal tuo pianeta ',
-        'smashed_into'       => ' si sono schiantati sul pianeta ',
-        'intercepted_label'  => '<b>Missili Intercettati:</b> ',
-        'defenses_hit_label' => '<b>Difese Colpite</b><br>',
-        'none'               => 'Nessuna<br>',
+        'smashed_into'       => ' si è/si sono schiantato/i sul pianeta ',
+        'intercepted_label'  => 'Missili Intercettati:',
+        'defenses_hit_label' => 'Difese Colpite',
+        'none'               => 'Nessuna',
     ],
 
     // ------------------------
-    // Missile Defense Report (Defender)
+    // Missile Defense Report (Difensore)
     'missile_defense_report' => [
         'from' => 'Comando Difesa',
         'subject' => 'Attacco missilistico su :planet_coords',
@@ -202,12 +150,12 @@ Missili intercettati: :missiles_intercepted
 Missili colpiti: :missiles_hit
 
 Difese distrutte: :defenses_destroyed',
-        // Sub-keys used by MissileDefenseReport::getBody() override
+        // Sub-keys usate da MissileDefenseReport::getBody()
         'your_planet'        => 'Il tuo pianeta ',
-        'attacked_by_prefix' => ' è stato attaccato da missili interplanetari di <b>',
-        'incoming_label'     => '<b>Missili in Arrivo:</b> ',
-        'intercepted_label'  => '<b>Missili Intercettati:</b> ',
-        'defenses_hit_label' => '<b>Difese Colpite</b><br>',
-        'none'               => 'Nessuna<br>',
+        'attacked_by_prefix' => ' è stato attaccato da missili interplanetari di ',
+        'incoming_label'     => 'Missili in Arrivo:',
+        'intercepted_label'  => 'Missili Intercettati:',
+        'defenses_hit_label' => 'Difese Colpite',
+        'none'               => 'Nessuna',
     ],
 ];

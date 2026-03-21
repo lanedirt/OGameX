@@ -62,18 +62,18 @@ class MissileDefenseReport extends GameMessage
             $body .= $planetName . ' [coordinates]' . $planetCoords . '[/coordinates]';
         }
 
-        $body .= __('t_messages.missile_defense_report.attacked_by_prefix') . $attackerName . '</b>!';
+        $body .= __('t_messages.missile_defense_report.attacked_by_prefix') . '<b>' . $attackerName . '</b>!';
         $body .= '<br><br>';
 
         // Missile statistics
-        $body .= __('t_messages.missile_defense_report.incoming_label') . $missilesIncoming . '<br>';
+        $body .= '<b>' . __('t_messages.missile_defense_report.incoming_label') . '</b> ' . $missilesIncoming . '<br>';
         if ($missilesIntercepted > 0) {
-            $body .= __('t_messages.missile_defense_report.intercepted_label') . $missilesIntercepted . '<br>';
+            $body .= '<b>' . __('t_messages.missile_defense_report.intercepted_label') . '</b> ' . $missilesIntercepted . '<br>';
         }
         $body .= '<br>';
 
         // Add defense list with bold header
-        $body .= __('t_messages.missile_defense_report.defenses_hit_label');
+        $body .= '<b>' . __('t_messages.missile_defense_report.defenses_hit_label') . '</b><br>';
 
         if (!empty($defensesData)) {
             foreach ($defensesData as $defenseInfo) {
@@ -86,7 +86,7 @@ class MissileDefenseReport extends GameMessage
                 $body .= $after . '(-' . $destroyed . ')<br>';
             }
         } else {
-            $body .= __('t_messages.missile_defense_report.none');
+            $body .= __('t_messages.missile_defense_report.none') . '<br>';
         }
 
         return $this->replacePlaceholders($body);

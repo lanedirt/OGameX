@@ -450,7 +450,7 @@ class GalaxyController extends OGameController
             'phalanxInactiveReason' => $phalanx_inactive_reason,
             'canSendProbes' => $canEspionage,
             'canWrite' => false,
-            'discoveryUnlocked' => __('t_ingame.galaxy.discovery_locked') . "\n",
+            'discoveryUnlocked' => __('t_galaxy.discovery.locked'),
             'missileAttackLink' => $missileAttackLink,
         ];
     }
@@ -519,7 +519,7 @@ class GalaxyController extends OGameController
                         ? route('alliance.index', ['alliance_id' => $alliance->id])
                         : null,
                     'applicationTitle' => (!$this->playerService->getUser()->alliance_id && $alliance->is_open)
-                        ? __('t_ingame.galaxy.alliance_apply')
+                        ? __('t_ingame.galaxy.apply')
                         : null,
                 ];
             }
@@ -560,7 +560,7 @@ class GalaxyController extends OGameController
                 'message' => [
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'disabledChatBar' => false,
-                    'title' => __('t_ingame.galaxy.write_message'),
+                    'title' => __('t_ingame.highscore.write_message'),
                     'link' => 'javascript:void(0);',
                     'playerId' => $player->getId(),
                 ],
@@ -611,7 +611,7 @@ class GalaxyController extends OGameController
                 'moveAction' => 'prepareMove',
                 'moveLink' => route('planetMove.move'),
                 'galaxyLink' => route('galaxy.index', ['galaxy' => $galaxy, 'system' => $system]),
-                'title' => __('t_ingame.planet_move.relocate')
+                'title' => __('t_ingame.galaxy.relocate_title')
             ],
             [
                 'missionType' => 7,
