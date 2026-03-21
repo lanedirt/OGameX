@@ -397,9 +397,14 @@ class BattleReport extends GameMessage
             }
         }
 
+        // Determine if the message recipient is the attacker or the defender.
+        // This is used to show only the relevant wreckage section to each player.
+        $viewerIsAttacker = (int)$this->message->user_id === (int)$this->battleReportModel->attacker['player_id'];
+
         return [
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
+            'viewer_is_attacker' => $viewerIsAttacker,
             'report_datetime' => $this->getDateFormatted(),
             'attacker_name' => $attacker_name,
             'attacker_planet_name' => $attacker_planet_name,

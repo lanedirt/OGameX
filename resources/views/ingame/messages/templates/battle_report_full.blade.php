@@ -425,7 +425,7 @@
         </ul>
 @endif
 
-@if ($wreckage_count > 0)
+@if ($wreckage_count > 0 && !$viewer_is_attacker)
         <div class="section_title">
             <div class="c-left"></div>
             <div class="c-right"></div>
@@ -444,7 +444,7 @@
         </ul>
 @endif
 
-@if ($attacker_wreckage_count > 0)
+@if ($attacker_wreckage_count > 0 && $viewer_is_attacker)
         <div class="section_title">
             <div class="c-left"></div>
             <div class="c-right"></div>
