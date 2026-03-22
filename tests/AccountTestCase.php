@@ -76,6 +76,7 @@ abstract class AccountTestCase extends TestCase
         // Set default server settings for all tests.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
+        $settingsService->set('research_speed', 1);
 
         // Set amount of planets to be created for the user because planet switching
         // is a part of the test suite.
@@ -594,9 +595,28 @@ abstract class AccountTestCase extends TestCase
             if (!$responseContent) {
                 $responseContent = '';
             }
-            $condition1 = str_contains($responseContent, 'Cancel production of ' . $object->title . ' level '. $level);
-            $condition2 = str_contains($responseContent, 'do you really want to cancel ' . $object->title);
-            $this->assertTrue($condition1 || $condition2, 'Neither of the expected texts were found in the response.');
+            // Condition 1: translated building cancel string (building-active.blade.php uses __()).
+            $condition1 = str_contains(
+                $responseContent,
+                __('Cancel production of :object_title level :level_target?', [
+                    'object_title' => $object->title,
+                    'level_target' => $level,
+                ])
+            );
+            // Condition 2: hardcoded English building/research cancel string (building-queue.blade.php
+            // and research-queue.blade.php still use hardcoded strings without __()).
+            $condition2 = str_contains($responseContent, 'Cancel production of ' . $object->title . ' level ' . $level);
+            // Condition 3: translated research cancel string (research-active.blade.php uses __() with
+            // dynamic planet name/coords). We check for the stable prefix by passing empty planet params
+            // and trimming the trailing empty bracket placeholder.
+            $researchCancelWithEmptyPlanet = __('Research: do you really want to cancel :object_title level :level_target on planet :planet_name [:planet_coordinates]?', [
+                'object_title' => $object->title,
+                'level_target' => $level,
+                'planet_name' => '',
+                'planet_coordinates' => '',
+            ]);
+            $condition3 = str_contains($responseContent, rtrim($researchCancelWithEmptyPlanet, ' []?'));
+            $this->assertTrue($condition1 || $condition2 || $condition3, 'Neither of the expected texts were found in the response.');
         } catch (Exception $e) {
             if (!empty($error_message)) {
                 $this->fail($error_message . '. Error: ' . $e->getMessage());
@@ -617,7 +637,20 @@ abstract class AccountTestCase extends TestCase
 
         // Check if cancel text is present on page.
         try {
+            // Check for hardcoded English strings (queue views still use hardcoded strings).
             $response->assertDontSee(['Cancel production of ' . $object->title, 'cancel ' . $object->title]);
+            // Also check for the translated building cancel prefix (active view uses __()).
+            // Use a sentinel placeholder to extract the localized prefix before the level number.
+            $translatedWithSentinel = __('Cancel production of :object_title level :level_target?', [
+                'object_title' => $object->title,
+                'level_target' => '__SENTINEL__',
+            ]);
+            $translatedPrefix = explode('__SENTINEL__', $translatedWithSentinel)[0];
+            if ($translatedPrefix !== 'Cancel production of ' . $object->title . ' level ') {
+                // Only assert the translated prefix when it differs from the English hardcoded form
+                // (i.e., when a non-English translation is active), to avoid redundant checks.
+                $this->assertStringNotContainsString($translatedPrefix, $response->getContent() ?? '');
+            }
         } catch (Exception $e) {
             if (!empty($error_message)) {
                 $this->fail($error_message . '. Error: ' . $e->getMessage());

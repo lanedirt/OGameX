@@ -788,7 +788,7 @@
                 </div>
 
                 <div id="planet" class="planet-header ">
-                    <h2>Fleet Dispatch I - {{ $planet->getPlanetName() }}</h2>
+                    <h2>{{ __('t_ingame.fleet.dispatch_1_title') }} - {{ $planet->getPlanetName() }}</h2>
                     <a class="toggleHeader" data-name="fleet1">
                         <img alt="" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22">
                     </a>
@@ -935,12 +935,12 @@
                                 <div class="allornonewrap">
                                     <div class="secondcol fleft">
                                 <span class="send_all">
-                                    <a id="sendall" class="tooltip js_hideTipOnMobile" title="Select all ships">
+                                    <a id="sendall" class="tooltip js_hideTipOnMobile" title="{{ __('t_ingame.fleet.select_all_ships') }}">
                                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                     </a>
                                 </span>
                                         <span class="send_none">
-                                    <a id="resetall" class="tooltip js_hideTipOnMobile" title="Reset choice">
+                                    <a id="resetall" class="tooltip js_hideTipOnMobile" title="{{ __('t_ingame.fleet.reset_choice') }}">
                                         <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif">
                                     </a>
                                 </span>
@@ -1247,7 +1247,7 @@
                                         <ul id="fleetBriefingPart1" class="fleetBriefing">
                                             <li id="fightAfterRetreat" style="display: none;">
                                                 <span class="tooltip advice"
-                                                      title="If this option is activated, your fleet will also withdraw without a fight if your opponent flees.">Return upon retreat by defenders:</span>
+                                                      title="{{ __('t_ingame.fleet.retreat_tooltip') }}">{{ __('t_ingame.fleet.retreat_on_defender') }}:</span>
                                                 <span class="value" style="vertical-align: middle;">
                             <square-checkbox id="fleetRetreatSquareCheckbox">
                                 <input type="checkbox" value="None" id="square-checkboxRetreatAfterDefenderRetreat"

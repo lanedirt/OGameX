@@ -727,7 +727,8 @@ return [
         'battle_defender'    => 'Defender',
         'battle_resources'   => 'Resources',
         'battle_loot'        => 'Loot',
-        'battle_debris_new'  => 'Debris field (newly created)',
+        'battle_debris_new'       => 'Debris field (newly created)',
+        'battle_wreckage_created' => 'Wreckage created',
         'battle_repaired'    => 'Actually repaired',
         'battle_moon_chance' => 'Moon Chance',
 

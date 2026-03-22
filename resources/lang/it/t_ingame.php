@@ -727,7 +727,8 @@ return [
         'battle_defender'    => 'Difensore',
         'battle_resources'   => 'Risorse',
         'battle_loot'        => 'Bottino',
-        'battle_debris_new'  => 'Campo di detriti (appena creato)',
+        'battle_debris_new'       => 'Campo di detriti (appena creato)',
+        'battle_wreckage_created' => 'Relitti creati',
         'battle_repaired'    => 'Difese riparate',
         'battle_moon_chance' => 'Probabilità di luna',
 
