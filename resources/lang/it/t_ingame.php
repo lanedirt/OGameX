@@ -756,7 +756,6 @@ return [
         'battle_civil_ships'     => 'Navi civili',
         'battle_defences'        => 'Difese',
         'battle_repaired_def'     => 'Difese riparate',
-        'battle_wreckage_created'  => 'Relitti creati',
         'battle_attacker_wreckage' => 'Relitti attaccante (Generale)',
         'battle_share'             => 'condividi messaggio',
         'battle_attack'          => 'Attacca',
