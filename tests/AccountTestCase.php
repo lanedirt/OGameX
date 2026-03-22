@@ -649,7 +649,7 @@ abstract class AccountTestCase extends TestCase
             if ($translatedPrefix !== 'Cancel production of ' . $object->title . ' level ') {
                 // Only assert the translated prefix when it differs from the English hardcoded form
                 // (i.e., when a non-English translation is active), to avoid redundant checks.
-                $this->assertStringNotContainsString($translatedPrefix, $response->getContent() ?? '');
+                $this->assertStringNotContainsString($translatedPrefix, $response->getContent() ?: '');
             }
         } catch (Exception $e) {
             if (!empty($error_message)) {
