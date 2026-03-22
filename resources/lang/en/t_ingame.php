@@ -432,6 +432,11 @@ return [
         'time_of_arrival'          => 'Time of arrival',
         'deep_space'               => 'Deep space',
 
+        // Phalanx fleet direction labels
+        'phalanx_your_fleet'       => 'Your fleet',
+        'phalanx_enemy_fleet'      => 'Enemy fleet',
+        'phalanx_friendly_fleet'   => 'Friendly fleet',
+        
         // Target / player status indicators
         'uninhabited_planet'       => 'Uninhabited planet',
         'no_debris_field'          => 'No debris field',

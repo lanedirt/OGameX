@@ -432,6 +432,11 @@ return [
         'time_of_arrival'          => 'Ora di arrivo',
         'deep_space'               => 'Spazio profondo',
 
+         // Etichette direzione flotta (phalanx)
+        'phalanx_your_fleet'       => 'La tua flotta',
+        'phalanx_enemy_fleet'      => 'Flotta nemica',
+        'phalanx_friendly_fleet'   => 'Flotta amica',
+
         // Indicatori stato bersaglio / giocatore
         'uninhabited_planet'       => 'Pianeta disabitato',
         'no_debris_field'          => 'Nessun campo di detriti',

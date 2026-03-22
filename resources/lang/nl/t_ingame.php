@@ -432,6 +432,11 @@ return [
         'time_of_arrival'          => 'Aankomsttijd',
         'deep_space'               => 'Diep heelal',
 
+        // Phalanx vlootrichting labels
+        'phalanx_your_fleet'       => 'Jouw vloot',
+        'phalanx_enemy_fleet'      => 'Vijandelijke vloot',
+        'phalanx_friendly_fleet'   => 'Vriendschappelijke vloot',
+
         // Doel / spelerstatus indicatoren
         'uninhabited_planet'       => 'Onbewoonde planeet',
         'no_debris_field'          => 'Geen puinveld',
