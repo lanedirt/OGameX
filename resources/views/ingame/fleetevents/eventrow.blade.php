@@ -1,11 +1,4 @@
-@php
-/** @var \OGame\ViewModels\FleetEventRowViewModel $fleet_event_row */
-$fleet_type_label = match($fleet_event_row->friendly_status) {
-    'hostile' => __('t_ingame.fleet.enemy_fleet'),
-    'neutral' => __('t_ingame.fleet.neutral_fleet'),
-    default   => __('t_ingame.fleet.own_fleet'),
-};
-@endphp
+@php /** @var \OGame\ViewModels\FleetEventRowViewModel $fleet_event_row */ @endphp
 
 @if ($fleet_event_row->is_return_trip)
     <tr class="eventFleet" id="eventRow-{{ $fleet_event_row->id }}"
@@ -21,7 +14,7 @@ $fleet_type_label = match($fleet_event_row->friendly_status) {
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="{{ $fleet_type_label }} | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
+                 title="{{ $fleet_event_row->friendly_status === 'hostile' ? __('t_ingame.fleet.enemy_fleet') : ($fleet_event_row->friendly_status === 'neutral' ? __('t_ingame.fleet.neutral_fleet') : __('t_ingame.fleet.own_fleet')) }} | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -143,7 +136,7 @@ $fleet_type_label = match($fleet_event_row->friendly_status) {
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="{{ $fleet_type_label }} | {{ $fleet_event_row->mission_label }}" alt=""/>
+                 title="{{ $fleet_event_row->friendly_status === 'hostile' ? __('t_ingame.fleet.enemy_fleet') : ($fleet_event_row->friendly_status === 'neutral' ? __('t_ingame.fleet.neutral_fleet') : __('t_ingame.fleet.own_fleet')) }} | {{ $fleet_event_row->mission_label }}" alt=""/>
         </td>
 
         <td class="originFleet">
