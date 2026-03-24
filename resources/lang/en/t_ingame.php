@@ -25,7 +25,6 @@ return [
         'switch_to_planet'     => 'Switch to planet',
         'abandon_rename'       => 'Abandon/Rename',
         'abandon_rename_title' => 'Abandon/Rename Planet',
-        'abandon_rename_modal' => 'Abandon/Rename :planet_name',
     ],
 
     // -------------------------------------------------------------------------
@@ -50,15 +49,10 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution'        => 'Caution',
-        'yes'            => 'yes',
-        'no'             => 'No',
-        'error'          => 'Error',
-        'ok'             => 'OK',
-        'error_occurred' => 'An error occurred.',
-        'level'          => 'Level',
-        'duration'       => 'Duration',
-        'dark_matter'    => 'Dark Matter',
+        'caution' => 'Caution',
+        'yes'     => 'yes',
+        'no'      => 'No',
+        'error'   => 'Error',
     ],
 
     // -------------------------------------------------------------------------
@@ -89,101 +83,6 @@ return [
         'loca_lifeform_cap'      => 'One or more associated bonuses is already maxed out. Do you want to continue construction anyway?',
         'last_inquiry_error'     => 'Your last action could not be processed. Please try again.',
         'planet_move_warning'    => 'Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be canceled. Do you really want to continue with this job?',
-        // Controller success messages
-        'building_started'       => 'Building construction started.',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Ajax object modal (object.blade.php)
-    // -------------------------------------------------------------------------
-
-    'ajax_object' => [
-        // Techtree button
-        'open_techtree'        => 'Open techtree',
-        'techtree'             => 'Techtree',
-        'no_requirements'      => 'No requirements available',
-        // Info panel
-        'number'               => 'Number',
-        'level'                => 'Level',
-        'production_duration'  => 'Production duration:',
-        'energy_needed'        => 'Energy needed:',
-        'production'           => 'Production',
-        'costs_per_piece'      => 'Costs per piece',
-        'required_to_improve'  => 'Required to improve to level',
-        // Resource labels in cost lists
-        'metal'                => 'Metal',
-        'crystal'              => 'Crystal',
-        'deuterium'            => 'Deuterium',
-        'energy'               => 'Energy',
-        // Deconstruction tooltip table
-        'deconstruction_costs' => 'Deconstruction costs',
-        'ion_technology_bonus' => 'Ion technology bonus:',
-        'duration'             => 'Duration:',
-        // Build input / max button
-        'number_label'         => 'Number:',
-        'max_btn'              => '[max. :amount]',
-        'cancel_expansion_confirm' => 'Cancel expansion of :name to level :level?',
-        // Action buttons
-        'tear_down_btn'        => 'tear down',
-        'build'                => 'Build',
-        'in_queue'             => 'In queue',
-        'improve'              => 'Improve',
-        // Storage / missile silo
-        'storage_capacity'     => 'Storage capacity:',
-        'gain_resources'       => 'Gain resources to immediately refill your storage',
-        'view_offers'          => 'View offers',
-        'destroy_rockets_desc' => 'Destroy Rockets to make more space in your missile silo',
-        'destroy_rockets_btn'  => 'Destroy rockets',
-        // More details button
-        'more_details'         => 'More details',
-        // Upgrade button tooltips
-        'vacation_mode'        => 'You are not able to build while in vacation mode',
-        'wrong_character_class'=> 'Wrong character class!',
-        'shipyard_upgrading'   => 'Shipyard is being upgraded',
-        'shipyard_busy'        => 'The Shipyard is still busy',
-        'not_enough_fields'    => 'Not enough fields!',
-        // JS loca object
-        'error'                => 'Error',
-        'commander_queue_info' => 'You need a Commander to be able to use the building queue. Would you like to learn more about the advantages of a Commander?',
-        'start_with_dm'        => 'Start with DM',
-        'no_rocket_silo_capacity' => 'Not enough capacity. Upgrade missile silo.',
-        'detail_now'           => 'now',
-        // JS errorlist
-        'err_dm_price_too_low' => 'With a price of 0 DM the profit margin is too low for the merchant!',
-        'err_resource_limit'   => 'The merchant can only deliver resources to an amount totalling 10.000.000 to you',
-        'err_storage_capacity' => 'Not enough storage capacity. - Would you like to expand your storage?',
-        'err_no_dark_matter'   => 'Not enough Dark Matter available! Do you want to buy some now?',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Chat page (chat/index.blade.php)
-    // -------------------------------------------------------------------------
-
-    'chat' => [
-        'no_messages_yet'     => 'No messages yet. Start the conversation!',
-        'submit'              => 'Submit',
-        'list_title'          => 'List of your chats',
-        'buddy'               => 'Buddy',
-        'your_alliance'       => 'Your alliance',
-        'alliance_chat'       => 'Alliance Chat',
-        'alliance_group_chat' => 'Alliance group chat',
-        'buddies'             => 'Buddies',
-        'alliance'            => 'Alliance',
-        'strangers'           => 'Strangers',
-        'no_buddies'          => 'No buddies',
-        'no_strangers'        => 'No strangers',
-        'no_conversations'    => 'No conversations yet.',
-        'player_list'         => 'Player list',
-        'online'              => 'online',
-        'offline'             => 'offline',
-        'status_not_visible'  => 'Status not visible',
-        'buddy_tooltip'       => 'Buddy',
-        'alliance_tooltip'    => 'Your alliance',
-        'status_online'       => 'Online',
-        'status_offline'      => 'Offline',
-        'highscore_ranking'   => 'Highscore ranking',
-        'alliance_label'      => 'Alliance',
-        'planet_alt'          => 'Planet',
     ],
 
     // -------------------------------------------------------------------------
@@ -214,14 +113,10 @@ return [
     // -------------------------------------------------------------------------
 
     'research_page' => [
-        'basic'          => 'Basic research',
-        'drive'          => 'Drive research',
-        'advanced'       => 'Advanced researches',
-        'combat'         => 'Combat research',
-
-        // Build queue — active halving
-        'halve_tooltip'  => 'Reduces research time by 50% of the total research time.',
-        'question_halve' => 'Do you want to reduce the research time of the current research project by 50% of the total research time for :dm_cost?',
+        'basic'    => 'Basic research',
+        'drive'    => 'Drive research',
+        'advanced' => 'Advanced researches',
+        'combat'   => 'Combat research',
     ],
 
     // -------------------------------------------------------------------------
@@ -229,11 +124,62 @@ return [
     // -------------------------------------------------------------------------
 
     'shipyard_page' => [
-        'battleships' => 'Battleships',
-        'civil_ships' => 'Civil ships',
-        'no_units_idle_tooltip' => 'At the moment there are no ships or defense built on this planet. Click here to get to the shipyard.',
-        'no_units_idle' => 'No ships/defense in construction.',
-        'to_shipyard' => '(To shipyard)',
+        'battleships'         => 'Battleships',
+        'civil_ships'         => 'Civil ships',
+        'no_units_idle'       => 'Idle',
+        'no_units_idle_tooltip' => 'No ships/defenses are currently being built.',
+        'to_shipyard'         => 'To shipyard',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Ajax object modal (buildings, ships, defense, research)
+    // -------------------------------------------------------------------------
+
+    'ajax_object' => [
+        'open_techtree'            => 'Open tech tree',
+        'techtree'                 => 'Tech tree',
+        'no_requirements'          => 'No requirements',
+        'cancel_expansion_confirm' => 'Cancel the upgrade of :name to level :level?',
+        'number'                   => 'Number:',
+        'level'                    => 'Level',
+        'production_duration'      => 'Production time',
+        'energy_needed'            => 'Energy needed',
+        'production'               => 'Production',
+        'costs_per_piece'          => 'Costs per piece',
+        'required_to_improve'      => 'Resources required for level',
+        'metal'                    => 'Metal',
+        'crystal'                  => 'Crystal',
+        'deuterium'                => 'Deuterium',
+        'energy'                   => 'Energy',
+        'deconstruction_costs'     => 'Deconstruction costs',
+        'ion_technology_bonus'     => 'Ion Technology bonus',
+        'duration'                 => 'Duration',
+        'number_label'             => 'Number:',
+        'max_btn'                  => 'Max (:amount)',
+        'vacation_mode'            => 'Not available in vacation mode',
+        'tear_down_btn'            => 'Tear down',
+        'wrong_character_class'    => 'Wrong character class',
+        'shipyard_upgrading'       => 'Shipyard is being upgraded',
+        'shipyard_busy'            => 'Shipyard is busy',
+        'not_enough_fields'        => 'Not enough building fields',
+        'build'                    => 'Build',
+        'in_queue'                 => 'In queue',
+        'improve'                  => 'Improve',
+        'storage_capacity'         => 'Storage capacity',
+        'gain_resources'           => 'Gain resources',
+        'view_offers'              => 'View offers',
+        'destroy_rockets_desc'     => 'Destroy rockets',
+        'destroy_rockets_btn'      => 'Destroy rockets',
+        'more_details'             => 'More details',
+        'error'                    => 'An error occurred',
+        'commander_queue_info'     => 'You need a Commander to be able to use the building queue.',
+        'no_rocket_silo_capacity'  => 'Rocket silo is at maximum capacity',
+        'detail_now'               => 'Details',
+        'start_with_dm'            => 'Start with Dark Matter',
+        'err_dm_price_too_low'     => 'The Dark Matter price is too low',
+        'err_resource_limit'       => 'Not enough resources',
+        'err_storage_capacity'     => 'Storage capacity exceeded',
+        'err_no_dark_matter'       => 'Not enough Dark Matter',
     ],
 
     // -------------------------------------------------------------------------
@@ -345,12 +291,8 @@ return [
         'reset_choice'             => 'Reset choice',
         'api_data'                 => 'This data can be entered into a compatible combat simulator:',
         'tactical_retreat'         => 'Tactical retreat',
-        'tactical_retreat_tooltip'         => 'Show Deuterium usage per tactical retreat',
-        'tactical_retreat_label'           => 'Tactical retreat:',
-        'tactical_retreat_full_tooltip'    => 'Tactical retreat|Fleets are able to automatically retreat if they are attacked by a superior force five times stronger than themselves. The crucial factor in this are the attacker`s fleet points in comparison to your fleet points. Defense facilities are not considered.<br /><br />Civil ships only count 25%, solar satellites and espionage probes are not considered. <br /><br />Select the option *never* if you would like to deactivate the automatic retreat.<br /><br />Held fleets are in principle not able to retreat. Death Stars, Espionage Probes and Solar Satellites are also unable to retreat.<br /><br />Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.<br /><br />The `tactical retreat` option ends with 500,000 points.',
-        'tactical_retreat_admiral_tooltip' => 'Tactical retreat|Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.',
-        'add_new_template'                 => 'Add new template',
-        'continue'                         => 'Continue',
+        'tactical_retreat_tooltip' => 'Show Deuterium usage per tactical retreat',
+        'continue'                 => 'Continue',
         'back'                     => 'Back',
 
         // Step 2 – destination
@@ -395,6 +337,29 @@ return [
         'desc_destroy_moon'        => 'Destroys the moon of your enemy.',
         'desc_expedition'          => 'Send your ships to the furthest reaches of space to complete exciting quests.',
 
+        // ACS Attack – federation overlay
+        'fleet_union'              => 'Fleet union',
+        'union_created'            => 'Fleet union created successfully.',
+        'union_edited'             => 'Fleet union successfully edited.',
+        'err_union_max_fleets'     => 'A maximum of 16 fleets can attack.',
+        'err_union_max_players'    => 'A maximum of 5 players can attack.',
+        'err_union_too_slow'        => 'You are too slow to join this fleet.',
+        'err_union_target_mismatch' => 'Your fleet must target the same location as the fleet union.',
+        'union_name'               => 'Union name',
+        'buddy_list'               => 'Buddy list',
+        'buddy_list_loading'       => 'Loading...',
+        'buddy_list_empty'         => 'No buddies available',
+        'buddy_list_error'         => 'Failed to load buddies',
+        'search_user'              => 'Search user',
+        'search'                   => 'Search',
+        'union_user'               => 'Union user',
+        'invite'                   => 'Invite',
+        'kick'                     => 'Kick',
+        'ok'                       => 'Ok',
+        'own_fleet'                => 'Own fleet',
+        'enemy_fleet'              => 'Enemy fleet',
+        'neutral_fleet'            => 'Neutral fleet',
+
         // Briefing section (no trailing colons — add : in template where needed)
         'briefing'                 => 'Briefing',
         'load_resources'           => 'Load resources',
@@ -432,11 +397,6 @@ return [
         'time_of_arrival'          => 'Time of arrival',
         'deep_space'               => 'Deep space',
 
-        // Phalanx fleet direction labels
-        'phalanx_your_fleet'       => 'Your fleet',
-        'phalanx_enemy_fleet'      => 'Enemy fleet',
-        'phalanx_friendly_fleet'   => 'Friendly fleet',
-        
         // Target / player status indicators
         'uninhabited_planet'       => 'Uninhabited planet',
         'no_debris_field'          => 'No debris field',
@@ -471,17 +431,6 @@ return [
         'err_no_cargo'             => 'Error, not enough cargo capacity',
         'err_multi_alarm'          => 'Multi-alarm',
         'err_attack_ban'           => 'Attack ban',
-
-        // Dispatch I — slot counter tooltips / labels
-        'general_slot_bonus'       => '+ 2 Fleet slots because of General',
-        'admiral_slot_bonus'       => '+ 2 Fleet slots because of Admiral',
-
-        // Tactical retreat — full HTML tooltip (pipe-separated title|body)
-        'tactical_retreat_body'    => 'Tactical retreat|Fleets are able to automatically retreat if they are attacked by a superior force five times stronger than themselves. The crucial factor in this are the attacker`s fleet points in comparison to your fleet points. Defense facilities are not considered.<br /><br />Civil ships only count 25%, solar satellites and espionage probes are not considered. <br /><br />Select the option *never* if you would like to deactivate the automatic retreat.<br /><br />Held fleets are in principle not able to retreat. Death Stars, Espionage Probes and Solar Satellites are also unable to retreat.<br /><br />Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.<br /><br />The `tactical retreat` option ends with 500,000 points.',
-        'tactical_retreat_admiral' => 'Tactical retreat|Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.',
-
-        // Outlaw / bash warnings (locadyn JS object)
-        'bash_warning'             => 'In this universe, 0 attacks are permitted within a 24-hour period. This attack would probably exceed this limit. Do you really wish to launch it?',
     ],
 
     // -------------------------------------------------------------------------
@@ -587,12 +536,6 @@ return [
         'discovery_title'              => 'Exploration Ship',
         'discovery_question'           => 'Do you want to dispatch an exploration ship to this planet?<br/>Metal: 5000 Crystal: 1000 Deuterium: 500',
 
-        // Player action popup labels (galaxy row click)
-        'alliance_page'                => 'Alliance Page',
-        'alliance_apply'               => 'Apply',
-        'contact_support'              => 'Contact support',
-        'write_message'                => 'Write message',
-
         // Phalanx result dialog (JS strings inside Blade-rendered script block)
         'sensor_report'                => 'sensor report',
         'refresh'                      => 'Refresh',
@@ -611,7 +554,6 @@ return [
         'not_enough_missiles'          => 'You do not have enough missiles',
         'launched_success'             => 'Missiles launched successfully!',
         'launch_failed'                => 'Failed to launch missiles',
-
     ],
 
     // -------------------------------------------------------------------------
@@ -732,7 +674,7 @@ return [
         'battle_defender'    => 'Defender',
         'battle_resources'   => 'Resources',
         'battle_loot'        => 'Loot',
-        'battle_debris_new'       => 'Debris field (newly created)',
+        'battle_debris_new'  => 'Debris field (newly created)',
         'battle_repaired'    => 'Actually repaired',
         'battle_moon_chance' => 'Moon Chance',
 
@@ -759,10 +701,8 @@ return [
         'battle_combat_ships'    => 'Combat ships',
         'battle_civil_ships'     => 'Civil ships',
         'battle_defences'        => 'Defences',
-        'battle_repaired_def'     => 'Repaired defences',
-        'battle_wreckage_created'  => 'Wreckage created',
-        'battle_attacker_wreckage' => 'Attacker wreckage (General)',
-        'battle_share'             => 'share message',
+        'battle_repaired_def'    => 'Repaired defences',
+        'battle_share'           => 'share message',
         'battle_attack'          => 'Attack',
         'battle_espionage'       => 'Espionage',
         'battle_delete'          => 'delete',
@@ -1022,10 +962,6 @@ return [
         'msg_kick_error'                => 'Failed to kick member',
         'msg_invalid_action'            => 'Invalid action',
         'msg_error'                     => 'An error occurred',
-
-        // Default rank names (fallback when DB value is null)
-        'rank_founder_default'          => 'Founder',
-        'rank_newcomer_default'         => 'Newcomer',
     ],
 
     // -------------------------------------------------------------------
@@ -1262,8 +1198,6 @@ return [
         'loading'                   => 'load...',
         'no_fleet_movement'         => 'No fleet movement',
         'under_attack'              => 'You are under attack!',
-        'no_ships_in_wreck'         => 'No ships in wreck field',
-        'no_wreck_available'        => 'No wreck field available',
 
         // Character class
         'class_none'                => 'No class selected',
@@ -1519,25 +1453,7 @@ return [
     // -------------------------------------------------------------------------
 
     'notes' => [
-        'no_notes_found'       => 'No notes found',
-        'add_note'             => 'Add note',
-        'new_note'             => 'New Note',
-        'edit_note'            => 'Edit note',
-        'subject_label'        => 'Subject',
-        'your_subject'         => 'Your subject:',
-        'subject_placeholder'  => 'Your subject',
-        'date_label'           => 'Date',
-        'priority_label'       => 'Priority:',
-        'priority_important'   => 'Important',
-        'priority_normal'      => 'Normal',
-        'priority_unimportant' => 'Unimportant',
-        'your_message'         => 'Your message:',
-        'save_btn'             => 'Save',
-        'select_action'        => 'Select action',
-        'delete_marked'        => 'Delete marked notes',
-        'delete_all'           => 'Delete all notes',
-        'unsaved_warning'      => 'The message has not been saved. All changes will be lost if you leave the page.',
-        'save_question'        => 'Should the changes be saved?',
+        'no_notes_found'          => 'No notes found',
     ],
 
     // -------------------------------------------------------------------------
@@ -1609,263 +1525,5 @@ return [
         'msg_yes'                       => 'Yes',
         'msg_no'                        => 'No',
         'msg_ok'                        => 'Ok',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Build queue (shared: buildings, research, shipyard)
-    // -------------------------------------------------------------------------
-
-    'buildqueue' => [
-        'improve_to'               => 'Improve to',
-        'downgrade_to'             => 'Downgrade to',
-        'halve_time'               => 'Halve time',
-        'halve_cost'               => 'Costs: :amount DM',
-        'halve_tooltip_building'   => 'Reduces construction time by 50% of the total construction time.',
-        'halve_tooltip_research'   => 'Reduces research time by 50% of the total research time.',
-        'complete'                 => 'Complete',
-        'complete_tooltip'         => 'Instantly completes the current shipyard production.',
-        'building_duration'        => 'Building duration',
-        'total_time'               => 'Total time',
-        'question_halve_building'  => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time for :dm_cost?',
-        'question_halve_research'  => 'Do you want to reduce the research time of the current research project by 50% of the total research time for :dm_cost?',
-        'question_complete_unit'   => 'Do you want to immediately complete the construction order for :dm_cost?',
-        'question_halve_unit'      => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time (:time_reduction) for :dm_cost?',
-        'no_building_idle_tooltip' => 'At the moment there is no building being built on this planet. Click here to go to the build page.',
-        'no_building_idle'         => 'No buildings in construction.',
-        'no_research_idle_tooltip' => 'There is no research done at the moment. Click here to get to your research lab.',
-        'no_research_idle'         => 'There is no research in progress at the moment.',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Jump Gate dialog
-    // -------------------------------------------------------------------------
-
-    'jumpgate' => [
-        'select_target'      => 'Select jump target',
-        'origin_coordinates' => 'Origin coordinates',
-        'standard_target'    => 'Standard Jump Gate Target',
-        'target_coordinates' => 'Target coordinates',
-        'not_ready'          => 'Jump Gate is not ready!',
-        'cooldown_time'      => 'Time until next jump',
-        'select_ships'       => 'Select ships',
-        'select_all'         => 'Select all available ships',
-        'reset_selection'    => 'Reset selection',
-        'jump_btn'           => 'Jump',
-        'ok_btn'             => 'OK',
-        'valid_target'       => 'You must select a valid target.',
-        'no_ships'           => 'No ships were selected!',
-        'jump_success'       => 'Jump has been executed successfully.',
-        'jump_error'         => 'An error occurred during the jump.',
-        'error_occurred'     => 'An error occurred.',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Alliance Depot dialog
-    // -------------------------------------------------------------------------
-
-    'alliance_depot' => [
-        'description'         => 'The alliance depot supplies fuel to friendly fleets in orbit helping with defence. For each upgrade level of the alliance depot, a special demand of deuterium per hour can be sent to an orbiting fleet.',
-        'no_fleets'           => 'There are no holding fleets!',
-        'capacity'            => 'Capacity',
-        'fleet_owner'         => 'Fleet owner',
-        'ships'               => 'Ships',
-        'hold_time'           => 'Hold time',
-        'extend'              => 'Extend',
-        'supply_cost'         => 'Supply costs Deuterium / h',
-        'start_supply'        => 'Start supply rockets',
-        'please_select_fleet' => 'Please select a fleet.',
-        'hours_between'       => 'Extension hours must be between 1 and 32.',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Server settings overlay (user-facing panel)
-    // -------------------------------------------------------------------------
-
-    'serversettings_overlay' => [
-        'acs_enabled'          => 'Alliance Combat System enabled',
-        'dm_bonus'             => 'Dark Matter bonus:',
-        'debris_defense'       => 'Defensive structures in debris fields:',
-        'debris_ships'         => 'Destroyed ships in debris fields:',
-        'debris_deuterium'     => 'Deuterium in debris fields',
-        'fleet_deut_reduction' => 'Fleet Deuterium consumption reduction:',
-        'fleet_speed_war'      => 'War fleet speed:',
-        'fleet_speed_holding'  => 'Holding fleet speed:',
-        'fleet_speed_peace'    => 'Peaceful fleet speed:',
-        'ignore_empty'         => 'Empty systems are ignored',
-        'ignore_inactive'      => 'Inactive systems are ignored',
-        'num_galaxies'         => 'Number of galaxies:',
-        'planet_field_bonus'   => 'Planet field bonus:',
-        'dev_speed'            => 'Development speed:',
-        'research_speed'       => 'Research speed:',
-        'dm_regen_enabled'     => 'Dark Matter regeneration enabled',
-        'dm_regen_amount'      => 'Dark Matter regeneration amount:',
-        'dm_regen_period'      => 'Dark Matter regeneration period:',
-        'days'                 => 'days',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Admin panel (server settings + developer shortcuts)
-    // -------------------------------------------------------------------------
-
-    'admin' => [
-        // Page title / save button
-        'title'                         => 'Server settings',
-        'save'                          => 'Save settings',
-
-        // Section headers – server settings
-        'section_basic'                 => 'Basic settings.',
-        'section_changes_note'          => 'You can change the server settings below. Changes will be applied immediately.',
-        'section_income_note'           => 'Note: basic income values below are multiplied by economy speed.',
-        'section_new_player'            => 'New player settings.',
-        'section_dm_regen'              => 'Dark Matter regeneration settings.',
-        'section_relocation'            => 'Planet relocation settings.',
-        'section_alliance'              => 'Alliance settings.',
-        'section_battle'                => 'Battle settings.',
-        'section_expedition'            => 'Expedition settings.',
-        'section_expedition_slots'      => 'Expedition slots and reward multipliers.',
-        'section_expedition_weights'    => 'Expedition outcome weights.',
-        'section_highscore'             => 'Highscore settings.',
-        'section_galaxy'                => 'Galaxy settings.',
-
-        // Basic settings
-        'universe_name'                 => 'Universe name:',
-        'economy_speed'                 => 'Economy speed:',
-        'research_speed'                => 'Research speed:',
-        'fleet_speed_war'               => 'War fleet speed:',
-        'fleet_speed_holding'           => 'Holding fleet speed:',
-        'fleet_speed_peaceful'          => 'Peaceful fleet speed:',
-        'planet_fields_bonus'           => 'Planet fields bonus',
-
-        // Basic income
-        'income_metal'                  => 'Basic metal income per hour:',
-        'income_crystal'                => 'Basic crystal income per hour:',
-        'income_deuterium'              => 'Basic deuterium income per hour:',
-        'income_energy'                 => 'Basic energy income per hour:',
-
-        // New player
-        'registration_planet_amount'    => 'Amount of planets to give to player upon registration',
-        'dm_bonus'                      => 'Dark Matter bonus:',
-
-        // DM regeneration
-        'dm_regen_description'          => 'Enable periodic Dark Matter regeneration for all players. This is disabled by default to match the official game behavior. When enabled, players will receive Dark Matter automatically at the configured interval.',
-        'dm_regen_enabled'              => 'Dark Matter regeneration enabled:',
-        'dm_regen_amount'               => 'Dark Matter regeneration amount:',
-        'dm_regen_period'               => 'Dark Matter regeneration period (seconds):',
-
-        // Planet relocation
-        'relocation_cost'               => 'Planet relocation cost (Dark Matter):',
-        'relocation_duration'           => 'Planet relocation duration (seconds):',
-
-        // Alliance
-        'alliance_cooldown'             => 'Alliance cooldown (days):',
-        'alliance_cooldown_desc'        => 'Days a player must wait after leaving an alliance before joining/creating another',
-
-        // Battle
-        'battle_engine'                 => 'Battle Engine:',
-        'battle_engine_desc'            => 'The Rust battle engine is up to 200x more performant than PHP. Only switch to PHP if Rust cannot be run on your server.',
-        'acs'                           => 'Alliance Combat System:',
-        'debris_ships'                  => 'Destroyed ships in debris fields:',
-        'debris_defense'                => 'Defensive structures in debris fields:',
-        'debris_deuterium'              => 'Deuterium in debris fields:',
-        'wreck_min_resources'           => 'Minimum destruction for wreck fields:',
-        'wreck_min_resources_desc'      => 'Minimum resource value that must be lost for wreck field formation.',
-        'wreck_min_fleet_pct'           => 'Minimum fleet destruction percentage:',
-        'wreck_min_fleet_pct_desc'      => 'Minimum percentage of defender fleet that must be destroyed for wreck field formation.',
-        'wreck_lifetime'                => 'Wreck field lifetime (hours):',
-        'wreck_lifetime_desc'           => 'Hours before a wreck field expires if not repaired.',
-        'wreck_repair_max'              => 'Maximum repair time (hours):',
-        'wreck_repair_max_desc'         => 'Maximum time for ship repairs in the Space Dock.',
-        'wreck_repair_min'              => 'Minimum repair time (minutes):',
-        'wreck_repair_min_desc'         => 'Minimum time before any ships can be repaired in the Space Dock.',
-        'moon_chance'                   => 'Maximum moon chance:',
-        'hamill_probability'            => 'Hamill Manoeuvre Probability (1 in X chance):',
-
-        // Expedition slots & multipliers
-        'expedition_slots_desc'         => 'Bonus expedition slots are added to the base slots from Astrophysics research. Reward multipliers are multiplicative with economy speed and apply to the final reward amounts (1.0 = default, 2.0 = double rewards).',
-        'expedition_bonus_slots'        => 'Bonus expedition slots:',
-        'expedition_multiplier_res'     => 'Resource reward multiplier:',
-        'expedition_multiplier_ships'   => 'Ship reward multiplier:',
-        'expedition_multiplier_dm'      => 'Dark Matter reward multiplier:',
-        'expedition_multiplier_items'   => 'Item reward multiplier:',
-
-        // Expedition outcome weights
-        'expedition_weights_desc'       => 'Outcome weights determine the relative probability of each expedition result. Higher values mean more frequent occurrence. Weights are relative to each other (e.g., weight 20 is twice as likely as weight 10). Set to 0 to disable an outcome.',
-        'expedition_weights_defaults'   => 'Default Percentages:',
-        'expedition_weights_values'     => 'Nothing: 25% | Resources: 35% | Ships: 17% | Delay: 7.5% | Speedup: 2.75% | Dark Matter: 7.5% | Pirates: 3% | Aliens: 1.5% | Items: 0.5% | Merchant: 0.4% | Black Hole: 0.2%',
-        'weight_ships'                  => 'Ships weight:',
-        'weight_resources'              => 'Resources weight:',
-        'weight_delay'                  => 'Delay weight:',
-        'weight_speedup'                => 'Speedup weight:',
-        'weight_nothing'                => 'Nothing/Failed weight:',
-        'weight_black_hole'             => 'Black Hole weight:',
-        'weight_pirates'                => 'Pirates weight:',
-        'weight_aliens'                 => 'Aliens weight:',
-        'weight_dm'                     => 'Dark Matter weight:',
-        'weight_merchant'               => 'Merchant weight:',
-        'weight_items'                  => 'Items weight:',
-
-        // Highscore
-        'highscore_admin_visible'       => 'Show admins in highscore:',
-        'highscore_admin_visible_desc'  => 'When enabled, admin users appear in highscores with orange-highlighted names. When disabled (default), admins are excluded from rankings entirely.',
-
-        // Galaxy
-        'galaxy_ignore_empty'           => 'Empty systems are ignored:',
-        'galaxy_ignore_inactive'        => 'Inactive systems are ignored:',
-        'galaxy_count'                  => 'Number of galaxies:',
-
-        // Developer shortcuts
-        'dev_title'                     => 'Developer shortcuts',
-        'dev_masquerade'                => 'Masquerade as user',
-        'dev_username'                  => 'Username:',
-        'dev_username_placeholder'      => 'Enter username',
-        'dev_masquerade_btn'            => 'Masquerade',
-        'dev_update_planet'             => 'Update current planet:',
-        'dev_set_mines'                 => 'Set all mines to level 30',
-        'dev_set_storages'              => 'Set all storages to level 15',
-        'dev_set_shipyard'              => 'Set all shipyard facilities to level 12',
-        'dev_set_research'              => 'Set all research to level 10',
-        'dev_add_units'                 => 'Add X of unit to current planet:',
-        'dev_units_amount'              => 'Amount of units to add:',
-        'dev_light_fighter'             => 'Light fighter',
-        'dev_set_building'              => 'Set building level on current planet:',
-        'dev_level_to_set'              => 'Level to set:',
-        'dev_set_research_level'        => 'Set research level for current player:',
-        'dev_class_settings'            => 'Character Class Settings',
-        'dev_disable_free_class'        => 'Disable Free Class Changes',
-        'dev_enable_free_class'         => 'Enable Free Class Changes',
-        'dev_reset_class'               => 'Reset Character Class',
-        'dev_goto_class'                => 'Go to Class Selection',
-        'dev_reset_planet'              => 'Reset planet',
-        'dev_reset_buildings'           => 'Set all buildings to level 0',
-        'dev_reset_research'            => 'Set all research to level 0',
-        'dev_reset_units'               => 'Remove all units',
-        'dev_reset_resources'           => 'Set all resources to 0',
-        'dev_add_resources'             => 'Add / subtract resources at coordinates:',
-        'dev_resources_desc'            => 'You can enter positive or negative values to add or subtract to the selected resource. Supports k/m/b suffixes (e.g., 1k, 2m, 3b)',
-        'dev_coordinates'               => 'Coordinates:',
-        'dev_galaxy'                    => 'Galaxy:',
-        'dev_system'                    => 'System:',
-        'dev_position'                  => 'Position:',
-        'dev_resources_label'           => 'Resources to add/subtract:',
-        'dev_update_resources_planet'   => 'Update Resources (planet)',
-        'dev_update_resources_moon'     => 'Update Resources (moon)',
-        'dev_create_planet_moon'        => 'Create planet/moon at coordinates:',
-        'dev_moon_size'                 => 'Moon Size (for Create Moon):',
-        'dev_debris_amount'             => 'Debris Amount:',
-        'dev_x_factor'                  => 'X Factor (10-20):',
-        'dev_create_planet'             => 'Create Planet',
-        'dev_create_moon'               => 'Create Moon',
-        'dev_delete_planet'             => 'Delete Planet',
-        'dev_delete_moon'               => 'Delete Moon',
-        'dev_create_debris'             => 'Create/delete debris field at coordinates:',
-        'dev_debris_resources_label'    => 'Resources to add:',
-        'dev_create_debris_btn'         => 'Create/Append Debris Field',
-        'dev_delete_debris_btn'         => 'Delete Debris Field',
-        'dev_quick_shortcut_desc'       => 'Quick shortcut for testing Discoverer class:',
-        'dev_create_expedition_debris'  => 'Create Expedition Debris (Position 16)',
-        'dev_add_dm'                    => 'Add / subtract dark matter for player at coordinates:',
-        'dev_dm_desc'                   => 'Enter positive value to add or negative value to subtract dark matter. Supports k/m/b suffixes.',
-        'dev_dm_amount'                 => 'Dark Matter amount:',
-        'dev_update_dm'                 => 'Update Dark Matter',
     ],
 ];
