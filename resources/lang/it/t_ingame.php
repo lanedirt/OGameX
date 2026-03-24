@@ -49,10 +49,32 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Attenzione',
-        'yes'     => 'sì',
-        'no'      => 'No',
-        'error'   => 'Errore',
+        'caution'      => 'Attenzione',
+        'yes'          => 'sì',
+        'no'           => 'No',
+        'error'        => 'Errore',
+        'level'        => 'Livello',
+        'duration'     => 'Durata',
+        'dark_matter'  => 'Materia Oscura',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Coda di costruzione (slot edificio / ricerca attivo)
+    // -------------------------------------------------------------------------
+
+    'buildqueue' => [
+        'improve_to'                => 'Migliora a',
+        'downgrade_to'              => 'Abbassa al',
+        'halve_time'                => 'Dimezza il tempo',
+        'halve_cost'                => 'Costo: :amount MD',
+        'halve_tooltip_building'    => 'Riduce il tempo di costruzione del 50% del tempo di costruzione totale.',
+        'halve_tooltip_research'    => 'Riduce il tempo di ricerca del 50% del tempo di ricerca totale.',
+        'question_halve_building'   => 'Vuoi ridurre il tempo di costruzione del progetto attuale del 50% del tempo totale per :dm_cost?',
+        'question_halve_research'   => 'Vuoi ridurre il tempo di ricerca del progetto attuale del 50% del tempo totale per :dm_cost?',
+        'no_building_idle'          => 'Nessun edificio in costruzione.',
+        'no_building_idle_tooltip'  => 'Al momento non sono in costruzione edifici su questo pianeta. Clicca qui per andare alla pagina di costruzione.',
+        'no_research_idle'          => 'Al momento non è in corso nessuna ricerca.',
+        'no_research_idle_tooltip'  => 'Al momento non è in corso nessuna ricerca. Clicca qui per andare al laboratorio di ricerca.',
     ],
 
     // -------------------------------------------------------------------------

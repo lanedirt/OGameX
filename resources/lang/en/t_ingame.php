@@ -49,10 +49,32 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Caution',
-        'yes'     => 'yes',
-        'no'      => 'No',
-        'error'   => 'Error',
+        'caution'      => 'Caution',
+        'yes'          => 'yes',
+        'no'           => 'No',
+        'error'        => 'Error',
+        'level'        => 'Level',
+        'duration'     => 'Duration',
+        'dark_matter'  => 'Dark Matter',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Build queue (active building / research slot)
+    // -------------------------------------------------------------------------
+
+    'buildqueue' => [
+        'improve_to'                => 'Improve to',
+        'downgrade_to'              => 'Downgrade to',
+        'halve_time'                => 'Halve time',
+        'halve_cost'                => 'Costs: :amount DM',
+        'halve_tooltip_building'    => 'Reduces construction time by 50% of the total construction time.',
+        'halve_tooltip_research'    => 'Reduces research time by 50% of the total research time.',
+        'question_halve_building'   => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time for :dm_cost?',
+        'question_halve_research'   => 'Do you want to reduce the research time of the current research project by 50% of the total research time for :dm_cost?',
+        'no_building_idle'          => 'No buildings in construction.',
+        'no_building_idle_tooltip'  => 'At the moment there is no building being built on this planet. Click here to go to the build page.',
+        'no_research_idle'          => 'There is no research in progress at the moment.',
+        'no_research_idle_tooltip'  => 'There is no research done at the moment. Click here to get to your research lab.',
     ],
 
     // -------------------------------------------------------------------------

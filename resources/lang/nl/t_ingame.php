@@ -49,10 +49,32 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Waarschuwing',
-        'yes'     => 'ja',
-        'no'      => 'Nee',
-        'error'   => 'Fout',
+        'caution'      => 'Waarschuwing',
+        'yes'          => 'ja',
+        'no'           => 'Nee',
+        'error'        => 'Fout',
+        'level'        => 'Niveau',
+        'duration'     => 'Duur',
+        'dark_matter'  => 'Donkere materie',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Bouwwachtrij (actief gebouw / onderzoek slot)
+    // -------------------------------------------------------------------------
+
+    'buildqueue' => [
+        'improve_to'                => 'Verbeteren naar',
+        'downgrade_to'              => 'Verlagen naar',
+        'halve_time'                => 'Halveer tijd',
+        'halve_cost'                => 'Kosten: :amount DM',
+        'halve_tooltip_building'    => 'Vermindert de bouwtijd met 50% van de totale bouwtijd.',
+        'halve_tooltip_research'    => 'Vermindert de onderzoekstijd met 50% van de totale onderzoekstijd.',
+        'question_halve_building'   => 'Wil je de bouwtijd van het huidige bouwproject met 50% van de totale bouwtijd verminderen voor :dm_cost?',
+        'question_halve_research'   => 'Wil je de onderzoekstijd van het huidige onderzoeksproject met 50% van de totale onderzoekstijd verminderen voor :dm_cost?',
+        'no_building_idle'          => 'Geen gebouwen in aanbouw.',
+        'no_building_idle_tooltip'  => 'Er wordt op dit moment geen gebouw gebouwd op deze planeet. Klik hier om naar de bouwpagina te gaan.',
+        'no_research_idle'          => 'Er is momenteel geen onderzoek bezig.',
+        'no_research_idle_tooltip'  => 'Er is momenteel geen onderzoek gaande. Klik hier om naar je onderzoekslaboratorium te gaan.',
     ],
 
     // -------------------------------------------------------------------------
