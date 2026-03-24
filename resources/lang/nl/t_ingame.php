@@ -597,7 +597,9 @@ return [
         'battle_defender'    => 'Verdediger',
         'battle_resources'   => 'Grondstoffen',
         'battle_loot'        => 'Buit',
-        'battle_debris_new'  => 'Puin-veld (nieuw aangemaakt)',
+        'battle_debris_new'        => 'Puin-veld (nieuw aangemaakt)',
+        'battle_wreckage_created'  => 'Wrakstukken ontstaan',
+        'battle_attacker_wreckage' => 'Aanvaller wrakstukken',
         'battle_repaired'    => 'Gerepareerd',
         'battle_moon_chance' => 'Maankans',
 
