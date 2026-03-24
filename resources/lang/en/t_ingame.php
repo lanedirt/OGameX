@@ -49,13 +49,15 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution'      => 'Caution',
-        'yes'          => 'yes',
-        'no'           => 'No',
-        'error'        => 'Error',
-        'level'        => 'Level',
-        'duration'     => 'Duration',
-        'dark_matter'  => 'Dark Matter',
+        'caution'         => 'Caution',
+        'yes'             => 'yes',
+        'no'              => 'No',
+        'error'           => 'Error',
+        'ok'              => 'Ok',
+        'error_occurred'  => 'An error occurred.',
+        'level'           => 'Level',
+        'duration'        => 'Duration',
+        'dark_matter'     => 'Dark Matter',
     ],
 
     // -------------------------------------------------------------------------
@@ -1547,5 +1549,49 @@ return [
         'msg_yes'                       => 'Yes',
         'msg_no'                        => 'No',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Alliance Depot dialog
+    // -------------------------------------------------------------------------
+
+    'alliance_depot' => [
+        'description'        => 'The Alliance Depot allows you to send supply rockets to friendly fleets that are holding at your planet, extending their hold time.',
+        'capacity'           => 'Capacity',
+        'no_fleets'          => 'There are no holding fleets!',
+        'fleet_owner'        => 'Fleet owner',
+        'ships'              => 'Ships',
+        'hold_time'          => 'Hold time',
+        'extend'             => 'Extend',
+        'supply_cost'        => 'Supply cost (deuterium)',
+        'start_supply'       => 'Send supply rocket',
+        'please_select_fleet' => 'Please select a fleet.',
+        'hours_between'      => 'Extension hours must be between 1 and 32.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chat
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'list_title'         => 'List of your chats',
+        'player_list'        => 'Player list',
+        'alliance_chat'      => 'Alliance Chat',
+        'no_messages_yet'    => 'No messages yet',
+        'no_conversations'   => 'No conversations yet.',
+        'submit'             => 'Send',
+        'buddy_tooltip'      => 'Buddy',
+        'alliance_tooltip'   => 'Alliance member',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Status not visible',
+        'highscore_ranking'  => 'Ranking',
+        'alliance_label'     => 'Alliance',
+        'planet_alt'         => 'Planet',
+        'buddies'            => 'Buddies',
+        'no_buddies'         => 'No buddies',
+        'strangers'          => 'Strangers',
+        'no_strangers'       => 'No strangers',
+        'alliance'           => 'Alliance',
     ],
 ];

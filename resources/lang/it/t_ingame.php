@@ -49,13 +49,15 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution'      => 'Attenzione',
-        'yes'          => 'sì',
-        'no'           => 'No',
-        'error'        => 'Errore',
-        'level'        => 'Livello',
-        'duration'     => 'Durata',
-        'dark_matter'  => 'Materia Oscura',
+        'caution'         => 'Attenzione',
+        'yes'             => 'sì',
+        'no'              => 'No',
+        'error'           => 'Errore',
+        'ok'              => 'Ok',
+        'error_occurred'  => 'Si è verificato un errore.',
+        'level'           => 'Livello',
+        'duration'        => 'Durata',
+        'dark_matter'     => 'Materia Oscura',
     ],
 
     // -------------------------------------------------------------------------
@@ -1460,5 +1462,49 @@ return [
         'msg_yes'                       => 'Sì',
         'msg_no'                        => 'No',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Deposito Alleanza
+    // -------------------------------------------------------------------------
+
+    'alliance_depot' => [
+        'description'         => 'Il Deposito Alleanza ti permette di inviare razzi di rifornimento alle flotte amiche in attesa sul tuo pianeta, estendendo il loro tempo di permanenza.',
+        'capacity'            => 'Capacità',
+        'no_fleets'           => 'Non ci sono flotte in attesa!',
+        'fleet_owner'         => 'Proprietario flotta',
+        'ships'               => 'Navi',
+        'hold_time'           => 'Tempo di permanenza',
+        'extend'              => 'Estendi',
+        'supply_cost'         => 'Costo rifornimento (deuterio)',
+        'start_supply'        => 'Invia razzo di rifornimento',
+        'please_select_fleet' => 'Seleziona una flotta.',
+        'hours_between'       => 'Le ore di estensione devono essere tra 1 e 32.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chat
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'list_title'         => 'Lista delle tue chat',
+        'player_list'        => 'Lista giocatori',
+        'alliance_chat'      => 'Chat Alleanza',
+        'no_messages_yet'    => 'Nessun messaggio ancora',
+        'no_conversations'   => 'Nessuna conversazione ancora.',
+        'submit'             => 'Invia',
+        'buddy_tooltip'      => 'Amico',
+        'alliance_tooltip'   => 'Membro dell\'alleanza',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Stato non visibile',
+        'highscore_ranking'  => 'Classifica',
+        'alliance_label'     => 'Alleanza',
+        'planet_alt'         => 'Pianeta',
+        'buddies'            => 'Amici',
+        'no_buddies'         => 'Nessun amico',
+        'strangers'          => 'Sconosciuti',
+        'no_strangers'       => 'Nessuno sconosciuto',
+        'alliance'           => 'Alleanza',
     ],
 ];

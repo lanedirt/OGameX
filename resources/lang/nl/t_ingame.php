@@ -49,13 +49,15 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution'      => 'Waarschuwing',
-        'yes'          => 'ja',
-        'no'           => 'Nee',
-        'error'        => 'Fout',
-        'level'        => 'Niveau',
-        'duration'     => 'Duur',
-        'dark_matter'  => 'Donkere materie',
+        'caution'         => 'Waarschuwing',
+        'yes'             => 'ja',
+        'no'              => 'Nee',
+        'error'           => 'Fout',
+        'ok'              => 'Ok',
+        'error_occurred'  => 'Er is een fout opgetreden.',
+        'level'           => 'Niveau',
+        'duration'        => 'Duur',
+        'dark_matter'     => 'Donkere materie',
     ],
 
     // -------------------------------------------------------------------------
@@ -1511,5 +1513,49 @@ return [
         'msg_yes'                       => 'Ja',
         'msg_no'                        => 'Nee',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Alliantiedepot
+    // -------------------------------------------------------------------------
+
+    'alliance_depot' => [
+        'description'         => 'Het Alliantiedepot stelt je in staat voorraadrakketten te sturen naar bevriende vloten die op je planeet wachten, waardoor hun verblijftijd wordt verlengd.',
+        'capacity'            => 'Capaciteit',
+        'no_fleets'           => 'Er zijn geen wachtende vloten!',
+        'fleet_owner'         => 'Vlooteigenaar',
+        'ships'               => 'Schepen',
+        'hold_time'           => 'Wachttijd',
+        'extend'              => 'Verlengen',
+        'supply_cost'         => 'Voorraadrocket kosten (deuterium)',
+        'start_supply'        => 'Stuur voorraadrocket',
+        'please_select_fleet' => 'Selecteer een vloot.',
+        'hours_between'       => 'Verlengingsuren moeten tussen 1 en 32 liggen.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chat
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'list_title'         => 'Lijst van je chats',
+        'player_list'        => 'Spelerslijst',
+        'alliance_chat'      => 'Alliantiechat',
+        'no_messages_yet'    => 'Nog geen berichten',
+        'no_conversations'   => 'Nog geen gesprekken.',
+        'submit'             => 'Verzenden',
+        'buddy_tooltip'      => 'Vriend',
+        'alliance_tooltip'   => 'Alliantielid',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Status niet zichtbaar',
+        'highscore_ranking'  => 'Ranglijst',
+        'alliance_label'     => 'Alliantie',
+        'planet_alt'         => 'Planeet',
+        'buddies'            => 'Vrienden',
+        'no_buddies'         => 'Geen vrienden',
+        'strangers'          => 'Vreemden',
+        'no_strangers'       => 'Geen vreemden',
+        'alliance'           => 'Alliantie',
     ],
 ];
