@@ -382,7 +382,7 @@ return [
         'ok'                       => 'Ok',
         'own_fleet'                => 'Own fleet',
         'enemy_fleet'              => 'Enemy fleet',
-        'neutral_fleet'            => 'Neutral fleet',
+        'friendly_fleet'           => 'Friendly fleet',
 
         // Briefing section (no trailing colons — add : in template where needed)
         'briefing'                 => 'Briefing',

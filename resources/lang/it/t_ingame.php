@@ -311,7 +311,7 @@ return [
 
         'own_fleet'                => 'Flotta propria',
         'enemy_fleet'              => 'Flotta nemica',
-        'neutral_fleet'            => 'Flotta neutrale',
+        'friendly_fleet'           => 'Flotta alleata',
 
         // Sezione briefing (senza due punti finali)
         'briefing'                 => 'Briefing',

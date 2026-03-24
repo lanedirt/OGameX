@@ -363,7 +363,7 @@ return [
 
         'own_fleet'                => 'Eigen vloot',
         'enemy_fleet'              => 'Vijandige vloot',
-        'neutral_fleet'            => 'Neutrale vloot',
+        'friendly_fleet'           => 'Vriendelijke vloot',
 
         // Briefingsectie (zonder afsluitende dubbele punt)
         'briefing'                 => 'Briefing',
