@@ -255,7 +255,7 @@
                 "name": "{{ $planet->getPlanetName() }}"
             }];
             var standardFleets = [];
-            var unions = [];
+            var unions = @json(collect($availableUnions)->map(fn($u) => ['id' => $u['id'], 'time' => $u['time']])->values());
 
             var mission = {{ $mission ?? 0}};
             var unionID = 0;
@@ -1102,15 +1102,20 @@
                                             </div>
                                         </div>
                                         <div style="padding-top: 12px;">
+                                            {{-- TODO: show the player their synchronized arrival time when a union is
+                                                 selected. The live arrival time update logic is in ingame.js
+                                                 (FleetDispatcher.prototype refreshFleetTimes / MISSION_UNIONATTACK block). --}}
                                             <span id="combatunits tips">{{ __('t_ingame.fleet.combat_forces') }}:</span>
                                             <div class="glow">
-                                                <select size="1" class="combatunits dropdownInitialized" id="aksbox"
-                                                        name="acsValues" style="display: none;">
+                                                <select size="1" class="combatunits" id="aksbox"
+                                                        name="acsValues">
                                                     <option value="-">-</option>
-                                                </select><span class="dropdown currentlySelected combatunits"
-                                                               rel="dropdown568" style="width: 144px;"><a
-                                                            class="undefined" data-value="-" rel="dropdown568"
-                                                            href="javascript:void(0);">-</a></span>
+                                                    @foreach ($availableUnions as $union)
+                                                        <option value="{{ $union['galaxy'] }}#{{ $union['system'] }}#{{ $union['position'] }}#{{ $union['planet_type'] }}#{{ $union['name'] }}#{{ $union['id'] }}">
+                                                            {{ $union['name'] }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                         </div>
                                     </td>

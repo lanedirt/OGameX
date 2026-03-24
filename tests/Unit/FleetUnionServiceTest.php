@@ -158,7 +158,7 @@ class FleetUnionServiceTest extends TestCase
         // Create union from mission1
         $union = $this->service->createUnion($mission1);
 
-        // Create another attack mission from user2 (alliance member)
+        // Create another attack mission from user2 (alliance member) targeting same coordinates as union
         $mission2 = FleetMission::forceCreate([
             'user_id' => $user2->id,
             'planet_id_from' => $planet2->id,
@@ -168,7 +168,7 @@ class FleetUnionServiceTest extends TestCase
             'time_arrival' => time() + 1000,
             'galaxy_to' => 1,
             'system_to' => 1,
-            'position_to' => 2,
+            'position_to' => 1,
             'type_to' => 1, // Planet
             'cruiser' => 5,
         ]);
@@ -231,7 +231,7 @@ class FleetUnionServiceTest extends TestCase
         // Create union from mission1
         $union = $this->service->createUnion($mission1);
 
-        // Create another attack mission from user2 (buddy)
+        // Create another attack mission from user2 (buddy) targeting same coordinates as union
         $mission2 = FleetMission::forceCreate([
             'user_id' => $user2->id,
             'planet_id_from' => $planet2->id,
@@ -241,7 +241,7 @@ class FleetUnionServiceTest extends TestCase
             'time_arrival' => time() + 1000,
             'galaxy_to' => 1,
             'system_to' => 1,
-            'position_to' => 2,
+            'position_to' => 1,
             'type_to' => 1, // Planet
             'cruiser' => 5,
         ]);
