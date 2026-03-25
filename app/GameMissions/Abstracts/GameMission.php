@@ -11,15 +11,18 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMissions\AcsDefendMission;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\ExpeditionMission;
 use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
+use OGame\Models\FleetUnion;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
+use OGame\Services\FleetUnionService;
 use OGame\Services\MessageService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -133,6 +136,12 @@ abstract class GameMission
      */
     public function cancel(FleetMission $mission): void
     {
+        // Handle fleet recall from union (remove from union, delete empty union)
+        if ($mission->isInUnion()) {
+            $fleetUnionService = resolve(FleetUnionService::class);
+            $fleetUnionService->handleFleetRecall($mission);
+        }
+
         $currentTime = (int)Date::now()->timestamp;
 
         // Store the original arrival time before modifying it.
@@ -435,9 +444,10 @@ abstract class GameMission
      * @param Resources $resources The resources that are to be returned. Should include parent mission resources if they need to be preserved.
      * @param UnitCollection $units The units that are to be returned.
      * @param int $additionalReturnTripTime Time in seconds to add to the return trip duration (optional, used by expeditions). Can be positive or negative.
+     * @param int|null $overrideReturnDuration If set, use this duration (in seconds) for the return trip instead of calculating from parent mission times.
      * @return void
      */
-    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0, array|null $wreckFieldData = null): void
+    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0, array|null $wreckFieldData = null, int|null $overrideReturnDuration = null): void
     {
         if ($units->getAmount() === 0) {
             // No units to return, no need to create a return mission.
@@ -463,9 +473,12 @@ abstract class GameMission
         }
 
         // Time fleet mission will arrive (departure time + one-way duration)
+        // If an override duration is provided (e.g. recalculated natural speed after battle), use it.
         // For ACS Defend, one-way duration = physical arrival - departure
         // For other missions, one-way duration = arrival - departure
-        if ($parentMission->mission_type === 5 && $parentMission->time_holding !== null) {
+        if ($overrideReturnDuration !== null) {
+            $oneWayDuration = $overrideReturnDuration;
+        } elseif ($parentMission->mission_type === 5 && $parentMission->time_holding !== null) {
             $oneWayDuration = ($parentMission->time_arrival - $parentMission->time_holding) - $parentMission->time_departure;
         } else {
             $oneWayDuration = $parentMission->time_arrival - $parentMission->time_departure;
@@ -618,6 +631,61 @@ abstract class GameMission
         }
 
         return $defenders;
+    }
+
+    /**
+     * Collect all attacking fleets from a union (if the mission belongs to one).
+     *
+     * @param FleetMission $mission The fleet mission to check for union participation.
+     * @return array<AttackerFleet> Array of attacking fleets. Single fleet if no union.
+     */
+    protected function collectAttackingFleets(FleetMission $mission): array
+    {
+        $attackers = [];
+
+        // Check if this mission is part of a union
+        if (!$mission->isInUnion()) {
+            // Single attacker - create AttackerFleet from this mission only
+            $attackers[] = AttackerFleet::fromFleetMission(
+                $mission,
+                $this->fleetMissionService,
+                $this->playerServiceFactory,
+                true // isInitiator
+            );
+            return $attackers;
+        }
+
+        // Collect all fleets from the union
+        /** @var FleetUnion $union */
+        $union = $mission->union;
+        if (!$union) {
+            // Union was deleted or doesn't exist
+            $attackers[] = AttackerFleet::fromFleetMission(
+                $mission,
+                $this->fleetMissionService,
+                $this->playerServiceFactory,
+                true // isInitiator
+            );
+            return $attackers;
+        }
+
+        $fleetMissions = $union->activeFleetMissions()
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->orderBy('union_slot')
+            ->get();
+
+        foreach ($fleetMissions as $fleetMission) {
+            $isInitiator = ($fleetMission->union_slot === 1);
+            $attackers[] = AttackerFleet::fromFleetMission(
+                $fleetMission,
+                $this->fleetMissionService,
+                $this->playerServiceFactory,
+                $isInitiator
+            );
+        }
+
+        return $attackers;
     }
 
     /**
