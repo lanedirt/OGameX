@@ -998,11 +998,11 @@ return [
         'password_strength_medium'                  => 'Medium',
         'password_strength_high'                    => 'High',
         'password_properties_title'                 => 'The password should contain the following properties',
-        'password_min_max'                          => 'min. 4 characters, max. 20 characters',
+        'password_min_max'                          => 'min. 4 characters, max. 128 characters',
         'password_mixed_case'                       => 'Upper and lower case',
         'password_special_chars'                    => 'Special characters (e.g. !?:_., )',
         'password_numbers'                          => 'Numbers',
-        'password_length_hint'                      => 'Your password needs to have at least <strong>4 characters</strong> and may not be longer than <strong>20 characters</strong>.',
+        'password_length_hint'                      => 'Your password needs to have at least <strong>4 characters</strong> and may not be longer than <strong>128 characters</strong>.',
 
         // Tab 1 – Email
         'section_email'                             => 'Email address',
@@ -1115,6 +1115,9 @@ return [
 
         // Controller messages
         'msg_settings_saved'                        => 'Settings saved',
+        'msg_password_incorrect'                    => 'The current password you entered is incorrect.',
+        'msg_password_mismatch'                     => 'The new passwords do not match.',
+        'msg_password_length_invalid'               => 'The new password must be between 4 and 128 characters.',
         'msg_vacation_activated'                    => 'Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.',
         'msg_vacation_deactivated'                  => 'Vacation mode has been deactivated.',
         'msg_vacation_min_duration'                 => 'You can only deactivate vacation mode after the minimum duration of 48 hours has passed.',

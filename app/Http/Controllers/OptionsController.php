@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use OGame\Services\PlayerService;
 
@@ -104,6 +105,43 @@ class OptionsController extends OGameController
     }
 
     /**
+     * Process password change request.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return array<string,string>|null
+     */
+    public function processChangePassword(Request $request, PlayerService $player): array|null
+    {
+        $currentPassword = $request->input('db_password');
+
+        // Only process if the password section was submitted
+        if (empty($currentPassword)) {
+            return null;
+        }
+
+        $newPassword = $request->input('newpass1');
+        $confirmPassword = $request->input('newpass2');
+
+        if (!Hash::check($currentPassword, $player->getUser()->password)) {
+            return ['error' => __('t_ingame.options.msg_password_incorrect')];
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            return ['error' => __('t_ingame.options.msg_password_mismatch')];
+        }
+
+        $length = strlen($newPassword);
+        if ($length < 4 || $length > 128) {
+            return ['error' => __('t_ingame.options.msg_password_length_invalid')];
+        }
+
+        $player->getUser()->forceFill(['password' => Hash::make($newPassword)])->save();
+
+        return ['success' => __('t_ingame.options.msg_settings_saved')];
+    }
+
+    /**
      * Process espionage probes amount save request.
      *
      * @param Request $request
@@ -150,6 +188,7 @@ class OptionsController extends OGameController
         // Define change handlers.
         $change_handlers = [
             'processChangeUsername',
+            'processChangePassword',
             'processVacationMode',
             'processEspionageProbesAmount'
         ];
