@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace OGame\Http\Controllers;
 
@@ -284,9 +284,15 @@ class FleetController extends OGameController
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService): JsonResponse
+    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService, FleetMissionService $fleetMissionService, FleetUnionService $fleetUnionService, CharacterClassService $characterClassService): JsonResponse
     {
         $currentPlanet = $currentPlayer->planets->current();
+
+        // Apply the player's character-class deuterium consumption multiplier (e.g. 0.5 for General class).
+        // Without this, the JS calcConsumption() receives raw base fuel values and computes a different
+        // total than PHP's calculateConsumption(), which applies the multiplier at the end.
+        // By pre-multiplying here, JS and PHP operate on the same adjusted per-ship fuel cost.
+        $fuelMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($currentPlayer->getUser());
 
         // Return ships data for this planet taking into account the current planet's properties and research levels.
         $shipsData = [];
@@ -296,7 +302,7 @@ class FleetController extends OGameController
                 'name' => $shipObject->title,
                 'baseFuelCapacity' => $shipObject->properties->fuel_capacity->calculate($currentPlayer)->totalValue,
                 'baseCargoCapacity' => $shipObject->properties->capacity->calculate($currentPlayer)->totalValue,
-                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlayer)->totalValue,
+                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlayer)->totalValue * $fuelMultiplier,
                 'speed' => $shipObject->properties->speed->calculate($currentPlayer)->totalValue
             ];
         }
