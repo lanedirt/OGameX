@@ -142,6 +142,11 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
         // This tests that moon destruction handles active outgoing missions gracefully.
         $foreignMoon->addUnit('small_cargo', 1);
         $foreignMoon->addResources(new Resources(0, 0, 100_000, 0));
+
+        // Boost the foreign player's computer tech to guarantee enough fleet slots, even if
+        // previous tests in the suite left unprocessed fleet missions for this player in the DB.
+        $foreignMoon->getPlayer()->setResearchLevel('computer_technology', 25);
+
         $outgoingUnits = new UnitCollection();
         $outgoingUnits->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $foreignMoonMissionService = resolve(FleetMissionService::class, ['player' => $foreignMoon->getPlayer()]);
