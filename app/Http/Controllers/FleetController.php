@@ -10,14 +10,21 @@ use Illuminate\View\View;
 use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameConstants\UniverseConstants;
+use OGame\GameMessages\FleetUnionInvite as FleetUnionInviteMessage;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
 use OGame\Models\FleetTemplate;
+use OGame\Models\FleetUnion;
+use OGame\Models\FleetUnionInvite;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\CharacterClassService;
 use OGame\Services\CoordinateDistanceCalculator;
 use OGame\Services\FleetMissionService;
+use OGame\Services\FleetUnionService;
+use OGame\Services\MessageService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -36,7 +43,7 @@ class FleetController extends OGameController
      * @return View
      * @throws Exception
      */
-    public function index(Request $request, PlayerService $player, SettingsService $settings): View
+    public function index(Request $request, PlayerService $player, SettingsService $settings, FleetUnionService $fleetUnionService): View
     {
         // Define ship ids to include in the fleet screen.
         // 0 = military ships
@@ -76,6 +83,9 @@ class FleetController extends OGameController
         $hasDetailedFleetSpeed = $characterClassService->hasDetailedFleetSpeedSettings($player->getUser());
         $fleetSpeedIncrement = $hasDetailedFleetSpeed ? 5 : 10;
 
+        // Get active fleet unions this player can join (buddy/ally of creator, not full, not expired)
+        $availableUnions = $this->getAvailableUnionsForPlayer($player, $fleetUnionService);
+
         return view('ingame.fleet.index')->with([
             'player' => $player,
             'planet' => $planet,
@@ -93,6 +103,7 @@ class FleetController extends OGameController
             'expeditionSlotsInUse' => $player->getExpeditionSlotsInUse(),
             'expeditionSlotsMax' => $player->getExpeditionSlotsMax(),
             'fleetSpeedIncrement' => $fleetSpeedIncrement,
+            'availableUnions' => $availableUnions,
         ]);
     }
 
@@ -198,6 +209,25 @@ class FleetController extends OGameController
             $isRelocationTransfer = ($row->mission_type === 4 && $row->planet_id_from === $row->planet_id_to);
             $eventRowViewModel->is_recallable = ($row->mission_type !== 10 && !$isRelocationTransfer);
 
+            // Track union membership for ACS Attack grouping
+            $eventRowViewModel->union_id = $row->union_id;
+
+            // ACS Attack (type 2) outbound trips display as regular Attack in the movement page
+            // with the allianceName tag showing the union identifier.
+            // Return trips keep the "ACS Attack" label.
+            if ($row->mission_type === 2 && $row->union_id !== null && !$eventRowViewModel->is_return_trip) {
+                $eventRowViewModel->mission_type = 1;
+                $eventRowViewModel->mission_label = $fleetMissionService->missionTypeToLabel(1);
+                $eventRowViewModel->alliance_name = 'KV' . $row->id;
+            }
+
+            // Set whether this fleet can open the federation (union) overlay.
+            // Type 1 (no union): create a new union. Type 2 (has union): edit the existing union.
+            $eventRowViewModel->can_create_federation = (
+                in_array($row->mission_type, [1, 2]) &&
+                !$eventRowViewModel->is_return_trip
+            );
+
             // Add return trip info to the same row (not as separate row) if the mission has a return mission
             if ($fleetMissionService->missionHasReturnMission($eventRowViewModel->mission_type) && !$eventRowViewModel->is_return_trip) {
                 $eventRowViewModel->has_return_trip = true;
@@ -254,9 +284,15 @@ class FleetController extends OGameController
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService): JsonResponse
+    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService, FleetMissionService $fleetMissionService, FleetUnionService $fleetUnionService, CharacterClassService $characterClassService): JsonResponse
     {
         $currentPlanet = $currentPlayer->planets->current();
+
+        // Apply the player's character-class deuterium consumption multiplier (e.g. 0.5 for General class).
+        // Without this, the JS calcConsumption() receives raw base fuel values and computes a different
+        // total than PHP's calculateConsumption(), which applies the multiplier at the end.
+        // By pre-multiplying here, JS and PHP operate on the same adjusted per-ship fuel cost.
+        $fuelMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($currentPlayer->getUser());
 
         // Return ships data for this planet taking into account the current planet's properties and research levels.
         $shipsData = [];
@@ -266,7 +302,7 @@ class FleetController extends OGameController
                 'name' => $shipObject->title,
                 'baseFuelCapacity' => $shipObject->properties->fuel_capacity->calculate($currentPlayer)->totalValue,
                 'baseCargoCapacity' => $shipObject->properties->capacity->calculate($currentPlayer)->totalValue,
-                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlayer)->totalValue,
+                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlayer)->totalValue * $fuelMultiplier,
                 'speed' => $shipObject->properties->speed->calculate($currentPlayer)->totalValue
             ];
         }
@@ -328,6 +364,31 @@ class FleetController extends OGameController
         }
 
         // Build orders array set key to true if the mission is enabled. Set to false if not.
+        // ACS Attack (type 2) is enabled when the player has selected a union, Attack (type 1) is possible,
+        // and the fleet can reach the target within the union's max delay time at 100% speed.
+        $unionId = (int)request()->input('union');
+        if ($unionId > 0 && in_array(1, $enabledMissions, true)) {
+            $union = FleetUnion::find($unionId);
+            if ($union !== null
+                && $union->galaxy_to === $targetCoordinates->galaxy
+                && $union->system_to === $targetCoordinates->system
+                && $union->position_to === $targetCoordinates->position
+                && $union->planet_type_to === $planetType->value) {
+                $flightDuration = $fleetMissionService->calculateFleetMissionDuration(
+                    $currentPlanet,
+                    $targetCoordinates,
+                    $units,
+                    GameMissionFactory::getMissionById(1, []),
+                    10 // 100% speed — fastest possible
+                );
+                $wouldArriveAt = time() + $flightDuration;
+                $maxArrival = $union->time_arrival + $fleetUnionService->getMaxDelayTime($union);
+                if ($wouldArriveAt <= $maxArrival) {
+                    $enabledMissions[] = 2;
+                }
+            }
+        }
+
         $orders = [];
         $possible_mission_types = [1, 2, 3, 4, 5, 6, 7, 8, 9, 15];
         foreach ($possible_mission_types as $mission) {
@@ -391,7 +452,7 @@ class FleetController extends OGameController
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService, SettingsService $settingsService, CharacterClassService $characterClassService): JsonResponse
+    public function dispatchSendFleet(PlayerService $player, FleetMissionService $fleetMissionService, FleetUnionService $fleetUnionService, SettingsService $settingsService, CharacterClassService $characterClassService): JsonResponse
     {
         $galaxy = (int)request()->input('galaxy');
         $system = (int)request()->input('system');
@@ -485,8 +546,47 @@ class FleetController extends OGameController
         $resources = new Resources($metal, $crystal, $deuterium, 0);
         $planetType = PlanetType::from($target_type);
 
+        // Check if this fleet should join an existing union and pre-validate timing
+        $unionId = (int)request()->input('union');
+        $union = null;
+        if ($unionId > 0) {
+            $union = FleetUnion::find($unionId);
+            if ($union !== null) {
+                if ($union->hasReachedMaxFleets()) {
+                    return $this->validationErrorResponse(__('t_ingame.fleet.err_union_max_fleets'));
+                }
+
+                // Pre-validate max players (only if this would be a new player in the union)
+                $isNewPlayer = !$union->activeFleetMissions()
+                    ->where('user_id', $player->getId())
+                    ->exists();
+                if ($isNewPlayer && $union->hasReachedMaxPlayers()) {
+                    return $this->validationErrorResponse(__('t_ingame.fleet.err_union_max_players'));
+                }
+
+                // Pre-validate timing: calculate would-be arrival and check against union delay limit
+                $flightDuration = $fleetMissionService->calculateFleetMissionDuration(
+                    $planet,
+                    $target_coordinate,
+                    $units,
+                    GameMissionFactory::getMissionById(1, []),
+                    $speed_percent
+                );
+                $wouldArriveAt = time() + $flightDuration;
+                $maxArrival = $union->time_arrival + $fleetUnionService->getMaxDelayTime($union);
+                if ($wouldArriveAt > $maxArrival) {
+                    return $this->validationErrorResponse(__('t_ingame.fleet.err_union_too_slow'));
+                }
+            }
+        }
+
         try {
-            $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
+            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
+
+            // Join the fleet union if requested
+            if ($union !== null) {
+                $fleetUnionService->joinUnion($union, $fleetMission);
+            }
 
             return response()->json([
                 'success' => true,
@@ -696,6 +796,361 @@ class FleetController extends OGameController
             'components' => [],
             'newAjaxToken' => csrf_token(),
             'success' => true,
+        ]);
+    }
+
+    /**
+     * Create a fleet union from an existing attack mission.
+     *
+     * @param PlayerService $player
+     * @param FleetUnionService $fleetUnionService
+     * @return JsonResponse
+     */
+    public function createUnion(PlayerService $player, FleetUnionService $fleetUnionService, MessageService $messageService): JsonResponse
+    {
+        $validated = request()->validate([
+            'fleet_mission_id' => 'nullable|integer|exists:fleet_missions,id',
+            'fleetID' => 'nullable|integer|exists:fleet_missions,id',
+            'name' => 'nullable|string|max:100',
+            'groupname' => 'nullable|string|max:100',
+            'unionUsers' => 'nullable|string',
+        ]);
+
+        // Support both OGame field names (fleetID, groupname) and our internal names
+        $fleetMissionId = $validated['fleetID'] ?? $validated['fleet_mission_id'] ?? null;
+        $unionName = $validated['groupname'] ?? $validated['name'] ?? null;
+
+        if (!$fleetMissionId) {
+            return response()->json(['error' => __('t_acs.error_mission_not_found')], 404);
+        }
+
+        $mission = FleetMission::where('id', $fleetMissionId)
+            ->where('user_id', $player->getId())
+            ->first();
+
+        if (!$mission) {
+            return response()->json(['error' => __('t_acs.error_mission_not_found')], 404);
+        }
+
+        // If the fleet is already in a union, edit mode
+        if ($mission->isInUnion()) {
+            $unionId = $mission->union_id;
+
+            // Send invite messages to newly added users
+            $this->sendUnionInvites($validated['unionUsers'] ?? '', $player, $mission, (int) $unionId, 'KV' . $unionId, $messageService);
+
+            // Return as text/plain so $.parseJSON() in unionEdit() works correctly
+            return response()->json([
+                'fleetID' => $fleetMissionId,
+                'unionID' => $unionId,
+                'targetID' => $mission->galaxy_to . ':' . $mission->system_to . ':' . $mission->position_to,
+                'token' => csrf_token(),
+                'errorbox' => [
+                    'type' => 'fadeBox',
+                    'text' => __('t_ingame.fleet.union_edited'),
+                    'failed' => false,
+                ],
+            ])->header('Content-Type', 'text/plain');
+        }
+
+        try {
+            $union = $fleetUnionService->createUnion($mission, $unionName);
+
+            // Send invite messages to added users
+            $this->sendUnionInvites($validated['unionUsers'] ?? '', $player, $mission, (int) $union->id, 'KV' . $union->id, $messageService);
+
+            // Response format expected by unionEdit() callback in movement.blade.php
+            // Return as text/plain so $.parseJSON() in unionEdit() works correctly
+            return response()->json([
+                'fleetID' => $fleetMissionId,
+                'unionID' => $union->id,
+                'targetID' => $mission->galaxy_to . ':' . $mission->system_to . ':' . $mission->position_to,
+                'token' => csrf_token(),
+                'errorbox' => [
+                    'type' => 'fadeBox',
+                    'text' => __('t_ingame.fleet.union_created'),
+                    'failed' => false,
+                ],
+            ])->header('Content-Type', 'text/plain');
+        } catch (Exception $e) {
+            return response()->json([
+                'errorbox' => [$e->getMessage()],
+                'token' => csrf_token(),
+            ], 400)->header('Content-Type', 'text/plain');
+        }
+    }
+
+    /**
+     * Send union invite messages to the specified users and record invitations.
+     *
+     * @param string $unionUsersString Semicolon-separated usernames from the federation overlay form
+     * @param PlayerService $senderPlayer The player who created/edited the union
+     * @param FleetMission $mission The fleet mission associated with the union
+     * @param int $unionId The fleet union ID
+     * @param string $unionName The union display name (e.g. "KV123")
+     * @param MessageService $messageService
+     */
+    private function sendUnionInvites(string $unionUsersString, PlayerService $senderPlayer, FleetMission $mission, int $unionId, string $unionName, MessageService $messageService): void
+    {
+        if (empty($unionUsersString)) {
+            return;
+        }
+
+        $usernames = array_filter(explode(';', $unionUsersString));
+        $senderName = $senderPlayer->getUsername(false);
+        $targetCoords = $mission->galaxy_to . ':' . $mission->system_to . ':' . $mission->position_to;
+
+        // Resolve the target planet owner name
+        $targetPlayerName = '';
+        $planetServiceFactory = app(PlanetServiceFactory::class);
+        $targetCoordinate = new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to);
+        $targetPlanetService = $planetServiceFactory->makeForCoordinate($targetCoordinate);
+        if ($targetPlanetService !== null) {
+            $targetPlayer = $targetPlanetService->getPlayer();
+            if ($targetPlayer !== null) {
+                $targetPlayerName = $targetPlayer->getUsername(false);
+            }
+        }
+
+        $arrivalTime = date('d.m.Y H:i:s', $mission->time_arrival);
+
+        foreach ($usernames as $username) {
+            $username = trim($username);
+
+            // Skip the sender's own name
+            if ($username === $senderName) {
+                continue;
+            }
+
+            /** @var User|null $invitedUser */
+            $invitedUser = User::where('username', $username)->first();
+            if ($invitedUser === null) {
+                continue;
+            }
+
+            // Create the invite record (skip if already invited)
+            FleetUnionInvite::firstOrCreate([
+                'fleet_union_id' => $unionId,
+                'user_id' => $invitedUser->id,
+            ]);
+
+            $invitedPlayerService = app(PlayerService::class, ['player_id' => $invitedUser->id]);
+            $messageService->sendSystemMessageToPlayer($invitedPlayerService, FleetUnionInviteMessage::class, [
+                'sender_name' => $senderName,
+                'union_name' => $unionName,
+                'target_player' => $targetPlayerName,
+                'target_coords' => $targetCoords,
+                'arrival_time' => $arrivalTime,
+            ]);
+        }
+    }
+
+    /**
+     * Get all active fleet unions the player can join.
+     *
+     * Returns unions where the player has been explicitly invited or is the creator,
+     * the union hasn't expired, and has active fleet missions.
+     *
+     * @param PlayerService $player
+     * @param FleetUnionService $fleetUnionService
+     * @return array<array{id: int, name: string, galaxy: int, system: int, position: int, planet_type: int, creator: string}>
+     */
+    private function getAvailableUnionsForPlayer(PlayerService $player, FleetUnionService $fleetUnionService): array
+    {
+        $playerId = $player->getId();
+
+        // Get unions where the player was invited or is the creator
+        $unions = FleetUnion::with(['creator'])
+            ->where('time_arrival', '>', now()->timestamp)
+            ->whereHas('activeFleetMissions', function ($query) {
+                $query->where('processed', 0)->where('canceled', 0);
+            })
+            ->where(function ($query) use ($playerId) {
+                $query->where('user_id', $playerId)
+                    ->orWhereHas('invites', function ($query) use ($playerId) {
+                        $query->where('user_id', $playerId);
+                    });
+            })
+            ->get();
+
+        $availableUnions = [];
+        foreach ($unions as $union) {
+            $availableUnions[] = [
+                'id' => $union->id,
+                'name' => $union->name ?? ('KV' . $union->id),
+                'galaxy' => $union->galaxy_to,
+                'system' => $union->system_to,
+                'position' => $union->position_to,
+                'planet_type' => $union->planet_type_to,
+                'creator' => $union->creator->username,
+                'time' => $union->time_arrival,
+            ];
+        }
+
+        return $availableUnions;
+    }
+
+    /**
+     * Join an existing fleet union with a fleet mission.
+     *
+     * @param PlayerService $player
+     * @param FleetUnionService $fleetUnionService
+     * @return JsonResponse
+     */
+    public function joinUnion(PlayerService $player, FleetUnionService $fleetUnionService): JsonResponse
+    {
+        $validated = request()->validate([
+            'fleet_mission_id' => 'required|integer|exists:fleet_missions,id',
+            'union_id' => 'required|integer|exists:fleet_unions,id',
+        ]);
+
+        $mission = FleetMission::where('id', $validated['fleet_mission_id'])
+            ->where('user_id', $player->getId())
+            ->first();
+
+        /** @var FleetUnion|null $union */
+        $union = FleetUnion::find($validated['union_id']);
+
+        if (!$mission || !$union) {
+            return response()->json(['error' => __('t_acs.error_not_found')], 404);
+        }
+
+        try {
+            $fleetUnionService->joinUnion($union, $mission);
+
+            $refreshedUnion = FleetUnion::find($union->id);
+            if (!$refreshedUnion) {
+                return response()->json(['error' => __('t_acs.error_not_found')], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'time_arrival' => $refreshedUnion->time_arrival,
+                'newAjaxToken' => csrf_token(),
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Get available unions for a target coordinate.
+     *
+     * @param PlayerService $player
+     * @param FleetUnionService $fleetUnionService
+     * @return JsonResponse
+     */
+    public function getAvailableUnions(PlayerService $player, FleetUnionService $fleetUnionService): JsonResponse
+    {
+        $validated = request()->validate([
+            'galaxy' => 'required|integer|min:1|max:9',
+            'system' => 'required|integer|min:1|max:499',
+            'position' => 'required|integer|min:1|max:15',
+            'planet_type' => 'required|integer|in:1,2',
+        ]);
+
+        $playerId = $player->getId();
+
+        // Only return unions the player was explicitly invited to or created
+        $unions = FleetUnion::with(['creator', 'activeFleetMissions'])
+            ->where('galaxy_to', $validated['galaxy'])
+            ->where('system_to', $validated['system'])
+            ->where('position_to', $validated['position'])
+            ->where('planet_type_to', $validated['planet_type'])
+            ->where('time_arrival', '>', now()->timestamp)
+            ->whereHas('activeFleetMissions', function ($query) {
+                $query->where('processed', 0)->where('canceled', 0);
+            })
+            ->where(function ($query) use ($playerId) {
+                $query->where('user_id', $playerId)
+                    ->orWhereHas('invites', function ($query) use ($playerId) {
+                        $query->where('user_id', $playerId);
+                    });
+            })
+            ->get();
+
+        $availableUnions = [];
+
+        foreach ($unions as $union) {
+            $availableUnions[] = [
+                'id' => $union->id,
+                'name' => $union->name,
+                'creator' => $union->creator->username,
+                'time_arrival' => $union->time_arrival,
+                'participant_count' => $union->activeFleetMissions()->count(),
+                'max_fleets' => $union->max_fleets,
+                'can_join' => !$union->hasReachedMaxFleets(),
+            ];
+        }
+
+        return response()->json([
+            'unions' => $availableUnions,
+            'newAjaxToken' => csrf_token(),
+        ]);
+    }
+
+    /**
+     * Show the fleet union (federation) overlay for creating a new union.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return View
+     */
+    public function federationOverlay(Request $request, PlayerService $player): View
+    {
+        $fleetMissionId = $request->input('fleet', 0);
+
+        // Validate that the fleet belongs to the current player
+        // Allow type 1 (create new union) or type 2 (edit existing union)
+        $mission = FleetMission::where('id', $fleetMissionId)
+            ->where('user_id', $player->getId())
+            ->whereIn('mission_type', [1, 2])
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->first();
+
+        if (!$mission) {
+            abort(404, 'Fleet mission not found or cannot be converted to a union.');
+        }
+
+        // Load existing union members (players who already have fleets in the union)
+        $unionMembers = [];
+        $unionId = $request->input('union');
+        if ($unionId) {
+            /** @var FleetUnion|null $union */
+            $union = FleetUnion::find($unionId);
+            if ($union !== null) {
+                $memberUserIds = $union->activeFleetMissions()
+                    ->distinct('user_id')
+                    ->pluck('user_id')
+                    ->toArray();
+                foreach ($memberUserIds as $userId) {
+                    if ($userId === $player->getId()) {
+                        continue; // Current player is already shown separately
+                    }
+                    /** @var User|null $user */
+                    $user = User::find($userId);
+                    if ($user !== null) {
+                        $unionMembers[] = $user->username;
+                    }
+                }
+            }
+        }
+
+        // Determine the union name to pre-fill in the overlay
+        $unionName = 'KV' . $fleetMissionId;
+        if (isset($union) && $union instanceof FleetUnion) {
+            $unionName = $union->name ?? ('KV' . $union->id);
+        }
+
+        return view('ingame.fleet.federation-overlay')->with([
+            'fleetMissionId' => $fleetMissionId,
+            'playerName' => $player->getUsername(false),
+            'unionMembers' => $unionMembers,
+            'unionName' => $unionName,
         ]);
     }
 
