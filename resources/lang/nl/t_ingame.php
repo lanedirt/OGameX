@@ -361,9 +361,26 @@ return [
         'desc_destroy_moon'        => 'Vernietigt de maan van uw vijand.',
         'desc_expedition'          => 'Stuur uw schepen naar de verste uithoeken van de ruimte voor spannende quests.',
 
+        // ACS-aanval – federatie-overlay
+        'fleet_union'              => 'Vlootunie',
+        'union_created'            => 'Vlootunie succesvol aangemaakt.',
+        'union_edited'             => 'Vlootunie succesvol bewerkt.',
+        'err_union_max_fleets'     => 'Er kunnen maximaal 16 vloten aanvallen.',
+        'err_union_max_players'    => 'Er kunnen maximaal 5 spelers aanvallen.',
+        'err_union_too_slow'       => 'Je bent te langzaam om je bij deze vloot aan te sluiten.',
+        'err_union_target_mismatch' => 'Uw vloot moet hetzelfde doelwit hebben als de vlootunie.',
+        'union_name'               => 'Unienaam',
+        'buddy_list'               => 'Vriendenlijst',
+        'buddy_list_loading'       => 'Laden...',
+        'buddy_list_empty'         => 'Geen vrienden beschikbaar',
+        'buddy_list_error'         => 'Laden van vriendenlijst mislukt',
+        'search_user'              => 'Speler zoeken',
+        'search'                   => 'Zoeken',
+        'union_user'               => 'Unielid',
+        'invite'                   => 'Uitnodigen',
+        'kick'                     => 'Verwijderen',
+        'ok'                       => 'Ok',
         'own_fleet'                => 'Eigen vloot',
-        'enemy_fleet'              => 'Vijandige vloot',
-        'friendly_fleet'           => 'Vriendelijke vloot',
 
         // Briefingsectie (zonder afsluitende dubbele punt)
         'briefing'                 => 'Briefing',
