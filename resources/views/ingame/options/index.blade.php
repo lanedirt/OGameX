@@ -96,19 +96,19 @@
                                             <div class="fieldwrapper">
                                                 <label class="styled textBeefy">{{ __('t_ingame.options.old_password') }}</label>
                                                 <div class="thefield">
-                                                    <input class="textInput w200" type="password" value="" size="20" name="db_password" maxlength="20">
+                                                    <input class="textInput w200" type="password" value="" size="20" name="db_password" maxlength="128">
                                                 </div>
                                             </div>
                                             <div class="fieldwrapper">
                                                 <label class="styled textBeefy">{{ __('t_ingame.options.new_password') }}</label>
                                                 <div class="thefield">
-                                                    <input class="textInput w200 validate[optional,custom[pwMinSize],custom[pwMaxSize]]" type="password" maxlength="20" size="20" name="newpass1" id="newpass1">
+                                                    <input class="textInput w200 validate[optional,custom[pwMinSize],custom[pwMaxSize]]" type="password" maxlength="128" size="20" name="newpass1" id="newpass1">
                                                 </div>
                                             </div>
                                             <div class="fieldwrapper">
                                                 <label class="styled textBeefy">{{ __('t_ingame.options.repeat_password') }}</label>
                                                 <div class="thefield">
-                                                    <input class="textInput w200" type="password" maxlength="20" size="20" name="newpass2">
+                                                    <input class="textInput w200" type="password" maxlength="128" size="20" name="newpass2">
                                                 </div>
                                             </div>
                                             <div class="pw_check">
@@ -549,7 +549,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             passwordMinLength = 4;
-            passwordMaxLength = 20;
+            passwordMaxLength = 128;
             customSorting = 5;
             openGroup = 0;
             selectedTab = 0;
