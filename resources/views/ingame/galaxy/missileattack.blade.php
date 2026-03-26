@@ -133,11 +133,6 @@
             var $form = $(this);
             var $submitBtn = $form.find('input[type="submit"]');
 
-            // Prevent multiple submissions
-            if ($form.data('submitting')) {
-                return;
-            }
-
             // Validate missile count
             var missileCount = parseInt($('#missileCount').val());
             var maxMissiles = parseInt($('#missileCount').data('max'));
@@ -152,8 +147,8 @@
                 return;
             }
 
-            // Mark form as submitting
-            $form.data('submitting', true);
+            // Disable submit button
+            $submitBtn.prop('disabled', true);
 
             // Submit via AJAX
             $.ajax({
@@ -186,7 +181,7 @@
                         }, 1500);
                     } else {
                         fadeBox(response.error || @json(__('t_ingame.galaxy.launch_failed')), 1);
-                        $form.data('submitting', false);
+                        $submitBtn.prop('disabled', false);
                     }
                 },
                 error: function(xhr) {
@@ -199,7 +194,7 @@
                     }
 
                     fadeBox(errorMessage, 1);
-                    $form.data('submitting', false);
+                    $submitBtn.prop('disabled', false);
                 }
             });
         });

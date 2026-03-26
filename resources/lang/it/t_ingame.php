@@ -461,10 +461,6 @@ return [
 
         // Dialogo risultati phalanx (stringhe JS nel blocco script Blade-rendered)
         'sensor_report'                => 'rapporto sensore',
-        'sensor_report_from'           => 'Rapporto sensore da',
-        'own_fleet'                    => 'Flotta propria',
-        'enemy_fleet'                  => 'Flotta nemica',
-        'friendly_fleet'               => 'Flotta amica',
         'refresh'                      => 'Aggiorna',
         'arrived'                      => 'Arrivata',
 
@@ -479,7 +475,6 @@ return [
         'fire'                         => 'Fuoco',
         'valid_missile_count'          => 'Inserisci un numero valido di missili',
         'not_enough_missiles'          => 'Non hai abbastanza missili',
-        'insufficient_range'           => 'Gittata insufficiente (livello di ricerca unità polverizzatrice) dei tuoi missili interplanetari!',
         'launched_success'             => 'Missili lanciati con successo!',
         'launch_failed'                => 'Lancio dei missili fallito',
     ],

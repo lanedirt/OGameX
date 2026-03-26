@@ -482,10 +482,6 @@ return [
 
         // Phalanx result dialog (JS strings inside Blade-rendered script block)
         'sensor_report'                => 'sensor report',
-        'sensor_report_from'           => 'Sensor report from',
-        'own_fleet'                    => 'Own fleet',
-        'enemy_fleet'                  => 'Enemy fleet',
-        'friendly_fleet'               => 'Friendly fleet',
         'refresh'                      => 'Refresh',
         'arrived'                      => 'Arrived',
 
@@ -500,7 +496,6 @@ return [
         'fire'                         => 'Fire',
         'valid_missile_count'          => 'Please enter a valid number of missiles',
         'not_enough_missiles'          => 'You do not have enough missiles',
-        'insufficient_range'           => 'Insufficient range (research level impulse drive) of your interplanetary missiles!',
         'launched_success'             => 'Missiles launched successfully!',
         'launch_failed'                => 'Failed to launch missiles',
     ],
