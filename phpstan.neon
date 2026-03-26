@@ -25,7 +25,7 @@ parameters:
     ignoreErrors:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
-        - '#Parameter #1 \$value of static method Illuminate\\Database\\Connection::raw\(\)#'
+        - '#Parameter \#1 \$value of static method Illuminate\\Database\\Connection::raw\(\)#'
 
     # Required because of bug where PHPStan triggers regex in app/GameMessages/Abstracts/GameMessage.php
     # as error: Negated boolean expression is always false. Check later if this is fixed by removing
