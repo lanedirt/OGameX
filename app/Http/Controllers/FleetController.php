@@ -287,11 +287,7 @@ class FleetController extends OGameController
     public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService, FleetMissionService $fleetMissionService, FleetUnionService $fleetUnionService, CharacterClassService $characterClassService): JsonResponse
     {
         $currentPlanet = $currentPlayer->planets->current();
-
-        // Apply the player's character-class deuterium consumption multiplier (e.g. 0.5 for General class).
-        // Without this, the JS calcConsumption() receives raw base fuel values and computes a different
-        // total than PHP's calculateConsumption(), which applies the multiplier at the end.
-        // By pre-multiplying here, JS and PHP operate on the same adjusted per-ship fuel cost.
+        
         $fuelMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($currentPlayer->getUser());
 
         // Return ships data for this planet taking into account the current planet's properties and research levels.
