@@ -420,10 +420,7 @@
                 fleetDispatcher = new FleetDispatcher(window);
                 fleetDispatcher.init();
 
-                // Fix #1131: reserve exactly the class-adjusted fuel that the PHP backend will deduct.
-                // The fuelConsumption values from dispatchCheckTarget now include the character-class
-                // multiplier, so getConsumption() returns the true one-way cost. Math.floor(deut)
-                // and Math.ceil(consumption) prevent float residuals from causing "not enough resources".
+                
                 fleetDispatcher.getDeuteriumOnPlanetWithoutConsumption = function () {
                     return Math.max(0, Math.floor(this.deuteriumOnPlanet) - Math.ceil(this.getConsumption()));
                 };
