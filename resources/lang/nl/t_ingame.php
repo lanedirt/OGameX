@@ -461,10 +461,6 @@ return [
 
         // Phalanx-resultaatdialoog (JS-strings in Blade-rendered scriptblok)
         'sensor_report'                => 'sensorrapport',
-        'sensor_report_from'           => 'Sensorrapport van',
-        'own_fleet'                    => 'Eigen vloot',
-        'enemy_fleet'                  => 'Vijandige vloot',
-        'friendly_fleet'               => 'Vriendelijke vloot',
         'refresh'                      => 'Vernieuwen',
         'arrived'                      => 'Aangekomen',
 
@@ -479,7 +475,6 @@ return [
         'fire'                         => 'Vuur',
         'valid_missile_count'          => 'Voer een geldig aantal raketten in',
         'not_enough_missiles'          => 'U heeft niet genoeg raketten',
-        'insufficient_range'           => 'Onvoldoende bereik (onderzoeksniveau impulsaandrijving) van uw interplanetaire raketten!',
         'launched_success'             => 'Raketten succesvol gelanceerd!',
         'launch_failed'                => 'Lancering van raketten mislukt',
     ],

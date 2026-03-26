@@ -283,6 +283,27 @@ return [
         'desc_destroy_moon'        => 'Destroys the moon of your enemy.',
         'desc_expedition'          => 'Send your ships to the furthest reaches of space to complete exciting quests.',
 
+        // ACS Attack – federation overlay
+        'fleet_union'              => 'Fleet union',
+        'union_created'            => 'Fleet union created successfully.',
+        'union_edited'             => 'Fleet union successfully edited.',
+        'err_union_max_fleets'     => 'A maximum of 16 fleets can attack.',
+        'err_union_max_players'    => 'A maximum of 5 players can attack.',
+        'err_union_too_slow'        => 'You are too slow to join this fleet.',
+        'err_union_target_mismatch' => 'Your fleet must target the same location as the fleet union.',
+        'union_name'               => 'Union name',
+        'buddy_list'               => 'Buddy list',
+        'buddy_list_loading'       => 'Loading...',
+        'buddy_list_empty'         => 'No buddies available',
+        'buddy_list_error'         => 'Failed to load buddies',
+        'search_user'              => 'Search user',
+        'search'                   => 'Search',
+        'union_user'               => 'Union user',
+        'invite'                   => 'Invite',
+        'kick'                     => 'Kick',
+        'ok'                       => 'Ok',
+        'own_fleet'                => 'Own fleet',
+
         // Briefing section (no trailing colons — add : in template where needed)
         'briefing'                 => 'Briefing',
         'load_resources'           => 'Load resources',
@@ -461,10 +482,6 @@ return [
 
         // Phalanx result dialog (JS strings inside Blade-rendered script block)
         'sensor_report'                => 'sensor report',
-        'sensor_report_from'           => 'Sensor report from',
-        'own_fleet'                    => 'Own fleet',
-        'enemy_fleet'                  => 'Enemy fleet',
-        'friendly_fleet'               => 'Friendly fleet',
         'refresh'                      => 'Refresh',
         'arrived'                      => 'Arrived',
 
@@ -479,7 +496,6 @@ return [
         'fire'                         => 'Fire',
         'valid_missile_count'          => 'Please enter a valid number of missiles',
         'not_enough_missiles'          => 'You do not have enough missiles',
-        'insufficient_range'           => 'Insufficient range (research level impulse drive) of your interplanetary missiles!',
         'launched_success'             => 'Missiles launched successfully!',
         'launch_failed'                => 'Failed to launch missiles',
     ],
