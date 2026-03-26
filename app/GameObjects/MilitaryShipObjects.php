@@ -252,6 +252,8 @@ class MilitaryShipObjects
             new GameObjectRapidfire('ion_cannon', 100),
             new GameObjectRapidfire('gauss_cannon', 50),
             new GameObjectRapidfire('battlecruiser', 15),
+            new GameObjectRapidfire('pathfinder', 30),
+            new GameObjectRapidfire('reaper', 10),
             new GameObjectRapidfire('crawler', 250),
         ];
         $deathstar->properties = new GameObjectProperties($deathstar, 9000000, 50000, 200000, 100, 1000000, 1);
