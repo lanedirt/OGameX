@@ -35,6 +35,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $time
  * @property string|null $register_ip
  * @property string|null $register_time
+ * @property string|null $ban_reason
+ * @property Carbon|null $banned_until
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property int|null $planet_current
@@ -143,6 +145,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
+        'banned_until' => 'datetime',
         'vacation_mode' => 'boolean',
         'vacation_mode_activated_at' => 'datetime',
         'vacation_mode_until' => 'datetime',
@@ -264,6 +267,26 @@ class User extends Authenticatable
     public function hasCharacterClass(): bool
     {
         return $this->character_class !== null;
+    }
+
+    /**
+     * Check if the user is currently banned.
+     * Permanent bans have ban_reason set with banned_until null.
+     * Timed bans have both ban_reason and banned_until set.
+     */
+    public function isBanned(): bool
+    {
+        if ($this->ban_reason === null) {
+            return false;
+        }
+
+        // Permanent ban
+        if ($this->banned_until === null) {
+            return true;
+        }
+
+        // Timed ban — check if still active
+        return $this->banned_until->isFuture();
     }
 
     /**
