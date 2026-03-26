@@ -361,7 +361,7 @@ class FleetController extends OGameController
         // ACS Attack (type 2) is enabled when the player has selected a union, Attack (type 1) is possible,
         // and the fleet can reach the target within the union's max delay time at 100% speed.
         $unionId = (int)request()->input('union');
-        if ($unionId > 0 && in_array(1, $enabledMissions, true)) {
+        if ($settingsService->allianceCombatSystemOn() && $unionId > 0 && in_array(1, $enabledMissions, true)) {
             $union = FleetUnion::find($unionId);
             if ($union !== null
                 && $union->galaxy_to === $targetCoordinates->galaxy
@@ -800,8 +800,12 @@ class FleetController extends OGameController
      * @param FleetUnionService $fleetUnionService
      * @return JsonResponse
      */
-    public function createUnion(PlayerService $player, FleetUnionService $fleetUnionService, MessageService $messageService): JsonResponse
+    public function createUnion(PlayerService $player, FleetUnionService $fleetUnionService, MessageService $messageService, SettingsService $settingsService): JsonResponse
     {
+        if (!$settingsService->allianceCombatSystemOn()) {
+            return response()->json(['error' => __('ACS is disabled on this server.')], 403);
+        }
+
         $validated = request()->validate([
             'fleet_mission_id' => 'nullable|integer|exists:fleet_missions,id',
             'fleetID' => 'nullable|integer|exists:fleet_missions,id',
@@ -991,8 +995,12 @@ class FleetController extends OGameController
      * @param FleetUnionService $fleetUnionService
      * @return JsonResponse
      */
-    public function joinUnion(PlayerService $player, FleetUnionService $fleetUnionService): JsonResponse
+    public function joinUnion(PlayerService $player, FleetUnionService $fleetUnionService, SettingsService $settingsService): JsonResponse
     {
+        if (!$settingsService->allianceCombatSystemOn()) {
+            return response()->json(['error' => __('ACS is disabled on this server.')], 403);
+        }
+
         $validated = request()->validate([
             'fleet_mission_id' => 'required|integer|exists:fleet_missions,id',
             'union_id' => 'required|integer|exists:fleet_unions,id',
