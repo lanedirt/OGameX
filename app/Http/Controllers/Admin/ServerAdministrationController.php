@@ -13,11 +13,11 @@ use OGame\Models\User;
 class ServerAdministrationController extends OGameController
 {
     /**
-     * Shows the server administration page with multi-account detection and ban management.
+     * Shows the server administration page.
      */
     public function index(): View
     {
-        // --- Multi-account detection ---
+        // --- Shared IP groups ---
         // Find IPs (last_ip) shared by 2–10 users. Groups larger than 10 are likely
         // shared infrastructure (VPNs, university networks) and are excluded to reduce noise.
         $sharedLastIps = DB::table('users')
@@ -35,24 +35,24 @@ class ServerAdministrationController extends OGameController
             ->havingRaw('COUNT(*) > 1 AND COUNT(*) <= 10')
             ->pluck('register_ip');
 
-        $suspiciousGroups = collect();
+        $sharedIpGroups = collect();
 
         foreach ($sharedLastIps as $ip) {
             $users = User::where('last_ip', $ip)->get();
-            $suspiciousGroups->push([
-                'ip'            => $ip,
-                'type'          => 'Last active IP',
-                'users'         => $users,
+            $sharedIpGroups->push([
+                'ip'             => $ip,
+                'type'           => 'Last active IP',
+                'users'          => $users,
                 'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
             ]);
         }
 
         foreach ($sharedRegisterIps as $ip) {
             $users = User::where('register_ip', $ip)->get();
-            $suspiciousGroups->push([
-                'ip'            => $ip,
-                'type'          => 'Registration IP',
-                'users'         => $users,
+            $sharedIpGroups->push([
+                'ip'             => $ip,
+                'type'           => 'Registration IP',
+                'users'          => $users,
                 'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
             ]);
         }
@@ -66,9 +66,54 @@ class ServerAdministrationController extends OGameController
             ->get();
 
         return view('ingame.admin.server-administration', [
-            'suspiciousGroups' => $suspiciousGroups,
-            'bannedUsers' => $bannedUsers,
+            'sharedIpGroups'  => $sharedIpGroups,
+            'unusualActivity' => $this->getUnusualActivitySuspects(),
+            'bannedUsers'     => $bannedUsers,
         ]);
+    }
+
+    /**
+     * Returns players with bot-like fleet activity over the past 7 days.
+     *
+     * A player is flagged when they have both:
+     *   - Fleet missions spanning 18 or more distinct hours of the day (only 6 hours "offline")
+     *   - At least 700 total missions (≈ 6/hour × 18 hours/day × 7 days — the upper bound of intense human play)
+     *
+     * Using both signals together avoids false positives from players who play long
+     * hours at low intensity, or who were simply online for a day straight during a war.
+     *
+     * @return \Illuminate\Support\Collection<int, object>
+     */
+    private function getUnusualActivitySuspects(): \Illuminate\Support\Collection
+    {
+        $cutoff = now()->subDays(7)->timestamp;
+
+        $rows = DB::table('fleet_missions')
+            ->where('time_departure', '>', $cutoff)
+            ->where('canceled', 0)
+            ->groupBy('user_id')
+            ->havingRaw('COUNT(DISTINCT FLOOR(time_departure % 86400 / 3600)) >= 18 AND COUNT(*) >= 700')
+            ->select([
+                'user_id',
+                DB::raw('COUNT(*) as mission_count'),
+                DB::raw('COUNT(DISTINCT FLOOR(time_departure % 86400 / 3600)) as active_hours'),
+            ])
+            ->orderByDesc('active_hours')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            return collect();
+        }
+
+        $users = User::whereIn('id', $rows->pluck('user_id'))->get()->keyBy('id');
+
+        return $rows
+            ->filter(fn ($row) => isset($users[$row->user_id]))
+            ->map(function ($row) use ($users) {
+                $row->user = $users[$row->user_id];
+                return $row;
+            })
+            ->values();
     }
 
     /**
