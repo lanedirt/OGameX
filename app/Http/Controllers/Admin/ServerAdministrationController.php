@@ -4,6 +4,7 @@ namespace OGame\Http\Controllers\Admin;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use OGame\Factories\PlayerServiceFactory;
@@ -82,9 +83,9 @@ class ServerAdministrationController extends OGameController
      * Using both signals together avoids false positives from players who play long
      * hours at low intensity, or who were simply online for a day straight during a war.
      *
-     * @return \Illuminate\Support\Collection<int, object>
+     * @return Collection<int, \stdClass>
      */
-    private function getUnusualActivitySuspects(): \Illuminate\Support\Collection
+    private function getUnusualActivitySuspects(): Collection
     {
         $cutoff = now()->subDays(7)->timestamp;
 
@@ -121,9 +122,9 @@ class ServerAdministrationController extends OGameController
      * Mission types: 1=Attack, 3=Transport, 6=Espionage.
      *
      * @param array<int> $userIds
-     * @return \Illuminate\Support\Collection<int, object>
+     * @return Collection<int, \stdClass>
      */
-    private function getCrossAccountMissions(array $userIds): \Illuminate\Support\Collection
+    private function getCrossAccountMissions(array $userIds): Collection
     {
         if (count($userIds) < 2) {
             return collect();
