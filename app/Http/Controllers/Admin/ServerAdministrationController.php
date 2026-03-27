@@ -10,6 +10,7 @@ use Illuminate\View\View;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Http\Controllers\OGameController;
 use OGame\Models\User;
+use stdClass;
 
 class ServerAdministrationController extends OGameController
 {
@@ -83,7 +84,7 @@ class ServerAdministrationController extends OGameController
      * Using both signals together avoids false positives from players who play long
      * hours at low intensity, or who were simply online for a day straight during a war.
      *
-     * @return Collection<int, \stdClass>
+     * @return Collection<int, stdClass>
      */
     private function getUnusualActivitySuspects(): Collection
     {
@@ -122,7 +123,7 @@ class ServerAdministrationController extends OGameController
      * Mission types: 1=Attack, 3=Transport, 6=Espionage.
      *
      * @param array<int> $userIds
-     * @return Collection<int, \stdClass>
+     * @return Collection<int, stdClass>
      */
     private function getCrossAccountMissions(array $userIds): Collection
     {
