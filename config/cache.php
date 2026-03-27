@@ -3,7 +3,6 @@
 use Illuminate\Support\Str;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Cache Store
@@ -33,7 +32,6 @@ return [
     */
 
     'stores' => [
-
         'array' => [
             'driver' => 'array',
             'serialize' => false,
@@ -98,7 +96,6 @@ return [
                 'array',
             ],
         ],
-
     ],
 
     /*
@@ -125,6 +122,7 @@ return [
     |
     */
 
-    'serializable_classes' => false,
-
+    'serializable_classes' => [
+        \OGame\Models\Planet\Coordinate::class,
+    ],
 ];
