@@ -86,7 +86,7 @@ class BanTest extends AccountTestCase
         $this->assertEquals('Permanent ban test', $target->ban_reason);
         $this->assertNull($target->banned_until);
         $this->assertTrue($target->isBanned());
-        $this->assertTrue((bool) $target->vacation_mode);
+        $this->assertFalse((bool) $target->vacation_mode);
     }
 
     /**

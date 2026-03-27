@@ -39,12 +39,22 @@ class ServerAdministrationController extends OGameController
 
         foreach ($sharedLastIps as $ip) {
             $users = User::where('last_ip', $ip)->get();
-            $suspiciousGroups->push(['ip' => $ip, 'type' => 'Last active IP', 'users' => $users]);
+            $suspiciousGroups->push([
+                'ip'            => $ip,
+                'type'          => 'Last active IP',
+                'users'         => $users,
+                'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
+            ]);
         }
 
         foreach ($sharedRegisterIps as $ip) {
             $users = User::where('register_ip', $ip)->get();
-            $suspiciousGroups->push(['ip' => $ip, 'type' => 'Registration IP', 'users' => $users]);
+            $suspiciousGroups->push([
+                'ip'            => $ip,
+                'type'          => 'Registration IP',
+                'users'         => $users,
+                'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
+            ]);
         }
 
         // --- Currently banned users ---
@@ -59,6 +69,43 @@ class ServerAdministrationController extends OGameController
             'suspiciousGroups' => $suspiciousGroups,
             'bannedUsers' => $bannedUsers,
         ]);
+    }
+
+    /**
+     * Returns fleet missions sent between accounts in the same IP group.
+     * Mission types: 1=Attack, 3=Transport, 6=Espionage.
+     *
+     * @param array<int> $userIds
+     * @return \Illuminate\Support\Collection<int, object>
+     */
+    private function getCrossAccountMissions(array $userIds): \Illuminate\Support\Collection
+    {
+        if (count($userIds) < 2) {
+            return collect();
+        }
+
+        return DB::table('fleet_missions')
+            ->join('planets as p_to', 'fleet_missions.planet_id_to', '=', 'p_to.id')
+            ->join('users as sender', 'fleet_missions.user_id', '=', 'sender.id')
+            ->join('users as target', 'p_to.user_id', '=', 'target.id')
+            ->whereIn('fleet_missions.user_id', $userIds)
+            ->whereIn('p_to.user_id', $userIds)
+            ->whereColumn('fleet_missions.user_id', '!=', 'p_to.user_id')
+            ->whereIn('fleet_missions.mission_type', [1, 3, 6])
+            ->where('fleet_missions.canceled', 0)
+            ->select([
+                'fleet_missions.id',
+                'fleet_missions.mission_type',
+                'fleet_missions.time_departure',
+                'fleet_missions.metal',
+                'fleet_missions.crystal',
+                'fleet_missions.deuterium',
+                'sender.username as sender_username',
+                'target.username as target_username',
+            ])
+            ->orderBy('fleet_missions.time_departure', 'desc')
+            ->limit(20)
+            ->get();
     }
 
     /**
@@ -90,12 +137,15 @@ class ServerAdministrationController extends OGameController
         $user->banned_until = $bannedUntil;
         $user->save();
 
-        // Put the user in vacation mode for the duration of the ban. This bypasses the
-        // normal canActivateVacationMode() check (which blocks activation when fleets are
-        // in transit) — bans take precedence. Fleets already in transit will still complete.
+        // Temporary bans activate vacation mode so the account is protected while the
+        // player is away. Permanent bans do not — the account is forfeit anyway.
+        // This bypasses canActivateVacationMode() (which blocks when fleets are in transit)
+        // — bans take precedence. Fleets already in transit will still complete.
         // Vacation mode persists after unban; the player must disable it manually.
-        $playerService = resolve(PlayerServiceFactory::class)->make($user->id);
-        $playerService->activateVacationMode();
+        if ($bannedUntil !== null) {
+            $playerService = resolve(PlayerServiceFactory::class)->make($user->id);
+            $playerService->activateVacationMode();
+        }
 
         return redirect()->route('admin.server-administration.index')
             ->with('status', "User \"{$user->username}\" has been banned.");

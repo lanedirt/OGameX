@@ -57,7 +57,12 @@
                                 <div style="padding: 4px 0; margin-bottom: 4px;">
                                     <strong>{{ $group['type'] }}:</strong>
                                     <code style="background: #1a1a2e; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">{{ $group['ip'] }}</code>
+                                    @if ($group['cross_missions']->isNotEmpty())
+                                        <span style="color: #e74c3c; font-size: 10px; margin-left: 10px;">&#9888; Cross-account missions detected</span>
+                                    @endif
                                 </div>
+
+                                {{-- Accounts table --}}
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <thead>
                                         <tr style="background: #0d0d1a; color: #aaa; font-size: 11px;">
@@ -113,6 +118,48 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+
+                                {{-- Cross-account fleet missions --}}
+                                @if ($group['cross_missions']->isNotEmpty())
+                                    <div style="margin-top: 8px;">
+                                        <div style="font-size: 11px; color: #aaa; margin-bottom: 4px;">Fleet missions between these accounts (most recent 20):</div>
+                                        <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                            <thead>
+                                                <tr style="background: #1a0a0a; color: #aaa;">
+                                                    <th style="padding: 3px 6px; text-align: left;">Type</th>
+                                                    <th style="padding: 3px 6px; text-align: left;">From</th>
+                                                    <th style="padding: 3px 6px; text-align: left;">To</th>
+                                                    <th style="padding: 3px 6px; text-align: left;">Resources</th>
+                                                    <th style="padding: 3px 6px; text-align: left;">Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($group['cross_missions'] as $mission)
+                                                    @php
+                                                        $missionLabel = match($mission->mission_type) {
+                                                            1 => ['label' => 'Attack',    'color' => '#e74c3c'],
+                                                            3 => ['label' => 'Transport', 'color' => '#3498db'],
+                                                            6 => ['label' => 'Espionage', 'color' => '#f39c12'],
+                                                            default => ['label' => 'Unknown', 'color' => '#aaa'],
+                                                        };
+                                                        $resources = array_filter([
+                                                            $mission->metal    ? number_format($mission->metal)    . ' M' : null,
+                                                            $mission->crystal  ? number_format($mission->crystal)  . ' C' : null,
+                                                            $mission->deuterium? number_format($mission->deuterium). ' D' : null,
+                                                        ]);
+                                                    @endphp
+                                                    <tr style="border-top: 1px solid #1a0a0a;">
+                                                        <td style="padding: 3px 6px; color: {{ $missionLabel['color'] }};">{{ $missionLabel['label'] }}</td>
+                                                        <td style="padding: 3px 6px;">{{ $mission->sender_username }}</td>
+                                                        <td style="padding: 3px 6px;">{{ $mission->target_username }}</td>
+                                                        <td style="padding: 3px 6px; color: #aaa;">{{ $resources ? implode(', ', $resources) : '—' }}</td>
+                                                        <td style="padding: 3px 6px; color: #aaa;">{{\Illuminate\Support\Carbon::createFromTimestamp($mission->time_departure)->format('Y-m-d H:i') }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                         </div>
