@@ -370,7 +370,7 @@
             });
 
             $validInputs.each(function() {
-                var val = parseInt($(this).val().replace(/,/g, '')) || 0;
+                var val = parseInt($(this).val().replace(/[,.]/g, '')) || 0;
 
                 if (val > 0) {
                     hasSelection = true;
@@ -426,7 +426,7 @@
                 }
 
                 var $input = $(this);
-                var val = parseInt($input.val().replace(/,/g, '')) || 0;
+                var val = parseInt($input.val().replace(/[,.]/g, '')) || 0;
 
                 if (val <= 0) {
                     return; // Skip empty inputs
@@ -449,7 +449,7 @@
 
             // Now validate ONLY the target input against remaining storage
             if (targetInput) {
-                var val = parseInt(targetInput.val().replace(/,/g, '')) || 0;
+                var val = parseInt(targetInput.val().replace(/[,.]/g, '')) || 0;
 
                 if (val > 0) {
                     var itemId = targetInput.attr('data-item-id');
@@ -552,7 +552,7 @@
 
             // Only collect from inputs with IDs (cloned inputs don't have IDs)
             $('.ship_amount[id]').each(function() {
-                var val = parseInt($(this).val().replace(/,/g, '')) || 0;
+                var val = parseInt($(this).val().replace(/[,.]/g, '')) || 0;
                 if (val > 0) {
                     var id = $(this).attr('name').replace('am', '');
                     items[id] = val;

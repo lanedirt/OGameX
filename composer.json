@@ -8,9 +8,9 @@
         "php": "^8.5",
         "lab404/laravel-impersonate": "^1.7",
         "laravel/fortify": "^1.21",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^13.0",
         "laravel/reverb": "^1.7",
-        "laravel/tinker": "^2.9",
+        "laravel/tinker": "^3.0",
         "laravel/ui": "^4.5",
         "spatie/laravel-discord-alerts": "^1.7",
         "spatie/laravel-permission": "^7.1"

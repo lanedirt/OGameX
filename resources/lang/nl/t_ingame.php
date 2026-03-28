@@ -975,11 +975,11 @@ return [
         'password_strength_medium'              => 'Gemiddeld',
         'password_strength_high'                => 'Hoog',
         'password_properties_title'             => 'Het wachtwoord moet de volgende eigenschappen bevatten',
-        'password_min_max'                      => 'min. 4 tekens, max. 20 tekens',
+        'password_min_max'                      => 'min. 4 tekens, max. 128 tekens',
         'password_mixed_case'                   => 'Hoofd- en kleine letters',
         'password_special_chars'                => 'Speciale tekens (bijv. !?:_., )',
         'password_numbers'                      => 'Cijfers',
-        'password_length_hint'                  => 'Je wachtwoord moet minimaal <strong>4 tekens</strong> hebben en mag niet langer zijn dan <strong>20 tekens</strong>.',
+        'password_length_hint'                  => 'Je wachtwoord moet minimaal <strong>4 tekens</strong> hebben en mag niet langer zijn dan <strong>128 tekens</strong>.',
 
         'section_email'                         => 'E-mailadres',
         'current_email'                         => 'Huidig e-mailadres:',
@@ -1079,6 +1079,9 @@ return [
 
         // Controllerberichten
         'msg_settings_saved'                    => 'Instellingen opgeslagen',
+        'msg_password_incorrect'                => 'Het huidige wachtwoord dat je hebt ingevoerd is onjuist.',
+        'msg_password_mismatch'                 => 'De nieuwe wachtwoorden komen niet overeen.',
+        'msg_password_length_invalid'           => 'Het nieuwe wachtwoord moet tussen 4 en 128 tekens lang zijn.',
         'msg_vacation_activated'                => 'Vakantiemodus geactiveerd. Je wordt minimaal 48 uur beschermd tegen nieuwe aanvallen.',
         'msg_vacation_deactivated'              => 'Vakantiemodus gedeactiveerd.',
         'msg_vacation_min_duration'             => 'Je kunt de vakantiemodus pas deactiveren nadat de minimale duur van 48 uur is verstreken.',
