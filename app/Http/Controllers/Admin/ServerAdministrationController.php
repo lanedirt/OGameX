@@ -10,10 +10,19 @@ use Illuminate\View\View;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Http\Controllers\OGameController;
 use OGame\Models\User;
+use OGame\Services\SettingsService;
 use stdClass;
 
 class ServerAdministrationController extends OGameController
 {
+    /**
+     * Mission types excluded from bot detection to avoid false positives.
+     * 6 = Espionage (system scanners send hundreds), 9 = Missile attack (bulk fire, no slot cost).
+     *
+     * @var array<int>
+     */
+    private const EXCLUDED_MISSION_TYPES = [6, 9];
+
     /**
      * Shows the server administration page.
      */
@@ -67,55 +76,237 @@ class ServerAdministrationController extends OGameController
             })
             ->get();
 
+        $settings = $this->detectionSettings();
+
         return view('ingame.admin.server-administration', [
-            'sharedIpGroups'  => $sharedIpGroups,
-            'unusualActivity' => $this->getUnusualActivitySuspects(),
-            'bannedUsers'     => $bannedUsers,
+            'sharedIpGroups'    => $sharedIpGroups,
+            'botSuspects'       => $this->getBotActivitySuspects($settings),
+            'bannedUsers'       => $bannedUsers,
+            'detectionSettings' => $settings,
         ]);
     }
 
     /**
-     * Returns players with bot-like fleet activity over the past 7 days.
-     *
-     * A player is flagged when they have both:
-     *   - Fleet missions spanning 18 or more distinct hours of the day (only 6 hours "offline")
-     *   - At least 700 total missions (≈ 6/hour × 18 hours/day × 7 days — the upper bound of intense human play)
-     *
-     * Using both signals together avoids false positives from players who play long
-     * hours at low intensity, or who were simply online for a day straight during a war.
-     *
-     * @return Collection<int, stdClass>
+     * Saves bot detection threshold settings.
      */
-    private function getUnusualActivitySuspects(): Collection
+    public function saveDetectionSettings(Request $request): RedirectResponse
     {
-        $cutoff = now()->subDays(7)->timestamp;
+        $request->validate([
+            'bot_detection_lookback_days'               => ['required', 'integer', 'min:1', 'max:90'],
+            'bot_detection_active_hours'                => ['required', 'integer', 'min:1', 'max:24'],
+            'bot_detection_missions_per_slot_per_day'   => ['required', 'integer', 'min:1'],
+            'bot_detection_min_missions_floor'          => ['required', 'integer', 'min:0'],
+            'bot_detection_expedition_gap_seconds'      => ['required', 'integer', 'min:1'],
+            'bot_detection_expedition_min_occurrences'  => ['required', 'integer', 'min:1'],
+            'bot_detection_attack_reaction_seconds'     => ['required', 'integer', 'min:1'],
+            'bot_detection_attack_reaction_min_occurrences' => ['required', 'integer', 'min:1'],
+        ]);
 
-        $rows = DB::table('fleet_missions')
-            ->where('time_departure', '>', $cutoff)
-            ->where('canceled', 0)
-            ->groupBy('user_id')
-            ->havingRaw('COUNT(DISTINCT FLOOR(time_departure % 86400 / 3600)) >= 18 AND COUNT(*) >= 700')
-            ->select([
-                'user_id',
-                DB::raw('COUNT(*) as mission_count'),
-                DB::raw('COUNT(DISTINCT FLOOR(time_departure % 86400 / 3600)) as active_hours'),
-            ])
-            ->orderByDesc('active_hours')
-            ->get();
+        $settingsService = resolve(SettingsService::class);
 
-        if ($rows->isEmpty()) {
+        foreach ($request->only([
+            'bot_detection_lookback_days',
+            'bot_detection_active_hours',
+            'bot_detection_missions_per_slot_per_day',
+            'bot_detection_min_missions_floor',
+            'bot_detection_expedition_gap_seconds',
+            'bot_detection_expedition_min_occurrences',
+            'bot_detection_attack_reaction_seconds',
+            'bot_detection_attack_reaction_min_occurrences',
+        ]) as $key => $value) {
+            $settingsService->set($key, (string) $value);
+        }
+
+        return redirect()->route('admin.server-administration.index')
+            ->with('status', 'Bot detection settings saved.');
+    }
+
+    /**
+     * Returns the current bot detection settings with their defaults.
+     *
+     * @return array<string, int>
+     */
+    private function detectionSettings(): array
+    {
+        $s = resolve(SettingsService::class);
+
+        return [
+            'lookback_days'                   => (int) $s->get('bot_detection_lookback_days', 7),
+            'active_hours'                    => (int) $s->get('bot_detection_active_hours', 18),
+            'missions_per_slot_per_day'       => (int) $s->get('bot_detection_missions_per_slot_per_day', 18),
+            'min_missions_floor'              => (int) $s->get('bot_detection_min_missions_floor', 50),
+            'expedition_gap_seconds'          => (int) $s->get('bot_detection_expedition_gap_seconds', 10),
+            'expedition_min_occurrences'      => (int) $s->get('bot_detection_expedition_min_occurrences', 5),
+            'attack_reaction_seconds'         => (int) $s->get('bot_detection_attack_reaction_seconds', 10),
+            'attack_reaction_min_occurrences' => (int) $s->get('bot_detection_attack_reaction_min_occurrences', 1),
+        ];
+    }
+
+    /**
+     * Merges all three bot-detection signals into a single keyed collection.
+     * Each entry contains the User model and a 'signals' array indicating which
+     * signals fired and their supporting evidence values.
+     *
+     * @param array<string, int> $settings
+     * @return Collection<int, mixed>
+     */
+    private function getBotActivitySuspects(array $settings): Collection
+    {
+        $byUserId = [];
+
+        foreach ($this->getRoundTheClockSuspects($settings) as $row) {
+            $byUserId[$row->user_id]['signals']['round_the_clock'] = [
+                'active_hours'              => $row->active_hours,
+                'missions_per_slot_per_day' => round($row->missions_per_slot_per_day, 1),
+                'mission_count'             => $row->mission_count,
+            ];
+        }
+
+        foreach ($this->getInstantExpeditionRedispatch($settings) as $row) {
+            $byUserId[$row->user_id]['signals']['instant_expedition'] = [
+                'occurrences' => $row->occurrences,
+            ];
+        }
+
+        foreach ($this->getInstantFleetSaveAfterAttack($settings) as $row) {
+            $byUserId[$row->user_id]['signals']['instant_attack_reaction'] = [
+                'occurrences' => $row->occurrences,
+            ];
+        }
+
+        if (empty($byUserId)) {
             return collect();
         }
 
-        $users = User::whereIn('id', $rows->pluck('user_id'))->get()->keyBy('id');
+        $users = User::whereIn('id', array_keys($byUserId))->get()->keyBy('id');
 
-        return $rows
-            ->filter(fn ($row) => isset($users[$row->user_id]))
-            ->map(function ($row) use ($users) {
-                $row->user = $users[$row->user_id];
-                return $row;
+        return collect($byUserId)
+            ->filter(fn ($entry, $userId) => isset($users[$userId]))
+            ->map(function ($entry, $userId) use ($users) {
+                $entry['user'] = $users[$userId];
+                return $entry;
             })
+            ->sortByDesc(fn ($entry) => count($entry['signals']))
             ->values();
+    }
+
+    /**
+     * Signal 1 — Round-the-clock activity.
+     *
+     * Flags players who span many distinct hours of the day AND exceed a per-slot
+     * mission rate, with a minimum floor to protect early-universe players.
+     * Espionage (6) and missile attacks (9) are excluded.
+     *
+     * @param array<string, int> $settings
+     * @return Collection<int, stdClass>
+     */
+    private function getRoundTheClockSuspects(array $settings): Collection
+    {
+        $cutoff     = now()->subDays($settings['lookback_days'])->timestamp;
+        $floorMissions = $settings['min_missions_floor'];
+        $activeHoursThreshold = $settings['active_hours'];
+        $rateThreshold = $settings['missions_per_slot_per_day'];
+        $lookbackDays = $settings['lookback_days'];
+
+        return DB::table('fleet_missions')
+            ->join('users_tech', 'fleet_missions.user_id', '=', 'users_tech.user_id')
+            ->where('fleet_missions.time_departure', '>', $cutoff)
+            ->where('fleet_missions.canceled', 0)
+            ->whereNotIn('fleet_missions.mission_type', self::EXCLUDED_MISSION_TYPES)
+            ->groupBy('fleet_missions.user_id', 'users_tech.computer_technology')
+            ->havingRaw('COUNT(DISTINCT FLOOR(fleet_missions.time_departure % 86400 / 3600)) >= ?', [$activeHoursThreshold])
+            ->havingRaw('COUNT(*) >= ?', [$floorMissions])
+            ->havingRaw('COUNT(*) / (? * (COALESCE(users_tech.computer_technology, 0) + 1)) >= ?', [$lookbackDays, $rateThreshold])
+            ->select([
+                'fleet_missions.user_id',
+                DB::raw('COUNT(*) as mission_count'),
+                DB::raw('COUNT(DISTINCT FLOOR(fleet_missions.time_departure % 86400 / 3600)) as active_hours'),
+                DB::raw('COALESCE(users_tech.computer_technology, 0) + 1 as fleet_slots'),
+                DB::raw("COUNT(*) / ({$lookbackDays} * (COALESCE(users_tech.computer_technology, 0) + 1)) as missions_per_slot_per_day"),
+            ])
+            ->orderByDesc('active_hours')
+            ->get();
+    }
+
+    /**
+     * Signal 2 — Instant expedition re-dispatch.
+     *
+     * Finds players who re-dispatched an expedition within N seconds of a previous
+     * expedition returning to the same planet. Physically impossible via the web UI.
+     *
+     * @param array<string, int> $settings
+     * @return Collection<int, stdClass>
+     */
+    private function getInstantExpeditionRedispatch(array $settings): Collection
+    {
+        $cutoff     = now()->subDays($settings['lookback_days'])->timestamp;
+        $gapSeconds = $settings['expedition_gap_seconds'];
+        $minOccurrences = $settings['expedition_min_occurrences'];
+
+        $rows = DB::table('fleet_missions as fm_return')
+            ->join('fleet_missions as fm_next', function ($join) use ($gapSeconds) {
+                $join->on('fm_next.user_id', '=', 'fm_return.user_id')
+                    ->on('fm_next.planet_id_from', '=', 'fm_return.planet_id_to')
+                    ->where('fm_next.mission_type', '=', 15)
+                    ->whereNull('fm_next.parent_id')
+                    ->where('fm_next.canceled', '=', 0)
+                    ->whereRaw('fm_next.time_departure > fm_return.time_arrival')
+                    ->whereRaw("fm_next.time_departure - fm_return.time_arrival <= {$gapSeconds}");
+            })
+            ->where('fm_return.mission_type', 15)
+            ->whereNotNull('fm_return.parent_id')
+            ->where('fm_return.canceled', 0)
+            ->where('fm_return.time_arrival', '>', $cutoff)
+            ->groupBy('fm_return.user_id')
+            ->havingRaw('COUNT(*) >= ?', [$minOccurrences])
+            ->select([
+                'fm_return.user_id',
+                DB::raw('COUNT(*) as occurrences'),
+            ])
+            ->get();
+
+        return $rows;
+    }
+
+    /**
+     * Signal 3 — Instant fleet-save after incoming attack.
+     *
+     * Finds players who dispatched a fleet within N seconds of an attack being sent
+     * against their planet. Sub-10-second reactions are impossible without a script
+     * watching the API. Espionage (6) and missile attacks (9) are excluded from the
+     * defender response to avoid false positives.
+     *
+     * @param array<string, int> $settings
+     * @return Collection<int, stdClass>
+     */
+    private function getInstantFleetSaveAfterAttack(array $settings): Collection
+    {
+        $cutoff     = now()->subDays($settings['lookback_days'])->timestamp;
+        $gapSeconds = $settings['attack_reaction_seconds'];
+        $minOccurrences = $settings['attack_reaction_min_occurrences'];
+
+        $rows = DB::table('fleet_missions as attack')
+            ->join('planets', 'attack.planet_id_to', '=', 'planets.id')
+            ->join('fleet_missions as response', function ($join) use ($gapSeconds) {
+                $join->on('response.user_id', '=', 'planets.user_id')
+                    ->where('response.canceled', '=', 0)
+                    ->whereNull('response.parent_id')
+                    ->whereNotIn('response.mission_type', self::EXCLUDED_MISSION_TYPES)
+                    ->whereRaw('response.time_departure >= attack.time_departure')
+                    ->whereRaw("response.time_departure - attack.time_departure <= {$gapSeconds}");
+            })
+            ->where('attack.mission_type', 1)
+            ->where('attack.canceled', 0)
+            ->where('attack.time_departure', '>', $cutoff)
+            ->groupBy('planets.user_id')
+            ->havingRaw('COUNT(*) >= ?', [$minOccurrences])
+            ->select([
+                'planets.user_id',
+                DB::raw('COUNT(*) as occurrences'),
+            ])
+            ->get();
+
+        return $rows;
     }
 
     /**

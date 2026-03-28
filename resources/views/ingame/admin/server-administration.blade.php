@@ -47,7 +47,7 @@
                     <p class="box_highlight textCenter no_buddies">@lang('Flagged Accounts')</p>
 
                     @php
-                        $nothingFlagged = $sharedIpGroups->isEmpty() && $unusualActivity->isEmpty();
+                        $nothingFlagged = $sharedIpGroups->isEmpty() && $botSuspects->isEmpty();
                     @endphp
 
                     @if ($nothingFlagged)
@@ -173,59 +173,80 @@
                             @endif
 
                             {{-- ── Unusual activity (bot-like behaviour) ── --}}
-                            @if ($unusualActivity->isNotEmpty())
+                            @if ($botSuspects->isNotEmpty())
                                 <div style="padding: 6px 10px; background: #0d0d1a; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
                                     Unusual Activity
-                                </div>
-                                <div style="padding: 6px 10px; font-size: 11px; color: #666;">
-                                    Players with fleet activity spanning 18+ distinct hours of the day <em>and</em> 700+ missions over the past 7 days (~100/day). That is the ceiling of what an intense human player could sustain; anything beyond it around the clock is a strong bot signal.
                                 </div>
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <thead>
                                         <tr style="background: #0d0d1a; color: #aaa; font-size: 11px;">
                                             <th style="padding: 4px 6px; text-align: left;">Username</th>
-                                            <th style="padding: 4px 6px; text-align: left;">Active Hours (7d)</th>
-                                            <th style="padding: 4px 6px; text-align: left;">Missions (7d)</th>
+                                            <th style="padding: 4px 6px; text-align: left;" title="18+ distinct active hours AND missions/slot/day above threshold">Round-the-clock</th>
+                                            <th style="padding: 4px 6px; text-align: left;" title="Expedition re-dispatched within {{ $detectionSettings['expedition_gap_seconds'] }}s of return">Instant re-dispatch</th>
+                                            <th style="padding: 4px 6px; text-align: left;" title="Fleet sent within {{ $detectionSettings['attack_reaction_seconds'] }}s of incoming attack">Instant fleet-save</th>
                                             <th style="padding: 4px 6px; text-align: left;">Status</th>
                                             <th style="padding: 4px 6px; text-align: left;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($unusualActivity as $suspect)
+                                        @foreach ($botSuspects as $suspect)
+                                            @php $user = $suspect['user']; $signals = $suspect['signals']; @endphp
                                             <tr style="border-top: 1px solid #222;">
                                                 <td style="padding: 4px 6px;">
-                                                    {{ $suspect->user->username }}
-                                                    @if ($suspect->user->hasRole('admin'))
+                                                    {{ $user->username }}
+                                                    @if ($user->hasRole('admin'))
                                                         <span style="color: #f48406; font-size: 10px;">[ADMIN]</span>
                                                     @endif
                                                 </td>
                                                 <td style="padding: 4px 6px;">
-                                                    <span style="color: #e74c3c;">{{ $suspect->active_hours }}/24</span>
-                                                    <span style="display:inline-block; margin-left: 6px; background: #1a1a1a; border-radius: 3px; width: 72px; height: 8px; vertical-align: middle; overflow: hidden;">
-                                                        <span style="display:block; background: #e74c3c; height: 100%; width: {{ round($suspect->active_hours / 24 * 100) }}%;"></span>
-                                                    </span>
+                                                    @if (isset($signals['round_the_clock']))
+                                                        @php $rtc = $signals['round_the_clock']; @endphp
+                                                        <span style="color: #e74c3c; font-weight: bold;">&#9888;</span>
+                                                        <span style="font-size: 10px; color: #aaa;">
+                                                            {{ $rtc['active_hours'] }}/24h &middot;
+                                                            {{ $rtc['missions_per_slot_per_day'] }}/slot/day &middot;
+                                                            {{ number_format($rtc['mission_count']) }} total
+                                                        </span>
+                                                    @else
+                                                        <span style="color: #444; font-size: 10px;">—</span>
+                                                    @endif
                                                 </td>
-                                                <td style="padding: 4px 6px;">{{ number_format($suspect->mission_count) }}</td>
                                                 <td style="padding: 4px 6px;">
-                                                    @if ($suspect->user->isBanned())
+                                                    @if (isset($signals['instant_expedition']))
+                                                        <span style="color: #e74c3c; font-weight: bold;">&#9888;</span>
+                                                        <span style="font-size: 10px; color: #aaa;">{{ $signals['instant_expedition']['occurrences'] }}×</span>
+                                                    @else
+                                                        <span style="color: #444; font-size: 10px;">—</span>
+                                                    @endif
+                                                </td>
+                                                <td style="padding: 4px 6px;">
+                                                    @if (isset($signals['instant_attack_reaction']))
+                                                        <span style="color: #e74c3c; font-weight: bold;">&#9888;</span>
+                                                        <span style="font-size: 10px; color: #aaa;">{{ $signals['instant_attack_reaction']['occurrences'] }}×</span>
+                                                    @else
+                                                        <span style="color: #444; font-size: 10px;">—</span>
+                                                    @endif
+                                                </td>
+                                                <td style="padding: 4px 6px;">
+                                                    @if ($user->isBanned())
                                                         <span style="color: #e74c3c;">Banned</span>
                                                     @else
                                                         <span style="color: #2ecc71;">Active</span>
                                                     @endif
                                                 </td>
                                                 <td style="padding: 4px 6px;">
-                                                    @if (!$suspect->user->hasRole('admin') && !$suspect->user->isBanned())
+                                                    @if (!$user->hasRole('admin') && !$user->isBanned())
                                                         <form action="{{ route('admin.server-administration.ban') }}" method="post" style="display:inline;">
                                                             {{ csrf_field() }}
-                                                            <input type="hidden" name="username" value="{{ $suspect->user->username }}">
+                                                            <input type="hidden" name="username" value="{{ $user->username }}">
                                                             <input type="hidden" name="reason" value="Suspected botting">
                                                             <input type="hidden" name="duration" value="permanent">
                                                             <input type="submit" class="btn_blue" value="Quick Ban" style="font-size: 10px; padding: 2px 6px;">
                                                         </form>
-                                                    @elseif (!$suspect->user->hasRole('admin') && $suspect->user->isBanned())
+                                                    @elseif (!$user->hasRole('admin') && $user->isBanned())
                                                         <form action="{{ route('admin.server-administration.unban') }}" method="post" style="display:inline;">
                                                             {{ csrf_field() }}
-                                                            <input type="hidden" name="user_id" value="{{ $suspect->user->id }}">
+                                                            <input type="hidden" name="user_id" value="{{ $user->id }}">
                                                             <input type="submit" class="btn_blue" value="Unban" style="font-size: 10px; padding: 2px 6px;">
                                                         </form>
                                                     @else
@@ -240,6 +261,78 @@
 
                         </div>
                     @endif
+
+                    {{-- ===== BOT DETECTION SETTINGS ===== --}}
+                    <p class="box_highlight textCenter no_buddies" style="margin-top: 20px;">@lang('Bot Detection Settings')</p>
+                    <form action="{{ route('admin.server-administration.detection-settings') }}" method="post">
+                        {{ csrf_field() }}
+                        <div class="group bborder" style="display: block;">
+
+                            <div style="padding: 6px 10px; background: #0d0d1a; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                                Signal 1 — Round-the-clock activity
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled" for="bd_lookback_days" title="How many days back to scan for all signals">Lookback period (days):</label>
+                                <div class="thefield">
+                                    <input type="number" id="bd_lookback_days" name="bot_detection_lookback_days" class="textInput w80 textCenter" min="1" max="90" value="{{ $detectionSettings['lookback_days'] }}">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled" for="bd_active_hours" title="Minimum distinct hours of the day (0–23) that must have mission activity">Min. active hours/day:</label>
+                                <div class="thefield">
+                                    <input type="number" id="bd_active_hours" name="bot_detection_active_hours" class="textInput w80 textCenter" min="1" max="24" value="{{ $detectionSettings['active_hours'] }}">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled" for="bd_rate" title="Missions per fleet slot per day. Fleet slots = computer technology level + 1. Scales automatically with player progression.">Min. missions/slot/day:</label>
+                                <div class="thefield">
+                                    <input type="number" id="bd_rate" name="bot_detection_missions_per_slot_per_day" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['missions_per_slot_per_day'] }}">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled" for="bd_floor" title="Minimum total missions required before a player can be flagged by signal 1. Protects new players whose rate looks suspicious due to tiny sample size.">Min. total missions (floor):</label>
+                                <div class="thefield">
+                                    <input type="number" id="bd_floor" name="bot_detection_min_missions_floor" class="textInput w80 textCenter" min="0" value="{{ $detectionSettings['min_missions_floor'] }}">
+                                </div>
+                            </div>
+
+                            <div style="padding: 6px 10px; background: #0d0d1a; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 8px;">
+                                Signal 2 — Instant expedition re-dispatch
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled" for="bd_exp_gap" title="Maximum seconds between an expedition returning and the next one departing from the same planet to count as an instant re-dispatch">Max. re-dispatch gap (seconds):</label>
+                                <div class="thefield">
+                                    <input type="number" id="bd_exp_gap" name="bot_detection_expedition_gap_seconds" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['expedition_gap_seconds'] }}">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled" for="bd_exp_min" title="How many instant re-dispatches must be observed before flagging">Min. occurrences to flag:</label>
+                                <div class="thefield">
+                                    <input type="number" id="bd_exp_min" name="bot_detection_expedition_min_occurrences" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['expedition_min_occurrences'] }}">
+                                </div>
+                            </div>
+
+                            <div style="padding: 6px 10px; background: #0d0d1a; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 8px;">
+                                Signal 3 — Instant fleet-save after attack
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled" for="bd_atk_gap" title="Maximum seconds between an attack being dispatched and the defender sending a fleet">Max. reaction gap (seconds):</label>
+                                <div class="thefield">
+                                    <input type="number" id="bd_atk_gap" name="bot_detection_attack_reaction_seconds" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['attack_reaction_seconds'] }}">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled" for="bd_atk_min" title="How many instant reactions must be observed before flagging">Min. occurrences to flag:</label>
+                                <div class="thefield">
+                                    <input type="number" id="bd_atk_min" name="bot_detection_attack_reaction_min_occurrences" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['attack_reaction_min_occurrences'] }}">
+                                </div>
+                            </div>
+
+                            <div class="fieldwrapper" style="text-align: center; margin-top: 10px;">
+                                <input type="submit" class="btn_blue" value="Save Settings">
+                            </div>
+                        </div>
+                    </form>
 
                     {{-- ===== BAN A PLAYER ===== --}}
                     <p class="box_highlight textCenter no_buddies" style="margin-top: 20px;">@lang('Ban a Player')</p>
