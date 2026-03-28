@@ -3,7 +3,8 @@
 namespace Tests\Feature\FleetDispatch;
 
 use Exception;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
+use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMissions\EspionageMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
@@ -348,7 +349,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 5 seconds.
-        $fleetParentTime = Carbon::getTestNow()->addSeconds(5);
+        $fleetParentTime = Date::getTestNow()->addSeconds(5);
         $this->travelTo($fleetParentTime);
 
         // Cancel the mission
@@ -382,7 +383,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $this->playerSetAllMessagesRead();
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -568,5 +569,36 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Cancel the fleet mission, so it doesn't interfere with other tests.
         $fleetMissionService->cancelMission($fleetMission);
+    }
+
+    /**
+     * Test that deleting a player who was the target of an espionage mission succeeds and
+     * preserves the spy's report with planet_user_id nulled out.
+     */
+    public function testEspionageReportPreservedWhenTargetPlayerIsDeleted(): void
+    {
+        $this->basicSetup();
+
+        // Send espionage probe to a foreign planet.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+
+        // Advance time and process the mission so the espionage report is created.
+        $this->travel(10)->hours();
+        $this->get('/overview');
+
+        // Verify that an espionage report was created targeting the foreign player.
+        $targetUserId = $foreignPlanet->getPlayer()->getId();
+        $report = EspionageReport::where('planet_user_id', $targetUserId)->first();
+        $this->assertNotNull($report, 'Espionage report should exist before target player is deleted.');
+
+        // Delete the target player — this must not throw a FK constraint violation.
+        $playerService = resolve(PlayerServiceFactory::class)->make($targetUserId);
+        $playerService->delete();
+
+        // The report should still exist with planet_user_id nulled out.
+        $report->refresh();
+        $this->assertNull($report->planet_user_id, 'Espionage report should be preserved with planet_user_id set to null after target player is deleted.');
     }
 }
