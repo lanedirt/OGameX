@@ -49,10 +49,34 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Caution',
-        'yes'     => 'yes',
-        'no'      => 'No',
-        'error'   => 'Error',
+        'caution'         => 'Caution',
+        'yes'             => 'yes',
+        'no'              => 'No',
+        'error'           => 'Error',
+        'ok'              => 'Ok',
+        'error_occurred'  => 'An error occurred.',
+        'level'           => 'Level',
+        'duration'        => 'Duration',
+        'dark_matter'     => 'Dark Matter',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Build queue (active building / research slot)
+    // -------------------------------------------------------------------------
+
+    'buildqueue' => [
+        'improve_to'                => 'Improve to',
+        'downgrade_to'              => 'Downgrade to',
+        'halve_time'                => 'Halve time',
+        'halve_cost'                => 'Costs: :amount DM',
+        'halve_tooltip_building'    => 'Reduces construction time by 50% of the total construction time.',
+        'halve_tooltip_research'    => 'Reduces research time by 50% of the total research time.',
+        'question_halve_building'   => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time for :dm_cost?',
+        'question_halve_research'   => 'Do you want to reduce the research time of the current research project by 50% of the total research time for :dm_cost?',
+        'no_building_idle'          => 'No buildings in construction.',
+        'no_building_idle_tooltip'  => 'At the moment there is no building being built on this planet. Click here to go to the build page.',
+        'no_research_idle'          => 'There is no research in progress at the moment.',
+        'no_research_idle_tooltip'  => 'There is no research done at the moment. Click here to get to your research lab.',
     ],
 
     // -------------------------------------------------------------------------
@@ -124,8 +148,62 @@ return [
     // -------------------------------------------------------------------------
 
     'shipyard_page' => [
-        'battleships' => 'Battleships',
-        'civil_ships' => 'Civil ships',
+        'battleships'         => 'Battleships',
+        'civil_ships'         => 'Civil ships',
+        'no_units_idle'       => 'Idle',
+        'no_units_idle_tooltip' => 'No ships/defenses are currently being built.',
+        'to_shipyard'         => 'To shipyard',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Ajax object modal (buildings, ships, defense, research)
+    // -------------------------------------------------------------------------
+
+    'ajax_object' => [
+        'open_techtree'            => 'Open tech tree',
+        'techtree'                 => 'Tech tree',
+        'no_requirements'          => 'No requirements',
+        'cancel_expansion_confirm' => 'Cancel the upgrade of :name to level :level?',
+        'number'                   => 'Number:',
+        'level'                    => 'Level',
+        'production_duration'      => 'Production time',
+        'energy_needed'            => 'Energy needed',
+        'production'               => 'Production',
+        'costs_per_piece'          => 'Costs per piece',
+        'required_to_improve'      => 'Resources required for level',
+        'metal'                    => 'Metal',
+        'crystal'                  => 'Crystal',
+        'deuterium'                => 'Deuterium',
+        'energy'                   => 'Energy',
+        'deconstruction_costs'     => 'Deconstruction costs',
+        'ion_technology_bonus'     => 'Ion Technology bonus',
+        'duration'                 => 'Duration',
+        'number_label'             => 'Number:',
+        'max_btn'                  => 'Max (:amount)',
+        'vacation_mode'            => 'Not available in vacation mode',
+        'tear_down_btn'            => 'Tear down',
+        'wrong_character_class'    => 'Wrong character class',
+        'shipyard_upgrading'       => 'Shipyard is being upgraded',
+        'shipyard_busy'            => 'Shipyard is busy',
+        'not_enough_fields'        => 'Not enough building fields',
+        'build'                    => 'Build',
+        'in_queue'                 => 'In queue',
+        'improve'                  => 'Improve',
+        'storage_capacity'         => 'Storage capacity',
+        'gain_resources'           => 'Gain resources',
+        'view_offers'              => 'View offers',
+        'destroy_rockets_desc'     => 'Destroy rockets',
+        'destroy_rockets_btn'      => 'Destroy rockets',
+        'more_details'             => 'More details',
+        'error'                    => 'An error occurred',
+        'commander_queue_info'     => 'You need a Commander to be able to use the building queue.',
+        'no_rocket_silo_capacity'  => 'Rocket silo is at maximum capacity',
+        'detail_now'               => 'Details',
+        'start_with_dm'            => 'Start with Dark Matter',
+        'err_dm_price_too_low'     => 'The Dark Matter price is too low',
+        'err_resource_limit'       => 'Not enough resources',
+        'err_storage_capacity'     => 'Storage capacity exceeded',
+        'err_no_dark_matter'       => 'Not enough Dark Matter',
     ],
 
     // -------------------------------------------------------------------------
@@ -303,6 +381,8 @@ return [
         'kick'                     => 'Kick',
         'ok'                       => 'Ok',
         'own_fleet'                => 'Own fleet',
+        'enemy_fleet'              => 'Enemy fleet',
+        'friendly_fleet'           => 'Friendly fleet',
 
         // Briefing section (no trailing colons — add : in template where needed)
         'briefing'                 => 'Briefing',
@@ -1472,5 +1552,49 @@ return [
         'msg_yes'                       => 'Yes',
         'msg_no'                        => 'No',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Alliance Depot dialog
+    // -------------------------------------------------------------------------
+
+    'alliance_depot' => [
+        'description'        => 'The Alliance Depot allows you to send supply rockets to friendly fleets that are holding at your planet, extending their hold time.',
+        'capacity'           => 'Capacity',
+        'no_fleets'          => 'There are no holding fleets!',
+        'fleet_owner'        => 'Fleet owner',
+        'ships'              => 'Ships',
+        'hold_time'          => 'Hold time',
+        'extend'             => 'Extend',
+        'supply_cost'        => 'Supply cost (deuterium)',
+        'start_supply'       => 'Send supply rocket',
+        'please_select_fleet' => 'Please select a fleet.',
+        'hours_between'      => 'Extension hours must be between 1 and 32.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chat
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'list_title'         => 'List of your chats',
+        'player_list'        => 'Player list',
+        'alliance_chat'      => 'Alliance Chat',
+        'no_messages_yet'    => 'No messages yet',
+        'no_conversations'   => 'No conversations yet.',
+        'submit'             => 'Send',
+        'buddy_tooltip'      => 'Buddy',
+        'alliance_tooltip'   => 'Alliance member',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Status not visible',
+        'highscore_ranking'  => 'Ranking',
+        'alliance_label'     => 'Alliance',
+        'planet_alt'         => 'Planet',
+        'buddies'            => 'Buddies',
+        'no_buddies'         => 'No buddies',
+        'strangers'          => 'Strangers',
+        'no_strangers'       => 'No strangers',
+        'alliance'           => 'Alliance',
     ],
 ];

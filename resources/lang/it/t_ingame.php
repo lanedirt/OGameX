@@ -49,10 +49,34 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Attenzione',
-        'yes'     => 'sì',
-        'no'      => 'No',
-        'error'   => 'Errore',
+        'caution'         => 'Attenzione',
+        'yes'             => 'sì',
+        'no'              => 'No',
+        'error'           => 'Errore',
+        'ok'              => 'Ok',
+        'error_occurred'  => 'Si è verificato un errore.',
+        'level'           => 'Livello',
+        'duration'        => 'Durata',
+        'dark_matter'     => 'Materia Oscura',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Coda di costruzione (slot edificio / ricerca attivo)
+    // -------------------------------------------------------------------------
+
+    'buildqueue' => [
+        'improve_to'                => 'Migliora a',
+        'downgrade_to'              => 'Abbassa al',
+        'halve_time'                => 'Dimezza il tempo',
+        'halve_cost'                => 'Costo: :amount MD',
+        'halve_tooltip_building'    => 'Riduce il tempo di costruzione del 50% del tempo di costruzione totale.',
+        'halve_tooltip_research'    => 'Riduce il tempo di ricerca del 50% del tempo di ricerca totale.',
+        'question_halve_building'   => 'Vuoi ridurre il tempo di costruzione del progetto attuale del 50% del tempo totale per :dm_cost?',
+        'question_halve_research'   => 'Vuoi ridurre il tempo di ricerca del progetto attuale del 50% del tempo totale per :dm_cost?',
+        'no_building_idle'          => 'Nessun edificio in costruzione.',
+        'no_building_idle_tooltip'  => 'Al momento non sono in costruzione edifici su questo pianeta. Clicca qui per andare alla pagina di costruzione.',
+        'no_research_idle'          => 'Al momento non è in corso nessuna ricerca.',
+        'no_research_idle_tooltip'  => 'Al momento non è in corso nessuna ricerca. Clicca qui per andare al laboratorio di ricerca.',
     ],
 
     // -------------------------------------------------------------------------
@@ -236,8 +260,10 @@ return [
         'select_all_ships'         => 'Seleziona tutte le navi',
         'reset_choice'             => 'Azzera selezione',
         'api_data'                 => 'Questi dati possono essere inseriti in un simulatore di combattimento compatibile:',
-        'tactical_retreat'         => 'Ritirata tattica',
-        'tactical_retreat_tooltip' => 'Mostra il consumo di Deuterio per ritirata tattica',
+        'tactical_retreat'              => 'Ritirata tattica',
+        'tactical_retreat_tooltip'      => 'Mostra il consumo di Deuterio per ritirata tattica',
+        'tactical_retreat_desc'         => 'Le flotte possono ritirarsi automaticamente se vengono attaccate da una forza superiore cinque volte più forte di loro. Il fattore determinante è il confronto tra i punti flotta dell\'attaccante e i tuoi punti flotta. Le strutture difensive non vengono considerate.<br /><br />Le navi civili contano solo il 25%, i satelliti solari e le sonde di spionaggio non vengono considerate.<br /><br />Seleziona l\'opzione "mai" se desideri disattivare la ritirata automatica.<br /><br />Le flotte in stazionamento non possono in linea di principio ritirarsi. Anche le Stelle della morte, le Sonde di spionaggio e i Satelliti solari non possono ritirarsi.<br /><br />Usa l\'Ammiraglio per permettere alle tue flotte di ritirarsi da forze tre volte più grandi delle tue.<br /><br />L\'opzione "ritirata tattica" termina con 500.000 punti.',
+        'tactical_retreat_admiral_desc' => 'Usa l\'Ammiraglio per permettere alle tue flotte di ritirarsi da forze tre volte più grandi delle tue.',
         'continue'                 => 'Continua',
         'back'                     => 'Indietro',
 
@@ -282,6 +308,29 @@ return [
         'desc_recycle'             => 'Invia i tuoi riciclatori in un campo di detriti per raccogliere le risorse.',
         'desc_destroy_moon'        => 'Distrugge la luna del tuo nemico.',
         'desc_expedition'          => 'Invia le tue navi ai confini dello spazio per compiere missioni emozionanti.',
+
+        // ACS Attack – overlay federazione
+        'fleet_union'              => 'Unione flotta',
+        'union_created'            => 'Unione flotta creata con successo.',
+        'union_edited'             => 'Unione flotta modificata con successo.',
+        'err_union_max_fleets'     => 'Possono attaccare al massimo 16 flotte.',
+        'err_union_max_players'    => 'Possono attaccare al massimo 5 giocatori.',
+        'err_union_too_slow'       => 'Sei troppo lento per unirti a questa flotta.',
+        'err_union_target_mismatch' => 'La tua flotta deve puntare alla stessa destinazione dell\'unione flotta.',
+        'union_name'               => 'Nome unione',
+        'buddy_list'               => 'Lista amici',
+        'buddy_list_loading'       => 'Caricamento...',
+        'buddy_list_empty'         => 'Nessun amico disponibile',
+        'buddy_list_error'         => 'Impossibile caricare la lista amici',
+        'search_user'              => 'Cerca giocatore',
+        'search'                   => 'Cerca',
+        'union_user'               => 'Giocatore nell\'unione',
+        'invite'                   => 'Invita',
+        'kick'                     => 'Espelli',
+        'ok'                       => 'Ok',
+        'own_fleet'                => 'Flotta propria',
+        'enemy_fleet'              => 'Flotta nemica',
+        'friendly_fleet'           => 'Flotta alleata',
 
         // Sezione briefing (senza due punti finali)
         'briefing'                 => 'Briefing',
@@ -597,7 +646,8 @@ return [
         'battle_defender'    => 'Difensore',
         'battle_resources'   => 'Risorse',
         'battle_loot'        => 'Bottino',
-        'battle_debris_new'  => 'Campo di detriti (appena creato)',
+        'battle_debris_new'       => 'Campo di detriti (appena creato)',
+        'battle_wreckage_created' => 'Relitti creati',
         'battle_repaired'    => 'Difese riparate',
         'battle_moon_chance' => 'Probabilità di luna',
 
@@ -1434,5 +1484,49 @@ return [
         'msg_yes'                       => 'Sì',
         'msg_no'                        => 'No',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Deposito Alleanza
+    // -------------------------------------------------------------------------
+
+    'alliance_depot' => [
+        'description'         => 'Il Deposito Alleanza ti permette di inviare razzi di rifornimento alle flotte amiche in attesa sul tuo pianeta, estendendo il loro tempo di permanenza.',
+        'capacity'            => 'Capacità',
+        'no_fleets'           => 'Non ci sono flotte in attesa!',
+        'fleet_owner'         => 'Proprietario flotta',
+        'ships'               => 'Navi',
+        'hold_time'           => 'Tempo di permanenza',
+        'extend'              => 'Estendi',
+        'supply_cost'         => 'Costo rifornimento (deuterio)',
+        'start_supply'        => 'Invia razzo di rifornimento',
+        'please_select_fleet' => 'Seleziona una flotta.',
+        'hours_between'       => 'Le ore di estensione devono essere tra 1 e 32.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chat
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'list_title'         => 'Lista delle tue chat',
+        'player_list'        => 'Lista giocatori',
+        'alliance_chat'      => 'Chat Alleanza',
+        'no_messages_yet'    => 'Nessun messaggio ancora',
+        'no_conversations'   => 'Nessuna conversazione ancora.',
+        'submit'             => 'Invia',
+        'buddy_tooltip'      => 'Amico',
+        'alliance_tooltip'   => 'Membro dell\'alleanza',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Stato non visibile',
+        'highscore_ranking'  => 'Classifica',
+        'alliance_label'     => 'Alleanza',
+        'planet_alt'         => 'Pianeta',
+        'buddies'            => 'Amici',
+        'no_buddies'         => 'Nessun amico',
+        'strangers'          => 'Sconosciuti',
+        'no_strangers'       => 'Nessuno sconosciuto',
+        'alliance'           => 'Alleanza',
     ],
 ];

@@ -49,10 +49,34 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Waarschuwing',
-        'yes'     => 'ja',
-        'no'      => 'Nee',
-        'error'   => 'Fout',
+        'caution'         => 'Waarschuwing',
+        'yes'             => 'ja',
+        'no'              => 'Nee',
+        'error'           => 'Fout',
+        'ok'              => 'Ok',
+        'error_occurred'  => 'Er is een fout opgetreden.',
+        'level'           => 'Niveau',
+        'duration'        => 'Duur',
+        'dark_matter'     => 'Donkere materie',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Bouwwachtrij (actief gebouw / onderzoek slot)
+    // -------------------------------------------------------------------------
+
+    'buildqueue' => [
+        'improve_to'                => 'Verbeteren naar',
+        'downgrade_to'              => 'Verlagen naar',
+        'halve_time'                => 'Halveer tijd',
+        'halve_cost'                => 'Kosten: :amount DM',
+        'halve_tooltip_building'    => 'Vermindert de bouwtijd met 50% van de totale bouwtijd.',
+        'halve_tooltip_research'    => 'Vermindert de onderzoekstijd met 50% van de totale onderzoekstijd.',
+        'question_halve_building'   => 'Wil je de bouwtijd van het huidige bouwproject met 50% van de totale bouwtijd verminderen voor :dm_cost?',
+        'question_halve_research'   => 'Wil je de onderzoekstijd van het huidige onderzoeksproject met 50% van de totale onderzoekstijd verminderen voor :dm_cost?',
+        'no_building_idle'          => 'Geen gebouwen in aanbouw.',
+        'no_building_idle_tooltip'  => 'Er wordt op dit moment geen gebouw gebouwd op deze planeet. Klik hier om naar de bouwpagina te gaan.',
+        'no_research_idle'          => 'Er is momenteel geen onderzoek bezig.',
+        'no_research_idle_tooltip'  => 'Er is momenteel geen onderzoek gaande. Klik hier om naar je onderzoekslaboratorium te gaan.',
     ],
 
     // -------------------------------------------------------------------------
@@ -124,8 +148,62 @@ return [
     // -------------------------------------------------------------------------
 
     'shipyard_page' => [
-        'battleships' => 'Gevechtsschepen',
-        'civil_ships' => 'Civiele schepen',
+        'battleships'           => 'Gevechtsschepen',
+        'civil_ships'           => 'Civiele schepen',
+        'no_units_idle'         => 'Inactief',
+        'no_units_idle_tooltip' => 'Er worden momenteel geen schepen/verdediging gebouwd.',
+        'to_shipyard'           => 'Naar scheepswerf',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Ajax object modal (gebouwen, schepen, verdediging, onderzoek)
+    // -------------------------------------------------------------------------
+
+    'ajax_object' => [
+        'open_techtree'            => 'Technologieboom openen',
+        'techtree'                 => 'Technologieboom',
+        'no_requirements'          => 'Geen vereisten',
+        'cancel_expansion_confirm' => 'Upgrade van :name naar niveau :level annuleren?',
+        'number'                   => 'Aantal:',
+        'level'                    => 'Niveau',
+        'production_duration'      => 'Productieduur',
+        'energy_needed'            => 'Benodigde energie',
+        'production'               => 'Productie',
+        'costs_per_piece'          => 'Kosten per stuk',
+        'required_to_improve'      => 'Benodigde grondstoffen voor niveau',
+        'metal'                    => 'Metaal',
+        'crystal'                  => 'Kristal',
+        'deuterium'                => 'Deuterium',
+        'energy'                   => 'Energie',
+        'deconstruction_costs'     => 'Sloopkosten',
+        'ion_technology_bonus'     => 'Iontechnologie bonus',
+        'duration'                 => 'Duur',
+        'number_label'             => 'Aantal:',
+        'max_btn'                  => 'Max (:amount)',
+        'vacation_mode'            => 'Niet beschikbaar in vakantiemodus',
+        'tear_down_btn'            => 'Afbreken',
+        'wrong_character_class'    => 'Verkeerde karakterklasse',
+        'shipyard_upgrading'       => 'De scheepswerf wordt geüpgraded',
+        'shipyard_busy'            => 'De scheepswerf is bezet',
+        'not_enough_fields'        => 'Niet genoeg bouwvelden',
+        'build'                    => 'Bouwen',
+        'in_queue'                 => 'In wachtrij',
+        'improve'                  => 'Verbeteren',
+        'storage_capacity'         => 'Opslagcapaciteit',
+        'gain_resources'           => 'Grondstoffen verkrijgen',
+        'view_offers'              => 'Aanbiedingen bekijken',
+        'destroy_rockets_desc'     => 'Raketten vernietigen',
+        'destroy_rockets_btn'      => 'Raketten vernietigen',
+        'more_details'             => 'Meer details',
+        'error'                    => 'Er is een fout opgetreden',
+        'commander_queue_info'     => 'U heeft een Commandant nodig om de bouwwachtrij te gebruiken.',
+        'no_rocket_silo_capacity'  => 'De raketbunker is vol',
+        'detail_now'               => 'Details',
+        'start_with_dm'            => 'Starten met Donkere Materie',
+        'err_dm_price_too_low'     => 'De prijs voor Donkere Materie is te laag',
+        'err_resource_limit'       => 'Onvoldoende grondstoffen',
+        'err_storage_capacity'     => 'Opslagcapaciteit overschreden',
+        'err_no_dark_matter'       => 'Onvoldoende Donkere Materie',
     ],
 
     // -------------------------------------------------------------------------
@@ -282,6 +360,27 @@ return [
         'desc_recycle'             => 'Stuur uw recyclers naar een puinveld om de rondzwevende grondstoffen te verzamelen.',
         'desc_destroy_moon'        => 'Vernietigt de maan van uw vijand.',
         'desc_expedition'          => 'Stuur uw schepen naar de verste uithoeken van de ruimte voor spannende quests.',
+
+        // ACS-aanval – federatie-overlay
+        'fleet_union'              => 'Vlootunie',
+        'union_created'            => 'Vlootunie succesvol aangemaakt.',
+        'union_edited'             => 'Vlootunie succesvol bewerkt.',
+        'err_union_max_fleets'     => 'Er kunnen maximaal 16 vloten aanvallen.',
+        'err_union_max_players'    => 'Er kunnen maximaal 5 spelers aanvallen.',
+        'err_union_too_slow'       => 'Je bent te langzaam om je bij deze vloot aan te sluiten.',
+        'err_union_target_mismatch' => 'Uw vloot moet hetzelfde doelwit hebben als de vlootunie.',
+        'union_name'               => 'Unienaam',
+        'buddy_list'               => 'Vriendenlijst',
+        'buddy_list_loading'       => 'Laden...',
+        'buddy_list_empty'         => 'Geen vrienden beschikbaar',
+        'buddy_list_error'         => 'Laden van vriendenlijst mislukt',
+        'search_user'              => 'Speler zoeken',
+        'search'                   => 'Zoeken',
+        'union_user'               => 'Unielid',
+        'invite'                   => 'Uitnodigen',
+        'kick'                     => 'Verwijderen',
+        'ok'                       => 'Ok',
+        'own_fleet'                => 'Eigen vloot',
 
         // Briefingsectie (zonder afsluitende dubbele punt)
         'briefing'                 => 'Briefing',
@@ -1434,5 +1533,49 @@ return [
         'msg_yes'                       => 'Ja',
         'msg_no'                        => 'Nee',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Alliantiedepot
+    // -------------------------------------------------------------------------
+
+    'alliance_depot' => [
+        'description'         => 'Het Alliantiedepot stelt je in staat voorraadrakketten te sturen naar bevriende vloten die op je planeet wachten, waardoor hun verblijftijd wordt verlengd.',
+        'capacity'            => 'Capaciteit',
+        'no_fleets'           => 'Er zijn geen wachtende vloten!',
+        'fleet_owner'         => 'Vlooteigenaar',
+        'ships'               => 'Schepen',
+        'hold_time'           => 'Wachttijd',
+        'extend'              => 'Verlengen',
+        'supply_cost'         => 'Voorraadrocket kosten (deuterium)',
+        'start_supply'        => 'Stuur voorraadrocket',
+        'please_select_fleet' => 'Selecteer een vloot.',
+        'hours_between'       => 'Verlengingsuren moeten tussen 1 en 32 liggen.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chat
+    // -------------------------------------------------------------------------
+
+    'chat' => [
+        'list_title'         => 'Lijst van je chats',
+        'player_list'        => 'Spelerslijst',
+        'alliance_chat'      => 'Alliantiechat',
+        'no_messages_yet'    => 'Nog geen berichten',
+        'no_conversations'   => 'Nog geen gesprekken.',
+        'submit'             => 'Verzenden',
+        'buddy_tooltip'      => 'Vriend',
+        'alliance_tooltip'   => 'Alliantielid',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Status niet zichtbaar',
+        'highscore_ranking'  => 'Ranglijst',
+        'alliance_label'     => 'Alliantie',
+        'planet_alt'         => 'Planeet',
+        'buddies'            => 'Vrienden',
+        'no_buddies'         => 'Geen vrienden',
+        'strangers'          => 'Vreemden',
+        'no_strangers'       => 'Geen vreemden',
+        'alliance'           => 'Alliantie',
     ],
 ];
