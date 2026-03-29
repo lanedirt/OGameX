@@ -48,7 +48,12 @@ class FleetTimingController extends OGameController
         $userIds = $missions->pluck('user_id')->unique();
         $users   = User::whereIn('id', $userIds)->pluck('username', 'id');
 
-        $allUsers = User::orderBy('username')->pluck('username', 'id');
+        // Only users that have at least one active mission (any, ignoring current filter)
+        $activeUserIds = FleetMission::where('processed', 0)
+            ->where('canceled', 0)
+            ->pluck('user_id')
+            ->unique();
+        $allUsers = User::whereIn('id', $activeUserIds)->orderBy('username')->pluck('username', 'id');
 
         return view('ingame.admin.fleettiming', [
             'missions'          => $missions,
