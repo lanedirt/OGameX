@@ -419,6 +419,11 @@
             $(function () {
                 fleetDispatcher = new FleetDispatcher(window);
                 fleetDispatcher.init();
+
+                
+                fleetDispatcher.getDeuteriumOnPlanetWithoutConsumption = function () {
+                    return Math.max(0, Math.floor(this.deuteriumOnPlanet) - Math.ceil(this.getConsumption()));
+                };
             });
 
             var apiDataJson = {
