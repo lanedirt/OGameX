@@ -67615,7 +67615,7 @@ function getPlanetOrMoonTooltipLinks(planet, galaxyContentObject, systemData) {
       }
     });
 
-    if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin) {
+    if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin && systemData.availableMissiles > 0) {
       let holdMissionAvailable = planet.availableMissions.find(availMission => availMission.missionType === 5);
 
       if (systemData.showOutlawWarning && !systemData.isOutlaw && player.isStrong && !holdMissionAvailable) {
@@ -68048,7 +68048,7 @@ function getActions(galaxyContentObject, systemData) {
 
   let missileLink = "";
 
-  if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin && galaxy && system && position) {
+  if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin && galaxy && system && position && systemData.availableMissiles > 0) {
     if (systemData.showOutlawWarning && !systemData.isOutlaw && player.isStrong && !holdMissionAvailable) {
       missileLink = `
                 <a class="tooltip js_hideTipOnMobile missleattack"
