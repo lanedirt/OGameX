@@ -21,11 +21,12 @@ class CheckBanned
         // sufficient. Avoiding hasRole() here prevents polluting Spatie's eager-loaded
         // roles relation on the shared auth guard user instance between test requests.
         if ($user && $user->isBanned()) {
-            $until = $user->banned_until
-                ? $user->banned_until->format('Y-m-d H:i') . ' UTC'
+            $ban   = $user->currentBan();
+            $until = $ban?->banned_until
+                ? $ban->banned_until->format('Y-m-d H:i') . ' UTC'
                 : 'permanently';
 
-            $message = "Your account has been banned: {$user->ban_reason}. Expires: {$until}.";
+            $message = "Your account has been banned: {$ban?->reason}. Expires: {$until}.";
 
             Auth::logout();
             $request->session()->flash('ban_message', $message);

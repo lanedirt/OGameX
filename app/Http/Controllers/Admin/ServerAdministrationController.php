@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Http\Controllers\OGameController;
+use OGame\Models\Ban;
 use OGame\Models\User;
 use OGame\Services\SettingsService;
 use stdClass;
@@ -68,12 +69,18 @@ class ServerAdministrationController extends OGameController
             ]);
         }
 
-        // --- Currently banned users ---
-        $bannedUsers = User::whereNotNull('ban_reason')
-            ->where(function ($query) {
-                $query->whereNull('banned_until')
+        // --- Currently active bans ---
+        $activeBans = Ban::with('user')
+            ->where('canceled', false)
+            ->where(function ($q) {
+                $q->whereNull('banned_until')
                     ->orWhere('banned_until', '>', now());
-            })
+            })->latest()
+            ->get();
+
+        // --- Ban history (most recent 30, including canceled/expired) ---
+        $banHistory = Ban::with('user')->latest()
+            ->limit(30)
             ->get();
 
         $settings = $this->detectionSettings();
@@ -81,7 +88,8 @@ class ServerAdministrationController extends OGameController
         return view('ingame.admin.server-administration', [
             'sharedIpGroups'    => $sharedIpGroups,
             'botSuspects'       => $this->getBotActivitySuspects($settings),
-            'bannedUsers'       => $bannedUsers,
+            'activeBans'        => $activeBans,
+            'banHistory'        => $banHistory,
             'detectionSettings' => $settings,
         ]);
     }
@@ -371,9 +379,12 @@ class ServerAdministrationController extends OGameController
             $bannedUntil = now()->addSeconds((int) $request->input('duration'));
         }
 
-        $user->ban_reason = $request->input('reason');
-        $user->banned_until = $bannedUntil;
-        $user->save();
+        Ban::create([
+            'user_id'      => $user->id,
+            'reason'       => $request->input('reason'),
+            'banned_until' => $bannedUntil,
+            'canceled'     => false,
+        ]);
 
         // Temporary bans activate vacation mode so the account is protected while the
         // player is away. Permanent bans do not — the account is forfeit anyway.
@@ -390,7 +401,7 @@ class ServerAdministrationController extends OGameController
     }
 
     /**
-     * Unbans a user.
+     * Unbans a user by canceling their active ban record.
      */
     public function unban(Request $request): RedirectResponse
     {
@@ -401,9 +412,13 @@ class ServerAdministrationController extends OGameController
         /** @var User $user */
         $user = User::findOrFail($request->input('user_id'));
 
-        $user->ban_reason = null;
-        $user->banned_until = null;
-        $user->save();
+        $activeBan = $user->currentBan();
+        if ($activeBan) {
+            $activeBan->update([
+                'canceled'   => true,
+                'canceled_at' => now(),
+            ]);
+        }
 
         return redirect()->route('admin.server-administration.index')
             ->with('status', "User \"{$user->username}\" has been unbanned.");

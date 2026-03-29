@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use OGame\Models\Ban;
 use OGame\Models\User;
 use Tests\AccountTestCase;
 
@@ -58,9 +59,11 @@ class BanTest extends AccountTestCase
         $response->assertSessionHas('status');
 
         $target->refresh();
-        $this->assertEquals('Test ban reason', $target->ban_reason);
-        $this->assertNotNull($target->banned_until);
-        $this->assertTrue($target->banned_until->isFuture());
+        $ban = $target->currentBan();
+        $this->assertNotNull($ban);
+        $this->assertEquals('Test ban reason', $ban->reason);
+        $this->assertNotNull($ban->banned_until);
+        $this->assertTrue($ban->banned_until->isFuture());
         $this->assertTrue($target->isBanned());
         $this->assertTrue((bool) $target->vacation_mode);
     }
@@ -83,8 +86,10 @@ class BanTest extends AccountTestCase
         $response->assertRedirect(route('admin.server-administration.index'));
 
         $target->refresh();
-        $this->assertEquals('Permanent ban test', $target->ban_reason);
-        $this->assertNull($target->banned_until);
+        $ban = $target->currentBan();
+        $this->assertNotNull($ban);
+        $this->assertEquals('Permanent ban test', $ban->reason);
+        $this->assertNull($ban->banned_until);
         $this->assertTrue($target->isBanned());
         $this->assertFalse((bool) $target->vacation_mode);
     }
@@ -109,7 +114,7 @@ class BanTest extends AccountTestCase
         $response->assertSessionHas('error');
 
         $targetAdmin->refresh();
-        $this->assertNull($targetAdmin->ban_reason);
+        $this->assertNull($targetAdmin->currentBan());
         $this->assertFalse($targetAdmin->isBanned());
     }
 
@@ -121,9 +126,7 @@ class BanTest extends AccountTestCase
         $this->artisan('ogamex:admin:assign-role', ['username' => auth()->user()->username]);
 
         $target = $this->createTrackedUser();
-        $target->ban_reason = 'Some violation';
-        $target->banned_until = null;
-        $target->save();
+        Ban::create(['user_id' => $target->id, 'reason' => 'Some violation', 'banned_until' => null, 'canceled' => false]);
 
         $response = $this->post(route('admin.server-administration.unban'), [
             'user_id' => $target->id,
@@ -133,8 +136,6 @@ class BanTest extends AccountTestCase
         $response->assertSessionHas('status');
 
         $target->refresh();
-        $this->assertNull($target->ban_reason);
-        $this->assertNull($target->banned_until);
         $this->assertFalse($target->isBanned());
     }
 
@@ -147,7 +148,7 @@ class BanTest extends AccountTestCase
         $this->artisan('ogamex:admin:assign-role', ['username' => auth()->user()->username]);
 
         $target = $this->createTrackedUser();
-        $target->ban_reason = 'Some violation';
+        Ban::create(['user_id' => $target->id, 'reason' => 'Some violation', 'banned_until' => null, 'canceled' => false]);
         $target->vacation_mode = true;
         $target->vacation_mode_activated_at = now();
         $target->save();
@@ -157,7 +158,7 @@ class BanTest extends AccountTestCase
         ]);
 
         $target->refresh();
-        $this->assertNull($target->ban_reason);
+        $this->assertFalse($target->isBanned());
         $this->assertTrue((bool) $target->vacation_mode);
     }
 
@@ -167,9 +168,7 @@ class BanTest extends AccountTestCase
     public function testBannedUserBlockedByMiddleware(): void
     {
         $bannedUser = $this->createTrackedUser();
-        $bannedUser->ban_reason = 'Cheating';
-        $bannedUser->banned_until = null;
-        $bannedUser->save();
+        Ban::create(['user_id' => $bannedUser->id, 'reason' => 'Cheating', 'banned_until' => null, 'canceled' => false]);
 
         $this->be($bannedUser);
 
@@ -188,9 +187,7 @@ class BanTest extends AccountTestCase
         $target = $this->createTrackedUser([
             'password' => Hash::make($password),
         ]);
-        $target->ban_reason = 'Banned for testing';
-        $target->banned_until = null;
-        $target->save();
+        Ban::create(['user_id' => $target->id, 'reason' => 'Banned for testing', 'banned_until' => null, 'canceled' => false]);
 
         $response = $this->post('/login', [
             'email'    => $target->email,

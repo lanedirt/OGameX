@@ -274,25 +274,25 @@
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_lookback_days" title="How many days back to scan for all signals">Lookback period (days):</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_lookback_days" name="bot_detection_lookback_days" class="textInput w80 textCenter" min="1" max="90" value="{{ $detectionSettings['lookback_days'] }}">
+                                    <input type="number" id="bd_lookback_days" name="bot_detection_lookback_days" class="textInput w80 textCenter textBeefy" min="1" max="90" value="{{ $detectionSettings['lookback_days'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_active_hours" title="Minimum distinct hours of the day (0–23) that must have mission activity">Min. active hours/day:</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_active_hours" name="bot_detection_active_hours" class="textInput w80 textCenter" min="1" max="24" value="{{ $detectionSettings['active_hours'] }}">
+                                    <input type="number" id="bd_active_hours" name="bot_detection_active_hours" class="textInput w80 textCenter textBeefy" min="1" max="24" value="{{ $detectionSettings['active_hours'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_rate" title="Missions per fleet slot per day. Fleet slots = computer technology level + 1. Scales automatically with player progression.">Min. missions/slot/day:</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_rate" name="bot_detection_missions_per_slot_per_day" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['missions_per_slot_per_day'] }}">
+                                    <input type="number" id="bd_rate" name="bot_detection_missions_per_slot_per_day" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['missions_per_slot_per_day'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_floor" title="Minimum total missions required before a player can be flagged by signal 1. Protects new players whose rate looks suspicious due to tiny sample size.">Min. total missions (floor):</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_floor" name="bot_detection_min_missions_floor" class="textInput w80 textCenter" min="0" value="{{ $detectionSettings['min_missions_floor'] }}">
+                                    <input type="number" id="bd_floor" name="bot_detection_min_missions_floor" class="textInput w80 textCenter textBeefy" min="0" value="{{ $detectionSettings['min_missions_floor'] }}">
                                 </div>
                             </div>
 
@@ -302,13 +302,13 @@
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_exp_gap" title="Maximum seconds between an expedition returning and the next one departing from the same planet to count as an instant re-dispatch">Max. re-dispatch gap (seconds):</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_exp_gap" name="bot_detection_expedition_gap_seconds" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['expedition_gap_seconds'] }}">
+                                    <input type="number" id="bd_exp_gap" name="bot_detection_expedition_gap_seconds" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['expedition_gap_seconds'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_exp_min" title="How many instant re-dispatches must be observed before flagging">Min. occurrences to flag:</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_exp_min" name="bot_detection_expedition_min_occurrences" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['expedition_min_occurrences'] }}">
+                                    <input type="number" id="bd_exp_min" name="bot_detection_expedition_min_occurrences" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['expedition_min_occurrences'] }}">
                                 </div>
                             </div>
 
@@ -318,13 +318,13 @@
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_atk_gap" title="Maximum seconds between an attack being dispatched and the defender sending a fleet">Max. reaction gap (seconds):</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_atk_gap" name="bot_detection_attack_reaction_seconds" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['attack_reaction_seconds'] }}">
+                                    <input type="number" id="bd_atk_gap" name="bot_detection_attack_reaction_seconds" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['attack_reaction_seconds'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_atk_min" title="How many instant reactions must be observed before flagging">Min. occurrences to flag:</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_atk_min" name="bot_detection_attack_reaction_min_occurrences" class="textInput w80 textCenter" min="1" value="{{ $detectionSettings['attack_reaction_min_occurrences'] }}">
+                                    <input type="number" id="bd_atk_min" name="bot_detection_attack_reaction_min_occurrences" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['attack_reaction_min_occurrences'] }}">
                                 </div>
                             </div>
 
@@ -382,7 +382,7 @@
                     {{-- ===== CURRENTLY BANNED USERS ===== --}}
                     <p class="box_highlight textCenter no_buddies" style="margin-top: 20px;">@lang('Currently Banned Players')</p>
 
-                    @if ($bannedUsers->isEmpty())
+                    @if ($activeBans->isEmpty())
                         <div class="group bborder" style="display: block;">
                             <p style="text-align: center; padding: 10px;">No players are currently banned.</p>
                         </div>
@@ -398,19 +398,64 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($bannedUsers as $user)
+                                    @foreach ($activeBans as $ban)
                                         <tr style="border-top: 1px solid #222;">
-                                            <td style="padding: 5px 8px;">{{ $user->username }}</td>
-                                            <td style="padding: 5px 8px;">{{ $user->ban_reason }}</td>
+                                            <td style="padding: 5px 8px;">{{ $ban->user->username }}</td>
+                                            <td style="padding: 5px 8px;">{{ $ban->reason }}</td>
                                             <td style="padding: 5px 8px;">
-                                                {{ $user->banned_until ? $user->banned_until->format('Y-m-d H:i') . ' UTC' : 'Permanent' }}
+                                                {{ $ban->banned_until ? $ban->banned_until->format('Y-m-d H:i') . ' UTC' : 'Permanent' }}
                                             </td>
                                             <td style="padding: 5px 8px;">
                                                 <form action="{{ route('admin.server-administration.unban') }}" method="post" style="display:inline;">
                                                     {{ csrf_field() }}
-                                                    <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                                    <input type="hidden" name="user_id" value="{{ $ban->user_id }}">
                                                     <input type="submit" class="btn_blue" value="Unban" style="font-size: 10px; padding: 2px 8px;">
                                                 </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+
+                    {{-- ===== BAN HISTORY ===== --}}
+                    @if ($banHistory->isNotEmpty())
+                        <p class="box_highlight textCenter no_buddies" style="margin-top: 20px;">@lang('Ban History')</p>
+                        <div class="group bborder" style="display: block;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #0d0d1a; color: #aaa; font-size: 11px;">
+                                        <th style="padding: 4px 8px; text-align: left;">Username</th>
+                                        <th style="padding: 4px 8px; text-align: left;">Reason</th>
+                                        <th style="padding: 4px 8px; text-align: left;">Banned Until</th>
+                                        <th style="padding: 4px 8px; text-align: left;">Banned At</th>
+                                        <th style="padding: 4px 8px; text-align: left;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($banHistory as $ban)
+                                        @php
+                                            $isActive = !$ban->canceled && ($ban->banned_until === null || $ban->banned_until->isFuture());
+                                            $isExpired = !$ban->canceled && $ban->banned_until !== null && $ban->banned_until->isPast();
+                                        @endphp
+                                        <tr style="border-top: 1px solid #222;">
+                                            <td style="padding: 4px 8px; font-size: 11px;">{{ $ban->user->username }}</td>
+                                            <td style="padding: 4px 8px; font-size: 11px;">{{ $ban->reason }}</td>
+                                            <td style="padding: 4px 8px; font-size: 11px; color: #aaa;">
+                                                {{ $ban->banned_until ? $ban->banned_until->format('Y-m-d H:i') . ' UTC' : 'Permanent' }}
+                                            </td>
+                                            <td style="padding: 4px 8px; font-size: 11px; color: #aaa;">
+                                                {{ $ban->created_at?->format('Y-m-d H:i') }}
+                                            </td>
+                                            <td style="padding: 4px 8px; font-size: 11px;">
+                                                @if ($isActive)
+                                                    <span style="color: #e74c3c;">Active</span>
+                                                @elseif ($ban->canceled)
+                                                    <span style="color: #aaa;">Canceled {{ $ban->canceled_at?->format('Y-m-d H:i') }}</span>
+                                                @else
+                                                    <span style="color: #666;">Expired</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

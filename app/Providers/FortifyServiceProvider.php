@@ -58,12 +58,13 @@ class FortifyServiceProvider extends ServiceProvider
             }
 
             if ($user->isBanned()) {
-                $until = $user->banned_until
-                    ? $user->banned_until->format('Y-m-d H:i') . ' UTC'
+                $ban   = $user->currentBan();
+                $until = $ban?->banned_until
+                    ? $ban->banned_until->format('Y-m-d H:i') . ' UTC'
                     : 'permanently';
 
                 throw ValidationException::withMessages([
-                    'email' => ["Your account has been banned: {$user->ban_reason}. Expires: {$until}."],
+                    'email' => ["Your account has been banned: {$ban?->reason}. Expires: {$until}."],
                 ]);
             }
 
