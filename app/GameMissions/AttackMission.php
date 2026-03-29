@@ -728,6 +728,35 @@ class AttackMission extends GameMission
 
         $report->repaired_defenses = $battleResult->repairedDefenses->toArray();
 
+        // Save defender's wreck field data (ships recoverable via Space Dock)
+        if (!empty($battleResult->wreckField) && ($battleResult->wreckField['formed'] ?? false)) {
+            $wreckageData = [];
+            foreach ($battleResult->wreckField['ships'] as $ship) {
+                $wreckageData[$ship['machine_name']] = $ship['quantity'];
+            }
+            $report->wreckage = $wreckageData;
+        }
+
+        // Save General class attacker's wreck field in the report.
+        // Shown only if the attacker is General class AND at least one ship survived
+        // (survivor condition ensures there is a return mission to transport the wreckage back).
+        if ($characterClassService->isGeneral($attackPlayer->getUser())
+            && $battleResult->attackerUnitsResult->getAmount() > 0) {
+            $attackerUnitsLost = clone $battleResult->attackerUnitsStart;
+            $attackerUnitsLost->subtractCollection($battleResult->attackerUnitsResult);
+            $generalWreckData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart);
+
+            if ($generalWreckData !== null) {
+                $generalWreckForReport = [];
+                foreach ($generalWreckData as $ship) {
+                    $generalWreckForReport[$ship['machine_name']] = $ship['quantity'];
+                }
+                $general = $report->general;
+                $general['attacker_wreckage'] = $generalWreckForReport;
+                $report->general = $general;
+            }
+        }
+
         $rounds = [];
         foreach ($battleResult->rounds as $round) {
             $rounds[] = [
