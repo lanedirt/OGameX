@@ -277,46 +277,46 @@
     }
 
     function trySubmit() {
-        var formData = {
-            _token: token,
-            give_resource: merchantType,
-            receive_resource: null,
-            give_amount: 0,
-            exchange_rate: 0
-        };
+        var giveResourceId = {{ $resources[$merchantType] }};
+        var giveRate = baseFactor[giveResourceId];
+        var receiveResources = {};
+        var totalGiveAmount = 0;
 
-        // Find which resource is being received
+        // Collect all receive resources and calculate total give cost
         @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
             @if($resourceKey !== $merchantType)
                 var value{{ $resourceId }} = parseInt($('#{{ $resourceId }}_value').val().replace(/[,\.]/g, '')) || 0;
                 if (value{{ $resourceId }} > 0) {
-                    formData.receive_resource = '{{ $resourceKey }}';
-                    var giveRate = baseFactor[{{ $resources[$merchantType] }}];
-                    var receiveRate = tradeFactor[{{ $resourceId }}];
-                    formData.give_amount = Math.ceil(value{{ $resourceId }} * (giveRate / receiveRate));
-                    formData.exchange_rate = receiveRate / giveRate;
+                    var receiveRate{{ $resourceId }} = tradeFactor[{{ $resourceId }}];
+                    receiveResources['{{ $resourceKey }}'] = value{{ $resourceId }};
+                    totalGiveAmount += Math.ceil(value{{ $resourceId }} * (giveRate / receiveRate{{ $resourceId }}));
                 }
             @endif
         @endforeach
 
-        if (!formData.receive_resource || formData.give_amount === 0) {
+        if (Object.keys(receiveResources).length === 0 || totalGiveAmount === 0) {
             errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.please_select_resource')));
             return false;
         }
 
         // Use a small tolerance (1 unit) for floating point comparison
-        if (formData.give_amount > offer_amount + 1) {
+        if (totalGiveAmount > offer_amount + 1) {
             errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.not_enough_resources')));
             return false;
         }
 
         // Ensure we don't try to give more than we have
-        if (formData.give_amount > offer_amount) {
-            formData.give_amount = offer_amount;
+        if (totalGiveAmount > offer_amount) {
+            totalGiveAmount = offer_amount;
         }
 
-        // Submit the trade
-        $.post('{{ route('merchant.trade') }}', formData, function(response) {
+        // Submit the trade with all receive resources
+        $.post('{{ route('merchant.trade') }}', {
+            _token: token,
+            give_resource: merchantType,
+            receive_resources: receiveResources,
+            give_amount: totalGiveAmount,
+        }, function(response) {
             if (response.success) {
                 fadeBox(response.message || @json(__('t_merchant.trade_completed_success')), false);
                 setTimeout(function() {
