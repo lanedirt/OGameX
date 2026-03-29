@@ -128,16 +128,16 @@ class ServerSettingsController extends OGameController
         $settingsService->set('expedition_reward_multiplier_ships', request('expedition_reward_multiplier_ships', 1.0));
         $settingsService->set('expedition_reward_multiplier_dark_matter', request('expedition_reward_multiplier_dark_matter', 1.0));
         $settingsService->set('expedition_reward_multiplier_items', request('expedition_reward_multiplier_items', 1.0));
-        $settingsService->set('expedition_weight_ships', request('expedition_weight_ships', 22));
-        $settingsService->set('expedition_weight_resources', request('expedition_weight_resources', 32.5));
-        $settingsService->set('expedition_weight_delay', request('expedition_weight_delay', 7));
-        $settingsService->set('expedition_weight_speedup', request('expedition_weight_speedup', 2));
-        $settingsService->set('expedition_weight_nothing', request('expedition_weight_nothing', 26.5));
-        $settingsService->set('expedition_weight_black_hole', request('expedition_weight_black_hole', 0.3));
-        $settingsService->set('expedition_weight_pirates', request('expedition_weight_pirates', 0));
-        $settingsService->set('expedition_weight_aliens', request('expedition_weight_aliens', 0));
-        $settingsService->set('expedition_weight_dark_matter', request('expedition_weight_dark_matter', 9));
-        $settingsService->set('expedition_weight_merchant', request('expedition_weight_merchant', 0.7));
+        $settingsService->set('expedition_weight_ships', request('expedition_weight_ships', 17));
+        $settingsService->set('expedition_weight_resources', request('expedition_weight_resources', 35));
+        $settingsService->set('expedition_weight_delay', request('expedition_weight_delay', 7.5));
+        $settingsService->set('expedition_weight_speedup', request('expedition_weight_speedup', 2.75));
+        $settingsService->set('expedition_weight_nothing', request('expedition_weight_nothing', 25));
+        $settingsService->set('expedition_weight_black_hole', request('expedition_weight_black_hole', 0.2));
+        $settingsService->set('expedition_weight_pirates', request('expedition_weight_pirates', 3));
+        $settingsService->set('expedition_weight_aliens', request('expedition_weight_aliens', 1.5));
+        $settingsService->set('expedition_weight_dark_matter', request('expedition_weight_dark_matter', 7.5));
+        $settingsService->set('expedition_weight_merchant', request('expedition_weight_merchant', 0.4));
         $settingsService->set('expedition_weight_items', request('expedition_weight_items', 0));
 
         $settingsService->set('hamill_manoeuvre_chance', max(1, (int)request('hamill_probability', 1000)));
