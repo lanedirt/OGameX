@@ -15,6 +15,7 @@ class AdminTest extends AccountTestCase
     private const ADMIN_PATHS = [
         '/admin/server-settings',
         '/admin/developer-shortcuts',
+        '/admin/server-administration',
     ];
 
     /**
