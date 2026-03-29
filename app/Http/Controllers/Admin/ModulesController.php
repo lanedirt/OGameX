@@ -27,6 +27,9 @@ class ModulesController extends OGameController
         $modules = [];
 
         foreach (ModuleServiceProvider::allDiscovered() as $providerClass) {
+            if (!is_subclass_of($providerClass, ModuleServiceProvider::class)) {
+                continue;
+            }
             /** @var ModuleServiceProvider $provider */
             $provider = new $providerClass(app());
             $manifest = $provider->getModuleManifest();
@@ -53,7 +56,7 @@ class ModulesController extends OGameController
     {
         $providerClass = $request->input('provider');
 
-        if (!is_string($providerClass) || !class_exists($providerClass)) {
+        if (!is_string($providerClass) || !is_subclass_of($providerClass, ModuleServiceProvider::class)) {
             return redirect()->back()->with('error', 'Invalid module provider class.');
         }
 

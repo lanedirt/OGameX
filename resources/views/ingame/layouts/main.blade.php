@@ -1374,13 +1374,13 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                             "img": "/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif"
                         }
                     },
-        {{-- Module extension point: additional resource bar JS (e.g. population/food timers) --}}
-        @moduleSlot('layout.resources_bar_js', ['currentPlanet' => $currentPlanet])
                     "techs": {
                         // TODO: add tech levels as far as they are available
                     },
                     "honorScore": 11,
                 });
+        {{-- Module extension point: additional JS after resource bar initialisation (e.g. population/food timers) --}}
+        @moduleSlot('layout.resources_bar_js', ['currentPlanet' => $currentPlanet])
 
                 function updateAjaxResourcebox(data) {
                     reloadResources(data);

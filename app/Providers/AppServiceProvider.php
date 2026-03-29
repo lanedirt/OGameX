@@ -11,7 +11,6 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 use OGame\Observers\UserObserver;
-use OGame\Services\ModuleSlotService;
 use OGame\Services\SettingsService;
 
 class AppServiceProvider extends ServiceProvider

@@ -12,7 +12,9 @@ Install the module via Composer:
 composer require ogamex-modules/my-module
 ```
 
-Then add its ServiceProvider class to `config/modules.php`:
+If the module's `composer.json` declares its provider under `extra.laravel.providers`, Laravel's package auto-discovery registers it automatically — no changes to `config/modules.php` are needed. The module will appear in the admin Modules page immediately after installation.
+
+For modules that do not use auto-discovery, add the provider class manually to `config/modules.php`:
 
 ```php
 return [
@@ -21,8 +23,6 @@ return [
     ],
 ];
 ```
-
-Modules are only activated when both the Composer package is installed **and** the class appears in the `enabled` list. This keeps production deployments intentional.
 
 ---
 

@@ -63,4 +63,12 @@ class ModuleSlotService
     {
         return !empty(self::$slots[$slot]);
     }
+
+    /**
+     * Clear all registered slot renderers. Intended for use in tests only.
+     */
+    public static function resetSlots(): void
+    {
+        self::$slots = [];
+    }
 }

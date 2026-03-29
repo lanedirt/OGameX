@@ -42,6 +42,14 @@ abstract class ModuleServiceProvider extends ServiceProvider
     }
 
     /**
+     * Clear the discovery registry. Intended for use in tests only.
+     */
+    public static function resetDiscovered(): void
+    {
+        self::$discovered = [];
+    }
+
+    /**
      * Unique module ID (snake_case), e.g. 'lifeforms'.
      * Used as the namespace for views and translations.
      */
