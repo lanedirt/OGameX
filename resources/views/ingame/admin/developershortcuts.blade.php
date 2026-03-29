@@ -22,6 +22,13 @@
             <div class="content">
                 <div class="buddylistContent" style="margin-bottom: 60px;">
 
+                    {{-- Quick links to other admin tools --}}
+                    <div class="group bborder" style="display:flex;gap:10px;align-items:center;padding:8px 0;margin-bottom:10px;">
+                        <span class="textBeefy" style="color:#8ec8f0;">Admin tools:</span>
+                        <a href="{{ route('admin.fleettiming.index') }}" class="btn_blue" style="padding:4px 12px;font-size:12px;">⚡ Fleet Timing Control</a>
+                        <a href="{{ route('admin.serversettings.index') }}" class="btn_blue" style="padding:4px 12px;font-size:12px;">⚙ Server Settings</a>
+                    </div>
+
                     {{-- Masquerade as user (admin-only helper) --}}
                     <form action="{{ route('admin.developershortcuts.impersonate') }}" method="post" style="margin-bottom: 20px;">
                         {{ csrf_field() }}

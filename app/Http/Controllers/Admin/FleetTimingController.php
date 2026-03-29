@@ -69,6 +69,7 @@ class FleetTimingController extends OGameController
             'mission_id' => 'required|integer|min:1',
         ]);
 
+        /** @var FleetMission $mission */
         $mission = FleetMission::where('id', $validated['mission_id'])
             ->where('processed', 0)
             ->where('canceled', 0)
@@ -114,6 +115,7 @@ class FleetTimingController extends OGameController
             'minutes'    => 'required|integer|min:1|max:10000',
         ]);
 
+        /** @var FleetMission $mission */
         $mission = FleetMission::where('id', $validated['mission_id'])
             ->where('processed', 0)
             ->where('canceled', 0)
