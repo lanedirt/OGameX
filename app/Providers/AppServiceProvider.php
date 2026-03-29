@@ -3,6 +3,7 @@
 namespace OGame\Providers;
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use OGame\Exceptions\Handler;
@@ -30,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Register model observers
         User::observe(UserObserver::class);
+
+        // Register @moduleSlot Blade directive for module view injection
+        Blade::directive('moduleSlot', function (string $expression): string {
+            return "<?php echo \\OGame\\Services\\ModuleSlotService::render({$expression}); ?>";
+        });
     }
 
     /**
@@ -55,5 +61,14 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ExceptionHandler::class, Handler::class);
+
+        // Register bundled modules listed in config/modules.php.
+        // Composer-installed modules are auto-discovered via their composer.json.
+        // The ModuleServiceProvider base class handles the enabled/disabled check in boot().
+        foreach (config('modules.enabled', []) as $providerClass) {
+            if (is_string($providerClass) && class_exists($providerClass)) {
+                $this->app->register($providerClass);
+            }
+        }
     }
 }
