@@ -740,10 +740,10 @@
                 }
 
                 var playerId = "{{ $currentPlayer->getId() }}";
-                var playerName = "{{ $currentPlayer->getUsername() }}";
+                var playerName = "{{ $currentPlayer->getUsername(false) }}";
                 var player = {
                     "playerId": {{ $currentPlayer->getId() }},
-                    "name": "{{ $currentPlayer->getUsername() }}",
+                    "name": "{{ $currentPlayer->getUsername(false) }}",
                     "hasCommander": false,
                     "hasAPassword": true
                 };
