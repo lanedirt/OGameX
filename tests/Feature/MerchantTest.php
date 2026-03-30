@@ -233,7 +233,7 @@ class MerchantTest extends AccountTestCase
         $response->assertJson(['success' => true]);
 
         // Verify we received LESS than what full trade would have given
-        $actualReceived = $response->json('received');
+        $actualReceived = $response->json('received.crystal');
         $fullTradeWouldGive = (int)floor($requestedGiveAmount * $exchangeRate);
         $this->assertLessThan($fullTradeWouldGive, $actualReceived);
 
@@ -367,7 +367,7 @@ class MerchantTest extends AccountTestCase
         $response->assertJson(['success' => true]);
 
         // But received amount should be much less than requested (capped by storage)
-        $actualReceived = $response->json('received');
+        $actualReceived = $response->json('received.crystal');
         $this->assertLessThan($expectedCrystalFromFullTrade, $actualReceived);
 
         // Verify the trade was capped (gave much less metal than requested)

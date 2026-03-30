@@ -13,10 +13,31 @@ class BuildingQueueServiceTest extends UnitTestCase
 {
     protected BuildingQueueService $buildingQueueService;
 
+    /**
+     * Sequential counter to guarantee unique planet coordinates across tests.
+     * rand() is unreliable because the DB is shared and not reset between tests.
+     */
+    private static int $coordCounter = 0;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->buildingQueueService = resolve(BuildingQueueService::class);
+    }
+
+    /**
+     * Returns a unique (galaxy, system, planet) triple that will never collide within this class.
+     *
+     * @return array{galaxy: int, system: int, planet: int}
+     */
+    private function uniqueCoords(): array
+    {
+        self::$coordCounter++;
+        return [
+            'galaxy' => 9,
+            'system' => 490 + self::$coordCounter,
+            'planet' => 1,
+        ];
     }
 
     /**
@@ -27,17 +48,14 @@ class BuildingQueueServiceTest extends UnitTestCase
         // Create user in database for foreign key constraints
         $user = User::factory()->create();
 
-        // Create planet in database for foreign key constraints (use random coordinates to avoid conflicts)
-        $planet = \OGame\Models\Planet::factory()->create([
+        // Create planet in database for foreign key constraints (use unique coordinates to avoid conflicts)
+        $planet = \OGame\Models\Planet::factory()->create(array_merge($this->uniqueCoords(), [
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
             'metal_mine' => 5,
             'metal' => 1000000,
             'crystal' => 1000000,
             'deuterium' => 1000000,
-        ]);
+        ]));
         $this->planetService->setPlanet($planet);
         $this->planetService->updateResourceProductionStats(false);
 
@@ -87,19 +105,16 @@ class BuildingQueueServiceTest extends UnitTestCase
         // Create user in database for foreign key constraints
         $user = User::factory()->create();
 
-        // Create planet in database for foreign key constraints (use random coordinates to avoid conflicts)
-        $planet = \OGame\Models\Planet::factory()->create([
+        // Create planet in database for foreign key constraints (use unique coordinates to avoid conflicts)
+        $planet = \OGame\Models\Planet::factory()->create(array_merge($this->uniqueCoords(), [
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
             'metal_mine' => 5,
             'metal' => 1000000,
             'crystal' => 1000000,
             'deuterium' => 1000000,
             'robot_factory' => 10,
             'nano_factory' => 5,
-        ]);
+        ]));
         $this->planetService->setPlanet($planet);
         $this->planetService->updateResourceProductionStats(false);
 
@@ -157,18 +172,15 @@ class BuildingQueueServiceTest extends UnitTestCase
     {
         // Create user and planet
         $user = User::factory()->create();
-        $planet = \OGame\Models\Planet::factory()->create([
+        $planet = \OGame\Models\Planet::factory()->create(array_merge($this->uniqueCoords(), [
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
             'metal_mine' => 4,
             'metal' => 1000000,
             'crystal' => 1000000,
             'deuterium' => 1000000,
             'robot_factory' => 10,
             'nano_factory' => 5,
-        ]);
+        ]));
         $this->planetService->setPlanet($planet);
         $this->planetService->updateResourceProductionStats(false);
 
@@ -240,18 +252,15 @@ class BuildingQueueServiceTest extends UnitTestCase
     {
         // Create user and planet
         $user = User::factory()->create();
-        $planet = \OGame\Models\Planet::factory()->create([
+        $planet = \OGame\Models\Planet::factory()->create(array_merge($this->uniqueCoords(), [
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
             'metal_mine' => 3,
             'metal' => 1000000,
             'crystal' => 1000000,
             'deuterium' => 1000000,
             'robot_factory' => 10,
             'nano_factory' => 5,
-        ]);
+        ]));
         $this->planetService->setPlanet($planet);
         $this->planetService->updateResourceProductionStats(false);
 
@@ -298,18 +307,15 @@ class BuildingQueueServiceTest extends UnitTestCase
     {
         // Create user and planet
         $user = User::factory()->create();
-        $planet = \OGame\Models\Planet::factory()->create([
+        $planet = \OGame\Models\Planet::factory()->create(array_merge($this->uniqueCoords(), [
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
             'metal_mine' => 5,
             'metal' => 1000000,
             'crystal' => 1000000,
             'deuterium' => 1000000,
             'robot_factory' => 10,
             'nano_factory' => 5,
-        ]);
+        ]));
         $this->planetService->setPlanet($planet);
         $this->planetService->updateResourceProductionStats(false);
 
