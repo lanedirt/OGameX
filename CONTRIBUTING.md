@@ -20,10 +20,9 @@ Refer to the [Installation section](https://github.com/lanedirt/OGameX#installat
 
 ### Before you open a PR
 
-- **One issue, one PR.** Each pull request must address a single issue or concern. Do not bundle unrelated changes — even small cleanups or fixes to other areas should be submitted separately. This keeps reviews focused and the git history clean.
+- **One issue, one PR.** Each pull request must address a single issue or concern. Only include changes directly related to the issue being fixed or the feature being added. Do not bundle unrelated changes — even small cleanups or fixes to other areas should be submitted separately. If you notice something unrelated that needs fixing while working on your PR, open a separate issue or PR for it. This keeps reviews focused and the git history clean.
 - **Branch from `main`.** Always create your feature branch from the latest `main`. Do not base a branch on another feature branch or an outdated commit.
 - **Address open change requests first.** If you have an existing PR with a change request from a reviewer, resolve that feedback before opening a new PR. Reviewers have limited time, and stacking new PRs on top of unresolved ones makes it harder to keep quality high. PRs opened while another of your PRs has an unresolved change request may be closed until the existing one is resolved.
-- **Keep PRs focused.** Only include changes directly related to the issue being fixed or the feature being added. If you notice something unrelated that needs fixing while working on your PR, open a separate issue or PR for it.
 
 > ⚠️ Important: Pull requests that do not follow the above guidelines will not be merged and may be closed without review.
 
