@@ -18,7 +18,15 @@ If you would like to contribute via pull requests, a good way to get started is 
 
 Refer to the [Installation section](https://github.com/lanedirt/OGameX#installation) in the main README.md for how to get your local development environment setup.
 
-When submitting a pull request, please make sure to follow these guidelines:
+### Before you open a PR
+
+- **One issue, one PR.** Each pull request must address a single issue or concern. Only include changes directly related to the issue being fixed or the feature being added. Do not bundle unrelated changes — even small cleanups or fixes to other areas should be submitted separately. If you notice something unrelated that needs fixing while working on your PR, open a separate issue or PR for it. This keeps reviews focused and the git history clean.
+- **Branch from `main`.** Always create your feature branch from the latest `main`. Do not base a branch on another feature branch or an outdated commit.
+- **Address open change requests first.** If you have an existing PR with a change request from a reviewer, resolve that feedback before opening a new PR. Reviewers have limited time, and stacking new PRs on top of unresolved ones makes it harder to keep quality high. PRs opened while another of your PRs has an unresolved change request may be closed until the existing one is resolved.
+
+> ⚠️ Important: Pull requests that do not follow the above guidelines will not be merged and may be closed without review.
+
+When submitting a pull request, please make sure to also follow these technical guidelines:
 
 ### 1. General code style guidelines
 In general: when making changes to an existing class, method, or file, **use the same code and naming conventions that are already established in that scope**.
