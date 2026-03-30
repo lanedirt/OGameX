@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use OGame\Models\Resources;
 use RuntimeException;
 
@@ -180,7 +181,7 @@ class MerchantService
      * @param string $resourceType
      * @return float
      */
-    private static function getBaseRate(string $resourceType): float
+    public static function getBaseRate(string $resourceType): float
     {
         return match ($resourceType) {
             'metal' => 3.00,
@@ -285,25 +286,31 @@ class MerchantService
             $receiveRate = $activeMerchant['trade_rates']['receive'][$receiveResource]['rate'];
             $exchangeRate = $receiveRate / $giveRate;
 
-            // Cap receive amount to available storage
+            // Cap receive amount to available storage (partial fill: skip this resource if storage is full)
             $storageCapacity = $planet->{$receiveResource . 'Storage'}()->get();
             $currentReceiveAmount = $currentResources->{$receiveResource}->get();
             $availableStorage = max(0, (int)floor($storageCapacity - $currentReceiveAmount));
             $receiveAmount = min((int)$desiredAmount, $availableStorage);
 
             if ($receiveAmount <= 0) {
-                return [
-                    'success' => false,
-                    'message' => __('t_merchant.error.trade.storage_full', [
-                        'resource' => $receiveResource,
-                    ]),
-                ];
+                // Storage full for this resource: skip it and continue with remaining resources
+                continue;
             }
 
             $giveCost = (int)ceil($receiveAmount / $exchangeRate);
             $tradePlan[$receiveResource] = [
                 'receive' => $receiveAmount,
                 'give_cost' => $giveCost,
+            ];
+        }
+
+        // All storages were full: nothing to trade
+        if (empty($tradePlan)) {
+            return [
+                'success' => false,
+                'message' => __('t_merchant.error.trade.storage_full', [
+                    'resource' => implode(', ', array_keys($receiveResources)),
+                ]),
             ];
         }
 
@@ -335,27 +342,34 @@ class MerchantService
             ];
         }
 
-        // Execute the trade atomically
+        // Execute the trade inside a DB transaction to guarantee atomicity:
+        // if crediting any receive resource fails, the give deduction is rolled back.
         try {
-            // Deduct total give resource in one operation
-            $deductResources = new Resources(
-                $giveResource === 'metal' ? $totalGiveCost : 0,
-                $giveResource === 'crystal' ? $totalGiveCost : 0,
-                $giveResource === 'deuterium' ? $totalGiveCost : 0
-            );
-            $planet->deductResources($deductResources, true);
-
-            // Credit each receive resource
-            $receivedAmounts = [];
-            foreach ($tradePlan as $receiveResource => $data) {
-                $addResources = new Resources(
-                    $receiveResource === 'metal' ? $data['receive'] : 0,
-                    $receiveResource === 'crystal' ? $data['receive'] : 0,
-                    $receiveResource === 'deuterium' ? $data['receive'] : 0
+            $receivedAmounts = DB::transaction(function () use (
+                $planet, $giveResource, $totalGiveCost, $tradePlan
+            ): array {
+                // Deduct total give resource in one operation
+                $deductResources = new Resources(
+                    $giveResource === 'metal' ? $totalGiveCost : 0,
+                    $giveResource === 'crystal' ? $totalGiveCost : 0,
+                    $giveResource === 'deuterium' ? $totalGiveCost : 0
                 );
-                $planet->addResources($addResources, true);
-                $receivedAmounts[$receiveResource] = $data['receive'];
-            }
+                $planet->deductResources($deductResources, true);
+
+                // Credit each receive resource
+                $receivedAmounts = [];
+                foreach ($tradePlan as $receiveResource => $data) {
+                    $addResources = new Resources(
+                        $receiveResource === 'metal' ? $data['receive'] : 0,
+                        $receiveResource === 'crystal' ? $data['receive'] : 0,
+                        $receiveResource === 'deuterium' ? $data['receive'] : 0
+                    );
+                    $planet->addResources($addResources, true);
+                    $receivedAmounts[$receiveResource] = $data['receive'];
+                }
+
+                return $receivedAmounts;
+            });
 
             return [
                 'success' => true,

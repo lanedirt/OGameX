@@ -165,11 +165,7 @@ class MerchantController extends OGameController
                 $activeMerchant = cache()->get('active_merchant_' . $player->getId());
                 if ($activeMerchant && isset($activeMerchant['trade_rates']['receive'][$singleResource])) {
                     $receiveRate = (float)$activeMerchant['trade_rates']['receive'][$singleResource]['rate'];
-                    $giveRate = match($giveResource) {
-                        'metal' => 3.00,
-                        'crystal' => 2.00,
-                        default => 1.00,
-                    };
+                    $giveRate = MerchantService::getBaseRate((string)$giveResource);
                     $receiveAmount = (int)floor($giveAmount * ($receiveRate / $giveRate));
                     if ($receiveAmount > 0) {
                         $sanitizedReceiveResources[$singleResource] = $receiveAmount;
