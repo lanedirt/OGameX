@@ -47,9 +47,16 @@ class ServerAdministrationController extends OGameController
             ->havingRaw('COUNT(*) > 1 AND COUNT(*) <= 10')
             ->pluck('register_ip');
 
+        $settingsService   = resolve(SettingsService::class);
+        $dismissedIps      = json_decode((string) $settingsService->get('dismissed_shared_ip_groups', '[]'), true) ?: [];
+        $dismissedUserIds  = json_decode((string) $settingsService->get('dismissed_bot_suspect_ids', '[]'), true) ?: [];
+
         $sharedIpGroups = collect();
 
         foreach ($sharedLastIps as $ip) {
+            if (in_array($ip, $dismissedIps, true)) {
+                continue;
+            }
             $users = User::where('last_ip', $ip)->get();
             $sharedIpGroups->push([
                 'ip'             => $ip,
@@ -60,6 +67,9 @@ class ServerAdministrationController extends OGameController
         }
 
         foreach ($sharedRegisterIps as $ip) {
+            if (in_array($ip, $dismissedIps, true)) {
+                continue;
+            }
             $users = User::where('register_ip', $ip)->get();
             $sharedIpGroups->push([
                 'ip'             => $ip,
@@ -83,14 +93,18 @@ class ServerAdministrationController extends OGameController
             ->limit(30)
             ->get();
 
-        $settings = $this->detectionSettings();
+        $settings   = $this->detectionSettings();
+        $allSuspects = $this->getBotActivitySuspects($settings);
+        $botSuspects = $allSuspects->reject(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->values();
 
         return view('ingame.admin.server-administration', [
-            'sharedIpGroups'    => $sharedIpGroups,
-            'botSuspects'       => $this->getBotActivitySuspects($settings),
-            'activeBans'        => $activeBans,
-            'banHistory'        => $banHistory,
-            'detectionSettings' => $settings,
+            'sharedIpGroups'        => $sharedIpGroups,
+            'botSuspects'           => $botSuspects,
+            'activeBans'            => $activeBans,
+            'banHistory'            => $banHistory,
+            'detectionSettings'     => $settings,
+            'dismissedIpCount'      => count($dismissedIps),
+            'dismissedSuspectCount' => $allSuspects->filter(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->count(),
         ]);
     }
 
@@ -352,6 +366,35 @@ class ServerAdministrationController extends OGameController
             ->orderBy('fleet_missions.time_departure', 'desc')
             ->limit(20)
             ->get();
+    }
+
+    /**
+     * Dismisses a flagged shared-IP group or bot suspect so it is hidden from the panel.
+     * Dismissals are stored in settings and persist until manually reset.
+     */
+    public function dismiss(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'type'  => ['required', 'string', 'in:shared_ip,bot_suspect'],
+            'value' => ['required', 'string'],
+        ]);
+
+        $settingsService = resolve(SettingsService::class);
+
+        if ($request->input('type') === 'shared_ip') {
+            $dismissed   = json_decode((string) $settingsService->get('dismissed_shared_ip_groups', '[]'), true) ?: [];
+            $dismissed[] = $request->input('value');
+            $settingsService->set('dismissed_shared_ip_groups', (string) json_encode(array_unique($dismissed)));
+            $label = 'IP group ' . $request->input('value');
+        } else {
+            $dismissed   = json_decode((string) $settingsService->get('dismissed_bot_suspect_ids', '[]'), true) ?: [];
+            $dismissed[] = (int) $request->input('value');
+            $settingsService->set('dismissed_bot_suspect_ids', (string) json_encode(array_unique($dismissed)));
+            $label = 'bot suspect (user #' . $request->input('value') . ')';
+        }
+
+        return redirect()->route('admin.server-administration.index')
+            ->with('status', "Dismissed {$label}. It will not appear again unless you reset dismissals.");
     }
 
     /**

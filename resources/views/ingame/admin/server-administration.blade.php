@@ -48,11 +48,17 @@
 
                     @php
                         $nothingFlagged = $sharedIpGroups->isEmpty() && $botSuspects->isEmpty();
+                        $totalDismissed = $dismissedIpCount + $dismissedSuspectCount;
                     @endphp
 
                     @if ($nothingFlagged)
                         <div class="group bborder" style="display: block;">
-                            <p style="text-align: center; padding: 10px;">No suspicious accounts detected.</p>
+                            <p style="text-align: center; padding: 10px;">
+                                No suspicious accounts detected.
+                                @if ($totalDismissed > 0)
+                                    <span style="color: #666; font-size: 11px;">({{ $totalDismissed }} dismissed)</span>
+                                @endif
+                            </p>
                         </div>
                     @else
                         <div style="max-height: 400px; overflow-y: auto; border: 1px solid #333; border-radius: 3px; margin-bottom: 10px;">
@@ -61,15 +67,26 @@
                             @if ($sharedIpGroups->isNotEmpty())
                                 <div style="padding: 6px 10px; background: #0d0d1a; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
                                     Shared IP Groups
+                                    @if ($dismissedIpCount > 0)
+                                        <span style="color: #555; font-size: 10px; text-transform: none; letter-spacing: 0; margin-left: 8px;">({{ $dismissedIpCount }} dismissed)</span>
+                                    @endif
                                 </div>
                                 @foreach ($sharedIpGroups as $group)
                                     <div style="padding: 8px 10px; border-bottom: 1px solid #333;">
-                                        <div style="padding: 4px 0; margin-bottom: 4px;">
-                                            <strong>{{ $group['type'] }}:</strong>
-                                            <code style="background: #1a1a2e; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">{{ $group['ip'] }}</code>
-                                            @if ($group['cross_missions']->isNotEmpty())
-                                                <span style="color: #e74c3c; font-size: 10px; margin-left: 10px;">&#9888; Cross-account missions detected</span>
-                                            @endif
+                                        <div style="padding: 4px 0; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+                                            <span>
+                                                <strong>{{ $group['type'] }}:</strong>
+                                                <code style="background: #1a1a2e; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">{{ $group['ip'] }}</code>
+                                                @if ($group['cross_missions']->isNotEmpty())
+                                                    <span style="color: #e74c3c; font-size: 10px; margin-left: 10px;">&#9888; Cross-account missions detected</span>
+                                                @endif
+                                            </span>
+                                            <form action="{{ route('admin.server-administration.dismiss') }}" method="post" style="display:inline;">
+                                                {{ csrf_field() }}
+                                                <input type="hidden" name="type" value="shared_ip">
+                                                <input type="hidden" name="value" value="{{ $group['ip'] }}">
+                                                <input type="submit" class="btn_blue" value="Dismiss" style="font-size: 10px; padding: 2px 8px;" title="Hide this IP group from the panel">
+                                            </form>
                                         </div>
 
                                         <table style="width: 100%; border-collapse: collapse;">
@@ -129,7 +146,39 @@
                                         </table>
 
                                         @if ($group['cross_missions']->isNotEmpty())
-                                            <div style="margin-top: 8px;">
+                                            @php
+                                                // Aggregate transport totals by direction to surface one-sided pushing.
+                                                $transferByDir = [];
+                                                foreach ($group['cross_missions'] as $m) {
+                                                    if ($m->mission_type !== 3) { continue; }
+                                                    $dir = $m->sender_username . '→' . $m->target_username;
+                                                    if (!isset($transferByDir[$dir])) {
+                                                        $transferByDir[$dir] = ['from' => $m->sender_username, 'to' => $m->target_username, 'metal' => 0, 'crystal' => 0, 'deuterium' => 0, 'count' => 0];
+                                                    }
+                                                    $transferByDir[$dir]['metal']      += $m->metal;
+                                                    $transferByDir[$dir]['crystal']    += $m->crystal;
+                                                    $transferByDir[$dir]['deuterium']  += $m->deuterium;
+                                                    $transferByDir[$dir]['count']++;
+                                                }
+                                            @endphp
+
+                                            @if (!empty($transferByDir))
+                                                <div style="margin-top: 6px; margin-bottom: 4px; font-size: 11px; color: #aaa;">
+                                                    Resource transfer totals by direction:
+                                                    @foreach ($transferByDir as $dir => $t)
+                                                        <span style="display: inline-block; margin: 2px 6px 2px 0; background: #1a0a0a; padding: 2px 6px; border-radius: 3px;">
+                                                            <strong style="color: #ddd;">{{ $t['from'] }} → {{ $t['to'] }}</strong>:
+                                                            {{ number_format($t['metal'] + $t['crystal'] + $t['deuterium']) }} total res
+                                                            ({{ $t['count'] }}×)
+                                                        </span>
+                                                    @endforeach
+                                                    @if (count($transferByDir) === 1)
+                                                        <span style="color: #e74c3c; font-size: 10px; margin-left: 4px;">&#9888; One-directional</span>
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                            <div style="margin-top: 4px;">
                                                 <div style="font-size: 11px; color: #aaa; margin-bottom: 4px;">Fleet missions between these accounts (most recent 20):</div>
                                                 <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
                                                     <thead>
@@ -176,6 +225,9 @@
                             @if ($botSuspects->isNotEmpty())
                                 <div style="padding: 6px 10px; background: #0d0d1a; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
                                     Unusual Activity
+                                    @if ($dismissedSuspectCount > 0)
+                                        <span style="color: #555; font-size: 10px; text-transform: none; letter-spacing: 0; margin-left: 8px;">({{ $dismissedSuspectCount }} dismissed)</span>
+                                    @endif
                                 </div>
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <thead>
@@ -234,7 +286,7 @@
                                                         <span style="color: #2ecc71;">Active</span>
                                                     @endif
                                                 </td>
-                                                <td style="padding: 4px 6px;">
+                                                <td style="padding: 4px 6px; white-space: nowrap;">
                                                     @if (!$user->hasRole('admin') && !$user->isBanned())
                                                         <form action="{{ route('admin.server-administration.ban') }}" method="post" style="display:inline;">
                                                             {{ csrf_field() }}
@@ -252,6 +304,12 @@
                                                     @else
                                                         <span style="color: #666; font-size: 10px;">—</span>
                                                     @endif
+                                                    <form action="{{ route('admin.server-administration.dismiss') }}" method="post" style="display:inline; margin-left: 4px;">
+                                                        {{ csrf_field() }}
+                                                        <input type="hidden" name="type" value="bot_suspect">
+                                                        <input type="hidden" name="value" value="{{ $user->id }}">
+                                                        <input type="submit" class="btn_blue" value="Dismiss" style="font-size: 10px; padding: 2px 6px;" title="Hide this player from the panel">
+                                                    </form>
                                                 </td>
                                             </tr>
                                         @endforeach
