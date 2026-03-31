@@ -937,13 +937,17 @@ class ExpeditionMission extends GameMission
             return ExpeditionOutcomeType::Failed;
         }
 
-        // Pick a random number between 1 and total weight
-        $random = random_int(1, (int)$totalWeight);
+        // Scale weights to integers (multiply by 10) to avoid precision loss
+        // from casting float totals to int for random_int(). Without this,
+        // outcomes with small fractional weights (e.g. merchant 0.4, black_hole 0.2)
+        // can fall into sub-integer gaps in the cumulative range and become unreachable.
+        $scaledTotal = (int)round($totalWeight * 10);
+        $random = random_int(1, $scaledTotal);
 
         // Find which outcome was selected
         $currentWeight = 0;
         foreach ($weightedOutcomes as $weighted) {
-            $currentWeight += $weighted['weight'];
+            $currentWeight += (int)round($weighted['weight'] * 10);
             if ($random <= $currentWeight) {
                 return $weighted['outcome'];
             }

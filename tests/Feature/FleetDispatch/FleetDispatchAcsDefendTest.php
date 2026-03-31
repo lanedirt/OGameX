@@ -1213,6 +1213,50 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     }
 
     /**
+     * Verify that ACS Defend dispatch is blocked when ACS is disabled by server settings.
+     *
+     * Uses planet slot 7 (distinct from the planet 8 used by createBuddyPlayer) to avoid
+     * coordinate collisions when the planet allocator wraps around in large test suite runs.
+     */
+    public function testAcsDisabledBlocksAcsDefendDispatch(): void
+    {
+        $this->basicSetup();
+
+        // Create a buddy inline at planet slot 7 to avoid colliding with the planet 8
+        // coordinate used by createBuddyPlayer() in this class and FleetDispatchMultiDefenderBattleTest.
+        $buddyUser = User::factory()->create();
+        self::$allCreatedBuddyUserIds[] = $buddyUser->id;
+
+        $buddyPlanet = Planet::factory()->create([
+            'user_id' => $buddyUser->id,
+            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
+            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
+            'planet' => 7,
+        ]);
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $buddyPlayerService = resolve(PlayerService::class, ['player_id' => $buddyUser->id]);
+        $acsBlockBuddyPlanet = $planetServiceFactory->makeForPlayer($buddyPlayerService, $buddyPlanet->id);
+
+        $buddyService = resolve(BuddyService::class);
+        $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
+        $buddyService->acceptRequest($request->id, $buddyUser->id);
+
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('alliance_combat_system_on', 0);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 2);
+        $this->dispatchFleet($acsBlockBuddyPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, false);
+
+        $settingsService->set('alliance_combat_system_on', 1);
+
+        // Ships should still be on planet (mission was rejected)
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Ships should not have been dispatched when ACS is disabled.');
+    }
+
+    /**
      * Create a player that is neither buddy nor alliance member.
      *
      * @return User The non-affiliated user

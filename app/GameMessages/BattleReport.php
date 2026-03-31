@@ -266,6 +266,17 @@ class BattleReport extends GameMessage
         $defenderReapersUsed = $reaperCargoCapacity > 0 ? (int)ceil($defenderCollectedDebrisResources->sum() / $reaperCargoCapacity) : 0;
         $totalReapersUsed = $attackerReapersUsed + $defenderReapersUsed;
 
+        $wreckageCount = 0;
+        $wreckageUnits = new UnitCollection();
+        if (!empty($this->battleReportModel->wreckage)) {
+            foreach ($this->battleReportModel->wreckage as $machine_name => $count) {
+                $wreckageCount += $count;
+                if ($count > 0) {
+                    $wreckageUnits->addUnit(ObjectService::getUnitObjectByMachineName($machine_name), $count);
+                }
+            }
+        }
+
         $repairedDefensesCount = 0;
         $repairedDefenses = new UnitCollection();
         if (!empty($this->battleReportModel->repaired_defenses)) {
@@ -273,6 +284,17 @@ class BattleReport extends GameMessage
                 $repairedDefensesCount += $defense_count;
                 if ($defense_count > 0) {
                     $repairedDefenses->addUnit(ObjectService::getUnitObjectByMachineName($defense_key), $defense_count);
+                }
+            }
+        }
+
+        $attackerWreckageCount = 0;
+        $attackerWreckageUnits = new UnitCollection();
+        if (!empty($this->battleReportModel->general['attacker_wreckage'])) {
+            foreach ($this->battleReportModel->general['attacker_wreckage'] as $machine_name => $count) {
+                $attackerWreckageCount += $count;
+                if ($count > 0) {
+                    $attackerWreckageUnits->addUnit(ObjectService::getUnitObjectByMachineName($machine_name), $count);
                 }
             }
         }
@@ -375,9 +397,14 @@ class BattleReport extends GameMessage
             }
         }
 
+        // Determine if the message recipient is the attacker or the defender.
+        // This is used to show only the relevant wreckage section to each player.
+        $viewerIsAttacker = (int)$this->message->user_id === (int)$this->battleReportModel->attacker['player_id'];
+
         return [
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
+            'viewer_is_attacker' => $viewerIsAttacker,
             'report_datetime' => $this->getDateFormatted(),
             'attacker_name' => $attacker_name,
             'attacker_planet_name' => $attacker_planet_name,
@@ -405,8 +432,12 @@ class BattleReport extends GameMessage
             'remaining_debris_resources' => $remainingDebrisResources,
             'remaining_debris_recyclers_needed' => $remainingDebrisRecyclersNeeded,
             'total_reapers_used' => $totalReapersUsed,
+            'wreckage_count' => $wreckageCount,
+            'wreckage_units' => $wreckageUnits,
             'repaired_defenses_count' => $repairedDefensesCount,
             'repaired_defenses' => $repairedDefenses,
+            'attacker_wreckage_count' => $attackerWreckageCount,
+            'attacker_wreckage_units' => $attackerWreckageUnits,
             'moon_existed' => $moonExisted,
             'moon_chance' => $moonChance,
             'moon_created' => $moonCreated,

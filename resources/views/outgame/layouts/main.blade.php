@@ -191,7 +191,7 @@
                                onKeyDown="hideLoginErrorBox();"
                                id="passwordLogin"
                                name="password"
-                               maxlength="20"
+                               maxlength="128"
                         />
                     </div>
                 </div>
@@ -258,7 +258,7 @@
                                name="password"
                                autocomplete="new-password"
                                value="{{ old('password') }}"
-                               maxlength="20"
+                               maxlength="128"
                         />
                     </div>
 
