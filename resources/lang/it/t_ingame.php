@@ -1339,6 +1339,37 @@ return [
         'benefit_mines'              => '+2% produzione miniere',
         'benefit_espionage_title'    => '1 livello verrà aggiunto alla tua ricerca di spionaggio.',
         'benefit_espionage'          => '+1 livelli spionaggio',
+
+        // Detail panel keys
+        'dark_matter_title'          => 'Materia Oscura',
+        'dark_matter_description'    => 'La Materia Oscura è una sostanza che è possibile conservare solo da pochi anni, e con gran fatica. Essa consente di ricavare grandi quantità di energia. Il metodo utilizzato per ottenere la Materia Oscura è complesso e rischioso e questo la rende particolarmente preziosa.',
+        'dark_matter_safe'           => 'Solo la Materia Oscura acquistata e ancora disponibile può proteggere dall`eliminazione dell`account!',
+        'no_dark_matter_available'   => 'Non hai materia oscura disponibile',
+        'buy_dark_matter'            => 'Acquista la Materia Oscura',
+        'advantages_label'           => 'Vantaggi',
+        'dark_matter_advantages'     => 'La Materia Oscura permette di ingaggiare Ufficiali e Commander e di pagare le offerte dei mercanti, gli spostamenti dei pianeti e gli item.',
+        'your_balance'               => 'Il tuo saldo',
+        'active_until'               => 'Attivo fino al :date',
+        'not_active'                 => 'Non attivo',
+        'days'                       => 'giorni',
+        'dm'                         => 'MO',
+        'confirm_purchase'           => 'Ingaggiare questo ufficiale per :days giorni al costo di :cost Materia Oscura?',
+        'insufficient_dark_matter'   => 'Non hai abbastanza Materia Oscura.',
+        'purchase_error'             => 'Si è verificato un errore. Riprova.',
+
+        // Officer titles and descriptions
+        'officer_commander_title'       => 'Comandante',
+        'officer_commander_description' => 'Il Comandante ti dà accesso alla coda di costruzione, +40 preferiti, scorciatoie e allo scanner di trasporto.',
+        'officer_admiral_title'         => 'Ammiraglio',
+        'officer_admiral_description'   => 'L\'Ammiraglio concede +2 slot flotta massimi, +1 spedizione massima, tasso di fuga flotta migliorato e +20 slot salvataggio simulazione combattimento.',
+        'officer_engineer_title'        => 'Ingegnere',
+        'officer_engineer_description'  => 'L\'Ingegnere dimezza le perdite delle difese dopo la battaglia e fornisce +10% di produzione energia.',
+        'officer_geologist_title'       => 'Geologo',
+        'officer_geologist_description' => 'Il Geologo aumenta la produzione delle miniere del +10% per metallo, cristallo e deuterio.',
+        'officer_technocrat_title'      => 'Tecnocrate',
+        'officer_technocrat_description'=> 'Il Tecnocrate aggiunge +2 livelli di spionaggio e riduce il tempo di ricerca del 25%.',
+        'officer_all_officers_title'       => 'Stato Maggiore',
+        'officer_all_officers_description' => 'Attiva tutti e cinque gli ufficiali in una volta! Oltre ai bonus individuali, lo Stato Maggiore concede: +1 slot flotta, +2% produzione energia, +2% produzione miniere e +1 livello spionaggio.',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────

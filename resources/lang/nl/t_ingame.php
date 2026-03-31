@@ -1388,6 +1388,37 @@ return [
         'benefit_mines'              => '+2% mijnproductie',
         'benefit_espionage_title'    => '1 niveau wordt toegevoegd aan jouw spionageonderzoek.',
         'benefit_espionage'          => '+1 spionageniveaus',
+
+        // Detail panel keys
+        'dark_matter_title'          => 'Donkere Materie',
+        'dark_matter_description'    => 'Donkere Materie is een stof die pas sinds kort en met grote moeite kan worden bewaard. Het maakt het mogelijk om grote hoeveelheden energie op te wekken. De methode om Donkere Materie te verkrijgen is complex en risicovol, wat het bijzonder waardevol maakt.',
+        'dark_matter_safe'           => 'Alleen gekochte Donkere Materie die nog beschikbaar is, kan beschermen tegen accountverwijdering!',
+        'no_dark_matter_available'   => 'Geen donkere materie beschikbaar',
+        'buy_dark_matter'            => 'Donkere Materie kopen',
+        'advantages_label'           => 'Voordelen',
+        'dark_matter_advantages'     => 'Donkere Materie stelt je in staat om Officieren en Commandant in te huren en te betalen voor handelsaanbiedingen, planeetverplaatsingen en items.',
+        'your_balance'               => 'Je saldo',
+        'active_until'               => 'Actief tot :date',
+        'not_active'                 => 'Niet actief',
+        'days'                       => 'dagen',
+        'dm'                         => 'DM',
+        'confirm_purchase'           => 'Deze officier inhuren voor :days dagen voor :cost Donkere Materie?',
+        'insufficient_dark_matter'   => 'Je hebt niet genoeg Donkere Materie.',
+        'purchase_error'             => 'Er is een fout opgetreden. Probeer het opnieuw.',
+
+        // Officer titles and descriptions
+        'officer_commander_title'       => 'Commandant',
+        'officer_commander_description' => 'De Commandant geeft je toegang tot de bouwrij, +40 favorieten, snelkoppelingen en de transportscanner.',
+        'officer_admiral_title'         => 'Admiraal',
+        'officer_admiral_description'   => 'De Admiraal geeft +2 max vlootslots, +1 max expeditie, verbeterd vluchttempo en +20 opslagslots gevechtssimulatie.',
+        'officer_engineer_title'        => 'Ingenieur',
+        'officer_engineer_description'  => 'De Ingenieur halveert verdedigingsverliezen na een gevecht en geeft +10% energieproductie.',
+        'officer_geologist_title'       => 'Geoloog',
+        'officer_geologist_description' => 'De Geoloog verhoogt de mijnproductie met +10% voor metaal, kristal en deuterium.',
+        'officer_technocrat_title'      => 'Technocraat',
+        'officer_technocrat_description'=> 'De Technocraat voegt +2 spionageniveaus toe en vermindert de onderzoekstijd met 25%.',
+        'officer_all_officers_title'       => 'Commandostaf',
+        'officer_all_officers_description' => 'Activeer alle vijf officieren tegelijk! Naast individuele bonussen geeft de Commandostaf: +1 vlootslot, +2% energieproductie, +2% mijnproductie en +1 spionageniveau.',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────

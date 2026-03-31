@@ -1407,6 +1407,37 @@ return [
         'benefit_mines'              => '+2% mine production',
         'benefit_espionage_title'    => '1 level will be added to your espionage research.',
         'benefit_espionage'          => '+1 espionage levels',
+
+        // Detail panel keys
+        'dark_matter_title'          => 'Dark Matter',
+        'dark_matter_description'    => 'Dark Matter is a substance that can only be found in small quantities and with great effort. It can be used to generate large amounts of energy. The method used to obtain Dark Matter is complex and risky, which makes it particularly precious. Only purchased Dark Matter that is still available can protect against account deletion!',
+        'dark_matter_safe'           => 'Only purchased Dark Matter that is still available can protect against account deletion!',
+        'no_dark_matter_available'   => 'No dark matter available',
+        'buy_dark_matter'            => 'Buy Dark Matter',
+        'advantages_label'           => 'Advantages',
+        'dark_matter_advantages'     => 'Dark Matter allows you to hire Officers and Commander and to pay for merchant offers, planet relocations and items.',
+        'your_balance'               => 'Your balance',
+        'active_until'               => 'Active until :date',
+        'not_active'                 => 'Not active',
+        'days'                       => 'days',
+        'dm'                         => 'DM',
+        'confirm_purchase'           => 'Hire this officer for :days days at a cost of :cost Dark Matter?',
+        'insufficient_dark_matter'   => 'You do not have enough Dark Matter.',
+        'purchase_error'             => 'An error occurred. Please try again.',
+
+        // Officer titles and descriptions
+        'officer_commander_title'       => 'Commander',
+        'officer_commander_description' => 'The Commander gives you access to the building queue, +40 favorites, shortcuts, and the transport scanner.',
+        'officer_admiral_title'         => 'Admiral',
+        'officer_admiral_description'   => 'The Admiral grants +2 max fleet slots, +1 max expedition, improved fleet escape rate, and +20 combat simulation save slots.',
+        'officer_engineer_title'        => 'Engineer',
+        'officer_engineer_description'  => 'The Engineer halves losses to defenses after battle and provides +10% energy production.',
+        'officer_geologist_title'       => 'Geologist',
+        'officer_geologist_description' => 'The Geologist increases mine production by +10% for metal, crystal, and deuterium.',
+        'officer_technocrat_title'      => 'Technocrat',
+        'officer_technocrat_description'=> 'The Technocrat adds +2 espionage levels and reduces research time by 25%.',
+        'officer_all_officers_title'       => 'Commanding Staff',
+        'officer_all_officers_description' => 'Activate all five officers at once! In addition to individual bonuses, the Commanding Staff grants: +1 fleet slot, +2% energy production, +2% mine production, and +1 espionage level.',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
