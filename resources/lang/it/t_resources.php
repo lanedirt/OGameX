@@ -346,8 +346,8 @@ Sfortunatamente con la creazione dei nuovi e potenti sistemi difensivi come il c
 
     'battlecruiser' => [
         'title'            => 'Incrociatore da Battaglia',
-        'description'      => '\'Incrociatore da battaglia è altamente specializzato nell\'intercettare flotte nemiche.',
-        'description_long' => 'Questa nave è una delle più avanzate mai sviluppate, ed è particolarmente letale quando si tratta di distruggere flotte in attacco. Con i suoi migliorati cannoni laser a bordo e il motore Iperspaziale avanzato, l\'Incrociatore da Battaglia è una forza seria da affrontare in qualsiasi attacco. A causa del design della nave e del suo grande sistema d\'armi, le stive hanno dovuto essere ridotte, ma questo è compensato dal minor consumo di carburante.',
+        'description'      => 'L`Incrociatore da battaglia è altamente specializzato nell`intercettare flotte nemiche.',
+        'description_long' => 'Questa nave, tecnologicamente avanzata, è mortale quando viene usata per distruggere le flotte d`attacco. Con i suoi cannoni laser migliorati e un avanzato motore Iperspaziale, detiene una posizione privilegiata tra le navi pesanti, che è deputata a distruggere. A causa del suo design piccolo e del suo enorme armamento, la capacità di carico è minima; ma questo è compensato dal basso consumo di carburante.',
     ],
 
     'bomber' => [
