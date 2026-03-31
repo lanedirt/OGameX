@@ -1102,6 +1102,13 @@ class PlanetService
                 // ------
                 $this->updateResourceStorageStats(false);
 
+                // ------
+                // 6. Process module queue processors (e.g. lifeform building queues)
+                // ------
+                foreach (app()->tagged('module.queue_processors') as $processor) {
+                    $processor->processQueue($this);
+                }
+
                 // Save the planet manually here to prevent it from happening 5+ times in the methods above.
                 $this->save();
             } else {

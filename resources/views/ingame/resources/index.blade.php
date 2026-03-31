@@ -100,6 +100,8 @@
                         </span></li>
                     @endforeach
                 </ul>
+                {{-- Module extension point: additional building sections (e.g. Lifeform buildings) --}}
+                @moduleSlot('resources.building_section', ['planet' => $planet])
             </div>
         </div>
         <div id="productionboxBottom">
@@ -143,6 +145,8 @@
                     </script>
                 </div>
             </div>
+            {{-- Module extension point: additional production boxes (e.g. Lifeform queue) --}}
+            @moduleSlot('resources.production_box', ['planet' => $planet])
         </div>
         {{-- Last building slot warning --}}
         @include ('ingame.shared.buildings.last-building-slot-warning', ['planet' => $planet])
