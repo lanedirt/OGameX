@@ -18,8 +18,11 @@
                 <h2>{{ __('t_ingame.premium.recruit_officers') }}</h2>
             </div>
 
-            <div id="detail" class="detail_screen small">
-                <div id="techDetailLoading"></div>
+            {{-- detailWrapper è necessario per GFSlider: currHeight = detailWrapper.offsetHeight --}}
+            <div id="detailWrapper" style="height:300px; position:relative;">
+                <div id="detail" class="detail_screen small">
+                    <div id="techDetailLoading"></div>
+                </div>
             </div>
 
         </div>	<div class="c-left"></div>
@@ -136,9 +139,17 @@
         </div>
     </div>
 
-    {{-- detailUrl: usato da loadDetails() nel main layout per sapere dove fare la GET AJAX --}}
     <script>
+        // URL usato da loadDetails() nel main layout per le chiamate AJAX degli ufficiali
         var detailUrl = "{{ route('premium.ajax') }}";
+
+        $(document).ready(function () {
+            // Inizializza gfSlider con il wrapper del detail panel.
+            // currHeight = offsetHeight di #detailWrapper (300px dal style inline).
+            // Questo permette al handler .slideIn nel JS globale di funzionare
+            // anche su pagine diverse da overview.
+            gfSlider = new GFSlider(getElementByIdWithCache('detailWrapper'));
+        });
     </script>
 
 @endsection

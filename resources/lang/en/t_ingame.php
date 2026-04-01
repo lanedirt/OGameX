@@ -1332,6 +1332,50 @@ return [
         'benefit_mines'              => '+2% mine production',
         'benefit_espionage_title'    => '1 level will be added to your espionage research.',
         'benefit_espionage'          => '+1 espionage levels',
+
+        // ── Detail panel / acquisto ufficiali ──────────────────────────────
+        'dark_matter_title'          => 'Dark Matter',
+        'dark_matter_label'          => 'Dark Matter',
+        'no_dark_matter'             => 'You have no Dark Matter available',
+        'dark_matter_description'    => 'Dark Matter is a rare substance that can only be stored with great effort. It allows you to generate large amounts of energy. The process of obtaining Dark Matter is complex and risky, making it extremely valuable.<br><b>Only purchased Dark Matter that is still available can protect against account deletion!</b>',
+        'dark_matter_benefits'       => 'Dark Matter allows you to hire Officers and Commanders, pay merchant offers, move planets, and purchase items.',
+        'your_balance'               => 'Your balance',
+        'active_until'               => 'Active until :date',
+        'active_for_days'            => 'Active for :days more days',
+        'not_active'                 => 'Not active',
+        'days'                       => 'days',
+        'dm'                         => 'DM',
+        'advantages'                 => 'Advantages:',
+        'buy_dark_matter'            => 'Purchase Dark Matter',
+        'confirm_purchase'           => 'Hire this officer for :days days at a cost of :cost Dark Matter?',
+        'insufficient_dark_matter'   => 'You do not have enough Dark Matter.',
+        'purchase_success'           => 'Officer successfully activated!',
+        'purchase_error'             => 'An error occurred. Please try again.',
+
+        // ── Titoli, descrizioni e vantaggi ufficiali ───────────────────────
+        'officer_commander_title'        => 'Commander',
+        'officer_commander_description'  => 'The Commander has taken on an important role in modern wars. The streamlined command structure allows information to be processed more quickly. With the Commander you will be able to keep your entire empire under control!',
+        'officer_commander_benefits'     => 'With the Commander you will have an overview of the entire empire, one additional mission slot, and the ability to set the order of looted resources.',
+
+        'officer_admiral_title'          => 'Admiral',
+        'officer_admiral_description'    => 'The Admiral is an experienced veteran and excellent strategist. Even in the fiercest battles, he maintains an overview and stays in contact with the admirals under his command.',
+        'officer_admiral_benefits'       => '+1 expedition slot, ability to set resource priorities after an attack, +20 battle simulator save slots.',
+
+        'officer_engineer_title'         => 'Engineer',
+        'officer_engineer_description'   => 'The Engineer specialises in energy and defense management. In times of peace, he increases the energy produced by planets. In the event of an enemy attack, he reduces defense losses.',
+        'officer_engineer_benefits'      => '+10% energy produced on all planets, 50% of destroyed defenses survive the battle.',
+
+        'officer_geologist_title'        => 'Geologist',
+        'officer_geologist_description'  => 'The Geologist is an expert in astromineralogy and crystallography. Using appropriate equipment, he is able to locate excellent deposits, increasing mine production.',
+        'officer_geologist_benefits'     => '+10% production of metal, crystal and deuterium on all planets.',
+
+        'officer_technocrat_title'       => 'Technocrat',
+        'officer_technocrat_description' => 'The Technocrat cooperative is made up of brilliant scientists. No normal human being will ever try to decipher a technocrat\'s code; he inspires the empire\'s researchers with his mere presence.',
+        'officer_technocrat_benefits'    => '-25% research time on all technologies.',
+
+        'officer_all_officers_title'        => 'Commanding Staff',
+        'officer_all_officers_description'  => 'With this package you will not only secure a specialist, but an entire command staff. You will benefit from all individual officer effects, as well as the extra advantages available only with the package.',
+        'officer_all_officers_benefits'     => 'All the benefits of Commander, Admiral, Engineer, Geologist and Technocrat, plus exclusive extra bonuses available only with the full package.',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────

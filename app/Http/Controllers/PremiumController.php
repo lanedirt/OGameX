@@ -3,7 +3,7 @@
 namespace OGame\Http\Controllers;
 
 use Exception;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -26,7 +26,7 @@ class PremiumController extends OGameController
     {
         $this->setBodyId('premium');
 
-        $user = Auth::user();
+        $user    = Auth::user();
         $officer = $this->officerService->getOfficer($user);
 
         return view('ingame.premium.index', [
@@ -41,11 +41,11 @@ class PremiumController extends OGameController
      */
     public function ajax(Request $request): string
     {
-        $typeId = (int) $request->input('type', 0);
-        $user   = Auth::user();
+        $typeId  = (int) $request->input('type', 0);
+        $user    = Auth::user();
         $officer = $this->officerService->getOfficer($user);
 
-        // Type 1 = Dark Matter (solo info, nessun acquisto)
+        // Type 1 = Dark Matter (solo info saldo, nessun acquisto ufficiale)
         if ($typeId === 1) {
             return view('ingame.premium.detail-darkmatter', [
                 'darkMatter' => $user->dark_matter ?? 0,
@@ -73,42 +73,40 @@ class PremiumController extends OGameController
     }
 
     /**
-     * POST: acquista/attiva un ufficiale.
+     * GET: acquista/attiva un ufficiale e reindirizza alla pagina premium.
+     * Segue il pattern OGame originale: link diretto → acquisto → redirect.
      */
-    public function purchase(Request $request): JsonResponse
+    public function purchase(Request $request): RedirectResponse
     {
         $typeId = (int) $request->input('type');
-        $days   = (int) $request->input('duration');
+        $days   = (int) $request->input('days');
         $user   = Auth::user();
 
         $officerKey = $this->officerService->getKeyFromTypeId($typeId);
         if ($officerKey === null) {
-            return response()->json(['success' => false, 'error' => 'Invalid officer type.']);
+            return redirect()->route('premium.index')
+                ->with('error', 'Tipo ufficiale non valido.');
         }
 
         if (!in_array($days, OfficerService::DURATIONS, true)) {
-            return response()->json(['success' => false, 'error' => 'Invalid duration.']);
+            return redirect()->route('premium.index')
+                ->with('error', 'Durata non valida.');
         }
 
         $cost = $this->officerService->getCost($officerKey, $days);
         if (!$this->darkMatterService->canAfford($user, $cost)) {
-            return response()->json([
-                'success' => false,
-                'error'   => __('t_ingame.premium.insufficient_dark_matter'),
-            ]);
+            return redirect()->route('premium.index')
+                ->with('error', __('t_ingame.premium.insufficient_dark_matter'));
         }
 
         try {
             $this->officerService->purchase($user, $officerKey, $days);
         } catch (Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+            return redirect()->route('premium.index')
+                ->with('error', $e->getMessage());
         }
 
-        $user->refresh();
-
-        return response()->json([
-            'success'    => true,
-            'newBalance' => $user->dark_matter,
-        ]);
+        return redirect()->route('premium.index')
+            ->with('status', __('t_ingame.premium.purchase_success'));
     }
 }

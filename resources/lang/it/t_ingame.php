@@ -1294,6 +1294,50 @@ return [
         'benefit_mines'              => '+2% produzione miniere',
         'benefit_espionage_title'    => '1 livello verrà aggiunto alla tua ricerca di spionaggio.',
         'benefit_espionage'          => '+1 livelli spionaggio',
+
+        // ── Detail panel / acquisto ufficiali ──────────────────────────────
+        'dark_matter_title'          => 'Materia Oscura',
+        'dark_matter_label'          => 'Materia Oscura',
+        'no_dark_matter'             => 'Non hai materia oscura disponibile',
+        'dark_matter_description'    => 'La Materia Oscura è una sostanza che è possibile conservare solo da pochi anni, e con gran fatica. Essa consente di ricavare grandi quantità di energia. Il metodo utilizzato per ottenere la Materia Oscura è complesso e rischioso e questo la rende particolarmente preziosa.<br><b>Solo la Materia Oscura acquistata e ancora disponibile può proteggere dall\'eliminazione dell\'account!</b>',
+        'dark_matter_benefits'       => 'La Materia Oscura permette di ingaggiare Ufficiali e Commander e di pagare le offerte dei mercanti, gli spostamenti dei pianeti e gli item.',
+        'your_balance'               => 'Il tuo saldo',
+        'active_until'               => 'Attivo fino al :date',
+        'active_for_days'            => 'Attivo ancora per: :days giorni',
+        'not_active'                 => 'Non attivo',
+        'days'                       => 'giorni',
+        'dm'                         => 'MO',
+        'advantages'                 => 'Vantaggi:',
+        'buy_dark_matter'            => 'Acquista la Materia Oscura',
+        'confirm_purchase'           => 'Vuoi ingaggiare questo ufficiale per :days giorni al costo di :cost Materia Oscura?',
+        'insufficient_dark_matter'   => 'Non hai abbastanza Materia Oscura.',
+        'purchase_success'           => 'Ufficiale attivato con successo!',
+        'purchase_error'             => 'Si è verificato un errore. Riprova.',
+
+        // ── Titoli, descrizioni e vantaggi ufficiali ───────────────────────
+        'officer_commander_title'        => 'Comandante',
+        'officer_commander_description'  => 'Il Commander ha assunto un ruolo importante nelle guerre moderne. La struttura di comando semplificata consente di gestire in modo più rapido le informazioni. Con il Commander sarai in grado di tenere sotto controllo tutto il tuo impero!',
+        'officer_commander_benefits'     => 'Con il Commander avrai una panoramica dell\'intero impero, uno slot missione aggiuntivo e la possibilità di impostare l\'ordine delle risorse saccheggiate.',
+
+        'officer_admiral_title'          => 'Ammiraglio',
+        'officer_admiral_description'    => 'L\'ammiraglio è un veterano esperto e stratega eccellente. Anche nelle battaglie più accese mantiene una visione d\'insieme e mantiene i contatti con gli ammiragli sotto il suo comando.',
+        'officer_admiral_benefits'       => '+1 slot spedizione, possibilità di impostare priorità risorse dopo un attacco, +20 slot simulatore battaglie.',
+
+        'officer_engineer_title'         => 'Ingegnere',
+        'officer_engineer_description'   => 'L\'Ingegnere è specializzato nella gestione dell\'energia e delle difese. In tempi di pace aumenta l\'energia prodotta dai pianeti. In caso di attacco nemico riduce le perdite delle difese.',
+        'officer_engineer_benefits'      => '+10% energia prodotta su tutti i pianeti, il 50% delle difese distrutte sopravvive alla battaglia.',
+
+        'officer_geologist_title'        => 'Geologo',
+        'officer_geologist_description'  => 'Il geologo è esperto in astromineralogia e cristallografia. Utilizzando un equipaggiamento appropriato è in grado di localizzare ottimi giacimenti, aumentando la produzione delle miniere.',
+        'officer_geologist_benefits'     => '+10% produzione di metallo, cristallo e deuterio su tutti i pianeti.',
+
+        'officer_technocrat_title'       => 'Tecnocrate',
+        'officer_technocrat_description' => 'La cooperativa dei Tecnici è composta da scienziati geniali. Nessun essere umano normale cercherà mai di decifrare il codice di un tecnico; egli ispira i ricercatori dell\'impero con la sua sola presenza.',
+        'officer_technocrat_benefits'    => '-25% tempo di ricerca su tutte le tecnologie.',
+
+        'officer_all_officers_title'        => 'Stato Maggiore',
+        'officer_all_officers_description'  => 'Con questo pacchetto non ti assicurerai solo uno specialista, bensì un intero staff di bordo. Beneficerai di tutti gli effetti dei singoli ufficiali, nonché dei vantaggi extra disponibili solo col pacchetto.',
+        'officer_all_officers_benefits'     => 'Tutti i vantaggi di Comandante, Ammiraglio, Ingegnere, Geologo e Tecnocrate, più bonus extra esclusivi del pacchetto completo.',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
