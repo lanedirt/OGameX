@@ -332,25 +332,25 @@
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_lookback_days" title="How many days back to scan for all signals">Lookback period (days):</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_lookback_days" name="bot_detection_lookback_days" class="textInput w80 textCenter textBeefy" min="1" max="90" value="{{ $detectionSettings['lookback_days'] }}">
+                                    <input type="text" id="bd_lookback_days" name="bot_detection_lookback_days" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['lookback_days'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_active_hours" title="Minimum distinct hours of the day (0–23) that must have mission activity">Min. active hours/day:</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_active_hours" name="bot_detection_active_hours" class="textInput w80 textCenter textBeefy" min="1" max="24" value="{{ $detectionSettings['active_hours'] }}">
+                                    <input type="text" id="bd_active_hours" name="bot_detection_active_hours" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['active_hours'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_rate" title="Missions per fleet slot per day. Fleet slots = computer technology level + 1. Scales automatically with player progression.">Min. missions/slot/day:</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_rate" name="bot_detection_missions_per_slot_per_day" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['missions_per_slot_per_day'] }}">
+                                    <input type="text" id="bd_rate" name="bot_detection_missions_per_slot_per_day" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['missions_per_slot_per_day'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_floor" title="Minimum total missions required before a player can be flagged by signal 1. Protects new players whose rate looks suspicious due to tiny sample size.">Min. total missions (floor):</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_floor" name="bot_detection_min_missions_floor" class="textInput w80 textCenter textBeefy" min="0" value="{{ $detectionSettings['min_missions_floor'] }}">
+                                    <input type="text" id="bd_floor" name="bot_detection_min_missions_floor" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['min_missions_floor'] }}">
                                 </div>
                             </div>
 
@@ -360,13 +360,13 @@
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_exp_gap" title="Maximum seconds between an expedition returning and the next one departing from the same planet to count as an instant re-dispatch">Max. re-dispatch gap (seconds):</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_exp_gap" name="bot_detection_expedition_gap_seconds" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['expedition_gap_seconds'] }}">
+                                    <input type="text" id="bd_exp_gap" name="bot_detection_expedition_gap_seconds" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['expedition_gap_seconds'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_exp_min" title="How many instant re-dispatches must be observed before flagging">Min. occurrences to flag:</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_exp_min" name="bot_detection_expedition_min_occurrences" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['expedition_min_occurrences'] }}">
+                                    <input type="text" id="bd_exp_min" name="bot_detection_expedition_min_occurrences" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['expedition_min_occurrences'] }}">
                                 </div>
                             </div>
 
@@ -376,13 +376,13 @@
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_atk_gap" title="Maximum seconds between an attack being dispatched and the defender sending a fleet">Max. reaction gap (seconds):</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_atk_gap" name="bot_detection_attack_reaction_seconds" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['attack_reaction_seconds'] }}">
+                                    <input type="text" id="bd_atk_gap" name="bot_detection_attack_reaction_seconds" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['attack_reaction_seconds'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
                                 <label class="styled" for="bd_atk_min" title="How many instant reactions must be observed before flagging">Min. occurrences to flag:</label>
                                 <div class="thefield">
-                                    <input type="number" id="bd_atk_min" name="bot_detection_attack_reaction_min_occurrences" class="textInput w80 textCenter textBeefy" min="1" value="{{ $detectionSettings['attack_reaction_min_occurrences'] }}">
+                                    <input type="text" id="bd_atk_min" name="bot_detection_attack_reaction_min_occurrences" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['attack_reaction_min_occurrences'] }}">
                                 </div>
                             </div>
 
