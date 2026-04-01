@@ -34,6 +34,11 @@ class AcsDefendMission extends GameMission
             return $parentCheck;
         }
 
+        // ACS is disabled on this server.
+        if (!$this->settings->allianceCombatSystemOn()) {
+            return new MissionPossibleStatus(false, __('ACS is disabled on this server.'));
+        }
+
         // ACS Defend mission is only possible for planets and moons.
         if (!in_array($targetType, [PlanetType::Planet, PlanetType::Moon])) {
             return new MissionPossibleStatus(false);

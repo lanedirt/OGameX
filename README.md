@@ -74,7 +74,7 @@ My ([@lanedirt](https://github.com/lanedirt)) journey into software development 
 
 ## <a name="goal"></a> ✨ 3. Goal
 
-The primary goal of this fan-based project is to engineer a faithful rendition of OGame, specifically reflecting its state prior to the Lifeforms update introduced in 2020. This initiative, purely fan-based and non-commercial, is pursued strictly for educational purposes.
+The primary goal of this fan-based project is to engineer a faithful rendition of OGame, specifically reflecting its state prior to the Lifeforms update introduced in 2022. This initiative, purely fan-based and non-commercial, is pursued strictly for educational purposes.
 
 ## <a name="roadmap"></a> 🖥️ 4. Roadmap
 

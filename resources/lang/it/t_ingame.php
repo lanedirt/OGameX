@@ -597,7 +597,9 @@ return [
         'battle_defender'    => 'Difensore',
         'battle_resources'   => 'Risorse',
         'battle_loot'        => 'Bottino',
-        'battle_debris_new'  => 'Campo di detriti (appena creato)',
+        'battle_debris_new'       => 'Campo di detriti (appena creato)',
+        'battle_wreckage_created'  => 'Relitti creati',
+        'battle_attacker_wreckage' => 'Relitti dell\'attaccante',
         'battle_repaired'    => 'Difese riparate',
         'battle_moon_chance' => 'Probabilità di luna',
 
@@ -973,11 +975,11 @@ return [
         'password_strength_medium'              => 'Media',
         'password_strength_high'                => 'Alta',
         'password_properties_title'             => 'La password dovrebbe contenere le seguenti proprietà',
-        'password_min_max'                      => 'min. 4 caratteri, max. 20 caratteri',
+        'password_min_max'                      => 'min. 4 caratteri, max. 128 caratteri',
         'password_mixed_case'                   => 'Lettere maiuscole e minuscole',
         'password_special_chars'                => 'Caratteri speciali (es. !?:_., )',
         'password_numbers'                      => 'Numeri',
-        'password_length_hint'                  => 'La tua password deve avere almeno <strong>4 caratteri</strong> e non può essere più lunga di <strong>20 caratteri</strong>.',
+        'password_length_hint'                  => 'La tua password deve avere almeno <strong>4 caratteri</strong> e non può essere più lunga di <strong>128 caratteri</strong>.',
 
         'section_email'                         => 'Indirizzo email',
         'current_email'                         => 'Indirizzo email attuale:',
@@ -1077,6 +1079,9 @@ return [
 
         // Messaggi controller
         'msg_settings_saved'                    => 'Impostazioni salvate',
+        'msg_password_incorrect'                => 'La password attuale inserita non è corretta.',
+        'msg_password_mismatch'                 => 'Le nuove password non coincidono.',
+        'msg_password_length_invalid'           => 'La nuova password deve essere compresa tra 4 e 128 caratteri.',
         'msg_vacation_activated'                => 'Modalità vacanza attivata. Ti proteggerà dai nuovi attacchi per un minimo di 48 ore.',
         'msg_vacation_deactivated'              => 'Modalità vacanza disattivata.',
         'msg_vacation_min_duration'             => 'Puoi disattivare la modalità vacanza solo dopo che è trascorsa la durata minima di 48 ore.',

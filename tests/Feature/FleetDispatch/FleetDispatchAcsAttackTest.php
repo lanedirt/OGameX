@@ -1265,4 +1265,102 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
             'Union time_arrival must be updated to reflect the latest fleet arrival'
         );
     }
+
+    /**
+     * Verify that union creation is blocked when ACS is disabled by server settings.
+     */
+    public function testAcsDisabledBlocksUnionCreation(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('alliance_combat_system_on', 0);
+
+        $response = $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $mission->id,
+            'groupname' => 'TestUnion',
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(403);
+
+        $settingsService->set('alliance_combat_system_on', 1);
+
+        // Mission should still be type 1 (not converted to ACS Attack)
+        $mission->refresh();
+        $this->assertEquals(1, $mission->mission_type, 'Mission should remain type 1 when union creation is blocked by ACS setting.');
+    }
+
+    /**
+     * Verify that joining a union is blocked when ACS is disabled by server settings.
+     */
+    public function testAcsDisabledBlocksUnionJoining(): void
+    {
+        $this->basicSetup();
+
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('alliance_combat_system_on', 0);
+
+        $response = $this->post('/ajax/fleet/union/join', [
+            'fleet_mission_id' => 999999,
+            'union_id' => 999999,
+            '_token' => csrf_token(),
+        ]);
+        $response->assertStatus(403);
+
+        $settingsService->set('alliance_combat_system_on', 1);
+    }
+
+    /**
+     * Verify that ACS Attack (type 2) is not offered in mission options when ACS is disabled.
+     */
+    public function testAcsDisabledHidesAcsAttackFromCheckTarget(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+
+        // Send attack and create a union while ACS is on
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $mission->id,
+            'groupname' => 'TestUnion',
+            '_token' => csrf_token(),
+        ]);
+        $mission->refresh();
+        $unionId = $mission->union_id;
+
+        // Disable ACS
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('alliance_combat_system_on', 0);
+
+        $lightFighterObj = ObjectService::getUnitObjectByMachineName('light_fighter');
+        $response = $this->post('/ajax/fleet/dispatch/check-target', [
+            'galaxy' => $this->targetPlanet->getPlanetCoordinates()->galaxy,
+            'system' => $this->targetPlanet->getPlanetCoordinates()->system,
+            'position' => $this->targetPlanet->getPlanetCoordinates()->position,
+            'type' => PlanetType::Planet->value,
+            'mission' => 1,
+            'union' => $unionId,
+            '_token' => csrf_token(),
+            'am' . $lightFighterObj->id => 5,
+        ]);
+
+        $settingsService->set('alliance_combat_system_on', 1);
+
+        $response->assertStatus(200);
+        $response->assertJson(['orders' => [2 => false]]);
+    }
 }
