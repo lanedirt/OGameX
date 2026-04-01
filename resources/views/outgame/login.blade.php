@@ -16,16 +16,22 @@
                 <div class="inner-box clearfix">
                     <h2>{{ __('t_external.home.title') }}</h2>
 
+                    @if (session('ban_message'))
+                        <span class="help-block" style="color: #e74c3c;">
+                            <strong>{{ session('ban_message') }}</strong>
+                        </span>
+                    @endif
+
                     @if ($errors->has('email'))
-                        <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
+                        <span class="help-block" style="color: #e74c3c;">
+                            <strong>{{ $errors->first('email') }}</strong>
+                        </span>
                     @endif
 
                     @if ($errors->has('password'))
                         <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
+                            <strong>{{ $errors->first('password') }}</strong>
+                        </span>
                     @endif
 
                     <p>{!! __('t_external.home.description_html') !!}</p>
