@@ -14,6 +14,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
+use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
@@ -401,7 +402,7 @@ abstract class AccountTestCase extends TestCase
      * @param int $max_position
      * @return Coordinate
      */
-    protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12): Coordinate
+    protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12, int $min_system_distance = 0): Coordinate
     {
         // Get the max galaxies setting to ensure we only create coordinates within valid galaxy bounds.
         $settingsService = resolve(SettingsService::class);
@@ -416,7 +417,10 @@ abstract class AccountTestCase extends TestCase
         $tryCount = 0;
         while ($tryCount < 100) {
             $tryCount++;
-            $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
+            do {
+                $offset = rand(-10, 10);
+            } while ($min_system_distance > 0 && abs($offset) < $min_system_distance);
+            $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + $offset));
             $coordinate->position = rand($min_position, $max_position);
             $planetCount = DB::table('planets')
                 ->where('galaxy', $coordinate->galaxy)
@@ -960,6 +964,40 @@ abstract class AccountTestCase extends TestCase
     {
         $response = $this->get('/overview?cp=' . $this->secondPlanetService->getPlanetId());
         $response->assertStatus(200);
+    }
+
+    /**
+     * Creates a planet for the given user at a collision-safe coordinate.
+     *
+     * Uses a DB-existence check and defaults to positions 13-15 (outside the allocator's
+     * assigned range of 4-12) so that this planet never collides with a home planet placed
+     * by the allocator during registration — even when two test users land in the same system.
+     *
+     * Prefer this over calling Planet::factory()->create() with hardcoded coordinates in
+     * feature tests, because hardcoded positions inside the allocator range (4-12) will
+     * eventually match an allocator-assigned planet as more tests are added.
+     *
+     * @param int $userId The user_id to assign the new planet to.
+     * @param int $minPosition Lower bound for position search (default 13).
+     * @param int $maxPosition Upper bound for position search (default 15).
+     * @param int $minSystemDistance Minimum system offset from the current player's planet (default 0 = any system).
+     * @return PlanetService
+     */
+    protected function createPlanetAtSafeCoordinate(int $userId, int $minPosition = 13, int $maxPosition = 15, int $minSystemDistance = 0): PlanetService
+    {
+        $coordinate = $this->getNearbyEmptyCoordinate($minPosition, $maxPosition, $minSystemDistance);
+
+        $planet = Planet::factory()->create([
+            'user_id' => $userId,
+            'galaxy'  => $coordinate->galaxy,
+            'system'  => $coordinate->system,
+            'planet'  => $coordinate->position,
+        ]);
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $playerService = resolve(PlayerService::class, ['player_id' => $userId]);
+
+        return $planetServiceFactory->makeForPlayer($playerService, $planet->id);
     }
 
     /**

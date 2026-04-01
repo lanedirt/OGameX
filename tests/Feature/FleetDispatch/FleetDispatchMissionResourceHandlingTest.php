@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
-use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
@@ -64,18 +63,7 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
         // Track this user ID in static array for cleanup in tearDown
         self::$allCreatedBuddyUserIds[] = $buddyUser->id;
 
-        // Create a planet for the buddy user
-        $buddyPlanet = Planet::factory()->create([
-            'user_id' => $buddyUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 8,
-        ]);
-
-        // Get planet service for the buddy's planet
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $buddyPlayerService = resolve(PlayerService::class, ['player_id' => $buddyUser->id]);
-        $buddyPlanetService = $planetServiceFactory->makeForPlayer($buddyPlayerService, $buddyPlanet->id);
+        $this->createPlanetAtSafeCoordinate($buddyUser->id);
 
         $buddyService = resolve(BuddyService::class);
 
