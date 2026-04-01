@@ -402,7 +402,7 @@ abstract class AccountTestCase extends TestCase
      * @param int $max_position
      * @return Coordinate
      */
-    protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12): Coordinate
+    protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12, int $min_system_distance = 0): Coordinate
     {
         // Get the max galaxies setting to ensure we only create coordinates within valid galaxy bounds.
         $settingsService = resolve(SettingsService::class);
@@ -417,7 +417,10 @@ abstract class AccountTestCase extends TestCase
         $tryCount = 0;
         while ($tryCount < 100) {
             $tryCount++;
-            $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
+            do {
+                $offset = rand(-10, 10);
+            } while ($min_system_distance > 0 && abs($offset) < $min_system_distance);
+            $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + $offset));
             $coordinate->position = rand($min_position, $max_position);
             $planetCount = DB::table('planets')
                 ->where('galaxy', $coordinate->galaxy)
@@ -977,11 +980,12 @@ abstract class AccountTestCase extends TestCase
      * @param int $userId The user_id to assign the new planet to.
      * @param int $minPosition Lower bound for position search (default 13).
      * @param int $maxPosition Upper bound for position search (default 15).
+     * @param int $minSystemDistance Minimum system offset from the current player's planet (default 0 = any system).
      * @return PlanetService
      */
-    protected function createPlanetAtSafeCoordinate(int $userId, int $minPosition = 13, int $maxPosition = 15): PlanetService
+    protected function createPlanetAtSafeCoordinate(int $userId, int $minPosition = 13, int $maxPosition = 15, int $minSystemDistance = 0): PlanetService
     {
-        $coordinate = $this->getNearbyEmptyCoordinate($minPosition, $maxPosition);
+        $coordinate = $this->getNearbyEmptyCoordinate($minPosition, $maxPosition, $minSystemDistance);
 
         $planet = Planet::factory()->create([
             'user_id' => $userId,

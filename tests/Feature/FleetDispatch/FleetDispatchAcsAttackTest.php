@@ -132,7 +132,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $targetUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $targetUser->id;
 
-        $this->targetPlanet = $this->createPlanetAtSafeCoordinate($targetUser->id);
+        // Minimum 3-system distance ensures the ally (placed in target's system) is
+        // always naturally faster than the initiator, which some tests depend on.
+        $this->targetPlanet = $this->createPlanetAtSafeCoordinate($targetUser->id, 13, 15, 3);
         $this->targetUser = $targetUser;
 
         // Give the target some resources to loot

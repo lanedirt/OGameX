@@ -1202,29 +1202,15 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
     /**
      * Verify that ACS Defend dispatch is blocked when ACS is disabled by server settings.
-     *
-     * Uses planet slot 7 (distinct from the planet 8 used by createBuddyPlayer) to avoid
-     * coordinate collisions when the planet allocator wraps around in large test suite runs.
      */
     public function testAcsDisabledBlocksAcsDefendDispatch(): void
     {
         $this->basicSetup();
 
-        // Create a buddy inline at planet slot 7 to avoid colliding with the planet 8
-        // coordinate used by createBuddyPlayer() in this class and FleetDispatchMultiDefenderBattleTest.
         $buddyUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $buddyUser->id;
 
-        $buddyPlanet = Planet::factory()->create([
-            'user_id' => $buddyUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 7,
-        ]);
-
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $buddyPlayerService = resolve(PlayerService::class, ['player_id' => $buddyUser->id]);
-        $acsBlockBuddyPlanet = $planetServiceFactory->makeForPlayer($buddyPlayerService, $buddyPlanet->id);
+        $acsBlockBuddyPlanet = $this->createPlanetAtSafeCoordinate($buddyUser->id);
 
         $buddyService = resolve(BuddyService::class);
         $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
