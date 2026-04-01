@@ -67,6 +67,13 @@ class FleetUnion extends Model
     ];
 
     /**
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'time_arrival' => 'integer',
+    ];
+
+    /**
      * Get the creator of this union.
      */
     public function creator(): BelongsTo
@@ -133,7 +140,7 @@ class FleetUnion extends Model
      */
     public function getRemainingTime(): int
     {
-        return max(0, $this->time_arrival - Date::now()->timestamp);
+        return max(0, (int) $this->time_arrival - (int) Date::now()->timestamp);
     }
 
     /**
