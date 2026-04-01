@@ -414,7 +414,7 @@
                                     <input type="text"
                                            id="ban_reason"
                                            name="reason"
-                                           class="textInput w300 textBeefy"
+                                           class="textInput w150 textBeefy"
                                            placeholder="Reason for ban"
                                            required>
                                 </div>
