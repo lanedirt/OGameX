@@ -540,7 +540,13 @@ class PlayerService
         $user = $this->getUser();
         $fleet_slots_bonus = $characterClassService->getAdditionalFleetSlots($user);
 
-        return $fleet_slots_from_research + $fleet_slots_bonus;
+        // Add officer bonuses (Commander: +1, Admiral: +2, CommandingStaff: +1)
+        $officerService = app(OfficerService::class);
+        $officer_fleet_bonus = $officerService->getAdditionalFleetSlots($user)
+            + $officerService->getAdmiralFleetSlots($user)
+            + $officerService->getCommandingStaffFleetSlots($user);
+
+        return $fleet_slots_from_research + $fleet_slots_bonus + $officer_fleet_bonus;
     }
 
     /**
@@ -585,7 +591,11 @@ class PlayerService
         $user = $this->getUser();
         $expedition_slots_bonus = $characterClassService->getExpeditionSlotsBonus($user);
 
-        return $expedition_slots_from_research + $bonus_slots + $expedition_slots_bonus;
+        // Add Admiral officer bonus (+1 expedition slot)
+        $officerService = app(OfficerService::class);
+        $officer_expedition_bonus = $officerService->getAdditionalExpeditionSlots($user);
+
+        return $expedition_slots_from_research + $bonus_slots + $expedition_slots_bonus + $officer_expedition_bonus;
     }
 
     /**
@@ -924,32 +934,27 @@ class PlayerService
 
     public function hasCommander(): bool
     {
-        // TODO: add logic
-        return false;
+        return app(OfficerService::class)->isActive($this->getUser(), 'commander');
     }
 
     public function hasAdmiral(): bool
     {
-        // TODO: add logic
-        return false;
+        return app(OfficerService::class)->isActive($this->getUser(), 'admiral');
     }
 
     public function hasEngineer(): bool
     {
-        // TODO: add logic
-        return false;
+        return app(OfficerService::class)->isActive($this->getUser(), 'engineer');
     }
 
     public function hasGeologist(): bool
     {
-        // TODO: add logic
-        return false;
+        return app(OfficerService::class)->isActive($this->getUser(), 'geologist');
     }
 
     public function hasTechnocrat(): bool
     {
-        // TODO: add logic
-        return false;
+        return app(OfficerService::class)->isActive($this->getUser(), 'technocrat');
     }
 
     public function hasCommandingStaff(): bool

@@ -36,7 +36,7 @@
                     <li class="on button" id="button1">
                         <div class="premium1">
                             <div class="officers100  darkMatter">
-                                <a tabindex="1" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_dark_matter') }}" class="detail_button tooltip js_hideTipOnMobile slideIn" ref="1">
+                                <a tabindex="1" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_dark_matter') }}" class="detail_button tooltip js_hideTipOnMobile slideIn" ref="1" data-type="1">
                         <span class="ecke">
                             <span class="level">
                                 {{ number_format($darkMatter, 0, ',', '.') }}
@@ -45,10 +45,10 @@
                                 </a>
                             </div>
                         </div>			</li>
-                    <li class="button" id="button2">
+                    <li class="button {{ $officer->isCommanderActive() ? 'on' : '' }}" id="button2">
                         <div class="premium">
                             <div class="officers100  commander">
-                                <a tabindex="2" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_commander') }}" ref="2" class="detail_button tooltip js_hideTipOnMobile slideIn">
+                                <a tabindex="2" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_commander') }}" ref="2" data-type="2" class="detail_button tooltip js_hideTipOnMobile slideIn">
                         <span class="ecke">
                             <span class="level">
                                 <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
@@ -58,10 +58,10 @@
                             </div>
                         </div>
                     </li>
-                    <li class="button" id="button3">
+                    <li class="button {{ $officer->isAdmiralActive() ? 'on' : '' }}" id="button3">
                         <div class="premium">
                             <div class="officers100  admiral">
-                                <a tabindex="3" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_admiral') }}" ref="3" class="detail_button tooltip js_hideTipOnMobile slideIn">
+                                <a tabindex="3" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_admiral') }}" ref="3" data-type="3" class="detail_button tooltip js_hideTipOnMobile slideIn">
                         <span class="ecke">
                             <span class="level">
                                 <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
@@ -71,10 +71,10 @@
                             </div>
                         </div>
                     </li>
-                    <li class="button" id="button4">
+                    <li class="button {{ $officer->isEngineerActive() ? 'on' : '' }}" id="button4">
                         <div class="premium">
                             <div class="officers100  engineer">
-                                <a tabindex="4" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_engineer') }}" ref="4" class="detail_button tooltip js_hideTipOnMobile slideIn">
+                                <a tabindex="4" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_engineer') }}" ref="4" data-type="4" class="detail_button tooltip js_hideTipOnMobile slideIn">
                         <span class="ecke">
                             <span class="level">
                                 <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
@@ -84,10 +84,10 @@
                             </div>
                         </div>
                     </li>
-                    <li class="button" id="button5">
+                    <li class="button {{ $officer->isGeologistActive() ? 'on' : '' }}" id="button5">
                         <div class="premium">
                             <div class="officers100  geologist">
-                                <a tabindex="5" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_geologist') }}" ref="5" class="detail_button tooltip js_hideTipOnMobile slideIn">
+                                <a tabindex="5" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_geologist') }}" ref="5" data-type="5" class="detail_button tooltip js_hideTipOnMobile slideIn">
                         <span class="ecke">
                             <span class="level">
                                 <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
@@ -97,10 +97,10 @@
                             </div>
                         </div>
                     </li>
-                    <li class="button" id="button6">
+                    <li class="button {{ $officer->isTechnocratActive() ? 'on' : '' }}" id="button6">
                         <div class="premium">
                             <div class="officers100  technocrat">
-                                <a tabindex="6" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_technocrat') }}" ref="6" class="detail_button tooltip js_hideTipOnMobile slideIn">
+                                <a tabindex="6" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_technocrat') }}" ref="6" data-type="6" class="detail_button tooltip js_hideTipOnMobile slideIn">
                         <span class="ecke">
                             <span class="level">
                                 <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
@@ -110,10 +110,10 @@
                             </div>
                         </div>
                     </li>
-                    <li class="button" id="button12">
+                    <li class="button {{ $officer->isAllOfficersActive() ? 'on' : '' }}" id="button12">
                         <div class="premium">
                             <div class="officers100  allOfficers">
-                                <a tabindex="12" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_commanding_staff') }}" ref="12" class="detail_button tooltip js_hideTipOnMobile slideIn">
+                                <a tabindex="12" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_commanding_staff') }}" ref="12" data-type="12" class="detail_button tooltip js_hideTipOnMobile slideIn">
                         <span class="ecke">
                             <span class="level">
                                 <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
@@ -122,12 +122,12 @@
                                 </a>
                             </div>
                             <div class="remaining tooltip " title="">
-                                <span class="remDate">{{ __('t_ingame.premium.remaining_officers', ['current' => 0, 'max' => 5]) }}</span>
+                                <span class="remDate">{{ __('t_ingame.premium.remaining_officers', ['current' => $officer->getActiveOfficerCount(), 'max' => 5]) }}</span>
                             </div>
                         </div>
                     </li>
 
-                    <li class="allOfficers off">
+                    <li class="allOfficers {{ $officer->getActiveOfficerCount() >= 5 ? 'on' : 'off' }}">
                         <span title="{{ __('t_ingame.premium.benefit_fleet_slots_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_fleet_slots') }}</span><span title="{{ __('t_ingame.premium.benefit_energy_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_energy') }}</span><span title="{{ __('t_ingame.premium.benefit_mines_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_mines') }}</span><span title="{{ __('t_ingame.premium.benefit_espionage_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_espionage') }}</span>            </li>
                 </ul>
                 <br class="clearfloat">
@@ -135,5 +135,10 @@
             </div>
         </div>
     </div>
+
+    {{-- detailUrl: usato da loadDetails() nel main layout per sapere dove fare la GET AJAX --}}
+    <script>
+        var detailUrl = "{{ route('premium.ajax') }}";
+    </script>
 
 @endsection
