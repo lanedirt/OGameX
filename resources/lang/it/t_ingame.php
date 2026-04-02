@@ -1418,6 +1418,8 @@ return [
         'officer_geologist_tooltip'    => '<b>+10% produzione miniere</b><p>Tutte le miniere di metallo, cristallo e deuterio producono il 10% in più su ogni pianeta.</p>',
         'officer_technocrat_tooltip'   => '<b>+2 livelli spionaggio</b><p>La tua tecnologia spia conta come se fosse 2 livelli più alta per le missioni di spionaggio.</p><br/><b>25% meno tempo di ricerca</b><p>Tutte le ricerche vengono completate il 25% più velocemente.</p>',
         'officer_all_officers_tooltip' => '<b>Quantità max. flotte +1</b><p>Puoi inviare 1 flotta aggiuntiva contemporaneamente.</p><br/><b>+2% produzione energia</b><p>Le tue centrali elettriche e i satelliti solari producono il 2% di energia in più.</p><br/><b>+2% Prodotto delle miniere</b><p>Le tue miniere producono il 2% in più di metallo, cristallo e deuterio.</p><br/><b>+1 livello spionaggio</b><p>La tua tecnologia spia conta come se fosse 1 livello più alta per le missioni di spionaggio.</p>',
+
+        'already_active' => 'Ufficiale già attivo.',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────

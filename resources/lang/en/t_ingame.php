@@ -1486,6 +1486,8 @@ return [
         'officer_geologist_tooltip'    => '<b>+10% mine production</b><p>All metal, crystal and deuterium mines produce 10% more on every planet.</p>',
         'officer_technocrat_tooltip'   => '<b>+2 espionage levels</b><p>Your espionage technology counts as if it were 2 levels higher for espionage missions.</p><br/><b>25% less research time</b><p>All research is completed 25% faster.</p>',
         'officer_all_officers_tooltip' => '<b>Max. fleet slots +1</b><p>You can send 1 additional fleet simultaneously.</p><br/><b>+2% energy production</b><p>Your power plants and solar satellites produce 2% more energy.</p><br/><b>+2% mine production</b><p>Your mines produce 2% more metal, crystal and deuterium.</p><br/><b>+1 espionage level</b><p>Your espionage technology counts as if it were 1 level higher for espionage missions.</p>',
+
+        'already_active' => 'Officer already active.',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
