@@ -32,18 +32,53 @@ class OfficerService
      * Costs in Dark Matter per officer per duration (days).
      */
     public const COSTS = [
-        'commander'    => [7 => 10000, 30 => 30000,  90 => 75000],
-        'admiral'      => [7 => 10000, 30 => 30000,  90 => 75000],
-        'engineer'     => [7 => 10000, 30 => 30000,  90 => 75000],
-        'geologist'    => [7 => 10000, 30 => 30000,  90 => 75000],
-        'technocrat'   => [7 => 10000, 30 => 30000,  90 => 75000],
-        'all_officers' => [7 => 40000, 30 => 120000, 90 => 300000],
+        'commander'    => [7 => 10000, 91 => 100000],
+        'admiral'      => [7 =>  5000, 91 =>  50000],
+        'engineer'     => [7 =>  5000, 91 =>  50000],
+        'geologist'    => [7 => 12500, 91 => 125000],
+        'technocrat'   => [7 => 10000, 91 => 100000],
+        'all_officers' => [7 => 42500, 91 => 425000],
     ];
 
     /**
      * Valid durations in days.
      */
-    public const DURATIONS = [7, 30, 90];
+    public const DURATIONS = [7, 91];
+
+    /**
+     * Benefit translation key lists per officer (each entry = one <span> with checkmark).
+     */
+    public const BENEFIT_KEYS = [
+        'commander' => [
+            'officer_commander_benefit_favourites',
+            'officer_commander_benefit_queue',
+            'officer_commander_benefit_scanner',
+            'officer_commander_benefit_ads',
+        ],
+        'admiral' => [
+            'officer_admiral_benefit_fleet_slots',
+            'officer_admiral_benefit_expeditions',
+            'officer_admiral_benefit_escape',
+            'officer_admiral_benefit_save_slots',
+        ],
+        'engineer' => [
+            'officer_engineer_benefit_defence',
+            'officer_engineer_benefit_energy',
+        ],
+        'geologist' => [
+            'officer_geologist_benefit_mines',
+        ],
+        'technocrat' => [
+            'officer_technocrat_benefit_espionage',
+            'officer_technocrat_benefit_research',
+        ],
+        'all_officers' => [
+            'officer_all_officers_benefit_fleet_slots',
+            'officer_all_officers_benefit_energy',
+            'officer_all_officers_benefit_mines',
+            'officer_all_officers_benefit_espionage',
+        ],
+    ];
 
     /**
      * In-memory cache of Officer records to avoid repeated DB queries per request.

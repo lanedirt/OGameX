@@ -17,12 +17,10 @@
 
     <div id="wrapper">
         <div id="features">
-            <div class="build-it_wrap">
-                <a class="build-it overlay" href="{{ route('payment.overlay') }}">
+                    <a class="build-it overlay" href="{{ route('payment.overlay') }}">
                     <span>{{ __('t_ingame.premium.buy_dark_matter') }}</span>
                 </a>
-            </div>
-
+        
             <p>{!! __('t_ingame.premium.dark_matter_description') !!}</p>
 
             <br class="clearfloat">

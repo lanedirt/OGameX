@@ -24,6 +24,7 @@ use OGame\Models\ResearchQueue;
 use OGame\Models\Resource;
 use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
+use OGame\Services\OfficerService;
 use RuntimeException;
 use Throwable;
 
@@ -968,6 +969,13 @@ class PlanetService
         $timeMultiplier = $characterClassService->getResearchTimeMultiplier($this->player->getUser());
         if ($timeMultiplier != 1.0) {
             $time_seconds = (int)($time_seconds * $timeMultiplier);
+        }
+
+        // Apply Technocrat officer research time multiplier (-25%)
+        $officerService = app(OfficerService::class);
+        $technocratMultiplier = $officerService->getResearchTimeMultiplier($this->player->getUser());
+        if ($technocratMultiplier != 1.0) {
+            $time_seconds = (int)($time_seconds * $technocratMultiplier);
         }
 
         // Minimum time is always 1 second for all objects/units.

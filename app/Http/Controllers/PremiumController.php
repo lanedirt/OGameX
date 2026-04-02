@@ -63,12 +63,13 @@ class PremiumController extends OGameController
         $costs     = OfficerService::COSTS[$officerKey] ?? [];
 
         return view('ingame.premium.detail-officer', [
-            'officerKey' => $officerKey,
-            'typeId'     => $typeId,
-            'isActive'   => $isActive,
-            'expiresAt'  => $expiresAt,
-            'costs'      => $costs,
-            'darkMatter' => $user->dark_matter ?? 0,
+            'officerKey'  => $officerKey,
+            'typeId'      => $typeId,
+            'isActive'    => $isActive,
+            'expiresAt'   => $expiresAt,
+            'costs'       => $costs,
+            'darkMatter'  => $user->dark_matter ?? 0,
+            'benefitKeys' => OfficerService::BENEFIT_KEYS[$officerKey] ?? [],
         ])->render();
     }
 

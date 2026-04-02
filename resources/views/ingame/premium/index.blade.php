@@ -19,7 +19,7 @@
             </div>
 
             {{-- detailWrapper è necessario per GFSlider: currHeight = detailWrapper.offsetHeight --}}
-            <div id="detailWrapper" style="height:300px; position:relative;">
+            <div id="detailWrapper" style="height:300px; top:0; left:0;">
                 <div id="detail" class="detail_screen small">
                     <div id="techDetailLoading"></div>
                 </div>
