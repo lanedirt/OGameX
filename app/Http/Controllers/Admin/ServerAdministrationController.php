@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers\Admin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use OGame\Factories\PlayerServiceFactory;
@@ -51,33 +52,42 @@ class ServerAdministrationController extends OGameController
         $dismissedIps      = json_decode((string) $settingsService->get('dismissed_shared_ip_groups', '[]'), true) ?: [];
         $dismissedUserIds  = json_decode((string) $settingsService->get('dismissed_bot_suspect_ids', '[]'), true) ?: [];
 
-        $sharedIpGroups = collect();
+        // Cache the full IP-group data (including cross-account missions) for 30 minutes.
+        // On large databases each group triggers an additional fleet_missions query, making
+        // this O(n) in the number of shared-IP groups.
+        /** @var array<string, array<string, mixed>> $allIpGroups */
+        $allIpGroups = Cache::remember('bot_detection_ip_groups', 1800, function () use ($sharedLastIps, $sharedRegisterIps) {
+            $groups = [];
 
-        foreach ($sharedLastIps as $ip) {
-            if (in_array($ip, $dismissedIps, true)) {
-                continue;
+            foreach ($sharedLastIps as $ip) {
+                $users = User::where('last_ip', $ip)->get();
+                $groups[$ip] = [
+                    'ip'             => $ip,
+                    'type'           => 'Last active IP',
+                    'users'          => $users,
+                    'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
+                ];
             }
-            $users = User::where('last_ip', $ip)->get();
-            $sharedIpGroups->push([
-                'ip'             => $ip,
-                'type'           => 'Last active IP',
-                'users'          => $users,
-                'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
-            ]);
-        }
 
-        foreach ($sharedRegisterIps as $ip) {
-            if (in_array($ip, $dismissedIps, true)) {
-                continue;
+            foreach ($sharedRegisterIps as $ip) {
+                if (isset($groups[$ip])) {
+                    continue; // already captured via last_ip pass
+                }
+                $users = User::where('register_ip', $ip)->get();
+                $groups[$ip] = [
+                    'ip'             => $ip,
+                    'type'           => 'Registration IP',
+                    'users'          => $users,
+                    'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
+                ];
             }
-            $users = User::where('register_ip', $ip)->get();
-            $sharedIpGroups->push([
-                'ip'             => $ip,
-                'type'           => 'Registration IP',
-                'users'          => $users,
-                'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
-            ]);
-        }
+
+            return $groups;
+        });
+
+        $sharedIpGroups = collect($allIpGroups)
+            ->filter(fn ($group) => !in_array($group['ip'], $dismissedIps, true))
+            ->values();
 
         // --- Currently active bans ---
         $activeBans = Ban::with('user')
@@ -93,8 +103,8 @@ class ServerAdministrationController extends OGameController
             ->limit(30)
             ->get();
 
-        $settings   = $this->detectionSettings();
-        $allSuspects = $this->getBotActivitySuspects($settings);
+        $settings    = $this->detectionSettings();
+        $allSuspects = Cache::remember('bot_detection_suspects', 1800, fn () => $this->getBotActivitySuspects($settings));
         $botSuspects = $allSuspects->reject(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->values();
 
         return view('ingame.admin.server-administration', [
@@ -138,6 +148,9 @@ class ServerAdministrationController extends OGameController
         ]) as $key => $value) {
             $settingsService->set($key, (string) $value);
         }
+
+        Cache::forget('bot_detection_suspects');
+        Cache::forget('bot_detection_ip_groups');
 
         return redirect()->route('admin.server-administration.index')
             ->with('status', 'Bot detection settings saved.');
