@@ -4,6 +4,7 @@ namespace OGame\Console\Commands\Dev;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use OGame\Models\Planet;
 use OGame\Models\User;
@@ -61,6 +62,9 @@ class SeedBotDetectionData extends Command
         $this->seedRoundTheClock($test4, $planet4);
         $this->seedInstantExpeditionRedispatch($test4, $planet4);
         $this->seedInstantFleetSaveAfterAttack($test2, $planet2, $test4, $planet4);
+
+        Cache::forget('bot_detection_suspects');
+        Cache::forget('bot_detection_ip_groups');
 
         $this->newLine();
         $this->info('Bot detection test data seeded. Visit /admin/server-administration to review.');

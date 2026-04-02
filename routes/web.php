@@ -270,6 +270,7 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     Route::post('/admin/server-administration/unban', [ServerAdministrationController::class, 'unban'])->name('admin.server-administration.unban');
     Route::post('/admin/server-administration/detection-settings', [ServerAdministrationController::class, 'saveDetectionSettings'])->name('admin.server-administration.detection-settings');
     Route::post('/admin/server-administration/dismiss', [ServerAdministrationController::class, 'dismiss'])->name('admin.server-administration.dismiss');
+    Route::post('/admin/server-administration/clear-cache', [ServerAdministrationController::class, 'clearCache'])->name('admin.server-administration.clear-cache');
 
     // Developer shortcuts
     Route::get('/admin/developer-shortcuts', [DeveloperShortcutsController::class, 'index'])->name('admin.developershortcuts.index');

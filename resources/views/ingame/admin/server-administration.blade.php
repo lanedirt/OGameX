@@ -326,69 +326,69 @@
                         {{ csrf_field() }}
                         <div class="group bborder" style="display: block;">
 
-                            <div style="padding: 6px 10px; background: #0d0d1a; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
-                                Signal 1 — Round-the-clock activity
-                            </div>
+                            <p class="box_highlight textCenter no_buddies">@lang('Signal 1 — Round-the-clock activity')</p>
                             <div class="fieldwrapper">
-                                <label class="styled" for="bd_lookback_days" title="How many days back to scan for all signals">Lookback period (days):</label>
+                                <label class="styled textBeefy" for="bd_lookback_days" title="How many days back to scan for all signals">Lookback period (days):</label>
                                 <div class="thefield">
                                     <input type="text" id="bd_lookback_days" name="bot_detection_lookback_days" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['lookback_days'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
-                                <label class="styled" for="bd_active_hours" title="Minimum distinct hours of the day (0–23) that must have mission activity">Min. active hours/day:</label>
+                                <label class="styled textBeefy" for="bd_active_hours" title="Minimum distinct hours of the day (0–23) that must have mission activity">Min. active hours/day:</label>
                                 <div class="thefield">
                                     <input type="text" id="bd_active_hours" name="bot_detection_active_hours" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['active_hours'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
-                                <label class="styled" for="bd_rate" title="Missions per fleet slot per day. Fleet slots = computer technology level + 1. Scales automatically with player progression.">Min. missions/slot/day:</label>
+                                <label class="styled textBeefy" for="bd_rate" title="Missions per fleet slot per day. Fleet slots = computer technology level + 1. Scales automatically with player progression.">Min. missions/slot/day:</label>
                                 <div class="thefield">
                                     <input type="text" id="bd_rate" name="bot_detection_missions_per_slot_per_day" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['missions_per_slot_per_day'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
-                                <label class="styled" for="bd_floor" title="Minimum total missions required before a player can be flagged by signal 1. Protects new players whose rate looks suspicious due to tiny sample size.">Min. total missions (floor):</label>
+                                <label class="styled textBeefy" for="bd_floor" title="Minimum total missions required before a player can be flagged by signal 1. Protects new players whose rate looks suspicious due to tiny sample size.">Min. total missions (floor):</label>
                                 <div class="thefield">
                                     <input type="text" id="bd_floor" name="bot_detection_min_missions_floor" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['min_missions_floor'] }}">
                                 </div>
                             </div>
 
-                            <div style="padding: 6px 10px; background: #0d0d1a; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 8px;">
-                                Signal 2 — Instant expedition re-dispatch
-                            </div>
+                            <p class="box_highlight textCenter no_buddies">@lang('Signal 2 — Instant expedition re-dispatch')</p>
                             <div class="fieldwrapper">
-                                <label class="styled" for="bd_exp_gap" title="Maximum seconds between an expedition returning and the next one departing from the same planet to count as an instant re-dispatch">Max. re-dispatch gap (seconds):</label>
+                                <label class="styled textBeefy" for="bd_exp_gap" title="Maximum seconds between an expedition returning and the next one departing from the same planet to count as an instant re-dispatch">Max. re-dispatch gap (seconds):</label>
                                 <div class="thefield">
                                     <input type="text" id="bd_exp_gap" name="bot_detection_expedition_gap_seconds" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['expedition_gap_seconds'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
-                                <label class="styled" for="bd_exp_min" title="How many instant re-dispatches must be observed before flagging">Min. occurrences to flag:</label>
+                                <label class="styled textBeefy" for="bd_exp_min" title="How many instant re-dispatches must be observed before flagging">Min. occurrences to flag:</label>
                                 <div class="thefield">
                                     <input type="text" id="bd_exp_min" name="bot_detection_expedition_min_occurrences" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['expedition_min_occurrences'] }}">
                                 </div>
                             </div>
 
-                            <div style="padding: 6px 10px; background: #0d0d1a; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 8px;">
-                                Signal 3 — Instant fleet-save after attack
-                            </div>
+                            <p class="box_highlight textCenter no_buddies">@lang('Signal 3 — Instant fleet-save after attack')</p>
                             <div class="fieldwrapper">
-                                <label class="styled" for="bd_atk_gap" title="Maximum seconds between an attack being dispatched and the defender sending a fleet">Max. reaction gap (seconds):</label>
+                                <label class="styled textBeefy" for="bd_atk_gap" title="Maximum seconds between an attack being dispatched and the defender sending a fleet">Max. reaction gap (seconds):</label>
                                 <div class="thefield">
                                     <input type="text" id="bd_atk_gap" name="bot_detection_attack_reaction_seconds" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['attack_reaction_seconds'] }}">
                                 </div>
                             </div>
                             <div class="fieldwrapper">
-                                <label class="styled" for="bd_atk_min" title="How many instant reactions must be observed before flagging">Min. occurrences to flag:</label>
+                                <label class="styled textBeefy" for="bd_atk_min" title="How many instant reactions must be observed before flagging">Min. occurrences to flag:</label>
                                 <div class="thefield">
                                     <input type="text" id="bd_atk_min" name="bot_detection_attack_reaction_min_occurrences" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $detectionSettings['attack_reaction_min_occurrences'] }}">
                                 </div>
                             </div>
-
-                            <div class="fieldwrapper" style="text-align: center; margin-top: 10px;">
+                            <div class="fieldwrapper" style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
                                 <input type="submit" class="btn_blue" value="Save Settings">
                             </div>
+                        </div>
+                    </form>
+
+                    <form action="{{ route('admin.server-administration.clear-cache') }}" method="post">
+                        {{ csrf_field() }}
+                        <div class="fieldwrapper" style="text-align: center; margin-bottom: 10px;">
+                            <input type="submit" class="btn_blue" value="Refresh Detection Results" title="Clears the 30-minute cache and recomputes all detection results immediately">
                         </div>
                     </form>
 
@@ -422,7 +422,7 @@
                             <div class="fieldwrapper">
                                 <label class="styled textBeefy" for="ban_duration">Duration:</label>
                                 <div class="thefield">
-                                    <select id="ban_duration" name="duration" class="textInput textBeefy">
+                                    <select id="ban_duration" name="duration" class="w130">
                                         <option value="86400">1 Day</option>
                                         <option value="259200">3 Days</option>
                                         <option value="604800">7 Days</option>

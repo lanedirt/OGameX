@@ -23,13 +23,13 @@ return new class () extends Migration {
     {
         Schema::table('fleet_missions', function (Blueprint $table) {
             // Covers: WHERE mission_type = X AND canceled = 0 AND time_departure > Y
-            $table->index(['mission_type', 'canceled', 'time_departure'], 'bot_detection_type_canceled_departure');
+            $table->index(['mission_type', 'canceled', 'time_departure'], 'idx_fm_type_canceled_departure');
 
             // Covers: WHERE mission_type = 15 AND canceled = 0 AND time_arrival > Y  (return side of self-join)
-            $table->index(['mission_type', 'canceled', 'time_arrival'], 'bot_detection_type_canceled_arrival');
+            $table->index(['mission_type', 'canceled', 'time_arrival'], 'idx_fm_type_canceled_arrival');
 
             // Covers: JOIN ON user_id = X AND mission_type = Z AND canceled = 0 AND time_departure BETWEEN A AND B
-            $table->index(['user_id', 'mission_type', 'canceled', 'time_departure'], 'bot_detection_user_type_canceled_departure');
+            $table->index(['user_id', 'mission_type', 'canceled', 'time_departure'], 'idx_fm_user_type_canceled_departure');
         });
     }
 
@@ -39,9 +39,9 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('fleet_missions', function (Blueprint $table) {
-            $table->dropIndex('bot_detection_type_canceled_departure');
-            $table->dropIndex('bot_detection_type_canceled_arrival');
-            $table->dropIndex('bot_detection_user_type_canceled_departure');
+            $table->dropIndex('idx_fm_type_canceled_departure');
+            $table->dropIndex('idx_fm_type_canceled_arrival');
+            $table->dropIndex('idx_fm_user_type_canceled_departure');
         });
     }
 };
