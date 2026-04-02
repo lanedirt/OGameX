@@ -1421,23 +1421,71 @@ return [
         'not_active'                 => 'Not active',
         'days'                       => 'days',
         'dm'                         => 'DM',
+        'dark_matter_label'          => 'Dark Matter',
+        'no_dark_matter'             => 'No Dark Matter available',
+        'active_for_days'            => 'Active for another: :days days',
+        'advantages'                 => 'Benefits:',
         'confirm_purchase'           => 'Hire this officer for :days days at a cost of :cost Dark Matter?',
         'insufficient_dark_matter'   => 'You do not have enough Dark Matter.',
+        'purchase_success'           => 'Officer successfully activated!',
         'purchase_error'             => 'An error occurred. Please try again.',
 
-        // Officer titles and descriptions
-        'officer_commander_title'       => 'Commander',
-        'officer_commander_description' => 'The Commander gives you access to the building queue, +40 favorites, shortcuts, and the transport scanner.',
-        'officer_admiral_title'         => 'Admiral',
-        'officer_admiral_description'   => 'The Admiral grants +2 max fleet slots, +1 max expedition, improved fleet escape rate, and +20 combat simulation save slots.',
-        'officer_engineer_title'        => 'Engineer',
-        'officer_engineer_description'  => 'The Engineer halves losses to defenses after battle and provides +10% energy production.',
-        'officer_geologist_title'       => 'Geologist',
-        'officer_geologist_description' => 'The Geologist increases mine production by +10% for metal, crystal, and deuterium.',
-        'officer_technocrat_title'      => 'Technocrat',
-        'officer_technocrat_description'=> 'The Technocrat adds +2 espionage levels and reduces research time by 25%.',
-        'officer_all_officers_title'       => 'Commanding Staff',
-        'officer_all_officers_description' => 'Activate all five officers at once! In addition to individual bonuses, the Commanding Staff grants: +1 fleet slot, +2% energy production, +2% mine production, and +1 espionage level.',
+        // ── Officer titles, descriptions and benefits ─────────────────────
+        'officer_commander_title'        => 'Commander',
+        'officer_commander_description'  => 'The Commander has taken on an important role in modern wars. The streamlined command structure allows information to be processed more quickly. With the Commander you will be able to keep your entire empire under control!',
+        'officer_commander_benefits'     => 'With the Commander you will have an overview of the entire empire, one additional mission slot, and the ability to set the order of looted resources.',
+
+        'officer_admiral_title'          => 'Admiral',
+        'officer_admiral_description'    => 'The Admiral is an experienced veteran and excellent strategist. Even in the fiercest battles, he maintains an overview and stays in contact with the admirals under his command.',
+        'officer_admiral_benefits'       => '+1 expedition slot, ability to set resource priorities after an attack, +20 battle simulator save slots.',
+
+        'officer_engineer_title'         => 'Engineer',
+        'officer_engineer_description'   => 'The Engineer specialises in energy and defense management. In times of peace, he increases the energy produced by planets. In the event of an enemy attack, he reduces defense losses.',
+        'officer_engineer_benefits'      => '+10% energy produced on all planets, 50% of destroyed defenses survive the battle.',
+
+        'officer_geologist_title'        => 'Geologist',
+        'officer_geologist_description'  => 'The Geologist is an expert in astromineralogy and crystallography. Using appropriate equipment, he is able to locate excellent deposits, increasing mine production.',
+        'officer_geologist_benefits'     => '+10% production of metal, crystal and deuterium on all planets.',
+
+        'officer_technocrat_title'       => 'Technocrat',
+        'officer_technocrat_description' => 'The Technocrat cooperative is made up of brilliant scientists. No normal human being will ever try to decipher a technocrat\'s code; he inspires the empire\'s researchers with his mere presence.',
+        'officer_technocrat_benefits'    => '-25% research time on all technologies.',
+
+        'officer_all_officers_title'        => 'Commanding Staff',
+        'officer_all_officers_description'  => 'With this package you will not only secure a specialist, but an entire command staff. You will benefit from all individual officer effects, as well as the extra advantages available only with the package.',
+        'officer_all_officers_benefits'     => 'All the benefits of Commander, Admiral, Engineer, Geologist and Technocrat, plus exclusive extra bonuses available only with the full package.',
+
+        // ── Benefit spans per officer (one <span> each = one checkmark row) ──
+        'officer_commander_benefit_favourites' => '+40 favourites',
+        'officer_commander_benefit_queue'      => 'Building queue',
+        'officer_commander_benefit_scanner'    => 'Transport scanner',
+        'officer_commander_benefit_ads'        => 'Advertisement free',
+
+        'officer_admiral_benefit_fleet_slots'  => 'Max. fleet slots +2',
+        'officer_admiral_benefit_expeditions'  => 'Max. expeditions +1',
+        'officer_admiral_benefit_escape'       => 'Improved fleet escape rate',
+        'officer_admiral_benefit_save_slots'   => 'Max. save slots +20',
+
+        'officer_engineer_benefit_defence'     => 'Halves losses to defence systems',
+        'officer_engineer_benefit_energy'      => '+10% energy production',
+
+        'officer_geologist_benefit_mines'      => '+10% mine production',
+
+        'officer_technocrat_benefit_espionage' => '+2 espionage levels',
+        'officer_technocrat_benefit_research'  => '25% less research time',
+
+        'officer_all_officers_benefit_fleet_slots' => 'Max. fleet slots +1',
+        'officer_all_officers_benefit_energy'      => '+2% energy production',
+        'officer_all_officers_benefit_mines'       => '+2% mine production',
+        'officer_all_officers_benefit_espionage'   => '+1 espionage levels',
+
+        // ── Detailed tooltip per officer (HTML, shown below Benefits section) ─
+        'officer_commander_tooltip'    => '<b>+40 favourites</b><p>More favourites allow you to save more messages which can also be shared.</p><br/><b>Build queue</b><p>You can simultaneously start up to 4 additional jobs for buildings and research.</p><br/><b>Cargo information</b><p>The amount of resources transported by your cargoes to your planets is shown.</p><br/><b>No advertising</b><p>You no longer receive any advertising messages about other games, only information about events and special offers relating to OGame.</p>',
+        'officer_admiral_tooltip'      => '<b>Max. fleet slots +2</b><p>You can send 2 additional fleets simultaneously.</p><br/><b>Max. expeditions +1</b><p>You can send 1 additional expedition simultaneously.</p><br/><b>Improved fleet escape rate</b><p>Your fleets have a better chance of retreating from an unfavourable battle.</p><br/><b>Max. save slots +20</b><p>You can save up to 20 additional fleet configurations in the battle simulator.</p>',
+        'officer_engineer_tooltip'     => '<b>Halved defence losses</b><p>50% of defence structures destroyed in battle survive and are automatically repaired.</p><br/><b>+10% energy production</b><p>All power plants and solar satellites produce 10% more energy on every planet.</p>',
+        'officer_geologist_tooltip'    => '<b>+10% mine production</b><p>All metal, crystal and deuterium mines produce 10% more on every planet.</p>',
+        'officer_technocrat_tooltip'   => '<b>+2 espionage levels</b><p>Your espionage technology counts as if it were 2 levels higher for espionage missions.</p><br/><b>25% less research time</b><p>All research is completed 25% faster.</p>',
+        'officer_all_officers_tooltip' => '<b>Max. fleet slots +1</b><p>You can send 1 additional fleet simultaneously.</p><br/><b>+2% energy production</b><p>Your power plants and solar satellites produce 2% more energy.</p><br/><b>+2% mine production</b><p>Your mines produce 2% more metal, crystal and deuterium.</p><br/><b>+1 espionage level</b><p>Your espionage technology counts as if it were 1 level higher for espionage missions.</p>',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────

@@ -1325,11 +1325,11 @@ return [
         'info_geologist'             => 'Maggiori informazioni su: Geologo',
         'info_technocrat'            => 'Maggiori informazioni su: Tecnocrate',
         'info_commanding_staff'      => 'Maggiori informazioni su: Stato Maggiore',
-        'hire_commander_tooltip'     => 'Assumi comandante|+40 preferiti, coda costruzione, scorciatoie, scanner trasporto, senza pubblicità* <span style=\'font-size: 10px; line-height: 10px\'>(*esclusi: riferimenti relativi al gioco)</span>',
+        'hire_commander_tooltip'     => 'Assumi comandante|+40 favoriti, coda costruzione, Informazioni sul carico, scanner trasporto, senza pubblicità* <span style=\'font-size: 10px; line-height: 10px\'>(*esclusi: riferimenti relativi al gioco)</span>',
         'hire_admiral_tooltip'       => "Assumi ammiraglio|Slot flotta max +2,\nSpedizioni max +1,\nTasso fuga flotta migliorato,\nSlot salvataggio simulazione combattimento +20",
         'hire_engineer_tooltip'      => 'Assumi ingegnere|Dimezza le perdite nelle difese, +10% produzione energia',
         'hire_geologist_tooltip'     => 'Assumi geologo|+10% produzione miniere',
-        'hire_technocrat_tooltip'    => 'Assumi tecnocrate|+2 livelli spionaggio, 25% meno tempo di ricerca',
+        'hire_technocrat_tooltip'    => 'Assumi tecnocrate|+2 Livelli di spionaggio, 25% meno tempo di ricerca',
         'remaining_officers'         => ':current di :max',
         'benefit_fleet_slots_title'  => 'Puoi inviare più flotte contemporaneamente.',
         'benefit_fleet_slots'        => 'Slot flotta max +1',
@@ -1353,23 +1353,71 @@ return [
         'not_active'                 => 'Non attivo',
         'days'                       => 'giorni',
         'dm'                         => 'MO',
+        'dark_matter_label'          => 'Materia Oscura',
+        'no_dark_matter'             => 'Non hai materia oscura disponibile',
+        'active_for_days'            => 'Attivo ancora per: :days giorni',
+        'advantages'                 => 'Vantaggi:',
         'confirm_purchase'           => 'Ingaggiare questo ufficiale per :days giorni al costo di :cost Materia Oscura?',
         'insufficient_dark_matter'   => 'Non hai abbastanza Materia Oscura.',
+        'purchase_success'           => 'Ufficiale attivato con successo!',
         'purchase_error'             => 'Si è verificato un errore. Riprova.',
 
-        // Officer titles and descriptions
-        'officer_commander_title'       => 'Comandante',
-        'officer_commander_description' => 'Il Comandante ti dà accesso alla coda di costruzione, +40 preferiti, scorciatoie e allo scanner di trasporto.',
-        'officer_admiral_title'         => 'Ammiraglio',
-        'officer_admiral_description'   => 'L\'Ammiraglio concede +2 slot flotta massimi, +1 spedizione massima, tasso di fuga flotta migliorato e +20 slot salvataggio simulazione combattimento.',
-        'officer_engineer_title'        => 'Ingegnere',
-        'officer_engineer_description'  => 'L\'Ingegnere dimezza le perdite delle difese dopo la battaglia e fornisce +10% di produzione energia.',
-        'officer_geologist_title'       => 'Geologo',
-        'officer_geologist_description' => 'Il Geologo aumenta la produzione delle miniere del +10% per metallo, cristallo e deuterio.',
-        'officer_technocrat_title'      => 'Tecnocrate',
-        'officer_technocrat_description'=> 'Il Tecnocrate aggiunge +2 livelli di spionaggio e riduce il tempo di ricerca del 25%.',
-        'officer_all_officers_title'       => 'Stato Maggiore',
-        'officer_all_officers_description' => 'Attiva tutti e cinque gli ufficiali in una volta! Oltre ai bonus individuali, lo Stato Maggiore concede: +1 slot flotta, +2% produzione energia, +2% produzione miniere e +1 livello spionaggio.',
+        // ── Titoli, descrizioni e vantaggi ufficiali ───────────────────────
+        'officer_commander_title'        => 'Comandante',
+        'officer_commander_description'  => 'Il Commander ha assunto un ruolo importante nelle guerre moderne. La struttura di comando semplificata consente di gestire in modo più rapido le informazioni. Con il Commander sarai in grado di tenere sotto controllo tutto il tuo impero!',
+        'officer_commander_benefits'     => 'Con il Commander avrai una panoramica dell\'intero impero, uno slot missione aggiuntivo e la possibilità di impostare l\'ordine delle risorse saccheggiate.',
+
+        'officer_admiral_title'          => 'Ammiraglio',
+        'officer_admiral_description'    => 'L\'ammiraglio è un veterano esperto e stratega eccellente. Anche nelle battaglie più accese mantiene una visione d\'insieme e mantiene i contatti con gli ammiragli sotto il suo comando.',
+        'officer_admiral_benefits'       => '+1 slot spedizione, possibilità di impostare priorità risorse dopo un attacco, +20 slot simulatore battaglie.',
+
+        'officer_engineer_title'         => 'Ingegnere',
+        'officer_engineer_description'   => 'L\'Ingegnere è specializzato nella gestione dell\'energia e delle difese. In tempi di pace aumenta l\'energia prodotta dai pianeti. In caso di attacco nemico riduce le perdite delle difese.',
+        'officer_engineer_benefits'      => '+10% energia prodotta su tutti i pianeti, il 50% delle difese distrutte sopravvive alla battaglia.',
+
+        'officer_geologist_title'        => 'Geologo',
+        'officer_geologist_description'  => 'Il geologo è esperto in astromineralogia e cristallografia. Utilizzando un equipaggiamento appropriato è in grado di localizzare ottimi giacimenti, aumentando la produzione delle miniere.',
+        'officer_geologist_benefits'     => '+10% produzione di metallo, cristallo e deuterio su tutti i pianeti.',
+
+        'officer_technocrat_title'       => 'Tecnocrate',
+        'officer_technocrat_description' => 'La cooperativa dei Tecnici è composta da scienziati geniali. Nessun essere umano normale cercherà mai di decifrare il codice di un tecnico; egli ispira i ricercatori dell\'impero con la sua sola presenza.',
+        'officer_technocrat_benefits'    => '-25% tempo di ricerca su tutte le tecnologie.',
+
+        'officer_all_officers_title'        => 'Stato Maggiore',
+        'officer_all_officers_description'  => 'Con questo pacchetto non ti assicurerai solo uno specialista, bensì un intero staff di bordo. Beneficerai di tutti gli effetti dei singoli ufficiali, nonché dei vantaggi extra disponibili solo col pacchetto.',
+        'officer_all_officers_benefits'     => 'Tutti i vantaggi di Comandante, Ammiraglio, Ingegnere, Geologo e Tecnocrate, più bonus extra esclusivi del pacchetto completo.',
+
+        // ── Benefit span per ufficiale (uno <span> = una riga con spunta) ───
+        'officer_commander_benefit_favourites' => '+40 preferiti',
+        'officer_commander_benefit_queue'      => 'Coda costruzione',
+        'officer_commander_benefit_scanner'    => 'Informazioni sul carico',
+        'officer_commander_benefit_ads'        => 'Senza pubblicità',
+
+        'officer_admiral_benefit_fleet_slots'  => 'Quantità max. flotte +2',
+        'officer_admiral_benefit_expeditions'  => 'Numero massimo di spedizioni +1',
+        'officer_admiral_benefit_escape'       => 'Miglioramento del tasso di fuga delle flotte',
+        'officer_admiral_benefit_save_slots'   => 'Slot memoria massimi +20',
+
+        'officer_engineer_benefit_defence'     => 'Dimezza le perdite delle strutture difensive',
+        'officer_engineer_benefit_energy'      => '+10% di produzione di energia',
+
+        'officer_geologist_benefit_mines'      => '+10% produzione delle miniere',
+
+        'officer_technocrat_benefit_espionage' => '+2 livelli di spionaggio',
+        'officer_technocrat_benefit_research'  => '25% di riduzione del tempo di ricerca',
+
+        'officer_all_officers_benefit_fleet_slots' => 'Quantità max. flotte +1',
+        'officer_all_officers_benefit_energy'      => '+2% Produzione di energia',
+        'officer_all_officers_benefit_mines'       => '+2% Prodotto delle miniere',
+        'officer_all_officers_benefit_espionage'   => '+1 Livelli di spionaggio',
+
+        // ── Tooltip dettagliato per ufficiale (HTML, appare sotto i Vantaggi) ─
+        'officer_commander_tooltip'    => '<b>+40 preferiti</b><p>Più "preferiti" a disposizione permettono di salvare più messaggi, che possono anche essere condivisi.</p><br/><b>Coda costruzione</b><p>Puoi avviare contemporaneamente fino a 4 incarichi in più per edifici e ricerche.</p><br/><b>Informazioni sul carico</b><p>Viene visualizzata la quantità di risorse trasportate dai cargo verso i tuoi pianeti.</p><br/><b>Senza pubblicità</b><p>Non ricevi più alcun messaggio pubblicitario riguardante altri giochi, ma solo avvisi sugli eventi e offerte speciali relativi a OGame.</p>',
+        'officer_admiral_tooltip'      => '<b>Slot flotta max +2</b><p>Puoi inviare 2 flotte aggiuntive contemporaneamente.</p><br/><b>Spedizioni max +1</b><p>Puoi inviare 1 spedizione aggiuntiva contemporaneamente.</p><br/><b>Tasso fuga flotta migliorato</b><p>Le tue flotte hanno maggiori possibilità di ritirarsi da una battaglia sfavorevole.</p><br/><b>Slot salvataggio max +20</b><p>Puoi salvare fino a 20 configurazioni di flotta in più nel simulatore di battaglia.</p>',
+        'officer_engineer_tooltip'     => '<b>Dimezza le perdite nelle difese</b><p>Il 50% delle strutture difensive distrutte in battaglia sopravvive e viene riparato automaticamente.</p><br/><b>+10% produzione energia</b><p>Tutte le centrali elettriche e i satelliti solari producono il 10% di energia in più su ogni pianeta.</p>',
+        'officer_geologist_tooltip'    => '<b>+10% produzione miniere</b><p>Tutte le miniere di metallo, cristallo e deuterio producono il 10% in più su ogni pianeta.</p>',
+        'officer_technocrat_tooltip'   => '<b>+2 livelli spionaggio</b><p>La tua tecnologia spia conta come se fosse 2 livelli più alta per le missioni di spionaggio.</p><br/><b>25% meno tempo di ricerca</b><p>Tutte le ricerche vengono completate il 25% più velocemente.</p>',
+        'officer_all_officers_tooltip' => '<b>Quantità max. flotte +1</b><p>Puoi inviare 1 flotta aggiuntiva contemporaneamente.</p><br/><b>+2% produzione energia</b><p>Le tue centrali elettriche e i satelliti solari producono il 2% di energia in più.</p><br/><b>+2% Prodotto delle miniere</b><p>Le tue miniere producono il 2% in più di metallo, cristallo e deuterio.</p><br/><b>+1 livello spionaggio</b><p>La tua tecnologia spia conta come se fosse 1 livello più alta per le missioni di spionaggio.</p>',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
