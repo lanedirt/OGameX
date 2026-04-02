@@ -1455,7 +1455,7 @@ return [
         'officer_all_officers_description'  => 'With this package you will not only secure a specialist, but an entire command staff. You will benefit from all individual officer effects, as well as the extra advantages available only with the package.',
         'officer_all_officers_benefits'     => 'All the benefits of Commander, Admiral, Engineer, Geologist and Technocrat, plus exclusive extra bonuses available only with the full package.',
 
-        // ── Benefit spans per officer (one <span> each = one checkmark row) ──
+        // ── Individual benefit spans (one <span> per checkmark row) ──────────
         'officer_commander_benefit_favourites' => '+40 favourites',
         'officer_commander_benefit_queue'      => 'Building queue',
         'officer_commander_benefit_scanner'    => 'Transport scanner',
