@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers\Admin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use OGame\Factories\PlayerServiceFactory;
@@ -29,55 +30,75 @@ class ServerAdministrationController extends OGameController
      */
     public function index(): View
     {
-        // --- Shared IP groups ---
-        // Find IPs (last_ip) shared by 2–10 users. Groups larger than 10 are likely
-        // shared infrastructure (VPNs, university networks) and are excluded to reduce noise.
-        $sharedLastIps = DB::table('users')
-            ->select('last_ip')
-            ->whereNotNull('last_ip')
-            ->groupBy('last_ip')
-            ->havingRaw('COUNT(*) > 1 AND COUNT(*) <= 10')
-            ->pluck('last_ip');
+        $settingsService  = resolve(SettingsService::class);
+        $dismissedIps     = json_decode((string) $settingsService->get('dismissed_shared_ip_groups', '[]'), true) ?: [];
+        $dismissedUserIds = json_decode((string) $settingsService->get('dismissed_bot_suspect_ids', '[]'), true) ?: [];
 
-        // Find IPs (register_ip) shared by 2–10 users
-        $sharedRegisterIps = DB::table('users')
-            ->select('register_ip')
-            ->whereNotNull('register_ip')
-            ->groupBy('register_ip')
-            ->havingRaw('COUNT(*) > 1 AND COUNT(*) <= 10')
-            ->pluck('register_ip');
+        // Cache raw scalar/stdClass data only — no Eloquent models in the cache.
+        // The IP list queries are inside the closure so they only run when the cache is cold.
+        // cross_missions is stored as array<array<string, mixed>> (plain PHP arrays, not objects) to avoid
+        // PHP 8.5 stdClass deserialisation issues with the file cache driver. Cast back to objects on read.
+        /** @var array<string, array{ip: string, type: string, user_ids: array<int>, cross_missions: array<int, object>}> $ipGroupsRaw */
+        $ipGroupsRaw = Cache::remember('bot_detection_ip_groups', 1800, function () {
+            // --- Shared IP groups ---
+            // Find IPs (last_ip) shared by 2–10 users. Groups larger than 10 are likely
+            // shared infrastructure (VPNs, university networks) and are excluded to reduce noise.
+            $sharedLastIps = DB::table('users')
+                ->select('last_ip')
+                ->whereNotNull('last_ip')
+                ->groupBy('last_ip')
+                ->havingRaw('COUNT(*) > 1 AND COUNT(*) <= 10')
+                ->pluck('last_ip');
 
-        $settingsService   = resolve(SettingsService::class);
-        $dismissedIps      = json_decode((string) $settingsService->get('dismissed_shared_ip_groups', '[]'), true) ?: [];
-        $dismissedUserIds  = json_decode((string) $settingsService->get('dismissed_bot_suspect_ids', '[]'), true) ?: [];
+            // Find IPs (register_ip) shared by 2–10 users
+            $sharedRegisterIps = DB::table('users')
+                ->select('register_ip')
+                ->whereNotNull('register_ip')
+                ->groupBy('register_ip')
+                ->havingRaw('COUNT(*) > 1 AND COUNT(*) <= 10')
+                ->pluck('register_ip');
 
-        $sharedIpGroups = collect();
+            $groups = [];
 
-        foreach ($sharedLastIps as $ip) {
-            if (in_array($ip, $dismissedIps, true)) {
-                continue;
+            foreach ($sharedLastIps as $ip) {
+                $userIds = User::where('last_ip', $ip)->pluck('id')->toArray();
+                $groups[$ip] = [
+                    'ip'             => $ip,
+                    'type'           => 'Last active IP',
+                    'user_ids'       => $userIds,
+                    'cross_missions' => $this->getCrossAccountMissions($userIds)->map(fn ($m) => (array) $m)->all(),
+                ];
             }
-            $users = User::where('last_ip', $ip)->get();
-            $sharedIpGroups->push([
-                'ip'             => $ip,
-                'type'           => 'Last active IP',
-                'users'          => $users,
-                'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
-            ]);
-        }
 
-        foreach ($sharedRegisterIps as $ip) {
-            if (in_array($ip, $dismissedIps, true)) {
-                continue;
+            foreach ($sharedRegisterIps as $ip) {
+                if (isset($groups[$ip])) {
+                    continue; // already captured via last_ip pass
+                }
+                $userIds = User::where('register_ip', $ip)->pluck('id')->toArray();
+                $groups[$ip] = [
+                    'ip'             => $ip,
+                    'type'           => 'Registration IP',
+                    'user_ids'       => $userIds,
+                    'cross_missions' => $this->getCrossAccountMissions($userIds)->map(fn ($m) => (array) $m)->all(),
+                ];
             }
-            $users = User::where('register_ip', $ip)->get();
-            $sharedIpGroups->push([
-                'ip'             => $ip,
-                'type'           => 'Registration IP',
-                'users'          => $users,
-                'cross_missions' => $this->getCrossAccountMissions($users->pluck('id')->toArray()),
-            ]);
-        }
+
+            return $groups;
+        });
+
+        // Re-hydrate User models fresh on every request — never stored in the cache.
+        $allIpUserIds = collect($ipGroupsRaw)->flatMap(fn ($g) => $g['user_ids'])->unique()->toArray();
+        $ipUsers      = User::whereIn('id', $allIpUserIds)->get()->keyBy('id');
+
+        $sharedIpGroups = collect($ipGroupsRaw)
+            ->filter(fn ($group) => !in_array($group['ip'], $dismissedIps, true))
+            ->map(fn ($group) => [
+                'ip'             => $group['ip'],
+                'type'           => $group['type'],
+                'users'          => collect($group['user_ids'])->map(fn ($id) => $ipUsers->get($id))->filter()->values(),
+                'cross_missions' => collect($group['cross_missions'])->map(fn ($m) => (object) $m),
+            ])
+            ->values();
 
         // --- Currently active bans ---
         $activeBans = Ban::with('user')
@@ -93,8 +114,20 @@ class ServerAdministrationController extends OGameController
             ->limit(30)
             ->get();
 
-        $settings   = $this->detectionSettings();
-        $allSuspects = $this->getBotActivitySuspects($settings);
+        // Cache signal data keyed by user ID — no Eloquent models stored in the cache.
+        $settings    = $this->detectionSettings();
+        /** @var array<int, array{signals: array<string, mixed>}> $suspectSignals */
+        $suspectSignals = Cache::remember('bot_detection_suspects', 1800, fn () => $this->getBotActivitySignals($settings));
+
+        // Re-hydrate User models fresh on every request.
+        $suspectUsers = User::whereIn('id', array_keys($suspectSignals))->get()->keyBy('id');
+
+        $allSuspects = collect($suspectSignals)
+            ->filter(fn ($entry, $userId) => isset($suspectUsers[$userId]))
+            ->map(fn ($entry, $userId) => array_merge($entry, ['user' => $suspectUsers[$userId]]))
+            ->sortByDesc(fn ($entry) => count($entry['signals']))
+            ->values();
+
         $botSuspects = $allSuspects->reject(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->values();
 
         return view('ingame.admin.server-administration', [
@@ -139,6 +172,8 @@ class ServerAdministrationController extends OGameController
             $settingsService->set($key, (string) $value);
         }
 
+        Cache::forget('bot_detection_suspects');
+
         return redirect()->route('admin.server-administration.index')
             ->with('status', 'Bot detection settings saved.');
     }
@@ -165,14 +200,14 @@ class ServerAdministrationController extends OGameController
     }
 
     /**
-     * Merges all three bot-detection signals into a single keyed collection.
-     * Each entry contains the User model and a 'signals' array indicating which
-     * signals fired and their supporting evidence values.
+     * Merges all three bot-detection signals into an array keyed by user ID.
+     * Returns only primitive/scalar data — no Eloquent models — so the result
+     * is safe to serialize into the cache.
      *
      * @param array<string, int> $settings
-     * @return Collection<int, mixed>
+     * @return array<int, array{signals: array<string, mixed>}>
      */
-    private function getBotActivitySuspects(array $settings): Collection
+    private function getBotActivitySignals(array $settings): array
     {
         $byUserId = [];
 
@@ -196,20 +231,7 @@ class ServerAdministrationController extends OGameController
             ];
         }
 
-        if (empty($byUserId)) {
-            return collect();
-        }
-
-        $users = User::whereIn('id', array_keys($byUserId))->get()->keyBy('id');
-
-        return collect($byUserId)
-            ->filter(fn ($entry, $userId) => isset($users[$userId]))
-            ->map(function ($entry, $userId) use ($users) {
-                $entry['user'] = $users[$userId];
-                return $entry;
-            })
-            ->sortByDesc(fn ($entry) => count($entry['signals']))
-            ->values();
+        return $byUserId;
     }
 
     /**
@@ -273,7 +295,7 @@ class ServerAdministrationController extends OGameController
                     ->whereNull('fm_next.parent_id')
                     ->where('fm_next.canceled', '=', 0)
                     ->whereRaw('fm_next.time_departure > fm_return.time_arrival')
-                    ->whereRaw("fm_next.time_departure - fm_return.time_arrival <= {$gapSeconds}");
+                    ->whereRaw('fm_next.time_departure - fm_return.time_arrival <= ?', [$gapSeconds]);
             })
             ->where('fm_return.mission_type', 15)
             ->whereNotNull('fm_return.parent_id')
@@ -315,7 +337,7 @@ class ServerAdministrationController extends OGameController
                     ->whereNull('response.parent_id')
                     ->whereNotIn('response.mission_type', self::EXCLUDED_MISSION_TYPES)
                     ->whereRaw('response.time_departure >= attack.time_departure')
-                    ->whereRaw("response.time_departure - attack.time_departure <= {$gapSeconds}");
+                    ->whereRaw('response.time_departure - attack.time_departure <= ?', [$gapSeconds]);
             })
             ->where('attack.mission_type', 1)
             ->where('attack.canceled', 0)
@@ -371,6 +393,10 @@ class ServerAdministrationController extends OGameController
     /**
      * Dismisses a flagged shared-IP group or bot suspect so it is hidden from the panel.
      * Dismissals are stored in settings and persist until manually reset.
+     *
+     * Note: this does NOT invalidate the detection caches. Dismissal filtering is applied
+     * as a post-filter over cached data in index(), so dismissed items disappear on the
+     * next page load without re-running the expensive detection queries.
      */
     public function dismiss(Request $request): RedirectResponse
     {
@@ -398,6 +424,18 @@ class ServerAdministrationController extends OGameController
     }
 
     /**
+     * Clears the bot-detection and IP-group caches so results are recomputed on the next page load.
+     */
+    public function clearCache(): RedirectResponse
+    {
+        Cache::forget('bot_detection_suspects');
+        Cache::forget('bot_detection_ip_groups');
+
+        return redirect()->route('admin.server-administration.index')
+            ->with('status', 'Detection cache cleared. Results will be recomputed on this page load.');
+    }
+
+    /**
      * Bans a user.
      */
     public function ban(Request $request): RedirectResponse
@@ -405,7 +443,7 @@ class ServerAdministrationController extends OGameController
         $request->validate([
             'username' => ['required', 'string', 'exists:users,username'],
             'reason'   => ['required', 'string', 'max:1000'],
-            'duration' => ['required', 'string'],
+            'duration' => ['required', 'in:86400,259200,604800,2592000,permanent'],
         ]);
 
         /** @var User $user */
