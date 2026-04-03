@@ -312,6 +312,43 @@
                                     </div>
                                 </div>
                             </form>
+                <form action="{{ route('admin.developershortcuts.activate-officer') }}" name="form" method="post">
+                    {{ csrf_field() }}
+                    <p class="box_highlight textCenter no_buddies">@lang('Activate officer for player:')</p>
+                    <div class="group bborder" style="display: block;">
+                        <div class="fieldwrapper">
+                            <label class="styled textBeefy">@lang('Username:')</label>
+                            <div class="thefield">
+                                <input type="text" class="textInput w200 textBeefy" placeholder="username" name="username">
+                            </div>
+                        </div>
+                        <div class="fieldwrapper">
+                            <label class="styled textBeefy">@lang('Officer:')</label>
+                            <div class="thefield">
+                                <select name="officer_key" class="textInput">
+                                    <option value="commander">Commander</option>
+                                    <option value="admiral">Admiral</option>
+                                    <option value="engineer">Engineer</option>
+                                    <option value="geologist">Geologist</option>
+                                    <option value="technocrat">Technocrat</option>
+                                    <option value="all_officers">All Officers</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="fieldwrapper">
+                            <label class="styled textBeefy">@lang('Duration:')</label>
+                            <div class="thefield">
+                                <select name="days" class="textInput">
+                                    <option value="7">7 days</option>
+                                    <option value="91">91 days</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="fieldwrapper" style="text-align: center;">
+                            <input type="submit" class="btn_blue" value="@lang('Activate Officer')">
+                        </div>
+                    </div>
+                </form>
                 </div>
             </div>
             </div>

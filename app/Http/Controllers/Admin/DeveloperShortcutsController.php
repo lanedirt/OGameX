@@ -17,6 +17,7 @@ use OGame\Services\DarkMatterService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
+use OGame\Services\OfficerService;
 use OGame\Services\SettingsService;
 
 class DeveloperShortcutsController extends OGameController
@@ -440,5 +441,40 @@ class DeveloperShortcutsController extends OGameController
 
         return redirect()->route('overview.index')
             ->with('success', __('Now impersonating :username', ['username' => $targetUser->username]));
+    }
+
+    /**
+     * Activate an officer for a player from the developer shortcuts page.
+     */
+    public function activateOfficer(Request $request, OfficerService $officerService): RedirectResponse
+    {
+        $validOfficerKeys = array_values(OfficerService::TYPE_MAP);
+        $validOfficerKeys[] = 'all_officers';
+
+        $validated = $request->validate([
+            'username'    => ['required', 'string'],
+            'officer_key' => ['required', 'string', 'in:' . implode(',', $validOfficerKeys)],
+            'days'        => ['required', 'integer', 'in:' . implode(',', OfficerService::DURATIONS)],
+        ]);
+
+        $user = User::where('username', $validated['username'])->first();
+        if (!$user) {
+            return redirect()->back()->with('error', 'Player "' . $validated['username'] . '" not found.');
+        }
+
+        $officer = $officerService->getOfficer($user);
+
+        if ($validated['officer_key'] === 'all_officers') {
+            foreach (array_values(OfficerService::TYPE_MAP) as $key) {
+                $officer->activate($key, (int)$validated['days']);
+            }
+        } else {
+            $officer->activate($validated['officer_key'], (int)$validated['days']);
+        }
+
+        $officer->save();
+        $officerService->clearCache($user);
+
+        return redirect()->back()->with('success', 'Officer "' . $validated['officer_key'] . '" activated for ' . $validated['days'] . ' days for player "' . $validated['username'] . '".');
     }
 }
