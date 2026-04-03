@@ -22,27 +22,6 @@
             <div class="content">
                 <div class="buddylistContent" style="margin-bottom: 60px;">
 
-                    {{-- Masquerade as user (admin-only helper) --}}
-                    <form action="{{ route('admin.developershortcuts.impersonate') }}" method="post" style="margin-bottom: 20px;">
-                        {{ csrf_field() }}
-                        <p class="box_highlight textCenter no_buddies">@lang('Masquerade as user')</p>
-                        <div class="group bborder" style="display: block;">
-                            <div class="fieldwrapper">
-                                <label class="styled textBeefy" for="masquerade_username">@lang('Username:')</label>
-                                <div class="thefield">
-                                    <input type="text"
-                                           id="masquerade_username"
-                                           name="username"
-                                           class="textInput w150 textCenter textBeefy"
-                                           placeholder="@lang('Enter username')">
-                                </div>
-                            </div>
-                            <div class="fieldwrapper" style="text-align: center; margin-top: 10px;">
-                                <input type="submit" class="btn_blue" value="@lang('Masquerade')">
-                            </div>
-                        </div>
-                    </form>
-
                     <form action="{{ route('admin.developershortcuts.update') }}" name="form" method="post">
                         {{ csrf_field() }}
                                 <p class="box_highlight textCenter no_buddies">@lang('Update current planet:')</p>

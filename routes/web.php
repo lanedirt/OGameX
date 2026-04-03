@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use OGame\Http\Controllers\Admin\DeveloperShortcutsController;
 use OGame\Http\Controllers\Admin\RulesController as AdminRulesController;
+use OGame\Http\Controllers\Admin\ServerAdministrationController;
 use OGame\Http\Controllers\Admin\ServerSettingsController as AdminServerSettingsController;
 use OGame\Http\Controllers\AllianceController;
 use OGame\Http\Controllers\AllianceDepotController;
@@ -62,7 +63,7 @@ Route::get('/ajax/main/terms', [RulesController::class, 'ajaxTerms'])->name('ter
 Route::get('/ajax/main/contact', [RulesController::class, 'ajaxContact'])->name('contact.ajax');
 
 // Group: all logged in pages:
-Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(function () {
+Route::middleware(['auth', 'banned', 'globalgame', 'locale', 'firstlogin'])->group(function () {
     // Overview
     Route::get('/overview', [OverviewController::class, 'index'])->name('overview.index');
 
@@ -264,6 +265,14 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     // Rules
     Route::get('/admin/rules', [AdminRulesController::class, 'index'])->name('admin.rules.index');
     Route::post('/admin/rules', [AdminRulesController::class, 'update'])->name('admin.rules.update');
+
+    // Server administration (multi-account detection, bans)
+    Route::get('/admin/server-administration', [ServerAdministrationController::class, 'index'])->name('admin.server-administration.index');
+    Route::post('/admin/server-administration/ban', [ServerAdministrationController::class, 'ban'])->name('admin.server-administration.ban');
+    Route::post('/admin/server-administration/unban', [ServerAdministrationController::class, 'unban'])->name('admin.server-administration.unban');
+    Route::post('/admin/server-administration/detection-settings', [ServerAdministrationController::class, 'saveDetectionSettings'])->name('admin.server-administration.detection-settings');
+    Route::post('/admin/server-administration/dismiss', [ServerAdministrationController::class, 'dismiss'])->name('admin.server-administration.dismiss');
+    Route::post('/admin/server-administration/clear-cache', [ServerAdministrationController::class, 'clearCache'])->name('admin.server-administration.clear-cache');
 
     // Developer shortcuts
     Route::get('/admin/developer-shortcuts', [DeveloperShortcutsController::class, 'index'])->name('admin.developershortcuts.index');

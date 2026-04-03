@@ -132,16 +132,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $targetUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $targetUser->id;
 
-        $targetPlanet = Planet::factory()->create([
-            'user_id' => $targetUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 13, // Position 13 is outside the allocator range (4-12), preventing collisions
-        ]);
-
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $targetPlayerService = resolve(PlayerService::class, ['player_id' => $targetUser->id]);
-        $this->targetPlanet = $planetServiceFactory->makeForPlayer($targetPlayerService, $targetPlanet->id);
+        // Minimum 3-system distance ensures the ally (placed in target's system) is
+        // always naturally faster than the initiator, which some tests depend on.
+        $this->targetPlanet = $this->createPlanetAtSafeCoordinate($targetUser->id, 13, 15, 3);
         $this->targetUser = $targetUser;
 
         // Give the target some resources to loot
@@ -159,12 +152,22 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         self::$allCreatedBuddyUserIds[] = $allyUser->id;
 
         // Place ally in same system as the target to minimize travel time
-        // (avoids exceeding the 30% delay limit when joining a union)
+        // (avoids exceeding the 30% delay limit when joining a union).
+        // Find an empty slot in the target's system outside the allocator range (4-12).
+        $targetGalaxy  = $this->targetPlanet->getPlanetCoordinates()->galaxy;
+        $targetSystem  = $this->targetPlanet->getPlanetCoordinates()->system;
+        // Prefer positions close to the target (13-15) to minimize same-system travel distance.
+        // Fall back to positions 1-3 if 13-15 are exhausted in this system.
+        $targetPosition = $this->targetPlanet->getPlanetCoordinates()->position;
+        $preferredOrder = array_filter([13, 14, 15, 1, 2, 3], fn ($p) => $p !== $targetPosition);
+        $allyPosition = collect(array_values($preferredOrder))->first(
+            fn ($p) => !Planet::where('galaxy', $targetGalaxy)->where('system', $targetSystem)->where('planet', $p)->exists()
+        );
         $allyPlanet = Planet::factory()->create([
             'user_id' => $allyUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 14, // Position 14 is outside the allocator range (4-12), preventing collisions
+            'galaxy'  => $targetGalaxy,
+            'system'  => $targetSystem,
+            'planet'  => $allyPosition,
         ]);
 
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
