@@ -95,21 +95,28 @@ class JumpGateTest extends MoonTestCase
     }
 
     /**
-     * Test that solar satellites cannot be transferred.
+     * Test that non-transferable units cannot be transferred.
      */
-    public function testSolarSatellitesCannotBeTransferred(): void
+    public function testNonTransferableUnitsCannotBeTransferred(): void
     {
-        // Add solar satellites to moon
         $this->moonService->addUnit('solar_satellite', 10, true);
+        $this->moonService->addUnit('crawler', 10, true);
         $this->moonService->reloadPlanet();
 
-        $result = $this->jumpGateService->transferShips(
+        $solarSatelliteTransfer = $this->jumpGateService->transferShips(
             $this->moonService,
             $this->secondMoonService,
             ['solar_satellite' => 5]
         );
 
-        $this->assertFalse($result);
+        $crawlerTransfer = $this->jumpGateService->transferShips(
+            $this->moonService,
+            $this->secondMoonService,
+            ['crawler' => 5]
+        );
+
+        $this->assertFalse($solarSatelliteTransfer);
+        $this->assertFalse($crawlerTransfer);
     }
 
     /**
@@ -377,6 +384,29 @@ class JumpGateTest extends MoonTestCase
     }
 
     /**
+     * Test Jump Gate dialog does not expose crawlers as transferable ships.
+     */
+    public function testJumpGateDialogExcludesCrawlers(): void
+    {
+        $this->moonService->addUnit('crawler', 10, true);
+        $this->moonService->reloadPlanet();
+        $this->switchToMoon();
+
+        $response = $this->get('/ajax/jumpgate');
+
+        $response->assertStatus(200);
+        $response->assertViewHas('available_ships', function (array $availableShips): bool {
+            foreach ($availableShips as $ship) {
+                if (($ship['machine_name'] ?? null) === 'crawler') {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
+    /**
      * Test default target can be set and retrieved.
      */
     public function testDefaultTargetSetAndGet(): void
@@ -453,11 +483,12 @@ class JumpGateTest extends MoonTestCase
     /**
      * Test getTransferableShips returns correct ship list.
      */
-    public function testGetTransferableShipsExcludesSolarSatellite(): void
+    public function testGetTransferableShipsExcludesNonTransferableUnits(): void
     {
         $ships = $this->jumpGateService->getTransferableShips();
 
         $this->assertNotContains('solar_satellite', $ships);
+        $this->assertNotContains('crawler', $ships);
         $this->assertContains('small_cargo', $ships);
         $this->assertContains('light_fighter', $ships);
         $this->assertContains('deathstar', $ships);
