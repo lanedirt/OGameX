@@ -40,6 +40,9 @@ class ServerAdministrationController extends OGameController
         // PHP 8.5 stdClass deserialisation issues with the file cache driver. Cast back to objects on read.
         /** @var array<string, array{ip: string, type: string, user_ids: array<int>, cross_missions: array<int, object>}> $ipGroupsRaw */
         $ipGroupsRaw = Cache::remember('bot_detection_ip_groups', 1800, function () {
+            // --- Shared IP groups ---
+            // Find IPs (last_ip) shared by 2–10 users. Groups larger than 10 are likely
+            // shared infrastructure (VPNs, university networks) and are excluded to reduce noise.
             $sharedLastIps = DB::table('users')
                 ->select('last_ip')
                 ->whereNotNull('last_ip')
@@ -47,6 +50,7 @@ class ServerAdministrationController extends OGameController
                 ->havingRaw('COUNT(*) > 1 AND COUNT(*) <= 10')
                 ->pluck('last_ip');
 
+            // Find IPs (register_ip) shared by 2–10 users
             $sharedRegisterIps = DB::table('users')
                 ->select('register_ip')
                 ->whereNotNull('register_ip')
