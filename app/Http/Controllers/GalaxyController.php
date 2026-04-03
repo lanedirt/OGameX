@@ -578,10 +578,10 @@ class GalaxyController extends OGameController
             'allianceName' => $allianceName,
             'isAllianceMember' => $alliance !== null && $player->getUser()->alliance_id === $this->playerService->getUser()->alliance_id,
 
+            'isBanned' => $player->isBanned(),
             // Not implemented yet:
             //'isHonorableTarget' => $player->isHonorableTarget(),
             //'isOutlaw' => $player->isOutlaw(),
-            //'isBanned' => $player->isBanned(),
         ];
     }
 

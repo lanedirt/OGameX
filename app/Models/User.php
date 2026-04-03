@@ -267,6 +267,50 @@ class User extends Authenticatable
     }
 
     /**
+     * All ban records for this user.
+     *
+     * @return HasMany
+     */
+    public function bans(): HasMany
+    {
+        return $this->hasMany(Ban::class);
+    }
+
+    /**
+     * Returns the current active ban, or null if the user is not banned.
+     *
+     * @return Ban|null
+     */
+    public function currentBan(): Ban|null
+    {
+        /** @var Ban|null $ban */
+        $ban = $this->bans()
+            ->where('canceled', false)
+            ->where(function ($q) {
+                $q->whereNull('banned_until')
+                    ->orWhere('banned_until', '>', now());
+            })
+            ->latest()
+            ->first();
+
+        return $ban;
+    }
+
+    /**
+     * Check if the user is currently banned.
+     */
+    public function isBanned(): bool
+    {
+        return $this->bans()
+            ->where('canceled', false)
+            ->where(function ($q) {
+                $q->whereNull('banned_until')
+                    ->orWhere('banned_until', '>', now());
+            })
+            ->exists();
+    }
+
+    /**
      * Only admins can impersonate other users.
      */
     public function canImpersonate(): bool

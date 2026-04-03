@@ -174,6 +174,16 @@ class PlayerService
     }
 
     /**
+     * Checks if the player is currently banned.
+     *
+     * @return bool
+     */
+    public function isBanned(): bool
+    {
+        return $this->user->isBanned();
+    }
+
+    /**
      * Checks if the player is inactive.
      *
      * @return bool
