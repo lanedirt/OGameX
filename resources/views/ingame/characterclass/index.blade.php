@@ -111,12 +111,12 @@
                                 }
                             );
                         } else {
-                            fadeBox(data.message, false);
+                            fadeBox(data.message, true);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        fadeBox('An error occurred. Please try again.', false);
+                        fadeBox('An error occurred. Please try again.', true);
                     });
                 }
             );
@@ -139,17 +139,17 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            fadeBox('Character class deactivated successfully!', true);
+                            fadeBox('Character class deactivated successfully!', false);
                             setTimeout(function() {
                                 location.reload();
                             }, 1000);
                         } else {
-                            fadeBox(data.message, false);
+                            fadeBox(data.message, true);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        fadeBox('An error occurred. Please try again.', false);
+                        fadeBox('An error occurred. Please try again.', true);
                     });
                 }
             );
