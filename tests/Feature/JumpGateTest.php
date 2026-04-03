@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\FleetMission;
 use OGame\Services\JumpGateService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Services\SettingsService;
 use Tests\MoonTestCase;
 
 /**
@@ -27,7 +28,7 @@ class JumpGateTest extends MoonTestCase
         parent::setUp();
 
         // Set fleet war speed to 1 for predictable cooldown calculations
-        $settingsService = resolve(\OGame\Services\SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('fleet_speed_war', 1);
 
         $this->jumpGateService = resolve(JumpGateService::class);
@@ -201,7 +202,7 @@ class JumpGateTest extends MoonTestCase
     public function testEligibleTargetsExcludesCooldownMoons(): void
     {
         // Set cooldown on second moon (unix timestamp)
-        $this->secondMoonService->setJumpGateCooldown((int) Carbon::now()->addHour()->timestamp);
+        $this->secondMoonService->setJumpGateCooldown((int) Date::now()->addHour()->timestamp);
 
         $player = $this->moonService->getPlayer();
         $eligibleTargets = $this->jumpGateService->getEligibleTargets($player, $this->moonService);
@@ -247,8 +248,8 @@ class JumpGateTest extends MoonTestCase
         $fleetMission->planet_id_from = $foreignPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 1; // Attack
-        $fleetMission->time_departure = (int) Carbon::now()->subMinutes(10)->timestamp;
-        $fleetMission->time_arrival = (int) Carbon::now()->subMinutes(1)->timestamp; // Already arrived
+        $fleetMission->time_departure = (int) Date::now()->subMinutes(10)->timestamp;
+        $fleetMission->time_arrival = (int) Date::now()->subMinutes(1)->timestamp; // Already arrived
         $fleetMission->processed = 0; // Not yet processed
         $fleetMission->canceled = 0;
         $fleetMission->light_fighter = 5;
@@ -271,8 +272,8 @@ class JumpGateTest extends MoonTestCase
         $fleetMission->planet_id_from = $foreignPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 1; // Attack
-        $fleetMission->time_departure = (int) Carbon::now()->timestamp;
-        $fleetMission->time_arrival = (int) Carbon::now()->addHour()->timestamp; // Still in transit
+        $fleetMission->time_departure = (int) Date::now()->timestamp;
+        $fleetMission->time_arrival = (int) Date::now()->addHour()->timestamp; // Still in transit
         $fleetMission->processed = 0;
         $fleetMission->canceled = 0;
         $fleetMission->light_fighter = 5;
@@ -293,8 +294,8 @@ class JumpGateTest extends MoonTestCase
         $fleetMission->planet_id_from = $this->secondPlanetService->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 3; // Transport
-        $fleetMission->time_departure = (int) Carbon::now()->subMinutes(10)->timestamp;
-        $fleetMission->time_arrival = (int) Carbon::now()->subMinutes(1)->timestamp; // Already arrived
+        $fleetMission->time_departure = (int) Date::now()->subMinutes(10)->timestamp;
+        $fleetMission->time_arrival = (int) Date::now()->subMinutes(1)->timestamp; // Already arrived
         $fleetMission->processed = 0;
         $fleetMission->canceled = 0;
         $fleetMission->small_cargo = 5;
@@ -316,8 +317,8 @@ class JumpGateTest extends MoonTestCase
         $fleetMission->planet_id_from = $foreignPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 1; // Attack
-        $fleetMission->time_departure = (int) Carbon::now()->subMinutes(10)->timestamp;
-        $fleetMission->time_arrival = (int) Carbon::now()->subMinutes(1)->timestamp;
+        $fleetMission->time_departure = (int) Date::now()->subMinutes(10)->timestamp;
+        $fleetMission->time_arrival = (int) Date::now()->subMinutes(1)->timestamp;
         $fleetMission->processed = 1; // Already processed
         $fleetMission->canceled = 0;
         $fleetMission->light_fighter = 5;
