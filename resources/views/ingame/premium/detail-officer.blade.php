@@ -28,7 +28,7 @@
 
             <div style="position:absolute; right:0; top:0; display:flex; flex-direction:column; gap:6px;">
                 @foreach($costs as $days => $cost)
-                    @if(!$isActive && $darkMatter >= $cost)
+                    @if($darkMatter >= $cost)
                         <a class="build-it officer"
                            href="{{ route('premium.purchase', ['type' => $typeId, 'days' => $days]) }}"
                            style="float:none; display:block;">
@@ -41,7 +41,7 @@
                         <a class="build-it_disabled officer"
                            href="javascript:void(0);"
                            style="float:none; display:block;"
-                           title="{{ $isActive ? __('t_ingame.premium.already_active') : __('t_ingame.premium.insufficient_dark_matter') }}">
+                           title="{{ __('t_ingame.premium.insufficient_dark_matter') }}">
                             <span>
                                 {{ $days }} {{ __('t_ingame.premium.days') }}<br>
                                 <b>{{ number_format($cost, 0, ',', '.') }} {{ __('t_ingame.premium.dark_matter_label') }}</b>
