@@ -305,27 +305,28 @@
                     <div class="sprite characterclass medium {{ $classIcon }}"></div>
                 </a>
             </div>
-            <div id="officers" class="  fright">
-                <a href="#TODO_=premium&amp;openDetail=2" class="tooltipHTML   commander js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_commander_tooltip') !!}">
+            @php
+                $officerBarItems = [
+                    ['key' => 'commander', 'ref' => 2, 'titleKey' => 'hire_commander_tooltip'],
+                    ['key' => 'admiral',   'ref' => 3, 'titleKey' => 'hire_admiral_tooltip'],
+                    ['key' => 'engineer',  'ref' => 4, 'titleKey' => 'hire_engineer_tooltip'],
+                    ['key' => 'geologist', 'ref' => 5, 'titleKey' => 'hire_geologist_tooltip'],
+                    ['key' => 'technocrat','ref' => 6, 'titleKey' => 'hire_technocrat_tooltip'],
+                ];
+                $allActive = $currentOfficer->getActiveOfficerCount() >= 5;
+                $officersDivClass = $allActive ? 'all fright' : 'fright';
+            @endphp
+            <div id="officers" class="{{ $officersDivClass }}">
+                @foreach($officerBarItems as $item)
+                @php
+                    $isOn = $currentOfficer->isOfficerActive($item['key']);
+                @endphp
+                <a href="{{ route('premium.index') }}?openDetail={{ $item['ref'] }}"
+                   class="tooltipHTML {{ $item['key'] }} js_hideTipOnMobile{{ $isOn ? ' on' : '' }}"
+                   title="{!! __('t_ingame.premium.' . $item['titleKey']) !!}">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
-                <a href="#TODO_page=premium&amp;openDetail=3" class="tooltipHTML    admiral js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_admiral_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
-                <a href="#TODO_page=premium&amp;openDetail=4" class="tooltipHTML    engineer js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_engineer_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
-                <a href="#TODO_page=premium&amp;openDetail=5" class="tooltipHTML    geologist js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_geologist_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
-                <a href="#TODO_page=premium&amp;openDetail=6" class="tooltipHTML    technocrat js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_technocrat_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
+                @endforeach
             </div>
         </div>
         <div id="notificationbarcomponent" class="">

@@ -48,87 +48,40 @@
                                 </a>
                             </div>
                         </div>			</li>
-                    <li class="button {{ $officer->isCommanderActive() ? 'on' : '' }}" id="button2">
+                    @php
+                        $officerList = [
+                            ['ref' => 2,  'key' => 'commander',   'css' => 'commander',   'active' => $officer->isCommanderActive(),   'title' => __('t_ingame.premium.info_commander')],
+                            ['ref' => 3,  'key' => 'admiral',     'css' => 'admiral',     'active' => $officer->isAdmiralActive(),     'title' => __('t_ingame.premium.info_admiral')],
+                            ['ref' => 4,  'key' => 'engineer',    'css' => 'engineer',    'active' => $officer->isEngineerActive(),    'title' => __('t_ingame.premium.info_engineer')],
+                            ['ref' => 5,  'key' => 'geologist',   'css' => 'geologist',   'active' => $officer->isGeologistActive(),   'title' => __('t_ingame.premium.info_geologist')],
+                            ['ref' => 6,  'key' => 'technocrat',  'css' => 'technocrat',  'active' => $officer->isTechnocratActive(),  'title' => __('t_ingame.premium.info_technocrat')],
+                            ['ref' => 12, 'key' => 'all_officers','css' => 'allOfficers', 'active' => $officer->isAllOfficersActive(), 'title' => __('t_ingame.premium.info_commanding_staff')],
+                        ];
+                    @endphp
+                    @foreach($officerList as $off)
+                    <li class="button {{ $off['active'] ? 'on' : '' }}" id="button{{ $off['ref'] }}">
                         <div class="premium">
-                            <div class="officers100  commander">
-                                <a tabindex="2" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_commander') }}" ref="2" data-type="2" class="detail_button tooltip js_hideTipOnMobile slideIn">
+                            <div class="officers100  {{ $off['css'] }}">
+                                <a tabindex="{{ $off['ref'] }}" href="javascript:void(0);" title="{{ $off['title'] }}" ref="{{ $off['ref'] }}" data-type="{{ $off['ref'] }}" class="detail_button tooltip js_hideTipOnMobile slideIn">
                         <span class="ecke">
                             <span class="level">
-                                <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
+                                @if($off['active'])
+                                    <img src="/img/icons/b1c7ef5b1164eba44e55b7f6d25d35.gif" width="12" height="11">
+                                @else
+                                    <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
+                                @endif
                             </span>
                         </span>
                                 </a>
                             </div>
-                        </div>
-                    </li>
-                    <li class="button {{ $officer->isAdmiralActive() ? 'on' : '' }}" id="button3">
-                        <div class="premium">
-                            <div class="officers100  admiral">
-                                <a tabindex="3" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_admiral') }}" ref="3" data-type="3" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                        <span class="ecke">
-                            <span class="level">
-                                <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="button {{ $officer->isEngineerActive() ? 'on' : '' }}" id="button4">
-                        <div class="premium">
-                            <div class="officers100  engineer">
-                                <a tabindex="4" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_engineer') }}" ref="4" data-type="4" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                        <span class="ecke">
-                            <span class="level">
-                                <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="button {{ $officer->isGeologistActive() ? 'on' : '' }}" id="button5">
-                        <div class="premium">
-                            <div class="officers100  geologist">
-                                <a tabindex="5" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_geologist') }}" ref="5" data-type="5" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                        <span class="ecke">
-                            <span class="level">
-                                <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="button {{ $officer->isTechnocratActive() ? 'on' : '' }}" id="button6">
-                        <div class="premium">
-                            <div class="officers100  technocrat">
-                                <a tabindex="6" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_technocrat') }}" ref="6" data-type="6" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                        <span class="ecke">
-                            <span class="level">
-                                <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
-                            </span>
-                        </span>
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="button {{ $officer->isAllOfficersActive() ? 'on' : '' }}" id="button12">
-                        <div class="premium">
-                            <div class="officers100  allOfficers">
-                                <a tabindex="12" href="javascript:void(0);" title="{{ __('t_ingame.premium.info_commanding_staff') }}" ref="12" data-type="12" class="detail_button tooltip js_hideTipOnMobile slideIn">
-                        <span class="ecke">
-                            <span class="level">
-                                <img src="/img/icons/aa2ad16d1e00956f7dc8af8be3ca52.gif" width="12" height="11">
-                            </span>
-                        </span>
-                                </a>
-                            </div>
+                        @if($off['ref'] === 12)
                             <div class="remaining tooltip " title="">
                                 <span class="remDate">{{ __('t_ingame.premium.remaining_officers', ['current' => $officer->getActiveOfficerCount(), 'max' => 5]) }}</span>
                             </div>
+                        @endif
                         </div>
                     </li>
+                    @endforeach
 
                     <li class="allOfficers {{ $officer->getActiveOfficerCount() >= 5 ? 'on' : 'off' }}">
                         <span title="{{ __('t_ingame.premium.benefit_fleet_slots_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_fleet_slots') }}</span><span title="{{ __('t_ingame.premium.benefit_energy_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_energy') }}</span><span title="{{ __('t_ingame.premium.benefit_mines_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_mines') }}</span><span title="{{ __('t_ingame.premium.benefit_espionage_title') }}" class="tooltipCustom tooltipTop">{{ __('t_ingame.premium.benefit_espionage') }}</span>            </li>
@@ -149,6 +102,17 @@
             // Questo permette al handler .slideIn nel JS globale di funzionare
             // anche su pagine diverse da overview.
             gfSlider = new GFSlider(getElementByIdWithCache('detailWrapper'));
+
+            // Se la pagina è stata aperta con ?openDetail=N (es. dal click sull'icona ufficiale
+            // nella barra header), simula il click sul bottone corrispondente per aprire
+            // automaticamente il pannello dettagli dell'ufficiale.
+            var openDetail = {{ (int) request()->query('openDetail', 0) }};
+            if (openDetail) {
+                var $btn = $("a.detail_button[ref='" + openDetail + "']");
+                if ($btn.length) {
+                    $btn.trigger('click');
+                }
+            }
         });
     </script>
 
