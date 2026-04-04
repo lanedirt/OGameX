@@ -49,34 +49,10 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution'         => 'Waarschuwing',
-        'yes'             => 'ja',
-        'no'              => 'Nee',
-        'error'           => 'Fout',
-        'ok'              => 'Ok',
-        'error_occurred'  => 'Er is een fout opgetreden.',
-        'level'           => 'Niveau',
-        'duration'        => 'Duur',
-        'dark_matter'     => 'Donkere materie',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Bouwwachtrij (actief gebouw / onderzoek slot)
-    // -------------------------------------------------------------------------
-
-    'buildqueue' => [
-        'improve_to'                => 'Verbeteren naar',
-        'downgrade_to'              => 'Verlagen naar',
-        'halve_time'                => 'Halveer tijd',
-        'halve_cost'                => 'Kosten: :amount DM',
-        'halve_tooltip_building'    => 'Vermindert de bouwtijd met 50% van de totale bouwtijd.',
-        'halve_tooltip_research'    => 'Vermindert de onderzoekstijd met 50% van de totale onderzoekstijd.',
-        'question_halve_building'   => 'Wil je de bouwtijd van het huidige bouwproject met 50% van de totale bouwtijd verminderen voor :dm_cost?',
-        'question_halve_research'   => 'Wil je de onderzoekstijd van het huidige onderzoeksproject met 50% van de totale onderzoekstijd verminderen voor :dm_cost?',
-        'no_building_idle'          => 'Geen gebouwen in aanbouw.',
-        'no_building_idle_tooltip'  => 'Er wordt op dit moment geen gebouw gebouwd op deze planeet. Klik hier om naar de bouwpagina te gaan.',
-        'no_research_idle'          => 'Er is momenteel geen onderzoek bezig.',
-        'no_research_idle_tooltip'  => 'Er is momenteel geen onderzoek gaande. Klik hier om naar je onderzoekslaboratorium te gaan.',
+        'caution' => 'Waarschuwing',
+        'yes'     => 'ja',
+        'no'      => 'Nee',
+        'error'   => 'Fout',
     ],
 
     // -------------------------------------------------------------------------
@@ -148,62 +124,8 @@ return [
     // -------------------------------------------------------------------------
 
     'shipyard_page' => [
-        'battleships'           => 'Gevechtsschepen',
-        'civil_ships'           => 'Civiele schepen',
-        'no_units_idle'         => 'Inactief',
-        'no_units_idle_tooltip' => 'Er worden momenteel geen schepen/verdediging gebouwd.',
-        'to_shipyard'           => 'Naar scheepswerf',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Ajax object modal (gebouwen, schepen, verdediging, onderzoek)
-    // -------------------------------------------------------------------------
-
-    'ajax_object' => [
-        'open_techtree'            => 'Technologieboom openen',
-        'techtree'                 => 'Technologieboom',
-        'no_requirements'          => 'Geen vereisten',
-        'cancel_expansion_confirm' => 'Upgrade van :name naar niveau :level annuleren?',
-        'number'                   => 'Aantal:',
-        'level'                    => 'Niveau',
-        'production_duration'      => 'Productieduur',
-        'energy_needed'            => 'Benodigde energie',
-        'production'               => 'Productie',
-        'costs_per_piece'          => 'Kosten per stuk',
-        'required_to_improve'      => 'Benodigde grondstoffen voor niveau',
-        'metal'                    => 'Metaal',
-        'crystal'                  => 'Kristal',
-        'deuterium'                => 'Deuterium',
-        'energy'                   => 'Energie',
-        'deconstruction_costs'     => 'Sloopkosten',
-        'ion_technology_bonus'     => 'Iontechnologie bonus',
-        'duration'                 => 'Duur',
-        'number_label'             => 'Aantal:',
-        'max_btn'                  => 'Max (:amount)',
-        'vacation_mode'            => 'Niet beschikbaar in vakantiemodus',
-        'tear_down_btn'            => 'Afbreken',
-        'wrong_character_class'    => 'Verkeerde karakterklasse',
-        'shipyard_upgrading'       => 'De scheepswerf wordt geüpgraded',
-        'shipyard_busy'            => 'De scheepswerf is bezet',
-        'not_enough_fields'        => 'Niet genoeg bouwvelden',
-        'build'                    => 'Bouwen',
-        'in_queue'                 => 'In wachtrij',
-        'improve'                  => 'Verbeteren',
-        'storage_capacity'         => 'Opslagcapaciteit',
-        'gain_resources'           => 'Grondstoffen verkrijgen',
-        'view_offers'              => 'Aanbiedingen bekijken',
-        'destroy_rockets_desc'     => 'Raketten vernietigen',
-        'destroy_rockets_btn'      => 'Raketten vernietigen',
-        'more_details'             => 'Meer details',
-        'error'                    => 'Er is een fout opgetreden',
-        'commander_queue_info'     => 'U heeft een Commandant nodig om de bouwwachtrij te gebruiken.',
-        'no_rocket_silo_capacity'  => 'De raketbunker is vol',
-        'detail_now'               => 'Details',
-        'start_with_dm'            => 'Starten met Donkere Materie',
-        'err_dm_price_too_low'     => 'De prijs voor Donkere Materie is te laag',
-        'err_resource_limit'       => 'Onvoldoende grondstoffen',
-        'err_storage_capacity'     => 'Opslagcapaciteit overschreden',
-        'err_no_dark_matter'       => 'Onvoldoende Donkere Materie',
+        'battleships' => 'Gevechtsschepen',
+        'civil_ships' => 'Civiele schepen',
     ],
 
     // -------------------------------------------------------------------------
@@ -360,27 +282,6 @@ return [
         'desc_recycle'             => 'Stuur uw recyclers naar een puinveld om de rondzwevende grondstoffen te verzamelen.',
         'desc_destroy_moon'        => 'Vernietigt de maan van uw vijand.',
         'desc_expedition'          => 'Stuur uw schepen naar de verste uithoeken van de ruimte voor spannende quests.',
-
-        // ACS-aanval – federatie-overlay
-        'fleet_union'              => 'Vlootunie',
-        'union_created'            => 'Vlootunie succesvol aangemaakt.',
-        'union_edited'             => 'Vlootunie succesvol bewerkt.',
-        'err_union_max_fleets'     => 'Er kunnen maximaal 16 vloten aanvallen.',
-        'err_union_max_players'    => 'Er kunnen maximaal 5 spelers aanvallen.',
-        'err_union_too_slow'       => 'Je bent te langzaam om je bij deze vloot aan te sluiten.',
-        'err_union_target_mismatch' => 'Uw vloot moet hetzelfde doelwit hebben als de vlootunie.',
-        'union_name'               => 'Unienaam',
-        'buddy_list'               => 'Vriendenlijst',
-        'buddy_list_loading'       => 'Laden...',
-        'buddy_list_empty'         => 'Geen vrienden beschikbaar',
-        'buddy_list_error'         => 'Laden van vriendenlijst mislukt',
-        'search_user'              => 'Speler zoeken',
-        'search'                   => 'Zoeken',
-        'union_user'               => 'Unielid',
-        'invite'                   => 'Uitnodigen',
-        'kick'                     => 'Verwijderen',
-        'ok'                       => 'Ok',
-        'own_fleet'                => 'Eigen vloot',
 
         // Briefingsectie (zonder afsluitende dubbele punt)
         'briefing'                 => 'Briefing',
@@ -696,7 +597,9 @@ return [
         'battle_defender'    => 'Verdediger',
         'battle_resources'   => 'Grondstoffen',
         'battle_loot'        => 'Buit',
-        'battle_debris_new'  => 'Puin-veld (nieuw aangemaakt)',
+        'battle_debris_new'        => 'Puin-veld (nieuw aangemaakt)',
+        'battle_wreckage_created'  => 'Wrakstukken ontstaan',
+        'battle_attacker_wreckage' => 'Aanvaller wrakstukken',
         'battle_repaired'    => 'Gerepareerd',
         'battle_moon_chance' => 'Maankans',
 
@@ -1072,11 +975,11 @@ return [
         'password_strength_medium'              => 'Gemiddeld',
         'password_strength_high'                => 'Hoog',
         'password_properties_title'             => 'Het wachtwoord moet de volgende eigenschappen bevatten',
-        'password_min_max'                      => 'min. 4 tekens, max. 20 tekens',
+        'password_min_max'                      => 'min. 4 tekens, max. 128 tekens',
         'password_mixed_case'                   => 'Hoofd- en kleine letters',
         'password_special_chars'                => 'Speciale tekens (bijv. !?:_., )',
         'password_numbers'                      => 'Cijfers',
-        'password_length_hint'                  => 'Je wachtwoord moet minimaal <strong>4 tekens</strong> hebben en mag niet langer zijn dan <strong>20 tekens</strong>.',
+        'password_length_hint'                  => 'Je wachtwoord moet minimaal <strong>4 tekens</strong> hebben en mag niet langer zijn dan <strong>128 tekens</strong>.',
 
         'section_email'                         => 'E-mailadres',
         'current_email'                         => 'Huidig e-mailadres:',
@@ -1176,6 +1079,9 @@ return [
 
         // Controllerberichten
         'msg_settings_saved'                    => 'Instellingen opgeslagen',
+        'msg_password_incorrect'                => 'Het huidige wachtwoord dat je hebt ingevoerd is onjuist.',
+        'msg_password_mismatch'                 => 'De nieuwe wachtwoorden komen niet overeen.',
+        'msg_password_length_invalid'           => 'Het nieuwe wachtwoord moet tussen 4 en 128 tekens lang zijn.',
         'msg_vacation_activated'                => 'Vakantiemodus geactiveerd. Je wordt minimaal 48 uur beschermd tegen nieuwe aanvallen.',
         'msg_vacation_deactivated'              => 'Vakantiemodus gedeactiveerd.',
         'msg_vacation_min_duration'             => 'Je kunt de vakantiemodus pas deactiveren nadat de minimale duur van 48 uur is verstreken.',
@@ -1389,36 +1295,58 @@ return [
         'benefit_espionage_title'    => '1 niveau wordt toegevoegd aan jouw spionageonderzoek.',
         'benefit_espionage'          => '+1 spionageniveaus',
 
-        // Detail panel keys
-        'dark_matter_title'          => 'Donkere Materie',
-        'dark_matter_description'    => 'Donkere Materie is een stof die pas sinds kort en met grote moeite kan worden bewaard. Het maakt het mogelijk om grote hoeveelheden energie op te wekken. De methode om Donkere Materie te verkrijgen is complex en risicovol, wat het bijzonder waardevol maakt.',
-        'dark_matter_safe'           => 'Alleen gekochte Donkere Materie die nog beschikbaar is, kan beschermen tegen accountverwijdering!',
-        'no_dark_matter_available'   => 'Geen donkere materie beschikbaar',
-        'buy_dark_matter'            => 'Donkere Materie kopen',
-        'advantages_label'           => 'Voordelen',
-        'dark_matter_advantages'     => 'Donkere Materie stelt je in staat om Officieren en Commandant in te huren en te betalen voor handelsaanbiedingen, planeetverplaatsingen en items.',
-        'your_balance'               => 'Je saldo',
-        'active_until'               => 'Actief tot :date',
+        // ── Officer detail panel ──────────────���──────────────────────────────
+        'active_for_days'            => 'Nog actief: :days dagen',
         'not_active'                 => 'Niet actief',
+        'advantages'                 => 'Voordelen:',
         'days'                       => 'dagen',
-        'dm'                         => 'DM',
-        'confirm_purchase'           => 'Deze officier inhuren voor :days dagen voor :cost Donkere Materie?',
-        'insufficient_dark_matter'   => 'Je hebt niet genoeg Donkere Materie.',
+        'dark_matter_label'          => 'Donkere Materie',
+        'insufficient_dark_matter'   => 'Niet genoeg Donkere Materie.',
+        'purchase_success'           => 'Officier succesvol geactiveerd.',
+        'already_active'             => 'Officier is al actief.',
         'purchase_error'             => 'Er is een fout opgetreden. Probeer het opnieuw.',
 
-        // Officer titles and descriptions
+        // ── Officer titles, descriptions & benefits ──────────────────────────
         'officer_commander_title'       => 'Commandant',
-        'officer_commander_description' => 'De Commandant geeft je toegang tot de bouwrij, +40 favorieten, snelkoppelingen en de transportscanner.',
-        'officer_admiral_title'         => 'Admiraal',
-        'officer_admiral_description'   => 'De Admiraal geeft +2 max vlootslots, +1 max expeditie, verbeterd vluchttempo en +20 opslagslots gevechtssimulatie.',
-        'officer_engineer_title'        => 'Ingenieur',
-        'officer_engineer_description'  => 'De Ingenieur halveert verdedigingsverliezen na een gevecht en geeft +10% energieproductie.',
+        'officer_commander_description' => 'De Commandant speelt een belangrijke rol in de moderne oorlogsvoering. Dankzij de gestroomlijnde commandostructuur kan informatie sneller worden verwerkt. Met de Commandant houd je jouw hele imperium onder controle!',
+        'officer_commander_benefit_favourites' => 'Favorieten beheren in het hele imperium',
+        'officer_commander_benefit_queue'      => 'Extra bouwwachtrij-slot',
+        'officer_commander_benefit_scanner'    => 'Imperiumoverzicht-scanner',
+        'officer_commander_benefit_ads'        => 'Geen advertenties',
+        'officer_commander_tooltip'            => '<b>Favorieten beheren</b><p>Meer favorieten voor je imperium.</p>',
+
+        'officer_admiral_title'       => 'Admiraal',
+        'officer_admiral_description' => 'De Admiraal is een ervaren veteraan en uitstekend strateeg. Zelfs in de hevigste gevechten behoudt hij het overzicht.',
+        'officer_admiral_benefit_fleet_slots'  => '+1 vlootslot',
+        'officer_admiral_benefit_expeditions'  => 'Stel resourceprioriteit in na een aanval',
+        'officer_admiral_benefit_escape'       => 'Vluchttactieken',
+        'officer_admiral_benefit_save_slots'   => '+20 simulator-slots',
+        'officer_admiral_tooltip'              => '<b>+1 vlootslot</b><p>Extra vlootslot voor je vloot.</p>',
+
+        'officer_engineer_title'       => 'Ingenieur',
+        'officer_engineer_description' => 'De Ingenieur is gespecialiseerd in energiebeheer en verdediging. In vredestijd verhoogt hij de energieproductie; bij aanvallen vermindert hij verdedigingsverliezen.',
+        'officer_engineer_benefit_defence' => '50% van vernietigde verdedigingen overleeft de strijd',
+        'officer_engineer_benefit_energy'  => '+10% energieproductie op alle planeten',
+        'officer_engineer_tooltip'         => '<b>+10% energie</b><p>Meer energieproductie op al je planeten.</p>',
+
         'officer_geologist_title'       => 'Geoloog',
-        'officer_geologist_description' => 'De Geoloog verhoogt de mijnproductie met +10% voor metaal, kristal en deuterium.',
-        'officer_technocrat_title'      => 'Technocraat',
-        'officer_technocrat_description'=> 'De Technocraat voegt +2 spionageniveaus toe en vermindert de onderzoekstijd met 25%.',
+        'officer_geologist_description' => 'De Geoloog is expert in astrominersalogie. Met de juiste uitrusting lokaliseert hij uitstekende ertsvelden en verhoogt de mijnproductie.',
+        'officer_geologist_benefit_mines' => '+10% productie van metaal, kristal en deuterium',
+        'officer_geologist_tooltip'       => '<b>+10% mijnproductie</b><p>Meer grondstoffen op al je planeten.</p>',
+
+        'officer_technocrat_title'       => 'Technocraat',
+        'officer_technocrat_description' => 'De Technocraat-coöperatie bestaat uit briljante wetenschappers. Zijn aanwezigheid inspireert de onderzoekers van het imperium.',
+        'officer_technocrat_benefit_espionage' => 'Spionageniveau zichtbaar zonder sonde',
+        'officer_technocrat_benefit_research'  => '-25% onderzoekstijd op alle technologieën',
+        'officer_technocrat_tooltip'           => '<b>-25% onderzoekstijd</b><p>Snellere onderzoeken in het hele imperium.</p>',
+
         'officer_all_officers_title'       => 'Commandostaf',
-        'officer_all_officers_description' => 'Activeer alle vijf officieren tegelijk! Naast individuele bonussen geeft de Commandostaf: +1 vlootslot, +2% energieproductie, +2% mijnproductie en +1 spionageniveau.',
+        'officer_all_officers_description' => 'Met dit pakket huur je niet alleen een specialist in, maar een heel stafteam. Je profiteert van alle voordelen van de individuele officieren plus exclusieve extra bonussen.',
+        'officer_all_officers_benefit_fleet_slots' => 'Alle vlootslot-bonussen',
+        'officer_all_officers_benefit_energy'      => 'Alle energiebonussen',
+        'officer_all_officers_benefit_mines'       => 'Alle mijnproductiebonussen',
+        'officer_all_officers_benefit_espionage'   => 'Alle spionagebonussen',
+        'officer_all_officers_tooltip'             => '<b>Alle bonussen</b><p>Alle voordelen van alle officieren gecombineerd.</p>',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
@@ -1561,49 +1489,5 @@ return [
         'msg_yes'                       => 'Ja',
         'msg_no'                        => 'Nee',
         'msg_ok'                        => 'Ok',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Alliantiedepot
-    // -------------------------------------------------------------------------
-
-    'alliance_depot' => [
-        'description'         => 'Het Alliantiedepot stelt je in staat voorraadrakketten te sturen naar bevriende vloten die op je planeet wachten, waardoor hun verblijftijd wordt verlengd.',
-        'capacity'            => 'Capaciteit',
-        'no_fleets'           => 'Er zijn geen wachtende vloten!',
-        'fleet_owner'         => 'Vlooteigenaar',
-        'ships'               => 'Schepen',
-        'hold_time'           => 'Wachttijd',
-        'extend'              => 'Verlengen',
-        'supply_cost'         => 'Voorraadrocket kosten (deuterium)',
-        'start_supply'        => 'Stuur voorraadrocket',
-        'please_select_fleet' => 'Selecteer een vloot.',
-        'hours_between'       => 'Verlengingsuren moeten tussen 1 en 32 liggen.',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Chat
-    // -------------------------------------------------------------------------
-
-    'chat' => [
-        'list_title'         => 'Lijst van je chats',
-        'player_list'        => 'Spelerslijst',
-        'alliance_chat'      => 'Alliantiechat',
-        'no_messages_yet'    => 'Nog geen berichten',
-        'no_conversations'   => 'Nog geen gesprekken.',
-        'submit'             => 'Verzenden',
-        'buddy_tooltip'      => 'Vriend',
-        'alliance_tooltip'   => 'Alliantielid',
-        'status_online'      => 'Online',
-        'status_offline'     => 'Offline',
-        'status_not_visible' => 'Status niet zichtbaar',
-        'highscore_ranking'  => 'Ranglijst',
-        'alliance_label'     => 'Alliantie',
-        'planet_alt'         => 'Planeet',
-        'buddies'            => 'Vrienden',
-        'no_buddies'         => 'Geen vrienden',
-        'strangers'          => 'Vreemden',
-        'no_strangers'       => 'Geen vreemden',
-        'alliance'           => 'Alliantie',
     ],
 ];

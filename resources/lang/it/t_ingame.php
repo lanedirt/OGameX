@@ -49,34 +49,10 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution'         => 'Attenzione',
-        'yes'             => 'sì',
-        'no'              => 'No',
-        'error'           => 'Errore',
-        'ok'              => 'Ok',
-        'error_occurred'  => 'Si è verificato un errore.',
-        'level'           => 'Livello',
-        'duration'        => 'Durata',
-        'dark_matter'     => 'Materia Oscura',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Coda di costruzione (slot edificio / ricerca attivo)
-    // -------------------------------------------------------------------------
-
-    'buildqueue' => [
-        'improve_to'                => 'Migliora a',
-        'downgrade_to'              => 'Abbassa al',
-        'halve_time'                => 'Dimezza il tempo',
-        'halve_cost'                => 'Costo: :amount MD',
-        'halve_tooltip_building'    => 'Riduce il tempo di costruzione del 50% del tempo di costruzione totale.',
-        'halve_tooltip_research'    => 'Riduce il tempo di ricerca del 50% del tempo di ricerca totale.',
-        'question_halve_building'   => 'Vuoi ridurre il tempo di costruzione del progetto attuale del 50% del tempo totale per :dm_cost?',
-        'question_halve_research'   => 'Vuoi ridurre il tempo di ricerca del progetto attuale del 50% del tempo totale per :dm_cost?',
-        'no_building_idle'          => 'Nessun edificio in costruzione.',
-        'no_building_idle_tooltip'  => 'Al momento non sono in costruzione edifici su questo pianeta. Clicca qui per andare alla pagina di costruzione.',
-        'no_research_idle'          => 'Al momento non è in corso nessuna ricerca.',
-        'no_research_idle_tooltip'  => 'Al momento non è in corso nessuna ricerca. Clicca qui per andare al laboratorio di ricerca.',
+        'caution' => 'Attenzione',
+        'yes'     => 'sì',
+        'no'      => 'No',
+        'error'   => 'Errore',
     ],
 
     // -------------------------------------------------------------------------
@@ -260,10 +236,8 @@ return [
         'select_all_ships'         => 'Seleziona tutte le navi',
         'reset_choice'             => 'Azzera selezione',
         'api_data'                 => 'Questi dati possono essere inseriti in un simulatore di combattimento compatibile:',
-        'tactical_retreat'              => 'Ritirata tattica',
-        'tactical_retreat_tooltip'      => 'Mostra il consumo di Deuterio per ritirata tattica',
-        'tactical_retreat_desc'         => 'Le flotte possono ritirarsi automaticamente se vengono attaccate da una forza superiore cinque volte più forte di loro. Il fattore determinante è il confronto tra i punti flotta dell\'attaccante e i tuoi punti flotta. Le strutture difensive non vengono considerate.<br /><br />Le navi civili contano solo il 25%, i satelliti solari e le sonde di spionaggio non vengono considerate.<br /><br />Seleziona l\'opzione "mai" se desideri disattivare la ritirata automatica.<br /><br />Le flotte in stazionamento non possono in linea di principio ritirarsi. Anche le Stelle della morte, le Sonde di spionaggio e i Satelliti solari non possono ritirarsi.<br /><br />Usa l\'Ammiraglio per permettere alle tue flotte di ritirarsi da forze tre volte più grandi delle tue.<br /><br />L\'opzione "ritirata tattica" termina con 500.000 punti.',
-        'tactical_retreat_admiral_desc' => 'Usa l\'Ammiraglio per permettere alle tue flotte di ritirarsi da forze tre volte più grandi delle tue.',
+        'tactical_retreat'         => 'Ritirata tattica',
+        'tactical_retreat_tooltip' => 'Mostra il consumo di Deuterio per ritirata tattica',
         'continue'                 => 'Continua',
         'back'                     => 'Indietro',
 
@@ -308,29 +282,6 @@ return [
         'desc_recycle'             => 'Invia i tuoi riciclatori in un campo di detriti per raccogliere le risorse.',
         'desc_destroy_moon'        => 'Distrugge la luna del tuo nemico.',
         'desc_expedition'          => 'Invia le tue navi ai confini dello spazio per compiere missioni emozionanti.',
-
-        // ACS Attack – overlay federazione
-        'fleet_union'              => 'Unione flotta',
-        'union_created'            => 'Unione flotta creata con successo.',
-        'union_edited'             => 'Unione flotta modificata con successo.',
-        'err_union_max_fleets'     => 'Possono attaccare al massimo 16 flotte.',
-        'err_union_max_players'    => 'Possono attaccare al massimo 5 giocatori.',
-        'err_union_too_slow'       => 'Sei troppo lento per unirti a questa flotta.',
-        'err_union_target_mismatch' => 'La tua flotta deve puntare alla stessa destinazione dell\'unione flotta.',
-        'union_name'               => 'Nome unione',
-        'buddy_list'               => 'Lista amici',
-        'buddy_list_loading'       => 'Caricamento...',
-        'buddy_list_empty'         => 'Nessun amico disponibile',
-        'buddy_list_error'         => 'Impossibile caricare la lista amici',
-        'search_user'              => 'Cerca giocatore',
-        'search'                   => 'Cerca',
-        'union_user'               => 'Giocatore nell\'unione',
-        'invite'                   => 'Invita',
-        'kick'                     => 'Espelli',
-        'ok'                       => 'Ok',
-        'own_fleet'                => 'Flotta propria',
-        'enemy_fleet'              => 'Flotta nemica',
-        'friendly_fleet'           => 'Flotta alleata',
 
         // Sezione briefing (senza due punti finali)
         'briefing'                 => 'Briefing',
@@ -647,7 +598,8 @@ return [
         'battle_resources'   => 'Risorse',
         'battle_loot'        => 'Bottino',
         'battle_debris_new'       => 'Campo di detriti (appena creato)',
-        'battle_wreckage_created' => 'Relitti creati',
+        'battle_wreckage_created'  => 'Relitti creati',
+        'battle_attacker_wreckage' => 'Relitti dell\'attaccante',
         'battle_repaired'    => 'Difese riparate',
         'battle_moon_chance' => 'Probabilità di luna',
 
@@ -1023,11 +975,11 @@ return [
         'password_strength_medium'              => 'Media',
         'password_strength_high'                => 'Alta',
         'password_properties_title'             => 'La password dovrebbe contenere le seguenti proprietà',
-        'password_min_max'                      => 'min. 4 caratteri, max. 20 caratteri',
+        'password_min_max'                      => 'min. 4 caratteri, max. 128 caratteri',
         'password_mixed_case'                   => 'Lettere maiuscole e minuscole',
         'password_special_chars'                => 'Caratteri speciali (es. !?:_., )',
         'password_numbers'                      => 'Numeri',
-        'password_length_hint'                  => 'La tua password deve avere almeno <strong>4 caratteri</strong> e non può essere più lunga di <strong>20 caratteri</strong>.',
+        'password_length_hint'                  => 'La tua password deve avere almeno <strong>4 caratteri</strong> e non può essere più lunga di <strong>128 caratteri</strong>.',
 
         'section_email'                         => 'Indirizzo email',
         'current_email'                         => 'Indirizzo email attuale:',
@@ -1127,6 +1079,9 @@ return [
 
         // Messaggi controller
         'msg_settings_saved'                    => 'Impostazioni salvate',
+        'msg_password_incorrect'                => 'La password attuale inserita non è corretta.',
+        'msg_password_mismatch'                 => 'Le nuove password non coincidono.',
+        'msg_password_length_invalid'           => 'La nuova password deve essere compresa tra 4 e 128 caratteri.',
         'msg_vacation_activated'                => 'Modalità vacanza attivata. Ti proteggerà dai nuovi attacchi per un minimo di 48 ore.',
         'msg_vacation_deactivated'              => 'Modalità vacanza disattivata.',
         'msg_vacation_min_duration'             => 'Puoi disattivare la modalità vacanza solo dopo che è trascorsa la durata minima di 48 ore.',
@@ -1325,11 +1280,11 @@ return [
         'info_geologist'             => 'Maggiori informazioni su: Geologo',
         'info_technocrat'            => 'Maggiori informazioni su: Tecnocrate',
         'info_commanding_staff'      => 'Maggiori informazioni su: Stato Maggiore',
-        'hire_commander_tooltip'     => 'Assumi comandante|+40 favoriti, coda costruzione, Informazioni sul carico, scanner trasporto, senza pubblicità* <span style=\'font-size: 10px; line-height: 10px\'>(*esclusi: riferimenti relativi al gioco)</span>',
+        'hire_commander_tooltip'     => 'Assumi comandante|+40 preferiti, coda costruzione, scorciatoie, scanner trasporto, senza pubblicità* <span style=\'font-size: 10px; line-height: 10px\'>(*esclusi: riferimenti relativi al gioco)</span>',
         'hire_admiral_tooltip'       => "Assumi ammiraglio|Slot flotta max +2,\nSpedizioni max +1,\nTasso fuga flotta migliorato,\nSlot salvataggio simulazione combattimento +20",
         'hire_engineer_tooltip'      => 'Assumi ingegnere|Dimezza le perdite nelle difese, +10% produzione energia',
         'hire_geologist_tooltip'     => 'Assumi geologo|+10% produzione miniere',
-        'hire_technocrat_tooltip'    => 'Assumi tecnocrate|+2 Livelli di spionaggio, 25% meno tempo di ricerca',
+        'hire_technocrat_tooltip'    => 'Assumi tecnocrate|+2 livelli spionaggio, 25% meno tempo di ricerca',
         'remaining_officers'         => ':current di :max',
         'benefit_fleet_slots_title'  => 'Puoi inviare più flotte contemporaneamente.',
         'benefit_fleet_slots'        => 'Slot flotta max +1',
@@ -1340,24 +1295,21 @@ return [
         'benefit_espionage_title'    => '1 livello verrà aggiunto alla tua ricerca di spionaggio.',
         'benefit_espionage'          => '+1 livelli spionaggio',
 
-        // Detail panel keys
+        // ── Detail panel / acquisto ufficiali ──────────────────────────────
         'dark_matter_title'          => 'Materia Oscura',
-        'dark_matter_description'    => 'La Materia Oscura è una sostanza che è possibile conservare solo da pochi anni, e con gran fatica. Essa consente di ricavare grandi quantità di energia. Il metodo utilizzato per ottenere la Materia Oscura è complesso e rischioso e questo la rende particolarmente preziosa.',
-        'dark_matter_safe'           => 'Solo la Materia Oscura acquistata e ancora disponibile può proteggere dall`eliminazione dell`account!',
-        'no_dark_matter_available'   => 'Non hai materia oscura disponibile',
-        'buy_dark_matter'            => 'Acquista la Materia Oscura',
-        'advantages_label'           => 'Vantaggi',
-        'dark_matter_advantages'     => 'La Materia Oscura permette di ingaggiare Ufficiali e Commander e di pagare le offerte dei mercanti, gli spostamenti dei pianeti e gli item.',
+        'dark_matter_label'          => 'Materia Oscura',
+        'no_dark_matter'             => 'Non hai materia oscura disponibile',
+        'dark_matter_description'    => 'La Materia Oscura è una sostanza che è possibile conservare solo da pochi anni, e con gran fatica. Essa consente di ricavare grandi quantità di energia. Il metodo utilizzato per ottenere la Materia Oscura è complesso e rischioso e questo la rende particolarmente preziosa.<br><b>Solo la Materia Oscura acquistata e ancora disponibile può proteggere dall\'eliminazione dell\'account!</b>',
+        'dark_matter_benefits'       => 'La Materia Oscura permette di ingaggiare Ufficiali e Commander e di pagare le offerte dei mercanti, gli spostamenti dei pianeti e gli item.',
         'your_balance'               => 'Il tuo saldo',
         'active_until'               => 'Attivo fino al :date',
+        'active_for_days'            => 'Attivo ancora per: :days giorni',
         'not_active'                 => 'Non attivo',
         'days'                       => 'giorni',
         'dm'                         => 'MO',
-        'dark_matter_label'          => 'Materia Oscura',
-        'no_dark_matter'             => 'Non hai materia oscura disponibile',
-        'active_for_days'            => 'Attivo ancora per: :days giorni',
         'advantages'                 => 'Vantaggi:',
-        'confirm_purchase'           => 'Ingaggiare questo ufficiale per :days giorni al costo di :cost Materia Oscura?',
+        'buy_dark_matter'            => 'Acquista la Materia Oscura',
+        'confirm_purchase'           => 'Vuoi ingaggiare questo ufficiale per :days giorni al costo di :cost Materia Oscura?',
         'insufficient_dark_matter'   => 'Non hai abbastanza Materia Oscura.',
         'purchase_success'           => 'Ufficiale attivato con successo!',
         'purchase_error'             => 'Si è verificato un errore. Riprova.',
@@ -1365,61 +1317,44 @@ return [
         // ── Titoli, descrizioni e vantaggi ufficiali ───────────────────────
         'officer_commander_title'        => 'Comandante',
         'officer_commander_description'  => 'Il Commander ha assunto un ruolo importante nelle guerre moderne. La struttura di comando semplificata consente di gestire in modo più rapido le informazioni. Con il Commander sarai in grado di tenere sotto controllo tutto il tuo impero!',
-        'officer_commander_benefits'     => 'Con il Commander avrai una panoramica dell\'intero impero, uno slot missione aggiuntivo e la possibilità di impostare l\'ordine delle risorse saccheggiate.',
+        'officer_commander_benefits'              => 'Con il Commander avrai una panoramica dell\'intero impero, uno slot missione aggiuntivo e la possibilità di impostare l\'ordine delle risorse saccheggiate.',
+        'officer_commander_benefit_favourites'    => 'Gestisci i preferiti nell\'intero impero',
+        'officer_commander_benefit_queue'         => 'Slot coda di costruzione aggiuntivo',
+        'officer_commander_benefit_scanner'       => 'Scanner panoramica impero',
+        'officer_commander_benefit_ads'           => 'Nessuna pubblicità',
 
-        'officer_admiral_title'          => 'Ammiraglio',
-        'officer_admiral_description'    => 'L\'ammiraglio è un veterano esperto e stratega eccellente. Anche nelle battaglie più accese mantiene una visione d\'insieme e mantiene i contatti con gli ammiragli sotto il suo comando.',
-        'officer_admiral_benefits'       => '+1 slot spedizione, possibilità di impostare priorità risorse dopo un attacco, +20 slot simulatore battaglie.',
+        'officer_admiral_title'                   => 'Ammiraglio',
+        'officer_admiral_description'             => 'L\'ammiraglio è un veterano esperto e stratega eccellente. Anche nelle battaglie più accese mantiene una visione d\'insieme e mantiene i contatti con gli ammiragli sotto il suo comando.',
+        'officer_admiral_benefits'                => '+1 slot spedizione, possibilità di impostare priorità risorse dopo un attacco, +20 slot simulatore battaglie.',
+        'officer_admiral_benefit_fleet_slots'     => '+1 slot flotta',
+        'officer_admiral_benefit_expeditions'     => 'Imposta priorità risorse dopo un attacco',
+        'officer_admiral_benefit_escape'          => 'Modalità fuga flotta',
+        'officer_admiral_benefit_save_slots'      => '+20 slot simulatore battaglie',
 
-        'officer_engineer_title'         => 'Ingegnere',
-        'officer_engineer_description'   => 'L\'Ingegnere è specializzato nella gestione dell\'energia e delle difese. In tempi di pace aumenta l\'energia prodotta dai pianeti. In caso di attacco nemico riduce le perdite delle difese.',
-        'officer_engineer_benefits'      => '+10% energia prodotta su tutti i pianeti, il 50% delle difese distrutte sopravvive alla battaglia.',
+        'officer_engineer_title'                  => 'Ingegnere',
+        'officer_engineer_description'            => 'L\'Ingegnere è specializzato nella gestione dell\'energia e delle difese. In tempi di pace aumenta l\'energia prodotta dai pianeti. In caso di attacco nemico riduce le perdite delle difese.',
+        'officer_engineer_benefits'               => '+10% energia prodotta su tutti i pianeti, il 50% delle difese distrutte sopravvive alla battaglia.',
+        'officer_engineer_benefit_defence'        => 'Il 50% delle difese distrutte sopravvive alla battaglia',
+        'officer_engineer_benefit_energy'         => '+10% energia prodotta su tutti i pianeti',
 
-        'officer_geologist_title'        => 'Geologo',
-        'officer_geologist_description'  => 'Il geologo è esperto in astromineralogia e cristallografia. Utilizzando un equipaggiamento appropriato è in grado di localizzare ottimi giacimenti, aumentando la produzione delle miniere.',
-        'officer_geologist_benefits'     => '+10% produzione di metallo, cristallo e deuterio su tutti i pianeti.',
+        'officer_geologist_title'                 => 'Geologo',
+        'officer_geologist_description'           => 'Il geologo è esperto in astromineralogia e cristallografia. Utilizzando un equipaggiamento appropriato è in grado di localizzare ottimi giacimenti, aumentando la produzione delle miniere.',
+        'officer_geologist_benefits'              => '+10% produzione di metallo, cristallo e deuterio su tutti i pianeti.',
+        'officer_geologist_benefit_mines'         => '+10% produzione di metallo, cristallo e deuterio su tutti i pianeti',
 
-        'officer_technocrat_title'       => 'Tecnocrate',
-        'officer_technocrat_description' => 'La cooperativa dei Tecnici è composta da scienziati geniali. Nessun essere umano normale cercherà mai di decifrare il codice di un tecnico; egli ispira i ricercatori dell\'impero con la sua sola presenza.',
-        'officer_technocrat_benefits'    => '-25% tempo di ricerca su tutte le tecnologie.',
+        'officer_technocrat_title'                => 'Tecnocrate',
+        'officer_technocrat_description'          => 'La cooperativa dei Tecnici è composta da scienziati geniali. Nessun essere umano normale cercherà mai di decifrare il codice di un tecnico; egli ispira i ricercatori dell\'impero con la sua sola presenza.',
+        'officer_technocrat_benefits'             => '-25% tempo di ricerca su tutte le tecnologie.',
+        'officer_technocrat_benefit_espionage'    => 'Livello spionaggio visibile senza sonda',
+        'officer_technocrat_benefit_research'     => '-25% tempo di ricerca su tutte le tecnologie',
 
-        'officer_all_officers_title'        => 'Stato Maggiore',
-        'officer_all_officers_description'  => 'Con questo pacchetto non ti assicurerai solo uno specialista, bensì un intero staff di bordo. Beneficerai di tutti gli effetti dei singoli ufficiali, nonché dei vantaggi extra disponibili solo col pacchetto.',
-        'officer_all_officers_benefits'     => 'Tutti i vantaggi di Comandante, Ammiraglio, Ingegnere, Geologo e Tecnocrate, più bonus extra esclusivi del pacchetto completo.',
-
-        // ── Benefit span per ufficiale (uno <span> = una riga con spunta) ───
-        'officer_commander_benefit_favourites' => '+40 preferiti',
-        'officer_commander_benefit_queue'      => 'Coda costruzione',
-        'officer_commander_benefit_scanner'    => 'Informazioni sul carico',
-        'officer_commander_benefit_ads'        => 'Senza pubblicità',
-
-        'officer_admiral_benefit_fleet_slots'  => 'Quantità max. flotte +2',
-        'officer_admiral_benefit_expeditions'  => 'Numero massimo di spedizioni +1',
-        'officer_admiral_benefit_escape'       => 'Miglioramento del tasso di fuga delle flotte',
-        'officer_admiral_benefit_save_slots'   => 'Slot memoria massimi +20',
-
-        'officer_engineer_benefit_defence'     => 'Dimezza le perdite delle strutture difensive',
-        'officer_engineer_benefit_energy'      => '+10% di produzione di energia',
-
-        'officer_geologist_benefit_mines'      => '+10% produzione delle miniere',
-
-        'officer_technocrat_benefit_espionage' => '+2 livelli di spionaggio',
-        'officer_technocrat_benefit_research'  => '25% di riduzione del tempo di ricerca',
-
-        'officer_all_officers_benefit_fleet_slots' => 'Quantità max. flotte +1',
-        'officer_all_officers_benefit_energy'      => '+2% Produzione di energia',
-        'officer_all_officers_benefit_mines'       => '+2% Prodotto delle miniere',
-        'officer_all_officers_benefit_espionage'   => '+1 Livelli di spionaggio',
-
-        // ── Tooltip dettagliato per ufficiale (HTML, appare sotto i Vantaggi) ─
-        'officer_commander_tooltip'    => '<b>+40 preferiti</b><p>Più "preferiti" a disposizione permettono di salvare più messaggi, che possono anche essere condivisi.</p><br/><b>Coda costruzione</b><p>Puoi avviare contemporaneamente fino a 4 incarichi in più per edifici e ricerche.</p><br/><b>Informazioni sul carico</b><p>Viene visualizzata la quantità di risorse trasportate dai cargo verso i tuoi pianeti.</p><br/><b>Senza pubblicità</b><p>Non ricevi più alcun messaggio pubblicitario riguardante altri giochi, ma solo avvisi sugli eventi e offerte speciali relativi a OGame.</p>',
-        'officer_admiral_tooltip'      => '<b>Slot flotta max +2</b><p>Puoi inviare 2 flotte aggiuntive contemporaneamente.</p><br/><b>Spedizioni max +1</b><p>Puoi inviare 1 spedizione aggiuntiva contemporaneamente.</p><br/><b>Tasso fuga flotta migliorato</b><p>Le tue flotte hanno maggiori possibilità di ritirarsi da una battaglia sfavorevole.</p><br/><b>Slot salvataggio max +20</b><p>Puoi salvare fino a 20 configurazioni di flotta in più nel simulatore di battaglia.</p>',
-        'officer_engineer_tooltip'     => '<b>Dimezza le perdite nelle difese</b><p>Il 50% delle strutture difensive distrutte in battaglia sopravvive e viene riparato automaticamente.</p><br/><b>+10% produzione energia</b><p>Tutte le centrali elettriche e i satelliti solari producono il 10% di energia in più su ogni pianeta.</p>',
-        'officer_geologist_tooltip'    => '<b>+10% produzione miniere</b><p>Tutte le miniere di metallo, cristallo e deuterio producono il 10% in più su ogni pianeta.</p>',
-        'officer_technocrat_tooltip'   => '<b>+2 livelli spionaggio</b><p>La tua tecnologia spia conta come se fosse 2 livelli più alta per le missioni di spionaggio.</p><br/><b>25% meno tempo di ricerca</b><p>Tutte le ricerche vengono completate il 25% più velocemente.</p>',
-        'officer_all_officers_tooltip' => '<b>Quantità max. flotte +1</b><p>Puoi inviare 1 flotta aggiuntiva contemporaneamente.</p><br/><b>+2% produzione energia</b><p>Le tue centrali elettriche e i satelliti solari producono il 2% di energia in più.</p><br/><b>+2% Prodotto delle miniere</b><p>Le tue miniere producono il 2% in più di metallo, cristallo e deuterio.</p><br/><b>+1 livello spionaggio</b><p>La tua tecnologia spia conta come se fosse 1 livello più alta per le missioni di spionaggio.</p>',
-
-        'already_active' => 'Ufficiale già attivo.',
+        'officer_all_officers_title'              => 'Stato Maggiore',
+        'officer_all_officers_description'        => 'Con questo pacchetto non ti assicurerai solo uno specialista, bensì un intero staff di bordo. Beneficerai di tutti gli effetti dei singoli ufficiali, nonché dei vantaggi extra disponibili solo col pacchetto.',
+        'officer_all_officers_benefits'           => 'Tutti i vantaggi di Comandante, Ammiraglio, Ingegnere, Geologo e Tecnocrate, più bonus extra esclusivi del pacchetto completo.',
+        'officer_all_officers_benefit_fleet_slots' => 'Tutti i bonus slot flotta',
+        'officer_all_officers_benefit_energy'     => 'Tutti i bonus energia',
+        'officer_all_officers_benefit_mines'      => 'Tutti i bonus produzione miniere',
+        'officer_all_officers_benefit_espionage'  => 'Tutti i bonus spionaggio',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
@@ -1562,49 +1497,5 @@ return [
         'msg_yes'                       => 'Sì',
         'msg_no'                        => 'No',
         'msg_ok'                        => 'Ok',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Deposito Alleanza
-    // -------------------------------------------------------------------------
-
-    'alliance_depot' => [
-        'description'         => 'Il Deposito Alleanza ti permette di inviare razzi di rifornimento alle flotte amiche in attesa sul tuo pianeta, estendendo il loro tempo di permanenza.',
-        'capacity'            => 'Capacità',
-        'no_fleets'           => 'Non ci sono flotte in attesa!',
-        'fleet_owner'         => 'Proprietario flotta',
-        'ships'               => 'Navi',
-        'hold_time'           => 'Tempo di permanenza',
-        'extend'              => 'Estendi',
-        'supply_cost'         => 'Costo rifornimento (deuterio)',
-        'start_supply'        => 'Invia razzo di rifornimento',
-        'please_select_fleet' => 'Seleziona una flotta.',
-        'hours_between'       => 'Le ore di estensione devono essere tra 1 e 32.',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Chat
-    // -------------------------------------------------------------------------
-
-    'chat' => [
-        'list_title'         => 'Lista delle tue chat',
-        'player_list'        => 'Lista giocatori',
-        'alliance_chat'      => 'Chat Alleanza',
-        'no_messages_yet'    => 'Nessun messaggio ancora',
-        'no_conversations'   => 'Nessuna conversazione ancora.',
-        'submit'             => 'Invia',
-        'buddy_tooltip'      => 'Amico',
-        'alliance_tooltip'   => 'Membro dell\'alleanza',
-        'status_online'      => 'Online',
-        'status_offline'     => 'Offline',
-        'status_not_visible' => 'Stato non visibile',
-        'highscore_ranking'  => 'Classifica',
-        'alliance_label'     => 'Alleanza',
-        'planet_alt'         => 'Pianeta',
-        'buddies'            => 'Amici',
-        'no_buddies'         => 'Nessun amico',
-        'strangers'          => 'Sconosciuti',
-        'no_strangers'       => 'Nessuno sconosciuto',
-        'alliance'           => 'Alleanza',
     ],
 ];

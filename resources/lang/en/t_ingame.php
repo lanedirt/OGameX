@@ -49,34 +49,10 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution'         => 'Caution',
-        'yes'             => 'yes',
-        'no'              => 'No',
-        'error'           => 'Error',
-        'ok'              => 'Ok',
-        'error_occurred'  => 'An error occurred.',
-        'level'           => 'Level',
-        'duration'        => 'Duration',
-        'dark_matter'     => 'Dark Matter',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Build queue (active building / research slot)
-    // -------------------------------------------------------------------------
-
-    'buildqueue' => [
-        'improve_to'                => 'Improve to',
-        'downgrade_to'              => 'Downgrade to',
-        'halve_time'                => 'Halve time',
-        'halve_cost'                => 'Costs: :amount DM',
-        'halve_tooltip_building'    => 'Reduces construction time by 50% of the total construction time.',
-        'halve_tooltip_research'    => 'Reduces research time by 50% of the total research time.',
-        'question_halve_building'   => 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time for :dm_cost?',
-        'question_halve_research'   => 'Do you want to reduce the research time of the current research project by 50% of the total research time for :dm_cost?',
-        'no_building_idle'          => 'No buildings in construction.',
-        'no_building_idle_tooltip'  => 'At the moment there is no building being built on this planet. Click here to go to the build page.',
-        'no_research_idle'          => 'There is no research in progress at the moment.',
-        'no_research_idle_tooltip'  => 'There is no research done at the moment. Click here to get to your research lab.',
+        'caution' => 'Caution',
+        'yes'     => 'yes',
+        'no'      => 'No',
+        'error'   => 'Error',
     ],
 
     // -------------------------------------------------------------------------
@@ -148,62 +124,8 @@ return [
     // -------------------------------------------------------------------------
 
     'shipyard_page' => [
-        'battleships'         => 'Battleships',
-        'civil_ships'         => 'Civil ships',
-        'no_units_idle'       => 'Idle',
-        'no_units_idle_tooltip' => 'No ships/defenses are currently being built.',
-        'to_shipyard'         => 'To shipyard',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Ajax object modal (buildings, ships, defense, research)
-    // -------------------------------------------------------------------------
-
-    'ajax_object' => [
-        'open_techtree'            => 'Open tech tree',
-        'techtree'                 => 'Tech tree',
-        'no_requirements'          => 'No requirements',
-        'cancel_expansion_confirm' => 'Cancel the upgrade of :name to level :level?',
-        'number'                   => 'Number:',
-        'level'                    => 'Level',
-        'production_duration'      => 'Production time',
-        'energy_needed'            => 'Energy needed',
-        'production'               => 'Production',
-        'costs_per_piece'          => 'Costs per piece',
-        'required_to_improve'      => 'Resources required for level',
-        'metal'                    => 'Metal',
-        'crystal'                  => 'Crystal',
-        'deuterium'                => 'Deuterium',
-        'energy'                   => 'Energy',
-        'deconstruction_costs'     => 'Deconstruction costs',
-        'ion_technology_bonus'     => 'Ion Technology bonus',
-        'duration'                 => 'Duration',
-        'number_label'             => 'Number:',
-        'max_btn'                  => 'Max (:amount)',
-        'vacation_mode'            => 'Not available in vacation mode',
-        'tear_down_btn'            => 'Tear down',
-        'wrong_character_class'    => 'Wrong character class',
-        'shipyard_upgrading'       => 'Shipyard is being upgraded',
-        'shipyard_busy'            => 'Shipyard is busy',
-        'not_enough_fields'        => 'Not enough building fields',
-        'build'                    => 'Build',
-        'in_queue'                 => 'In queue',
-        'improve'                  => 'Improve',
-        'storage_capacity'         => 'Storage capacity',
-        'gain_resources'           => 'Gain resources',
-        'view_offers'              => 'View offers',
-        'destroy_rockets_desc'     => 'Destroy rockets',
-        'destroy_rockets_btn'      => 'Destroy rockets',
-        'more_details'             => 'More details',
-        'error'                    => 'An error occurred',
-        'commander_queue_info'     => 'You need a Commander to be able to use the building queue.',
-        'no_rocket_silo_capacity'  => 'Rocket silo is at maximum capacity',
-        'detail_now'               => 'Details',
-        'start_with_dm'            => 'Start with Dark Matter',
-        'err_dm_price_too_low'     => 'The Dark Matter price is too low',
-        'err_resource_limit'       => 'Not enough resources',
-        'err_storage_capacity'     => 'Storage capacity exceeded',
-        'err_no_dark_matter'       => 'Not enough Dark Matter',
+        'battleships' => 'Battleships',
+        'civil_ships' => 'Civil ships',
     ],
 
     // -------------------------------------------------------------------------
@@ -381,8 +303,6 @@ return [
         'kick'                     => 'Kick',
         'ok'                       => 'Ok',
         'own_fleet'                => 'Own fleet',
-        'enemy_fleet'              => 'Enemy fleet',
-        'friendly_fleet'           => 'Friendly fleet',
 
         // Briefing section (no trailing colons — add : in template where needed)
         'briefing'                 => 'Briefing',
@@ -698,7 +618,9 @@ return [
         'battle_defender'    => 'Defender',
         'battle_resources'   => 'Resources',
         'battle_loot'        => 'Loot',
-        'battle_debris_new'  => 'Debris field (newly created)',
+        'battle_debris_new'       => 'Debris field (newly created)',
+        'battle_wreckage_created'  => 'Wreckage created',
+        'battle_attacker_wreckage' => 'Attacker wreckage',
         'battle_repaired'    => 'Actually repaired',
         'battle_moon_chance' => 'Moon Chance',
 
@@ -1078,11 +1000,11 @@ return [
         'password_strength_medium'                  => 'Medium',
         'password_strength_high'                    => 'High',
         'password_properties_title'                 => 'The password should contain the following properties',
-        'password_min_max'                          => 'min. 4 characters, max. 20 characters',
+        'password_min_max'                          => 'min. 4 characters, max. 128 characters',
         'password_mixed_case'                       => 'Upper and lower case',
         'password_special_chars'                    => 'Special characters (e.g. !?:_., )',
         'password_numbers'                          => 'Numbers',
-        'password_length_hint'                      => 'Your password needs to have at least <strong>4 characters</strong> and may not be longer than <strong>20 characters</strong>.',
+        'password_length_hint'                      => 'Your password needs to have at least <strong>4 characters</strong> and may not be longer than <strong>128 characters</strong>.',
 
         // Tab 1 – Email
         'section_email'                             => 'Email address',
@@ -1195,6 +1117,9 @@ return [
 
         // Controller messages
         'msg_settings_saved'                        => 'Settings saved',
+        'msg_password_incorrect'                    => 'The current password you entered is incorrect.',
+        'msg_password_mismatch'                     => 'The new passwords do not match.',
+        'msg_password_length_invalid'               => 'The new password must be between 4 and 128 characters.',
         'msg_vacation_activated'                    => 'Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.',
         'msg_vacation_deactivated'                  => 'Vacation mode has been deactivated.',
         'msg_vacation_min_duration'                 => 'You can only deactivate vacation mode after the minimum duration of 48 hours has passed.',
@@ -1408,86 +1333,66 @@ return [
         'benefit_espionage_title'    => '1 level will be added to your espionage research.',
         'benefit_espionage'          => '+1 espionage levels',
 
-        // Detail panel keys
+        // ── Detail panel / acquisto ufficiali ──────────────────────────────
         'dark_matter_title'          => 'Dark Matter',
-        'dark_matter_description'    => 'Dark Matter is a substance that can only be found in small quantities and with great effort. It can be used to generate large amounts of energy. The method used to obtain Dark Matter is complex and risky, which makes it particularly precious. Only purchased Dark Matter that is still available can protect against account deletion!',
-        'dark_matter_safe'           => 'Only purchased Dark Matter that is still available can protect against account deletion!',
-        'no_dark_matter_available'   => 'No dark matter available',
-        'buy_dark_matter'            => 'Buy Dark Matter',
-        'advantages_label'           => 'Advantages',
-        'dark_matter_advantages'     => 'Dark Matter allows you to hire Officers and Commander and to pay for merchant offers, planet relocations and items.',
+        'dark_matter_label'          => 'Dark Matter',
+        'no_dark_matter'             => 'You have no Dark Matter available',
+        'dark_matter_description'    => 'Dark Matter is a rare substance that can only be stored with great effort. It allows you to generate large amounts of energy. The process of obtaining Dark Matter is complex and risky, making it extremely valuable.<br><b>Only purchased Dark Matter that is still available can protect against account deletion!</b>',
+        'dark_matter_benefits'       => 'Dark Matter allows you to hire Officers and Commanders, pay merchant offers, move planets, and purchase items.',
         'your_balance'               => 'Your balance',
         'active_until'               => 'Active until :date',
+        'active_for_days'            => 'Active for :days more days',
         'not_active'                 => 'Not active',
         'days'                       => 'days',
         'dm'                         => 'DM',
-        'dark_matter_label'          => 'Dark Matter',
-        'no_dark_matter'             => 'No Dark Matter available',
-        'active_for_days'            => 'Active for another: :days days',
-        'advantages'                 => 'Benefits:',
+        'advantages'                 => 'Advantages:',
+        'buy_dark_matter'            => 'Purchase Dark Matter',
         'confirm_purchase'           => 'Hire this officer for :days days at a cost of :cost Dark Matter?',
         'insufficient_dark_matter'   => 'You do not have enough Dark Matter.',
         'purchase_success'           => 'Officer successfully activated!',
         'purchase_error'             => 'An error occurred. Please try again.',
 
-        // ── Officer titles, descriptions and benefits ─────────────────────
+        // ── Titoli, descrizioni e vantaggi ufficiali ───────────────────────
         'officer_commander_title'        => 'Commander',
         'officer_commander_description'  => 'The Commander has taken on an important role in modern wars. The streamlined command structure allows information to be processed more quickly. With the Commander you will be able to keep your entire empire under control!',
-        'officer_commander_benefits'     => 'With the Commander you will have an overview of the entire empire, one additional mission slot, and the ability to set the order of looted resources.',
+        'officer_commander_benefits'              => 'With the Commander you will have an overview of the entire empire, one additional mission slot, and the ability to set the order of looted resources.',
+        'officer_commander_benefit_favourites'    => 'Manage favourites across your empire',
+        'officer_commander_benefit_queue'         => 'Additional build queue slot',
+        'officer_commander_benefit_scanner'       => 'Empire overview scanner',
+        'officer_commander_benefit_ads'           => 'No ads',
 
-        'officer_admiral_title'          => 'Admiral',
-        'officer_admiral_description'    => 'The Admiral is an experienced veteran and excellent strategist. Even in the fiercest battles, he maintains an overview and stays in contact with the admirals under his command.',
-        'officer_admiral_benefits'       => '+1 expedition slot, ability to set resource priorities after an attack, +20 battle simulator save slots.',
+        'officer_admiral_title'                   => 'Admiral',
+        'officer_admiral_description'             => 'The Admiral is an experienced veteran and excellent strategist. Even in the fiercest battles, he maintains an overview and stays in contact with the admirals under his command.',
+        'officer_admiral_benefits'                => '+1 expedition slot, ability to set resource priorities after an attack, +20 battle simulator save slots.',
+        'officer_admiral_benefit_fleet_slots'     => '+1 fleet slot',
+        'officer_admiral_benefit_expeditions'     => 'Set resource priorities after an attack',
+        'officer_admiral_benefit_escape'          => 'Fleet escape mode',
+        'officer_admiral_benefit_save_slots'      => '+20 battle simulator save slots',
 
-        'officer_engineer_title'         => 'Engineer',
-        'officer_engineer_description'   => 'The Engineer specialises in energy and defense management. In times of peace, he increases the energy produced by planets. In the event of an enemy attack, he reduces defense losses.',
-        'officer_engineer_benefits'      => '+10% energy produced on all planets, 50% of destroyed defenses survive the battle.',
+        'officer_engineer_title'                  => 'Engineer',
+        'officer_engineer_description'            => 'The Engineer specialises in energy and defense management. In times of peace, he increases the energy produced by planets. In the event of an enemy attack, he reduces defense losses.',
+        'officer_engineer_benefits'               => '+10% energy produced on all planets, 50% of destroyed defenses survive the battle.',
+        'officer_engineer_benefit_defence'        => '50% of destroyed defenses survive the battle',
+        'officer_engineer_benefit_energy'         => '+10% energy produced on all planets',
 
-        'officer_geologist_title'        => 'Geologist',
-        'officer_geologist_description'  => 'The Geologist is an expert in astromineralogy and crystallography. Using appropriate equipment, he is able to locate excellent deposits, increasing mine production.',
-        'officer_geologist_benefits'     => '+10% production of metal, crystal and deuterium on all planets.',
+        'officer_geologist_title'                 => 'Geologist',
+        'officer_geologist_description'           => 'The Geologist is an expert in astromineralogy and crystallography. Using appropriate equipment, he is able to locate excellent deposits, increasing mine production.',
+        'officer_geologist_benefits'              => '+10% production of metal, crystal and deuterium on all planets.',
+        'officer_geologist_benefit_mines'         => '+10% production of metal, crystal and deuterium on all planets',
 
-        'officer_technocrat_title'       => 'Technocrat',
-        'officer_technocrat_description' => 'The Technocrat cooperative is made up of brilliant scientists. No normal human being will ever try to decipher a technocrat\'s code; he inspires the empire\'s researchers with his mere presence.',
-        'officer_technocrat_benefits'    => '-25% research time on all technologies.',
+        'officer_technocrat_title'                => 'Technocrat',
+        'officer_technocrat_description'          => 'The Technocrat cooperative is made up of brilliant scientists. No normal human being will ever try to decipher a technocrat\'s code; he inspires the empire\'s researchers with his mere presence.',
+        'officer_technocrat_benefits'             => '-25% research time on all technologies.',
+        'officer_technocrat_benefit_espionage'    => 'Espionage level shown without probe',
+        'officer_technocrat_benefit_research'     => '-25% research time on all technologies',
 
-        'officer_all_officers_title'        => 'Commanding Staff',
-        'officer_all_officers_description'  => 'With this package you will not only secure a specialist, but an entire command staff. You will benefit from all individual officer effects, as well as the extra advantages available only with the package.',
-        'officer_all_officers_benefits'     => 'All the benefits of Commander, Admiral, Engineer, Geologist and Technocrat, plus exclusive extra bonuses available only with the full package.',
-
-        // ── Individual benefit spans (one <span> per checkmark row) ──────────
-        'officer_commander_benefit_favourites' => '+40 favourites',
-        'officer_commander_benefit_queue'      => 'Building queue',
-        'officer_commander_benefit_scanner'    => 'Transport scanner',
-        'officer_commander_benefit_ads'        => 'Advertisement free',
-
-        'officer_admiral_benefit_fleet_slots'  => 'Max. fleet slots +2',
-        'officer_admiral_benefit_expeditions'  => 'Max. expeditions +1',
-        'officer_admiral_benefit_escape'       => 'Improved fleet escape rate',
-        'officer_admiral_benefit_save_slots'   => 'Max. save slots +20',
-
-        'officer_engineer_benefit_defence'     => 'Halves losses to defence systems',
-        'officer_engineer_benefit_energy'      => '+10% energy production',
-
-        'officer_geologist_benefit_mines'      => '+10% mine production',
-
-        'officer_technocrat_benefit_espionage' => '+2 espionage levels',
-        'officer_technocrat_benefit_research'  => '25% less research time',
-
-        'officer_all_officers_benefit_fleet_slots' => 'Max. fleet slots +1',
-        'officer_all_officers_benefit_energy'      => '+2% energy production',
-        'officer_all_officers_benefit_mines'       => '+2% mine production',
-        'officer_all_officers_benefit_espionage'   => '+1 espionage levels',
-
-        // ── Detailed tooltip per officer (HTML, shown below Benefits section) ─
-        'officer_commander_tooltip'    => '<b>+40 favourites</b><p>More favourites allow you to save more messages which can also be shared.</p><br/><b>Build queue</b><p>You can simultaneously start up to 4 additional jobs for buildings and research.</p><br/><b>Cargo information</b><p>The amount of resources transported by your cargoes to your planets is shown.</p><br/><b>No advertising</b><p>You no longer receive any advertising messages about other games, only information about events and special offers relating to OGame.</p>',
-        'officer_admiral_tooltip'      => '<b>Max. fleet slots +2</b><p>You can send 2 additional fleets simultaneously.</p><br/><b>Max. expeditions +1</b><p>You can send 1 additional expedition simultaneously.</p><br/><b>Improved fleet escape rate</b><p>Your fleets have a better chance of retreating from an unfavourable battle.</p><br/><b>Max. save slots +20</b><p>You can save up to 20 additional fleet configurations in the battle simulator.</p>',
-        'officer_engineer_tooltip'     => '<b>Halved defence losses</b><p>50% of defence structures destroyed in battle survive and are automatically repaired.</p><br/><b>+10% energy production</b><p>All power plants and solar satellites produce 10% more energy on every planet.</p>',
-        'officer_geologist_tooltip'    => '<b>+10% mine production</b><p>All metal, crystal and deuterium mines produce 10% more on every planet.</p>',
-        'officer_technocrat_tooltip'   => '<b>+2 espionage levels</b><p>Your espionage technology counts as if it were 2 levels higher for espionage missions.</p><br/><b>25% less research time</b><p>All research is completed 25% faster.</p>',
-        'officer_all_officers_tooltip' => '<b>Max. fleet slots +1</b><p>You can send 1 additional fleet simultaneously.</p><br/><b>+2% energy production</b><p>Your power plants and solar satellites produce 2% more energy.</p><br/><b>+2% mine production</b><p>Your mines produce 2% more metal, crystal and deuterium.</p><br/><b>+1 espionage level</b><p>Your espionage technology counts as if it were 1 level higher for espionage missions.</p>',
-
-        'already_active' => 'Officer already active.',
+        'officer_all_officers_title'              => 'Commanding Staff',
+        'officer_all_officers_description'        => 'With this package you will not only secure a specialist, but an entire command staff. You will benefit from all individual officer effects, as well as the extra advantages available only with the package.',
+        'officer_all_officers_benefits'           => 'All the benefits of Commander, Admiral, Engineer, Geologist and Technocrat, plus exclusive extra bonuses available only with the full package.',
+        'officer_all_officers_benefit_fleet_slots' => 'All fleet slot bonuses',
+        'officer_all_officers_benefit_energy'     => 'All energy bonuses',
+        'officer_all_officers_benefit_mines'      => 'All mine production bonuses',
+        'officer_all_officers_benefit_espionage'  => 'All espionage bonuses',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
@@ -1630,49 +1535,5 @@ return [
         'msg_yes'                       => 'Yes',
         'msg_no'                        => 'No',
         'msg_ok'                        => 'Ok',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Alliance Depot dialog
-    // -------------------------------------------------------------------------
-
-    'alliance_depot' => [
-        'description'        => 'The Alliance Depot allows you to send supply rockets to friendly fleets that are holding at your planet, extending their hold time.',
-        'capacity'           => 'Capacity',
-        'no_fleets'          => 'There are no holding fleets!',
-        'fleet_owner'        => 'Fleet owner',
-        'ships'              => 'Ships',
-        'hold_time'          => 'Hold time',
-        'extend'             => 'Extend',
-        'supply_cost'        => 'Supply cost (deuterium)',
-        'start_supply'       => 'Send supply rocket',
-        'please_select_fleet' => 'Please select a fleet.',
-        'hours_between'      => 'Extension hours must be between 1 and 32.',
-    ],
-
-    // -------------------------------------------------------------------------
-    // Chat
-    // -------------------------------------------------------------------------
-
-    'chat' => [
-        'list_title'         => 'List of your chats',
-        'player_list'        => 'Player list',
-        'alliance_chat'      => 'Alliance Chat',
-        'no_messages_yet'    => 'No messages yet',
-        'no_conversations'   => 'No conversations yet.',
-        'submit'             => 'Send',
-        'buddy_tooltip'      => 'Buddy',
-        'alliance_tooltip'   => 'Alliance member',
-        'status_online'      => 'Online',
-        'status_offline'     => 'Offline',
-        'status_not_visible' => 'Status not visible',
-        'highscore_ranking'  => 'Ranking',
-        'alliance_label'     => 'Alliance',
-        'planet_alt'         => 'Planet',
-        'buddies'            => 'Buddies',
-        'no_buddies'         => 'No buddies',
-        'strangers'          => 'Strangers',
-        'no_strangers'       => 'No strangers',
-        'alliance'           => 'Alliance',
     ],
 ];
