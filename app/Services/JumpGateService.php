@@ -31,6 +31,7 @@ class JumpGateService
      */
     private const NON_TRANSFERABLE_SHIPS = [
         'solar_satellite',
+        'crawler',
     ];
 
     /**
