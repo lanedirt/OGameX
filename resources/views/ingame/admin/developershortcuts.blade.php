@@ -50,6 +50,7 @@
                         </div>
                     </form>
 
+
                     <form action="{{ route('admin.developershortcuts.update') }}" name="form" method="post">
                         {{ csrf_field() }}
                                 <p class="box_highlight textCenter no_buddies">@lang('Update current planet:')</p>

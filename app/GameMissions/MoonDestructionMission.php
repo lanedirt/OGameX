@@ -29,7 +29,7 @@ use OGame\Services\PlayerService;
 
 class MoonDestructionMission extends GameMission
 {
-    protected static string $name = 'Destroy';
+    protected static string $name = 'Moon Destruction';
     protected static int $typeId = 9;
     protected static bool $hasReturnMission = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
@@ -43,7 +43,7 @@ class MoonDestructionMission extends GameMission
 
         // Moon destruction mission is only possible for moons
         if ($targetType !== PlanetType::Moon) {
-            return new MissionPossibleStatus(false, __('Destroy mission can only target moons.'));
+            return new MissionPossibleStatus(false, __('Moon Destruction can only target moons.'));
         }
 
         // Check if target moon exists
@@ -67,7 +67,7 @@ class MoonDestructionMission extends GameMission
         }
 
         if ($deathstarCount === 0) {
-            return new MissionPossibleStatus(false, __('Destroy mission requires at least one Deathstar.'));
+            return new MissionPossibleStatus(false, __('Moon Destruction requires at least one Deathstar.'));
         }
 
         // If target player is in vacation mode, the mission is not possible.

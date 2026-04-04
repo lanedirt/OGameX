@@ -111,16 +111,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $buddyUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $buddyUser->id;
 
-        $buddyPlanet = Planet::factory()->create([
-            'user_id' => $buddyUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 8,
-        ]);
-
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $buddyPlayerService = resolve(PlayerService::class, ['player_id' => $buddyUser->id]);
-        $this->buddyPlanet = $planetServiceFactory->makeForPlayer($buddyPlayerService, $buddyPlanet->id);
+        $this->buddyPlanet = $this->createPlanetAtSafeCoordinate($buddyUser->id);
         $this->buddyUser = $buddyUser;
 
         $buddyService = resolve(BuddyService::class);
@@ -138,11 +129,18 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $defenderUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $defenderUser->id;
 
+        // Place defender 1 system away from the buddy so fleet arrival is fast.
+        $buddyGalaxy  = $this->buddyPlanet->getPlanetCoordinates()->galaxy;
+        $buddySystem  = $this->buddyPlanet->getPlanetCoordinates()->system;
+        $defenderSystem = min(499, $buddySystem + 1);
+        $defenderPosition = collect([13, 14, 15, 1, 2, 3])->first(
+            fn ($p) => !Planet::where('galaxy', $buddyGalaxy)->where('system', $defenderSystem)->where('planet', $p)->exists()
+        );
         $defenderPlanet = Planet::factory()->create([
             'user_id' => $defenderUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 6),
-            'planet' => 9,
+            'galaxy'  => $buddyGalaxy,
+            'system'  => $defenderSystem,
+            'planet'  => $defenderPosition,
         ]);
 
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
@@ -739,11 +737,16 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Create second ACS defender with high tech
         $acsDefender2User = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $acsDefender2User->id;
+        // Place second defender 2 systems away from buddy to keep fleet arrival fast.
+        $acsDefender2System = min(499, $this->buddyPlanet->getPlanetCoordinates()->system + 2);
+        $acsDefender2Position = collect([13, 14, 15, 1, 2, 3])->first(
+            fn ($p) => !Planet::where('galaxy', $this->buddyPlanet->getPlanetCoordinates()->galaxy)->where('system', $acsDefender2System)->where('planet', $p)->exists()
+        );
         $acsDefender2Planet = Planet::factory()->create([
             'user_id' => $acsDefender2User->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 7),
-            'planet' => 10,
+            'galaxy'  => $this->buddyPlanet->getPlanetCoordinates()->galaxy,
+            'system'  => $acsDefender2System,
+            'planet'  => $acsDefender2Position,
         ]);
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $acsDefender2PlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender2User->id]);

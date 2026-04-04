@@ -957,16 +957,16 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Ensure all weights are initialized with their defaults if not already set
         $defaultWeights = [
-            'expedition_weight_ships' => '22',
-            'expedition_weight_resources' => '32.5',
-            'expedition_weight_delay' => '7',
-            'expedition_weight_speedup' => '2',
-            'expedition_weight_nothing' => '26.5',
-            'expedition_weight_black_hole' => '0.3',
-            'expedition_weight_dark_matter' => '9',
-            'expedition_weight_merchant' => '0.7',
-            'expedition_weight_pirates' => '0',
-            'expedition_weight_aliens' => '0',
+            'expedition_weight_ships' => '17',
+            'expedition_weight_resources' => '35',
+            'expedition_weight_delay' => '7.5',
+            'expedition_weight_speedup' => '2.75',
+            'expedition_weight_nothing' => '25',
+            'expedition_weight_black_hole' => '0.2',
+            'expedition_weight_dark_matter' => '7.5',
+            'expedition_weight_merchant' => '0.4',
+            'expedition_weight_pirates' => '3',
+            'expedition_weight_aliens' => '1.5',
         ];
 
         foreach ($defaultWeights as $key => $defaultValue) {
