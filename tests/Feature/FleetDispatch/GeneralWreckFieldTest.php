@@ -109,7 +109,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
             ['machine_name' => 'cruiser', 'quantity' => 31, 'repair_progress' => 0],
         ];
         $returnMission->save();
-        $returnMissionDuration = max(1, $returnMission->time_arrival - now()->timestamp);
+        $returnMissionDuration = max(1, (int) $returnMission->time_arrival - now()->timestamp);
 
         // Process return mission
         $this->travel($returnMissionDuration + 1)->seconds();
