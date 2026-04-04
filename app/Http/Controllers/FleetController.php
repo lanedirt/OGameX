@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace OGame\Http\Controllers;
 
