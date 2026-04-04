@@ -215,11 +215,23 @@
         var giveRate = baseFactor[giveResourceId];
         var receiveRate = tradeFactor[resourceId];
 
+        // Calculate how much budget is already committed by other receive resources
+        var committed = 0;
+        for (var rid in tradeFactor) {
+            var ridInt = parseInt(rid);
+            if (ridInt === giveResourceId || ridInt === parseInt(resourceId)) { continue; }
+            var otherVal = parseInt($('#' + rid + '_value').val().replace(/[,\.]/g, '')) || 0;
+            if (otherVal > 0) {
+                committed += Math.ceil(otherVal * (giveRate / tradeFactor[rid]));
+            }
+        }
+        var remainingBudget = Math.max(0, offer_amount - committed);
+
         var neededAmount = Math.ceil(value * (giveRate / receiveRate));
 
-        // Check if we have enough of the selling resource
-        if (neededAmount > offer_amount) {
-            value = Math.floor(offer_amount * (receiveRate / giveRate));
+        // Check if we have enough of the selling resource (accounting for other resources)
+        if (neededAmount > remainingBudget) {
+            value = Math.floor(remainingBudget * (receiveRate / giveRate));
             neededAmount = Math.ceil(value * (giveRate / receiveRate));
             formatNumber(input, value);
         }
@@ -256,15 +268,25 @@
         // Calculate max based on storage capacity first (ensure integer)
         var maxFromStorage = Math.floor(freeStorage[resourceId]);
 
-        // Calculate max based on available selling resource
-        // We need to ensure that Math.ceil(maxReceive * (giveRate / receiveRate)) <= offer_amount
-        // So we calculate: maxReceive = Math.floor(offer_amount * (receiveRate / giveRate))
-        // But then verify it doesn't exceed what we have when converted back
-        var maxFromAvailable = Math.floor(offer_amount * (receiveRate / giveRate));
+        // Calculate how much budget is already committed by other receive resources
+        var committed = 0;
+        for (var rid in tradeFactor) {
+            var ridInt = parseInt(rid);
+            if (ridInt === giveResourceId || ridInt === parseInt(resourceId)) { continue; }
+            var otherVal = parseInt($('#' + rid + '_value').val().replace(/[,\.]/g, '')) || 0;
+            if (otherVal > 0) {
+                committed += Math.ceil(otherVal * (giveRate / tradeFactor[rid]));
+            }
+        }
+        var remainingBudget = Math.max(0, offer_amount - committed);
+
+        // Calculate max based on remaining selling resource budget
+        // We need to ensure that Math.ceil(maxReceive * (giveRate / receiveRate)) <= remainingBudget
+        var maxFromAvailable = Math.floor(remainingBudget * (receiveRate / giveRate));
 
         // Double-check by calculating how much we'd actually need
         var wouldNeed = Math.ceil(maxFromAvailable * (giveRate / receiveRate));
-        while (wouldNeed > offer_amount && maxFromAvailable > 0) {
+        while (wouldNeed > remainingBudget && maxFromAvailable > 0) {
             maxFromAvailable--;
             wouldNeed = Math.ceil(maxFromAvailable * (giveRate / receiveRate));
         }
