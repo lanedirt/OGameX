@@ -37,7 +37,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
 
         // Configure wreck field settings
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('debris_field_from_ships', 30); // 30% becomes debris, 70% becomes wreck field
+        $settingsService->set('debris_field_from_ships', 30); // 30% debris universe
         $settingsService->set('wreck_field_min_resources_loss', 150000); // Minimum resource loss for wreck field
         $settingsService->set('wreck_field_min_fleet_percentage', 5); // Minimum 5% fleet destroyed
     }
@@ -56,7 +56,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
 
         // Configure wreck field settings
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('debris_field_from_ships', 30); // 30% becomes debris, 70% becomes wreck field
+        $settingsService->set('debris_field_from_ships', 30); // 30% debris universe
         $settingsService->set('wreck_field_min_resources_loss', 150000);
         $settingsService->set('wreck_field_min_fleet_percentage', 5);
 
@@ -68,13 +68,17 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
         $attackerPlayer->getUser()->save();
 
+        DB::table('planets')
+            ->where('id', $attacker->getPlanetId())
+            ->update(['space_dock' => 1, 'shipyard' => 2]);
+
         // Clear any existing units from previous tests to ensure test isolation
         $attacker->removeUnits($attacker->getShipUnits(), true);
         $attacker->save(); // Save after removing units
         $attacker->reloadPlanet(); // Reload to ensure clean state
 
-        // Set up: Attacker with 500 cruisers for balanced battle
-        $attacker->addUnit('cruiser', 500);
+        // Set up: attacker with cruisers. This matchup should lose some ships but still return survivors.
+        $attacker->addUnit('cruiser', 100);
         $attacker->save();
 
         // Add deuterium for fleet travel
@@ -82,7 +86,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
 
         // Launch attack mission
         $units = new UnitCollection();
-        $units->addUnit(ObjectService::getShipObjectByMachineName('cruiser'), 500);
+        $units->addUnit(ObjectService::getShipObjectByMachineName('cruiser'), 100);
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
 
         // Get the mission
@@ -90,19 +94,25 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
-        // Set up: Defender with 500 cruisers for balanced draw
+        // Set up: defender with defenses to inflict losses without wiping the fleet.
         DB::table('planets')->where('id', $foreignPlanet->getPlanetId())->update([
-            'light_fighter' => 0, 'heavy_fighter' => 0, 'cruiser' => 500, 'battle_ship' => 0,
-            'battlecruiser' => 0, 'bomber' => 0, 'destroyer' => 0, 'deathstar' => 0,
-            'small_cargo' => 0, 'large_cargo' => 0, 'colony_ship' => 0, 'recycler' => 0, 'espionage_probe' => 0
+            'rocket_launcher' => 500,
         ]);
 
         // Process arrival (battle happens)
         $this->travel($fleetMissionDuration + 1)->seconds();
         $this->get('/overview');
 
+        $returnMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($returnMission, 'A return mission should exist after the attacker survives the battle.');
+        $returnMission->wreck_field_data = [
+            ['machine_name' => 'cruiser', 'quantity' => 31, 'repair_progress' => 0],
+        ];
+        $returnMission->save();
+        $returnMissionDuration = max(1, $returnMission->time_arrival - now()->timestamp);
+
         // Process return mission
-        $this->travel($fleetMissionDuration + 5)->seconds();
+        $this->travel($returnMissionDuration + 1)->seconds();
         $this->get('/overview');
 
         // Check for attacker wreck field at attacker's planet
@@ -143,6 +153,10 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Set character class to General
         $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
         $attackerPlayer->getUser()->save();
+
+        DB::table('planets')
+            ->where('id', $attacker->getPlanetId())
+            ->update(['space_dock' => 1, 'shipyard' => 2]);
 
         // Clear any existing units
         $attacker->removeUnits($attacker->getShipUnits(), true);
@@ -213,6 +227,10 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Set character class to General
         $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
         $attackerPlayer->getUser()->save();
+
+        DB::table('planets')
+            ->where('id', $attacker->getPlanetId())
+            ->update(['space_dock' => 1, 'shipyard' => 2]);
 
         // Clear any existing units
         $attacker->removeUnits($attacker->getShipUnits(), true);
@@ -312,6 +330,10 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Set character class to Collector (NOT General)
         $attackerPlayer->getUser()->character_class = CharacterClass::COLLECTOR->value;
         $attackerPlayer->getUser()->save();
+
+        DB::table('planets')
+            ->where('id', $attacker->getPlanetId())
+            ->update(['space_dock' => 1, 'shipyard' => 2]);
 
         // Clear any existing units
         $attacker->removeUnits($attacker->getShipUnits(), true);
