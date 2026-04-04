@@ -80,7 +80,7 @@ class FleetTimingController extends OGameController
             ->where('canceled', 0)
             ->firstOrFail();
 
-        $mission->time_arrival = Date::now()->timestamp - 1;
+        $mission->time_arrival = (int) Date::now()->timestamp - 1;
         $mission->time_holding = 0;
         $mission->save();
 
@@ -102,7 +102,7 @@ class FleetTimingController extends OGameController
             $query->where('user_id', (int) $request->input('user_id'));
         }
 
-        $now   = Date::now()->timestamp - 1;
+        $now   = (int) Date::now()->timestamp - 1;
         $count = $query->update(['time_arrival' => $now, 'time_holding' => 0]);
 
         $scope = $request->filled('user_id') ? "for user #{$request->input('user_id')}" : 'globally';
@@ -127,10 +127,10 @@ class FleetTimingController extends OGameController
             ->firstOrFail();
 
         $reduction  = $validated['minutes'] * 60;
-        $newArrival = $mission->time_arrival - $reduction;
+        $newArrival = (int) $mission->time_arrival - $reduction;
 
         // Don't go past "now" — clamp to now-1 so the scheduler picks it up immediately
-        $mission->time_arrival = max($newArrival, Date::now()->timestamp - 1);
+        $mission->time_arrival = max($newArrival, (int) Date::now()->timestamp - 1);
         if ($newArrival <= Date::now()->timestamp) {
             $mission->time_holding = 0;
         }
