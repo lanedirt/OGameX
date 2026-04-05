@@ -196,6 +196,72 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
     }
 
     /**
+     * Verify that a recycle mission launched from a moon returns to the parent planet if the moon
+     * is destroyed before the fleet comes back.
+     */
+    public function testDispatchFleetFromMoonReturnsToPlanetWhenMoonIsDestroyed(): void
+    {
+        // Give the moon its own recycler and fuel so the mission is definitely launched from the moon.
+        $this->moonService->addUnit('recycler', 1);
+        $this->moonService->addResources(new Resources(0, 0, 100000, 0));
+
+        // Create debris at the second planet coordinates.
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
+        $debrisFieldService->save();
+
+        $this->switchToMoon();
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
+        $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $outboundMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration(
+            $this->moonService,
+            $this->secondPlanetService->getPlanetCoordinates(),
+            $unitCollection,
+            resolve(RecycleMission::class)
+        );
+
+        $this->assertSame($this->moonService->getPlanetId(), $outboundMission->planet_id_from, 'Recycle mission should start from the moon for this regression test.');
+
+        // Destroy the moon while the fleet is still in flight.
+        $this->switchToFirstPlanet();
+        $this->moonService->abandonPlanet();
+
+        $this->reloadApplication();
+        $this->switchToFirstPlanet();
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
+        $this->travel($fleetMissionDuration + 1)->seconds();
+
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'Recycle mission should create a return trip even after the moon is destroyed.');
+
+        $returnMission = $activeMissions->first();
+        $this->assertSame($this->planetService->getPlanetId(), $returnMission->planet_id_to, 'Return trip should be rerouted to the parent planet.');
+        $this->assertSame(\OGame\Models\Enums\PlanetType::Planet->value, $returnMission->type_to, 'Return trip should target the parent planet.');
+
+        $returnTripDuration = $returnMission->time_arrival - $returnMission->time_departure;
+        $this->travel($returnTripDuration + 1)->seconds();
+
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'Return trip should complete at the parent planet.');
+
+        $this->planetService->reloadPlanet();
+        $this->assertSame(1, $this->planetService->getObjectLevel('recycler'), 'Recycler should be returned to the parent planet after the moon is destroyed.');
+    }
+
+    /**
      * Verify that an active mission also shows the (not yet existing) return trip in the fleet event list.
      */
     public function testDispatchFleetReturnShown(): void
