@@ -19,6 +19,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use OGame\Services\WreckFieldService;
 
 /**
  * Abstract class BattleEngine.
@@ -316,28 +317,11 @@ abstract class BattleEngine
      */
     protected function calculateWreckField(UnitCollection $defenderUnitsLost, UnitCollection $defenderUnitsStart): array
     {
-        $wreckFieldData = [];
-        $wreckFieldPercentage = (100.0 - $this->settings->debrisFieldFromShips()) / 100;
-
-        // Only ships (not defenses) can go into wreck fields
-        // Exclusions: espionage probes and solar satellites never create wrecks
-        foreach ($defenderUnitsLost->units as $unit) {
-            if ($unit->amount > 0 && $unit->unitObject->type === GameObjectType::Ship) {
-                // Skip espionage probes and solar satellites - they don't create wreckages
-                if (in_array($unit->unitObject->machine_name, ['espionage_probe', 'solar_satellite'], true)) {
-                    continue;
-                }
-
-                $wreckFieldCount = (int) floor($unit->amount * $wreckFieldPercentage);
-                if ($wreckFieldCount > 0) {
-                    $wreckFieldData[] = [
-                        'machine_name' => $unit->unitObject->machine_name,
-                        'quantity' => $wreckFieldCount,
-                        'original_quantity' => $unit->amount,
-                    ];
-                }
-            }
-        }
+        $spaceDockPlanet = $this->defenderPlanet->isMoon() ? $this->defenderPlanet->planet() : $this->defenderPlanet;
+        $spaceDockLevel = max(1, $spaceDockPlanet->getObjectLevel('space_dock'));
+        $wreckFieldService = new WreckFieldService($spaceDockPlanet->getPlayer(), $this->settings);
+        $wreckFieldPercentage = $wreckFieldService->getRecoverableWreckFieldPercentage($spaceDockLevel) / 100;
+        $wreckFieldData = $wreckFieldService->calculateShipsForWreckField($defenderUnitsLost, $spaceDockLevel);
 
         // Check if wreck field conditions are met
         $totalLostValue = $defenderUnitsLost->toResources()->metal->get() +

@@ -100,6 +100,7 @@ class FacilitiesWreckFieldTest extends AccountTestCase
     public function test_complete_repairs_endpoint(): void
     {
         $coords = $this->planetService->getPlanetCoordinates();
+        $initialLightFighters = $this->planetService->getObjectAmount('light_fighter');
 
         $wreckField = new WreckField();
         $wreckField->galaxy = $coords->galaxy;
@@ -125,6 +126,11 @@ class FacilitiesWreckFieldTest extends AccountTestCase
             'error' => false,
         ]);
 
+        $this->planetService->reloadPlanet();
+        $finalLightFighters = $this->planetService->getObjectAmount('light_fighter');
+
+        $this->assertEquals($initialLightFighters + 10, $finalLightFighters);
+
         // Verify wreck field was deleted after all ships collected
         $wreckFieldAfter = WreckField::where('galaxy', $coords->galaxy)
             ->where('system', $coords->system)
@@ -132,6 +138,49 @@ class FacilitiesWreckFieldTest extends AccountTestCase
             ->first();
 
         $this->assertNull($wreckFieldAfter);
+    }
+
+    public function test_complete_repairs_cannot_be_replayed_to_duplicate_ships(): void
+    {
+        $coords = $this->planetService->getPlanetCoordinates();
+        $initialLightFighters = $this->planetService->getObjectAmount('light_fighter');
+
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $coords->galaxy;
+        $wreckField->system = $coords->system;
+        $wreckField->planet = $coords->position;
+        $wreckField->owner_player_id = $this->currentUserId;
+        $wreckField->status = 'completed';
+        $wreckField->created_at = now();
+        $wreckField->expires_at = now()->addHours(72);
+        $wreckField->repair_started_at = now()->subHours(2);
+        $wreckField->repair_completed_at = now()->subHours(1);
+        $wreckField->space_dock_level = 5;
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 100],
+        ];
+        $wreckField->save();
+
+        $firstResponse = $this->postJson(route('facilities.completerepairs'));
+        $firstResponse->assertStatus(200);
+        $firstResponse->assertJson([
+            'success' => true,
+            'error' => false,
+        ]);
+
+        $secondResponse = $this->postJson(route('facilities.completerepairs'));
+        $secondResponse->assertStatus(400);
+        $secondResponse->assertJson([
+            'success' => false,
+            'error' => true,
+            'message' => __('wreck_field.error_no_wreck_field'),
+        ]);
+
+        $this->planetService->reloadPlanet();
+        $finalLightFighters = $this->planetService->getObjectAmount('light_fighter');
+
+        $this->assertEquals($initialLightFighters + 10, $finalLightFighters);
+        $this->assertNull(WreckField::find($wreckField->id));
     }
 
     public function test_complete_repairs_fails_when_not_completed(): void
@@ -235,14 +284,14 @@ class FacilitiesWreckFieldTest extends AccountTestCase
     {
         // No wreck field created — the freshly registered user's planet has none.
         $endpoints = [
-            ['route' => 'facilities.startrepairs', 'method' => 'POST', 'expected_message' => __('wreck_field.error_no_wreck_field')],
-            ['route' => 'facilities.completerepairs', 'method' => 'POST', 'expected_message' => __('wreck_field.error_no_wreck_field')],
-            ['route' => 'facilities.burnwreckfield', 'method' => 'POST', 'expected_message' => __('wreck_field.error_no_wreck_field')],
+            ['route' => 'facilities.startrepairs', 'method' => 'POST', 'expected_message' => __('wreck_field.error_no_wreck_field'), 'expected_status' => 200],
+            ['route' => 'facilities.completerepairs', 'method' => 'POST', 'expected_message' => __('wreck_field.error_no_wreck_field'), 'expected_status' => 400],
+            ['route' => 'facilities.burnwreckfield', 'method' => 'POST', 'expected_message' => __('wreck_field.error_no_wreck_field'), 'expected_status' => 200],
         ];
 
         foreach ($endpoints as $endpoint) {
             $response = $this->json($endpoint['method'], route($endpoint['route']));
-            $response->assertStatus(200);
+            $response->assertStatus($endpoint['expected_status']);
             $response->assertJson([
                 'success' => false,
                 'error' => true,

@@ -404,35 +404,12 @@ abstract class AccountTestCase extends TestCase
      */
     protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12, int $min_system_distance = 0): Coordinate
     {
-        // Get the max galaxies setting to ensure we only create coordinates within valid galaxy bounds.
-        $settingsService = resolve(SettingsService::class);
-        $maxGalaxies = $settingsService->numberOfGalaxies();
-
-        // Ensure the current planet's galaxy is within valid bounds, otherwise use galaxy 1.
-        $currentGalaxy = $this->planetService->getPlanetCoordinates()->galaxy;
-        $galaxy = $currentGalaxy <= $maxGalaxies ? $currentGalaxy : 1;
-
-        // Find a position that has no planet in the same galaxy and up to 10 systems away between position 4-13.
-        $coordinate = new Coordinate($galaxy, 0, 0);
-        $tryCount = 0;
-        while ($tryCount < 100) {
-            $tryCount++;
-            do {
-                $offset = rand(-10, 10);
-            } while ($min_system_distance > 0 && abs($offset) < $min_system_distance);
-            $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + $offset));
-            $coordinate->position = rand($min_position, $max_position);
-            $planetCount = DB::table('planets')
-                ->where('galaxy', $coordinate->galaxy)
-                ->where('system', $coordinate->system)
-                ->where('planet', $coordinate->position)
-                ->count();
-            if ($planetCount == 0) {
-                return $coordinate;
-            }
-        }
-
-        $this->fail('Failed to find an empty coordinate for testing.');
+        return $this->getSafeEmptyCoordinate(
+            $this->planetService->getPlanetCoordinates(),
+            $min_position,
+            $max_position,
+            $min_system_distance
+        );
     }
 
     /**

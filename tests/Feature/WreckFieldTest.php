@@ -3,8 +3,11 @@
 namespace Tests\Feature;
 
 use Exception;
+use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\WreckField;
+use OGame\Services\ObjectService;
+use OGame\Services\SettingsService;
 use OGame\Services\WreckFieldService;
 use Tests\AccountTestCase;
 
@@ -12,7 +15,7 @@ class WreckFieldTest extends AccountTestCase
 {
     private function getWreckFieldService(): WreckFieldService
     {
-        $settingsService = resolve(\OGame\Services\SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         return new WreckFieldService($this->planetService->getPlayer(), $settingsService);
     }
 
@@ -111,6 +114,66 @@ class WreckFieldTest extends AccountTestCase
         $this->assertNotNull($updatedWreckField->repair_started_at);
         $this->assertNotNull($updatedWreckField->repair_completed_at);
         $this->assertEquals(1, $updatedWreckField->space_dock_level);
+    }
+
+    public function test_start_repairs_caps_duration_at_twelve_hours(): void
+    {
+        $coords = $this->getCurrentCoordinate();
+
+        WreckField::factory()->create([
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
+            'status' => 'active',
+            'ship_data' => [
+                ['machine_name' => 'light_fighter', 'quantity' => 5000000, 'repair_progress' => 0],
+            ],
+        ]);
+
+        $wreckFieldService = $this->getWreckFieldService();
+        $wreckFieldService->loadForCoordinates($coords);
+        $wreckFieldService->startRepairs(1);
+
+        $updatedWreckField = $wreckFieldService->getWreckField();
+        $repairDuration = (int) $updatedWreckField->repair_completed_at->timestamp - (int) $updatedWreckField->repair_started_at->timestamp;
+
+        $this->assertEquals(12 * 3600, $repairDuration);
+    }
+
+    public function test_calculate_ships_for_wreck_field_uses_space_dock_formula_in_thirty_percent_debris_universe(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('debris_field_from_ships', 30);
+
+        $destroyedShips = new UnitCollection();
+        $destroyedShips->addUnit(ObjectService::getShipObjectByMachineName('light_fighter'), 1000);
+
+        $wreckFieldService = $this->getWreckFieldService();
+        $levelOneShips = $wreckFieldService->calculateShipsForWreckField($destroyedShips, 1);
+        $levelFifteenShips = $wreckFieldService->calculateShipsForWreckField($destroyedShips, 15);
+
+        // Original OGame formula: 30% debris => 70% non-debris share.
+        // Level 1 stores 31.5% of destroyed ships, level 15 stores 39.2%.
+        $this->assertEquals(315, $levelOneShips[0]['quantity']);
+        $this->assertEquals(392, $levelFifteenShips[0]['quantity']);
+    }
+
+    public function test_calculate_ships_for_wreck_field_uses_space_dock_formula_in_fifty_percent_debris_universe(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('debris_field_from_ships', 50);
+
+        $destroyedShips = new UnitCollection();
+        $destroyedShips->addUnit(ObjectService::getShipObjectByMachineName('light_fighter'), 1000);
+
+        $wreckFieldService = $this->getWreckFieldService();
+        $levelOneShips = $wreckFieldService->calculateShipsForWreckField($destroyedShips, 1);
+        $levelFifteenShips = $wreckFieldService->calculateShipsForWreckField($destroyedShips, 15);
+
+        // Original OGame formula: 50% debris => 50% non-debris share.
+        // Level 1 stores 22.5% of destroyed ships, level 15 stores 28.0%.
+        $this->assertEquals(225, $levelOneShips[0]['quantity']);
+        $this->assertEquals(280, $levelFifteenShips[0]['quantity']);
     }
 
     public function test_complete_repairs(): void
