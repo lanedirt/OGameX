@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\FleetDispatch;
 
+use OGame\Models\Enums\PlanetType;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Carbon;
 use OGame\GameMissions\RecycleMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -246,7 +248,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         $returnMission = $activeMissions->first();
         $this->assertSame($this->planetService->getPlanetId(), $returnMission->planet_id_to, 'Return trip should be rerouted to the parent planet.');
-        $this->assertSame(\OGame\Models\Enums\PlanetType::Planet->value, $returnMission->type_to, 'Return trip should target the parent planet.');
+        $this->assertSame(PlanetType::Planet->value, $returnMission->type_to, 'Return trip should target the parent planet.');
 
         $returnTripDuration = $returnMission->time_arrival - $returnMission->time_departure;
         $this->travel($returnTripDuration + 1)->seconds();
@@ -426,7 +428,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = Carbon::getTestNow()->addMinute();
+        $fleetParentTime = Date::getTestNow()->addMinute();
         $this->travelTo($fleetParentTime);
 
         // Cancel the mission
@@ -459,7 +461,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $this->get('/overview');
