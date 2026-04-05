@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\FleetDispatch;
 
-use OGame\Models\Enums\PlanetType;
 use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Carbon;
 use OGame\GameMissions\RecycleMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
@@ -18,6 +18,11 @@ use Tests\FleetDispatchTestCase;
  */
 class FleetDispatchRecycleTest extends FleetDispatchTestCase
 {
+    /**
+     * @var array<Coordinate>
+     */
+    private array $createdDebrisCoordinates = [];
+
     /**
      * @var int The mission type for the test.
      */
@@ -43,6 +48,18 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
         $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
         $debrisFieldService->save();
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->createdDebrisCoordinates as $coordinate) {
+            $debrisFieldService = resolve(DebrisFieldService::class);
+            if ($debrisFieldService->loadForCoordinates($coordinate)) {
+                $debrisFieldService->delete();
+            }
+        }
+
+        parent::tearDown();
     }
 
     protected function messageCheckMissionArrival(): void
@@ -207,9 +224,12 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $this->moonService->addUnit('recycler', 1);
         $this->moonService->addResources(new Resources(0, 0, 100000, 0));
 
-        // Create debris at the second planet coordinates.
+        // Create debris at a DB-checked empty coordinate to avoid reusing crowded positions.
+        $targetCoordinate = $this->getNearbyEmptyCoordinate(13, 15);
+        $this->createdDebrisCoordinates[] = $targetCoordinate;
+
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadOrCreateForCoordinates($targetCoordinate);
         $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
         $debrisFieldService->save();
 
@@ -217,13 +237,13 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
-        $this->sendMissionToSecondPlanetDebrisField($unitCollection, new Resources(0, 0, 0, 0));
+        $this->dispatchFleet($targetCoordinate, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::DebrisField);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $outboundMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
         $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration(
             $this->moonService,
-            $this->secondPlanetService->getPlanetCoordinates(),
+            $targetCoordinate,
             $unitCollection,
             resolve(RecycleMission::class)
         );
