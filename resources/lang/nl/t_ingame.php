@@ -1294,6 +1294,59 @@ return [
         'benefit_mines'              => '+2% mijnproductie',
         'benefit_espionage_title'    => '1 niveau wordt toegevoegd aan jouw spionageonderzoek.',
         'benefit_espionage'          => '+1 spionageniveaus',
+
+        // ── Officer detail panel ──────────────���──────────────────────────────
+        'active_for_days'            => 'Nog actief: :days dagen',
+        'not_active'                 => 'Niet actief',
+        'advantages'                 => 'Voordelen:',
+        'days'                       => 'dagen',
+        'dark_matter_label'          => 'Donkere Materie',
+        'insufficient_dark_matter'   => 'Niet genoeg Donkere Materie.',
+        'purchase_success'           => 'Officier succesvol geactiveerd.',
+        'already_active'             => 'Officier is al actief.',
+        'purchase_error'             => 'Er is een fout opgetreden. Probeer het opnieuw.',
+
+        // ── Officer titles, descriptions & benefits ──────────────────────────
+        'officer_commander_title'       => 'Commandant',
+        'officer_commander_description' => 'De Commandant speelt een belangrijke rol in de moderne oorlogsvoering. Dankzij de gestroomlijnde commandostructuur kan informatie sneller worden verwerkt. Met de Commandant houd je jouw hele imperium onder controle!',
+        'officer_commander_benefit_favourites' => 'Favorieten beheren in het hele imperium',
+        'officer_commander_benefit_queue'      => 'Extra bouwwachtrij-slot',
+        'officer_commander_benefit_scanner'    => 'Imperiumoverzicht-scanner',
+        'officer_commander_benefit_ads'        => 'Geen advertenties',
+        'officer_commander_tooltip'            => '<b>Favorieten beheren</b><p>Meer favorieten voor je imperium.</p>',
+
+        'officer_admiral_title'       => 'Admiraal',
+        'officer_admiral_description' => 'De Admiraal is een ervaren veteraan en uitstekend strateeg. Zelfs in de hevigste gevechten behoudt hij het overzicht.',
+        'officer_admiral_benefit_fleet_slots'  => '+1 vlootslot',
+        'officer_admiral_benefit_expeditions'  => 'Stel resourceprioriteit in na een aanval',
+        'officer_admiral_benefit_escape'       => 'Vluchttactieken',
+        'officer_admiral_benefit_save_slots'   => '+20 simulator-slots',
+        'officer_admiral_tooltip'              => '<b>+1 vlootslot</b><p>Extra vlootslot voor je vloot.</p>',
+
+        'officer_engineer_title'       => 'Ingenieur',
+        'officer_engineer_description' => 'De Ingenieur is gespecialiseerd in energiebeheer en verdediging. In vredestijd verhoogt hij de energieproductie; bij aanvallen vermindert hij verdedigingsverliezen.',
+        'officer_engineer_benefit_defence' => '50% van vernietigde verdedigingen overleeft de strijd',
+        'officer_engineer_benefit_energy'  => '+10% energieproductie op alle planeten',
+        'officer_engineer_tooltip'         => '<b>+10% energie</b><p>Meer energieproductie op al je planeten.</p>',
+
+        'officer_geologist_title'       => 'Geoloog',
+        'officer_geologist_description' => 'De Geoloog is expert in astrominersalogie. Met de juiste uitrusting lokaliseert hij uitstekende ertsvelden en verhoogt de mijnproductie.',
+        'officer_geologist_benefit_mines' => '+10% productie van metaal, kristal en deuterium',
+        'officer_geologist_tooltip'       => '<b>+10% mijnproductie</b><p>Meer grondstoffen op al je planeten.</p>',
+
+        'officer_technocrat_title'       => 'Technocraat',
+        'officer_technocrat_description' => 'De Technocraat-coöperatie bestaat uit briljante wetenschappers. Zijn aanwezigheid inspireert de onderzoekers van het imperium.',
+        'officer_technocrat_benefit_espionage' => 'Spionageniveau zichtbaar zonder sonde',
+        'officer_technocrat_benefit_research'  => '-25% onderzoekstijd op alle technologieën',
+        'officer_technocrat_tooltip'           => '<b>-25% onderzoekstijd</b><p>Snellere onderzoeken in het hele imperium.</p>',
+
+        'officer_all_officers_title'       => 'Commandostaf',
+        'officer_all_officers_description' => 'Met dit pakket huur je niet alleen een specialist in, maar een heel stafteam. Je profiteert van alle voordelen van de individuele officieren plus exclusieve extra bonussen.',
+        'officer_all_officers_benefit_fleet_slots' => 'Alle vlootslot-bonussen',
+        'officer_all_officers_benefit_energy'      => 'Alle energiebonussen',
+        'officer_all_officers_benefit_mines'       => 'Alle mijnproductiebonussen',
+        'officer_all_officers_benefit_espionage'   => 'Alle spionagebonussen',
+        'officer_all_officers_tooltip'             => '<b>Alle bonussen</b><p>Alle voordelen van alle officieren gecombineerd.</p>',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────

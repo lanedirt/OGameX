@@ -3,61 +3,56 @@
 return [
     'metal_mine' => [
         'title'            => 'Miniera di Metallo',
-        'description'      => 'Utilizzate nell\'estrazione del minerale di metallo, le miniere di metallo sono di primaria importanza per tutti gli imperi emergenti e consolidati.',
-        'description_long' => 'Il metallo è la risorsa primaria utilizzata nella fondazione del tuo Impero. A profondità maggiori, le miniere possono produrre una quantità maggiore di metallo utilizzabile per la costruzione di edifici, navi, sistemi difensivi e ricerche. Man mano che le miniere scavano più in profondità, è necessaria più energia per la massima produzione. Poiché il metallo è la risorsa più abbondante tra quelle disponibili, il suo valore è considerato il più basso di tutte le risorse nel commercio.',
+        'description'      => 'La miniera di metallo fornisce le risorse base per un impero emergente e permette la realizzazione di costruzioni e navi.',
+        'description_long' => 'Il metallo rappresenta la risorsa di base necessaria per la costruzione del tuo impero, esso consente infatti di realizzare costruzioni, navi, sistemi di difesa. Il metallo è la materia prima più economica, la sua estrazione richiede infatti un basso dispendio energetico e proprio per questo esso è molto più usato delle altre risorse. Il metallo si trova a profondità molto elevate, questo comporta la costruzione di miniere sempre più profonde e quindi un consumo maggiore di energia per farle funzionare.',
     ],
 
     'crystal_mine' => [
-        'title'            => 'Miniera di Cristallo',
-        'description'      => 'I cristalli sono la principale risorsa utilizzata per costruire circuiti elettronici e formare determinati composti in lega.',
-        'description_long' => 'Le miniere di cristallo forniscono la risorsa principale per produrre circuiti elettronici e determinati composti in lega. L\'estrazione del cristallo consuma circa una volta e mezza più energia dell\'estrazione del metallo, rendendolo più prezioso. Quasi tutte le navi e tutti gli edifici richiedono cristallo. La maggior parte dei cristalli necessari per costruire astronavi è però molto rara e, come il metallo, può essere trovata solo a una certa profondità. Pertanto, costruire miniere negli strati più profondi aumenterà la quantità di cristallo prodotta.',
+        'title'            => 'Miniera di Cristalli',
+        'description'      => 'I cristalli sono la principale risorsa utilizzata per la costruzione di componenti elettronici e per la formazione di alcune leghe metalliche.',
+        'description_long' => 'I cristalli sono la principale risorsa utilizzata per la costruzione di componenti elettronici e per la formazione di alcune leghe metalliche. La distruzione dei cristalli richiede una volta e mezza l`energia impiegata per la distruzione dei metalli; per questo motivo i cristalli hanno un prezzo molto più elevato. Quasi tutte le navi e le infrastrutture richiedono una certa quantità di cristalli, ma quelli adatti allo scopo sono piuttosto rari e giacciono a grandi profondità. Per questo motivo, l`ampliamento delle miniere in profondità rappresenta una fonte di accesso ad una maggiore quantità di cristalli.',
     ],
 
     'deuterium_synthesizer' => [
-        'title'            => 'Sintetizzatore di Deuterio',
-        'description'      => 'I sintetizzatori di deuterio estraggono il contenuto residuo di deuterio dall\'acqua presente su un pianeta.',
-        'description_long' => 'Il deuterio è detto anche idrogeno pesante. È un isotopo stabile dell\'idrogeno con un\'abbondanza naturale negli oceani delle colonie di circa un atomo su 6500 di idrogeno (~154 PPM). Il deuterio rappresenta quindi circa lo 0,015% (in peso, 0,030%) del totale. Viene elaborato da speciali sintetizzatori in grado di separare l\'acqua dal deuterio tramite centrifughe appositamente progettate. Il potenziamento del sintetizzatore consente di aumentare la quantità di depositi di deuterio elaborati. Il deuterio viene utilizzato per eseguire scansioni con il sensore falanx, visualizzare la galassia, come carburante per le navi e per eseguire speciali aggiornamenti di ricerca.',
+        'title'            => 'Sintetizzatore di deuterio',
+        'description'      => 'Il sintetizzatore di deuterio estrae piccole quantità di deuterio dall`acqua di un pianeta.',
+        'description_long' => 'Il deuterio si estrae dall`acqua pesante. Il nucleo di idrogeno contiene un neutrone in più ed è molto adatto come carburante data la grande produzione di energia che si ottiene dalla reazione deuterio-trizio (D-T). Il deuterio può essere trovato spesso negli abissi oceanici grazie al suo elevato peso molecolare e migliorare il sintetizzatore di deuterio rende possibile l`estrazione di queste risorse.',
     ],
 
     'solar_plant' => [
-        'title'            => 'Centrale Solare',
-        'description'      => 'Le centrali solari assorbono energia dalla radiazione solare. Tutte le miniere necessitano di energia per funzionare.',
-        'description_long' => 'Enormi pannelli solari vengono utilizzati per generare energia per le miniere e il sintetizzatore di deuterio. Man mano che la centrale solare viene potenziata, la superficie delle celle fotovoltaiche che ricoprono il pianeta aumenta, determinando una maggiore produzione di energia nelle reti elettriche del tuo pianeta.',
+        'title'            => 'Centrale solare',
+        'description'      => 'Le centrali solari convertono l`energia fotonica solare in energia elettrica da utilizzarsi per alimentare la maggior parte delle strutture.',
+        'description_long' => 'Per fornire l`energia necessaria alle strutture sono richiesti impianti enormi. Una centrale solare è un modo per creare questa energia. Essa sfrutta i semiconduttori per i pannelli fotovoltaici che convertono i fotoni in corrente elettrica. Più sarà alto il livello della centrale solare più lo sarà l`area dove avviene la conversione e quindi sarà generata una maggiore quantità d`energia. Le centrali solari sono la spina dorsale delle infrastrutture planetarie.',
     ],
 
     'fusion_plant' => [
-        'title'            => 'Reattore a Fusione',
-        'description'      => 'Il reattore a fusione utilizza deuterio per produrre energia.',
-        'description_long' => 'Nelle centrali a fusione, i nuclei di idrogeno si fondono in nuclei di elio a temperature e pressioni enormi, rilasciando quantità straordinarie di energia. Per ogni grammo di deuterio consumato è possibile produrre fino a 41,32×10⁻¹³ Joule di energia; con 1 g è possibile produrre 172 MWh di energia.
-
-Complessi di reattori più grandi utilizzano più deuterio e possono produrre più energia all\'ora. L\'effetto energetico può essere aumentato ricercando la tecnologia energetica.
-
-La produzione di energia del reattore a fusione viene calcolata come segue:
-30 × [Livello Reattore a Fusione] × (1,05 + [Livello Tecnologia Energetica] × 0,01) ^ [Livello Reattore a Fusione]',
+        'title'            => 'Centrale a Fusione',
+        'description'      => 'Una centrale a fusione nucleare produce un atomo di elio partendo da due di deuterio utilizzando pressioni e temperature estremamente alte.',
+        'description_long' => 'Nella centrale a fusione, i nuclei di idrogeno sono fusi in elio tramite un`elevatissima temperatura e pressione, rilasciando ingenti quantità di energia. Per ogni grammo di Deuterio consumato, possono essere prodotte fino a 41,32*10^-13 Joule di energia; con un grammo puoi produrre 172 MWh di energia.Reattori più grandi possono usare più deuterio e produrre più energia ogni ora. Miglioramenti si possono avere ricercando la tecnologia energetica.La produzione di energia della centrale a fusione è calcolata secondo questa formula:30 * [Livello Centrale a Fusione] * (1,05 + [Livello Tecnologia Energetica] * 0,01) ^  [Livello Centrale a Fusione]',
     ],
 
     'metal_store' => [
-        'title'            => 'Deposito di Metallo',
-        'description'      => 'Fornisce spazio di stoccaggio per il metallo in eccesso.',
-        'description_long' => 'Questa enorme struttura di stoccaggio viene utilizzata per immagazzinare il minerale di metallo. Ogni livello di potenziamento aumenta la quantità di minerale che può essere immagazzinata. Se i depositi sono pieni, non verrà estratto altro metallo.
+        'title'            => 'Deposito di metallo',
+        'description'      => 'Deposito di stoccaggio per metallo grezzo.',
+        'description_long' => 'Magazzini enormi per il deposito di metalli grezzi. Più grandi sono, più Metallo è possibile stoccarvi. Una volta raggiunto il limite di stoccaggio, non è più possibile estrarre altro Metallo.
 
-Il Deposito di Metallo protegge una certa percentuale della produzione giornaliera della miniera (massimo 10 percento).',
+Il Deposito di Metalli protegge una certa percentuale della produzione giornaliera della miniera (al massimo il 10%).',
     ],
 
     'crystal_store' => [
-        'title'            => 'Deposito di Cristallo',
-        'description'      => 'Fornisce spazio di stoccaggio per il cristallo in eccesso.',
-        'description_long' => 'Il cristallo non elaborato viene conservato nel frattempo in questi enormi magazzini. Con ogni livello di potenziamento aumenta la quantità di cristallo che può essere immagazzinata. Se i depositi di cristallo sono pieni, non verrà estratto altro cristallo.
+        'title'            => 'Deposito di cristalli',
+        'description'      => 'Deposito di stoccaggio per cristalli non processati.',
+        'description_long' => 'Il Cristallo non ancora elaborato viene temporaneamente depositato in questi enormi magazzini. Più grande è il deposito, più Cristallo è possibile stoccarvi. Una volta raggiunto il limite di stoccaggio, non è più possibile estrarre altro Cristallo.
 
-Il Deposito di Cristallo protegge una certa percentuale della produzione giornaliera della miniera (massimo 10 percento).',
+Il Deposito di Cristalli protegge una certa percentuale della produzione giornaliera della miniera (al massimo il 10%).',
     ],
 
     'deuterium_store' => [
-        'title'            => 'Cisterna di Deuterio',
-        'description'      => 'Enormi cisterne per immagazzinare il deuterio appena estratto.',
-        'description_long' => 'La cisterna di deuterio serve per immagazzinare il deuterio appena sintetizzato. Una volta elaborato dal sintetizzatore, viene convogliato in questa cisterna per un uso successivo. Con ogni potenziamento della cisterna, la capacità di stoccaggio totale aumenta. Una volta raggiunta la capacità massima, non verrà sintetizzato altro deuterio.
+        'title'            => 'Cisterna di deuterio',
+        'description'      => 'Sono cisterne che contengono il deuterio appena prodotto in attesa d`utilizzo.',
+        'description_long' => 'Enormi cisterne che contengono il Deuterio appena estratto. Solitamente questi magazzini si trovano nei pressi del Cantiere Spaziale. Più grandi sono, più materiale è possibile stoccarvi. Una volta raggiunto il limite di stoccaggio, non è più possibile estrarre altro Deuterio.
 
-La Cisterna di Deuterio protegge una certa percentuale della produzione giornaliera del sintetizzatore (massimo 10 percento).',
+La Cisterna di Deuterio protegge una certa percentuale della produzione giornaliera della miniera (al massimo il 10%).',
     ],
 
     // -------------------------------------------------------------------------
@@ -65,62 +60,59 @@ La Cisterna di Deuterio protegge una certa percentuale della produzione giornali
     // -------------------------------------------------------------------------
 
     'robot_factory' => [
-        'title'            => 'Fabbrica di Robot',
-        'description'      => 'Le fabbriche di robot forniscono robot da costruzione per assistere nell\'edificazione degli edifici. Ogni livello aumenta la velocità di potenziamento degli edifici.',
-        'description_long' => 'L\'obiettivo principale della fabbrica di robot è la produzione di robot da costruzione all\'avanguardia. Ogni potenziamento della fabbrica porta alla produzione di robot più veloci, che riducono i tempi necessari per costruire gli edifici.',
+        'title'            => 'Fabbrica dei Robot',
+        'description'      => 'Le fabbriche dei robots forniscono unità di costruzione economiche ed affidabili che possono essere usate per costruire o migliorare qualsiasi struttura planetaria. Ogni livello aggiuntivo aumenta l`efficienza e la quantità di unità robotiche che aiutano la costruzione.',
+        'description_long' => 'Le fabbriche dei robots forniscono unità di costruzione economiche ed affidabili che possono essere usate per costruire o migliorare qualsiasi struttura planetaria. Ogni livello aggiuntivo aumenta l`efficienza e la quantità di unità robotiche che aiutano la costruzione.',
     ],
 
     'shipyard' => [
         'title'            => 'Cantiere Spaziale',
-        'description'      => 'Tutti i tipi di navi e strutture difensive vengono costruiti nel Cantiere Spaziale planetario.',
-        'description_long' => 'Il Cantiere Spaziale planetario è responsabile della costruzione di astronavi e meccanismi difensivi. Man mano che il Cantiere Spaziale viene potenziato, può produrre una varietà più ampia di veicoli a una velocità molto maggiore. Se sul pianeta è presente una fabbrica di naniti, la velocità di costruzione delle navi aumenta enormemente.',
+        'description'      => 'Il Cantiere Spaziale è il luogo dove vengono costruite le navi e le strutture difensive.',
+        'description_long' => 'Il Cantiere Spaziale è il fondamento per la tua campagna intergalattica. È il luogo dove vengono costruite le navi con le quali potrai conquistare mondi lontani e le strutture difensive che proteggono i tuoi pianeti dagli attacchi nemici. Man mano che il cantiere si ingrandisce aumenteranno la sua velocità di produzione e la sua capacità permettendo di produrre sempre più navi e strutture difensive.',
     ],
 
     'research_lab' => [
         'title'            => 'Laboratorio di Ricerca',
-        'description'      => 'Un laboratorio di ricerca è necessario per condurre ricerche su nuove tecnologie.',
-        'description_long' => 'Parte essenziale di qualsiasi impero, i Laboratori di Ricerca sono il luogo in cui vengono scoperte nuove tecnologie e quelle esistenti vengono migliorate. Con ogni livello costruito, la velocità con cui vengono ricercate nuove tecnologie aumenta, sbloccando al contempo tecnologie sempre più avanzate. Per condurre le ricerche nel più breve tempo possibile, gli scienziati vengono immediatamente inviati nella colonia per iniziare i lavori. In questo modo la conoscenza delle nuove tecnologie può essere facilmente diffusa in tutto l\'impero.',
+        'description'      => 'Il laboratorio è indispensabile per compiere ricerche su nuove tecnologie.',
+        'description_long' => 'Per poter condurre ricerche in nuove aree della tecnologia è necessario un laboratorio di ricerca. La crescita di livello del laboratorio porta non solo alla crescita della velocità delle ricerche, ma apre anche nuove frontiere di ricerca. Per condurre ricerche nel minor tempo possibile tutto il personale di ricerca dell`impero è inviato al pianeta dove la ricerca viene avviata. Non appena essa è completa, gli scienziati tornano al proprio pianeta portandosi dietro le conoscenze sulla nuova tecnologia. In questo modo la conoscenza delle nuove tecnologie viene divulgata in tutto l`impero.',
     ],
 
     'alliance_depot' => [
-        'title'            => 'Deposito dell\'Alleanza',
-        'description'      => 'Il deposito dell\'alleanza rifornisce di carburante le flotte amiche in orbita che contribuiscono alla difesa.',
-        'description_long' => 'Il deposito dell\'alleanza rifornisce di carburante le flotte amiche in orbita che contribuiscono alla difesa. Per ogni livello di potenziamento del deposito, una specifica quantità di deuterio all\'ora può essere inviata a una flotta in orbita.',
+        'title'            => 'Base di appoggio',
+        'description'      => 'La base d`appoggio offre la possibilità di rifornirsi alle flotte amiche in orbita che aiutano a difenderti.',
+        'description_long' => 'La base d`appoggio offre la possibilità di rifornirsi alle flotte amiche in orbita che aiutano a difenderti. Ogni livello aggiuntivo di questa struttura, permette di inviare ogni ora, una certa quantità di deuterio alle flotte che sono in orbita.',
     ],
 
     'missile_silo' => [
-        'title'            => 'Silo per Missili',
-        'description'      => 'I silos per missili vengono utilizzati per immagazzinare i missili.',
-        'description_long' => 'I silos per missili vengono utilizzati per costruire, immagazzinare e lanciare missili interplanetari e missili anti-balistici. Con ogni livello del silo possono essere immagazzinati cinque missili interplanetari o dieci missili anti-balistici. Un missile interplanetario occupa lo stesso spazio di due missili anti-balistici. È consentito lo stoccaggio contemporaneo di missili interplanetari e anti-balistici nello stesso silo.',
+        'title'            => 'Base missilistica',
+        'description'      => 'La base missilistica è una struttura di lancio e di stoccaggio di missili planetari.',
+        'description_long' => 'La base missilistica è una struttura di lancio e di stoccaggio di missili planetari. Hai spazio per 5 missili interplanetari o 10 antimissili per ogni livello della tua base . E` possibile utilizzare gli spazi con combinazioni diverse; 1 missile interplanetario occupa 2 spazi, gli antimissili 1.',
     ],
 
     'nano_factory' => [
-        'title'            => 'Fabbrica di Naniti',
-        'description'      => 'Questa rappresenta il massimo della tecnologia robotica. Ogni livello riduce i tempi di costruzione di edifici, navi e difese.',
-        'description_long' => 'Un nanorobot, detto anche nanite, è un dispositivo meccanico o elettromeccanico le cui dimensioni sono misurate in nanometri (milionesimi di millimetro, ovvero unità di 10^-9 metro). La ridotta dimensione dei nanomachinari si traduce in una maggiore velocità operativa. Questa fabbrica produce naniti che rappresentano la massima evoluzione della tecnologia robotica. Una volta costruita, ogni potenziamento riduce significativamente i tempi di produzione di edifici, navi e strutture difensive.',
+        'title'            => 'Fabbrica dei Naniti',
+        'description'      => 'La Fabbrica dei Naniti è l`ultima evoluzione della robotica. Ogni livello aggiuntivo dimezza il tempo di costruzione di edifici, navi spaziali e strutture difensive.',
+        'description_long' => 'La Fabbrica dei Naniti è l`ultima evoluzione della robotica. Ogni livello aggiuntivo dimezza il tempo di costruzione di edifici, navi spaziali e strutture difensive.
+I naniti sono delle unità robotiche di dimensioni medie pari a qualche nanometro, che formando un reticolo sono in grado, in pochi secondi, di trasformarsi in strumenti di lavoro precisi.
+Ogni livello aggiuntivo della Fabbrica dei naniti dimezza il tempo di costruzione di edifici, navi spaziali e strutture difensive.',
     ],
 
     'terraformer' => [
         'title'            => 'Terraformer',
-        'description'      => 'Il terraformer aumenta la superficie utilizzabile dei pianeti.',
-        'description_long' => 'Con il crescente sviluppo sui pianeti, anche lo spazio abitabile per le colonie diventa sempre più limitato. I metodi tradizionali come costruzioni in altezza e sotterranee si rivelano progressivamente insufficienti. Un piccolo gruppo di fisici ad alta energia e nano-ingegneri è giunto alla soluzione: la terraformazione.
-Sfruttando enormi quantità di energia, il terraformer è in grado di rendere coltivabili interi tratti di terra o persino interi continenti. Questo edificio ospita la produzione di naniti creati specificamente a questo scopo, che garantiscono una qualità del suolo uniforme ovunque.
-
-Ogni livello del terraformer consente di coltivare 5 campi aggiuntivi. Con ogni livello, il terraformer occupa da sé un campo. Ogni 2 livelli di terraformer si riceve 1 campo bonus.
-
-Una volta costruito, il terraformer non può essere smantellato.',
+        'description'      => 'Il terraformer è richiesto per rendere edificabili aree del tuo pianeta altrimenti inaccessibili.',
+        'description_long' => 'A causa del crescente sviluppo dei pianeti, lo spazio vitale delle colonie è sempre più limitato. I metodi tradizionali come la costruzione del soprassuolo e dell`edilizia sotterranea non si sono dimostrati sufficienti. Un piccolo gruppo di nanotecnologi ha trovato la soluzione: il terraformingUsando grandi quantità di energia è possibile effettuare il terraforming su vaste estensioni di territorio, arrivando a bonificare interi continenti. In questo edificio vengono costruiti dei naniti specificamente progettati, che garantiscono la qualità del suolo.
+Per ogni livello di terraformer è possibile creare 5 spazi. Ogni livello del terraformer occupa uno spazio. Ogni 2 livelli di terraformer ricevi 1 spazio extra.Una volta costruito, il terraformer non può essere smantellato.',
     ],
 
     'space_dock' => [
-        'title'            => 'Bacino di Carenaggio',
-        'description'      => 'I relitti possono essere riparati nel Bacino di Carenaggio.',
-        'description_long' => 'Il Bacino di Carenaggio offre la possibilità di riparare le navi distrutte in battaglia che hanno lasciato dei relitti. Il tempo di riparazione è di massimo 12 ore, ma occorrono almeno 30 minuti prima che le navi possano essere rimesse in servizio.
+        'title'            => 'Porto Spaziale',
+        'description'      => 'Nel Porto Spaziale possono essere riparati i relitti delle navi.',
+        'description_long' => 'Nel Porto Spaziale è possibile riparare le navi distrutte che, in seguito a un combattimento, sono diventate relitti. La riparazione richiede al massimo 12 ore, ma servono almeno 30 minuti prima di poter rimettere in servizio le navi.
 
-Le riparazioni devono iniziare entro 3 giorni dalla creazione del relitto. Le navi riparate devono essere rimesse in servizio manualmente al termine delle riparazioni. In caso contrario, le singole navi vengono automaticamente rimesse in servizio dopo 3 giorni.
+Dal momento in cui si forma il relitto, si hanno 3 giorni di tempo per avviare la riparazione. Al termine della riparazione, le navi riparate devono essere rimesse in servizio. In caso contrario, le varie tipologie di nave si riattiveranno singolarmente dopo 3 giorni.
+Il relitto si forma solo se sono state distrutte più di 150.000 unità.
 
-I relitti appaiono solo se sono stati distrutti più di 150.000 unità, incluse le proprie navi che hanno partecipato al combattimento con un valore di almeno il 5% dei punti nave.
-
-Poiché il Bacino di Carenaggio orbita nello spazio, non richiede un campo planetario.',
+Fluttuando nell`orbita, il Porto Spaziale non ha bisogno di Spazi pianeta.',
     ],
 
     'lunar_base' => [
@@ -149,317 +141,281 @@ Per utilizzare il Falanx, clicca su qualsiasi pianeta nella Vista Galattica all\
 
     'energy_technology' => [
         'title'            => 'Tecnologia Energetica',
-        'description'      => 'Il controllo di diversi tipi di energia è necessario per molte nuove tecnologie.',
-        'description_long' => 'Con il progredire di vari campi di ricerca, si scoprì che la tecnologia attuale di distribuzione dell\'energia non era sufficientemente avanzata per avviare alcune ricerche specializzate. Con ogni potenziamento della Tecnologia Energetica, nuove ricerche possono essere condotte, sbloccando lo sviluppo di navi e difese più sofisticate.',
+        'description'      => 'Comprendendo la tecnologia che sta dietro i vari tipi di energia, possono esserne adottate di nuove e più avanzate. La tecnologia energetica è di somma importanza per un laboratorio moderno.',
+        'description_long' => 'La tecnologia energetica ha a che fare con la conoscenza e il raffinamento delle sorgenti di energia, dei problemi di stoccaggio e delle tecnologie che forniscono il componente fondamentale di oggi: l`energia. Più questa tecnologia è sviluppata, più saranno efficienti i tuoi sistemi. Certi livelli di avanzamento sono addirittura richiesti per poter raggiungere altre tecnologie specifiche che si basano sulla conoscenza dell`energia.',
     ],
 
     'laser_technology' => [
-        'title'            => 'Tecnologia Laser',
-        'description'      => 'Concentrare la luce produce un raggio che causa danni quando colpisce un oggetto.',
-        'description_long' => 'I laser (amplificazione della luce tramite emissione stimolata di radiazioni) producono un\'emissione intensa e ricca di energia di luce coerente. Questi dispositivi possono essere utilizzati in molti settori, dai computer ottici alle pesanti armi laser che tagliano effortlessly le armature. La tecnologia laser fornisce una base importante per la ricerca di altre tecnologie belliche.',
+        'title'            => 'Tecnologia dei Laser',
+        'description'      => 'Il fascio di luce genera un raggio in grado di danneggiare l`oggetto che ne viene colpito.',
+        'description_long' => 'I laser (Light Amplification by Stimulated Emission of Radiation) producono un raggio intenso ed energico di luce coerente. Le unità laser hanno un`ampia gamma di utilizzo: dalla navigazione giroscopica ai computer ottici o sistemi d`armamento, la tecnologia laser rappresenta un tassello fondamentale per lo studio di ulteriori tecnologie delle armi.',
     ],
 
     'ion_technology' => [
-        'title'            => 'Tecnologia Ionica',
-        'description'      => 'La concentrazione di ioni consente la costruzione di cannoni in grado di infliggere danni enormi e ridurre i costi di demolizione per livello del 4%.',
-        'description_long' => 'Gli ioni possono essere concentrati e accelerati in un fascio letale. Questi fasci possono infliggere danni enormi. I nostri scienziati hanno anche sviluppato una tecnica che riduce significativamente i costi di demolizione per edifici e sistemi. Per ogni livello di ricerca, i costi di demolizione si riducono del 4%.',
+        'title'            => 'Tecnologia ionica',
+        'description'      => 'Attraverso la concentrazione di ioni si possono costruire cannoni in grado di arrecare danni seri e ridurre i costi di demolizione degli edifici per ogni livello di un 4%.',
+        'description_long' => 'Gli ioni possono essere concentrati e accelerati in un fascio direttivo mortale. Questi raggi possono causare danni seri. I nostri scienziati hanno elaborato una tecnica in grado di abbassare notevolmente i costi di demolizione di edifici e complessi. Per ciascun livello di ricerca i costi di demolizione si riducono di un 4%.',
     ],
 
     'hyperspace_technology' => [
-        'title'            => 'Tecnologia Iperspaziale',
-        'description'      => 'Integrando la 4ª e la 5ª dimensione è ora possibile ricercare un nuovo tipo di propulsore più economico ed efficiente.',
-        'description_long' => 'In teoria, l\'idea del viaggio iperspaziale si basa sull\'esistenza di una dimensione separata e adiacente. Quando attivato, un motore iperspaziale sposta l\'astronave in questa altra dimensione, dove può coprire enormi distanze in un tempo notevolmente ridotto rispetto al normale spazio. Una volta raggiunto il punto nell\'iperspazio corrispondente alla destinazione nello spazio reale, l\'astronave riaffiora.
-Una volta raggiunto un livello sufficiente di Tecnologia Iperspaziale, il Motore Iperspaziale non è più solo una teoria. Ogni miglioramento di questo motore aumenta la capacità di carico delle navi equipaggiate del 5% del valore base.',
+        'title'            => 'Tecnologia iperspaziale',
+        'description'      => 'Incorporando la quarta e la quinta dimensione nelle tecnologie di propulsione si rende disponibile un nuovo sistema di propulsione, molto più efficiente e che usa meno carburante dei sistemi tradizionali. Ora, se si utilizzano la quarta e la quinta dimensione, è possibile manipolare lo spazio della stiva della propria nave.',
+        'description_long' => 'Incorporando la quarta e la quinta dimensione nelle tecnologie di propulsione si rende disponibile un nuovo sistema di propulsione, molto più efficiente e che usa meno carburante dei sistemi tradizionali. Inoltre la tecnologia iperspaziale fornisce la base per i viaggi iperspaziali che sono usati dalle grandi navi da guerra (come i portali dimensionali). È una nuova e complicata tecnologia questa che richiede equipaggiamenti di laboratorio e strutture di test dispendiose. Ogni livello di questa tecnologia incrementa la capacità di carico della nave (+5% calcolato sul valore di base).',
     ],
 
     'plasma_technology' => [
-        'title'            => 'Tecnologia al Plasma',
-        'description'      => 'Un ulteriore sviluppo della tecnologia ionica che accelera plasma ad alta energia, il quale infligge danni devastanti e ottimizza la produzione di metallo, cristallo e deuterio (1%/0,66%/0,33% per livello).',
-        'description_long' => 'Un ulteriore sviluppo della tecnologia ionica che non accelera ioni ma plasma ad alta energia, capace di infliggere danni devastanti all\'impatto. I nostri scienziati hanno anche trovato un modo per migliorare sensibilmente l\'estrazione di metallo e cristallo grazie a questa tecnologia.
+        'title'            => 'Tecnologia del plasma',
+        'description'      => 'Uno sviluppo ulteriore della tecnologia ionica che accelera il plasma ad alta energia, in grado di infliggere danni devastanti, e ottimizza la produzione di metallo, cristallo e deuterio (1%/0,66%/0,33% per ogni livello).',
+        'description_long' => 'Uno sviluppo ulteriore della tecnologia ionica che non accelera gli ioni, bensì il plasma ad alta energia, in grado di infliggere danni devastanti quando colpisce un oggetto. I nostri scienziati, inoltre, hanno trovato il modo di sfruttare questa tecnologia per ottimizzare la produzione di metallo e cristallo.
 
-La produzione di metallo aumenta dell\'1%, quella di cristallo dello 0,66% e quella di deuterio dello 0,33% per ogni livello della tecnologia al plasma.',
+Per ogni livello di sviluppo della tecnologia al plasma, la produzione di metallo aumenta di un 1%, quella di cristallo di un 0,66% e quella di deuterio di un 0,33%.',
     ],
 
     'combustion_drive' => [
-        'title'            => 'Motore a Combustione',
-        'description'      => 'Lo sviluppo di questo motore rende alcune navi più veloci; ogni livello aumenta la velocità solo del 10% del valore base.',
-        'description_long' => 'Il Motore a Combustione è la tecnologia più antica, ma è ancora in uso. Con il Motore a Combustione, lo scarico è formato da propellenti trasportati dalla nave prima dell\'uso. In una camera chiusa, le pressioni sono uguali in ogni direzione e non si verifica accelerazione. Se viene fornita un\'apertura nella parte inferiore della camera, la pressione non viene più contrastata da quel lato. La pressione residua fornisce una spinta nella direzione opposta all\'apertura, che spinge la nave in avanti espellendo lo scarico verso il basso a velocità estremamente elevata.
-
-Con ogni livello del Motore a Combustione sviluppato, la velocità di piccoli e grandi trasportatori, caccia leggeri, riciclatori e sonde di spionaggio aumenta del 10%.',
+        'title'            => 'Propulsore a combustione',
+        'description'      => 'Effettuare ricerche in questo campo fornisce propulsori a combustione sempre più veloci nonostante ogni livello aggiunga solo il 10% di velocità rispetto al motore base.',
+        'description_long' => 'I propulsori a combustione appartengono alla più vecchia categoria di motori esistenti e sono basati sulla repulsione. Le particelle sono accelerate e lasciano il motore generando una forza repulsiva che fa muovere la nave nella direzione opposta. L`efficienza di questi motori a combustione è bassa ma sono anche poco costosi da costruire e hanno dato prova di affidabilità. Le loro dimensioni sono piccole e non richiedono un processo troppo dispendioso per il controllo. Fare ricerca ad alti livelli garantisce motori sempre più veloci, dato che ogni livello aggiunge il 10% di velocità rispetto al livello base. Siccome questa tecnologia è tra le più importanti per un impero emergente, bisognerebbe condurre ricerche al più presto.',
     ],
 
     'impulse_drive' => [
-        'title'            => 'Motore ad Impulso',
-        'description'      => 'Il motore ad impulso è basato sul principio di reazione. Il suo ulteriore sviluppo rende alcune navi più veloci; ogni livello aumenta la velocità solo del 20% del valore base.',
-        'description_long' => 'Il motore ad impulso è basato sul principio di rinculo, per cui l\'emissione stimolata di radiazioni è prodotta principalmente come sottoprodotto della fusione nucleare del nucleo per ottenere energia. Possono essere iniettate anche altre masse. Con ogni livello del Motore ad Impulso sviluppato, la velocità di bombardieri, incrociatori, caccia pesanti e navi coloniali aumenta del 20% del valore base. Inoltre, i piccoli trasportatori vengono equipaggiati con motori ad impulso non appena la ricerca raggiunge il livello 5. Non appena la ricerca del Motore ad Impulso raggiunge il livello 17, i Riciclatori vengono riadattati con Motori ad Impulso.
+        'title'            => 'Propulsore a impulso',
+        'description'      => 'Il propulsore a impulso si basa sul principio di repulsione delle particelle. Lo sviluppo di questi propulsori aumenta la velocità delle proprie navi del 20% del valore di base.',
+        'description_long' => 'Il propulsore a impulso si basa sul principio di repulsione delle particelle. La materia respinta è in realtà costituita dalle scorie generate dal reattore a fusione che fornisce l`energia per questo tipo di propulsione. È inoltre possibile iniettare della massa extra. La velocità di bombardieri, incrociatori, caccia pesanti e colonizzatrici aumenta del 20% del valore di base con ogni livello di sviluppo dei motori a impulso. Inoltre, non appena la ricerca raggiunge il livello 5 il cargo leggero viene munito di propulsore a impulso. Non appena il propulsore a impulso raggiunge il livello 17 tramite la ricerca, esso entra a far parte dell`equipaggiamento della riciclatrice.
 
-Anche i missili interplanetari raggiungono distanze maggiori con ogni livello.',
+All`aumentare del livello, i missili interplanetari possono volare ancora più lontano.',
     ],
 
     'hyperspace_drive' => [
-        'title'            => 'Motore Iperspaziale',
-        'description'      => 'Il motore iperspaziale deforma lo spazio attorno a una nave. Il suo sviluppo rende alcune navi più veloci; ogni livello aumenta la velocità solo del 30% del valore base.',
-        'description_long' => 'Nelle immediate vicinanze della nave, lo spazio viene deformato in modo che grandi distanze possano essere percorse molto rapidamente. Più il Motore Iperspaziale viene sviluppato, più forte è la deformazione dello spazio, aumentando così la velocità delle navi equipaggiate (Incrociatori da Battaglia, Navi da Battaglia, Distruttrici, Stelle della Morte, Cercatori e Mietitori) del 30% per livello. Inoltre, il bombardiere viene costruito con un Motore Iperspaziale non appena la ricerca raggiunge il livello 8. Non appena la ricerca del Motore Iperspaziale raggiunge il livello 15, il Riciclatore viene riadattato con un Motore Iperspaziale.',
+        'title'            => 'Propulsore iperspaziale',
+        'description'      => 'Il propulsore iperspaziale permette di entrare nell`iperspazio attraverso una finestra iperspaziale in modo da ridurre estremamente i tempi di viaggio. L`iperspazio è uno spazio alternativo con più di tre dimensioni.',
+        'description_long' => 'La curvatura spazio-temporale nell`ambiente circostante l`astronave consente di percorrere lunghe distanze in un breve lasso di tempo. La curvatura dello spazio-tempo aumenta man mano che il propulsore iperspaziale viene sviluppato. In questo modo, la velocità delle navi dotate di questo motore (incrociatori da battaglia, navi da battaglia, corazzate e morti nere, Pathfinder e Reaper) aumenta del 30% con ogni livello. Inoltre, non appena la ricerca raggiunge il livello 8 il bombardiere viene munito di propulsore iperspaziale. Non appena il propulsore iperspaziale raggiunge il livello 15 tramite la ricerca, esso entra a far parte dell`equipaggiamento della riciclatrice.',
     ],
 
     'espionage_technology' => [
-        'title'            => 'Tecnologia di Spionaggio',
-        'description'      => 'Tramite questa tecnologia è possibile ottenere informazioni su altri pianeti e lune.',
-        'description_long' => 'La Tecnologia di Spionaggio è, in primo luogo, un avanzamento della tecnologia sensoriale. Più questa tecnologia è avanzata, più informazioni l\'utente riceve sulle attività nel suo ambiente.
-Le differenze tra il proprio livello di spionaggio e quelli avversari sono cruciali per le sonde. Più avanzata è la propria tecnologia di spionaggio, più informazioni il rapporto può raccogliere e minore è la probabilità che le attività di spionaggio vengano scoperte. Più sonde si inviano in una singola missione, più dettagli possono raccogliere dal pianeta bersaglio, ma allo stesso tempo aumenta anche la probabilità di essere scoperti.
-La tecnologia di spionaggio migliora anche le possibilità di localizzare flotte straniere. Il livello di spionaggio è vitale per determinarlo. Dal livello 2 in poi, il numero totale esatto delle navi d\'attacco viene mostrato insieme alla normale notifica di attacco. Dal livello 4 in poi vengono mostrati il tipo di navi d\'attacco e il numero totale, mentre dal livello 8 in poi viene mostrato il numero esatto dei diversi tipi di nave.
-Questa tecnologia è indispensabile per un attacco imminente, poiché informa se la flotta della vittima dispone di difese. Pertanto dovrebbe essere ricercata molto presto.',
+        'title'            => 'Tecnologia per lo spionaggio',
+        'description'      => 'Studiando la tecnologia da applicare allo spionaggio potrete ottenere informazioni riguardanti gli altri pianeti.',
+        'description_long' => 'La tecnologia per lo spionaggio è l`evoluzione della tecnologia dei sensori. Più la tecnica è avanzata, maggiori saranno le informazioni che l`utente avrà a disposizione relativamente ai processi che avvengono nei suoi immediati dintorni.
+Nel caso delle sonde, la differenza tra il proprio livello di spionaggio e quello degli avversari è decisiva. Più la propria tecnica di spionaggio sarà avanzata, più il rapporto conterrà maggiori informazioni: di conseguenza diminuirà la possibilità che un`azione di spionaggio venga scoperta. Tanto più elevato è il numero di sonde che vengono spedite in una missione, quanto maggiori saranno i dettagli che verranno trasmessi dai pianeti obiettivo. Allo stesso tempo aumenterà però anche la possibilità di essere scoperti. 
+Ad ogni modo, la tecnologia per lo spionaggio consente di migliorare la localizzazione delle flotte di terzi. A questo proposito il proprio livello di spionaggio è decisivo. A partire dal livello 2, oltre alla notifica di attacco viene mostrato anche il numero totale delle navi attaccanti. A partire dal livello 4 vengono mostrati il tipo di navi attaccanti ed il loro numero totale e dal livello 8 il numero preciso dei diversi tipi di nave.
+Questa tecnica risulta irrinunciabile in caso di attacco imminente, essa consente infatti di scoprire se l`avversario dispone o meno di flotte e/o di difesa. Per questo motivo è fondamentale iniziare il prima possibile ad analizzare questa tecnica.',
     ],
 
     'computer_technology' => [
-        'title'            => 'Tecnologia Informatica',
-        'description'      => 'È possibile comandare più flotte aumentando le capacità informatiche. Ogni livello di tecnologia informatica aumenta di uno il numero massimo di flotte.',
-        'description_long' => 'Una volta lanciate in qualsiasi missione, le flotte sono controllate principalmente da una serie di computer situati sul pianeta di origine. Questi enormi computer calcolano il tempo esatto di arrivo, controllano le correzioni di rotta secondo necessità, calcolano le traiettorie e regolano le velocità di volo.
-Con ogni livello ricercato, il computer di volo viene potenziato per consentire il lancio di uno slot aggiuntivo. La tecnologia informatica dovrebbe essere continuamente sviluppata durante la costruzione del tuo impero.',
+        'title'            => 'Tecnologia informatica',
+        'description'      => 'Maggiore è il livello della tecnologia informatica, più si avranno posti nella flotta. Ogni livello aggiuntivo permette di avere un posto in più nella propria flotta.',
+        'description_long' => 'La tecnologia informatica viene utilizzata per costruire unità processuali e di controllo dati  sempre più potenti. Ogni livello aumenta la potenza di calcolo e il livello di parallelismo. Più questa tecnologia è sviluppata, maggiori saranno i posti nella flotta. Più posti ha un impero, maggiore sarà l`attività che genera introiti. I posti nella flotta sono utilizzati per navi militari come per cargo o manovre di spionaggio, è una buona idea aumentare costantemente la ricerca in quest`area per fornire un`adeguata flessibilità alla flotta.',
     ],
 
     'astrophysics' => [
         'title'            => 'Astrofisica',
-        'description'      => 'Con un modulo di ricerca astrofisica, le navi possono intraprendere lunghe spedizioni. Ogni secondo livello di questa tecnologia consentirà di colonizzare un pianeta aggiuntivo.',
-        'description_long' => 'Ulteriori scoperte nel campo dell\'astrofisica consentono la costruzione di laboratori che possono essere installati su un numero sempre maggiore di navi. Ciò rende possibili lunghe spedizioni nelle aree inesplorate dello spazio. Inoltre questi progressi possono essere utilizzati per colonizzare ulteriormente l\'universo. Ogni due livelli di questa tecnologia è possibile rendere utilizzabile un pianeta aggiuntivo.',
+        'description'      => 'Con un modulo di ricerca astrofisica, le navi possono prendere parte a lunghe spedizioni. Ogni secondo livello di questa tecnologia permetterà la colonizzazione di un ulteriore pianeta.',
+        'description_long' => 'Ulteriori scoperte nel campo dell`astrofisica permettono la costruzione di laboratori che possono essere ospitati su più navi. Questo rende possibile lunghe spedizioni nelle inesplorate aree dello spazio. Inoltre, questi avanzamenti, possono essere utilizzati per colonizzare le galassie. Per ogni due livelli di questa tecnologia, può essere colonizzato un pianeta.',
     ],
 
     'intergalactic_research_network' => [
-        'title'            => 'Rete di Ricerca Intergalattica',
-        'description'      => 'I ricercatori su pianeti diversi comunicano tramite questa rete.',
-        'description_long' => 'Questa è la tua rete di comunicazione nello spazio profondo per condividere i risultati delle ricerche con le tue colonie. Con la RRI, è possibile ottenere tempi di ricerca più rapidi collegando i laboratori di ricerca di livello più elevato pari al livello della RRI sviluppato.
-Affinché funzioni, ogni colonia deve essere in grado di condurre la ricerca in modo indipendente.',
+        'title'            => 'Rete interplanetaria di ricerca',
+        'description'      => 'Gli scienziati dei tuoi pianeti possono comunicare tra loro attraverso questa rete.',
+        'description_long' => 'Gli scienziati dei tuoi pianeti possono comunicare tra loro attraverso questa rete. Per ogni livello di ricerca il tuo laboratorio con livello più alto che non sia già collegato al network, verrà aggiunto alla rete. Quando la rete sarà stabilita, i loro livelli si sommeranno.Ogni laboratorio collegato deve avere il livello necessario per la tecnologia che si ha in programma di ricercare. In tal modo si unirà alla rete.',
     ],
 
     'graviton_technology' => [
-        'title'            => 'Tecnologia Gravitone',
-        'description'      => 'Sparare una carica concentrata di particelle gravitone può creare un campo gravitazionale artificiale, capace di distruggere navi o persino lune.',
-        'description_long' => 'Un gravitone è una particella elementare priva di massa e carica. Determina la forza gravitazionale. Sparando un carico concentrato di gravitoni, è possibile costruire un campo gravitazionale artificiale. Non diversamente da un buco nero, attira la massa verso di sé. Può quindi distruggere navi e persino interi pianeti. Per produrre una quantità sufficiente di gravitoni, sono necessarie enormi quantità di energia. La ricerca sui Gravitoni è necessaria per costruire la devastante Stella della Morte.',
+        'title'            => 'Tecnologia Gravitonica',
+        'description'      => 'Sparando delle particelle gravitoniche concentrate si crea un campo gravitazionale artificiale la cui potenza e forza attrattiva possono non solo distruggere navi ma addirittura lune intere.',
+        'description_long' => 'Un gravitone è una particella elementare che non ha massa e una carica. Esso determina la forza gravitazionale. Sparando delle particelle gravitoniche concentrate si crea un campo gravitazionale artificiale la cui potenza e forza attrattiva possono non solo distruggere navi ma addirittura lune intere. Per poter produrre la quantità necessaria di gravitoni, occorre un`immensa quantità di energia. Senza la Tecnologia gravitonica non è possibile costruire una Morte Nera distruttiva.',
     ],
 
     'weapon_technology' => [
-        'title'            => 'Tecnologia delle Armi',
-        'description'      => 'La tecnologia delle armi rende i sistemi d\'arma più efficienti. Ogni livello di tecnologia delle armi aumenta la potenza delle armi delle unità del 10% del valore base.',
-        'description_long' => 'La Tecnologia delle Armi è una tecnologia chiave ed è fondamentale per la sopravvivenza contro gli Imperi nemici. Con ogni livello di Tecnologia delle Armi ricercato, i sistemi d\'arma sulle navi e i meccanismi difensivi diventano sempre più efficienti. Ogni livello aumenta la potenza base delle armi del 10% del valore base.',
+        'title'            => 'Tecnologia delle armi',
+        'description'      => 'Questo tipo di tecnologia aumenta l`efficacia dei tuoi armamenti dove ogni livello aggiuntivo aumenta la potenza di fuoco del 10% ad ogni tipo di arma.',
+        'description_long' => 'Le tecnologie delle armi cercano di sviluppare ulteriormente le armi disponibili. Esse sono principalmente focalizzate nell`aumento della potenza e efficienza dei sistemi d`armamento. 
+In questo modo aumentando il livello di questa tecnologia la stessa arma ha più potenza di fuoco e fa più danni - ogni livello aggiunge il 10% rispetto alla potenza base.
+Siccome la tecnologia degli armamenti è importante per stare al passo con i nemici, è una buona idea aumentare continuamente le conoscenze in questo campo.',
     ],
 
     'shielding_technology' => [
-        'title'            => 'Tecnologia degli Scudi',
-        'description'      => 'La tecnologia degli scudi rende gli scudi su navi e strutture difensive più efficienti. Ogni livello di tecnologia degli scudi aumenta la potenza degli scudi del 10% del valore base.',
-        'description_long' => 'Con l\'invenzione del generatore di magnetosfera, gli scienziati scoprirono che poteva essere prodotto uno scudo artificiale per proteggere l\'equipaggio delle astronavi non solo dalle rigide radiazioni solari nell\'ambiente dello spazio profondo, ma anche dai colpi nemici durante un attacco. Una volta che gli scienziati perfezionarono la tecnologia, un generatore di magnetosfera fu installato su tutte le navi e i sistemi difensivi.
-
-Mano a mano che la tecnologia viene avanzata a ogni livello, il generatore di magnetosfera viene potenziato, fornendo un ulteriore 10% di resistenza al valore base degli scudi.',
+        'title'            => 'Tecnologia degli scudi',
+        'description'      => 'La tecnologia degli scudi è utilizzata per generare uno scudo protettivo a particelle attorno alle strutture difensive. Ogni livello migliora la schermatura del 10% rispetto al livello base di una data struttura.',
+        'description_long' => 'La tecnologia degli scudi è utilizzata per generare uno scudo protettivo a particelle attorno alle strutture. Ogni livello migliora la schermatura del 10% rispetto al livello base di una data struttura. I livelli aggiuntivi aumentano la quantità di energia che uno scudo può assorbire prima di cedere. Gli scudi non sono solo usati sulle navi, ma anche per cupole protettive planetarie.',
     ],
 
     'armor_technology' => [
-        'title'            => 'Tecnologia delle Armature',
-        'description'      => 'Speciali leghe migliorano le armature su navi e strutture difensive. L\'efficacia dell\'armatura può essere aumentata del 10% per livello.',
-        'description_long' => 'L\'ambiente dello spazio profondo è ostile. Piloti ed equipaggi in varie missioni affrontavano non solo intense radiazioni solari, ma anche la possibilità di essere colpiti da detriti spaziali o distrutti dal fuoco nemico in un attacco. Con la scoperta di una lega di alluminio-litio carburo di titanio, risultata sia leggera che resistente, l\'equipaggio ottenne un certo grado di protezione. Con ogni livello di Tecnologia delle Armature sviluppato, viene prodotta una lega di qualità superiore, che aumenta la resistenza dell\'armatura del 10%.',
+        'title'            => 'Tecnologia delle corazze',
+        'description'      => 'Leghe altamente sofisticate aiutano ad aumentare la corazzatura di una nave aggiungendo il 10%, rispetto alla struttura base, di forza per livello.',
+        'description_long' => 'Leghe altamente sofisticate aiutano ad aumentare la corazzatura di una nave aggiungendo il 10%, rispetto alla struttura base, di forza per livello. Per una data lega risultata efficace, può essere alterata la struttura molecolare per manipolarne il comportamento in situazioni di combattimento e per incorporare le ultime scoperte tecnologiche.',
     ],
 
     // ---- Navi Civili ----
 
     'small_cargo' => [
-        'title'            => 'Cargo Leggero',
-        'description'      => 'Il Cargo Leggero è un\'agile nave da trasporto che può rapidamente portare risorse su altri pianeti.',
-        'description_long' => 'I Trasportatori hanno più o meno le dimensioni dei caccia, ma rinunciano ai motori ad alte prestazioni e all\'armamento di bordo a favore di una maggiore capacità di carico. Di conseguenza, un Trasportatore dovrebbe essere inviato in battaglia solo se accompagnato da navi da combattimento.
-
-Non appena il Motore ad Impulso raggiunge il livello 5 di ricerca, il Cargo Leggero viaggia con una velocità base maggiore ed è equipaggiato con un Motore ad Impulso.',
+        'title'            => 'Cargo leggero',
+        'description'      => 'I cargo leggeri sono mezzi molto agili usati per trasportare risorse da un pianeta ad un altro.',
+        'description_long' => 'I cargo leggeri sono grandi, approssimativamente, come i caccia, ma hanno motori ed armamenti meno efficienti in modo da ricavare più spazio per il cargo. Pertanto, i cargo leggeri andrebbero impiegati in battaglia solo se supportati da navi forti in combattimento.Non appena la ricerca del motore a impulso raggiunge il livello 5, i cargo leggeri vengono equipaggiati con motori a impulso, pertanto la loro velocità di base aumenta.',
     ],
 
     'large_cargo' => [
         'title'            => 'Cargo Pesante',
-        'description'      => 'Questa nave da carico ha una capacità molto maggiore rispetto al Cargo Leggero, ed è generalmente più veloce grazie ad un motore migliorato.',
-        'description_long' => 'Con il tempo, le incursioni alle colonie portarono a catturare quantità sempre maggiori di risorse. Di conseguenza, venivano inviati in massa Cargo Leggeri per compensare i carichi sempre più grandi. Si comprese rapidamente che era necessaria una nuova classe di navi per massimizzare le risorse catturate nelle incursioni, pur essendo economicamente conveniente. Dopo un lungo sviluppo, nacque il Cargo Pesante.
-
-Per massimizzare le risorse che possono essere stivate nelle stive, questa nave ha pochissime armi o armature. Grazie al motore a combustione altamente sviluppato installato a bordo, rappresenta il fornitore di risorse più economico tra i pianeti, ed il più efficace nelle incursioni su mondi ostili.',
+        'description'      => 'I cargo pesanti sono una versione avanzata delle più piccole navi cargo, rendendo disponibile più spazio per il carico e maggiore velocità dato il sistema di propulsione migliorato.',
+        'description_long' => 'Questo tipo di nave non dovrebbe mai fare missioni da sola perché non ha armamenti seri od altre tecnologie, in modo da fornire il massimo spazio per il trasporto. I cargo pesanti possono velocemente rifornire pianeti grazie anche ai suoi motori a combustione altamente sofisticati. Naturalmente esso accompagna la flotta sui pianeti attaccati per recuperare tante più risorse quanto possibile.',
     ],
 
     'colony_ship' => [
-        'title'            => 'Nave Colonizzatrice',
-        'description'      => 'I pianeti vacanti possono essere colonizzati con questa nave.',
-        'description_long' => 'Nel XX Secolo, l\'umanità decise di puntare alle stelle. Prima fu lo sbarco sulla Luna. Poi fu costruita una stazione spaziale. Marte fu colonizzato poco dopo. Si determinò presto che la nostra crescita dipendeva dalla colonizzazione di altri mondi. Scienziati e ingegneri da tutto il mondo si riunirono per sviluppare il più grande risultato mai raggiunto dall\'uomo: la Nave Colonizzatrice.
-
-Questa nave viene usata per preparare un pianeta di nuova scoperta alla colonizzazione. Una volta giunta a destinazione, la nave viene istantaneamente trasformata in spazio abitativo per assistere nel popolare e sfruttare il nuovo mondo. Il numero massimo di pianeti è determinato dai progressi nella ricerca di Astrofisica. Due nuovi livelli di Astrotecnologia permettono la colonizzazione di un pianeta aggiuntivo.',
+        'title'            => 'Colonizzatrice',
+        'description'      => 'I pianeti vuoti possono essere colonizzati grazie a questa nave.',
+        'description_long' => 'Nel ventesimo secolo, l`uomo ha deciso di puntare verso le stelle. Dapprima, è atterrato sulla Luna. In seguito, è stata creata una stazione spaziale. Poco dopo, Marte fu colonizzato. Ben presto si capì che la nostra crescita sarebbe dipesa dalla colonizzazione di altri mondi. Gli scienziati e gli ingegneri di tutto il mondo si riunirono per sviluppare quella che diventò il più grande traguardo mai raggiunto dall`uomo. Era nata la prima Colonizzatrice. Questa nave è utilizzata per preparare per la colonizzazione un pianeta appena scoperto. Appena arriva a destinazione, si trasforma in spazio abitativo, per assistere i coloni durante la popolazione del nuovo mondo. Il massimo numero di pianeti colonizzabili è determinato dai progressi nella ricerca dell`astrofisica. Due nuovi livelli di Astrofisica consentono la colonizzazione di un nuovo pianeta.',
     ],
 
     'recycler' => [
-        'title'            => 'Riciclatrice',
-        'description'      => 'Le Riciclatrici sono le uniche navi in grado di raccogliere i campi di detriti che fluttuano nell\'orbita di un pianeta dopo i combattimenti.',
-        'description_long' => 'I combattimenti nello spazio assunsero proporzioni sempre maggiori. Migliaia di navi furono distrutte e le risorse dei loro resti sembravano perse per sempre nei campi di detriti. Le normali navi da carico non potevano avvicinarsi abbastanza a questi campi senza rischiare danni ingenti.
-Un recente sviluppo nelle tecnologie degli scudi aggirò efficacemente questo problema. Fu creata una nuova classe di navi simile ai Trasportatori: le Riciclatrici. I loro sforzi aiutarono a recuperare le risorse date per perse. I detriti non rappresentavano più alcun vero pericolo grazie ai nuovi scudi.
+        'title'            => 'Riciclatrici',
+        'description'      => 'Le navi riciclatrici sono usate per raccogliere detriti che fluttuano nello spazio e riciclare risorse utili.',
+        'description_long' => 'I combattimenti nello spazio si stavano intensificando sempre più. Migliaia di navi erano già andate distrutte e i loro resti sembravano essersi dispersi per sempre nei campi di detriti. Le navi cargo standard non erano in grado di avvicinarsi abbastanza a questi campi senza correre il rischio di subire enormi danni.
+Ulteriori progressi nell`ambito della tecnologia di protezione permisero di risolvere il problema in modo efficiente. Nacque, infatti, una nuova classe di navi molto simili alle navi cargo: le riciclatrici. Queste navi consentono di raccogliere e riutilizzare le risorse apparentemente perdute. Grazie ai nuovi rivestimenti protettivi, i detriti non rappresentano più alcuna minaccia per le navi.
 
-Non appena la ricerca del Motore ad Impulso raggiunge il livello 17, le Riciclatrici vengono riattrezzate con Motori ad Impulso. Non appena la ricerca del Motore Iperspaziale raggiunge il livello 15, le Riciclatrici vengono riattrezzate con Motori Iperspaziali.',
+Non appena il propulsore a impulso raggiunge il livello 17 tramite la ricerca, esso entra a far parte dell`equipaggiamento della riciclatrice. Non appena il propulsore iperspaziale raggiunge il livello 15 tramite la ricerca, esso entra a far parte dell`equipaggiamento della riciclatrice.',
     ],
 
     'espionage_probe' => [
-        'title'            => 'Sonda Spia',
-        'description'      => 'Le Sonde Spia sono piccoli droni agili che forniscono dati su flotte e pianeti su grandi distanze.',
-        'description_long' => 'Le Sonde Spia sono piccoli droni agili che forniscono dati su flotte e pianeti. Dotate di motori appositamente progettati, permettono loro di coprire vaste distanze in pochi minuti. Una volta in orbita attorno al pianeta bersaglio, raccolgono rapidamente dati e trasmettono il rapporto alla tua Rete di Comunicazione Profonda per la valutazione. Ma c\'è un rischio nell\'attività di raccolta informazioni. Durante la trasmissione del rapporto alla rete, il segnale può essere rilevato dal bersaglio e le sonde possono essere distrutte.',
+        'title'            => 'Sonda spia',
+        'description'      => 'Le sonde spia sono piccoli droni non pilotati dall`uomo con sistemi di propulsione eccezionalmente veloci usati per spiare mondi stranieri.',
+        'description_long' => 'Le sonde spia sono piccoli droni che, con i loro sistemi di comunicazione altamente avanzati, posso inviare da grandi distanze informazioni di spionaggio in pochi secondi. Esse utilizzano le orbite dei pianeti per raccogliere informazioni e, allo stesso tempo, ridirigersi verso la terra madre. Durante la permanenza nell`orbita nemica, esse sono particolarmente facili da rilevare. Non disponendo di copertura, scudi o sistemi d`armamento, esse sono particolarmente vulnerabili alle strutture difensive.',
     ],
 
     'solar_satellite' => [
         'title'            => 'Satellite Solare',
-        'description'      => 'I Satelliti Solari sono semplici piattaforme di celle solari, collocate in un\'orbita alta e stazionaria. Raccolgono la luce solare e la trasmettono alla stazione a terra tramite laser.',
-        'description_long' => 'Gli scienziati scoprirono un metodo per trasmettere energia elettrica alla colonia usando satelliti appositamente progettati in un\'orbita geosincronizzata. I Satelliti Solari raccolgono energia solare e la trasmettono a una stazione a terra utilizzando avanzate tecnologie laser. L\'efficienza di un satellite solare dipende dall\'intensità della radiazione solare che riceve. In linea di principio, la produzione di energia nelle orbite più vicine al sole è maggiore rispetto ai pianeti in orbite più lontane.
-Grazie al loro buon rapporto costo/prestazioni, i Satelliti Solari possono risolvere molti problemi energetici. Attenzione però: i Satelliti Solari possono essere facilmente distrutti in battaglia.',
+        'description'      => 'I satelliti solari sono semplici satelliti in orbita equipaggiati di celle fotovoltaiche e servono a trasferire energia al pianeta. L`energia in questo modo è trasmessa a terra utilizzando un raggio laser speciale. Su questo pianeta, un satellite solare produce una quantità di energia pari a 27.',
+        'description_long' => 'I satelliti solari vengono lanciati nell`orbita geostazionaria attorno ad un pianeta. Essi riuniscono in fasci l`energia solare e la indirizzano ad un sistema riflettente posizionato a terra. L`efficienza dei satelliti solari dipende dalla potenza dei raggi solari. Il rendimento energetico dei pianeti situati vicino al sole è normalmente più elevato rispetto a quello dei pianeti più lontani da esso. Grazie al vantaggioso rapporto qualità/prezzo, i satelliti solari sono utilizzati ad ampio raggio per risolvere i problemi a livello energetico. Va tuttavia tenuto in considerazione che i satelliti solari potrebbero venire distrutti durante i combattimenti.',
     ],
 
     'crawler' => [
         'title'            => 'Crawler',
-        'description'      => 'I Crawler aumentano la produzione di metallo, cristallo e Deuterio sul pianeta assegnato rispettivamente dello 0,02%, 0,02% e 0,02%. Come Collezionista, la produzione aumenta ulteriormente. Il bonus totale massimo dipende dal livello complessivo delle miniere.',
-        'description_long' => 'Il Crawler è un grande veicolo da trincea che aumenta la produzione di miniere e sintetizzatori. È più agile di quanto sembri ma non è particolarmente robusto. Ogni Crawler aumenta la produzione di metallo dello 0,02%, la produzione di cristallo dello 0,02% e la produzione di Deuterio dello 0,02%. Come Collezionista, la produzione aumenta ulteriormente. Il bonus totale massimo dipende dal livello complessivo delle miniere.',
+        'description'      => 'I Crawler incrementano la produzione di Metallo, Cristallo e Deuterio sui pianeti in cui vengono utilizzati rispettivamente delle seguenti percentuali: 0,02%, 0,02% e 0,02% Inoltre, quando svolge le funzioni di Collezionista, incrementa la produzione. Il bonus totale massimo dipende dal livello totale delle miniere.',
+        'description_long' => 'Il Crawler è un mezzo da lavoro di grandi dimensioni che ottimizza la produzione delle miniere e la sintetizzazione. È più agile di quanto sembri, ma non particolarmente robusto. Ogni Crawler incrementa la produzione di metallo (+0,02%), quella di cristallo (+0,02%) e quella di deuterio (+0,02%). Inoltre, quando svolge le funzioni di Collezionista, incrementa la produzione. Il bonus totale massimo dipende dal livello totale delle miniere.',
     ],
 
     'pathfinder' => [
-        'title'            => 'Esploratore',
-        'description'      => 'L\'Esploratore è una nave veloce ed agile, progettata specificamente per spedizioni in settori inesplorati dello spazio.',
-        'description_long' => 'L\'Esploratore è l\'ultimo sviluppo nella tecnologia di esplorazione. Questa nave è stata progettata appositamente per i membri della classe Scopritore per massimizzarne il potenziale. Dotato di sistemi di scansione avanzati e di una grande stiva per il recupero di risorse, l\'Esploratore eccelle nelle spedizioni. I suoi sofisticati sensori possono rilevare risorse preziose e anomalie che passerebbero inosservate ad altre navi. La nave combina un\'alta velocità con una buona capacità di carico, rendendola perfetta per rapide missioni di esplorazione e raccolta di risorse da settori distanti.',
+        'title'            => 'Pathfinder',
+        'description'      => 'I Pathfinder sono veloci, spaziosi e possono estrarre materie prime dai Campi detriti durante le spedizioni. Inoltre, la resa totale viene incrementata.',
+        'description_long' => 'I Pathfinder sono veloci e spaziosi. Sono costruiti per avanzare in modo ottimale in aree sconosciute. Durante le spedizioni, individuano i Campi detriti e ne estraggono materie prime. In aggiunta, sono in grado di trovare oggetti. Inoltre, la resa totale viene incrementata.',
     ],
 
     // ---- Navi Militari ----
 
     'light_fighter' => [
-        'title'            => 'Cacciatore Leggero',
-        'description'      => 'Questa è la prima nave da combattimento che tutti gli imperatori costruiranno. Il Cacciatore Leggero è un\'agile nave, ma vulnerabile da sola. In grande numero, possono diventare una seria minaccia per qualsiasi impero. Sono i primi ad accompagnare i Cargo Leggeri e Pesanti su pianeti ostili con difese minori.',
-        'description_long' => 'Questa è la prima nave da combattimento che tutti gli imperatori costruiranno. Il Cacciatore Leggero è un\'agile nave, ma vulnerabile quando affronta il nemico da sola. In grande numero, possono diventare una seria minaccia per qualsiasi impero. Sono i primi ad accompagnare i Cargo Leggeri e Pesanti su pianeti ostili con difese minori.',
+        'title'            => 'Caccia Leggero',
+        'description'      => 'Il caccia leggero è una nave manovrabile che si trova su quasi tutti i pianeti. I costi non sono particolarmente elevati ma allo stesso tempo la forza degli scudi e lo spazio per il trasporto sono molto limitati.',
+        'description_long' => 'Data la loro corazza leggera e il semplice sistema d`armamento, i caccia leggeri appartengono alle navi di supporto in battaglia. La loro agilità e velocità insieme alla quantità di navi che attaccano, può farle apparire come un diversivo rispetto alle navi più grandi che non sono così manovrabili.',
     ],
 
     'heavy_fighter' => [
-        'title'            => 'Cacciatore Pesante',
-        'description'      => 'Questo cacciatore è meglio corazzato e ha una maggiore forza d\'attacco rispetto al Cacciatore Leggero.',
-        'description_long' => 'Nello sviluppo del Cacciatore Pesante, i ricercatori raggiunsero un punto in cui i motori convenzionali non erano più in grado di fornire prestazioni sufficienti. Per muovere la nave in modo ottimale, il Motore ad Impulso fu utilizzato per la prima volta. Questo aumentò i costi, ma aprì anche nuove possibilità. Utilizzando questo motore, rimase più energia per armi e scudi; inoltre, vennero utilizzati materiali di alta qualità per questa nuova famiglia di caccia. Con questi cambiamenti, il Cacciatore Pesante rappresenta una nuova era nella tecnologia delle navi ed è la base per la tecnologia degli Incrociatori.
-
-Leggermente più grande del Cacciatore Leggero, il Cacciatore Pesante ha scafi più spessi, che forniscono maggiore protezione, e armamento più potente.',
+        'title'            => 'Caccia Pesante',
+        'description'      => 'Il caccia pesante è la diretta evoluzione del caccia leggero ed offre una corazzatura maggiore ed una più grande potenza d`attacco.',
+        'description_long' => 'Durante lo sviluppo del caccia leggero i ricercatori sono arrivati al punto in cui la guida convenzionale raggiunse i propri limiti. Per fornire l`agilità necessaria ai nuovi caccia, è stato usato per la prima volta un motore ad impulso. Nonostante i costi aggiuntivi e la complessità si sono rivelate nuove possibilità in parte grazie al maggior costo dei materiali generalmente utilizzati.
+Tramite l`uso della tecnologia d`impulso, è stata resa disponibile più energia per le armi e gli scudi. La corazzatura migliorata e un maggior numero di armi rendono questo caccia una minaccia molto maggiore rispetto ai suoi predecessori.',
     ],
 
     'cruiser' => [
         'title'            => 'Incrociatore',
-        'description'      => 'Gli Incrociatori sono corazzati quasi tre volte tanto i Cacciatori Pesanti e hanno più del doppio della potenza di fuoco. Inoltre, sono molto veloci.',
-        'description_long' => 'Con lo sviluppo del laser pesante e del cannone ionico, i Cacciatori Leggeri e Pesanti incontrarono un numero allarmante di sconfitte che aumentavano con ogni incursione. Nonostante molte modifiche, la potenza delle armi e i cambiamenti all\'armatura non potevano essere aumentati abbastanza velocemente per contrastare efficacemente queste nuove misure difensive. Pertanto, si decise di costruire una nuova classe di nave che combinasse più corazza e più potenza di fuoco. Come risultato di anni di ricerca e sviluppo, nacque l\'Incrociatore.
-
-Gli Incrociatori sono corazzati quasi tre volte rispetto ai Cacciatori Pesanti e possiedono più del doppio della potenza di fuoco di qualsiasi nave da combattimento esistente. Possiedono anche velocità di gran lunga superiori a qualsiasi astronave mai costruita. Per quasi un secolo, gli Incrociatori dominarono l\'universo. Tuttavia, con lo sviluppo dei cannoni Gauss e delle torrette al plasma, la loro supremazia terminò. Sono ancora usati oggi contro gruppi di caccia, ma non in modo così predominante come prima.',
+        'description'      => 'Gli incrociatori hanno una corazza almeno tre volte più potente dei caccia pesanti e hanno a disposizione più del doppio di potenza d fuoco. La loro velocità di crociera è allo stesso modo superiore ad ogni altra cosa vista prima.',
+        'description_long' => 'Con la comparsa di laser pesanti e cannoni a ioni sui campi di battaglia, le navi da combattimento vennero sempre più sopraffatte. Nonostante le molte modifiche la potenza di fuoco e la corazzatura dello scafo non poterono essere migliorati a sufficienza per affrontare questi nuovi sistemi di difesa.
+Questo è il motivo per il quale è stato scelto di sviluppare un tipo di nave completamente nuovo, fornendo più corazzatura e armi più potenti. Così nacque l`incrociatore. Gli incrociatori hanno una corazza almeno tre volte più potente dei caccia pesanti e hanno a disposizione più del doppio di potenza d fuoco. La loro velocità di crociera è allo stesso modo superiore ad ogni altra cosa vista prima. Non c`è praticamente nessuna nave migliore contro le difese planetarie leggere o medie e perciò gli incrociatori sono stati ampiamente adottati in tutto l`universo da almeno un centinaio di anni.
+Sfortunatamente con la creazione dei nuovi e potenti sistemi difensivi come il cannone di Gauss o gli emettitori di plasma, il regno degli incrociatori finì presto. Al giorno d`oggi essi vengono ancora usati per combattere contro battaglioni di caccia dato l`efficace sistema d`armamento contro questi ultimi',
     ],
 
     'battle_ship' => [
-        'title'            => 'Nave da Battaglia',
-        'description'      => 'Le Navi da Battaglia formano la spina dorsale di una flotta. I loro pesanti cannoni, l\'alta velocità e le grandi stive le rendono avversari da prendere sul serio.',
-        'description_long' => 'Quando divenne evidente che l\'Incrociatore stava cedendo terreno al crescente numero di strutture difensive che si trovava ad affrontare, e con la perdita di navi nelle missioni a livelli inaccettabili, si decise di costruire una nave che potesse affrontare gli stessi tipi di strutture difensive con quante meno perdite possibili. Dopo un intenso sviluppo, nacque la Nave da Battaglia. Costruita per resistere alle battaglie più grandi, la Nave da Battaglia dispone di grandi stive, pesanti cannoni e un\'alta velocità con il motore iperspaziale. Una volta sviluppata, divenne il pilastro della flotta di ogni Imperatore predatore.',
+        'title'            => 'Nave da battaglia',
+        'description'      => 'Le navi da battaglia sono la spina dorsale di ogni flotta militare. Corazzatura rinforzata, armamenti pesanti e alte velocità di spostamento, fanno di questa nave, insieme al grande spazio per il cargo, un nemico difficile da battere.',
+        'description_long' => 'Le navi da battaglia sono la spina dorsale di ogni flotta militare. La loro corazzatura rinforzata, abbinata a degli armamenti pesanti, e una velocità di crociera elevata, rendono questa nave indispensabile per ogni impero. Inoltre possiede un`ampia stiva che è ottima in situazioni ostili.',
     ],
 
     'battlecruiser' => [
-        'title'            => 'Corazzata',
-        'description'      => 'La Corazzata è altamente specializzata nell\'intercettazione di flotte ostili.',
-        'description_long' => 'Questa nave è una delle più avanzate mai sviluppate, ed è particolarmente letale quando si tratta di distruggere flotte in attacco. Con i suoi migliorati cannoni laser a bordo e il motore Iperspaziale avanzato, la Corazzata è una forza seria da affrontare in qualsiasi attacco. A causa del design della nave e del suo grande sistema d\'armi, le stive hanno dovuto essere ridotte, ma questo è compensato dal minor consumo di carburante.',
+        'title'            => 'Incrociatore da Battaglia',
+        'description'      => 'L`Incrociatore da battaglia è altamente specializzato nell`intercettare flotte nemiche.',
+        'description_long' => 'Questa nave, tecnologicamente avanzata, è mortale quando viene usata per distruggere le flotte d`attacco. Con i suoi cannoni laser migliorati e un avanzato motore Iperspaziale, detiene una posizione privilegiata tra le navi pesanti, che è deputata a distruggere. A causa del suo design piccolo e del suo enorme armamento, la capacità di carico è minima; ma questo è compensato dal basso consumo di carburante.',
     ],
 
     'bomber' => [
         'title'            => 'Bombardiere',
-        'description'      => 'Il Bombardiere è stato sviluppato appositamente per distruggere le difese planetarie di un mondo.',
-        'description_long' => 'Nel corso dei secoli, man mano che le difese diventavano sempre più grandi e sofisticate, le flotte cominciarono ad essere distrutte a un ritmo allarmante. Si decise che era necessaria una nuova nave per sfondare le difese e garantire il massimo dei risultati. Dopo anni di ricerca e sviluppo, nacque il Bombardiere.
-
-Usando attrezzature di mira laser-guidate e Bombe al Plasma, il Bombardiere cerca e distrugge qualsiasi meccanismo difensivo che riesce a trovare. Non appena il Motore Iperspaziale viene sviluppato al Livello 8, il Bombardiere viene riequipaggiato con il motore iperspaziale e può volare a velocità maggiori.',
+        'description'      => 'Il bombardiere è una nave stellare speciale sviluppata per sfondare pesanti difese planetarie.',
+        'description_long' => 'Il bombardiere è una nave stellare speciale sviluppata per sfondare pesanti difese planetarie. Grazie ad un sistema di puntamento con guida laser, possono essere sganciate bombe al plasma con precisione sul bersaglio, causando enorme distruzione tra i sistemi di difesa planetari.La velocità base dei bombardieri è aumentata non appena viene ricercato il motore iperspaziale di livello 8 in quanto essi vengono equipaggiati con motori iperspaziali.',
     ],
 
     'destroyer' => [
-        'title'            => 'Distruttore',
-        'description'      => 'Il Distruttore è il re delle navi da guerra.',
-        'description_long' => 'Il Distruttore è il risultato di anni di lavoro e sviluppo. Con lo sviluppo delle Morti Nere, si decise che era necessaria una classe di navi per difendersi da una tale arma massiccia. Grazie ai suoi migliorati sensori di localizzazione, ai cannoni ionici multi-falange, ai Cannoni Gauss e alle Torrette al Plasma, il Distruttore si rivelò una delle navi più temibili mai costruite.
-
-Poiché il Distruttore è molto grande, la sua manovrabilità è gravemente limitata, il che lo rende più una stazione di battaglia che una nave da combattimento. La mancanza di manovrabilità è compensata dalla sua pura potenza di fuoco, ma richiede anche quantità significative di Deuterio per essere costruita e operata.',
+        'title'            => 'Corazzata',
+        'description'      => 'La corazzata è la nave stellare più pesante mai vista e ha una potenza di fuoco mai eguagliata in precedenza.',
+        'description_long' => 'Con la corazzata, la madre di tutte le navi da guerra entra nell`arena. Il suo sistema multi-falange d`armamento consiste di cannoni ionici, al plasma e di Gauss montati su torrette veloci nella risposta che permettono loro di eliminare i caccia operativi con un margine di successo del 99%. La dimensione della nave è d`altro canto il suo svantaggio dal momento che la manovrabilità è limitata, facendo della corazzata più una stazione da combattimento che una nave da guerra. Il consumo di carburante di queste immense corazzate è però tanto alto quanto lo è il loro potere di fuoco...',
     ],
 
     'deathstar' => [
         'title'            => 'Morte Nera',
-        'description'      => 'La potenza distruttiva della Morte Nera è insuperabile.',
-        'description_long' => 'La Morte Nera è la nave più potente mai creata. Questa nave delle dimensioni di una luna è l\'unica nave che può essere vista ad occhio nudo dal suolo. Nel momento in cui la si scorge, purtroppo, è già troppo tardi per fare qualsiasi cosa.
-
-Armata di un gigantesco cannone gravitonico, il sistema d\'arma più avanzato mai creato nell\'Universo, questa enorme nave non solo ha la capacità di distruggere intere flotte e difese, ma ha anche la capacità di distruggere intere lune. Solo gli imperi più avanzati hanno la capacità di costruire una nave di queste proporzioni titaniche.',
+        'description'      => 'Non c`è nulla di così grande e pericoloso come una morte nera che si avvicina.',
+        'description_long' => 'La morte nera è equipaggiata con un singolo gigantesco Cannone di Gauss in grado di distruggere praticamente qualsiasi cosa con un singolo colpo, sia che siano corazzate o lune. In modo da produrre l`energia necessaria per quest`arma, enormi parti all`interno della Morte Nera sono utilizzate come generatori di potenza. La dimensione della Morte Nera inoltre ne limita la velocità negli spostamenti, che è molto bassa. Si dice che spesso il capitano aiuti a spingerla per aumentarne la velocità. Solo imperi immensi e avanzati hanno la manodopera e le conoscenze estese richieste per poter costruire una tale nave stellare della dimensione di una luna.',
     ],
 
     'reaper' => [
-        'title'            => 'Mietitore',
-        'description'      => 'Il Mietitore è una potente nave da combattimento specializzata nel saccheggio aggressivo e nella raccolta di campi di detriti.',
-        'description_long' => 'Il Mietitore rappresenta il culmine dell\'ingegneria militare della classe Generale. Questa nave pesantemente armata è stata progettata per i comandanti che valorizzano sia la capacità di combattimento che la flessibilità tattica. Sebbene il suo ruolo primario sia il combattimento, il Mietitore dispone di stive rinforzate che gli consentono di raccogliere campi di detriti dopo la battaglia. I suoi sistemi di mira avanzati e l\'armatura pesante lo rendono un avversario formidabile, mentre il suo design a doppia funzione significa che può sia creare che trarre profitto dalla carneficina del campo di battaglia. La nave è equipaggiata con tecnologia d\'arma all\'avanguardia e può tenere testa a navi molto più grandi.',
+        'title'            => 'Reaper',
+        'description'      => 'Le navi della classe Reaper sono un potente strumento di distruzione in grado di saccheggiare i Campi detriti subito dopo le battaglie.',
+        'description_long' => 'La Reaper è la regina delle navi da guerra: essa combina potenza, robusti scudi, velocità e capacità. Inoltre, è l`unica in grado di sfruttare istantaneamente parte del Campo detriti che si crea dopo la battaglia. Tale funzione non è attiva dopo le battaglie contro alieni e pirati.',
     ],
 
     // ---- Difese ----
 
     'rocket_launcher' => [
         'title'            => 'Lanciamissili',
-        'description'      => 'Il Lanciamissili è una semplice e conveniente opzione difensiva.',
-        'description_long' => 'La tua prima, basilare linea di difesa. Si tratta di semplici strutture di lancio al suolo che sparano missili a testata convenzionale contro gli obiettivi nemici in attacco. Poiché sono economici da costruire e non richiedono ricerca, sono adatti per difendersi dalle incursioni, ma perdono efficacia contro attacchi su larga scala. Una volta che inizi la costruzione di sistemi d\'arma difensivi più avanzati, i Lanciamissili diventano semplice carne da cannone per consentire alle tue armi più potenti di infliggere danni maggiori per un periodo di tempo più lungo.
-
-Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive danneggiate possano essere riportate in uso.',
+        'description'      => 'Il lanciamissili è un semplice ma indispensabile sistema di difesa.',
+        'description_long' => 'Il lanciamissili è un semplice ma indispensabile sistema di difesa. Diventa abbastanza funzionale se in grandi quantità e può essere costruito senza specifiche ricerche perché è una semplice arma balistica. Il basso costo di produzione lo rende adeguato contro piccole flotte, ma diventa sempre meno efficace con l`incremento dei sistemi di difesa. In successivi sviluppi risulta essere utilizzato solo come specchietto per le allodole nei combattimenti. In generale, i sistemi di difesa si disattivano da soli quando raggiungono parametri operazionali critici in modo da lasciare la possibilità di riparazione. In media, il 70% delle difese planetarie distrutte può essere riportato in funzione dopo un combattimento.',
     ],
 
     'light_laser' => [
-        'title'            => 'Laser Leggero',
-        'description'      => 'Il fuoco concentrato su un bersaglio con fotoni può produrre danni significativamente maggiori rispetto alle armi balistiche standard.',
-        'description_long' => 'Con lo sviluppo della tecnologia e la creazione di navi sempre più sofisticate, si determinò che era necessaria una linea di difesa più forte per contrastare gli attacchi. Man mano che la Tecnologia Laser avanzava, fu progettata una nuova arma per fornire il livello successivo di difesa. I Laser Leggeri sono semplici armi a terra che utilizzano speciali sistemi di puntamento per tracciare il nemico e sparare un laser ad alta intensità progettato per penetrare lo scafo del bersaglio. Per mantenere la convenienza economica, sono stati dotati di un sistema di schermatura migliorato, tuttavia l\'integrità strutturale è la stessa del Lanciamissili.
-
-Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive danneggiate possano essere riportate in uso.',
+        'title'            => 'Laser leggero',
+        'description'      => 'Con l`utilizzo di un raggio laser concentrato si possono causare più danni che attraverso normali armi missilistiche.',
+        'description_long' => 'Per tenere il passo con la velocità di sviluppo sempre in aumento in termini di tecnologie aerospaziali, gli scienziati dovettero sviluppare un nuovo tipo di sistema di difesa in grado di gestire navi e flotte sempre più forti e meglio equipaggiate. In breve nacque l`unità laser piccola, che era in grado di sparare sul bersaglio un raggio laser altamente concentrato e causare molto più danno dell`impatto di missili balistici. Dall`altro lato, fu migliorata la schermatura dei cannoni per gestire le maggiori potenze di fuoco delle moderne navi. Dal momento che il basso costo dell`unità era un obiettivo essenziale designato, la struttura di base non è migliorata rispetto al lancia-missili. Poiché il laser leggero offre un vantaggioso rapporto qualità-prezzo, è il più conosciuto sistema di difesa essendo usato contemporaneamente da piccoli imperi in crescita e da grandi imperi multigalattici.',
     ],
 
     'heavy_laser' => [
-        'title'            => 'Laser Pesante',
-        'description'      => 'Il Laser Pesante è il logico sviluppo del Laser Leggero.',
-        'description_long' => 'Il Laser Pesante è una versione pratica e migliorata del Laser Leggero. Essendo più equilibrato del Laser Leggero con una composizione in lega migliorata, utilizza raggi più potenti e densi, e sistemi di puntamento integrati ancora migliori.
-
-Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive danneggiate possano essere riportate in uso.',
+        'title'            => 'Laser pesante',
+        'description'      => 'I laser pesanti hanno una potenza di emissione e un`integrità strutturale superiore ai laser leggeri.',
+        'description_long' => 'Il laser pesante è la diretta evoluzione del sistema laser leggero, ha infatti una migliorata integrità strutturale e vi sono adottati nuovi materiali. In questo modo è stato possibile migliorare la struttura di copertura e grazie all`installazione di nuovi sistemi computerizzati ed energetici, molta più energia, rispetto a quando si usavano le unità laser leggere, è rilasciata contro il bersaglio.',
     ],
 
     'gauss_cannon' => [
         'title'            => 'Cannone Gauss',
-        'description'      => 'Il Cannone Gauss spara proiettili del peso di tonnellate ad alta velocità.',
-        'description_long' => 'Per molto tempo le armi a proiettile erano considerate antiquate alla luce della moderna tecnologia termonucleare ed energetica e grazie allo sviluppo dell\'iperspazio e delle armature migliorate. Fino a quando la stessa tecnologia energetica che le aveva rese obsolete aiutò a riconquistare la loro posizione consolidata.
-Un cannone Gauss è una versione di grandi dimensioni dell\'acceleratore di particelle. Missili estremamente pesanti vengono accelerati con un\'enorme forza elettromagnetica e raggiungono velocità di uscita che fanno bruciare il terreno circostante nella atmosfera. Quest\'arma è così potente al momento dello sparo che crea un boom sonico. Le armature e gli scudi moderni riescono a malapena a resistere alla forza; spesso il bersaglio viene completamente penetrato dalla potenza del missile. Le strutture difensive si disattivano non appena sono state danneggiate troppo gravemente.
-
-Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive danneggiate possano essere riportate in uso.',
+        'description'      => 'Usando un`enorme accelerazione elettromagnetica, il cannone gauss accelera pesanti proiettili.',
+        'description_long' => 'Le armi a proiettili erano considerate obsolete date la moderna tecnologia di fusione nucleare, le nuove fonti di energia, la scoperta della tecnologia iperspaziale e la ulteriormente migliorata tecnologia delle leghe. Però è la stessa tecnologia energetica che una volta ne prese il posto, che ora le richiama indietro in modo da potersi muovere verso il nuovo secolo: il principio di base è da lungo conosciuto e si data a cavallo del 20esimo e 21esimo secolo: l`acceleratore di particelle. Un cannone di Gauss in realtà non è altro che un acceleratore di particelle di enorme misura dove i proiettili di parecchie tonnellate di peso vengono accelerati utilizzando immense spirali elettromagnetiche. La velocità di uscita di questi grandi proiettili è così elevata da bruciare la polvere nell`aria circostante e il rinculo del colpo scuote il terreno. Anche le tecnologie di schermatura e di leghe protettive più innovate con difficoltà resistono all`impatto di tali proiettili - capita la maggior parte delle volte, che il proiettile semplicemente passi attraverso la struttura bersaglio.',
     ],
 
     'ion_cannon' => [
-        'title'            => 'Cannone Ionico',
-        'description'      => 'Il Cannone Ionico spara un raggio continuo di ioni acceleranti, causando danni considerevoli agli oggetti che colpisce.',
-        'description_long' => 'Un cannone ionico è un\'arma che spara fasci di ioni (particelle caricate positivamente o negativamente). Il Cannone Ionico è in realtà un tipo di Cannone a Particelle; solo che le particelle utilizzate sono ionizzate. A causa delle loro cariche elettriche, hanno anche il potenziale di disabilitare dispositivi elettronici e qualsiasi altra cosa che abbia una fonte di alimentazione elettrica o simile, utilizzando un fenomeno noto come l\'Impulso Elettromagnetico (effetto EMP). Grazie all\'ottimo sistema di schermatura del cannone, questo fornisce una protezione migliorata per le tue armi difensive più grandi e distruttive.
-
-Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive danneggiate possano essere riportate in uso.',
+        'title'            => 'Cannone ionico',
+        'description'      => 'I cannoni ionici sparano raggi ionici altamente energetici verso i propri obiettivi destabilizzando gli scudi e distruggendo l`elettronica.',
+        'description_long' => 'Nel 21esimo secolo esisteva una tecnologia chiamata EMP, che sta per impulso elettromagnetico. Un tale impulso energetico si dimostra principalmente pericoloso per i sistemi che utilizzano elettricità o sono sensibili ad essa. In quei tempi, tali armi erano trasportate in bombe o razzi missilistici, ma con il continuo sviluppo nell`area degli EMP, è oggi possibile montare tali unità in semplici cannoni. Il cannone ionico è fino a questo punto il miglior equipaggiamento per queste armi. Il raggio ionico mirato distrugge sul bersaglio ogni sistema elettrico non schermato e destabilizza il sistema di scudi della nave stellare. In combinazione questo spesso significa la distruzione totale nonostante il fatto che gli esseri viventi non vengano colpiti direttamente. L`unica nave che si sappia usi i cannoni ionici è l`incrociatore da battaglia, a causa delle alte richieste di energia da parte di questi cannoni e il fatto che il combattimento spesso richieda la distruzione del bersaglio non il paralizzarlo.',
     ],
 
     'plasma_turret' => [
         'title'            => 'Cannone al Plasma',
-        'description'      => 'Il Cannone al Plasma rilascia l\'energia di un brillamento solare e supera persino il Distruttore in termini di effetto distruttivo.',
-        'description_long' => 'Uno dei sistemi d\'arma difensivi più avanzati mai sviluppati, il Cannone al Plasma utilizza una grande cella a combustibile di reattore nucleare per alimentare un acceleratore elettromagnetico che spara un impulso, o toroide, di plasma. Durante il funzionamento, il Cannone al Plasma blocca prima un bersaglio e avvia il processo di sparo. Una sfera di plasma viene creata nel nucleo del cannone surriscaldando e comprimendo i gas, privandoli dei loro ioni. Una volta che il gas è stato surriscaldato, compresso e creata una sfera di plasma, viene caricata nell\'acceleratore elettromagnetico che viene energizzato. Una volta completamente energizzato, l\'acceleratore viene attivato, con il risultato che la sfera di plasma viene lanciata a una velocità estremamente elevata verso il bersaglio previsto. Dal punto di vista del bersaglio, la palla bluastra di plasma in avvicinamento è impressionante, ma una volta che colpisce causa una distruzione istantanea.
-
-Le strutture difensive si disattivano non appena sono troppo gravemente danneggiate. Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive danneggiate possano essere riportate in uso.',
+        'description'      => 'I cannoni al plasma liberano la potenza di una piccola eruzione solare nella forma di un proiettile di plasma. L`energia distruttiva è addirittura superiore a quella della corazzata.',
+        'description_long' => 'La tecnologia laser è stata portata quasi alla perfezione, la tecnologia ionica sembrava aver raggiunto il massimo e in generale non vi era visione di come sarebbe stato possibile ottenere un miglioramento degli esistenti sistemi d`armamento. Ma questo cambierà una volta che sarà nata l`idea di mettere assieme le due tecnologie. Mentre il laser è utilizzato per scaldare le particelle di deuterio a milioni di gradi, la tecnologia ionica carica elettricamente queste particelle e le conoscenze in elettromagnetismo permettono di contenere questo pericoloso plasma.  La scarica blu del plasma è molto bella quando è in movimento verso il suo obiettivo, ma dal punto di vista dell`equipaggio di una nave stellare, questa sfera di plasma apparentemente amichevole significa morte e distruzione. Gli armamenti al plasma sono identificati come le più pericolose minacce, ma hanno il loro costo.',
     ],
 
     'small_shield_dome' => [
-        'title'            => 'Piccola Cupola-Scudo',
-        'description'      => 'La Piccola Cupola-Scudo copre un intero pianeta con un campo capace di assorbire un\'enorme quantità di energia.',
-        'description_long' => 'La colonizzazione di nuovi mondi portò con sé un nuovo pericolo: i detriti spaziali. Un grande asteroide potrebbe facilmente distruggere il mondo e tutti i suoi abitanti. I progressi nella tecnologia di schermatura fornirono agli scienziati un modo per sviluppare uno scudo per proteggere un intero pianeta non solo dai detriti spaziali ma, come si apprese, anche da un attacco nemico. Creando un grande campo elettromagnetico attorno al pianeta, i detriti spaziali che normalmente avrebbero distrutto il pianeta venivano deflessi, e gli attacchi da imperi nemici venivano sventati. I primi generatori erano grandi e lo scudo forniva una protezione moderata, ma fu scoperto in seguito che le cupole piccole non offrivano la protezione dagli attacchi su larga scala. La Piccola Cupola-Scudo era il preludio a un sistema di schermatura planetaria più robusto e avanzato.
-
-Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive danneggiate possano essere riportate in uso.',
+        'title'            => 'Cupola scudo piccola',
+        'description'      => 'La Cupola scudo piccola copre il pianeta con un sottile campo protettivo e di schermatura, che può assorbire enormi quantità di potenza di fuoco.',
+        'description_long' => 'Molto prima che i generatori di scudi diventassero integrati e portatili, c`erano vecchi grandi generatori sulla superficie dei pianeti. Quelli erano in grado di disporre una enorme cupola difensiva attorno alla superficie dell`intero pianeta capace di assorbire grandi quantità di energia qualora subisse un attacco. Ogni tanto capita che un piccolo convoglio da combattimento venga abbattuto da queste cupole-scudo. Usando tecnologie di schermatura sempre più avanzate, queste cupole possono essere migliorate ulteriormente, così che la loro abilità di assorbire energia sia ancora più grande. Chiaramente solo una di ciascuna cupola-scudo può essere costruita su un pianeta.',
     ],
 
     'large_shield_dome' => [
-        'title'            => 'Grande Cupola-Scudo',
-        'description'      => 'L\'evoluzione della Piccola Cupola-Scudo può impiegare molto più energia per resistere agli attacchi.',
-        'description_long' => 'La Grande Cupola-Scudo è il passo successivo nell\'avanzamento degli scudi planetari; è il risultato di anni di lavoro per migliorare la Piccola Cupola-Scudo. Costruita per resistere a un bombardamento più intenso del fuoco nemico fornendo un campo elettromagnetico maggiormente energizzato, le Grandi Cupole offrono un periodo di protezione più lungo prima di collassare.
-
-Dopo una battaglia, c\'è fino al 70% di probabilità che le strutture difensive danneggiate possano essere riportate in uso.',
+        'title'            => 'Cupola scudo potenziata',
+        'description'      => 'La cupola scudo potenziata è un` evoluta tecnologia di schermatura che assorbe ancor più energia prima di collassare.',
+        'description_long' => 'Questa è una versione avanzata della cupola scudo e la sua principale caratteristica è la maggiore capacità di assorbimento d`energia. Si basa sulla stessa conoscenza tecnologica delle cupole più piccole. I generatori sono inoltre meno rumorosi quando in azione.',
     ],
 
     'anti_ballistic_missile' => [
-        'title'            => 'Missile Anti-Balistico',
-        'description'      => 'I Missili Anti-Balistici distruggono i Missili Interplanetari in arrivo.',
-        'description_long' => 'I Missili Anti-Balistici (ABM) sono la tua unica linea di difesa quando vieni attaccato da Missili Interplanetari (IPM) sul tuo pianeta o luna. Quando viene rilevato un lancio di IPM, questi missili si armano automaticamente, elaborano un codice di lancio nei loro calcolatori di volo, prendono di mira l\'IPM in arrivo e si lanciano per intercettarlo. Durante il volo, l\'IPM bersaglio viene costantemente tracciato e le correzioni di rotta vengono applicate fino a quando l\'ABM raggiunge il bersaglio e distrugge l\'IPM attaccante. Ogni ABM distrugge un IPM in arrivo.',
+        'title'            => 'Missili anti balistici',
+        'description'      => 'I missili anti balistici distruggono i missili interplanetari.',
+        'description_long' => 'I missili anti balistici distruggono i missili attaccanti. Ogni missile anti balistico distrugge un missile interplanetario.',
     ],
 
     'interplanetary_missile' => [
-        'title'            => 'Missile Interplanetario',
-        'description'      => 'I Missili Interplanetari distruggono le difese nemiche.',
-        'description_long' => 'I Missili Interplanetari (IPM) sono la tua arma offensiva per distruggere le difese del tuo bersaglio. Usando tecnologia di tracciamento all\'avanguardia, ogni missile prende di mira un certo numero di difese per la distruzione. Dotati di una bomba all\'antimateria, consegnano una forza distruttiva così grave che gli scudi e le difese distrutti non possono essere riparati. L\'unico modo per contrastare questi missili è con gli ABM.',
+        'title'            => 'Missili Interplanetari',
+        'description'      => 'I missili interplanetari distruggono le difese nemiche. I tuoi missili interplanetari hanno un raggio di azione pari a 0 sistemi.',
+        'description_long' => 'I missili interplanetari distruggono le difese nemiche. Le difese distrutte dai missili interplanetari non verranno ricostruite.',
     ],
 
     // ---- Oggetti Potenziamento Shop ----

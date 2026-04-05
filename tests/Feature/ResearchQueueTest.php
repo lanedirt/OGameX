@@ -238,6 +238,11 @@ class ResearchQueueTest extends AccountTestCase
      */
     public function testResearchLabRequirement(): void
     {
+        // Set the universe speed to 8x and research speed to 2x for this test.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+        $settingsService->set('research_speed', 2);
+
         // Add required resources for research to planet
         $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 

@@ -454,10 +454,10 @@
                                     $shipTooltipContent .= $shipName . ': ' . $quantity . '<br/>';
                                 }
                             } else {
-                                $shipTooltipContent .= 'No ships in wreck field';
+                                $shipTooltipContent .= __('t_ingame.layout.no_ships_in_wreck');
                             }
                         } else {
-                            $shipTooltipContent .= 'No wreck field available';
+                            $shipTooltipContent .= __('t_ingame.layout.no_wreck_available');
                         }
                     @endphp
                     @php
@@ -1411,7 +1411,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
 
                 function openPlanetRenameGiveupBox() {
                     openOverlay("{{ route('planetabandon.overlay') }}", {
-                        title: "Abandon\/Rename {{ $currentPlanet->getPlanetName() }}",
+                        title: "{{ __('t_ingame.overview.abandon_rename_modal', ['planet_name' => $currentPlanet->getPlanetName()]) }}",
                         'class': "planetRenameOverlay"
                     });
                 }
