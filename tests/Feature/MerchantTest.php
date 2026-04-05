@@ -137,9 +137,6 @@ class MerchantTest extends AccountTestCase
             '_token' => csrf_token(),
         ]);
 
-        $tradeRates = $callResponse->json()['tradeRates'];
-        $exchangeRate = $tradeRates['receive']['crystal']['rate'];
-
         // Give planet resources
         $this->planetService->addResources(new Resources(100000, 0, 0, 0));
         $this->planetService->save();
@@ -233,7 +230,7 @@ class MerchantTest extends AccountTestCase
         $response->assertJson(['success' => true]);
 
         // Verify we received LESS than what full trade would have given
-        $actualReceived = $response->json('received');
+        $actualReceived = $response->json('received.crystal');
         $fullTradeWouldGive = (int)floor($requestedGiveAmount * $exchangeRate);
         $this->assertLessThan($fullTradeWouldGive, $actualReceived);
 
@@ -262,13 +259,10 @@ class MerchantTest extends AccountTestCase
         $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
         $this->planetService->getPlayer()->save();
 
-        $callResponse = $this->post('/merchant/call', [
+        $this->post('/merchant/call', [
             'type' => 'metal',
             '_token' => csrf_token(),
         ]);
-
-        $tradeRates = $callResponse->json()['tradeRates'];
-        $exchangeRate = $tradeRates['receive']['crystal']['rate'];
 
         // Reload planet to ensure we have latest data
         $this->planetService->reloadPlanet();
@@ -367,7 +361,7 @@ class MerchantTest extends AccountTestCase
         $response->assertJson(['success' => true]);
 
         // But received amount should be much less than requested (capped by storage)
-        $actualReceived = $response->json('received');
+        $actualReceived = $response->json('received.crystal');
         $this->assertLessThan($expectedCrystalFromFullTrade, $actualReceived);
 
         // Verify the trade was capped (gave much less metal than requested)
@@ -965,8 +959,9 @@ class MerchantTest extends AccountTestCase
         $finalMetal = $this->planetService->metal()->get();
         $metalDeducted = $initialMetal - $finalMetal;
 
-        // Should have deducted 2,000, not 2
-        $this->assertEquals(2000, $metalDeducted, 'Should deduct 2,000 metal, not 2');
+        // Should have deducted ~2,000 metal, not 2 (exact amount varies by exchange rate due to floor/ceil rounding)
+        $this->assertGreaterThan(1990, $metalDeducted, 'Should deduct ~2,000 metal, not just 2');
+        $this->assertLessThanOrEqual(2000, $metalDeducted, 'Should not exceed declared give_amount cap');
         $this->assertGreaterThan(0, $this->planetService->crystal()->get(), 'Should have received crystal');
     }
 
