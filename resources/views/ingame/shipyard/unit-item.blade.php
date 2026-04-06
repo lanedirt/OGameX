@@ -53,7 +53,7 @@
         @else
         sprite_small small
         @endif{{ $building->object->class_name }}"
-        title="{{ $building->object->title }}">
+>
         @if ($building->currently_building)
             <span class="targetamount" data-value="{{ $building->amount + $building->currently_building_amount }}" data-bonus="0">
                 {{ $building->amount + $building->currently_building_amount }}
