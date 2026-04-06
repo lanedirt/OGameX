@@ -514,7 +514,6 @@ class ObjectService
                 return 0;
             }
         }
-        $object = self::getObjectByMachineName($machine_name);
         $price = self::getObjectPrice($machine_name, $planet);
 
         // Calculate max build amount based on price
