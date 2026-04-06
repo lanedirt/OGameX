@@ -59,16 +59,18 @@
 <br clear="all">
 
 <div id="description">
-    <div class="benefits">{{ __('t_ingame.premium.advantages') }}</div>
+    <div class="benefits">
+        {{ __('t_ingame.premium.advantages') }}
+        <a href="javascript:void(0);"
+           class="tooltipRight help"
+           data-tooltip-width="450"
+           data-tooltip-title="{{ __('t_ingame.premium.officer_' . $officerKey . '_tooltip') }}"></a>
+    </div>
     <div class="benefitlist">
         @foreach($benefitKeys as $key)
             <span>{{ __('t_ingame.premium.' . $key) }}</span>
         @endforeach
     </div>
-    <a href="javascript:void(0);"
-       class="tooltipRight help"
-       data-tooltip-width="450"
-       data-tooltip-title="{{ __('t_ingame.premium.officer_' . $officerKey . '_tooltip') }}"></a>
 </div>
 
 <script>
