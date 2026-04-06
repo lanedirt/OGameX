@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\View\View;
+use OGame\Factories\GameMissionFactory;
 use OGame\Http\Controllers\OGameController;
 use OGame\Models\FleetMission;
 use OGame\Models\User;
@@ -13,18 +14,6 @@ use OGame\Services\PlayerService;
 
 class FleetTimingController extends OGameController
 {
-    private const MISSION_TYPE_LABELS = [
-        1  => 'Attack',
-        2  => 'ACS Attack',
-        3  => 'Transport',
-        4  => 'Deployment',
-        5  => 'ACS Defend',
-        6  => 'Espionage',
-        7  => 'Colonization',
-        8  => 'Recycle',
-        9  => 'Moon Destruction',
-        15 => 'Expedition',
-    ];
 
     /**
      * Shows the fleet timing control panel.
@@ -59,7 +48,8 @@ class FleetTimingController extends OGameController
             'missions'          => $missions,
             'users'             => $users,
             'allUsers'          => $allUsers,
-            'missionTypeLabels' => self::MISSION_TYPE_LABELS,
+            'missionTypeLabels' => collect(GameMissionFactory::getAllMissions())
+                ->mapWithKeys(fn ($mission, $id) => [$id => $mission::getName()]),
             'filterUserId'      => $request->input('user_id'),
             'now'               => Date::now()->timestamp,
         ]);
