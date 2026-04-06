@@ -267,7 +267,7 @@ class AttackMission extends GameMission
                     $attackerWreckFieldData = null;
                     $characterClassService = resolve(CharacterClassService::class);
                     if ($characterClassService->isGeneral($fleetOwner->getUser())) {
-                        $attackerWreckFieldData = $this->calculateAttackerWreckField($fleetResult->unitsLost, $fleetResult->unitsStart);
+                        $attackerWreckFieldData = $this->calculateAttackerWreckField($fleetResult->unitsLost, $fleetResult->unitsStart, $originPlanet);
                     }
 
                     // Mark outbound mission as processed and create return mission with survivors
@@ -529,9 +529,10 @@ class AttackMission extends GameMission
                 // Calculate attacker's lost units (start - result = lost)
                 $attackerUnitsLost = clone $battleResult->attackerUnitsStart;
                 $attackerUnitsLost->subtractCollection($battleResult->attackerUnitsResult);
+                $originPlanet = $this->planetServiceFactory->makeForPlayer($attackerPlayer, $mission->planet_id_from);
 
                 // Calculate wreck field data if conditions are met
-                $attackerWreckFieldData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart);
+                $attackerWreckFieldData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart, $originPlanet);
             }
 
             $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult, 0, $attackerWreckFieldData);
@@ -590,32 +591,15 @@ class AttackMission extends GameMission
      *
      * @param UnitCollection $attackerUnitsLost Units lost by the attacker.
      * @param UnitCollection $attackerUnitsStart Starting units of the attacker.
+     * @param PlanetService $originPlanet The planet whose Space Dock determines repairable wreckage.
      * @return array<array{machine_name: string, quantity: int, repair_progress: int}>|null Wreck field data with ships array, or null if conditions not met.
      */
-    private function calculateAttackerWreckField(UnitCollection $attackerUnitsLost, UnitCollection $attackerUnitsStart): array|null
+    private function calculateAttackerWreckField(UnitCollection $attackerUnitsLost, UnitCollection $attackerUnitsStart, PlanetService $originPlanet): array|null
     {
-        $wreckFieldData = [];
-        $wreckFieldPercentage = (100.0 - $this->settings->debrisFieldFromShips()) / 100;
-
-        // Only ships (not defenses) can go into wreck fields
-        // Exclusions: espionage probes never create wrecks
-        foreach ($attackerUnitsLost->units as $unit) {
-            if ($unit->amount > 0 && $unit->unitObject->type === GameObjectType::Ship) {
-                // Skip espionage probes - they don't create wreckages
-                if ($unit->unitObject->machine_name === 'espionage_probe') {
-                    continue;
-                }
-
-                $wreckFieldCount = (int) floor($unit->amount * $wreckFieldPercentage);
-                if ($wreckFieldCount > 0) {
-                    $wreckFieldData[] = [
-                        'machine_name' => $unit->unitObject->machine_name,
-                        'quantity' => $wreckFieldCount,
-                        'repair_progress' => 0,
-                    ];
-                }
-            }
-        }
+        $spaceDockPlanet = $originPlanet->isMoon() ? $originPlanet->planet() : $originPlanet;
+        $spaceDockLevel = max(1, $spaceDockPlanet->getObjectLevel('space_dock'));
+        $wreckFieldService = new WreckFieldService($spaceDockPlanet->getPlayer(), $this->settings);
+        $wreckFieldData = $wreckFieldService->calculateShipsForWreckField($attackerUnitsLost, $spaceDockLevel);
 
         // Check if wreck field conditions are met
         $totalLostValue = $attackerUnitsLost->toResources()->metal->get() +
@@ -744,7 +728,8 @@ class AttackMission extends GameMission
             && $battleResult->attackerUnitsResult->getAmount() > 0) {
             $attackerUnitsLost = clone $battleResult->attackerUnitsStart;
             $attackerUnitsLost->subtractCollection($battleResult->attackerUnitsResult);
-            $generalWreckData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart);
+            $originPlanet = $this->planetServiceFactory->makeForPlayer($attackPlayer, $battleResult->attackerPlanetId);
+            $generalWreckData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart, $originPlanet);
 
             if ($generalWreckData !== null) {
                 $generalWreckForReport = [];

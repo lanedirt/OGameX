@@ -349,6 +349,10 @@
     <script type="text/javascript">
         var lastBuildingSlot = {
             "showWarning": false,
+            "exemptTechnologyIds": [33, 41],
+            "shouldWarnForTechnologyId": function (technologyId) {
+                return this.showWarning && this.exemptTechnologyIds.indexOf(Number(technologyId)) === -1;
+            },
             "slotWarning": ""
         };
     </script>

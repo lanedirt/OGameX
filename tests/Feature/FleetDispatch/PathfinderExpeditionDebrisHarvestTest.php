@@ -137,7 +137,7 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
      *
      * @throws BindingResolutionException
      */
-    public function testPathfinderCanHarvestRegularDebris(): void
+    public function testPathfinderCannotHarvestRegularDebris(): void
     {
         // Set up player and planet
         $planet = $this->planetService;
