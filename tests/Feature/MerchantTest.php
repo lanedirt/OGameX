@@ -375,6 +375,97 @@ class MerchantTest extends AccountTestCase
     }
 
     /**
+     * Test executing a trade that receives multiple resources in a single transaction.
+     */
+    public function testExecuteTradeWithMultipleReceiveResources(): void
+    {
+        // Call merchant first
+        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
+        $this->planetService->getPlayer()->save();
+
+        $callResponse = $this->post('/merchant/call', [
+            'type' => 'metal',
+            '_token' => csrf_token(),
+        ]);
+
+        $tradeRates = $callResponse->json()['tradeRates'];
+
+        // Give planet plenty of metal to trade
+        $this->planetService->addResources(new Resources(100000, 0, 0, 0));
+        $this->planetService->save();
+        $this->planetService->reloadPlanet();
+        $metalBefore = $this->planetService->metal()->get();
+        $crystalBefore = $this->planetService->crystal()->get();
+        $deuteriumBefore = $this->planetService->deuterium()->get();
+
+        // Trade metal for both crystal and deuterium simultaneously
+        $response = $this->post('/merchant/trade', [
+            'give_resource' => 'metal',
+            'receive_resources' => [
+                'crystal' => 1000,
+                'deuterium' => 500,
+            ],
+            'give_amount' => 50000,
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify both resources were received
+        $received = $response->json('received');
+        $this->assertArrayHasKey('crystal', $received);
+        $this->assertArrayHasKey('deuterium', $received);
+        $this->assertGreaterThan(0, $received['crystal']);
+        $this->assertGreaterThan(0, $received['deuterium']);
+
+        // Verify metal was deducted
+        $this->planetService->reloadPlanet();
+        $this->assertLessThan($metalBefore, $this->planetService->metal()->get());
+        $this->assertGreaterThan($crystalBefore, $this->planetService->crystal()->get());
+        $this->assertGreaterThan($deuteriumBefore, $this->planetService->deuterium()->get());
+    }
+
+    /**
+     * Test that a multi-resource trade is proportionally reduced when budget is insufficient.
+     */
+    public function testMultiResourceTradeScalesDownWhenBudgetExceeded(): void
+    {
+        // Call merchant first
+        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
+        $this->planetService->getPlayer()->save();
+
+        $this->post('/merchant/call', [
+            'type' => 'metal',
+            '_token' => csrf_token(),
+        ]);
+
+        // Give planet a limited amount of metal
+        $this->planetService->addResources(new Resources(5000, 0, 0, 0));
+        $this->planetService->save();
+        $this->planetService->reloadPlanet();
+
+        // Request more than we can afford: large receive amounts with small give_amount
+        $response = $this->post('/merchant/trade', [
+            'give_resource' => 'metal',
+            'receive_resources' => [
+                'crystal' => 5000,
+                'deuterium' => 5000,
+            ],
+            'give_amount' => 5000,
+            '_token' => csrf_token(),
+        ]);
+
+        // Trade should succeed with proportionally reduced amounts
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify the actual give amount did not exceed the budget
+        $actualGiven = $response->json('given');
+        $this->assertLessThanOrEqual(5000, $actualGiven);
+    }
+
+    /**
      * Test dismissing a merchant.
      */
     public function testDismissMerchant(): void
