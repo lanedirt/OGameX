@@ -602,10 +602,10 @@
             function showPhalanxResults(data) {
                 // Build OGame-style phalanx dialog
                 var coords = data.target.galaxy + ':' + data.target.system + ':' + data.target.position;
-                var dialog_title = '{{ ucfirst(__('t_ingame.galaxy.sensor_report')) }} ' + coords;
+                var dialog_title = coords + ' {{ __('t_ingame.galaxy.sensor_report') }}';
 
                 if (data.target.planet_name && data.target.player_name) {
-                    dialog_title = '{{ __('t_ingame.galaxy.sensor_report_from') }} ' + data.target.planet_name + ' ' + coords + ' (' + data.target.player_name + ')';
+                    dialog_title = data.target.planet_name + ' ' + coords + ' (' + data.target.player_name + ') {{ __('t_ingame.galaxy.sensor_report') }}';
                 }
 
                 // If error, wrap error_message in div

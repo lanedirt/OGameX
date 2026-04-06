@@ -271,7 +271,7 @@ class PhalanxTest extends FleetDispatchTestCase
         $this->assertEquals(1, $response->json('fleet_count'));
 
         $contentHtml = $response->json('content_html');
-        $this->assertStringContainsString(__('t_ingame.galaxy.own_fleet'), $contentHtml);
+        $this->assertStringContainsString('Your fleet', $contentHtml);
         $this->assertStringContainsString('Attack', $contentHtml);
     }
 
@@ -314,7 +314,7 @@ class PhalanxTest extends FleetDispatchTestCase
 
         // Check that it shows "Own fleet" (scanner's own fleet)
         $contentHtml = $response->json('content_html');
-        $this->assertStringContainsString(__('t_ingame.galaxy.own_fleet'), $contentHtml);
+        $this->assertStringContainsString('Your fleet', $contentHtml);
 
         // Reset mission type
         $this->missionType = 1;

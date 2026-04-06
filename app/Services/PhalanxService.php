@@ -312,18 +312,18 @@ class PhalanxService
     {
         // If scanner owns the fleet
         if ($fleet_owner_id === $scanner_player_id) {
-            return __('t_ingame.galaxy.own_fleet');
+            return 'Your fleet';
         }
 
         // If attack mission (type 1 = Attack) or ACS Attack (type 2)
         // TODO: ACS Attack (type 2) fleets are not yet shown in Phalanx scan results.
         // Each union member fleet needs to be displayed individually, matching OGame behaviour.
         if ($mission_type === 1) {
-            return __('t_ingame.galaxy.enemy_fleet');
+            return 'Enemy fleet';
         }
 
         // All other missions
-        return __('t_ingame.galaxy.friendly_fleet');
+        return 'Friendly fleet';
     }
 
     /**
