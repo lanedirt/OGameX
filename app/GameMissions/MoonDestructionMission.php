@@ -177,15 +177,22 @@ class MoonDestructionMission extends GameMission
         // Create battle report
         $reportId = $this->createBattleReport($attackerPlayer, $targetMoon, $battleResult);
 
-        // Check if attacker won the battle
-        if ($battleResult->attackerUnitsResult->getAmount() === 0) {
-            // Attacker lost - send battle report and end mission
+        // Only proceed with a moon destruction attempt when the attacker actually wins the
+        // preceding battle. Draws still leave attacker ships alive, but must not trigger MD.
+        if (!$this->didAttackerWinBattle($battleResult)) {
+            // Attacker did not win - send battle report and end mission
             $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
             $this->messageService->sendBattleReportMessageToPlayer($targetMoon->getPlayer(), $reportId);
 
-            // Mark mission as processed - no return mission
+            // Mark mission as processed; a return mission is created below if ships survived.
             $mission->processed = 1;
             $mission->save();
+
+            // If attacker ships survived (draw rather than total loss), send them home.
+            if ($battleResult->attackerUnitsResult->getAmount() > 0) {
+                $totalResources = new Resources($mission->metal, $mission->crystal, $mission->deuterium, 0);
+                $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult);
+            }
             return;
         }
 
@@ -195,6 +202,12 @@ class MoonDestructionMission extends GameMission
 
         // Proceed to destruction attempt
         $this->executeDestructionAttempt($mission, $targetMoon, $battleResult->attackerUnitsResult);
+    }
+
+    private function didAttackerWinBattle(BattleResult $battleResult): bool
+    {
+        return $battleResult->attackerUnitsResult->getAmount() > 0
+            && $battleResult->defenderUnitsResult->getAmount() === 0;
     }
 
     private function handleMissingMoon(FleetMission $mission): void
