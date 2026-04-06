@@ -317,29 +317,61 @@ class MerchantService
         // Sum total give cost across all receive resources
         $totalGiveCost = array_sum(array_column($tradePlan, 'give_cost'));
 
-        // Ensure total cost does not exceed the declared give_amount cap
-        if ($totalGiveCost > $giveAmount) {
-            return [
-                'success' => false,
-                'message' => __('t_merchant.error.trade.not_enough_resource', [
-                    'resource' => $giveResource,
-                    'have' => number_format($giveAmount),
-                    'need' => number_format($totalGiveCost),
-                ]),
-            ];
-        }
+        // Cap to the budget the player declared willing to spend
+        $effectiveBudget = min($giveAmount, (int)floor($currentResources->{$giveResource}->get()));
 
-        // Ensure player actually has enough of the give resource
-        $currentAmount = $currentResources->{$giveResource}->get();
-        if ($currentAmount < $totalGiveCost) {
-            return [
-                'success' => false,
-                'message' => __('t_merchant.error.trade.not_enough_resource', [
-                    'resource' => $giveResource,
-                    'have' => number_format($currentAmount),
-                    'need' => number_format($totalGiveCost),
-                ]),
-            ];
+        // If total cost exceeds budget, scale down all receive amounts proportionally
+        // (mirrors the old single-resource behaviour of silently reducing the trade)
+        if ($totalGiveCost > $effectiveBudget) {
+            if ($effectiveBudget <= 0) {
+                return [
+                    'success' => false,
+                    'message' => __('t_merchant.error.trade.not_enough_resource', [
+                        'resource' => $giveResource,
+                        'have' => number_format((int)floor($currentResources->{$giveResource}->get())),
+                        'need' => number_format($totalGiveCost),
+                    ]),
+                ];
+            }
+
+            $scaleFactor = $effectiveBudget / $totalGiveCost;
+            $newTotalCost = 0;
+            foreach ($tradePlan as $res => &$data) {
+                $data['receive'] = max(1, (int)floor($data['receive'] * $scaleFactor));
+                $exchangeRate = $activeMerchant['trade_rates']['receive'][$res]['rate'] / $giveRate;
+                $data['give_cost'] = (int)ceil($data['receive'] / $exchangeRate);
+                $newTotalCost += $data['give_cost'];
+            }
+            unset($data);
+
+            // After rounding, the total cost could still slightly exceed the budget.
+            // Trim the last resource's receive amount until it fits.
+            while ($newTotalCost > $effectiveBudget && !empty($tradePlan)) {
+                $lastRes = array_key_last($tradePlan);
+                $exchangeRate = $activeMerchant['trade_rates']['receive'][$lastRes]['rate'] / $giveRate;
+                $tradePlan[$lastRes]['receive']--;
+                if ($tradePlan[$lastRes]['receive'] <= 0) {
+                    $newTotalCost -= $tradePlan[$lastRes]['give_cost'];
+                    unset($tradePlan[$lastRes]);
+                    continue;
+                }
+                $oldCost = $tradePlan[$lastRes]['give_cost'];
+                $tradePlan[$lastRes]['give_cost'] = (int)ceil($tradePlan[$lastRes]['receive'] / $exchangeRate);
+                $newTotalCost -= ($oldCost - $tradePlan[$lastRes]['give_cost']);
+            }
+
+            if (empty($tradePlan)) {
+                return [
+                    'success' => false,
+                    'message' => __('t_merchant.error.trade.not_enough_resource', [
+                        'resource' => $giveResource,
+                        'have' => number_format($effectiveBudget),
+                        'need' => number_format($totalGiveCost),
+                    ]),
+                ];
+            }
+
+            $totalGiveCost = $newTotalCost;
         }
 
         // Execute the trade inside a DB transaction to guarantee atomicity:
