@@ -4416,10 +4416,10 @@ punycode@^2.1.0:
   resolved "https://registry.npmjs.org/punycode/-/punycode-2.3.1.tgz"
   integrity sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==
 
-pusher-js@^8.4.3:
-  version "8.4.3"
-  resolved "https://registry.yarnpkg.com/pusher-js/-/pusher-js-8.4.3.tgz#2271cada42375b146840278976e1c50926991da6"
-  integrity sha512-MYnVYhKxq2Oeg3HmTQxnKDj1oAZjqJCkEcYj8hYbH1Rw5pT0g8KtgOYVUKDRnyrPtwRvA9QR4wunwJW5xIbq0Q==
+pusher-js@^8.5.0:
+  version "8.5.0"
+  resolved "https://registry.yarnpkg.com/pusher-js/-/pusher-js-8.5.0.tgz#329d4fb4b5e4ae0a5e0a558b6da1a852c4badae4"
+  integrity sha512-V7uzGi9bqOOOyM/6IkJdpFyjGZj7llz1v0oWnYkZKcYLvbz6VcHVLmzKqkvegjuMumpfIEKGLmWHwFb39XFCpw==
   dependencies:
     tweetnacl "^1.0.3"
 
