@@ -247,7 +247,13 @@
                                 if ($is_in_vacation_mode) {
                                     $tooltip = __('You are not able to build while in vacation mode');
                                 } elseif (!$character_class_met) {
-                                    $tooltip = __('Wrong character class!');
+                                    $wrongClassKey = match (strtolower($object->machine_name)) {
+                                        'reaper'     => 't_ingame.buildings.wrong_class_general',
+                                        'crawler'    => 't_ingame.buildings.wrong_class_collector',
+                                        'pathfinder' => 't_ingame.buildings.wrong_class_discoverer',
+                                        default      => 't_ingame.buildings.wrong_class',
+                                    };
+                                    $tooltip = __($wrongClassKey);
                                 } elseif ($disabled_shipyard_upgrading) {
                                     $tooltip = __('Shipyard is being upgraded');
                                 } elseif ($ships_being_built) {
