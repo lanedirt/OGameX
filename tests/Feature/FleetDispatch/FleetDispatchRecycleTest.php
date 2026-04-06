@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\FleetDispatch;
 
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\GameMissions\RecycleMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
@@ -16,6 +18,11 @@ use Tests\FleetDispatchTestCase;
  */
 class FleetDispatchRecycleTest extends FleetDispatchTestCase
 {
+    /**
+     * @var array<Coordinate>
+     */
+    private array $createdDebrisCoordinates = [];
+
     /**
      * @var int The mission type for the test.
      */
@@ -41,6 +48,18 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
         $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
         $debrisFieldService->save();
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->createdDebrisCoordinates as $coordinate) {
+            $debrisFieldService = resolve(DebrisFieldService::class);
+            if ($debrisFieldService->loadForCoordinates($coordinate)) {
+                $debrisFieldService->delete();
+            }
+        }
+
+        parent::tearDown();
     }
 
     protected function messageCheckMissionArrival(): void
@@ -193,6 +212,75 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $this->assertObjectLevelOnPage($response, 'recycler', 5, 'Recycler ships are not at 5 units after return trip.');
 
         $this->messageCheckMissionReturn();
+    }
+
+    /**
+     * Verify that a recycle mission launched from a moon returns to the parent planet if the moon
+     * is destroyed before the fleet comes back.
+     */
+    public function testDispatchFleetFromMoonReturnsToPlanetWhenMoonIsDestroyed(): void
+    {
+        // Give the moon its own recycler and fuel so the mission is definitely launched from the moon.
+        $this->moonService->addUnit('recycler', 1);
+        $this->moonService->addResources(new Resources(0, 0, 100000, 0));
+
+        // Create debris at a DB-checked empty coordinate to avoid reusing crowded positions.
+        $targetCoordinate = $this->getNearbyEmptyCoordinate(13, 15);
+        $this->createdDebrisCoordinates[] = $targetCoordinate;
+
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($targetCoordinate);
+        $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
+        $debrisFieldService->save();
+
+        $this->switchToMoon();
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('recycler'), 1);
+        $this->dispatchFleet($targetCoordinate, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::DebrisField);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $outboundMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration(
+            $this->moonService,
+            $targetCoordinate,
+            $unitCollection,
+            resolve(RecycleMission::class)
+        );
+
+        $this->assertSame($this->moonService->getPlanetId(), $outboundMission->planet_id_from, 'Recycle mission should start from the moon for this regression test.');
+
+        // Destroy the moon while the fleet is still in flight.
+        $this->switchToFirstPlanet();
+        $this->moonService->abandonPlanet();
+
+        $this->reloadApplication();
+        $this->switchToFirstPlanet();
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+
+        $this->travel($fleetMissionDuration + 1)->seconds();
+
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(1, $activeMissions, 'Recycle mission should create a return trip even after the moon is destroyed.');
+
+        $returnMission = $activeMissions->first();
+        $this->assertSame($this->planetService->getPlanetId(), $returnMission->planet_id_to, 'Return trip should be rerouted to the parent planet.');
+        $this->assertSame(PlanetType::Planet->value, $returnMission->type_to, 'Return trip should target the parent planet.');
+
+        $returnTripDuration = $returnMission->time_arrival - $returnMission->time_departure;
+        $this->travel($returnTripDuration + 1)->seconds();
+
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $this->assertCount(0, $activeMissions, 'Return trip should complete at the parent planet.');
+
+        $this->planetService->reloadPlanet();
+        $this->assertSame(1, $this->planetService->getObjectLevel('recycler'), 'Recycler should be returned to the parent planet after the moon is destroyed.');
     }
 
     /**
@@ -360,7 +448,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = Carbon::getTestNow()->addMinute();
+        $fleetParentTime = Date::getTestNow()->addMinute();
         $this->travelTo($fleetParentTime);
 
         // Cancel the mission
@@ -393,7 +481,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $this->get('/overview');
