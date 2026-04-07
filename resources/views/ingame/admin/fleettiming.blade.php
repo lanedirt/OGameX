@@ -122,7 +122,7 @@
 
     @if (session('success'))
         <div style="background:#1a3a1a;border:1px solid #4caf50;color:#4caf50;padding:8px 14px;margin-bottom:10px;border-radius:4px;font-size:12px;">
-            ✓ {{ session('success') }}
+            {{ session('success') }}
         </div>
     @endif
 
@@ -140,7 +140,7 @@
                     <span>|</span>
                     <span>Server time: <strong id="server-clock" style="font-family:monospace;"></strong></span>
                     <span>|</span>
-                    <button onclick="location.reload()" class="btn_blue" style="font-size:11px;padding:2px 8px;">↻ Refresh</button>
+                    <button onclick="location.reload()" class="btn_blue" style="font-size:11px;padding:2px 8px;">Refresh</button>
                 </div>
 
                 {{-- ── FILTER BAR ─────────────────────────────────────────── --}}
@@ -157,13 +157,13 @@
                         </label>
                         <input type="text" id="player-search"
                                list="player-datalist"
-                               placeholder="🔍 cerca..."
+                               placeholder="Search..."
                                autocomplete="off"
                                value="{{ $filterUserId && isset($allUsers[$filterUserId]) ? $allUsers[$filterUserId].' (#'.$filterUserId.')' : '' }}"
                                style="background:#0d1a26;border:1px solid #2a4a6a;color:#8ec8f0;padding:3px 6px;font-size:11px;width:180px;">
                         <input type="submit" class="btn_blue" value="Go" style="font-size:11px;padding:3px 8px;">
                         @if ($filterUserId)
-                            <a href="{{ route('admin.fleettiming.index') }}" class="btn_blue" style="padding:3px 8px;font-size:11px;">✕ Clear</a>
+                            <a href="{{ route('admin.fleettiming.index') }}" class="btn_blue" style="padding:3px 8px;font-size:11px;">Clear</a>
                         @endif
                     </div>
                 </form>
@@ -176,7 +176,7 @@
                         <input type="hidden" name="user_id" value="{{ $filterUserId }}">
                     @endif
                     <div class="ft-global-bar">
-                        <span class="textBeefy" style="color:#f90;white-space:nowrap;">⚡ Global action:</span>
+                        <span class="textBeefy" style="color:#f90;white-space:nowrap;">Global action:</span>
                         <input type="submit" class="btn_red"
                                value="{{ $filterUserId ? 'Arrive ALL now (this player)' : 'Arrive ALL now (all players)' }}"
                                style="font-weight:bold;">
@@ -276,7 +276,7 @@
                                                 <form method="POST" action="{{ route('admin.fleettiming.fast-forward') }}">
                                                     @csrf
                                                     <input type="hidden" name="mission_id" value="{{ $mission->id }}">
-                                                    <input type="submit" class="btn_red" value="⚡ Now"
+                                                    <input type="submit" class="btn_red" value="Now"
                                                            onclick="return confirm('Arrive mission #{{ $mission->id }} immediately?')">
                                                 </form>
                                                 {{-- Reduce Time --}}
