@@ -15,14 +15,20 @@ use OGame\Services\PlayerService;
 class FleetTimingController extends OGameController
 {
 
+    private const PER_PAGE_OPTIONS = [50, 100, 200, 500];
+    private const PER_PAGE_DEFAULT = 50;
+
     /**
      * Shows the fleet timing control panel.
      */
     public function index(PlayerService $playerService, Request $request): View
     {
         $request->validate([
-            'user_id' => 'sometimes|nullable|integer|min:1',
+            'user_id'  => 'sometimes|nullable|integer|min:1',
+            'per_page' => 'sometimes|nullable|integer|in:50,100,200,500',
         ]);
+
+        $perPage = (int) $request->input('per_page', self::PER_PAGE_DEFAULT);
 
         $query = FleetMission::where('processed', 0)
             ->where('canceled', 0)
@@ -32,7 +38,7 @@ class FleetTimingController extends OGameController
             $query->where('user_id', (int) $request->input('user_id'));
         }
 
-        $missions = $query->get();
+        $missions = $query->paginate($perPage)->withQueryString();
 
         $userIds = $missions->pluck('user_id')->unique();
         $users   = User::whereIn('id', $userIds)->pluck('username', 'id');
@@ -51,6 +57,8 @@ class FleetTimingController extends OGameController
             'missionTypeLabels' => collect(GameMissionFactory::getAllMissions())
                 ->mapWithKeys(fn ($mission, $id) => [$id => $mission::getName()]),
             'filterUserId'      => $request->input('user_id'),
+            'perPage'           => $perPage,
+            'perPageOptions'    => self::PER_PAGE_OPTIONS,
             'now'               => Date::now()->timestamp,
         ]);
     }

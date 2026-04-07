@@ -29,7 +29,7 @@
 
                     {{-- ── HEADER BAR ─────────────────────────────────────────── --}}
                     <p class="box_highlight textCenter no_buddies">
-                        Active missions: <strong id="mission-count">{{ $missions->count() }}</strong>
+                        Active missions: <strong>{{ $missions->total() }}</strong>
                         &nbsp;|&nbsp;
                         Server time: <strong id="server-clock" style="font-family: monospace;"></strong>
                         &nbsp;
@@ -61,6 +61,19 @@
                                     @if ($filterUserId)
                                         <a href="{{ route('admin.fleettiming.index') }}" class="btn_blue">Clear</a>
                                     @endif
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">Results per page:</label>
+                                <div class="thefield">
+                                    <select name="per_page" class="w130"
+                                            onchange="this.form.submit()">
+                                        @foreach ($perPageOptions as $option)
+                                            <option value="{{ $option }}" {{ $perPage === $option ? 'selected' : '' }}>
+                                                {{ $option }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -200,6 +213,42 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        {{-- ── PAGINATION ──────────────────────────────────────── --}}
+                        @if ($missions->lastPage() > 1)
+                            <div class="fieldwrapper" style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; flex-wrap: wrap; gap: 6px;">
+                                <div class="smallFont">
+                                    Showing {{ $missions->firstItem() }}–{{ $missions->lastItem() }} of {{ $missions->total() }} missions
+                                </div>
+                                <div style="display: flex; gap: 4px; flex-wrap: wrap; align-items: center;">
+                                    @if ($missions->onFirstPage())
+                                        <span class="btn_blue" style="opacity: 0.4; cursor: default; font-size: 11px; padding: 2px 8px;">Previous</span>
+                                    @else
+                                        <a href="{{ $missions->previousPageUrl() }}" class="btn_blue" style="font-size: 11px; padding: 2px 8px;">Previous</a>
+                                    @endif
+
+                                    @foreach ($missions->getUrlRange(max(1, $missions->currentPage() - 2), min($missions->lastPage(), $missions->currentPage() + 2)) as $page => $url)
+                                        @if ($page === $missions->currentPage())
+                                            <span class="btn_blue" style="font-weight: bold; font-size: 11px; padding: 2px 8px;">{{ $page }}</span>
+                                        @else
+                                            <a href="{{ $url }}" class="btn_blue" style="font-size: 11px; padding: 2px 8px;">{{ $page }}</a>
+                                        @endif
+                                    @endforeach
+
+                                    @if ($missions->hasMorePages())
+                                        <a href="{{ $missions->nextPageUrl() }}" class="btn_blue" style="font-size: 11px; padding: 2px 8px;">Next</a>
+                                    @else
+                                        <span class="btn_blue" style="opacity: 0.4; cursor: default; font-size: 11px; padding: 2px 8px;">Next</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @else
+                            <div class="fieldwrapper">
+                                <div class="smallFont">
+                                    Showing {{ $missions->total() }} mission(s)
+                                </div>
+                            </div>
+                        @endif
                     @endif
 
                 </div>
