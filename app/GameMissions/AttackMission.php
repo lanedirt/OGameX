@@ -493,9 +493,9 @@ class AttackMission extends GameMission
 
             // Calculate resources remaining on surviving ships
             $remainingResources = new Resources(
-                max(0, (int)($mission->metal * $survivalRate)),
-                max(0, (int)($mission->crystal * $survivalRate)),
-                max(0, (int)($mission->deuterium * $survivalRate)),
+                max(0, (int)min($mission->metal * $survivalRate, PHP_INT_MAX)),
+                max(0, (int)min($mission->crystal * $survivalRate, PHP_INT_MAX)),
+                max(0, (int)min($mission->deuterium * $survivalRate, PHP_INT_MAX)),
                 0
             );
 

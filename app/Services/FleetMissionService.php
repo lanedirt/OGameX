@@ -206,7 +206,7 @@ class FleetMissionService
         // Apply General class deuterium consumption reduction (-50%)
         $characterClassService = app(CharacterClassService::class);
         $consumptionMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($fromPlanet->getPlayer()->getUser());
-        $consumption = (int)($consumption * $consumptionMultiplier);
+        $consumption = (int)min($consumption * $consumptionMultiplier, PHP_INT_MAX);
 
         return $consumption;
     }
