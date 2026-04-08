@@ -92,7 +92,7 @@
                                 <div class="smallFont">Sets time_arrival = now and time_holding = 0 for all visible missions.</div>
                             </div>
                             <div class="fieldwrapper" style="text-align: center;">
-                                <input type="submit" class="btn_red" style="font-weight: bold;"
+                                <input type="submit" class="btn_blue" style="font-weight: bold;"
                                        value="{{ $filterUserId ? 'Arrive ALL now (this player)' : 'Arrive ALL now (all players)' }}">
                             </div>
                         </div>
@@ -190,7 +190,7 @@
                                                           style="display: flex; align-items: center; gap: 3px;">
                                                         @csrf
                                                         <input type="hidden" name="mission_id" value="{{ $mission->id }}">
-                                                        <input type="submit" class="btn_red" value="Now"
+                                                        <input type="submit" class="btn_blue" value="Now"
                                                                style="font-size: 10px; padding: 2px 5px;"
                                                                onclick="return confirm('Arrive mission #{{ $mission->id }} immediately?')">
                                                     </form>
