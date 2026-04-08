@@ -40,7 +40,7 @@
                     <li class="originFleet">
                         <figure class="planetIcon planet"></figure>
                         @if (!empty($movement['origin']['planet_name']))
-                            <span class="planetName" style="font-weight: bold; color: #fff;">{{ $movement['origin']['planet_name'] }}</span>
+                            <span class="planetName highlight">{{ $movement['origin']['planet_name'] }}</span>
                         @endif
                     </li>
                     <li class="coordsOrigin">
@@ -57,7 +57,7 @@
                     <li class="destFleet">
                         <figure class="planetIcon planet"></figure>
                         @if (!empty($movement['destination']['planet_name']))
-                            <span class="planetName">{{ $movement['destination']['planet_name'] }}</span>
+                            <span class="planetName highlight">{{ $movement['destination']['planet_name'] }}</span>
                         @endif
                     </li>
                     <li class="destCoords">

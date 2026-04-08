@@ -34943,6 +34943,12 @@ ul.og-paginatable li.active {
     overflow:hidden;
 }
 
+#phalanxWrap .eventFleet .planetName.highlight,
+#phalanxWrap .partnerInfo .planetName.highlight {
+    font-weight:bold;
+    color:#fff;
+}
+
 #phalanxWrap .eventFleet .detailsFleet,
 #phalanxWrap .partnerInfo .detailsFleet {
     color:#9c0;
