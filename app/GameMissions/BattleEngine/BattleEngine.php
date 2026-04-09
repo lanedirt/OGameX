@@ -227,6 +227,9 @@ abstract class BattleEngine
             $result->loot = new Resources(0, 0, 0, 0);
         }
 
+        // Distribute loot and surviving cargo proportionally among each attacker fleet.
+        $this->distributeResources($result);
+
         // Calculate debris.
         // Only permanently lost defenses contribute to debris (destroyed - repaired).
         $permanentlyLostDefenderUnits = clone $result->defenderUnitsLost;
@@ -259,6 +262,92 @@ abstract class BattleEngine
      * @return array<BattleResultRound>
      */
     abstract protected function fightBattleRounds(BattleResult $result): array;
+
+    /**
+     * Populate survivingCargo and lootShare for each attacker fleet result.
+     *
+     * For multi-attacker battles, loot is allocated proportionally to each fleet's
+     * surviving cargo capacity. Carried resources survive at the same rate as cargo
+     * capacity (proportional to the fraction of ships that survived). Each fleet's
+     * loot share is further capped by the space remaining after surviving cargo is
+     * accounted for.
+     *
+     * Single-attacker battles are handled separately in AttackMission::processArrival()
+     * using the original single-fleet path, so this method is a no-op in that case.
+     *
+     * @param BattleResult $result
+     * @return void
+     */
+    private function distributeResources(BattleResult $result): void
+    {
+        if (count($this->attackers) <= 1) {
+            return;
+        }
+
+        // Index attacker fleets by fleet mission ID for efficient lookup.
+        $attackersByMissionId = [];
+        foreach ($this->attackers as $attacker) {
+            $attackersByMissionId[$attacker->fleetMissionId] = $attacker;
+        }
+
+        // Step 1: Compute per-fleet surviving cargo capacity and surviving carried resources.
+        $survivingCapacityByFleet = []; // fleetMissionId => int
+        $totalSurvivingCapacity = 0;
+
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            $attacker = $attackersByMissionId[$fleetResult->fleetMissionId] ?? null;
+            if ($attacker === null || $fleetResult->completelyDestroyed) {
+                $survivingCapacityByFleet[$fleetResult->fleetMissionId] = 0;
+                $fleetResult->survivingCargo = new Resources(0, 0, 0, 0);
+                continue;
+            }
+
+            $originalCapacity = $attacker->getSurvivingCargoCapacity($attacker->units);
+            $survivingCapacity = $attacker->getSurvivingCargoCapacity($fleetResult->unitsResult);
+
+            $survivingCapacityByFleet[$fleetResult->fleetMissionId] = $survivingCapacity;
+            $totalSurvivingCapacity += $survivingCapacity;
+
+            // Carried resources survive at the same rate as cargo capacity.
+            $survivalRate = $originalCapacity > 0 ? $survivingCapacity / $originalCapacity : 0.0;
+            $fleetResult->survivingCargo = new Resources(
+                max(0, (int)($attacker->cargoResources->metal->get() * $survivalRate)),
+                max(0, (int)($attacker->cargoResources->crystal->get() * $survivalRate)),
+                max(0, (int)($attacker->cargoResources->deuterium->get() * $survivalRate)),
+                0
+            );
+        }
+
+        // Step 2: Distribute loot proportionally by surviving cargo capacity.
+        if ($totalSurvivingCapacity <= 0 || $result->loot->sum() <= 0) {
+            return;
+        }
+
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            $survivingCapacity = $survivingCapacityByFleet[$fleetResult->fleetMissionId] ?? 0;
+            if ($survivingCapacity <= 0) {
+                continue;
+            }
+
+            $fraction = $survivingCapacity / $totalSurvivingCapacity;
+
+            // Raw proportional share of each resource type.
+            $lootShare = new Resources(
+                max(0, (int)($result->loot->metal->get() * $fraction)),
+                max(0, (int)($result->loot->crystal->get() * $fraction)),
+                max(0, (int)($result->loot->deuterium->get() * $fraction)),
+                0
+            );
+
+            // Cap to space remaining after surviving carried cargo is accounted for.
+            $availableForLoot = max(0, (int)($survivingCapacity - $fleetResult->survivingCargo->sum()));
+            if ($lootShare->sum() > $availableForLoot) {
+                $lootShare = LootService::distributeLoot($lootShare, $availableForLoot);
+            }
+
+            $fleetResult->lootShare = $lootShare;
+        }
+    }
 
     /**
      * Calculate the debris field based on the units lost in the battle.

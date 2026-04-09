@@ -12,7 +12,6 @@ use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameMissions\Models\MissionPossibleStatus;
-use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
@@ -227,10 +226,6 @@ class AttackMission extends GameMission
                     // Fleet survived - create return mission with survivors
                     $fleetOwner = $this->playerServiceFactory->make($fleetResult->playerId);
 
-                    // TODO: Calculate per-fleet loot share (proportional to surviving cargo capacity)
-                    // and surviving cargo (mission resources proportional to cargo survival rate).
-                    // Currently lootShare and survivingCargo are zero — loot/cargo distribution
-                    // across multiple ACS fleets is slated for a future PR.
                     // TODO: Include Reaper-collected debris share for multi-attacker battles.
                     // Currently Reaper debris collection only works for single-attacker path.
                     $totalResources = new Resources(

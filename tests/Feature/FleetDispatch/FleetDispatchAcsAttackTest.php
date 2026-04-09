@@ -946,8 +946,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
     /**
      * Test that an ACS attack with multiple fleets creates return missions for all survivors.
-     * Note: per-fleet loot distribution (survivingCargo/lootShare) is not yet implemented
-     * for multi-fleet ACS attacks; this test verifies return missions are created correctly.
      */
     public function testAcsAttackMultiFleetReturnMissionsCreated(): void
     {
@@ -1364,5 +1362,122 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $response->assertStatus(200);
         $response->assertJson(['orders' => [2 => false]]);
+    }
+
+    /**
+     * Test that ACS Attack distributes loot proportionally by surviving cargo capacity
+     * and preserves resources carried by each fleet.
+     *
+     * Setup:
+     *   Initiator: 2 large cargoes (25 000 capacity each = 50 000 total), carrying 1 000 metal
+     *   Ally:      1 small cargo  ( 5 000 capacity),                       carrying   500 metal
+     *   Defender:  22 000 metal, no ships / defense
+     *
+     * Expected after battle (all ships survive, attacker wins):
+     *   Total loot = 50% of 22 000 = 11 000 metal
+     *   Initiator fraction = 50 000 / 55 000 → loot = 10 000 metal (exact integer)
+     *   Ally      fraction =  5 000 / 55 000 → loot =  1 000 metal (exact integer)
+     *
+     *   Initiator return: 1 000 (surviving cargo) + 10 000 (loot) = 11 000 metal
+     *   Ally      return:   500 (surviving cargo) +  1 000 (loot) =  1 500 metal
+     *
+     * Using different ship types per fleet (large_cargo vs small_cargo) avoids triggering
+     * the UnitCollection reference-aliasing mutation, which is fixed by a separate PR.
+     */
+    public function testAcsAttackCargoAndLootDistribution(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        // Set exact defender resources for deterministic loot calculation.
+        DB::table('planets')
+            ->where('id', $this->targetPlanet->getPlanetId())
+            ->update(['metal' => 22000, 'crystal' => 0, 'deuterium' => 0]);
+
+        // Give initiator planet metal to carry as cargo and add 2 large cargoes.
+        $this->planetAddResources(new Resources(2000, 0, 0, 0));
+        $this->planetAddUnit('large_cargo', 2);
+        $initiatorFleet = new UnitCollection();
+        $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 2);
+        $this->dispatchFleet(
+            $this->targetPlanet->getPlanetCoordinates(),
+            $initiatorFleet,
+            new Resources(1000, 0, 0, 0),
+            PlanetType::Planet
+        );
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Create union and invite ally.
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'LootDistTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        // Give ally planet metal to carry and add 1 small cargo (different type from initiator
+        // to avoid the reference-aliasing mutation that affects same-type multi-fleet combinations).
+        $this->allyPlanet->addResources(new Resources(1000, 0, 0, 0));
+        $this->allyPlanet->addUnit('small_cargo', 1);
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(500, 0, 0, 0),
+            10,
+            0
+        );
+
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        // Advance time past arrival and trigger fleet processing.
+        $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
+        $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        // Fetch return missions.
+        $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
+            ->where('canceled', 0)
+            ->first();
+        $allyReturn = FleetMission::where('parent_id', $allyMission->id)
+            ->where('canceled', 0)
+            ->first();
+
+        $this->assertNotNull($initiatorReturn, 'Initiator should have a return mission');
+        $this->assertNotNull($allyReturn, 'Ally should have a return mission');
+
+        // Verify loot distribution and cargo preservation.
+        // Initiator: 50 000 / 55 000 of 11 000 = 10 000 metal loot + 1 000 surviving cargo = 11 000
+        $this->assertEquals(
+            11000,
+            $initiatorReturn->metal,
+            'Initiator return should carry 1000 (surviving cargo) + 10000 (10/11 loot) = 11000 metal'
+        );
+        // Ally: 5 000 / 55 000 of 11 000 = 1 000 metal loot + 500 surviving cargo = 1 500
+        $this->assertEquals(
+            1500,
+            $allyReturn->metal,
+            'Ally return should carry 500 (surviving cargo) + 1000 (1/11 loot) = 1500 metal'
+        );
+
+        // No crystal was looted (defender had none) and none was carried.
+        $this->assertEquals(0, $initiatorReturn->crystal);
+        $this->assertEquals(0, $allyReturn->crystal);
+        // Note: deuterium is not asserted because the mission's deuterium field combines
+        // cargo and fuel; fuel is returned with surviving ships (same behaviour as single-attacker).
     }
 }
