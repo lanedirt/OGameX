@@ -34943,8 +34943,10 @@ ul.og-paginatable li.active {
     overflow:hidden;
 }
 
-#phalanxWrap .eventFleet .planetName.highlight,
-#phalanxWrap .partnerInfo .planetName.highlight {
+#phalanxWrap .eventFleet .originFleet .planetName.highlight,
+#phalanxWrap .eventFleet .destFleet .planetName.highlight,
+#phalanxWrap .partnerInfo .originFleet .planetName.highlight,
+#phalanxWrap .partnerInfo .destFleet .planetName.highlight {
     font-weight:bold;
     color:#fff;
 }

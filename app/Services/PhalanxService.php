@@ -312,7 +312,7 @@ class PhalanxService
     {
         // If scanner owns the fleet
         if ($fleet_owner_id === $scanner_player_id) {
-            return 'Your fleet';
+            return 'Own fleet';
         }
 
         // If attack mission (type 1 = Attack) or ACS Attack (type 2)

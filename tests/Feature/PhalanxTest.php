@@ -276,7 +276,7 @@ class PhalanxTest extends FleetDispatchTestCase
     }
 
     /**
-     * Test that scanning shows "Your fleet" label for own transport missions.
+     * Test that scanning shows "Own fleet" label for own transport missions.
      */
     public function testScanShowsYourFleetLabelForTransport(): void
     {
@@ -312,9 +312,9 @@ class PhalanxTest extends FleetDispatchTestCase
         $response->assertStatus(200);
         $this->assertEquals(1, $response->json('fleet_count'));
 
-        // Check that it shows "Your fleet" (scanner's own fleet)
+        // Check that it shows "Own fleet" (scanner's own fleet)
         $contentHtml = $response->json('content_html');
-        $this->assertStringContainsString('Your fleet', $contentHtml);
+        $this->assertStringContainsString('Own fleet', $contentHtml);
 
         // Reset mission type
         $this->missionType = 1;
