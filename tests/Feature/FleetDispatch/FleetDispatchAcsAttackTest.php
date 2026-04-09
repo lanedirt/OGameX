@@ -61,46 +61,88 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
     protected function tearDown(): void
     {
-        // Clean up fleet unions and their invites created during this test.
-        // Deleting the union cascades to fleet_union_invites via FK.
-        // Also unlink any fleet missions referencing these unions.
+        // Capture IDs before anything modifies the static array.
+        $createdUserIds = self::$allCreatedBuddyUserIds;
+
+        // --- Union cleanup (must run before fleet_mission deletion) ---
+        $allUserIds = array_merge(
+            $createdUserIds,
+            isset($this->currentUserId) ? [$this->currentUserId] : []
+        );
         $unionIds = DB::table('fleet_unions')
-            ->whereIn('user_id', array_merge(self::$allCreatedBuddyUserIds, isset($this->currentUserId) ? [$this->currentUserId] : []))
+            ->whereIn('user_id', $allUserIds)
             ->pluck('id')
             ->toArray();
 
         if (!empty($unionIds)) {
-            // Unlink fleet missions from these unions before deleting
             DB::table('fleet_missions')
                 ->whereIn('union_id', $unionIds)
                 ->update(['union_id' => null, 'union_slot' => null]);
-
             DB::table('fleet_unions')
                 ->whereIn('id', $unionIds)
                 ->delete();
         }
 
-        // Clean up buddy relationships and user state for created users
-        while (!empty(self::$allCreatedBuddyUserIds)) {
-            $buddyUserId = array_shift(self::$allCreatedBuddyUserIds);
+        if (!empty($createdUserIds)) {
+            // Collect all planet IDs belonging to the created users.
+            $createdPlanetIds = DB::table('planets')
+                ->whereIn('user_id', $createdUserIds)
+                ->pluck('id')
+                ->toArray();
 
-            DB::table('buddy_requests')
-                ->where(function ($query) use ($buddyUserId) {
-                    $query->where('sender_user_id', $buddyUserId)
-                        ->orWhere('receiver_user_id', $buddyUserId);
-                })
-                ->delete();
+            // Disable FK checks for the duration of the cleanup so we do not need to
+            // enumerate every table that references users or planets. Re-enabled below.
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
 
-            DB::table('users')
-                ->where('id', $buddyUserId)
-                ->update([
-                    'alliance_id' => null,
-                    'alliance_left_at' => null,
-                    'vacation_mode' => false,
-                    'vacation_mode_activated_at' => null,
-                    'vacation_mode_until' => null,
-                ]);
+            try {
+                // --- Buddy requests ---
+                DB::table('buddy_requests')
+                    ->where(function ($q) use ($createdUserIds) {
+                        $q->whereIn('sender_user_id', $createdUserIds)
+                          ->orWhereIn('receiver_user_id', $createdUserIds);
+                    })
+                    ->delete();
+
+                // --- Fleet missions ---
+                // Delete missions owned by created users, plus any mission that references
+                // one of their planets as origin or destination (e.g. return missions owned
+                // by the main attacker that depart from / arrive at the target planet).
+                DB::table('fleet_missions')
+                    ->where(function ($q) use ($createdUserIds, $createdPlanetIds) {
+                        $q->whereIn('user_id', $createdUserIds);
+                        if (!empty($createdPlanetIds)) {
+                            $q->orWhereIn('planet_id_from', $createdPlanetIds)
+                              ->orWhereIn('planet_id_to', $createdPlanetIds);
+                        }
+                    })
+                    ->delete();
+
+                // --- Battle / espionage reports ---
+                DB::table('battle_reports')->whereIn('planet_user_id', $createdUserIds)->delete();
+                DB::table('espionage_reports')->whereIn('planet_user_id', $createdUserIds)->delete();
+
+                // --- Messages ---
+                DB::table('messages')->whereIn('user_id', $createdUserIds)->delete();
+
+                // --- Planets ---
+                if (!empty($createdPlanetIds)) {
+                    DB::table('planets')->whereIn('id', $createdPlanetIds)->delete();
+                }
+
+                // --- Users ---
+                DB::table('users')->whereIn('id', $createdUserIds)->delete();
+            } finally {
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            }
+
+            self::$allCreatedBuddyUserIds = [];
         }
+
+        // Reset per-test instance state.
+        $this->targetPlanet = null;
+        $this->targetUser   = null;
+        $this->allyPlanet   = null;
+        $this->allyUser     = null;
 
         parent::tearDown();
     }
