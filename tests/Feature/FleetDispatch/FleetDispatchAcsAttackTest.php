@@ -1365,4 +1365,102 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $response->assertStatus(200);
         $response->assertJson(['orders' => [2 => false]]);
     }
+
+    /**
+     * Regression test: ACS attack must not inflate ship counts due to shared UnitEntry references.
+     *
+     * UnitCollection::addCollection() is called multiple times per battle (BattleEngine
+     * constructor, simulateBattle, sanitizeRoundArray). If entries are inserted by reference
+     * rather than by clone, repeated merges compound the unit amounts in the source collection,
+     * causing the battle engine to see more ships than were actually dispatched and returning
+     * inflated survivors to each attacker.
+     */
+    public function testAcsAttackDoesNotInflateShipCountsViaAlias(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        $initiatorCruiserCount = 360;
+        $allyCruiserCount = 180;
+
+        // Give both planets enough cruisers (cruiser has no prerequisites in test env)
+        $this->planetAddUnit('cruiser', $initiatorCruiserCount);
+        $this->allyPlanet->addUnit('cruiser', $allyCruiserCount);
+
+        // Dispatch initiator fleet
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), $initiatorCruiserCount);
+        $this->dispatchFleet(
+            $this->targetPlanet->getPlanetCoordinates(),
+            $unitCollection,
+            new Resources(0, 0, 0, 0),
+            PlanetType::Planet
+        );
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Create union
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'AliasRegressionUnion',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+        $this->assertNotNull($unionId, 'Union should be created');
+
+        // Ally joins with fleet of the same ship type (cruiser)
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), $allyCruiserCount);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        // Advance to arrival and trigger mission processing
+        $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
+        $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        // Verify battle report shows correct combined attacker count (360 + 180 = 540)
+        $battleReport = BattleReport::orderBy('id', 'desc')->first();
+        $this->assertNotNull($battleReport, 'Battle report should exist');
+
+        $reportedCruisers = $battleReport->attacker['units']['cruiser'] ?? 0;
+        $expectedTotal = $initiatorCruiserCount + $allyCruiserCount; // 540
+        $this->assertEquals(
+            $expectedTotal,
+            $reportedCruisers,
+            "Battle report should show exactly {$expectedTotal} cruisers (not inflated by aliasing)"
+        );
+
+        // Verify initiator return mission carries exactly the initiator's fleet count
+        $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
+            ->where('canceled', 0)
+            ->first();
+        $this->assertNotNull($initiatorReturn, 'Initiator should have a return mission');
+
+        $returnedCruisers = $initiatorReturn->cruiser;
+        $this->assertEquals(
+            $initiatorCruiserCount,
+            $returnedCruisers,
+            "Initiator return mission should carry exactly {$initiatorCruiserCount} cruisers (not doubled)"
+        );
+    }
 }

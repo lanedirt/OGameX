@@ -210,9 +210,12 @@ class UnitCollection
                 }
             }
 
-            // If the unit is not in the collection, add it.
+            // Clone the entry before inserting so this collection owns an independent copy.
+            // Inserting the original reference would alias the UnitEntry with the source
+            // collection; later writes to the amount in either collection would silently
+            // affect the other, producing incorrect totals across repeated merges.
             if (!$found) {
-                $this->units[] = $entry;
+                $this->units[] = clone $entry;
             }
         }
     }
