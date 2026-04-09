@@ -34922,11 +34922,19 @@ ul.og-paginatable li.active {
 }
 
 #phalanxWrap .eventFleet .descFleet,
-#phalanxWrap .eventFleet .originFleet,
-#phalanxWrap .partnerInfo .descFleet,
-#phalanxWrap .partnerInfo .originFleet {
+#phalanxWrap .partnerInfo .descFleet {
     color:#7c8e9a;
     font-weight:700;
+    text-align:left;
+    width:215px;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+#phalanxWrap .eventFleet .originFleet,
+#phalanxWrap .partnerInfo .originFleet {
+    color:#fff;
+    font-weight:bold;
     text-align:left;
     width:215px;
     white-space:nowrap;
@@ -34943,13 +34951,7 @@ ul.og-paginatable li.active {
     overflow:hidden;
 }
 
-#phalanxWrap .eventFleet .originFleet .planetName.highlight,
-#phalanxWrap .eventFleet .destFleet .planetName.highlight,
-#phalanxWrap .partnerInfo .originFleet .planetName.highlight,
-#phalanxWrap .partnerInfo .destFleet .planetName.highlight {
-    font-weight:bold;
-    color:#fff;
-}
+
 
 #phalanxWrap .eventFleet .detailsFleet,
 #phalanxWrap .partnerInfo .detailsFleet {

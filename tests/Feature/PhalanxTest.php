@@ -271,7 +271,7 @@ class PhalanxTest extends FleetDispatchTestCase
         $this->assertEquals(1, $response->json('fleet_count'));
 
         $contentHtml = $response->json('content_html');
-        $this->assertStringContainsString('Your fleet', $contentHtml);
+        $this->assertStringContainsString('Own fleet', $contentHtml);
         $this->assertStringContainsString('Attack', $contentHtml);
     }
 
