@@ -1050,7 +1050,10 @@ class MerchantTest extends AccountTestCase
         $finalMetal = $this->planetService->metal()->get();
         $metalDeducted = $initialMetal - $finalMetal;
 
-        // Should have deducted ~2,000 metal, not 2 (exact amount varies by exchange rate due to floor/ceil rounding)
+        // The backward-compat shim converts the legacy single-resource format by computing
+        // receiveAmount = floor(give * rate) then giveCost = ceil(receive / rate). This ceil/floor
+        // round-trip can land 1 unit below the original give_amount, so an exact assertEquals(2000)
+        // is no longer reliable.
         $this->assertGreaterThan(1990, $metalDeducted, 'Should deduct ~2,000 metal, not just 2');
         $this->assertLessThanOrEqual(2000, $metalDeducted, 'Should not exceed declared give_amount cap');
         $this->assertGreaterThan(0, $this->planetService->crystal()->get(), 'Should have received crystal');
