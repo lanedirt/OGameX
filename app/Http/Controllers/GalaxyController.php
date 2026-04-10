@@ -109,7 +109,7 @@ class GalaxyController extends OGameController
 
         $planets = [];
         foreach ($planet_list as $planet) {
-            $planetService = $planetServiceFactory->makeFromModel($planet instanceof Planet ? $planet : new Planet((array)$planet));
+            $planetService = $planetServiceFactory->makeFromModel($planet);
             $planets[$planet->planet] = $planetService;
         }
 
