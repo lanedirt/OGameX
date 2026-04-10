@@ -480,6 +480,7 @@ return [
         'not_enough_missiles'          => 'Non hai abbastanza missili',
         'launched_success'             => 'Missili lanciati con successo!',
         'launch_failed'                => 'Lancio dei missili fallito',
+        'insufficient_range'           => 'Gittata insufficiente (livello ricerca propulsori a impulso) dei tuoi missili interplanetari!',
     ],
 
     // -------------------------------------------------------------------------

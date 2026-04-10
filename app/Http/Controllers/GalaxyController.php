@@ -413,29 +413,24 @@ class GalaxyController extends OGameController
 
         // Check if missile attack is possible:
         // - Must be foreign planet (not own)
-        // - Must have missiles available
-        // - Target must be within range
+        // - Target must be within range (missiles = 0 is allowed: overlay shows disabled button)
         $canMissileAttack = false;
         $missileAttackLink = route('galaxy.index');
 
         if ($planet->getPlayer()->getId() !== $this->playerService->getId()) {
             $currentPlanet = $this->playerService->planets->current();
-            $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+            $missileRange = $this->playerService->getMissileRange();
+            $targetCoordinate = new Coordinate($galaxy, $system, $position);
+            $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
 
-            if ($availableMissiles > 0) {
-                $missileRange = $this->playerService->getMissileRange();
-                $targetCoordinate = new Coordinate($galaxy, $system, $position);
-                $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
-
-                if ($distance <= $missileRange) {
-                    $canMissileAttack = true;
-                    $missileAttackLink = route('galaxy.missile-attack.overlay', [
-                        'galaxy' => $galaxy,
-                        'system' => $system,
-                        'position' => $position,
-                        'type' => $planet->getPlanetType()->value,
-                    ]);
-                }
+            if ($distance <= $missileRange) {
+                $canMissileAttack = true;
+                $missileAttackLink = route('galaxy.missile-attack.overlay', [
+                    'galaxy' => $galaxy,
+                    'system' => $system,
+                    'position' => $position,
+                    'type' => $planet->getPlanetType()->value,
+                ]);
             }
         }
 
@@ -866,12 +861,6 @@ class GalaxyController extends OGameController
         $data['available_missiles'] = $currentPlanet->getObjectAmount('interplanetary_missile');
         $data['missile_range'] = $player->getMissileRange();
 
-        // Validate basic requirements
-        if ($data['available_missiles'] <= 0) {
-            $data['error'] = __('No missiles available');
-            return view('ingame.galaxy.missileattack', $data);
-        }
-
         // Load target planet
         $targetCoordinate = new Coordinate($galaxy, $system, $position);
         $targetPlanetType = PlanetType::from($type);
@@ -943,7 +932,7 @@ class GalaxyController extends OGameController
             'system' => 'required|integer|min:1',
             'position' => 'required|integer|min:1|max:15',
             'type' => 'required|integer',
-            'missile_count' => 'required|integer|min:1',
+            'missile_count' => 'required|integer|min:0',
             'target_priority' => 'required|integer|min:0|max:7',
         ]);
 
@@ -959,10 +948,17 @@ class GalaxyController extends OGameController
 
         // Check if player has enough missiles
         $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+        if ($missileCount === 0 || $availableMissiles === 0) {
+            return response()->json([
+                'success' => false,
+                'error' => __('t_ingame.galaxy.insufficient_range'),
+                'close_overlay' => true,
+            ], 400);
+        }
         if ($missileCount > $availableMissiles) {
             return response()->json([
                 'success' => false,
-                'error' => __('Not enough missiles available'),
+                'error' => __('t_ingame.galaxy.not_enough_missiles'),
             ], 400);
         }
 
