@@ -115,7 +115,7 @@
                     @endif
                     @if (!empty($price->energy->get()))
                             <li class="resource energy icon sufficient tooltip js_hideTipOnMobile
-                        @if ($planet->energyProduction()->get() < $price->energy->get())
+                        @if (($use_production_energy ? $planet->energyProduction()->get() : $planet->energy()->get()) < $price->energy->get())
                         insufficient
                         @else
                         sufficient
