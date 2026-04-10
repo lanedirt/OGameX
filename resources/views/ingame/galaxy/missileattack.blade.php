@@ -28,7 +28,7 @@
                             </div>
                         </li>
                     </ul>
-                    <input type="text" pattern="[0-9]*" name="missile_count" id="missileCount" data-max="{{ $available_missiles }}" class="textinput" value="1">
+                    <input type="text" pattern="[0-9]*" name="missile_count" id="missileCount" data-max="{{ $available_missiles }}" class="textinput" value="{{ $available_missiles > 0 ? 1 : 0 }}">
                 </div>
 
                 <div id="priority">
@@ -137,13 +137,8 @@
             var missileCount = parseInt($('#missileCount').val());
             var maxMissiles = parseInt($('#missileCount').data('max'));
 
-            if (isNaN(missileCount) || missileCount < 1) {
+            if (isNaN(missileCount)) {
                 fadeBox('{{ __('t_ingame.galaxy.valid_missile_count') }}', 1);
-                return;
-            }
-
-            if (missileCount > maxMissiles) {
-                fadeBox('{{ __('t_ingame.galaxy.not_enough_missiles') }}', 1);
                 return;
             }
 
@@ -191,6 +186,10 @@
                         errorMessage = xhr.responseJSON.error;
                     } else if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
+                    }
+
+                    if (xhr.responseJSON && xhr.responseJSON.close_overlay) {
+                        $('#rocketattack').closest('.overlayDiv').dialog('close');
                     }
 
                     fadeBox(errorMessage, 1);

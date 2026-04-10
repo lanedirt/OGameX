@@ -1,5 +1,13 @@
 @props(['building'])
 @php /** @var OGame\ViewModels\UnitViewModel $building */ @endphp
+@php
+    $wrongClassKey = match (strtolower($building->object->machine_name)) {
+        'reaper' => 'wrong_class_general',
+        'crawler' => 'wrong_class_collector',
+        'pathfinder' => 'wrong_class_discoverer',
+        default => 'wrong_class',
+    };
+@endphp
 
 <li class="technology {{ $building->object->class_name }} hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile ipiHintable tpd-hideOnClickOutside"
     data-technology="{{ $building->object->id }}"
@@ -22,7 +30,7 @@
     title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.requirements_not_met') }}"
     @elseif (!$building->character_class_met)
         data-status="disabled"
-    title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.wrong_class') }}"
+    title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.' . $wrongClassKey) }}"
     @elseif (!$building->enough_resources)
         data-status="disabled"
     title="{{ $building->object->title }}<br/>{{ __('t_ingame.buildings.not_enough_resources') }}"
@@ -44,7 +52,8 @@
         sprite_medium medium
         @else
         sprite_small small
-        @endif{{ $building->object->class_name }}">
+        @endif{{ $building->object->class_name }}"
+>
         @if ($building->currently_building)
             <span class="targetamount" data-value="{{ $building->amount + $building->currently_building_amount }}" data-bonus="0">
                 {{ $building->amount + $building->currently_building_amount }}
