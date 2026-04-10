@@ -418,7 +418,10 @@
 
             $(function () {
                 fleetDispatcher = new FleetDispatcher(window);
-                fleetDispatcher.init();                
+                fleetDispatcher.init();
+
+                // Reserve exactly the class-adjusted fuel the PHP backend will deduct.
+                // Floor/ceil avoids float residuals that cause "not enough resources".
                 fleetDispatcher.getDeuteriumOnPlanetWithoutConsumption = function () {
                     return Math.max(0, Math.floor(this.deuteriumOnPlanet) - Math.ceil(this.getConsumption()));
                 };
