@@ -13945,6 +13945,9 @@ div#buddyCopyOverlay .code {
 /* ***************** Single Chat ******************************************** */
 
 .largeChatContainer { max-height: 500px; overflow: hidden; }
+#chat .largeChatContainer { overflow-y: auto; }
+#chat .largeChatContainer ul.chat { margin: 0; padding: 5px; list-style: none; }
+#chat .largeChatContainer ul.chat .chat_msg:first-child { margin-top: 0; }
 
 .chat_msg .msg_title { width: 270px; }
 
@@ -34922,19 +34925,11 @@ ul.og-paginatable li.active {
 }
 
 #phalanxWrap .eventFleet .descFleet,
-#phalanxWrap .partnerInfo .descFleet {
+#phalanxWrap .eventFleet .originFleet,
+#phalanxWrap .partnerInfo .descFleet,
+#phalanxWrap .partnerInfo .originFleet {
     color:#7c8e9a;
     font-weight:700;
-    text-align:left;
-    width:215px;
-    white-space:nowrap;
-    overflow:hidden;
-}
-
-#phalanxWrap .eventFleet .originFleet,
-#phalanxWrap .partnerInfo .originFleet {
-    color:#fff;
-    font-weight:bold;
     text-align:left;
     width:215px;
     white-space:nowrap;
@@ -34950,8 +34945,6 @@ ul.og-paginatable li.active {
     white-space:nowrap;
     overflow:hidden;
 }
-
-
 
 #phalanxWrap .eventFleet .detailsFleet,
 #phalanxWrap .partnerInfo .detailsFleet {
