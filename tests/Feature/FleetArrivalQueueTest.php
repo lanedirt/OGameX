@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Mockery;
 use Mockery\MockInterface;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Jobs\ProcessFleetArrival;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
@@ -62,6 +63,35 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
             DB::table('jobs')->where('id', $mission->arrival_job_id)->exists(),
             'Delayed arrival job was not written to the database queue.'
         );
+    }
+
+    public function testJobHandlerProcessesAllDueMissionsAtDestinationInMillisecondOrder(): void
+    {
+        $this->basicSetup();
+
+        $baseArrival = (int) now()->timestamp - 1;
+        $firstMission = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
+        $secondMission = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 900);
+
+        // The job is dispatched for the LATER mission only. When handled it must
+        // discover and process the earlier mission too, in ms order, because both
+        // share the same destination — the handler is destination-scoped, not
+        // mission-scoped.
+        /** @var FleetMissionService $service */
+        $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($firstMission, $secondMission) {
+            $mock->shouldReceive('updateMission')
+                ->once()
+                ->ordered()
+                ->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $firstMission->id));
+
+            $mock->shouldReceive('updateMission')
+                ->once()
+                ->ordered()
+                ->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $secondMission->id));
+        });
+
+        $job = new ProcessFleetArrival($secondMission->id);
+        $job->handle($service);
     }
 
     public function testSameDestinationMissionsProcessInMillisecondOrder(): void
