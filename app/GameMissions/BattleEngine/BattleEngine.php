@@ -33,11 +33,6 @@ use OGame\Services\WreckFieldService;
 abstract class BattleEngine
 {
     /**
-     * @var LootService The service used to calculate the loot gained from a battle.
-     */
-    private LootService $lootService;
-
-    /**
      * @var int The percentage of loot that is gained from a battle.
      * Base is 50%, but Discoverer class gets 75% from inactive players.
      */
@@ -63,17 +58,6 @@ abstract class BattleEngine
         // Determine loot percentage based on character class and defender status
         $characterClassService = app(CharacterClassService::class);
         $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($primaryAttacker->player->getUser()) * 100);
-
-        // Combine all attacker fleets for loot calculation
-        // TODO: In multi-attacker ACS battles, cargo capacity should be calculated per-fleet
-        // using each fleet owner's tech levels, then summed. Currently uses the initiator's
-        // tech for the combined fleet, which can over- or under-estimate total cargo capacity.
-        $combinedAttackerFleet = new UnitCollection();
-        foreach ($this->attackers as $attacker) {
-            $combinedAttackerFleet->addCollection($attacker->units);
-        }
-
-        $this->lootService = new LootService($combinedAttackerFleet, $primaryAttacker->player, $this->defenderPlanet, $this->lootPercentage);
     }
 
     /**
@@ -222,10 +206,13 @@ abstract class BattleEngine
             // ---
             // Check if the attacker has enough cargo capacity to carry the loot.
             // If not, reduce the loot to the cargo capacity.
-            $result->loot = $this->lootService->calculateLootCapacityConstrained();
+            $result->loot = $this->calculateLootCapacityConstrained();
         } else {
             $result->loot = new Resources(0, 0, 0, 0);
         }
+
+        // Distribute loot and surviving cargo proportionally among each attacker fleet.
+        $this->distributeResources($result);
 
         // Calculate debris.
         // Only permanently lost defenses contribute to debris (destroyed - repaired).
@@ -259,6 +246,301 @@ abstract class BattleEngine
      * @return array<BattleResultRound>
      */
     abstract protected function fightBattleRounds(BattleResult $result): array;
+
+    /**
+     * Calculate the battle loot constrained by the total cargo capacity of all attackers.
+     *
+     * For ACS battles, cargo capacity must be summed using each fleet owner's own research
+     * and class modifiers instead of evaluating a combined fleet against the initiator only.
+     *
+     * @return Resources
+     */
+    private function calculateLootCapacityConstrained(): Resources
+    {
+        $resources = $this->defenderPlanet->getResources();
+        $loot = new Resources(
+            max(0, $resources->metal->get()) * ($this->lootPercentage / 100),
+            max(0, $resources->crystal->get()) * ($this->lootPercentage / 100),
+            max(0, $resources->deuterium->get()) * ($this->lootPercentage / 100),
+            0
+        );
+
+        return LootService::distributeLoot($loot, $this->getTotalAttackerCargoCapacity());
+    }
+
+    /**
+     * Sum the cargo capacity of all attacking fleets using each fleet owner's modifiers.
+     *
+     * @return int
+     */
+    private function getTotalAttackerCargoCapacity(): int
+    {
+        $totalCapacity = 0;
+        foreach ($this->attackers as $attacker) {
+            $totalCapacity += $attacker->units->getTotalCargoCapacity($attacker->player);
+        }
+
+        return $totalCapacity;
+    }
+
+    /**
+     * Populate survivingCargo and lootShare for each attacker fleet result.
+     *
+     * For multi-attacker battles, loot is allocated proportionally to each fleet's
+     * surviving cargo capacity. Carried resources survive at the same rate as cargo
+     * capacity (proportional to the fraction of ships that survived). Each fleet's
+     * loot share is further capped by the space remaining after surviving cargo is
+     * accounted for.
+     *
+     * @param BattleResult $result
+     * @return void
+     */
+    protected function distributeResources(BattleResult $result): void
+    {
+        // Index attacker fleets by fleet mission ID for efficient lookup.
+        $attackersByMissionId = [];
+        foreach ($this->attackers as $attacker) {
+            $attackersByMissionId[$attacker->fleetMissionId] = $attacker;
+        }
+
+        // Step 1: Compute per-fleet surviving cargo capacity and surviving carried resources.
+        $survivingCapacityByFleet = []; // fleetMissionId => int
+        $totalSurvivingCapacity = 0;
+
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            $attacker = $attackersByMissionId[$fleetResult->fleetMissionId] ?? null;
+            if ($attacker === null || $fleetResult->completelyDestroyed) {
+                $survivingCapacityByFleet[$fleetResult->fleetMissionId] = 0;
+                $fleetResult->survivingCargo = new Resources(0, 0, 0, 0);
+                continue;
+            }
+
+            $originalCapacity = $attacker->getSurvivingCargoCapacity($attacker->units);
+            $survivingCapacity = $attacker->getSurvivingCargoCapacity($fleetResult->unitsResult);
+
+            $survivingCapacityByFleet[$fleetResult->fleetMissionId] = $survivingCapacity;
+            $totalSurvivingCapacity += $survivingCapacity;
+
+            // Carried resources survive at the same rate as cargo capacity.
+            $survivalRate = $originalCapacity > 0 ? $survivingCapacity / $originalCapacity : 0.0;
+            $fleetResult->survivingCargo = new Resources(
+                max(0, (int)($attacker->cargoResources->metal->get() * $survivalRate)),
+                max(0, (int)($attacker->cargoResources->crystal->get() * $survivalRate)),
+                max(0, (int)($attacker->cargoResources->deuterium->get() * $survivalRate)),
+                0
+            );
+
+            $fleetResult->lootShare = new Resources(0, 0, 0, 0);
+        }
+
+        // Step 2: Distribute loot proportionally by surviving cargo capacity.
+        if ($totalSurvivingCapacity <= 0 || $result->loot->sum() <= 0) {
+            $result->loot = $this->sumLootShares($result);
+            return;
+        }
+
+        $remainingLootCapacityByFleet = [];
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            $survivingCapacity = $survivingCapacityByFleet[$fleetResult->fleetMissionId] ?? 0;
+            $remainingLootCapacityByFleet[$fleetResult->fleetMissionId] = max(
+                0,
+                (int)($survivingCapacity - $fleetResult->survivingCargo->sum())
+            );
+        }
+
+        foreach (['metal', 'crystal', 'deuterium'] as $resourceName) {
+            $this->distributeLootResource(
+                (int)$result->loot->{$resourceName}->get(),
+                $resourceName,
+                $result,
+                $survivingCapacityByFleet,
+                $remainingLootCapacityByFleet
+            );
+        }
+
+        // Normalize the battle loot to what was actually assigned to surviving fleets so any
+        // excess that did not fit remains on the defender planet instead of disappearing.
+        $result->loot = $this->sumLootShares($result);
+    }
+
+    /**
+     * Distribute one resource type across attacker fleets proportionally by surviving capacity.
+     *
+     * The allocation is performed in weighted passes so that:
+     * - integer rounding does not silently drop resources;
+     * - fleets never exceed their remaining cargo space;
+     * - leftover resources from capped fleets are redistributed to other eligible fleets.
+     *
+     * @param int $resourceAmount
+     * @param string $resourceName
+     * @param BattleResult $result
+     * @param array<int, int> $survivingCapacityByFleet
+     * @param array<int, int> $remainingLootCapacityByFleet
+     * @return void
+     */
+    private function distributeLootResource(
+        int $resourceAmount,
+        string $resourceName,
+        BattleResult $result,
+        array $survivingCapacityByFleet,
+        array &$remainingLootCapacityByFleet
+    ): void {
+        if ($resourceAmount <= 0) {
+            return;
+        }
+
+        $remainingAmount = $resourceAmount;
+        $initiatorFleetMissionId = $this->getInitiatorFleetMissionId();
+
+        while ($remainingAmount > 0) {
+            $eligibleFleetIds = [];
+            $totalWeight = 0;
+
+            foreach ($result->attackerFleetResults as $fleetResult) {
+                $fleetMissionId = $fleetResult->fleetMissionId;
+                $survivingCapacity = $survivingCapacityByFleet[$fleetMissionId] ?? 0;
+                $remainingCapacity = $remainingLootCapacityByFleet[$fleetMissionId] ?? 0;
+
+                if ($survivingCapacity <= 0 || $remainingCapacity <= 0) {
+                    continue;
+                }
+
+                $eligibleFleetIds[] = $fleetMissionId;
+                $totalWeight += $survivingCapacity;
+            }
+
+            if ($totalWeight <= 0 || count($eligibleFleetIds) === 0) {
+                return;
+            }
+
+            $exactShares = [];
+            $baseShares = [];
+            $allocatedThisPass = 0;
+
+            foreach ($eligibleFleetIds as $fleetMissionId) {
+                $exactShare = ($remainingAmount * $survivingCapacityByFleet[$fleetMissionId]) / $totalWeight;
+                $baseShare = (int) floor($exactShare);
+                $assignedShare = min($baseShare, $remainingLootCapacityByFleet[$fleetMissionId]);
+
+                $exactShares[$fleetMissionId] = $exactShare;
+                $baseShares[$fleetMissionId] = $baseShare;
+
+                if ($assignedShare > 0) {
+                    $this->addLootShareToFleet($result, $fleetMissionId, $resourceName, $assignedShare);
+                    $remainingLootCapacityByFleet[$fleetMissionId] -= $assignedShare;
+                    $allocatedThisPass += $assignedShare;
+                }
+            }
+
+            $remainingAmount -= $allocatedThisPass;
+            if ($remainingAmount <= 0) {
+                return;
+            }
+
+            $rankedFleetIds = $eligibleFleetIds;
+            usort($rankedFleetIds, function (int $left, int $right) use ($exactShares, $baseShares, $survivingCapacityByFleet, $initiatorFleetMissionId): int {
+                $leftIsInitiator = $left === $initiatorFleetMissionId;
+                $rightIsInitiator = $right === $initiatorFleetMissionId;
+                if ($leftIsInitiator !== $rightIsInitiator) {
+                    return $rightIsInitiator <=> $leftIsInitiator;
+                }
+
+                $leftRemainder = $exactShares[$left] - $baseShares[$left];
+                $rightRemainder = $exactShares[$right] - $baseShares[$right];
+
+                if ($leftRemainder !== $rightRemainder) {
+                    return $rightRemainder <=> $leftRemainder;
+                }
+
+                if ($survivingCapacityByFleet[$left] !== $survivingCapacityByFleet[$right]) {
+                    return $survivingCapacityByFleet[$right] <=> $survivingCapacityByFleet[$left];
+                }
+
+                return $left <=> $right;
+            });
+
+            $allocatedExtra = 0;
+            foreach ($rankedFleetIds as $fleetMissionId) {
+                if ($remainingAmount <= 0) {
+                    break;
+                }
+
+                if (($remainingLootCapacityByFleet[$fleetMissionId] ?? 0) <= 0) {
+                    continue;
+                }
+
+                $this->addLootShareToFleet($result, $fleetMissionId, $resourceName, 1);
+                $remainingLootCapacityByFleet[$fleetMissionId] -= 1;
+                $remainingAmount -= 1;
+                $allocatedExtra += 1;
+            }
+
+            if ($allocatedThisPass === 0 && $allocatedExtra === 0) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * Get the fleet mission ID of the ACS initiator.
+     *
+     * @return int
+     */
+    private function getInitiatorFleetMissionId(): int
+    {
+        foreach ($this->attackers as $attacker) {
+            if ($attacker->isInitiator) {
+                return $attacker->fleetMissionId;
+            }
+        }
+
+        return $this->attackers[0]->fleetMissionId;
+    }
+
+    /**
+     * Add an allocated loot amount to the matching fleet result.
+     *
+     * @param BattleResult $result
+     * @param int $fleetMissionId
+     * @param string $resourceName
+     * @param int $amount
+     * @return void
+     */
+    private function addLootShareToFleet(BattleResult $result, int $fleetMissionId, string $resourceName, int $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            if ($fleetResult->fleetMissionId !== $fleetMissionId) {
+                continue;
+            }
+
+            $fleetResult->lootShare->{$resourceName}->set(
+                $fleetResult->lootShare->{$resourceName}->get() + $amount
+            );
+
+            return;
+        }
+    }
+
+    /**
+     * Sum the loot actually assigned across all attacker fleets.
+     *
+     * @param BattleResult $result
+     * @return Resources
+     */
+    private function sumLootShares(BattleResult $result): Resources
+    {
+        $totalLoot = new Resources(0, 0, 0, 0);
+
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            $totalLoot->add($fleetResult->lootShare);
+        }
+
+        return $totalLoot;
+    }
 
     /**
      * Calculate the debris field based on the units lost in the battle.
