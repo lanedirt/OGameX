@@ -9881,7 +9881,6 @@ div#buddyCopyOverlay .code {
 /* ***************** Single Chat ******************************************** */
 
 .largeChatContainer { max-height: 500px; overflow: hidden; }
-#chat .largeChatContainer { overflow-y: auto; }
 #chat .largeChatContainer ul.chat { margin: 0; padding: 5px; list-style: none; }
 #chat .largeChatContainer ul.chat .chat_msg:first-child { margin-top: 0; }
 
