@@ -3,8 +3,12 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use OGame\Enums\FleetSpeedType;
 use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlanetServiceFactory;
@@ -13,6 +17,7 @@ use OGame\GameMessages\AcsDefendArrivalHost;
 use OGame\GameMessages\AcsDefendArrivalSender;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Jobs\ProcessFleetArrival;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
@@ -27,6 +32,8 @@ use OGame\Models\Resources;
  */
 class FleetMissionService
 {
+    public const ARRIVAL_QUEUE_NAME = 'fleet-arrivals';
+
     /**
      * The queue model where this class should get its data from.
      *
@@ -250,7 +257,7 @@ class FleetMissionService
         // Canceled missions are automatically excluded because they have processed = 1
         $query = $this->model->where('user_id', $this->player->getId())
             ->where('processed', 0);
-        return $query->orderBy('time_arrival')->get();
+        return $query->orderBy('time_arrival')->orderBy('time_arrival_ms')->orderBy('id')->get();
     }
 
     /**
@@ -301,14 +308,19 @@ class FleetMissionService
         $missions = $missions->sortBy(function ($mission) {
             // If the mission has not arrived yet, return the time_arrival.
             if ($mission->time_arrival >= Date::now()->timestamp) {
-                return $mission->time_arrival;
+                return sprintf('%010d-%015d-%010d', $mission->time_arrival, $mission->time_arrival_ms, $mission->id);
             }
 
             // If the mission has arrived AND has a waiting time, return the time_arrival + holding time.
             // IMPORTANT: Holding time is always real time (not affected by fleet speed)
             $actualHoldingTime = $mission->time_holding ?? 0;
 
-            return $mission->time_arrival + $actualHoldingTime;
+            return sprintf(
+                '%010d-%015d-%010d',
+                $mission->time_arrival + $actualHoldingTime,
+                $mission->time_arrival_ms,
+                $mission->id
+            );
         });
 
         return $missions;
@@ -486,6 +498,7 @@ class FleetMissionService
         if ($only_active) {
             return $this->model
                 ->where('id', $id)
+                ->where('canceled', 0)
                 ->where('processed', 0)
                 ->first();
         } else {
@@ -604,6 +617,164 @@ class FleetMissionService
     }
 
     /**
+     * Synchronize delayed queue jobs for a fleet mission.
+     *
+     * Reuses existing jobs when they are already scheduled at the correct time,
+     * avoiding unnecessary queue churn on unrelated model updates (e.g. processed_hold flip).
+     */
+    public function syncMissionArrivalJobs(FleetMission $mission): void
+    {
+        if (!$mission->exists) {
+            return;
+        }
+
+        if (!$this->missionShouldHaveScheduledJobs($mission)) {
+            $this->cancelMissionArrivalJobs($mission);
+            return;
+        }
+
+        $completionTime = $this->getMissionCompletionTime($mission);
+        $physicalArrivalTime = $this->missionNeedsPhysicalArrivalJob($mission)
+            ? $this->getMissionPhysicalArrivalTime($mission)
+            : null;
+
+        $arrivalJobId = $this->resolveOrReplaceJob($mission->id, $mission->arrival_job_id, $completionTime);
+
+        if ($physicalArrivalTime !== null) {
+            $holdJobId = $this->resolveOrReplaceJob($mission->id, $mission->hold_job_id, $physicalArrivalTime);
+        } else {
+            if ($mission->hold_job_id !== null) {
+                $this->deleteQueuedJobById($mission->hold_job_id);
+            }
+            $holdJobId = null;
+        }
+
+        if ($arrivalJobId !== $mission->arrival_job_id || $holdJobId !== $mission->hold_job_id) {
+            $mission->forceFill([
+                'arrival_job_id' => $arrivalJobId,
+                'hold_job_id' => $holdJobId,
+            ])->saveQuietly();
+        }
+    }
+
+    /**
+     * Cancel delayed queue jobs for a fleet mission.
+     */
+    public function cancelMissionArrivalJobs(FleetMission $mission, bool $persist = true): void
+    {
+        if ($mission->arrival_job_id !== null) {
+            $this->deleteQueuedJobById($mission->arrival_job_id);
+        }
+
+        if ($mission->hold_job_id !== null) {
+            $this->deleteQueuedJobById($mission->hold_job_id);
+        }
+
+        if ($persist && ($mission->arrival_job_id !== null || $mission->hold_job_id !== null)) {
+            $mission->forceFill([
+                'arrival_job_id' => null,
+                'hold_job_id' => null,
+            ])->saveQuietly();
+        }
+    }
+
+    /**
+     * Process all due mission events for the same destination as the given mission.
+     */
+    public function processDueMissionEventsForMissionId(int $missionId): void
+    {
+        $mission = FleetMission::find($missionId);
+        if ($mission === null) {
+            return;
+        }
+
+        $this->processDueMissionEventsForMission($mission);
+    }
+
+    /**
+     * Process all due mission events for the same destination as the given mission.
+     */
+    public function processDueMissionEventsForMission(FleetMission $mission): void
+    {
+        $lockKey = $this->getMissionDestinationLockKey($mission);
+
+        Cache::lock($lockKey, 30)->block(10, function () use ($mission) {
+            DB::transaction(function () use ($mission) {
+                $currentTime = (int) Date::now()->timestamp;
+
+                foreach ($this->getDueHoldArrivalMissionsForDestination($mission, $currentTime) as $holdMission) {
+                    $this->updateMission($holdMission);
+                }
+
+                foreach ($this->getDueCompletionMissionsForDestination($mission, $currentTime) as $arrivalMission) {
+                    $this->updateMission($arrivalMission);
+                }
+            });
+        });
+    }
+
+    /**
+     * Process overdue fleet arrivals after downtime.
+     */
+    public function processMissedMissionEvents(int $limit = 100): int
+    {
+        $currentTime = Date::now()->timestamp;
+
+        $missions = FleetMission::query()
+            ->where('canceled', 0)
+            ->where(function (Builder $query) use ($currentTime) {
+                $query->where(function (Builder $holdQuery) use ($currentTime) {
+                    $holdQuery->where('mission_type', 5)
+                        ->whereNull('parent_id')
+                        ->where('processed_hold', 0)
+                        ->whereNotNull('time_holding')
+                        ->where('time_holding', '>', 0)
+                        ->whereRaw('(time_arrival - time_holding) <= ?', [$currentTime]);
+                })->orWhere(function (Builder $arrivalQuery) use ($currentTime) {
+                    $arrivalQuery->where('processed', 0)
+                        ->where(function (Builder $query) use ($currentTime) {
+                            $query->where(function (Builder $query) use ($currentTime) {
+                                $query->where(function (Builder $query) {
+                                    $query->whereNull('time_holding')
+                                        ->orWhere('time_holding', 0)
+                                        ->orWhere(function (Builder $query) {
+                                            $query->where('mission_type', 5)
+                                                ->whereNull('parent_id');
+                                        });
+                                })->where('time_arrival', '<=', $currentTime);
+                            })->orWhere(function (Builder $query) use ($currentTime) {
+                                $query->where('mission_type', '!=', 5)
+                                    ->whereNotNull('time_holding')
+                                    ->where('time_holding', '>', 0)
+                                    ->whereRaw('(time_arrival + time_holding) <= ?', [$currentTime]);
+                            });
+                        });
+                });
+            })
+            ->orderBy('time_arrival')
+            ->orderBy('time_arrival_ms')
+            ->orderBy('id')
+            ->limit(max(1, $limit))
+            ->get();
+
+        $processedDestinations = 0;
+        $handledKeys = [];
+
+        foreach ($missions as $mission) {
+            $lockKey = $this->getMissionDestinationLockKey($mission);
+            if (isset($handledKeys[$lockKey])) {
+                continue;
+            }
+
+            $handledKeys[$lockKey] = true;
+            $this->processDueMissionEventsForMission($mission);
+            $processedDestinations++;
+        }
+
+        return $processedDestinations;
+    }
+
+    /**
      * Send arrival messages for ACS Defend missions.
      * Called when the fleet physically arrives at the destination (start of hold time).
      *
@@ -684,5 +855,242 @@ class FleetMissionService
             'messageService' => $this->messageService,
         ]);
         $missionObject->cancel($mission);
+    }
+
+    /**
+     * Determine the effective completion timestamp for a mission.
+     */
+    public function getMissionCompletionTime(FleetMission $mission): int
+    {
+        $isAcsDefendOutbound = ($mission->mission_type === 5 && $mission->parent_id === null);
+
+        if (!$isAcsDefendOutbound && $mission->time_holding !== null && $mission->time_holding > 0) {
+            return $mission->time_arrival + $mission->time_holding;
+        }
+
+        return $mission->time_arrival;
+    }
+
+    /**
+     * Determine the physical arrival timestamp for a mission.
+     */
+    public function getMissionPhysicalArrivalTime(FleetMission $mission): int
+    {
+        if ($mission->mission_type === 5 && $mission->parent_id === null && $mission->time_holding !== null) {
+            return $mission->time_arrival - $mission->time_holding;
+        }
+
+        return $mission->time_arrival;
+    }
+
+    /**
+     * Build the lock key used to serialize conflicting mission processing.
+     */
+    public function getMissionDestinationLockKey(FleetMission $mission): string
+    {
+        if ($mission->planet_id_to !== null) {
+            return 'fleet-destination:planet:' . $mission->planet_id_to;
+        }
+
+        return sprintf(
+            'fleet-destination:coords:%d:%d:%d:%d',
+            $mission->type_to,
+            $mission->galaxy_to ?? 0,
+            $mission->system_to ?? 0,
+            $mission->position_to ?? 0
+        );
+    }
+
+    /**
+     * Determine whether a mission should have delayed jobs scheduled.
+     */
+    private function missionShouldHaveScheduledJobs(FleetMission $mission): bool
+    {
+        return !$mission->canceled && !$mission->processed;
+    }
+
+    /**
+     * Determine whether a mission needs an additional physical-arrival trigger.
+     */
+    private function missionNeedsPhysicalArrivalJob(FleetMission $mission): bool
+    {
+        return $mission->mission_type === 5
+            && $mission->parent_id === null
+            && $mission->time_holding !== null
+            && $mission->time_holding > 0
+            && $mission->processed_hold === 0;
+    }
+
+    /**
+     * Return the existing job ID if it is already scheduled at $triggerTime, otherwise
+     * delete the stale job (if any) and dispatch a fresh one.
+     */
+    private function resolveOrReplaceJob(int $missionId, int|null $existingJobId, int $triggerTime): int|null
+    {
+        if ($existingJobId !== null && $this->jobExistsAt($existingJobId, $triggerTime)) {
+            return $existingJobId;
+        }
+
+        if ($existingJobId !== null) {
+            $this->deleteQueuedJobById($existingJobId);
+        }
+
+        $mission = FleetMission::find($missionId);
+        if ($mission === null) {
+            return null;
+        }
+
+        return $this->dispatchMissionArrivalJob($mission, $triggerTime);
+    }
+
+    /**
+     * Check whether a queued job with the given ID is still pending at the expected time.
+     */
+    private function jobExistsAt(int $jobId, int $scheduledAt): bool
+    {
+        $table = $this->queueTableName();
+        if ($table === null) {
+            return false;
+        }
+
+        return DB::table($table)
+            ->where('id', $jobId)
+            ->whereNull('reserved_at')
+            ->where('available_at', $scheduledAt)
+            ->exists();
+    }
+
+    /**
+     * Dispatch the delayed arrival job and return the queued database job ID when available.
+     */
+    private function dispatchMissionArrivalJob(FleetMission $mission, int $triggerTime): int|null
+    {
+        if ($this->queueDriverDoesNotSupportDelays()) {
+            return null;
+        }
+
+        $jobId = Queue::laterOn(
+            self::ARRIVAL_QUEUE_NAME,
+            Date::createFromTimestamp($triggerTime),
+            new ProcessFleetArrival($mission->id)
+        );
+
+        return is_numeric($jobId) ? (int) $jobId : null;
+    }
+
+    /**
+     * Delete a pending queued job by its jobs-table ID.
+     */
+    private function deleteQueuedJobById(int $jobId): void
+    {
+        if ($this->queueTableName() === null) {
+            return;
+        }
+
+        DB::table($this->queueTableName())
+            ->where('id', $jobId)
+            ->whereNull('reserved_at')
+            ->delete();
+    }
+
+    /**
+     * Get due ACS Defend physical-arrival message events for a destination.
+     *
+     * @return Collection<int, FleetMission>
+     */
+    private function getDueHoldArrivalMissionsForDestination(FleetMission $mission, int $currentTime): Collection
+    {
+        /** @var Collection<int, FleetMission> */
+        return $this->applyDestinationScope(FleetMission::query(), $mission)
+            ->where('mission_type', 5)
+            ->whereNull('parent_id')
+            ->where('canceled', 0)
+            ->where('processed_hold', 0)
+            ->whereNotNull('time_holding')
+            ->where('time_holding', '>', 0)
+            ->whereRaw('(time_arrival - time_holding) <= ?', [$currentTime])
+            ->orderByRaw('(time_arrival - time_holding)')
+            ->orderByRaw('(time_arrival_ms - (time_holding * 1000))')
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * Get due completion events for a destination.
+     *
+     * @return Collection<int, FleetMission>
+     */
+    private function getDueCompletionMissionsForDestination(FleetMission $mission, int $currentTime): Collection
+    {
+        /** @var Collection<int, FleetMission> */
+        return $this->applyDestinationScope(FleetMission::query(), $mission)
+            ->where('canceled', 0)
+            ->where('processed', 0)
+            ->where(function (Builder $query) use ($currentTime) {
+                $query->where(function (Builder $query) use ($currentTime) {
+                    $query->where(function (Builder $query) {
+                        $query->whereNull('time_holding')
+                            ->orWhere('time_holding', 0)
+                            ->orWhere(function (Builder $query) {
+                                $query->where('mission_type', 5)
+                                    ->whereNull('parent_id');
+                            });
+                    })->where('time_arrival', '<=', $currentTime);
+                })->orWhere(function (Builder $query) use ($currentTime) {
+                    $query->where('mission_type', '!=', 5)
+                        ->whereNotNull('time_holding')
+                        ->where('time_holding', '>', 0)
+                        ->whereRaw('(time_arrival + time_holding) <= ?', [$currentTime]);
+                });
+            })
+            ->orderBy('time_arrival')
+            ->orderBy('time_arrival_ms')
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * Limit a fleet mission query to the same destination as the reference mission.
+     */
+    private function applyDestinationScope(Builder $query, FleetMission $mission): Builder
+    {
+        $query->where('type_to', $mission->type_to)
+            ->where('galaxy_to', $mission->galaxy_to)
+            ->where('system_to', $mission->system_to)
+            ->where('position_to', $mission->position_to);
+
+        if ($mission->planet_id_to !== null) {
+            $query->where('planet_id_to', $mission->planet_id_to);
+        } else {
+            $query->whereNull('planet_id_to');
+        }
+
+        return $query;
+    }
+
+    /**
+     * Determine whether the configured queue driver supports delayed processing.
+     */
+    private function queueDriverDoesNotSupportDelays(): bool
+    {
+        $connection = config('queue.default');
+        $driver = config("queue.connections.{$connection}.driver");
+
+        return in_array($driver, ['null', 'sync'], true);
+    }
+
+    /**
+     * Resolve the jobs-table name for the active database queue connection.
+     */
+    private function queueTableName(): string|null
+    {
+        $connection = config('queue.default');
+        $driver = config("queue.connections.{$connection}.driver");
+
+        if ($driver !== 'database') {
+            return null;
+        }
+
+        return config("queue.connections.{$connection}.table", 'jobs');
     }
 }
