@@ -629,7 +629,7 @@ class PlanetService
      *
      * @return bool
      */
-    public function hasResources(Resources $resources): bool
+    public function hasResources(Resources $resources, bool $useProductionEnergy = false): bool
     {
         if (!empty($resources->metal->get()) && ceil($this->metal()->get()) < $resources->metal->get()) {
             return false;
@@ -640,8 +640,13 @@ class PlanetService
         if (!empty($resources->deuterium->get()) && ceil($this->deuterium()->get()) < $resources->deuterium->get()) {
             return false;
         }
-        if (!empty($resources->energy->get()) && ceil($this->energyProduction()->get()) < $resources->energy->get()) {
-            return false;
+        if (!empty($resources->energy->get())) {
+            $energyAvailable = $useProductionEnergy
+                ? $this->energyProduction()->get()
+                : $this->energy()->get();
+            if (ceil($energyAvailable) < $resources->energy->get()) {
+                return false;
+            }
         }
 
         return true;

@@ -5,6 +5,8 @@ namespace Tests\Feature\FleetDispatch;
 use OGame\GameMissions\MoonDestructionMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
+use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
@@ -84,6 +86,11 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('deathstar'), 10);
         $foreignMoon = $this->sendMissionToOtherPlayerMoon($unitCollection, new Resources(0, 0, 0, 0));
 
+        $foreignMoon->removeUnits($foreignMoon->getShipUnits(), false);
+        $foreignMoon->removeUnits($foreignMoon->getDefenseUnits(), false);
+        $foreignMoon->save();
+        $foreignMoon->reloadPlanet();
+
         // Set the target moon diameter to 1 so destruction is guaranteed.
         Planet::where('id', $foreignMoon->getPlanetId())->update(['diameter' => 1]);
 
@@ -133,6 +140,11 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
         $transportUnits = new UnitCollection();
         $transportUnits->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $foreignMoon = $this->sendMissionToOtherPlayerMoon($transportUnits, new Resources(0, 0, 0, 0));
+
+        $foreignMoon->removeUnits($foreignMoon->getShipUnits(), false);
+        $foreignMoon->removeUnits($foreignMoon->getDefenseUnits(), false);
+        $foreignMoon->save();
+        $foreignMoon->reloadPlanet();
 
         // Set moon diameter to 1 so destruction is guaranteed.
         Planet::where('id', $foreignMoon->getPlanetId())->update(['diameter' => 1]);
@@ -189,6 +201,139 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
         $this->assertFalse(
             Planet::where('id', $foreignMoon->getPlanetId())->exists(),
             'Moon should be destroyed even when it has active incoming and outgoing fleet missions.'
+        );
+    }
+
+    /**
+     * Clean up settings that were mutated for the draw test.
+     */
+    protected function tearDown(): void
+    {
+        // Reset the battle engine to the default so it does not bleed into other test classes.
+        resolve(SettingsService::class)->set('battle_engine', 'rust');
+        parent::tearDown();
+    }
+
+    /**
+     * Assert that a drawn battle (both sides survive) does not trigger moon destruction.
+     *
+     * Draw setup
+     * ----------
+     * Attacker:  2 Deathstars (attack 200 000, shield 50 000, hull 9 000 000)
+     * Defender:  1 000 000 Light Fighters (attack 50, shield 10, hull 4 000)
+     *
+     * Why this is a guaranteed draw in the PHP engine with defender weapon_tech = 0:
+     *   • LF attack (50) < 1 % of DS shield (500) → ALL LF attacks are bounced;
+     *     the DS cannot receive any hull damage regardless of how many LF there are.
+     *   • DS has rapidfire 200 against LF, so each DS fires ~200 shots/round.
+     *     2 DS × 200 shots × 6 rounds ≈ 2 400 LF killed — far fewer than 1 000 000.
+     *   → After 6 rounds, both sides still have surviving units → draw.
+     */
+    public function testMoonDestructionDoesNotTriggerAfterDrawnBattle(): void
+    {
+        $this->basicSetup();
+
+        // Use the PHP battle engine; its deterministic mechanics are easier to reason about.
+        resolve(SettingsService::class)->set('battle_engine', 'php');
+
+        // --- Attacker setup ---
+        $attacker = $this->planetService;
+        $attacker->removeUnits($attacker->getShipUnits(), true);
+        $attacker->save();
+        $attacker->reloadPlanet();
+        $attacker->addUnit('deathstar', 2);
+        $attacker->save();
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('deathstar'), 2);
+
+        $foreignMoon = $this->sendMissionToOtherPlayerMoon($units, new Resources(0, 0, 0, 0));
+
+        // Snapshot the outbound mission ID so we can locate it (and its return child) precisely.
+        $outboundMission = FleetMission::where('user_id', $attacker->getPlayer()->getId())
+            ->where('mission_type', 9)
+            ->whereNull('parent_id')
+            ->where('processed', 0)
+            ->orderBy('id', 'desc')
+            ->firstOrFail();
+        $outboundMissionId = $outboundMission->id;
+
+        // --- Defender setup: 1 000 000 LF, weapon_tech forced to 0 ---
+        $foreignMoon->removeUnits($foreignMoon->getShipUnits(), false);
+        $foreignMoon->removeUnits($foreignMoon->getDefenseUnits(), false);
+        $foreignMoon->addUnit('light_fighter', 1_000_000, false);
+        $foreignMoon->save();
+        $foreignMoon->reloadPlanet();
+
+        $defenderPlayer = $foreignMoon->getPlayer();
+        $defenderPlayerId = $defenderPlayer->getId();
+        // Force weapon tech to 0 so LF attack (50) stays below the 1%-of-shield bounce
+        // threshold (500) for the death star — DS remain untouchable.
+        $defenderPlayer->setResearchLevel('weapon_technology', 0);
+
+        // --- Calculate travel time and snapshot max message ID ---
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration(
+            $attacker,
+            $foreignMoon->getPlanetCoordinates(),
+            $units,
+            resolve(MoonDestructionMission::class)
+        );
+
+        // Record the highest message ID currently in the DB so we can filter to only
+        // messages created during this test — no pollution from earlier tests.
+        $maxMessageIdBefore = Message::max('id') ?? 0;
+
+        // --- Process the outbound mission ---
+        $this->travel($fleetMissionDuration + 1)->seconds();
+        $this->reloadApplication();
+        $this->get('/overview')->assertStatus(200);
+
+        // Moon must still exist (draw → no destruction attempt).
+        $this->assertTrue(
+            Planet::where('id', $foreignMoon->getPlanetId())->exists(),
+            'Moon should remain after a drawn battle.'
+        );
+
+        // No moon-destruction follow-up messages should have been created.
+        $this->assertSame(
+            0,
+            Message::where('id', '>', $maxMessageIdBefore)
+                ->where('user_id', $attacker->getPlayer()->getId())
+                ->whereIn('key', [
+                    'moon_destruction_success',
+                    'moon_destruction_failure',
+                    'moon_destruction_catastrophic',
+                    'moon_destruction_mission_failed',
+                ])
+                ->count(),
+            'Attacker should not receive a moon-destruction follow-up message after a draw.'
+        );
+
+        $this->assertSame(
+            0,
+            Message::where('id', '>', $maxMessageIdBefore)
+                ->where('user_id', $defenderPlayerId)
+                ->whereIn('key', ['moon_destruction_repelled', 'moon_destroyed'])
+                ->count(),
+            'Defender should not receive a moon-destruction follow-up message after a draw.'
+        );
+
+        // A return mission must exist for the two surviving death stars.
+        $returnMission = FleetMission::where('parent_id', $outboundMissionId)->first();
+        $this->assertNotNull($returnMission, 'A return fleet mission should have been created for surviving death stars.');
+        $this->assertSame(2, $returnMission->deathstar, 'Return mission should carry 2 death stars.');
+
+        // --- Process the return mission and verify the DS arrive home ---
+        $this->travel($fleetMissionDuration + 1)->seconds();
+        $this->reloadApplication();
+        $this->get('/overview')->assertStatus(200);
+
+        $attacker->reloadPlanet();
+        $this->assertSame(
+            2,
+            $attacker->getShipUnits()->getAmountByMachineName('deathstar'),
+            'Surviving death stars should return home after a drawn battle.'
         );
     }
 }

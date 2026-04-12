@@ -64,7 +64,10 @@ return [
         'under_construction'     => 'Under construction',
         'vacation_mode_error'    => 'Error, player is in vacation mode',
         'requirements_not_met'   => 'Requirements are not met!',
-        'wrong_class'            => 'Wrong character class!',
+        'wrong_class'            => 'You do not have the required character class for this building.',
+        'wrong_class_general'    => 'To be able to build this ship, you need to have selected the General class.',
+        'wrong_class_collector'  => 'To be able to build this ship, you need to have selected the Collector class.',
+        'wrong_class_discoverer' => 'To be able to build this ship, you need to have selected the Discoverer class.',
         'no_moon_building'       => "You can't construct that building on a moon!",
         'not_enough_resources'   => 'Not enough resources!',
         'queue_full'             => 'Queue is full',
@@ -498,6 +501,7 @@ return [
         'not_enough_missiles'          => 'You do not have enough missiles',
         'launched_success'             => 'Missiles launched successfully!',
         'launch_failed'                => 'Failed to launch missiles',
+        'insufficient_range'           => 'Insufficient range (research level impulse drive) of your interplanetary missiles!',
     ],
 
     // -------------------------------------------------------------------------

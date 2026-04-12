@@ -247,6 +247,19 @@ class FleetEventsController extends OGameController
                 }
             }
 
+            // For return trips, planet_id_to is the current player's own planet, so destination_player_id
+            // ends up being the current player — the chat icon would never show. Instead, use planet_id_from
+            // (the original target planet) to identify the other player we actually want to message.
+            if ($eventRowViewModel->is_return_trip && $row->planet_id_from !== null) {
+                if ($planetFromService !== null) {
+                    $originPlayer = $planetFromService->getPlayer();
+                    if ($originPlayer !== null) {
+                        $eventRowViewModel->destination_player_id = $originPlayer->getId();
+                        $eventRowViewModel->destination_player_name = $originPlayer->getUsername(false);
+                    }
+                }
+            }
+
             $eventRowViewModel->fleet_unit_count = $fleetMissionService->getFleetUnitCount($row);
             $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
             $eventRowViewModel->resources = $fleetMissionService->getResources($row);
@@ -368,6 +381,8 @@ class FleetEventsController extends OGameController
                 $returnTripRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
                 $returnTripRow->resources = new Resources(0, 0, 0, 0);
+                $returnTripRow->destination_player_id = $eventRowViewModel->destination_player_id;
+                $returnTripRow->destination_player_name = $eventRowViewModel->destination_player_name;
                 $fleet_events[] = $returnTripRow;
             }
         }
