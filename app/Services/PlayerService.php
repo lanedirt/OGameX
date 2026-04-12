@@ -550,10 +550,9 @@ class PlayerService
         $user = $this->getUser();
         $fleet_slots_bonus = $characterClassService->getAdditionalFleetSlots($user);
 
-        // Add officer bonuses (Commander: +1, Admiral: +2, CommandingStaff: +1)
+        // Add officer bonuses (Admiral: +2, CommandingStaff: +1)
         $officerService = app(OfficerService::class);
-        $officer_fleet_bonus = $officerService->getAdditionalFleetSlots($user)
-            + $officerService->getAdmiralFleetSlots($user)
+        $officer_fleet_bonus = $officerService->getAdmiralFleetSlots($user)
             + $officerService->getCommandingStaffFleetSlots($user);
 
         return $fleet_slots_from_research + $fleet_slots_bonus + $officer_fleet_bonus;

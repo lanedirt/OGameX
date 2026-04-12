@@ -184,12 +184,6 @@ class OfficerService
         return $this->isActive($user, 'engineer') ? 1.10 : 1.0;
     }
 
-    /** Commander: +1 slot flotta. */
-    public function getAdditionalFleetSlots(User $user): int
-    {
-        return $this->isActive($user, 'commander') ? 1 : 0;
-    }
-
     /** Ammiraglio: +2 slot flotta. */
     public function getAdmiralFleetSlots(User $user): int
     {
