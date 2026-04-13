@@ -20,7 +20,7 @@
 <body style="margin:0;padding:0;background-color:#000000;">
 
 <table width="100%" border="0" cellpadding="0" cellspacing="0"
-       style="background-color:#000000;background-image:url('{{ config('app.url') }}/img/outgame/1867da5b5f8769b547bb91d88bb4f8.jpg');background-repeat:no-repeat;background-position:center top;">
+       style="background-color:#000000;">
     <tr>
         <td align="center" style="padding:60px 16px 40px;">
 
