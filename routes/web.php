@@ -59,7 +59,7 @@ Route::get('/lang/{lang}', [LanguageController::class, 'switchLang'])->name('lan
 
 // Forgot email lookup (guest only).
 Route::get('/forgot-email', [ForgotEmailController::class, 'show'])->name('password.email-lookup');
-Route::post('/forgot-email', [ForgotEmailController::class, 'send'])->middleware('throttle:5,1');
+Route::post('/forgot-email', [ForgotEmailController::class, 'send'])->middleware('throttle:forgot-email');
 
 // Public AJAX endpoints (no auth required).
 Route::get('/ajax/main/rules', [RulesController::class, 'ajaxRules'])->name('rules.ajax');

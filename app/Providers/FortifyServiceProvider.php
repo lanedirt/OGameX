@@ -46,6 +46,14 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(20)->by($request->session()->get('login.id'));
         });
 
+        RateLimiter::for('forgot-email', function (Request $request) {
+            if (app()->environment('testing')) {
+                return Limit::none();
+            }
+
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
         Fortify::loginView(function () {
             return view('outgame.login');
         });
