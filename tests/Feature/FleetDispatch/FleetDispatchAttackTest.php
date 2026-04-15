@@ -4,13 +4,16 @@ namespace Tests\Feature\FleetDispatch;
 
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMissions\AttackMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
 use OGame\Models\Message;
+use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
@@ -211,6 +214,59 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     }
 
     /**
+     * Regression test: if the attacker's surviving free cargo space is below the theoretical
+     * loot, only the carried amount should be stolen and the remainder must stay on the target.
+     */
+    public function testAttackLeavesUncarriedLootOnDefenderPlanet(): void
+    {
+        $this->basicSetup();
+
+        $this->planetAddResources(new Resources(5000, 0, 0, 0));
+        $this->planetAddUnit('small_cargo', 1);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(4900, 0, 0, 0));
+
+        DB::table('planets')
+            ->where('id', $foreignPlanet->getPlanetId())
+            ->update(['metal' => 12000, 'crystal' => 0, 'deuterium' => 0]);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($mission, 'Attack mission should exist');
+
+        $this->travelTo(Date::createFromTimestamp($mission->time_arrival + 10));
+        $this->reloadApplication();
+        $this->get('/overview')->assertStatus(200);
+
+        $returnMission = FleetMission::where('parent_id', $mission->id)
+            ->where('canceled', 0)
+            ->first();
+
+        $this->assertNotNull($returnMission, 'Return mission should exist');
+
+        $actualLootTaken = $returnMission->metal - 4900;
+        $this->assertGreaterThanOrEqual(0, $actualLootTaken);
+        $this->assertLessThan(
+            6000,
+            $actualLootTaken,
+            'Actual loot should be lower than the theoretical 6 000 because the fleet is nearly full'
+        );
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $refreshedForeignPlanet = $planetServiceFactory->makeForPlayer(
+            $foreignPlanet->getPlayer(),
+            $foreignPlanet->getPlanetId()
+        );
+        $this->assertEquals(
+            12000 - $actualLootTaken,
+            $refreshedForeignPlanet->getResources()->metal->get(),
+            'Any loot that does not fit on the return fleet must remain on the defender planet'
+        );
+    }
+
+    /**
      * Verify that dispatching a fleet launches a return trip.
      * @throws Exception
      */
@@ -265,14 +321,15 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertCount(1, $activeMissions, 'No return trip launched after fleet with deployment mission has arrived at destination.');
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        $this->travelTo(Carbon::createFromTimestamp($activeMissions->first()->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($activeMissions->first()->time_arrival));
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Assert that the return trip is processed and that the resources mentioned in battle report
-        // match the resources of the return trip.
+        // Assert that the return trip is processed and that the stolen resources mentioned in the
+        // battle report are present on the return trip. Return deuterium can be higher because the
+        // fleet mission payload also includes surviving mission fuel.
         $fleetMission = $fleetMissionService->getFleetMissionById($activeMissions->first()->id, false);
         $this->assertTrue($fleetMission->processed == 1, 'Return trip is not processed after fleet has arrived back at origin planet.');
 
@@ -280,8 +337,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $battleReport = BattleReport::orderBy('id', 'desc')->first();
         $battleReportResources = new Resources($battleReport->loot['metal'], $battleReport->loot['crystal'], $battleReport->loot['deuterium'], 0);
 
-        // Assert that the resources of the return trip match the resources of the battle report.
-        $this->assertEquals($battleReportResources, new Resources($fleetMission->metal, $fleetMission->crystal, $fleetMission->deuterium, 0), 'Resources of return trip do not match resources of battle report.');
+        $this->assertEquals($battleReportResources->metal->get(), $fleetMission->metal, 'Return trip metal should match looted metal in the battle report.');
+        $this->assertEquals($battleReportResources->crystal->get(), $fleetMission->crystal, 'Return trip crystal should match looted crystal in the battle report.');
+        $this->assertGreaterThanOrEqual(
+            $battleReportResources->deuterium->get(),
+            $fleetMission->deuterium,
+            'Return trip deuterium should contain at least the looted deuterium from the battle report.'
+        );
     }
 
     /**
@@ -341,7 +403,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Advance time by 5 seconds.
         $this->travel(5)->seconds();
-        $fleetParentTime = Carbon::getTestNow();
+        $fleetParentTime = Date::getTestNow();
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -374,7 +436,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->playerSetAllMessagesRead();
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -953,7 +1015,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertNotNull($moonAtCoordinates, 'Moon should still exist at coordinates after battle.');
 
         // Verify there's no duplicate by checking the planet database directly
-        $moonsAtLocation = \OGame\Models\Planet::where('galaxy', $moonCoordinates->galaxy)
+        $moonsAtLocation = Planet::where('galaxy', $moonCoordinates->galaxy)
             ->where('system', $moonCoordinates->system)
             ->where('planet', $moonCoordinates->position)
             ->where('planet_type', PlanetType::Moon->value)
@@ -1046,9 +1108,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Assert that a moon was created within the maximum attempts
         $this->assertTrue($moonCreated, sprintf('Moon was not created within %d attempts with 20%% maximum moon chance.', $maxAttempts));
         $this->assertLessThanOrEqual($maxAttempts, $attempts, 'Test exceeded maximum allowed attempts.');
-
-        // Output the number of attempts it took to create the moon
-        dump("Moon was created after amount of attempts: " . $attempts);
     }
 
     /**
@@ -1233,7 +1292,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
 
         // Recall the mission before it arrives
-        $fleetParentTime = Carbon::createFromTimestamp($fleetMission->time_departure);
+        $fleetParentTime = Date::createFromTimestamp($fleetMission->time_departure);
         $this->travel(60)->seconds();
 
         // Send recall request
@@ -1253,7 +1312,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertGreaterThanOrEqual(10000, $returnMission->deuterium);
 
         // Advance time to return mission arrival
-        $this->travelTo(Carbon::createFromTimestamp($returnMission->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($returnMission->time_arrival));
 
         // Trigger update to process the return
         $this->get('/overview');

@@ -77,10 +77,12 @@ class AppUtil extends Facade
             return $formattedNumber . 'Mn';
         } elseif ($number >= 1000) {
             // If number is 1,000 or higher but less than 1,000,000, format with commas as thousands separator
-            return number_format($number, 0, '.', ',');
+            return number_format((int) $number, 0, '.', ',');
         } else {
-            // If number is less than 1,000, just return it with no formatting
-            return number_format($number, 0, '.', ',');
+            // If number is less than 1,000, just return it with no formatting.
+            // Use (int) cast (truncation) to match the JS Math.floor behavior in the resource ticker,
+            // preventing float residuals (e.g. 0.7) from rounding up to 1 in the tooltip.
+            return number_format((int) $number, 0, '.', ',');
         }
     }
 

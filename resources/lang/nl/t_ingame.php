@@ -64,7 +64,10 @@ return [
         'under_construction'     => 'In aanbouw',
         'vacation_mode_error'    => 'Fout, speler is in vakantiemodus',
         'requirements_not_met'   => 'Vereisten zijn niet vervuld!',
-        'wrong_class'            => 'Verkeerde karakterklasse!',
+        'wrong_class'            => 'Je hebt niet de vereiste spelersklasse voor dit gebouw.',
+        'wrong_class_general'    => 'Om dit schip te kunnen bouwen, moet je de klasse Generaal hebben geselecteerd.',
+        'wrong_class_collector'  => 'Om dit schip te kunnen bouwen, moet je de klasse Verzamelaar hebben geselecteerd.',
+        'wrong_class_discoverer' => 'Om dit schip te kunnen bouwen, moet je de klasse Ontdekker hebben geselecteerd.',
         'no_moon_building'       => 'Je kunt dat gebouw niet op een maan bouwen!',
         'not_enough_resources'   => 'Niet genoeg grondstoffen!',
         'queue_full'             => 'Wachtrij is vol',
@@ -477,6 +480,7 @@ return [
         'not_enough_missiles'          => 'U heeft niet genoeg raketten',
         'launched_success'             => 'Raketten succesvol gelanceerd!',
         'launch_failed'                => 'Lancering van raketten mislukt',
+        'insufficient_range'           => 'Onvoldoende bereik (onderzoeksniveau impulsaandrijving) van uw interplanetaire raketten!',
     ],
 
     // -------------------------------------------------------------------------

@@ -115,7 +115,7 @@
                     @endif
                     @if (!empty($price->energy->get()))
                             <li class="resource energy icon sufficient tooltip js_hideTipOnMobile
-                        @if ($planet->energyProduction()->get() < $price->energy->get())
+                        @if (($use_production_energy ? $planet->energyProduction()->get() : $planet->energy()->get()) < $price->energy->get())
                         insufficient
                         @else
                         sufficient
@@ -247,7 +247,13 @@
                                 if ($is_in_vacation_mode) {
                                     $tooltip = __('t_ingame.ajax_object.vacation_mode');
                                 } elseif (!$character_class_met) {
-                                    $tooltip = __('t_ingame.ajax_object.wrong_character_class');
+                                    $wrongClassKey = match (strtolower($object->machine_name)) {
+                                        'reaper'     => 't_ingame.buildings.wrong_class_general',
+                                        'crawler'    => 't_ingame.buildings.wrong_class_collector',
+                                        'pathfinder' => 't_ingame.buildings.wrong_class_discoverer',
+                                        default      => 't_ingame.buildings.wrong_class',
+                                    };
+                                    $tooltip = __($wrongClassKey);
                                 } elseif ($disabled_shipyard_upgrading) {
                                     $tooltip = __('t_ingame.ajax_object.shipyard_upgrading');
                                 } elseif ($ships_being_built) {
@@ -349,6 +355,10 @@
     <script type="text/javascript">
         var lastBuildingSlot = {
             "showWarning": false,
+            "exemptTechnologyIds": [33, 41],
+            "shouldWarnForTechnologyId": function (technologyId) {
+                return this.showWarning && this.exemptTechnologyIds.indexOf(Number(technologyId)) === -1;
+            },
             "slotWarning": ""
         };
     </script>

@@ -54031,7 +54031,7 @@ function doUpgrade(technologyId, planetId, mode, listId, showSlotWarning) {
     warning = LocalizationStrings.lastSlotWarningPlanet;
   }
 
-  if (showSlotWarning) {
+  if (showSlotWarning && lastBuildingSlot.shouldWarnForTechnologyId(technologyId)) {
     errorBoxDecision(LocalizationStrings.attention, warning, LocalizationStrings.yes, LocalizationStrings.no, function () {
       executeBuildAction(technologyId, planetId, mode, listId);
     });
@@ -67615,7 +67615,7 @@ function getPlanetOrMoonTooltipLinks(planet, galaxyContentObject, systemData) {
       }
     });
 
-    if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin) {
+    if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin && systemData.availableMissiles > 0) {
       let holdMissionAvailable = planet.availableMissions.find(availMission => availMission.missionType === 5);
 
       if (systemData.showOutlawWarning && !systemData.isOutlaw && player.isStrong && !holdMissionAvailable) {
@@ -68048,7 +68048,7 @@ function getActions(galaxyContentObject, systemData) {
 
   let missileLink = "";
 
-  if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin && galaxy && system && position) {
+  if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin && galaxy && system && position && systemData.availableMissiles > 0) {
     if (systemData.showOutlawWarning && !systemData.isOutlaw && player.isStrong && !holdMissionAvailable) {
       missileLink = `
                 <a class="tooltip js_hideTipOnMobile missleattack"
@@ -72343,7 +72343,7 @@ function sendBuildRequest(url, ev, showSlotWarning) {
     errorBoxDecision(LOCA_ALL_NETWORK_ATTENTION, LOCA_PLANETMOVE_BREAKUP_WARNING, LOCA_ALL_YES, LOCA_ALL_NO, fallBackFunc);
   } else {
     if (showSlotWarning) {
-      if (lastBuildingSlot['showWarning']) {
+      if (lastBuildingSlot['showWarning'] && lastBuildingSlot['shouldWarnForTechnologyId'](typeof techID !== 'undefined' ? techID : null)) {
         errorBoxDecision(LOCA_ALL_NETWORK_ATTENTION, lastBuildingSlot['slotWarning'], LOCA_ALL_YES, LOCA_ALL_NO, build);
       } else {
         build();
@@ -73494,7 +73494,7 @@ $(function () {
       });
     }
 
-    if (lastBuildingSlot.showWarning && !isSpaceProvider) {
+    if (lastBuildingSlot.shouldWarnForTechnologyId(technologyId) && !isSpaceProvider) {
       return errorBoxDecision(LocalizationStrings.notice, lastBuildingSlot.slotWarning, LocalizationStrings.yes, LocalizationStrings.no, function () {
         buildListActionBuild(technologyId);
       });
@@ -73521,7 +73521,7 @@ $(function () {
       });
     }
 
-    if (lastBuildingSlot.showWarning && !isSpaceProvider) {
+    if (lastBuildingSlot.shouldWarnForTechnologyId(technologyId) && !isSpaceProvider) {
       return errorBoxDecision(LocalizationStrings.notice, lastBuildingSlot.slotWarning, LocalizationStrings.yes, LocalizationStrings.no, function () {
         buildListActionBuild(technologyId, 1, 4);
       });
@@ -73614,7 +73614,7 @@ TechnologyDetails.prototype.onClickUpgrade = function (e) {
     });
   }
 
-  if (lastBuildingSlot.showWarning == true) {
+  if (lastBuildingSlot.shouldWarnForTechnologyId(technologyId)) {
     return errorBoxDecision(LocalizationStrings.notice, lastBuildingSlot.slotWarning, LocalizationStrings.yes, LocalizationStrings.no, function () {
       buildListActionBuild(technologyId, amount);
     });

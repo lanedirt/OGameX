@@ -127,6 +127,9 @@ $fleet_type_label = match($fleet_event_row->friendly_status) {
         <td class="sendProbe">
         </td>
         <td class="sendMail">
+            @if ($fleet_event_row->destination_player_id !== null && $fleet_event_row->destination_player_id !== auth()->id())
+                <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $fleet_event_row->destination_player_id }}" title="{{ $fleet_event_row->destination_player_name }}"><span class="icon icon_chat"></span></a>
+            @endif
         </td>
     </tr>
 @else
@@ -257,6 +260,9 @@ $fleet_type_label = match($fleet_event_row->friendly_status) {
         <td class="sendProbe">
         </td>
         <td class="sendMail">
+            @if ($fleet_event_row->destination_player_id !== null && $fleet_event_row->destination_player_id !== auth()->id())
+                <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $fleet_event_row->destination_player_id }}" title="{{ $fleet_event_row->destination_player_name }}"><span class="icon icon_chat"></span></a>
+            @endif
         </td>
     </tr>
 @endif

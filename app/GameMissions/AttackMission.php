@@ -12,7 +12,6 @@ use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameMissions\Models\MissionPossibleStatus;
-use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
@@ -227,10 +226,6 @@ class AttackMission extends GameMission
                     // Fleet survived - create return mission with survivors
                     $fleetOwner = $this->playerServiceFactory->make($fleetResult->playerId);
 
-                    // TODO: Calculate per-fleet loot share (proportional to surviving cargo capacity)
-                    // and surviving cargo (mission resources proportional to cargo survival rate).
-                    // Currently lootShare and survivingCargo are zero — loot/cargo distribution
-                    // across multiple ACS fleets is slated for a future PR.
                     // TODO: Include Reaper-collected debris share for multi-attacker battles.
                     // Currently Reaper debris collection only works for single-attacker path.
                     $totalResources = new Resources(
@@ -267,7 +262,7 @@ class AttackMission extends GameMission
                     $attackerWreckFieldData = null;
                     $characterClassService = resolve(CharacterClassService::class);
                     if ($characterClassService->isGeneral($fleetOwner->getUser())) {
-                        $attackerWreckFieldData = $this->calculateAttackerWreckField($fleetResult->unitsLost, $fleetResult->unitsStart);
+                        $attackerWreckFieldData = $this->calculateAttackerWreckField($fleetResult->unitsLost, $fleetResult->unitsStart, $originPlanet);
                     }
 
                     // Mark outbound mission as processed and create return mission with survivors
@@ -312,6 +307,22 @@ class AttackMission extends GameMission
             } else {
                 // Distribute the 30% debris amount across Reaper capacity
                 $attackerCollectedDebris = LootService::distributeLoot($collectionAmount, $reaperCargoCapacity);
+            }
+        }
+
+        // For single-attacker battles, loot and carried resources already occupy part of the
+        // surviving fleet cargo. Cap automatic Reaper collection to only the remaining free
+        // space so excess debris stays in the debris field instead of disappearing.
+        if (count($battleResult->attackerFleetResults) === 1 && $attackerCollectedDebris->sum() > 0) {
+            $singleFleetResult = $battleResult->attackerFleetResults[0];
+            $remainingCargoCapacity = $battleResult->attackerUnitsResult->getTotalCargoCapacity($attackerPlayer);
+            $availableForCollectedDebris = max(
+                0,
+                (int)($remainingCargoCapacity - $singleFleetResult->survivingCargo->sum() - $singleFleetResult->lootShare->sum())
+            );
+
+            if ($attackerCollectedDebris->sum() > $availableForCollectedDebris) {
+                $attackerCollectedDebris = LootService::distributeLoot($attackerCollectedDebris, $availableForCollectedDebris);
             }
         }
 
@@ -483,40 +494,19 @@ class AttackMission extends GameMission
             $mission->save();
 
             // Create and start the return mission (if single attacker has remaining units).
-            $originalCargoCapacity = $battleResult->attackerUnitsStart->getTotalCargoCapacity($attackerPlayer);
             $remainingCargoCapacity = $battleResult->attackerUnitsResult->getTotalCargoCapacity($attackerPlayer);
-
-            // Handle edge case: if original capacity is 0, survival rate is 0
-            $survivalRate = $originalCargoCapacity > 0
-                ? $remainingCargoCapacity / $originalCargoCapacity
-                : 0;
-
-            // Calculate resources remaining on surviving ships
-            $remainingResources = new Resources(
-                max(0, (int)($mission->metal * $survivalRate)),
-                max(0, (int)($mission->crystal * $survivalRate)),
-                max(0, (int)($mission->deuterium * $survivalRate)),
-                0
-            );
-
-            // Calculate loot remaining on surviving ships
-            // Loot is also subject to the survival rate (if cargo ships carrying loot are destroyed, loot is lost)
-            $remainingLoot = new Resources(
-                max(0, (int)($battleResult->loot->metal->get() * $survivalRate)),
-                max(0, (int)($battleResult->loot->crystal->get() * $survivalRate)),
-                max(0, (int)($battleResult->loot->deuterium->get() * $survivalRate)),
-                0
-            );
+            $singleFleetResult = $battleResult->attackerFleetResults[0];
 
             // Total resources = remaining mission resources + remaining loot + collected debris (from attacker Reapers)
             $totalResources = new Resources(
-                $remainingResources->metal->get() + $remainingLoot->metal->get() + $attackerCollectedDebris->metal->get(),
-                $remainingResources->crystal->get() + $remainingLoot->crystal->get() + $attackerCollectedDebris->crystal->get(),
-                $remainingResources->deuterium->get() + $remainingLoot->deuterium->get() + $attackerCollectedDebris->deuterium->get(),
+                $singleFleetResult->survivingCargo->metal->get() + $singleFleetResult->lootShare->metal->get() + $attackerCollectedDebris->metal->get(),
+                $singleFleetResult->survivingCargo->crystal->get() + $singleFleetResult->lootShare->crystal->get() + $attackerCollectedDebris->crystal->get(),
+                $singleFleetResult->survivingCargo->deuterium->get() + $singleFleetResult->lootShare->deuterium->get() + $attackerCollectedDebris->deuterium->get(),
                 0
             );
 
-            // Ensure total doesn't exceed remaining capacity
+            // Defensive cap only: loot and carried cargo are already normalized before we reach
+            // this point, so only edge-case rounding should ever hit this.
             if ($totalResources->sum() > $remainingCargoCapacity) {
                 $totalResources = LootService::distributeLoot($totalResources, $remainingCargoCapacity);
             }
@@ -529,9 +519,10 @@ class AttackMission extends GameMission
                 // Calculate attacker's lost units (start - result = lost)
                 $attackerUnitsLost = clone $battleResult->attackerUnitsStart;
                 $attackerUnitsLost->subtractCollection($battleResult->attackerUnitsResult);
+                $originPlanet = $this->planetServiceFactory->makeForPlayer($attackerPlayer, $mission->planet_id_from);
 
                 // Calculate wreck field data if conditions are met
-                $attackerWreckFieldData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart);
+                $attackerWreckFieldData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart, $originPlanet);
             }
 
             $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult, 0, $attackerWreckFieldData);
@@ -590,32 +581,15 @@ class AttackMission extends GameMission
      *
      * @param UnitCollection $attackerUnitsLost Units lost by the attacker.
      * @param UnitCollection $attackerUnitsStart Starting units of the attacker.
+     * @param PlanetService $originPlanet The planet whose Space Dock determines repairable wreckage.
      * @return array<array{machine_name: string, quantity: int, repair_progress: int}>|null Wreck field data with ships array, or null if conditions not met.
      */
-    private function calculateAttackerWreckField(UnitCollection $attackerUnitsLost, UnitCollection $attackerUnitsStart): array|null
+    private function calculateAttackerWreckField(UnitCollection $attackerUnitsLost, UnitCollection $attackerUnitsStart, PlanetService $originPlanet): array|null
     {
-        $wreckFieldData = [];
-        $wreckFieldPercentage = (100.0 - $this->settings->debrisFieldFromShips()) / 100;
-
-        // Only ships (not defenses) can go into wreck fields
-        // Exclusions: espionage probes never create wrecks
-        foreach ($attackerUnitsLost->units as $unit) {
-            if ($unit->amount > 0 && $unit->unitObject->type === GameObjectType::Ship) {
-                // Skip espionage probes - they don't create wreckages
-                if ($unit->unitObject->machine_name === 'espionage_probe') {
-                    continue;
-                }
-
-                $wreckFieldCount = (int) floor($unit->amount * $wreckFieldPercentage);
-                if ($wreckFieldCount > 0) {
-                    $wreckFieldData[] = [
-                        'machine_name' => $unit->unitObject->machine_name,
-                        'quantity' => $wreckFieldCount,
-                        'repair_progress' => 0,
-                    ];
-                }
-            }
-        }
+        $spaceDockPlanet = $originPlanet->isMoon() ? $originPlanet->planet() : $originPlanet;
+        $spaceDockLevel = max(1, $spaceDockPlanet->getObjectLevel('space_dock'));
+        $wreckFieldService = new WreckFieldService($spaceDockPlanet->getPlayer(), $this->settings);
+        $wreckFieldData = $wreckFieldService->calculateShipsForWreckField($attackerUnitsLost, $spaceDockLevel);
 
         // Check if wreck field conditions are met
         $totalLostValue = $attackerUnitsLost->toResources()->metal->get() +
@@ -744,7 +718,8 @@ class AttackMission extends GameMission
             && $battleResult->attackerUnitsResult->getAmount() > 0) {
             $attackerUnitsLost = clone $battleResult->attackerUnitsStart;
             $attackerUnitsLost->subtractCollection($battleResult->attackerUnitsResult);
-            $generalWreckData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart);
+            $originPlanet = $this->planetServiceFactory->makeForPlayer($attackPlayer, $battleResult->attackerPlanetId);
+            $generalWreckData = $this->calculateAttackerWreckField($attackerUnitsLost, $battleResult->attackerUnitsStart, $originPlanet);
 
             if ($generalWreckData !== null) {
                 $generalWreckForReport = [];

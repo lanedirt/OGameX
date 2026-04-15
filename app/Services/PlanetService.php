@@ -247,6 +247,11 @@ class PlanetService
         // Anonymize the planet in all tables where it is referenced.
         // This is done to prevent foreign key constraints from failing.
 
+        // Moon-origin fleets must keep a valid home planet so they can still return after the moon is gone.
+        if ($this->isMoon()) {
+            $this->redirectActiveOutgoingMoonMissionsToParentPlanet();
+        }
+
         // Fleet missions
         FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
         FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
@@ -272,6 +277,30 @@ class PlanetService
 
         // Delete the planet from the database
         $this->planet->delete();
+    }
+
+    /**
+     * Rebind active missions launched from a moon to its parent planet before the moon is deleted.
+     * This preserves the original flight while ensuring the fleet returns to the planet instead.
+     */
+    private function redirectActiveOutgoingMoonMissionsToParentPlanet(): void
+    {
+        $parentPlanet = $this->getParentPlanet();
+        if ($parentPlanet === null) {
+            return;
+        }
+
+        $parentCoordinates = $parentPlanet->getPlanetCoordinates();
+
+        FleetMission::where('planet_id_from', $this->planet->id)
+            ->where('processed', 0)
+            ->update([
+                'planet_id_from' => $parentPlanet->getPlanetId(),
+                'galaxy_from' => $parentCoordinates->galaxy,
+                'system_from' => $parentCoordinates->system,
+                'position_from' => $parentCoordinates->position,
+                'type_from' => PlanetType::Planet->value,
+            ]);
     }
 
     /**
@@ -601,7 +630,7 @@ class PlanetService
      *
      * @return bool
      */
-    public function hasResources(Resources $resources): bool
+    public function hasResources(Resources $resources, bool $useProductionEnergy = false): bool
     {
         if (!empty($resources->metal->get()) && ceil($this->metal()->get()) < $resources->metal->get()) {
             return false;
@@ -612,8 +641,13 @@ class PlanetService
         if (!empty($resources->deuterium->get()) && ceil($this->deuterium()->get()) < $resources->deuterium->get()) {
             return false;
         }
-        if (!empty($resources->energy->get()) && ceil($this->energyProduction()->get()) < $resources->energy->get()) {
-            return false;
+        if (!empty($resources->energy->get())) {
+            $energyAvailable = $useProductionEnergy
+                ? $this->energyProduction()->get()
+                : $this->energy()->get();
+            if (ceil($energyAvailable) < $resources->energy->get()) {
+                return false;
+            }
         }
 
         return true;

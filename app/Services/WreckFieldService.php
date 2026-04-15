@@ -4,7 +4,10 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
@@ -19,6 +22,27 @@ use OGame\Models\WreckField;
  */
 class WreckFieldService
 {
+    /**
+     * Original OGame Space Dock wreckage multipliers, applied to the non-debris share.
+     */
+    private const SPACE_DOCK_WRECKAGE_MULTIPLIERS = [
+        1 => 0.45,
+        2 => 0.48,
+        3 => 0.49,
+        4 => 0.50,
+        5 => 0.51,
+        6 => 0.52,
+        7 => 0.53,
+        8 => 0.53,
+        9 => 0.54,
+        10 => 0.54,
+        11 => 0.55,
+        12 => 0.55,
+        13 => 0.55,
+        14 => 0.56,
+        15 => 0.56,
+    ];
+
     /**
      * The wreck field object model.
      *
@@ -172,19 +196,23 @@ class WreckFieldService
     }
 
     /**
-     * Calculate ships that go into wreck field based on debris field settings.
-     * Wreck field percentage = 100% - debris_field_percentage
+     * Calculate ships that go into a wreck field based on universe debris settings and Space Dock level.
      *
      * @param UnitCollection $destroyedShips
+     * @param int $spaceDockLevel
      * @return array
      */
-    public function calculateShipsForWreckField(UnitCollection $destroyedShips): array
+    public function calculateShipsForWreckField(UnitCollection $destroyedShips, int $spaceDockLevel = 1): array
     {
-        $wreckFieldPercentage = (100.0 - $this->settingsService->debrisFieldFromShips()) / 100;
+        $wreckFieldPercentage = $this->getRecoverableWreckFieldPercentage($spaceDockLevel) / 100;
         $shipData = [];
 
         foreach ($destroyedShips->units as $unit) {
-            if ($unit->amount > 0) {
+            if ($unit->amount > 0 && $unit->unitObject->type === GameObjectType::Ship) {
+                if (in_array($unit->unitObject->machine_name, ['espionage_probe', 'solar_satellite'], true)) {
+                    continue;
+                }
+
                 $wreckFieldCount = (int) floor($unit->amount * $wreckFieldPercentage);
                 if ($wreckFieldCount > 0) {
                     $shipData[] = [
@@ -469,17 +497,32 @@ class WreckFieldService
         $this->wreckField->repair_started_at = now();
         $this->wreckField->space_dock_level = $spaceDockLevel;
 
-        // Calculate repair completion time
-        // Formula based on ship count only (space dock level affects recovery %, not time)
-        // Uses sqrt(shipCount * 30) * 10 to calculate reasonable repair times
-        $shipCount = $this->wreckField->getTotalShips();
-        $sqrtValue = sqrt($shipCount * 30);
-        $repairDuration = (int)($sqrtValue * 10);
-
+        // Cap repair time between the configured minimum and maximum limits.
+        $repairDuration = $this->calculateRepairDuration($this->wreckField->getTotalShips());
         $this->wreckField->repair_completed_at = now()->addSeconds($repairDuration);
         $this->wreckField->save();
 
         return true;
+    }
+
+    /**
+     * Calculate repair duration in seconds for the given ship count.
+     *
+     * Formula is based on ship count only; Space Dock level affects recovery %, not time.
+     */
+    private function calculateRepairDuration(int $shipCount): int
+    {
+        $minimumDuration = max(0, $this->settingsService->wreckFieldRepairMinMinutes()) * 60;
+        $configuredMaxHours = $this->settingsService->wreckFieldRepairMaxHours();
+        if ($configuredMaxHours <= 0) {
+            $configuredMaxHours = 12;
+        }
+
+        $maximumDuration = max($minimumDuration, $configuredMaxHours * 3600);
+
+        $calculatedDuration = (int) round(sqrt(max(0, $shipCount) * 30) * 10);
+
+        return min($maximumDuration, max($minimumDuration, $calculatedDuration));
     }
 
     /**
@@ -613,7 +656,7 @@ class WreckFieldService
     /**
      * Get repair progress percentage.
      *
-     * @return int Repair progress percentage (0-100), capped by Space Dock level
+     * @return int Repair progress percentage (0-100)
      */
     public function getRepairProgress(): int
     {
@@ -621,52 +664,307 @@ class WreckFieldService
             return 0;
         }
 
-        if ($this->wreckField->status === 'completed') {
-            return 100;
-        }
-
-        if ($this->wreckField->status !== 'repairing') {
-            return 0;
-        }
-
-        $totalTime = (int) $this->wreckField->repair_completed_at->timestamp - (int) $this->wreckField->repair_started_at->timestamp;
-        $elapsedTime = (int) now()->timestamp - (int) $this->wreckField->repair_started_at->timestamp;
-
-        $timeBasedProgress = min(100, max(0, (int) (($elapsedTime / $totalTime) * 100)));
-
-        $levelCap = $this->getMaxRecoverablePercentage();
-        $cappedProgress = min($timeBasedProgress, $levelCap);
-
-        return (int) $cappedProgress;
+        return $this->getTimeBasedRepairProgress($this->wreckField);
     }
 
     /**
-     * Get maximum recoverable percentage based on debris field setting and Space Dock level.
+     * Atomically collect all currently repaired ships for the primary wreck field on a planet.
      *
-     * Base recoverable = 100% - debris_field_percentage
-     * Space Dock level provides a bonus multiplier on top of the base.
-     * Formula: base_recoverable * (1 + (space_dock_level - 1) * bonus_per_level)
+     * @param Coordinate $coordinate
+     * @param int $planetId
+     * @return array{success:true,error:false,message:string,collected_ships:array<int,array<string,mixed>>,remaining_ships:array<int,array<string,mixed>>}|array{success:false,error:true,message:string}
+     */
+    public function collectRepairedShipsAtomic(Coordinate $coordinate, int $planetId): array
+    {
+        return DB::transaction(function () use ($coordinate, $planetId) {
+            $wreckField = $this->lockCollectibleWreckField($coordinate);
+
+            if (!$wreckField) {
+                return $this->buildMissingCollectibleWreckFieldResult($coordinate);
+            }
+
+            $currentShipData = $wreckField->ship_data ?? [];
+            if ($this->hasLateAddedShips($currentShipData)) {
+                return $this->buildLateAddedShipsResult($currentShipData);
+            }
+
+            $lockedPlanet = Planet::where('id', $planetId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $collectionResult = $this->collectShipsFromWreckField($wreckField, $lockedPlanet);
+
+            return [
+                'success' => true,
+                'error' => false,
+                'message' => count($collectionResult['collected_ships']) > 0 ? __('wreck_field.all_ships_deployed') : __('wreck_field.no_ships_ready'),
+                'collected_ships' => $collectionResult['collected_ships'],
+                'remaining_ships' => $collectionResult['remaining_ships'],
+            ];
+        });
+    }
+
+    /**
+     * Atomically auto-deploy overdue repaired ships for a wreck field.
      *
-     * @return float Maximum recoverable percentage
+     * @param int $wreckFieldId
+     * @return array<string,mixed>|false
+     */
+    public function autoDeployWreckFieldAtomic(int $wreckFieldId): array|false
+    {
+        return DB::transaction(function () use ($wreckFieldId) {
+            $wreckField = WreckField::whereKey($wreckFieldId)
+                ->lockForUpdate()
+                ->first();
+
+            if ($wreckField === null || !in_array($wreckField->status, ['repairing', 'completed'], true)) {
+                return false;
+            }
+
+            $lockedPlanet = Planet::where('user_id', $wreckField->owner_player_id)
+                ->where('galaxy', $wreckField->galaxy)
+                ->where('system', $wreckField->system)
+                ->where('planet', $wreckField->planet)
+                ->where('planet_type', PlanetType::Planet->value)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$lockedPlanet) {
+                throw new Exception("Could not find planet for wreck field at {$wreckField->galaxy}:{$wreckField->system}:{$wreckField->planet}");
+            }
+
+            $totalDeployed = $this->deployShipsToPlanetWithProgress($wreckField, $lockedPlanet);
+            $planetId = $lockedPlanet->id;
+            $ownerPlayerId = $wreckField->owner_player_id;
+            $wreckField->delete();
+
+            return [
+                'total_deployed' => $totalDeployed,
+                'planet_id' => $planetId,
+                'owner_player_id' => $ownerPlayerId,
+            ];
+        });
+    }
+
+    /**
+     * Get the percentage of destroyed ships that become repairable wreckage.
      */
     public function getMaxRecoverablePercentage(): float
     {
-        $debrisFieldPercentage = $this->settingsService->debrisFieldFromShips();
-        $baseRecoverable = 100.0 - $debrisFieldPercentage;
         $spaceDockLevel = $this->wreckField->space_dock_level ?? 1;
+        return $this->getRecoverableWreckFieldPercentage($spaceDockLevel);
+    }
 
-        // Cap space dock level at 15
-        if ($spaceDockLevel > 15) {
-            $spaceDockLevel = 15;
+    /**
+     * Lock the primary collectible wreck field for a planet.
+     */
+    private function lockCollectibleWreckField(Coordinate $coordinate): WreckField|null
+    {
+        return WreckField::where('galaxy', $coordinate->galaxy)
+            ->where('system', $coordinate->system)
+            ->where('planet', $coordinate->position)
+            ->where('owner_player_id', $this->playerService->getId())
+            ->whereIn('status', ['repairing', 'completed'])
+            ->orderByRaw("CASE status WHEN 'repairing' THEN 0 WHEN 'completed' THEN 1 ELSE 2 END")
+            ->orderBy('created_at', 'asc')
+            ->lockForUpdate()
+            ->first();
+    }
+
+    /**
+     * Build the correct response when no collectible wreck field is available.
+     *
+     * @param Coordinate $coordinate
+     * @return array{success:false,error:true,message:string}
+     */
+    private function buildMissingCollectibleWreckFieldResult(Coordinate $coordinate): array
+    {
+        $hasAnyWreckField = WreckField::where('galaxy', $coordinate->galaxy)
+            ->where('system', $coordinate->system)
+            ->where('planet', $coordinate->position)
+            ->where('owner_player_id', $this->playerService->getId())
+            ->exists();
+
+        if ($hasAnyWreckField) {
+            return [
+                'success' => false,
+                'error' => true,
+                'message' => __('wreck_field.repairs_not_started'),
+            ];
         }
 
-        // Space Dock bonus: 2.5% per level
-        $spaceDockBonus = 1.0 + (($spaceDockLevel - 1) * 0.025);
+        return [
+            'success' => false,
+            'error' => true,
+            'message' => __('wreck_field.error_no_wreck_field'),
+        ];
+    }
 
-        $maxRecoverable = $baseRecoverable * $spaceDockBonus;
+    /**
+     * Determine if a ship payload contains late-added ships.
+     *
+     * @param array<int,array<string,mixed>> $shipData
+     */
+    private function hasLateAddedShips(array $shipData): bool
+    {
+        foreach ($shipData as $ship) {
+            if (($ship['late_added'] ?? false) === true) {
+                return true;
+            }
+        }
 
-        // Cap at 100%
-        return min(100.0, $maxRecoverable);
+        return false;
+    }
+
+    /**
+     * Build the response for manual collection when late-added ships block collection.
+     *
+     * @param array<int,array<string,mixed>> $shipData
+     * @return array{success:true,error:false,message:string,collected_ships:array<int,array<string,mixed>>,remaining_ships:array<int,array<string,mixed>>}
+     */
+    private function buildLateAddedShipsResult(array $shipData): array
+    {
+        return [
+            'success' => true,
+            'error' => false,
+            'message' => '',
+            'collected_ships' => [],
+            'remaining_ships' => $shipData,
+        ];
+    }
+
+    /**
+     * Claim currently repaired ships from a wreck field and apply them to a locked planet row.
+     *
+     * @return array{collected_ships:array<int,array<string,mixed>>,remaining_ships:array<int,array<string,mixed>>}
+     */
+    private function collectShipsFromWreckField(WreckField $wreckField, Planet $planet): array
+    {
+        $overallProgress = $this->getTimeBasedRepairProgress($wreckField) / 100;
+        $currentShipData = $wreckField->ship_data ?? [];
+        $collectedShips = [];
+        $remainingShips = [];
+        $planetChanged = false;
+        $objectService = app(ObjectService::class);
+        $isCompletedWreckField = $wreckField->status === 'completed';
+
+        foreach ($currentShipData as $ship) {
+            $repairedCount = (int) floor($ship['quantity'] * $overallProgress);
+            $remainingCount = $isCompletedWreckField ? 0 : $ship['quantity'] - $repairedCount;
+
+            if ($repairedCount > 0) {
+                $collectedShips[] = [
+                    'machine_name' => $ship['machine_name'],
+                    'quantity' => $repairedCount,
+                    'repair_progress' => 100,
+                ];
+
+                $unitObject = $objectService->getUnitObjectByMachineName($ship['machine_name']);
+                if ($unitObject) {
+                    $this->addUnitToLockedPlanet($planet, $unitObject->machine_name, $repairedCount);
+                    $planetChanged = true;
+                }
+            }
+
+            if ($remainingCount > 0) {
+                $remainingShips[] = [
+                    'machine_name' => $ship['machine_name'],
+                    'quantity' => $remainingCount,
+                    'repair_progress' => 0,
+                ];
+            }
+        }
+
+        if ($planetChanged) {
+            $planet->save();
+        }
+
+        if (empty($remainingShips)) {
+            $wreckField->delete();
+        } else {
+            $wreckField->ship_data = $remainingShips;
+            $wreckField->save();
+        }
+
+        return [
+            'collected_ships' => $collectedShips,
+            'remaining_ships' => $remainingShips,
+        ];
+    }
+
+    /**
+     * Deploy repaired ships to a locked planet model based on repair progress.
+     */
+    private function deployShipsToPlanetWithProgress(WreckField $wreckField, Planet $planet): int
+    {
+        $overallProgress = $this->getTimeBasedRepairProgress($wreckField) / 100;
+        $objectService = app(ObjectService::class);
+        $totalDeployed = 0;
+
+        foreach ($wreckField->getShipData() as $ship) {
+            $repairedCount = (int) floor($ship['quantity'] * $overallProgress);
+            if ($repairedCount <= 0) {
+                continue;
+            }
+
+            $unitObject = $objectService->getUnitObjectByMachineName($ship['machine_name']);
+            if ($unitObject) {
+                $this->addUnitToLockedPlanet($planet, $unitObject->machine_name, $repairedCount);
+                $totalDeployed += $repairedCount;
+            }
+        }
+
+        if ($totalDeployed > 0) {
+            $planet->save();
+        }
+
+        return $totalDeployed;
+    }
+
+    /**
+     * Get the percentage of destroyed ships that become repairable wreckage for a Space Dock level.
+     */
+    public function getRecoverableWreckFieldPercentage(int $spaceDockLevel): float
+    {
+        $nonDebrisShare = max(0.0, 100.0 - $this->settingsService->debrisFieldFromShips());
+        $normalizedLevel = max(1, min(15, $spaceDockLevel));
+        $multiplier = self::SPACE_DOCK_WRECKAGE_MULTIPLIERS[$normalizedLevel] ?? self::SPACE_DOCK_WRECKAGE_MULTIPLIERS[1];
+
+        return round($nonDebrisShare * $multiplier, 1);
+    }
+
+    /**
+     * Apply unit gains to a planet row that is already locked inside the current transaction.
+     *
+     * We intentionally mutate the locked model directly instead of going through PlanetService::addUnit()
+     * so that both the read and write happen against the same locked row instance.
+     */
+    private function addUnitToLockedPlanet(Planet $planet, string $machineName, int $amount): void
+    {
+        $planet->{$machineName} += $amount;
+    }
+
+    /**
+     * Calculate time-based repair progress without the Space Dock percentage cap.
+     */
+    private function getTimeBasedRepairProgress(WreckField $wreckField): int
+    {
+        if ($wreckField->status === 'completed') {
+            return 100;
+        }
+
+        if (!$wreckField->repair_started_at || !$wreckField->repair_completed_at) {
+            return 0;
+        }
+
+        $totalTime = (int) $wreckField->repair_completed_at->timestamp - (int) $wreckField->repair_started_at->timestamp;
+        if ($totalTime <= 0) {
+            return now()->greaterThanOrEqualTo($wreckField->repair_completed_at) ? 100 : 0;
+        }
+
+        $elapsedTime = (int) now()->timestamp - (int) $wreckField->repair_started_at->timestamp;
+
+        return min(100, max(0, (int) (($elapsedTime / $totalTime) * 100)));
     }
 
     /**

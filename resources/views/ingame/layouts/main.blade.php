@@ -35,7 +35,7 @@
     <meta name="ogame-donut-galaxy" content="1"/>
     <meta name="ogame-donut-system" content="1"/>
     <meta name="ogame-player-id" content="{{ $currentPlayer->getId() }}"/>
-    <meta name="ogame-player-name" content="{{ $currentPlayer->getUsername() }}"/>
+    <meta name="ogame-player-name" content="{{ $currentPlayer->getUsername(false) }}"/>
     <meta name="ogame-alliance-id" content=""/>
     <meta name="ogame-alliance-name" content=""/>
     <meta name="ogame-alliance-tag" content=""/>
@@ -741,10 +741,10 @@
                 }
 
                 var playerId = "{{ $currentPlayer->getId() }}";
-                var playerName = "{{ $currentPlayer->getUsername() }}";
+                var playerName = "{{ $currentPlayer->getUsername(false) }}";
                 var player = {
                     "playerId": {{ $currentPlayer->getId() }},
-                    "name": "{{ $currentPlayer->getUsername() }}",
+                    "name": "{{ $currentPlayer->getUsername(false) }}",
                     "hasCommander": false,
                     "hasAPassword": true
                 };
