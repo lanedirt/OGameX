@@ -114,7 +114,7 @@ class OfficerService
     /**
      * Get officer key from type ID.
      */
-    public function getKeyFromTypeId(int $typeId): ?string
+    public function getKeyFromTypeId(int $typeId): string|null
     {
         return self::TYPE_MAP[$typeId] ?? null;
     }
