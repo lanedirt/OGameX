@@ -28,7 +28,7 @@
                 <gradient-button sq28="">
                     <button class="custom_btn icon_apikey tooltip msgApiKeyBtn" data-tooltip-interactive="true"
                             data-tooltip-append-to-id="messagedetails" data-message-id="8196210"
-                            data-tooltip-title="{{ __('t_ingame.fleet.api_data') }}<br/><input value='cr-en-255-5b67379a1bc25465e7e7692d01afc560e85eda30' readonly onclick='ogame.messages.copyToClipboard(this)' style='width:360px'></input>"
+                            data-tooltip-title="This data can be entered into a compatible combat simulator:<br/><input value='cr-en-255-5b67379a1bc25465e7e7692d01afc560e85eda30' readonly onclick='ogame.messages.copyToClipboard(this)' style='width:360px'></input>"
                             aria-expanded="false"><img src="/img/icons/basic/apikey.png"
                                                        style="width:20px;height:20px;"></button>
                 </gradient-button>
