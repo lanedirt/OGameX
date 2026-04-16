@@ -98,6 +98,9 @@ class OfficerService
     public function getOfficer(User $user): Officer
     {
         if (!isset($this->cache[$user->id])) {
+            if (empty($user->id)) {
+                return new Officer();
+            }
             $this->cache[$user->id] = Officer::firstOrCreate(['user_id' => $user->id]);
         }
         return $this->cache[$user->id];
