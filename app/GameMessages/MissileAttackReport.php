@@ -58,13 +58,11 @@ class MissileAttackReport extends GameMessage
         }
 
         // Singular/plural handling for missile
-        $missileText = $missilesSent == 1
-            ? __('t_messages.missile_attack_report.missile_singular')
-            : __('t_messages.missile_attack_report.missile_plural');
+        $missileText = $missilesSent == 1 ? 'missile' : 'missiles';
 
         // Build message body with hyperlinks matching original OGame format
         // Format: "X missile(s) from your planet [Name] [Coords] smashed into the planet [Name] [Coords]!"
-        $body = $missilesSent . ' ' . $missileText . __('t_messages.missile_attack_report.from_your_planet');
+        $body = $missilesSent . ' ' . $missileText . ' from your planet ';
 
         // Planet link format: [planet]ID[/planet] automatically shows planet name and coordinates
         if ($originPlanetId > 0) {
@@ -73,7 +71,7 @@ class MissileAttackReport extends GameMessage
             $body .= $originPlanetName . ' [coordinates]' . $originPlanetCoords . '[/coordinates]';
         }
 
-        $body .= __('t_messages.missile_attack_report.smashed_into');
+        $body .= ' smashed into the planet ';
 
         // Target planet link
         if ($targetPlanetId > 0) {
@@ -89,11 +87,11 @@ class MissileAttackReport extends GameMessage
         $missilesIntercepted = $params['missiles_intercepted'] ?? 0;
 
         if ($missilesIntercepted > 0) {
-            $body .= '<b>' . __('t_messages.missile_attack_report.intercepted_label') . '</b> ' . $missilesIntercepted . '<br><br>';
+            $body .= '<b>Missiles Intercepted:</b> ' . $missilesIntercepted . '<br><br>';
         }
 
         // Add defense list with bold header
-        $body .= '<b>' . __('t_messages.missile_attack_report.defenses_hit_label') . '</b><br>';
+        $body .= '<b>Defenses Hit</b><br>';
 
         if (!empty($defensesData)) {
             foreach ($defensesData as $defenseInfo) {
@@ -106,7 +104,7 @@ class MissileAttackReport extends GameMessage
                 $body .= $after . '(-' . $destroyed . ')<br>';
             }
         } else {
-            $body .= __('t_messages.missile_attack_report.none') . '<br>';
+            $body .= 'None<br>';
         }
 
         return $this->replacePlaceholders($body);

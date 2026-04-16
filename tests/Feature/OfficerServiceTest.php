@@ -43,20 +43,26 @@ class OfficerServiceTest extends AccountTestCase
         return User::findOrFail($this->currentUserId);
     }
 
-    /** Credit Dark Matter directly to the test user. */
+    /** Credit Dark Matter directly to the test user and refresh the auth guard. */
     private function addDarkMatter(int $amount): void
     {
         DB::table('users')
             ->where('id', $this->currentUserId)
             ->increment('dark_matter', $amount);
+
+        // Refresh the auth guard so Auth::user() in controllers reflects the new balance.
+        $this->be(User::findOrFail($this->currentUserId));
     }
 
-    /** Remove all Dark Matter from the test user. */
+    /** Remove all Dark Matter from the test user and refresh the auth guard. */
     private function clearDarkMatter(): void
     {
         DB::table('users')
             ->where('id', $this->currentUserId)
             ->update(['dark_matter' => 0]);
+
+        // Refresh the auth guard so Auth::user() in controllers reflects the new balance.
+        $this->be(User::findOrFail($this->currentUserId));
     }
 
     /** Force an officer's `_until` column to the past so it appears expired. */
