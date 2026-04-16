@@ -14,8 +14,5 @@ return [
             'name' => 'Colonize',
             'no_ship' => 'It is not possible to colonize a planet without a colony ship.'
         ]
-    ],
-    'discovery' => [
-        'locked' => "You haven't unlocked the research to discover new lifeforms yet.",
-    ],
+    ]
 ];
