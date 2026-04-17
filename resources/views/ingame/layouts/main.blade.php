@@ -48,6 +48,40 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <link rel="stylesheet" href="{{ mix('css/ingame.css') }}">
+    <style>
+        .lang-flag {
+            display:inline-block; width:16px; height:11px;
+            background-size:contain; background-repeat:no-repeat; background-position:center;
+            border:1px solid rgba(255,255,255,.15); border-radius:2px; margin-right:3px;
+        }
+        .lang-flag-en { background-image: url('/img/flags/en.svg'); }
+        .lang-flag-it { background-image: url('/img/flags/it.svg'); }
+        .lang-flag-nl { background-image: url('/img/flags/nl.svg'); }
+        .lang-flag-de { background-image: url('/img/flags/de.svg'); }
+        .lang-flag-ar { background-image: url('/img/flags/ar.svg'); }
+        .lang-flag-br { background-image: url('/img/flags/br.svg'); }
+        .lang-flag-cz { background-image: url('/img/flags/cz.svg'); }
+        .lang-flag-dk { background-image: url('/img/flags/dk.svg'); }
+        .lang-flag-es { background-image: url('/img/flags/es.svg'); }
+        .lang-flag-fi { background-image: url('/img/flags/fi.svg'); }
+        .lang-flag-fr { background-image: url('/img/flags/fr.svg'); }
+        .lang-flag-gr { background-image: url('/img/flags/gr.svg'); }
+        .lang-flag-hr { background-image: url('/img/flags/hr.svg'); }
+        .lang-flag-hu { background-image: url('/img/flags/hu.svg'); }
+        .lang-flag-jp { background-image: url('/img/flags/jp.svg'); }
+        .lang-flag-mx { background-image: url('/img/flags/mx.svg'); }
+        .lang-flag-pl { background-image: url('/img/flags/pl.svg'); }
+        .lang-flag-pt { background-image: url('/img/flags/pt.svg'); }
+        .lang-flag-ro { background-image: url('/img/flags/ro.svg'); }
+        .lang-flag-ru { background-image: url('/img/flags/ru.svg'); }
+        .lang-flag-se { background-image: url('/img/flags/se.svg'); }
+        .lang-flag-si { background-image: url('/img/flags/si.svg'); }
+        .lang-flag-sk { background-image: url('/img/flags/sk.svg'); }
+        .lang-flag-tr { background-image: url('/img/flags/tr.svg'); }
+        .lang-flag-tw { background-image: url('/img/flags/tw.svg'); }
+        .lang-flag-us { background-image: url('/img/flags/us.svg'); }
+        .lang-flag-yu { background-image: url('/img/flags/yu.svg'); }
+    </style>
     <script src="{{ mix('js/ingame.min.js') }}"></script>
 
     <script type="text/javascript">
@@ -82,16 +116,16 @@
             window.LocalizationStrings = {
                 timeunits: {
                     short: {
-                        day: 'd',
-                        hour: 'h',
-                        minute: 'm',
-                        second: 's'
+                        day: '{{ __('t_ingame.layout.time_short_day') }}',
+                        hour: '{{ __('t_ingame.layout.time_short_hour') }}',
+                        minute: '{{ __('t_ingame.layout.time_short_minute') }}',
+                        second: '{{ __('t_ingame.layout.time_short_second') }}'
                     },
                     long: {
-                        day: 'day',
-                        hour: 'hour',
-                        minute: 'minute',
-                        second: 'second'
+                        day: '{{ __('t_ingame.layout.time_long_day') }}',
+                        hour: '{{ __('t_ingame.layout.time_long_hour') }}',
+                        minute: '{{ __('t_ingame.layout.time_long_minute') }}',
+                        second: '{{ __('t_ingame.layout.time_long_second') }}'
                     }
                 }
             };
@@ -111,14 +145,9 @@
 
     <!-- Removed all custom close button CSS to restore normal jQuery UI behavior -->
 </head>
-<body id="{{ !empty($body_id) ? $body_id : 'ingamepage' }}" class="ogame lang-en default no-touch">
-<div id="initial_welcome_dialog" title="Welcome to OGame!" style="display: none;">
-    To help your game start get moving quickly, we've assigned you the name Commodore Nebula. You can change this at any
-    time by clicking on the username.<br/>
-    Fleet Command has left you information on your first steps in your inbox, to help you be well-equipped for your
-    start.<br/>
-    <br/>
-    Have fun playing!
+<body id="{{ !empty($body_id) ? $body_id : 'ingamepage' }}" class="ogame lang-{{ app()->getLocale() }} default no-touch">
+<div id="initial_welcome_dialog" title="{{ __('t_ingame.layout.welcome_title') }}" style="display: none;">
+    {{ __('t_ingame.layout.welcome_body') }}
 </div>
 @if ($currentPlayer->isAdmin() || !empty($isImpersonating))
     @include ('ingame.layouts.admin-menu', ['currentPlayer' => $currentPlayer, 'isImpersonating' => $isImpersonating ?? false, 'impersonateLeaveUrl' => $impersonateLeaveUrl ?? null])
@@ -132,9 +161,8 @@
                 <ul>
                     <li id="playerName">
                         {{ __('t_ingame.layout.player') }}:
-                        <selected-language-icon
-                                style="background-image: url('/img/flags/a176fcd6f3e3de2bed6a73a8b1d5e7.png');"></selected-language-icon>
-
+                        @php $playerLocale = $currentPlayer->getUser()->lang ?: app()->getLocale(); @endphp
+                        <span class="lang-flag lang-flag-{{ $playerLocale }}" title="{{ strtoupper($playerLocale) }}"></span>
                         <span class="textBeefy">
                                 <a href="{{ route('changenick.overlay') }}"
                                    class="overlay textBeefy"
@@ -266,7 +294,7 @@
                     <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="{{ __('t_ingame.layout.res_dark_matter') }}|<table class=&quot;resourceTooltip&quot;><tr><th>{{ __('t_ingame.layout.res_available') }}:</th><td><span class=&quot;&quot;>{!! $resources['darkmatter']['amount_formatted'] !!}</span></td></tr></table>"
                          data-tooltip-button="{{ __('t_ingame.layout.res_purchase_dm') }}" data-ipi-hint="ipiResourcedarkmatter">
-                        <a href="#TODO_page=payment" class="overlay">
+                        <a href="{{ route('payment.overlay') }}" class="overlay">
                             <img src="/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif">
                             <div class="resourceIcon darkmatter"></div>
                         </a>
@@ -305,27 +333,25 @@
                     <div class="sprite characterclass medium {{ $classIcon }}"></div>
                 </a>
             </div>
-            <div id="officers" class="  fright">
-                <a href="#TODO_=premium&amp;openDetail=2" class="tooltipHTML   commander js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_commander_tooltip') !!}">
+            @php
+                // NOTE: $currentOfficer is not yet provided by IngameMainComposer on main branch;
+                // render officer icons statically until officer service is wired in.
+                $officerBarItems = [
+                    ['key' => 'commander', 'ref' => 2, 'titleKey' => 'hire_commander_tooltip'],
+                    ['key' => 'admiral',   'ref' => 3, 'titleKey' => 'hire_admiral_tooltip'],
+                    ['key' => 'engineer',  'ref' => 4, 'titleKey' => 'hire_engineer_tooltip'],
+                    ['key' => 'geologist', 'ref' => 5, 'titleKey' => 'hire_geologist_tooltip'],
+                    ['key' => 'technocrat','ref' => 6, 'titleKey' => 'hire_technocrat_tooltip'],
+                ];
+            @endphp
+            <div id="officers" class="fright">
+                @foreach($officerBarItems as $item)
+                <a href="{{ route('premium.index') }}?openDetail={{ $item['ref'] }}"
+                   class="tooltipHTML {{ $item['key'] }} js_hideTipOnMobile"
+                   title="{!! __('t_ingame.premium.' . $item['titleKey']) !!}">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
-                <a href="#TODO_page=premium&amp;openDetail=3" class="tooltipHTML    admiral js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_admiral_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
-                <a href="#TODO_page=premium&amp;openDetail=4" class="tooltipHTML    engineer js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_engineer_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
-                <a href="#TODO_page=premium&amp;openDetail=5" class="tooltipHTML    geologist js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_geologist_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
-                <a href="#TODO_page=premium&amp;openDetail=6" class="tooltipHTML    technocrat js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_technocrat_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
+                @endforeach
             </div>
         </div>
         <div id="notificationbarcomponent" class="">
@@ -343,7 +369,7 @@
                 <!-- Neue Chatnachrichten-Zähler -->
                 <a class="comm_menu chat tooltip js_hideTipOnMobile"
                    href="{{ route('chat.index') }}"
-                   title="{{ $unreadChatCount }} unread message(s)">
+                   title="{{ $unreadChatCount }} {{ __('t_ingame.layout.unread_messages') }}">
                     <!-- js modification !-->
                     <span class="new_msg_count totalChatMessages @if($unreadChatCount === 0) noMessage @endif" data-new-messages="{{ $unreadChatCount }}">
                     {{ $unreadChatCount }}                </span>
@@ -352,10 +378,10 @@
                     <div id="eventboxFilled" class="eventToggle" style="display: none;">
                         <a id="js_eventDetailsClosed" class="tooltipRight js_hideTipOnMobile"
                            href="javascript:void(0);"
-                           title="More details"></a>
+                           title="{{ __('t_ingame.layout.js_more_details') }}"></a>
                         <a id="js_eventDetailsOpen" class="tooltipRight open js_hideTipOnMobile"
                            href="javascript:void(0);"
-                           title="Less detail"></a>
+                           title="{{ __('t_ingame.layout.js_less_details') }}"></a>
 
 
                     </div>
@@ -453,10 +479,10 @@
                                     $shipTooltipContent .= $shipName . ': ' . $quantity . '<br/>';
                                 }
                             } else {
-                                $shipTooltipContent .= 'No ships in wreck field';
+                                $shipTooltipContent .= __('t_ingame.layout.no_ships_in_wreck');
                             }
                         } else {
-                            $shipTooltipContent .= 'No wreck field available';
+                            $shipTooltipContent .= __('t_ingame.layout.no_wreck_available');
                         }
                     @endphp
                     @php
@@ -789,13 +815,13 @@
                 localTS = localTime.getTime();
                 var startServerTime = localTime.getTime() - (0) - localTime.getTimezoneOffset() * 60 * 1000;
                 var LocalizationStrings = {!! json_encode([
-                    'timeunits'            => ['short' => ['year' => 'y', 'month' => 'm', 'week' => 'w', 'day' => 'd', 'hour' => 'h', 'minute' => 'm', 'second' => 's']],
+                    'timeunits'            => ['short' => ['year' => __('t_ingame.layout.time_short_year'), 'month' => __('t_ingame.layout.time_short_month'), 'week' => __('t_ingame.layout.time_short_week'), 'day' => __('t_ingame.layout.time_short_day'), 'hour' => __('t_ingame.layout.time_short_hour'), 'minute' => __('t_ingame.layout.time_short_minute'), 'second' => __('t_ingame.layout.time_short_second')]],
                     'status'               => ['ready' => __('t_ingame.layout.js_time_done')],
-                    'decimalPoint'         => '.',
-                    'thousandSeperator'    => ',',
-                    'unitMega'             => 'M',
-                    'unitKilo'             => 'K',
-                    'unitMilliard'         => 'B',
+                    'decimalPoint'         => __('t_ingame.layout.decimal_point'),
+                    'thousandSeperator'    => __('t_ingame.layout.thousand_separator'),
+                    'unitMega'             => __('t_ingame.layout.unit_mega'),
+                    'unitKilo'             => __('t_ingame.layout.unit_kilo'),
+                    'unitMilliard'         => __('t_ingame.layout.unit_milliard'),
                     'question'             => __('t_ingame.layout.js_question'),
                     'error'                => __('t_ingame.shared.error'),
                     'loading'              => __('t_ingame.layout.loading'),
@@ -816,7 +842,7 @@
                 var constants = {
                     "espionage": 6,
                     "missleattack": 10,
-                    "language": "en",
+                    "language": "{{ app()->getLocale() }}",
                     "name": "144"
                 };
                 var userData = {
@@ -836,7 +862,9 @@
                 var chatUrl = "{{ route('chat.send') }}";
                 var chatHistoryUrl = "{{ route('chat.history') }}";
                 var chatUrlLoadMoreMessages = "{{ route('chat.more') }}";
+                var chatSearchUrl = "{{ route('search.overlay') }}";
                 var chatLoca = {!! json_encode([
+                    'SEARCH_PLAYER'            => __('t_ingame.search.search_player_link'),
                     'TEXT_EMPTY'               => __('t_ingame.layout.chat_text_empty'),
                     'TEXT_TOO_LONG'            => __('t_ingame.layout.chat_text_too_long'),
                     'SAME_USER'                => __('t_ingame.layout.chat_same_user'),
@@ -1006,7 +1034,7 @@
                             <div class="repairableShips">
                                 ${wreckFieldData.is_repairing ?
                                     // During repairs: show minimal content
-                                    `<span>There is no wreckage at this position.</span>` :
+                                    `<span>{{ __('t_ingame.wreckage.no_wreckage') }}</span>` :
                                     // Before repairs: show full description
                                     `<div>
                                         <div class="descriptionText">Electronic charges flicker through defective drive units, atmosphere escapes from the wrecks of destroyed ships and is released into space. Huge gaping holes can be seen in the burned out hulls and empty escape capsules whirl around the room. So many ships have fallen victim to the great battle!
@@ -1014,13 +1042,13 @@
 However, the Space Dock's engineers think that some of the remains can be salvaged, before the wreckage enters the atmosphere and ultimately burns up. The repair crews are ready.</div>
                                         <div class="rightArea">
                                             <div class="boxed">
-                                                <p>Wreckage burns up in: </p>
+                                                <p>{{ __('t_ingame.wreckage.burns_up_in') }} </p>
                                                 <p id="burnUpCountDownForRepairOverlay" data-duration="${timeRemaining}">${timeDisplay}</p>
                                             </div>
                                             <br>
                                             ${!wreckFieldData.is_repairing && !wreckFieldData.is_completed && wreckFieldData.can_repair ?
                                             `<div class="btn btn_dark fright burnUpButton">
-                                                <input type="button" class="overmark burnUpButton" value="Leave to burn up" data-loca_box_text="Leave to burn up" data-loca_decision_text="The wreckage will descend into the planet's atmosphere and burn up. Once struck, a repair will no longer be possible. Are you sure you want to burn up the wreckage?" data-loca_yes="yes" data-loca_no="No" onclick="goToSpaceDockAndBurnUp();">
+                                                <input type="button" class="overmark burnUpButton" value="{{ __('t_ingame.wreckage.leave_to_burn') }}" data-loca_box_text="{{ __('t_ingame.wreckage.leave_to_burn') }}" data-loca_decision_text="The wreckage will descend into the planet's atmosphere and burn up. Once struck, a repair will no longer be possible. Are you sure you want to burn up the wreckage?" data-loca_yes="yes" data-loca_no="No" onclick="goToSpaceDockAndBurnUp();">
                                             </div>` : ''
                             }
                                         </div>
@@ -1088,7 +1116,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                             <input type="button" class="middlemark" value="Repairs completed - Collect ships" onclick="location.href='{{ route('facilities.index') }}';">
                                         </div>` :
                                         // Before repairs: show repair time and start button
-                                        `<label>Repair time: </label><span id="repairTime">${wreckFieldData.remaining_repair_time > 0 ? Math.floor(wreckFieldData.remaining_repair_time / 60) + 'm ' + (wreckFieldData.remaining_repair_time % 60) + 's' : '32m 0s'}</span>
+                                        `<label>{{ __('t_ingame.wreckage.repair_time') }} </label><span id="repairTime">${wreckFieldData.remaining_repair_time > 0 ? Math.floor(wreckFieldData.remaining_repair_time / 60) + 'm ' + (wreckFieldData.remaining_repair_time % 60) + 's' : '32m 0s'}</span>
                                         <div class="btn btn_dark fright startRepairsButton">
                                             <input type="button" class="middlemark startRepairsButton" value="Start repairs" onclick="goToSpaceDockAndRepair();">
                                         </div>`
@@ -1410,7 +1438,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
 
                 function openPlanetRenameGiveupBox() {
                     openOverlay("{{ route('planetabandon.overlay') }}", {
-                        title: "Abandon\/Rename {{ $currentPlanet->getPlanetName() }}",
+                        title: "{{ __('t_ingame.overview.abandon_rename_modal', ['planet_name' => $currentPlanet->getPlanetName()]) }}",
                         'class': "planetRenameOverlay"
                     });
                 }
@@ -1640,7 +1668,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                             clearInterval(initChatAsyncInterval);
                             ogame.chat.initChatBar(playerId);
                             ogame.chat.initChat(playerId, isMobile, {{ auth()->user()->alliance_id ?? 'null' }});
-                            ogame.chat.updateCustomScrollbar($('.scrollContainer'));
+                            ogame.chat.updateCustomScrollbar($('.largeChatContainer'));
                         }
                     }
 
@@ -1755,13 +1783,13 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                                     <img id="planetBarSpaceObjectImg_{{ $moon->getPlanetId() }}"
                                                          src="/img/moons/small/{{ $moon->getPlanetImageType() }}.gif"
                                                          width="16" height="16"
-                                                         alt="Moon"
+                                                         alt="{{ __('t_ingame.fleet.moon') }}"
                                                          class="icon-moon">
                                                 </div>
                                             @else
                                                 <img src="/img/moons/small/{{ $moon->getPlanetImageType() }}.gif"
                                                      width="16" height="16"
-                                                     alt="Moon"
+                                                     alt="{{ __('t_ingame.fleet.moon') }}"
                                                      class="icon-moon">
                                             @endif
                                         </a>
@@ -1790,7 +1818,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                                         @endphp
                                         @if ($isOwner && $hasSpaceDock)
                                         <a class="wreckFieldIcon tooltip js_hideTipOnMobile"
-                                           title="Wreckage"
+                                           title="{{ __('t_ingame.wreckage.wreckage_label') }}"
                                            href="javascript:void(0);" onclick="openFacilitiesSpaceDock();">
                                             <span class="icon icon_wreck_field"></span>
                                         </a>
@@ -1846,10 +1874,6 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                data-overlay-title="{{ __('t_ingame.layout.server_settings') }}" data-overlay-class="serversettingsoverlay"
                data-overlay-popup-width="400" data-overlay-popup-height="510">{{ __('t_ingame.layout.server_settings') }}</a>|
             <a href="http://wiki.ogame.org/" target="_blank">{{ __('t_ingame.layout.help') }}</a>|
-            @php $localeActive = $locale ?? app()->getLocale(); @endphp
-            <a href="{{ route('language.switch', ['lang' => 'en']) }}" @if($localeActive === 'en') class="bold" @endif>EN</a>|
-            <a href="{{ route('language.switch', ['lang' => 'it']) }}" @if($localeActive === 'it') class="bold" @endif>IT</a>|
-            <a href="{{ route('language.switch', ['lang' => 'nl']) }}" @if($localeActive === 'nl') class="bold" @endif>NL</a>|
             <a href="#">{{ __('t_ingame.layout.board') }}</a>|
             <a class="overlay" href="{{ route('rules.ajax') }}"
                data-overlay-title="{{ __('t_ingame.layout.rules') }}">{{ __('t_ingame.layout.rules') }}</a>|

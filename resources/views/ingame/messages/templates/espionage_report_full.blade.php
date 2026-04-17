@@ -11,7 +11,7 @@
     <div class="msg_actions clearfix">
         <div class="icon_nf_link fleft">
                     <span class="icon_nf icon_apikey tooltipCustom tooltip-width:400 fleft"
-                          title="This data can be entered into a compatible combat simulator:<br/><input value='sr-en-256-265b38b75e565e12526a560bf4f5c83bfce4c5c5' readonly onclick='select()' style='width:360px'></input>"></span>
+                          title="{{ __('t_ingame.fleet.api_data') }}<br/><input value='sr-en-256-265b38b75e565e12526a560bf4f5c83bfce4c5c5' readonly onclick='select()' style='width:360px'></input>"></span>
         </div>
         <a href="#TODOpage=shareReportOverlay&messageId=1645218"
            data-overlay-title="{{ __('t_ingame.messages.battle_share') }}" title='{{ __('t_ingame.messages.battle_share') }}'
