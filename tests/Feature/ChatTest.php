@@ -33,8 +33,9 @@ class ChatTest extends AccountTestCase
         $response = $this->get('/chat');
         $response->assertStatus(200);
         $response->assertSee('Chat');
-        $response->assertSee('List of your chats');
-        $response->assertSee('Player list');
+        // UI text is now translated via t_ingame.chat keys
+        $response->assertSee('Conversations');
+        $response->assertSee('Players');
     }
 
     /**
