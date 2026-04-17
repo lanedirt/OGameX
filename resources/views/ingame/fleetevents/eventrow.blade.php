@@ -1,6 +1,6 @@
 @php
 /** @var \OGame\ViewModels\FleetEventRowViewModel $fleet_event_row */
-$fleet_type_label = match($fleet_event_row->friendly_status) {
+$fleet_type_label = match($fleet_event_row->friendly_status ?? 'friendly') {
     'hostile' => __('t_ingame.fleet.enemy_fleet'),
     'neutral' => __('t_ingame.fleet.friendly_fleet'),
     default   => __('t_ingame.fleet.own_fleet'),
@@ -14,7 +14,7 @@ $fleet_type_label = match($fleet_event_row->friendly_status) {
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
     >
         <td class="countDown">
-            <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->friendly_status }} textBeefy">
+            <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->friendly_status ?? 'friendly' }} textBeefy">
                 load...
             </span>
         </td>
@@ -136,7 +136,7 @@ $fleet_type_label = match($fleet_event_row->friendly_status) {
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
     >
         <td class="countDown">
-        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->friendly_status }} textBeefy">
+        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->friendly_status ?? 'friendly' }} textBeefy">
                     load...
         </span>
         </td>
