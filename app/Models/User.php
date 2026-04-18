@@ -162,6 +162,11 @@ class User extends Authenticatable
         return $this->hasOne(UserTech::class);
     }
 
+    public function officer(): HasOne
+    {
+        return $this->hasOne(Officer::class);
+    }
+
     /**
      * Get the dark matter transactions for the user.
      *
