@@ -1640,7 +1640,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                             clearInterval(initChatAsyncInterval);
                             ogame.chat.initChatBar(playerId);
                             ogame.chat.initChat(playerId, isMobile, {{ auth()->user()->alliance_id ?? 'null' }});
-                            ogame.chat.updateCustomScrollbar($('.scrollContainer'));
+                            ogame.chat.updateCustomScrollbar($('.largeChatContainer'));
                         }
                     }
 

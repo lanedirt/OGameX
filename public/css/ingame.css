@@ -13811,10 +13811,15 @@ div#buddyCopyOverlay .code {
     margin: 0 0 0 -7px;
 }
 
+.pl_container .ui-accordion-content {
+    overflow: hidden !important;
+}
+
 .pl_container .playerlist_box .scrollContainer {
     margin: -2px 0 -3px 0;
     padding: 0;
     max-height: 138px;
+    overflow: hidden;
 }
 
 .pl_container .playerlist_box .playerlist_top_box .playerlist {
