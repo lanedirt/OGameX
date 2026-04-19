@@ -235,6 +235,16 @@
                                         </div>
                                         <div class="group bborder" style="display: block;">
                                             <div class="fieldwrapper">
+                                                <label class="styled textBeefy">{{ __('t_ingame.options.language') }}</label>
+                                                <div class="thefield">
+                                                    <select name="language" class="w200">
+                                                        @foreach($supported_languages as $lng)
+                                                            <option value="{{ $lng }}" @if($current_language === $lng) selected @endif>{{ __('t_ingame.options.language_' . $lng) }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="fieldwrapper">
                                                 <label class="styled textBeefy">{{ __('t_ingame.options.show_mobile_version') }}</label>
                                                 <div class="thefield">
                                                     <input type="checkbox" name="show_mobile_version" {{ old('show_mobile_version') }}>
