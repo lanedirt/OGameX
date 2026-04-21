@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use OGame\Http\Middleware\Locale;
+use OGame\Services\PlanetNameLocalizationService;
 
 class LanguageController extends OGameController
 {
@@ -26,9 +27,10 @@ class LanguageController extends OGameController
      * database record when the user is authenticated.
      *
      * @param string $lang
+     * @param PlanetNameLocalizationService $planetNameLocalization
      * @return RedirectResponse
      */
-    public function switchLang(string $lang): RedirectResponse
+    public function switchLang(string $lang, PlanetNameLocalizationService $planetNameLocalization): RedirectResponse
     {
         // Fallback to 'en' for any unsupported locale (e.g. /lang/fr → 'en').
         $locale = in_array($lang, Locale::SUPPORTED_LOCALES, true) ? $lang : 'en';
@@ -42,6 +44,11 @@ class LanguageController extends OGameController
         if (Auth::check()) {
             Auth::user()->lang = $locale;
             Auth::user()->save();
+
+            // Auto-translate the user's planets/moons that still carry a "default"
+            // name (Homeworld / Colony / Moon in any supported language) into the
+            // new locale. Custom names chosen by the player are preserved untouched.
+            $planetNameLocalization->retranslateDefaultNamesForUser((int) Auth::id(), $locale);
         }
 
         // Flush session to the store immediately so the locale key is visible to
