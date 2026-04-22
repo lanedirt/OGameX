@@ -20,7 +20,7 @@
                         <div class="input-wrap">
                             <label for="email">{{ __('t_external.reset_password.email_label') }}</label>
                             <div class="black-border">
-                                <input type="text"
+                                <input type="email"
                                        id="email"
                                        name="email"
                                        value="{{ old('email', $request->email) }}"
