@@ -8,12 +8,19 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Http\Controllers\OGameController;
 use OGame\Models\Ban;
+use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
+use OGame\Models\Planet;
 use OGame\Models\User;
+use OGame\Services\FleetMissionService;
 use OGame\Services\SettingsService;
+use RuntimeException;
 use stdClass;
+use Throwable;
 
 class ServerAdministrationController extends OGameController
 {
@@ -129,12 +136,14 @@ class ServerAdministrationController extends OGameController
             ->values();
 
         $botSuspects = $allSuspects->reject(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->values();
+        $stuckMissions = $this->getStuckFleetMissions();
 
         return view('ingame.admin.server-administration', [
             'sharedIpGroups'        => $sharedIpGroups,
             'botSuspects'           => $botSuspects,
             'activeBans'            => $activeBans,
             'banHistory'            => $banHistory,
+            'stuckMissions'         => $stuckMissions,
             'detectionSettings'     => $settings,
             'dismissedIpCount'      => count($dismissedIps),
             'dismissedSuspectCount' => $allSuspects->filter(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->count(),
@@ -436,6 +445,104 @@ class ServerAdministrationController extends OGameController
     }
 
     /**
+     * Attempts to process a single overdue mission through the normal mission pipeline.
+     */
+    public function processStuckMission(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'mission_id' => ['required', 'integer', 'min:1'],
+        ]);
+
+        try {
+            $message = '';
+
+            DB::transaction(function () use ($validated, &$message) {
+                /** @var FleetMission|null $mission */
+                $mission = FleetMission::query()
+                    ->where('id', $validated['mission_id'])
+                    ->where('processed', 0)
+                    ->where('canceled', 0)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($mission === null) {
+                    throw new RuntimeException('Mission is no longer active.');
+                }
+
+                $player = resolve(PlayerServiceFactory::class)->make($mission->user_id, true);
+                $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+                $fleetMissionService->updateMission($mission);
+
+                $mission->refresh();
+                if (!$mission->processed) {
+                    throw new RuntimeException('Mission remains active after processing attempt.');
+                }
+
+                $message = "Mission #{$mission->id} processed successfully.";
+            });
+
+            return redirect()->route('admin.server-administration.index')
+                ->with('status', $message);
+        } catch (Throwable $e) {
+            return redirect()->route('admin.server-administration.index')
+                ->with('error', "Mission #{$validated['mission_id']} could not be processed: {$e->getMessage()}");
+        }
+    }
+
+    /**
+     * Recovers a stuck mission by crediting its fleet and cargo to the player's first planet.
+     */
+    public function recoverStuckMissionToHomeworld(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'mission_id' => ['required', 'integer', 'min:1'],
+        ]);
+
+        try {
+            $message = '';
+
+            DB::transaction(function () use ($validated, &$message) {
+                /** @var FleetMission|null $mission */
+                $mission = FleetMission::query()
+                    ->where('id', $validated['mission_id'])
+                    ->where('processed', 0)
+                    ->where('canceled', 0)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($mission === null) {
+                    throw new RuntimeException('Mission is no longer active.');
+                }
+
+                $player = resolve(PlayerServiceFactory::class)->make($mission->user_id, true);
+                $homeworld = $player->planets->first();
+                if ($homeworld === null) {
+                    throw new RuntimeException('Player has no valid homeworld to recover the fleet to.');
+                }
+
+                $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+                $homeworld->addUnits($fleetMissionService->getFleetUnits($mission));
+
+                $resources = $fleetMissionService->getResources($mission);
+                if ($resources->any()) {
+                    $homeworld->addResources($resources);
+                }
+
+                $mission->processed = 1;
+                $mission->save();
+
+                $message = "Mission #{$mission->id} recovered to {$homeworld->getPlanetCoordinates()->asString()}.";
+            });
+
+            return redirect()->route('admin.server-administration.index')
+                ->with('status', $message);
+        } catch (Throwable $e) {
+            return redirect()->route('admin.server-administration.index')
+                ->with('error', "Mission #{$validated['mission_id']} could not be recovered: {$e->getMessage()}");
+        }
+    }
+
+    /**
      * Bans a user.
      */
     public function ban(Request $request): RedirectResponse
@@ -503,5 +610,137 @@ class ServerAdministrationController extends OGameController
 
         return redirect()->route('admin.server-administration.index')
             ->with('status', "User \"{$user->username}\" has been unbanned.");
+    }
+
+    /**
+     * Returns overdue unprocessed missions with enough context for admin recovery actions.
+     */
+    private function getStuckFleetMissions(): Collection
+    {
+        $now = (int) now()->timestamp;
+
+        $missions = FleetMission::query()
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->where('time_arrival', '<=', $now)
+            ->orderBy('time_arrival')
+            ->get();
+
+        if ($missions->isEmpty()) {
+            return collect();
+        }
+
+        $users = User::whereIn('id', $missions->pluck('user_id')->unique()->all())
+            ->get()
+            ->keyBy('id');
+
+        $planetIds = $missions
+            ->flatMap(fn (FleetMission $mission) => [$mission->planet_id_from, $mission->planet_id_to])
+            ->filter(fn ($planetId) => $planetId !== null)
+            ->unique()
+            ->values()
+            ->all();
+
+        $planets = Planet::whereIn('id', $planetIds)->get()->keyBy('id');
+
+        $missionTypeLabels = collect(GameMissionFactory::getAllMissions())
+            ->mapWithKeys(fn ($mission, $id) => [$id => $mission::getName()]);
+
+        $stuckMissionRows = [];
+
+        foreach ($missions as $mission) {
+            $originRequiresPlanet = in_array($mission->type_from, [PlanetType::Planet->value, PlanetType::Moon->value], true);
+            $destinationRequiresPlanet = in_array($mission->type_to, [PlanetType::Planet->value, PlanetType::Moon->value], true);
+            $destinationCanBeMissing = $mission->parent_id === null && in_array($mission->mission_type, [7, 8, 15], true);
+
+            $originExists = !$originRequiresPlanet || ($mission->planet_id_from !== null && $planets->has($mission->planet_id_from));
+            $destinationExists = !$destinationRequiresPlanet
+                || $destinationCanBeMissing
+                || ($mission->planet_id_to !== null && $planets->has($mission->planet_id_to));
+
+            [$statusLabel, $statusColor, $canProcess] = $this->classifyStuckMission(
+                $mission,
+                $originExists,
+                $destinationExists
+            );
+
+            $overdueSeconds = max(0, $now - (int) $mission->time_arrival);
+
+            $stuckMissionRows[] = [
+                'id' => $mission->id,
+                'user' => $users->get($mission->user_id),
+                'parent_id' => $mission->parent_id,
+                'mission_type' => $mission->mission_type,
+                'mission_label' => $missionTypeLabels->get($mission->mission_type, 'Unknown'),
+                'time_arrival' => (int) $mission->time_arrival,
+                'overdue_seconds' => $overdueSeconds,
+                'planet_id_from' => $mission->planet_id_from,
+                'planet_id_to' => $mission->planet_id_to,
+                'coordinates_from' => $mission->galaxy_from . ':' . $mission->system_from . ':' . $mission->position_from,
+                'coordinates_to' => $mission->galaxy_to . ':' . $mission->system_to . ':' . $mission->position_to,
+                'type_from_label' => $this->planetTypeLabel((int) $mission->type_from),
+                'type_to_label' => $this->planetTypeLabel((int) $mission->type_to),
+                'status_label' => $statusLabel,
+                'status_color' => $statusColor,
+                'can_process' => $canProcess,
+            ];
+        }
+
+        /** @var Collection<int, array{
+         *     id: int,
+         *     user: User|null,
+         *     parent_id: int|null,
+         *     mission_type: int,
+         *     mission_label: string,
+         *     time_arrival: int,
+         *     overdue_seconds: int,
+         *     planet_id_from: int|null,
+         *     planet_id_to: int|null,
+         *     coordinates_from: string,
+         *     coordinates_to: string,
+         *     type_from_label: string,
+         *     type_to_label: string,
+         *     status_label: string,
+         *     status_color: string,
+         *     can_process: bool
+         * }>$collection
+         */
+        $collection = collect($stuckMissionRows);
+
+        return $collection;
+    }
+
+    /**
+     * @return array{0:string,1:string,2:bool}
+     */
+    private function classifyStuckMission(FleetMission $mission, bool $originExists, bool $destinationExists): array
+    {
+        if ($mission->parent_id !== null) {
+            // Return missions: only the destination matters — processReturn() never reads planet_id_from.
+            return $destinationExists
+                ? ['Ready to process', '#2ecc71', true]
+                : ['Broken return target', '#e74c3c', false];
+        }
+
+        if (!$originExists) {
+            return ['Missing origin', '#f39c12', false];
+        }
+
+        if (!$destinationExists) {
+            return ['Missing destination', '#f39c12', true];
+        }
+
+        return ['Ready to process', '#2ecc71', true];
+    }
+
+    private function planetTypeLabel(int $planetType): string
+    {
+        return match ($planetType) {
+            PlanetType::Planet->value => 'Planet',
+            PlanetType::Moon->value => 'Moon',
+            PlanetType::DebrisField->value => 'Debris',
+            PlanetType::DeepSpace->value => 'Deep Space',
+            default => 'Unknown',
+        };
     }
 }
