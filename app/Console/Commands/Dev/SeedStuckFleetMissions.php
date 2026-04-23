@@ -57,6 +57,8 @@ class SeedStuckFleetMissions extends Command
         }
 
         $now = (int) now()->timestamp;
+        // Anchor all arrivals 25h in the past so they exceed the default 24h display threshold.
+        $t = $now - (25 * 3600);
 
         $base = [
             'processed'             => 0,
@@ -77,7 +79,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_from'    => $planet1->galaxy, 'system_from' => $planet1->system, 'position_from' => $planet1->planet,
             'galaxy_to'      => $planet2->galaxy, 'system_to' => $planet2->system, 'position_to' => $planet2->planet,
             'mission_type'   => 3,
-            'time_departure' => $now - 3600, 'time_arrival' => $now - 1800,
+            'time_departure' => $t - 3600, 'time_arrival' => $t - 1800,
             'small_cargo'    => 10, 'metal' => 50000, 'crystal' => 30000,
         ]));
 
@@ -89,7 +91,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_from'    => $planet2->galaxy, 'system_from' => $planet2->system, 'position_from' => $planet2->planet,
             'galaxy_to'      => $planet3->galaxy, 'system_to' => $planet3->system, 'position_to' => $planet3->planet,
             'mission_type'   => 3,
-            'time_departure' => $now - 7200, 'time_arrival' => $now - 5400,
+            'time_departure' => $t - 7200, 'time_arrival' => $t - 5400,
             'large_cargo'    => 5, 'deuterium' => 20000,
         ]));
 
@@ -101,7 +103,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_from'    => $planet3->galaxy, 'system_from' => $planet3->system, 'position_from' => $planet3->planet,
             'galaxy_to'      => $planet1->galaxy, 'system_to' => $planet1->system, 'position_to' => $planet1->planet,
             'mission_type'   => 3,
-            'time_departure' => $now - 900, 'time_arrival' => $now - 300,
+            'time_departure' => $t - 900, 'time_arrival' => $t - 300,
             'small_cargo'    => 3, 'crystal' => 15000,
         ]));
 
@@ -113,7 +115,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_from'    => $planet2->galaxy, 'system_from' => $planet2->system, 'position_from' => $planet2->planet,
             'galaxy_to'      => $planet3->galaxy, 'system_to' => $planet3->system, 'position_to' => $planet3->planet,
             'mission_type'   => 1,
-            'time_departure' => $now - 1800, 'time_arrival' => $now - 600,
+            'time_departure' => $t - 1800, 'time_arrival' => $t - 600,
             'light_fighter'  => 50, 'heavy_fighter' => 20,
         ]));
 
@@ -125,7 +127,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_from'     => $planet1->galaxy, 'system_from' => $planet1->system, 'position_from' => $planet1->planet,
             'galaxy_to'       => $planet2->galaxy, 'system_to' => $planet2->system, 'position_to' => $planet2->planet,
             'mission_type'    => 6,
-            'time_departure'  => $now - 2700, 'time_arrival' => $now - 2400,
+            'time_departure'  => $t - 2700, 'time_arrival' => $t - 2400,
             'espionage_probe' => 3,
         ]));
 
@@ -138,7 +140,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_to'      => 1, 'system_to' => 250, 'position_to' => 16,
             'type_to'        => PlanetType::DeepSpace->value,
             'mission_type'   => 15,
-            'time_departure' => $now - 4500, 'time_arrival' => $now - 900,
+            'time_departure' => $t - 4500, 'time_arrival' => $t - 900,
             'large_cargo'    => 2,
         ]));
 
@@ -151,7 +153,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_to'      => $planet3->galaxy, 'system_to' => $planet3->system, 'position_to' => $planet3->planet,
             'type_to'        => PlanetType::DebrisField->value,
             'mission_type'   => 8,
-            'time_departure' => $now - 3000, 'time_arrival' => $now - 1200,
+            'time_departure' => $t - 3000, 'time_arrival' => $t - 1200,
             'recycler'       => 5,
         ]));
 
@@ -163,7 +165,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_from'    => $planet3->galaxy, 'system_from' => $planet3->system, 'position_from' => $planet3->planet,
             'galaxy_to'      => 2, 'system_to' => 100, 'position_to' => 7,
             'mission_type'   => 7,
-            'time_departure' => $now - 6000, 'time_arrival' => $now - 3600,
+            'time_departure' => $t - 6000, 'time_arrival' => $t - 3600,
             'colony_ship'    => 1,
         ]));
 
@@ -175,7 +177,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_from'    => $planet1->galaxy, 'system_from' => $planet1->system, 'position_from' => $planet1->planet,
             'galaxy_to'      => $planet2->galaxy, 'system_to' => $planet2->system, 'position_to' => $planet2->planet,
             'mission_type'   => 3,
-            'time_departure' => $now - 7200, 'time_arrival' => $now - 5400,
+            'time_departure' => $t - 7200, 'time_arrival' => $t - 5400,
             'processed'      => 1,
             'small_cargo'    => 5, 'metal' => 10000,
         ]));
@@ -190,7 +192,7 @@ class SeedStuckFleetMissions extends Command
             'type_from'      => PlanetType::Moon->value,
             'type_to'        => PlanetType::Planet->value,
             'mission_type'   => 3,
-            'time_departure' => $now - 4800, 'time_arrival' => $now - 3000,
+            'time_departure' => $t - 4800, 'time_arrival' => $t - 3000,
             'small_cargo'    => 5, 'metal' => 10000,
         ]));
 
@@ -202,7 +204,7 @@ class SeedStuckFleetMissions extends Command
             'galaxy_from'    => $planet3->galaxy, 'system_from' => $planet3->system, 'position_from' => $planet3->planet,
             'galaxy_to'      => $planet1->galaxy, 'system_to' => $planet1->system, 'position_to' => $planet1->planet,
             'mission_type'   => 3,
-            'time_departure' => $now - 2400, 'time_arrival' => $now - 1500,
+            'time_departure' => $t - 2400, 'time_arrival' => $t - 1500,
             'small_cargo'    => 8, 'metal' => 25000,
         ]));
 

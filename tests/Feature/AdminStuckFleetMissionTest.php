@@ -151,8 +151,8 @@ class AdminStuckFleetMissionTest extends AccountTestCase
             'type_from' => PlanetType::Planet->value,
             'type_to' => PlanetType::Moon->value,
             'mission_type' => 3,
-            'time_departure' => Date::now()->subMinutes(30)->timestamp,
-            'time_arrival' => Date::now()->subMinutes(20)->timestamp,
+            'time_departure' => Date::now()->subHours(26)->timestamp,
+            'time_arrival' => Date::now()->subHours(25)->timestamp,
             'processed' => 1,
         ]);
 
@@ -164,8 +164,8 @@ class AdminStuckFleetMissionTest extends AccountTestCase
             'type_from' => PlanetType::Moon->value,
             'type_to' => PlanetType::Planet->value,
             'mission_type' => 3,
-            'time_departure' => Date::now()->subMinutes(15)->timestamp,
-            'time_arrival' => Date::now()->subMinutes(10)->timestamp,
+            'time_departure' => Date::now()->subHours(25)->timestamp,
+            'time_arrival' => Date::now()->subHours(24)->subMinutes(30)->timestamp,
             'small_cargo' => 3,
             'metal' => 1234,
             'crystal' => 567,
@@ -182,8 +182,8 @@ class AdminStuckFleetMissionTest extends AccountTestCase
             'type_from' => PlanetType::Planet->value,
             'type_to' => PlanetType::Moon->value,
             'mission_type' => 3,
-            'time_departure' => Date::now()->subMinutes(12)->timestamp,
-            'time_arrival' => Date::now()->subMinutes(6)->timestamp,
+            'time_departure' => Date::now()->subHours(25)->timestamp,
+            'time_arrival' => Date::now()->subHours(24)->subMinutes(30)->timestamp,
             'small_cargo' => 2,
         ]);
     }

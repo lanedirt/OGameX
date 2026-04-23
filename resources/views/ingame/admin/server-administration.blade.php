@@ -329,14 +329,28 @@
 
                     {{-- ===== STUCK FLEET MISSIONS ===== --}}
                     <p class="box_highlight textCenter no_buddies" style="margin-top: 20px;">@lang('Stuck Fleet Missions')</p>
+                    <form action="{{ route('admin.server-administration.stuck-missions.settings') }}" method="post">
+                        {{ csrf_field() }}
+                        <div class="group bborder" style="display: block;">
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy" for="stuck_min_overdue_hours" title="Only show missions that have been overdue for at least this many hours. Filters out healthy missions that are simply waiting for the player to log in.">Min. overdue (hours):</label>
+                                <div class="thefield">
+                                    <input type="text" id="stuck_min_overdue_hours" name="stuck_missions_min_overdue_hours" class="textInput w80 textCenter textBeefy" pattern="^[0-9]+$" value="{{ $stuckMissionsSettings['min_overdue_hours'] }}">
+                                </div>
+                            </div>
+                            <div class="fieldwrapper" style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+                                <input type="submit" class="btn_blue" value="Save Settings">
+                            </div>
+                        </div>
+                    </form>
                     @if ($stuckMissions->isEmpty())
                         <div class="group bborder" style="display: block;">
-                            <p style="text-align: center; padding: 10px;">No overdue unprocessed fleet missions found.</p>
+                            <p style="text-align: center; padding: 10px;">No missions overdue by more than {{ $stuckMissionsSettings['min_overdue_hours'] }}h found.</p>
                         </div>
                     @else
                         <div class="group bborder" style="display: block;">
                             <div style="padding: 8px 10px; color: #aaa; font-size: 11px;">
-                                {{ $stuckMissions->count() }} overdue mission(s). Use normal processing for healthy rows, or recover broken fleets directly to the player's homeworld.
+                                {{ $stuckMissions->count() }} mission(s) overdue by more than {{ $stuckMissionsSettings['min_overdue_hours'] }}h. Use normal processing for healthy rows, or recover broken fleets directly to the player's homeworld.
                             </div>
                             <div class="stuck-missions-scroll" style="max-height: 320px; overflow-y: auto;">
                                 <table style="width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed;">

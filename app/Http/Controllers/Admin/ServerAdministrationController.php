@@ -136,7 +136,8 @@ class ServerAdministrationController extends OGameController
             ->values();
 
         $botSuspects = $allSuspects->reject(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->values();
-        $stuckMissions = $this->getStuckFleetMissions();
+        $stuckMissionsSettings = $this->stuckMissionsSettings();
+        $stuckMissions = $this->getStuckFleetMissions($stuckMissionsSettings['min_overdue_hours']);
 
         return view('ingame.admin.server-administration', [
             'sharedIpGroups'        => $sharedIpGroups,
@@ -144,6 +145,7 @@ class ServerAdministrationController extends OGameController
             'activeBans'            => $activeBans,
             'banHistory'            => $banHistory,
             'stuckMissions'         => $stuckMissions,
+            'stuckMissionsSettings' => $stuckMissionsSettings,
             'detectionSettings'     => $settings,
             'dismissedIpCount'      => count($dismissedIps),
             'dismissedSuspectCount' => $allSuspects->filter(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->count(),
@@ -445,6 +447,38 @@ class ServerAdministrationController extends OGameController
     }
 
     /**
+     * Returns the current stuck-mission display settings with their defaults.
+     *
+     * @return array<string, int>
+     */
+    private function stuckMissionsSettings(): array
+    {
+        $s = resolve(SettingsService::class);
+
+        return [
+            'min_overdue_hours' => (int) $s->get('stuck_missions_min_overdue_hours', 24),
+        ];
+    }
+
+    /**
+     * Saves the stuck-mission display settings.
+     */
+    public function saveStuckMissionSettings(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'stuck_missions_min_overdue_hours' => ['required', 'integer', 'min:0', 'max:720'],
+        ]);
+
+        resolve(SettingsService::class)->set(
+            'stuck_missions_min_overdue_hours',
+            (string) $request->input('stuck_missions_min_overdue_hours')
+        );
+
+        return redirect()->route('admin.server-administration.index')
+            ->with('status', 'Stuck mission settings saved.');
+    }
+
+    /**
      * Attempts to process a single overdue mission through the normal mission pipeline.
      */
     public function processStuckMission(Request $request): RedirectResponse
@@ -615,14 +649,14 @@ class ServerAdministrationController extends OGameController
     /**
      * Returns overdue unprocessed missions with enough context for admin recovery actions.
      */
-    private function getStuckFleetMissions(): Collection
+    private function getStuckFleetMissions(int $minOverdueHours = 24): Collection
     {
-        $now = (int) now()->timestamp;
+        $cutoff = now()->subHours($minOverdueHours)->timestamp;
 
         $missions = FleetMission::query()
             ->where('processed', 0)
             ->where('canceled', 0)
-            ->where('time_arrival', '<=', $now)
+            ->where('time_arrival', '<=', $cutoff)
             ->orderBy('time_arrival')
             ->get();
 
@@ -664,7 +698,7 @@ class ServerAdministrationController extends OGameController
                 $destinationExists
             );
 
-            $overdueSeconds = max(0, $now - (int) $mission->time_arrival);
+            $overdueSeconds = max(0, (int) now()->timestamp - (int) $mission->time_arrival);
 
             $stuckMissionRows[] = [
                 'id' => $mission->id,
