@@ -77,8 +77,11 @@ class FacilitiesController extends AbstractBuildingsController
         // Get parent parameters
         $params = parent::indexPageParams($request, $player);
 
-        // Add wreck field data
-        $wreckFieldData = $this->wreckFieldService->getWreckFieldForCurrentPlanet($this->planet);
+        // Only expose wreck field data when the player has a Space Dock (level >= 1).
+        $spaceDockLevel = $this->planet->getObjectLevel('space_dock');
+        $wreckFieldData = $spaceDockLevel >= 1
+            ? $this->wreckFieldService->getWreckFieldForCurrentPlanet($this->planet)
+            : null;
         $params['wreckField'] = $wreckFieldData;
 
         return $params;
@@ -307,7 +310,11 @@ class FacilitiesController extends AbstractBuildingsController
             $planetService = $player->planets->current();
 
             $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
-            $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+
+            $spaceDockLevel = $planetService->getObjectLevel('space_dock');
+            $wreckField = $spaceDockLevel >= 1
+                ? $wreckFieldService->getWreckFieldForCurrentPlanet($planetService)
+                : null;
 
             return response()->json([
                 'success' => true,
