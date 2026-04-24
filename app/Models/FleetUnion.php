@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -47,25 +48,19 @@ use OGame\Models\Planet\Coordinate;
  * @method static Builder|FleetUnion whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'user_id',
+    'name',
+    'galaxy_to',
+    'system_to',
+    'position_to',
+    'planet_type_to',
+    'time_arrival',
+    'max_fleets',
+    'max_players',
+])]
 class FleetUnion extends Model
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'user_id',
-        'name',
-        'galaxy_to',
-        'system_to',
-        'position_to',
-        'planet_type_to',
-        'time_arrival',
-        'max_fleets',
-        'max_players',
-    ];
-
     /**
      * @var array<string, string>
      */

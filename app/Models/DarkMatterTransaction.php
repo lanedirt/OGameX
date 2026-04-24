@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,6 +32,14 @@ use Illuminate\Support\Carbon;
  * @method static Builder|DarkMatterTransaction forUser(int $userId)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'user_id',
+    'amount',
+    'type',
+    'description',
+    'balance_after',
+    'created_at',
+])]
 class DarkMatterTransaction extends Model
 {
     use HasFactory;
@@ -41,20 +50,6 @@ class DarkMatterTransaction extends Model
      * @var bool
      */
     public $timestamps = false;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'user_id',
-        'amount',
-        'type',
-        'description',
-        'balance_after',
-        'created_at',
-    ];
 
     /**
      * The attributes that should be cast.

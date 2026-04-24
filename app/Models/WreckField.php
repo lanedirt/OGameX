@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,25 +43,24 @@ use Illuminate\Support\Carbon;
  * @method static Builder|WreckField whereShipData($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'galaxy',
+    'system',
+    'planet',
+    'owner_player_id',
+    'created_at',
+    'expires_at',
+    'repair_started_at',
+    'repair_completed_at',
+    'space_dock_level',
+    'status',
+    'ship_data',
+])]
 class WreckField extends Model
 {
     use HasFactory;
 
     public $timestamps = false;
-
-    protected $fillable = [
-        'galaxy',
-        'system',
-        'planet',
-        'owner_player_id',
-        'created_at',
-        'expires_at',
-        'repair_started_at',
-        'repair_completed_at',
-        'space_dock_level',
-        'status',
-        'ship_data',
-    ];
 
     protected $casts = [
         'created_at' => 'datetime',

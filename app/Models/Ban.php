@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -17,18 +19,16 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read User $user
  */
+#[Fillable([
+    'user_id',
+    'reason',
+    'banned_until',
+    'canceled',
+    'canceled_at',
+])]
+#[Table(name: 'bans')]
 class Ban extends Model
 {
-    protected $table = 'bans';
-
-    protected $fillable = [
-        'user_id',
-        'reason',
-        'banned_until',
-        'canceled',
-        'canceled_at',
-    ];
-
     protected $casts = [
         'banned_until' => 'datetime',
         'canceled'     => 'boolean',

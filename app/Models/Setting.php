@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Setting whereValue($value)
  * @mixin \Eloquent
  */
+#[Fillable(['key', 'value'])]
 class Setting extends Model
 {
     use HasFactory;
@@ -40,6 +42,4 @@ class Setting extends Model
      * @var bool
      */
     public $incrementing = false;
-
-    protected $fillable = ['key', 'value'];
 }
