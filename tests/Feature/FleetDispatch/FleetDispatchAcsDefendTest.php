@@ -138,7 +138,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
                 ->delete();
 
             // Reset current user's alliance_id
-            if (isset($this->currentUserId)) {
+            if ($this->currentUserId !== 0) {
                 DB::table('users')
                     ->where('id', $this->currentUserId)
                     ->update([

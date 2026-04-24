@@ -68,7 +68,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // --- Union cleanup (must run before fleet_mission deletion) ---
         $allUserIds = array_merge(
             $createdUserIds,
-            isset($this->currentUserId) ? [$this->currentUserId] : []
+            $this->currentUserId !== 0 ? [$this->currentUserId] : []
         );
         $unionIds = DB::table('fleet_unions')
             ->whereIn('user_id', $allUserIds)
