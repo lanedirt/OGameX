@@ -182,7 +182,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         // Also reset all vacation mode fields for the current test user
         // (testDispatchFleetFromVacationModeError sets this)
-        if (isset($this->currentUserId)) {
+        if ($this->currentUserId !== 0) {
             DB::table('users')
                 ->where('id', $this->currentUserId)
                 ->update([
