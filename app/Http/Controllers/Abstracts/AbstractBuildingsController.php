@@ -107,7 +107,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
                 if ($view_model->currently_building && $build_active !== null) {
                     $view_model->target_level = $build_active->level_target;
-                    $view_model->is_downgrade = $build_active->is_downgrade ?? false;
+                    $view_model->is_downgrade = $build_active->is_downgrade;
                 }
                 $view_model->research_in_progress = $research_in_progress;
                 $view_model->ship_or_defense_in_progress = $ship_or_defense_in_progress;

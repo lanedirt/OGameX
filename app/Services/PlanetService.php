@@ -2266,7 +2266,7 @@ class PlanetService
         $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
 
         if ($currently_building !== null) {
-            return $currently_building->is_downgrade ?? false;
+            return $currently_building->is_downgrade;
         }
 
         return false;

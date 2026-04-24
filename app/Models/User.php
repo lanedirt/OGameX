@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -80,6 +82,12 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static Builder|User whereUsernameUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'username', 'email', 'password', 'lang', 'espionage_probes_amount',
+])]
+#[Hidden([
+    'password',
+])]
 class User extends Authenticatable
 {
     use HasFactory;
@@ -118,24 +126,6 @@ class User extends Authenticatable
             }
         });
     }
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'username', 'email', 'password', 'lang', 'espionage_probes_amount',
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-    ];
 
     /**
      * The attributes that should be cast.

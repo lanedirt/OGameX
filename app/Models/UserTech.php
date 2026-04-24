@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Database\Factories\UserTechFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
@@ -62,25 +64,13 @@ use OGame\Observers\UserTechObserver;
  * @mixin \Eloquent
  */
 #[ObservedBy([UserTechObserver::class])]
+#[Fillable([
+    'user_id',
+])]
+#[Table(name: 'users_tech')]
 class UserTech extends Model
 {
     use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'user_id',
-    ];
-
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'users_tech';
 
     /**
      * Get the user that owns this tech record.

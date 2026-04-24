@@ -61,7 +61,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
                 ->delete();
 
             // Reset alliance_id for current user
-            if (isset($this->currentUserId)) {
+            if ($this->currentUserId !== 0) {
                 DB::table('users')
                     ->where('id', $this->currentUserId)
                     ->update([
