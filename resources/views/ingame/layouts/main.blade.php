@@ -1785,7 +1785,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
 
                                     @if ($wreckField && in_array($wreckField->status, ['active', 'blocked']) && !$planet->isMoon())
                                         @php
-                                            $hasSpaceDock = $currentPlayer->planets->current()->getObjectLevel('space_dock') > 0;
+                                            $hasSpaceDock = $planet->getObjectLevel('space_dock') > 0;
                                             $isOwner = $wreckField->owner_player_id === $currentPlayer->getId();
                                         @endphp
                                         @if ($isOwner && $hasSpaceDock)
