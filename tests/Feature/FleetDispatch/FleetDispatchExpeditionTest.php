@@ -537,6 +537,24 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
 
+        // Pin variant to normal (1x multiplier) so the assertion tests the base highscore cap,
+        // not the tier multiplier. Binding must be registered after sendTestExpedition() because
+        // dispatchFleet() calls reloadApplication() internally, which wipes earlier bindings.
+        $this->app->bind(ExpeditionMission::class, function ($app) {
+            return new class(
+                $app->make(FleetMissionService::class),
+                $app->make(MessageService::class),
+                $app->make(PlanetServiceFactory::class),
+                $app->make(PlayerServiceFactory::class),
+                $app->make(SettingsService::class)
+            ) extends ExpeditionMission {
+                protected function selectExpeditionFindVariant(): array
+                {
+                    return ['variant' => 'normal', 'multiplier' => 1];
+                }
+            };
+        });
+
         // Wait for the mission to complete.
         $this->travel(10)->hours();
 
