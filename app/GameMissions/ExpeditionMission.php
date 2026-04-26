@@ -7,6 +7,7 @@ use OGame\Enums\DarkMatterTransactionType;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\Enums\HighscoreTypeEnum;
+use OGame\Facades\AppUtil;
 use OGame\GameMessages\ExpeditionBattleAliens;
 use OGame\GameMessages\ExpeditionBattlePirates;
 use OGame\GameMessages\ExpeditionFailed;
@@ -258,28 +259,8 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // Define weighted delay factors 2,3,5 probability of 89%, 10%, 1%
-        $delayFactors = [
-            2 => 89,
-            3 => 10,
-            5 => 1
-        ];
-
-        // Calculate total weight and generate random number
-        $totalWeight = array_sum($delayFactors);
-        $rand = mt_rand(1, $totalWeight);
-
-        // Select multiplier based on cumulative weight
-        $cumulativeWeight = 0;
-        $selectedMultiplier = 2; // fallback default
-
-        foreach ($delayFactors as $factor => $weight) {
-            $cumulativeWeight += $weight;
-            if ($rand <= $cumulativeWeight) {
-                $selectedMultiplier = $factor;
-                break;
-            }
-        }
+        // Select delay factor (2x/3x/5x holding time) with weights 89%/10%/1%.
+        $selectedMultiplier = (int)AppUtil::selectWeightedRandom([2 => 89, 3 => 10, 5 => 1]);
 
         // Calculate base additional return trip time based on holding time
         // Formula: Base Delay = Delay factor × Holding time
@@ -344,8 +325,12 @@ class ExpeditionMission extends GameMission
         $resourcesInCargo = $mission->metal + $mission->crystal + $mission->deuterium;
         $maxCargoCapacity = $totalCargoCapacity - $resourcesInCargo;
 
-        // Determine the max resource find.
-        $maxResourceFind = $this->determineMaxResourceFind($mission);
+        // Determine find variant (normal/rare/exceptional) and apply its reward multiplier.
+        $variantData = $this->selectExpeditionFindVariant();
+        $variant = $variantData['variant'];
+
+        // Determine the max resource find and scale by the variant multiplier.
+        $maxResourceFind = (int)($this->determineMaxResourceFind($mission) * $variantData['multiplier']);
 
         // Determine the resource type: metal, crystal or deuterium.
         $cargoCapacityConstrainedAmount = 0;
@@ -374,8 +359,8 @@ class ExpeditionMission extends GameMission
         }
 
         // Send a message to the player with the resources found outcome.
-        // Choose a random message variation id based on the number of available outcomes.
-        $message_variation_id = ExpeditionGainResources::getRandomMessageVariationId();
+        // Choose a message variation id matching the find variant (normal/rare/exceptional).
+        $message_variation_id = ExpeditionGainResources::getRandomMessageVariationIdForVariant($variant);
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainResources::class, ['message_variation_id' => $message_variation_id, 'resource_type' => $resource_type->value, 'resource_amount' => $cargoCapacityConstrainedAmount]);
 
         return $resourcesFound;
@@ -488,8 +473,12 @@ class ExpeditionMission extends GameMission
         $resourcesInCargo = $mission->metal + $mission->crystal + $mission->deuterium;
         $maxCargoCapacity = $totalCargoCapacity - $resourcesInCargo;
 
-        // Determine the max ship find (uses ships multiplier).
-        $maxShipFind = $this->determineMaxShipFind($mission);
+        // Determine find variant (normal/rare/exceptional) and apply its reward multiplier.
+        $variantData = $this->selectExpeditionFindVariant();
+        $variant = $variantData['variant'];
+
+        // Determine the max ship find and scale by the variant multiplier.
+        $maxShipFind = (int)($this->determineMaxShipFind($mission) * $variantData['multiplier']);
         $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $maxShipFind);
 
         // Select 1-6 random ship types from possible ships.
@@ -556,8 +545,8 @@ class ExpeditionMission extends GameMission
         }
 
         // Send a message to the player with the units found outcome.
-        // Choose a random message variation id based on the number of available outcomes.
-        $message_variation_id = ExpeditionGainShips::getRandomMessageVariationId();
+        // Choose a message variation id matching the find variant (normal/rare/exceptional).
+        $message_variation_id = ExpeditionGainShips::getRandomMessageVariationIdForVariant($variant);
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainShips::class, ['message_variation_id' => $message_variation_id] + $message_params);
 
         return $units;
@@ -580,11 +569,15 @@ class ExpeditionMission extends GameMission
         // $hasPathfinder = $fleetUnits->hasUnit($objectService->getShipObjectByMachineName('pathfinder'));
         $hasPathfinder = false;
 
-        // Calculate Dark Matter reward
-        $darkMatterService = app(DarkMatterService::class);
-        $darkMatterAmount = $darkMatterService->calculateExpeditionReward($hasPathfinder);
+        // Determine find variant (normal/rare/exceptional) and apply its reward multiplier.
+        $variantData = $this->selectExpeditionFindVariant();
+        $variant = $variantData['variant'];
 
-        // Apply dark matter rewards multiplier
+        // Calculate Dark Matter reward and scale by the variant multiplier.
+        $darkMatterService = app(DarkMatterService::class);
+        $darkMatterAmount = (int)($darkMatterService->calculateExpeditionReward($hasPathfinder) * $variantData['multiplier']);
+
+        // Apply dark matter rewards multiplier from settings.
         $settingsService = app(SettingsService::class);
         $darkMatterMultiplier = $settingsService->expeditionRewardMultiplierDarkMatter();
         $darkMatterAmount = (int)($darkMatterAmount * $darkMatterMultiplier);
@@ -603,7 +596,7 @@ class ExpeditionMission extends GameMission
             'Dark Matter found during expedition'
         );
 
-        $message_variation_id = ExpeditionGainDarkMatter::getRandomMessageVariationId();
+        $message_variation_id = ExpeditionGainDarkMatter::getRandomMessageVariationIdForVariant($variant);
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainDarkMatter::class, [
             'message_variation_id' => $message_variation_id,
             'dark_matter_amount' => $darkMatterAmount
@@ -886,6 +879,30 @@ class ExpeditionMission extends GameMission
     }
 
     /**
+     * Select a random find variant (normal, rare, or exceptional) using weighted probabilities.
+     * Normal: 89%, Rare: 10%, Exceptional: 1%.
+     *
+     * Returns the selected variant name and a corresponding reward multiplier:
+     * - normal: 1x
+     * - rare: 2–3x (random)
+     * - exceptional: 5–10x (random)
+     *
+     * @return array{variant: string, multiplier: int}
+     */
+    protected function selectExpeditionFindVariant(): array
+    {
+        $selectedVariant = AppUtil::selectWeightedRandom(['normal' => 89, 'rare' => 10, 'exceptional' => 1]);
+
+        $multiplier = match($selectedVariant) {
+            'rare' => random_int(2, 3),
+            'exceptional' => random_int(5, 10),
+            default => 1,
+        };
+
+        return ['variant' => (string)$selectedVariant, 'multiplier' => $multiplier];
+    }
+
+    /**
      * Select a random expedition outcome based on configured weights. Higher weight
      * for a particular outcome means more chance of that outcome being selected
      * relative to the other outcomes.
@@ -963,7 +980,7 @@ class ExpeditionMission extends GameMission
      *
      * @return int
      */
-    private function getBaseMaxFindFromHighscore(): int
+    protected function getBaseMaxFindFromHighscore(): int
     {
         // Max resources found is according to these params:
         // Number 1 player highscore "general" points determines the max resources found:

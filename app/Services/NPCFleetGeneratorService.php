@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use OGame\Facades\AppUtil;
 use OGame\GameObjects\Models\Units\UnitCollection;
 
 /**
@@ -168,15 +169,7 @@ class NPCFleetGeneratorService
      */
     private function selectBattleSizeTier(): int
     {
-        $random = random_int(1, 100);
-
-        if ($random <= 89) {
-            return 1; // Normal (89%)
-        } elseif ($random <= 99) {
-            return 2; // Large (10%)
-        } else {
-            return 3; // Extra-large (1%)
-        }
+        return (int)AppUtil::selectWeightedRandom([1 => 89, 2 => 10, 3 => 1]);
     }
 
     /**

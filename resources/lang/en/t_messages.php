@@ -182,12 +182,18 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         'subject' => 'Expedition Result',
         // An expedition message can have different variations which are parsed by the ExpeditionGainResources class.
         'body' => [
+            // Normal find
             '1' => 'On an isolated planetoid we found some easily accessible resources fields and harvested some successfully.',
             '2' => 'Your expedition discovered a small asteroid from which some resources could be harvested.',
-            '3' => 'Your expedition found an ancient, fully loaded but deserted freighter convoy. Some of the resources could be rescued.',
+            '3' => 'Your expedition ran into some spaceship wrecks from an old battle. Some of the components could be saved and recycled.',
             '4' => 'Your expedition fleet reports the discovery of a giant alien ship wreck. They were not able to learn from their technologies but they were able to divide the ship into its main components and made some useful resources out of it.',
-            '5' => 'On a tiny moon with its own atmosphere your expedition found some huge raw resources storage. The crew on the ground is trying to lift and load that natural treasure.',
-            '6' => 'Mineral belts around an unknown planet contained countless resources. The expedition ships are coming back and their storages are full!',
+            // Large find
+            '5' => 'Your expedition found an ancient, fully loaded but deserted freighter convoy. Some of the resources could be rescued.',
+            '6' => 'On a tiny moon with its own atmosphere your expedition found some huge raw resources storage. The crew on the ground is trying to lift and load that natural treasure.',
+            '7' => 'We met a small convoy of civil ships which needed food and medicine desperately. In exchange to that we got loads of useful resources.',
+            '8' => 'The expedition found a radioactive planetoid with an extremely toxic atmosphere. After multiple scans, it shows that it has loads of resources. With the help of automated drones, we tried to harvest as many resources as possible.',
+            // Very large find
+            '9' => 'Mineral belts around an unknown planet contained countless resources. The expedition ships are coming back and their storages are full.',
         ],
     ],
 
@@ -197,14 +203,19 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
         'subject' => 'Expedition Result',
         // An expedition message can have different variations which are parsed by the ExpeditionGainDarkMatter class.
         'body' => [
+            // Normal find
             '1' => 'The expedition followed some odd signals to an asteroid. In the asteroids core a small amount of Dark Matter was found. The asteroid was taken and the explorers are attempting to extract the Dark Matter.',
             '2' => 'The expedition was able to capture and store some Dark Matter.',
             '3' => 'We met an odd alien on the shelf of a small ship who gave us a case with Dark Matter in exchange for some simple mathematical calculations.',
             '4' => 'We found the remains of an alien ship. We found a little container with some Dark Matter on a shelf in the cargo hold!',
             '5' => 'Our expedition made first contact with a special race. It looks as though a creature made of pure energy, who named himself Legorian, flew through the expedition ships and then decided to help our underdeveloped species. A case containing Dark Matter materialized at the bridge of the ship!',
             '6' => 'Our expedition took over a ghost ship which was transporting a small amount of Dark Matter. We didn`t find any hints of what happened to the original crew of the ship, but our technicians where able to rescue the Dark Matter.',
-            '7' => 'Our expedition accomplished a unique experiment. They were able to harvest Dark Matter from a dying star.',
-            '8' => 'Our expedition located a rusty space station, which seemed to have been floating uncontrolled through outer space for a long time. The station itself was totally useless, however, it was discovered that some Dark Matter is stored in the reactor. Our technicians are trying to save as much as they can.',
+            '7' => 'Our Expedition located a rusty space station, which seemed to have been floating uncontrolled through outer space for a long time. The station itself was totally useless, however, it was discovered that some Dark Matter is stored in the reactor. Our technicians are trying to save as much as they can.',
+            // Large find
+            '8' => 'Our expedition accomplished a unique experiment. They were able to harvest Dark Matter from a dying star.',
+            '9' => 'Our expedition reports a spectacular phenomenon. The accumulation of Dark Matter in the energy storages of the ship shields. Our technicians try to store as much Dark Matter as they can while the phenomenon lasts.',
+            // Very large find
+            '10' => 'A spontaneous hyper space deformation allowed your expedition to harvest large amount of Dark Matter!',
         ],
     ],
 
@@ -221,6 +232,7 @@ Metal: :metal Crystal: :crystal Deuterium: :deuterium',
             '5' => 'Our expedition ran into an old automatic shipyard. Some of the ships are still in the production phase and our technicians are currently trying to reactivate the yards energy generators.',
             '6' => 'We found the remains of an armada. The technicians directly went to the almost intact ships to try to get them to work again.',
             '7' => 'We found the planet of an extinct civilization. We are able to see a giant intact space station, orbiting. Some of your technicians and pilots went to the surface looking for some ships which could still be used.',
+            '8' => 'We found an enormous spaceship graveyard. Some of the technicians from the expedition fleet were able to get some of the ships to work again.',
         ],
     ],
 
