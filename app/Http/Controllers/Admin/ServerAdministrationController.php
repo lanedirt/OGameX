@@ -640,6 +640,15 @@ class ServerAdministrationController extends OGameController
                 'canceled'   => true,
                 'canceled_at' => now(),
             ]);
+
+            // Lift the 48h minimum-vacation restriction that was imposed by the ban
+            // so the player can leave vacation mode immediately after being unbanned.
+            // The vacation_mode flag itself is left ON — the player chooses when to
+            // disable it; we only release the time-lock that the ban introduced.
+            if ($user->vacation_mode && $user->vacation_mode_until !== null && now()->lessThan($user->vacation_mode_until)) {
+                $user->vacation_mode_until = now();
+                $user->save();
+            }
         }
 
         return redirect()->route('admin.server-administration.index')
