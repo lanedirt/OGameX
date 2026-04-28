@@ -68,6 +68,19 @@ abstract class ExpeditionGameMessage extends GameMessage
     }
 
     /**
+     * Get a random message variation id for a specific find variant (normal/rare/exceptional).
+     * Subclasses that support variant messages should override this method to return
+     * a variation id from the appropriate tier range.
+     *
+     * @param string $variant 'normal', 'rare', or 'exceptional'
+     * @return int
+     */
+    public static function getRandomMessageVariationIdForVariant(string $variant): int
+    {
+        return static::getRandomMessageVariationId();
+    }
+
+    /**
      * Get the number of variations for this expedition message.
      * This is used for testing to verify that all translation variations exist.
      *

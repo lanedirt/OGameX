@@ -203,4 +203,24 @@ class AppUtil extends Facade
             default => $number,
         };
     }
+
+    /**
+     * Select a random key from a weighted associative array.
+     *
+     * @param array<int|string, int> $weights Associative array of [key => weight]
+     * @return int|string The selected key
+     */
+    public static function selectWeightedRandom(array $weights): int|string
+    {
+        $totalWeight = array_sum($weights);
+        $rand = mt_rand(1, $totalWeight);
+        $cumulative = 0;
+        foreach ($weights as $key => $weight) {
+            $cumulative += $weight;
+            if ($rand <= $cumulative) {
+                return $key;
+            }
+        }
+        return array_key_first($weights);
+    }
 }

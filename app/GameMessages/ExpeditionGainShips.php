@@ -24,7 +24,23 @@ class ExpeditionGainShips extends ExpeditionGameMessage
      *
      * @var int
      */
-    protected static int $numberOfVariations = 7;
+    protected static int $numberOfVariations = 8;
+
+    protected static int $normalVariations = 5;
+    protected static int $rareVariations = 2;
+    protected static int $exceptionalVariations = 1;
+
+    /**
+     * @inheritdoc
+     */
+    public static function getRandomMessageVariationIdForVariant(string $variant): int
+    {
+        return match($variant) {
+            'rare' => random_int(static::$normalVariations + 1, static::$normalVariations + static::$rareVariations),
+            'exceptional' => random_int(static::$normalVariations + static::$rareVariations + 1, static::$numberOfVariations),
+            default => random_int(1, static::$normalVariations),
+        };
+    }
 
     /**
      * Overides the body of the message to append the captured resource type and amount based on the params.
