@@ -272,28 +272,12 @@ class FleetMissionService
             $planetIds[] = $planet->getPlanetId();
         }
 
-        $currentTime = Date::now()->timestamp;
-
         $missions = $query->where(function ($query) use ($planetIds) {
             $query->where('user_id', $this->player->getId())
                 ->orWhereIn('planet_id_to', $planetIds);
         })
             ->where('canceled', 0) // Exclude canceled missions
-            ->where(function ($query) use ($currentTime) {
-                // Include unprocessed missions
-                $query->where('processed', 0)
-                    // Also include ACS Defend outbound missions that are processed but still in hold time
-                    // (ACS Defend is marked processed=1 immediately at arrival, before hold time ends)
-                    ->orWhere(function ($query) use ($currentTime) {
-                        $query->where('mission_type', 5)
-                            ->whereNull('parent_id')
-                            ->where('processed', 1)
-                            ->where('time_arrival', '<=', $currentTime)
-                            // IMPORTANT: Holding time is always real time (not affected by fleet speed)
-                            ->whereRaw('time_arrival + time_holding > ?', [$currentTime]);
-                    });
-                // Note: Expeditions stay processed=0 during hold time, so they're already included above
-            })
+            ->where('processed', 0)
             ->get();
 
         // Order the list taking into account the time_holding. This ensures that the order of missions is correct
