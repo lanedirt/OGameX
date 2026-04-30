@@ -4,6 +4,7 @@ namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use OGame\Enums\CharacterClass;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMissions\AttackMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
@@ -67,7 +68,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // --- Union cleanup (must run before fleet_mission deletion) ---
         $allUserIds = array_merge(
             $createdUserIds,
-            isset($this->currentUserId) ? [$this->currentUserId] : []
+            $this->currentUserId !== 0 ? [$this->currentUserId] : []
         );
         $unionIds = DB::table('fleet_unions')
             ->whereIn('user_id', $allUserIds)
@@ -988,8 +989,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
     /**
      * Test that an ACS attack with multiple fleets creates return missions for all survivors.
-     * Note: per-fleet loot distribution (survivingCargo/lootShare) is not yet implemented
-     * for multi-fleet ACS attacks; this test verifies return missions are created correctly.
      */
     public function testAcsAttackMultiFleetReturnMissionsCreated(): void
     {
@@ -1406,6 +1405,506 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $response->assertStatus(200);
         $response->assertJson(['orders' => [2 => false]]);
+    }
+
+    /**
+     * Test that ACS Attack distributes loot proportionally by surviving cargo capacity
+     * and preserves resources carried by each fleet.
+     *
+     * Setup:
+     *   Initiator: 2 large cargoes (25 000 capacity each = 50 000 total), carrying 1 000 metal
+     *   Ally:      1 small cargo  ( 5 000 capacity),                       carrying   500 metal
+     *   Defender:  22 000 metal, no ships / defense
+     *
+     * Expected after battle (all ships survive, attacker wins):
+     *   Total loot = 50% of 22 000 = 11 000 metal
+     *   Initiator fraction = 50 000 / 55 000 → loot = 10 000 metal (exact integer)
+     *   Ally      fraction =  5 000 / 55 000 → loot =  1 000 metal (exact integer)
+     *
+     *   Initiator return: 1 000 (surviving cargo) + 10 000 (loot) = 11 000 metal
+     *   Ally      return:   500 (surviving cargo) +  1 000 (loot) =  1 500 metal
+     */
+    public function testAcsAttackCargoAndLootDistribution(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        // Set exact defender resources for deterministic loot calculation.
+        DB::table('planets')
+            ->where('id', $this->targetPlanet->getPlanetId())
+            ->update(['metal' => 22000, 'crystal' => 0, 'deuterium' => 0]);
+
+        // Give initiator planet metal to carry as cargo and add 2 large cargoes.
+        $this->planetAddResources(new Resources(2000, 0, 0, 0));
+        $this->planetAddUnit('large_cargo', 2);
+        $initiatorFleet = new UnitCollection();
+        $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 2);
+        $this->dispatchFleet(
+            $this->targetPlanet->getPlanetCoordinates(),
+            $initiatorFleet,
+            new Resources(1000, 0, 0, 0),
+            PlanetType::Planet
+        );
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        // Create union and invite ally.
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'LootDistTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        // Give ally planet metal to carry and add 1 small cargo (different type from initiator).
+        $this->allyPlanet->addResources(new Resources(1000, 0, 0, 0));
+        $this->allyPlanet->addUnit('small_cargo', 1);
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(500, 0, 0, 0),
+            10,
+            0
+        );
+
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        // Advance time past arrival and trigger fleet processing.
+        $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
+        $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        // Fetch return missions.
+        $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
+            ->where('canceled', 0)
+            ->first();
+        $allyReturn = FleetMission::where('parent_id', $allyMission->id)
+            ->where('canceled', 0)
+            ->first();
+
+        $this->assertNotNull($initiatorReturn, 'Initiator should have a return mission');
+        $this->assertNotNull($allyReturn, 'Ally should have a return mission');
+
+        // Verify loot distribution and cargo preservation.
+        // Initiator: 50 000 / 55 000 of 11 000 = 10 000 metal loot + 1 000 surviving cargo = 11 000
+        $this->assertEquals(
+            11000,
+            $initiatorReturn->metal,
+            'Initiator return should carry 1000 (surviving cargo) + 10000 (10/11 loot) = 11000 metal'
+        );
+        // Ally: 5 000 / 55 000 of 11 000 = 1 000 metal loot + 500 surviving cargo = 1 500
+        $this->assertEquals(
+            1500,
+            $allyReturn->metal,
+            'Ally return should carry 500 (surviving cargo) + 1000 (1/11 loot) = 1500 metal'
+        );
+
+        // No crystal was looted (defender had none) and none was carried.
+        $this->assertEquals(0, $initiatorReturn->crystal);
+        $this->assertEquals(0, $allyReturn->crystal);
+        // Note: deuterium is not asserted because the mission's deuterium field combines
+        // cargo and fuel; fuel is returned with surviving ships (same behaviour as single-attacker).
+    }
+
+    /**
+     * Regression test: ACS loot capacity must sum each fleet's own cargo modifiers.
+     *
+     * Setup:
+     *   Initiator: 1 small cargo, no class bonus          => 5 000 capacity
+     *   Ally:      1 small cargo, Collector class bonus   => 6 250 capacity
+     *   Defender:  22 500 metal                           => 11 250 loot at 50%
+     *
+     * Expected:
+     *   Total occupied return cargo should match the 11 250 combined capacity, with
+     *   a small portion reserved for returned fuel. This proves the battle loot was
+     *   constrained using both fleets' own cargo modifiers instead of 10 000 based
+     *   only on the initiator's stats.
+     */
+    public function testAcsAttackUsesPerFleetCargoModifiersForLootCapacity(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        DB::table('planets')
+            ->where('id', $this->targetPlanet->getPlanetId())
+            ->update(['metal' => 22500, 'crystal' => 0, 'deuterium' => 0]);
+
+        $this->planetAddUnit('small_cargo', 1);
+        $initiatorFleet = new UnitCollection();
+        $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $this->dispatchFleet(
+            $this->targetPlanet->getPlanetCoordinates(),
+            $initiatorFleet,
+            new Resources(0, 0, 0, 0),
+            PlanetType::Planet
+        );
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'CapacityBonusTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        $allyPlayer = $this->allyPlanet->getPlayer();
+        $allyPlayer->getUser()->character_class = CharacterClass::COLLECTOR->value;
+        $allyPlayer->getUser()->save();
+
+        $this->allyPlanet->addUnit('small_cargo', 1);
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $allyPlayer]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
+        $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
+            ->where('canceled', 0)
+            ->first();
+        $allyReturn = FleetMission::where('parent_id', $allyMission->id)
+            ->where('canceled', 0)
+            ->first();
+
+        $this->assertNotNull($initiatorReturn, 'Initiator should have a return mission');
+        $this->assertNotNull($allyReturn, 'Ally should have a return mission');
+        $this->assertEquals(
+            11250,
+            $initiatorReturn->metal + $allyReturn->metal + $initiatorReturn->deuterium + $allyReturn->deuterium,
+            'Combined return cargo should use the full 11 250 capacity enabled by per-fleet cargo modifiers'
+        );
+        $this->assertGreaterThan(
+            $initiatorReturn->metal,
+            $allyReturn->metal,
+            'Collector ally should receive the larger share because its fleet has more cargo capacity'
+        );
+    }
+
+    /**
+     * Regression test: integer rounding during ACS loot splitting must not drop loot on the floor.
+     *
+     * Setup:
+     *   Initiator: 1 small cargo
+     *   Ally:      1 small cargo
+     *   Defender:  2 metal, 2 crystal => 1 metal, 1 crystal looted
+     *
+     * Expected:
+     *   The combined return missions still carry exactly 1 metal and 1 crystal,
+     *   and the initiator receives the odd-unit remainder just like original OGame.
+     */
+    public function testAcsAttackPreservesLootWhenSharesRoundDown(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        DB::table('planets')
+            ->where('id', $this->targetPlanet->getPlanetId())
+            ->update(['metal' => 2, 'crystal' => 2, 'deuterium' => 0]);
+
+        $this->planetAddUnit('small_cargo', 1);
+        $initiatorFleet = new UnitCollection();
+        $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $this->dispatchFleet(
+            $this->targetPlanet->getPlanetCoordinates(),
+            $initiatorFleet,
+            new Resources(0, 0, 0, 0),
+            PlanetType::Planet
+        );
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'RoundingTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        $this->allyPlanet->addUnit('small_cargo', 1);
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
+        $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
+            ->where('canceled', 0)
+            ->first();
+        $allyReturn = FleetMission::where('parent_id', $allyMission->id)
+            ->where('canceled', 0)
+            ->first();
+
+        $this->assertNotNull($initiatorReturn, 'Initiator should have a return mission');
+        $this->assertNotNull($allyReturn, 'Ally should have a return mission');
+        $this->assertEquals(
+            1,
+            $initiatorReturn->metal + $allyReturn->metal,
+            'Combined returns should preserve the full 1 metal looted from the defender'
+        );
+        $this->assertEquals(1, $initiatorReturn->metal, 'Initiator should receive the odd metal remainder');
+        $this->assertEquals(0, $allyReturn->metal, 'Ally should not receive the odd metal remainder');
+        $this->assertEquals(
+            1,
+            $initiatorReturn->crystal + $allyReturn->crystal,
+            'Combined returns should preserve the full 1 crystal looted from the defender'
+        );
+        $this->assertEquals(1, $initiatorReturn->crystal, 'Initiator should receive the odd crystal remainder');
+        $this->assertEquals(0, $allyReturn->crystal, 'Ally should not receive the odd crystal remainder');
+    }
+
+    /**
+     * Regression test: ACS return missions must not exceed surviving cargo capacity,
+     * and loot that does not fit on one fleet must be redistributed without duplicating resources.
+     *
+     * Setup:
+     *   Initiator: 1 small cargo carrying 4 900 metal (almost full)
+     *   Ally:      1 small cargo carrying 0 metal
+     *   Defender:  2 000 metal => 1 000 metal looted
+     *
+     * Expected:
+     *   Combined return metal = 5 900 exactly (4 900 carried + 1 000 looted)
+     *   Each return mission remains within its fleet cargo capacity.
+     */
+    public function testAcsAttackRedistributesLootWithoutExceedingFleetCapacity(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        DB::table('planets')
+            ->where('id', $this->targetPlanet->getPlanetId())
+            ->update(['metal' => 2000, 'crystal' => 0, 'deuterium' => 0]);
+
+        $this->planetAddResources(new Resources(5000, 0, 0, 0));
+        $this->planetAddUnit('small_cargo', 1);
+        $initiatorFleet = new UnitCollection();
+        $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $this->dispatchFleet(
+            $this->targetPlanet->getPlanetCoordinates(),
+            $initiatorFleet,
+            new Resources(4900, 0, 0, 0),
+            PlanetType::Planet
+        );
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'CapacityInvariantTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        $this->allyPlanet->addUnit('small_cargo', 1);
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
+        $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
+            ->where('canceled', 0)
+            ->first();
+        $allyReturn = FleetMission::where('parent_id', $allyMission->id)
+            ->where('canceled', 0)
+            ->first();
+
+        $this->assertNotNull($initiatorReturn, 'Initiator should have a return mission');
+        $this->assertNotNull($allyReturn, 'Ally should have a return mission');
+        $this->assertEquals(
+            5900,
+            $initiatorReturn->metal + $allyReturn->metal,
+            'Combined returns should preserve exactly 4 900 carried metal plus 1 000 looted metal'
+        );
+
+        $initiatorReturnPlayer = resolve(PlayerService::class, ['player_id' => $initiatorReturn->user_id]);
+        $allyReturnPlayer = resolve(PlayerService::class, ['player_id' => $allyReturn->user_id]);
+
+        $initiatorCapacity = $fleetMissionService->getFleetUnits($initiatorReturn)->getTotalCargoCapacity($initiatorReturnPlayer);
+        $allyCapacity = $fleetMissionService->getFleetUnits($allyReturn)->getTotalCargoCapacity($allyReturnPlayer);
+
+        $this->assertLessThanOrEqual(
+            $initiatorCapacity,
+            $initiatorReturn->metal + $initiatorReturn->crystal + $initiatorReturn->deuterium,
+            'Initiator return must not exceed the surviving fleet cargo capacity'
+        );
+        $this->assertLessThanOrEqual(
+            $allyCapacity,
+            $allyReturn->metal + $allyReturn->crystal + $allyReturn->deuterium,
+            'Ally return must not exceed the surviving fleet cargo capacity'
+        );
+    }
+
+    /**
+     * Regression test: when the ACS group lacks enough free cargo space for all possible loot,
+     * only the actually transportable amount should be deducted and the remainder must stay on
+     * the defender planet.
+     */
+    public function testAcsAttackLeavesUncarriedLootOnDefenderPlanet(): void
+    {
+        $this->basicSetup();
+        $this->createTargetPlayer();
+        $this->createAllyPlayer();
+
+        DB::table('planets')
+            ->where('id', $this->targetPlanet->getPlanetId())
+            ->update(['metal' => 12000, 'crystal' => 0, 'deuterium' => 0]);
+
+        $this->planetAddResources(new Resources(5000, 0, 0, 0));
+        $this->planetAddUnit('small_cargo', 1);
+        $initiatorFleet = new UnitCollection();
+        $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $this->dispatchFleet(
+            $this->targetPlanet->getPlanetCoordinates(),
+            $initiatorFleet,
+            new Resources(4900, 0, 0, 0),
+            PlanetType::Planet
+        );
+
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+
+        $this->post('/ajax/fleet/union/create', [
+            'fleetID' => $initiatorMission->id,
+            'groupname' => 'LeaveLootTest',
+            'unionUsers' => $this->allyUser->username,
+            '_token' => csrf_token(),
+        ]);
+        $initiatorMission->refresh();
+        $unionId = $initiatorMission->union_id;
+
+        $this->allyPlanet->addUnit('small_cargo', 1);
+        $allyFleet = new UnitCollection();
+        $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyMission = $allyFleetMissionService->createNewFromPlanet(
+            $this->allyPlanet,
+            $this->targetPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            1,
+            $allyFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            0
+        );
+
+        $fleetUnionService = resolve(FleetUnionService::class);
+        $union = FleetUnion::find($unionId);
+        $fleetUnionService->joinUnion($union, $allyMission);
+
+        $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
+        $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
+            ->where('canceled', 0)
+            ->first();
+        $allyReturn = FleetMission::where('parent_id', $allyMission->id)
+            ->where('canceled', 0)
+            ->first();
+
+        $this->assertNotNull($initiatorReturn, 'Initiator should have a return mission');
+        $this->assertNotNull($allyReturn, 'Ally should have a return mission');
+
+        $actualLootTaken = ($initiatorReturn->metal + $allyReturn->metal) - 4900;
+        $this->assertGreaterThan(0, $actualLootTaken, 'Attackers should still bring home some loot');
+        $this->assertLessThan(
+            6000,
+            $actualLootTaken,
+            'Actual loot should be lower than the theoretical 6 000 because free cargo space is limited'
+        );
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $refreshedTargetPlanet = $planetServiceFactory->makeForPlayer(
+            $this->targetPlanet->getPlayer(),
+            $this->targetPlanet->getPlanetId()
+        );
+        $this->assertEquals(
+            12000 - $actualLootTaken,
+            $refreshedTargetPlanet->getResources()->metal->get(),
+            'Any loot that does not fit on the ACS return fleets must remain on the defender planet'
+        );
     }
 
     /**

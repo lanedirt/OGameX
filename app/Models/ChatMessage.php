@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,23 +30,17 @@ use Illuminate\Support\Carbon;
  * @method static Builder|ChatMessage query()
  * @mixin \Eloquent
  */
+#[Fillable([
+    'sender_id',
+    'recipient_id',
+    'alliance_id',
+    'message',
+    'reply_to_id',
+    'read_at',
+])]
 class ChatMessage extends Model
 {
     use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'sender_id',
-        'recipient_id',
-        'alliance_id',
-        'message',
-        'reply_to_id',
-        'read_at',
-    ];
 
     /**
      * Get the attributes that should be cast.

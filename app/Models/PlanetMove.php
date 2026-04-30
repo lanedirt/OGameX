@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -23,18 +25,17 @@ use Illuminate\Support\Carbon;
  * @method static Builder|PlanetMove query()
  * @mixin \Eloquent
  */
+#[Fillable([
+    'planet_id',
+    'target_galaxy',
+    'target_system',
+    'target_position',
+    'time_start',
+    'time_arrive',
+    'canceled',
+    'processed',
+])]
+#[Table(name: 'planet_moves')]
 class PlanetMove extends Model
 {
-    protected $table = 'planet_moves';
-
-    protected $fillable = [
-        'planet_id',
-        'target_galaxy',
-        'target_system',
-        'target_position',
-        'time_start',
-        'time_arrive',
-        'canceled',
-        'processed',
-    ];
 }

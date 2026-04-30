@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -12,18 +14,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read FleetUnion $fleetUnion
  * @property-read User $user
  */
+#[Fillable([
+    'fleet_union_id',
+    'user_id',
+])]
+#[Table(name: 'fleet_union_invites')]
 class FleetUnionInvite extends Model
 {
-    /**
-     * @var list<string>
-     */
-    protected $fillable = [
-        'fleet_union_id',
-        'user_id',
-    ];
-
-    protected $table = 'fleet_union_invites';
-
     public function fleetUnion(): BelongsTo
     {
         return $this->belongsTo(FleetUnion::class, 'fleet_union_id');

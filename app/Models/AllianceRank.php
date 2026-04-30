@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -35,6 +36,12 @@ use Illuminate\Support\Carbon;
  * @method static Builder|AllianceRank whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'alliance_id',
+    'rank_name',
+    'permissions',
+    'sort_order',
+])]
 class AllianceRank extends Model
 {
     use HasFactory;
@@ -52,18 +59,6 @@ class AllianceRank extends Model
     public const PERMISSION_MANAGE_ALLY = 'manage_ally';
     public const PERMISSION_RIGHT_HAND = 'right_hand';
     public const PERMISSION_MANAGE_CLASSES = 'manage_classes';
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'alliance_id',
-        'rank_name',
-        'permissions',
-        'sort_order',
-    ];
 
     /**
      * The attributes that should be cast.

@@ -12,7 +12,6 @@ use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\BattleEngine\Services\LootService;
 use OGame\GameMissions\Models\MissionPossibleStatus;
-use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
@@ -227,10 +226,6 @@ class AttackMission extends GameMission
                     // Fleet survived - create return mission with survivors
                     $fleetOwner = $this->playerServiceFactory->make($fleetResult->playerId);
 
-                    // TODO: Calculate per-fleet loot share (proportional to surviving cargo capacity)
-                    // and surviving cargo (mission resources proportional to cargo survival rate).
-                    // Currently lootShare and survivingCargo are zero — loot/cargo distribution
-                    // across multiple ACS fleets is slated for a future PR.
                     // TODO: Include Reaper-collected debris share for multi-attacker battles.
                     // Currently Reaper debris collection only works for single-attacker path.
                     $totalResources = new Resources(
@@ -312,6 +307,22 @@ class AttackMission extends GameMission
             } else {
                 // Distribute the 30% debris amount across Reaper capacity
                 $attackerCollectedDebris = LootService::distributeLoot($collectionAmount, $reaperCargoCapacity);
+            }
+        }
+
+        // For single-attacker battles, loot and carried resources already occupy part of the
+        // surviving fleet cargo. Cap automatic Reaper collection to only the remaining free
+        // space so excess debris stays in the debris field instead of disappearing.
+        if (count($battleResult->attackerFleetResults) === 1 && $attackerCollectedDebris->sum() > 0) {
+            $singleFleetResult = $battleResult->attackerFleetResults[0];
+            $remainingCargoCapacity = $battleResult->attackerUnitsResult->getTotalCargoCapacity($attackerPlayer);
+            $availableForCollectedDebris = max(
+                0,
+                (int)($remainingCargoCapacity - $singleFleetResult->survivingCargo->sum() - $singleFleetResult->lootShare->sum())
+            );
+
+            if ($attackerCollectedDebris->sum() > $availableForCollectedDebris) {
+                $attackerCollectedDebris = LootService::distributeLoot($attackerCollectedDebris, $availableForCollectedDebris);
             }
         }
 
@@ -483,40 +494,19 @@ class AttackMission extends GameMission
             $mission->save();
 
             // Create and start the return mission (if single attacker has remaining units).
-            $originalCargoCapacity = $battleResult->attackerUnitsStart->getTotalCargoCapacity($attackerPlayer);
             $remainingCargoCapacity = $battleResult->attackerUnitsResult->getTotalCargoCapacity($attackerPlayer);
-
-            // Handle edge case: if original capacity is 0, survival rate is 0
-            $survivalRate = $originalCargoCapacity > 0
-                ? $remainingCargoCapacity / $originalCargoCapacity
-                : 0;
-
-            // Calculate resources remaining on surviving ships
-            $remainingResources = new Resources(
-                max(0, (int)($mission->metal * $survivalRate)),
-                max(0, (int)($mission->crystal * $survivalRate)),
-                max(0, (int)($mission->deuterium * $survivalRate)),
-                0
-            );
-
-            // Calculate loot remaining on surviving ships
-            // Loot is also subject to the survival rate (if cargo ships carrying loot are destroyed, loot is lost)
-            $remainingLoot = new Resources(
-                max(0, (int)($battleResult->loot->metal->get() * $survivalRate)),
-                max(0, (int)($battleResult->loot->crystal->get() * $survivalRate)),
-                max(0, (int)($battleResult->loot->deuterium->get() * $survivalRate)),
-                0
-            );
+            $singleFleetResult = $battleResult->attackerFleetResults[0];
 
             // Total resources = remaining mission resources + remaining loot + collected debris (from attacker Reapers)
             $totalResources = new Resources(
-                $remainingResources->metal->get() + $remainingLoot->metal->get() + $attackerCollectedDebris->metal->get(),
-                $remainingResources->crystal->get() + $remainingLoot->crystal->get() + $attackerCollectedDebris->crystal->get(),
-                $remainingResources->deuterium->get() + $remainingLoot->deuterium->get() + $attackerCollectedDebris->deuterium->get(),
+                $singleFleetResult->survivingCargo->metal->get() + $singleFleetResult->lootShare->metal->get() + $attackerCollectedDebris->metal->get(),
+                $singleFleetResult->survivingCargo->crystal->get() + $singleFleetResult->lootShare->crystal->get() + $attackerCollectedDebris->crystal->get(),
+                $singleFleetResult->survivingCargo->deuterium->get() + $singleFleetResult->lootShare->deuterium->get() + $attackerCollectedDebris->deuterium->get(),
                 0
             );
 
-            // Ensure total doesn't exceed remaining capacity
+            // Defensive cap only: loot and carried cargo are already normalized before we reach
+            // this point, so only edge-case rounding should ever hit this.
             if ($totalResources->sum() > $remainingCargoCapacity) {
                 $totalResources = LootService::distributeLoot($totalResources, $remainingCargoCapacity);
             }

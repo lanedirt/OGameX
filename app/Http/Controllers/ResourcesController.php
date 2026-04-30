@@ -53,9 +53,11 @@ class ResourcesController extends AbstractBuildingsController
             $this->header_filename_objects = [41, 42, 43];
         }
 
-        $this->objects = [
-            0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite', 'crawler', 'metal_store', 'crystal_store', 'deuterium_store'],
-        ];
+        $resourceObjects = ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite', 'metal_store', 'crystal_store', 'deuterium_store'];
+        if ($this->planet->isPlanet()) {
+            array_splice($resourceObjects, 6, 0, ['crawler']);
+        }
+        $this->objects = [0 => $resourceObjects];
 
         // Parse shipyard queue because the resources page shows both the
         // building queue (handled by parent) but also the shipyard queue.

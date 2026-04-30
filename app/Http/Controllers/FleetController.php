@@ -284,9 +284,12 @@ class FleetController extends OGameController
      * @return JsonResponse
      * @throws Exception
      */
-    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService, FleetMissionService $fleetMissionService, FleetUnionService $fleetUnionService): JsonResponse
+    public function dispatchCheckTarget(PlayerService $currentPlayer, PlanetServiceFactory $planetServiceFactory, CoordinateDistanceCalculator $coordinateDistanceCalculator, SettingsService $settingsService, FleetMissionService $fleetMissionService, FleetUnionService $fleetUnionService, CharacterClassService $characterClassService): JsonResponse
     {
         $currentPlanet = $currentPlayer->planets->current();
+
+        // Pre-multiply fuel by character class modifier so JS and PHP use the same values.
+        $fuelMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($currentPlayer->getUser());
 
         // Return ships data for this planet taking into account the current planet's properties and research levels.
         $shipsData = [];
@@ -296,7 +299,7 @@ class FleetController extends OGameController
                 'name' => $shipObject->title,
                 'baseFuelCapacity' => $shipObject->properties->fuel_capacity->calculate($currentPlayer)->totalValue,
                 'baseCargoCapacity' => $shipObject->properties->capacity->calculate($currentPlayer)->totalValue,
-                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlayer)->totalValue,
+                'fuelConsumption' => $shipObject->properties->fuel->calculate($currentPlayer)->totalValue * $fuelMultiplier,
                 'speed' => $shipObject->properties->speed->calculate($currentPlayer)->totalValue
             ];
         }
