@@ -30,6 +30,12 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         DB::table('jobs')->delete();
     }
 
+    public function reloadApplication(): void
+    {
+        parent::reloadApplication();
+        config(['queue.default' => 'database']);
+    }
+
     protected function basicSetup(): void
     {
         $this->planetAddUnit('large_cargo', 5);
