@@ -3,11 +3,13 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use OGame\Enums\FleetSpeedType;
 use OGame\Factories\GameMissionFactory;
@@ -698,19 +700,25 @@ class FleetMissionService
     {
         $lockKey = $this->getMissionDestinationLockKey($mission);
 
-        Cache::lock($lockKey, 30)->block(10, function () use ($mission) {
-            DB::transaction(function () use ($mission) {
-                $currentTime = (int) Date::now()->timestamp;
+        try {
+            Cache::lock($lockKey, 30)->block(10, function () use ($mission) {
+                DB::transaction(function () use ($mission) {
+                    $currentTime = (int) Date::now()->timestamp;
 
-                foreach ($this->getDueHoldArrivalMissionsForDestination($mission, $currentTime) as $holdMission) {
-                    $this->updateMission($holdMission);
-                }
+                    foreach ($this->getDueHoldArrivalMissionsForDestination($mission, $currentTime) as $holdMission) {
+                        $this->updateMission($holdMission);
+                    }
 
-                foreach ($this->getDueCompletionMissionsForDestination($mission, $currentTime) as $arrivalMission) {
-                    $this->updateMission($arrivalMission);
-                }
+                    foreach ($this->getDueCompletionMissionsForDestination($mission, $currentTime) as $arrivalMission) {
+                        $this->updateMission($arrivalMission);
+                    }
+                });
             });
-        });
+        } catch (LockTimeoutException) {
+            // Another worker holds the lock for this destination. The scheduler fallback
+            // (ProcessFleetArrivals, runs every minute) will pick up any remaining missions.
+            Log::warning('Fleet destination lock timeout', ['lock_key' => $lockKey, 'mission_id' => $mission->id]);
+        }
     }
 
     /**
@@ -720,9 +728,29 @@ class FleetMissionService
     {
         $currentTime = Date::now()->timestamp;
 
+        // Two independent branches, OR-ed together:
+        //
+        // Branch A — ACS Defend physical arrival (hold start):
+        //   ACS Defend outbound missions (type 5, no parent) where the fleet has
+        //   physically reached the target (time_arrival - time_holding <= now) but the
+        //   hold-arrival event hasn't fired yet (processed_hold = 0).
+        //
+        // Branch B — full mission completion (processed = 0):
+        //   Two sub-cases:
+        //   B1 — missions without hold time OR ACS Defend outbound (type 5, no parent):
+        //        time_arrival <= now. ACS Defend is included here because its time_arrival
+        //        already incorporates the hold period (physical_arrival + time_holding).
+        //   B2 — non-ACS missions that carry a hold time (e.g. Expedition):
+        //        these store hold duration separately; full completion is at
+        //        time_arrival + time_holding <= now.
+        //
+        // Note: an ACS Defend mission whose hold period AND full expiry are both overdue
+        // will appear in both Branch A and Branch B. The handledKeys deduplication below
+        // ensures processDueMissionEventsForMission is called only once per destination.
         $missions = FleetMission::query()
             ->where('canceled', 0)
             ->where(function (Builder $query) use ($currentTime) {
+                // Branch A: ACS Defend physical arrival (hold start) overdue.
                 $query->where(function (Builder $holdQuery) use ($currentTime) {
                     $holdQuery->where('mission_type', 5)
                         ->whereNull('parent_id')
@@ -731,8 +759,10 @@ class FleetMissionService
                         ->where('time_holding', '>', 0)
                         ->whereRaw('(time_arrival - time_holding) <= ?', [$currentTime]);
                 })->orWhere(function (Builder $arrivalQuery) use ($currentTime) {
+                    // Branch B: full mission completion overdue.
                     $arrivalQuery->where('processed', 0)
                         ->where(function (Builder $query) use ($currentTime) {
+                            // B1: no separate hold, or ACS Defend outbound — time_arrival is the deadline.
                             $query->where(function (Builder $query) use ($currentTime) {
                                 $query->where(function (Builder $query) {
                                     $query->whereNull('time_holding')
@@ -743,6 +773,7 @@ class FleetMissionService
                                         });
                                 })->where('time_arrival', '<=', $currentTime);
                             })->orWhere(function (Builder $query) use ($currentTime) {
+                                // B2: non-ACS with separate hold time — deadline is time_arrival + time_holding.
                                 $query->where('mission_type', '!=', 5)
                                     ->whereNotNull('time_holding')
                                     ->where('time_holding', '>', 0)

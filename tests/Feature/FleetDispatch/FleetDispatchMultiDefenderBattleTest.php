@@ -833,4 +833,100 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $totalDefenderLightFighters = $defenderStartUnits['light_fighter'] ?? 0;
         $this->assertEquals(45, $totalDefenderLightFighters, 'All defending fleets should participate with their units');
     }
+
+    /**
+     * Test that an ACS Defend fleet participates in battle when its physical arrival and the
+     * attack both land at the same destination in the same second.
+     *
+     * This is the core ordering guarantee of the fleet queue: within a single destination-lock
+     * processing run, all hold-arrival events (ACS Defend physical arrivals) are processed before
+     * all completion events (attacks, transports, etc.). This ensures the defender is recognised
+     * by collectDefendingFleets() even when the attacker's queue job or page load triggers the
+     * destination processing run first.
+     *
+     * Timeline:
+     *   T+200ms — ACS Defend fleet physically arrives at buddy planet (hold starts)
+     *   T+800ms — Attack fleet arrives at buddy planet
+     *   Both are processed together at T+1s by processDueMissionEventsForMission()
+     */
+    public function testAcsDefendParticipatesInBattleWhenPhysicalArrivalIsInSameSecondAsAttack(): void
+    {
+        $this->basicSetup();
+        $this->createBuddyPlayer();
+
+        $acsDefender = $this->createAcsDefender();
+        $acsDefender['planet']->addUnit('light_fighter', 20);
+        $acsDefender['planet']->addResources(new Resources(0, 0, 1000000, 0));
+
+        // Both missions target buddy planet in the same second T.
+        // ACS Defend physical arrival = T+200ms (earlier), attack arrival = T+800ms (later).
+        $targetSecond = Date::now()->addSeconds(600)->timestamp;
+
+        // Dispatch ACS Defend mission, then override its timestamps so the physical arrival
+        // (time_arrival - time_holding) falls exactly in targetSecond at +200ms.
+        $acsDefendFleet = new UnitCollection();
+        $acsDefendFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
+
+        $acsFleetService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
+        $acsDefendMission = $acsFleetService->createNewFromPlanet(
+            $acsDefender['planet'],
+            $this->buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5,
+            $acsDefendFleet,
+            new Resources(0, 0, 0, 0),
+            10,
+            2
+        );
+
+        $holdSeconds = $acsDefendMission->time_holding;
+        $acsDefendMission->time_arrival = $targetSecond + $holdSeconds;
+        $acsDefendMission->time_arrival_ms = ($targetSecond + $holdSeconds) * 1000 + 200;
+        // physical arrival ms = time_arrival_ms - time_holding*1000 = targetSecond*1000 + 200
+        $acsDefendMission->saveQuietly();
+        $acsDefendMissionId = $acsDefendMission->id;
+
+        // Dispatch attack fleet (triggers reloadApplication internally), then override its
+        // timestamps so it arrives at targetSecond+800ms — same second, later than the defender.
+        $attackFleet = new UnitCollection();
+        $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+        $this->dispatchFleet(
+            $this->buddyPlanet->getPlanetCoordinates(),
+            $attackFleet,
+            new Resources(0, 0, 0, 0),
+            PlanetType::Planet
+        );
+
+        $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $attackMission->time_arrival = $targetSecond;
+        $attackMission->time_arrival_ms = $targetSecond * 1000 + 800;
+        $attackMission->saveQuietly();
+
+        // Advance to 1s past targetSecond — both missions are now overdue.
+        $this->travelTo(Date::createFromTimestamp($targetSecond + 1));
+
+        // Trigger processing via the destination-scoped, ms-ordered processor.
+        // This mirrors what happens when a queue job (or page load) fires for this destination.
+        resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()])
+            ->processDueMissionEventsForMission($attackMission->fresh());
+
+        // The hold-arrivals loop runs first: ACS Defend physical arrival fires and sets processed_hold=1.
+        $acsDefendMission = FleetMission::find($acsDefendMissionId);
+        $this->assertSame(
+            1,
+            $acsDefendMission->processed_hold,
+            'ACS Defend physical-arrival must be processed before the attack resolves.'
+        );
+
+        // The completions loop then runs the attack. collectDefendingFleets() finds the ACS Defend
+        // fleet (physical arrival done, hold not yet expired) and includes it in the battle.
+        $battleReport = BattleReport::orderByDesc('id')->first();
+        $this->assertNotNull($battleReport, 'A battle report must exist after the attack resolves.');
+        $this->assertGreaterThan(
+            0,
+            array_sum($battleReport->defender['units']),
+            'ACS Defend fleet must appear in the battle report as a defending unit.'
+        );
+    }
 }
