@@ -14,7 +14,6 @@ use OGame\Services\PlayerService;
 
 class FleetTimingController extends OGameController
 {
-
     private const PER_PAGE_OPTIONS = [50, 100, 200, 500];
     private const PER_PAGE_DEFAULT = 50;
 
