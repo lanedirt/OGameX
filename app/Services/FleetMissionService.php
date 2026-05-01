@@ -644,6 +644,10 @@ class FleetMissionService
             return;
         }
 
+        if ($mission->time_arrival === null) {
+            return;
+        }
+
         $completionTime = $this->getMissionCompletionTime($mission);
         $physicalArrivalTime = $this->missionNeedsPhysicalArrivalJob($mission)
             ? $this->getMissionPhysicalArrivalTime($mission)
