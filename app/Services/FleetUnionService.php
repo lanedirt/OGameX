@@ -122,8 +122,13 @@ class FleetUnionService
             ->orderByDesc('id')
             ->first();
 
+        // @phpstan-ignore nullsafe.neverNull (Larastan incorrectly infers Builder::first() as non-nullable)
         $coordinatedArrivalTime = $currentCoordinatedMission?->time_arrival ?? $union->time_arrival;
+        // @phpstan-ignore nullsafe.neverNull
         $coordinatedArrivalMs = $currentCoordinatedMission?->time_arrival_ms ?? ($union->time_arrival * 1000);
+
+        // Normalize ms precision for the joining mission so downstream saves never write NULL.
+        $mission->time_arrival_ms ??= $mission->time_arrival * 1000;
 
         // Validate fleet can arrive within delay limit
         $maxArrival = $union->time_arrival + $this->getMaxDelayTime($union);
