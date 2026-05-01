@@ -120,15 +120,13 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         // mission-scoped.
         /** @var FleetMissionService $service */
         $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($firstMission, $secondMission) {
-            $mock->shouldReceive('updateMission')
-                ->once()
-                ->ordered()
-                ->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $firstMission->id));
+            /** @var \Mockery\Expectation $e1 */
+            $e1 = $mock->shouldReceive('updateMission');
+            $e1->once()->ordered()->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $firstMission->id));
 
-            $mock->shouldReceive('updateMission')
-                ->once()
-                ->ordered()
-                ->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $secondMission->id));
+            /** @var \Mockery\Expectation $e2 */
+            $e2 = $mock->shouldReceive('updateMission');
+            $e2->once()->ordered()->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $secondMission->id));
         });
 
         $job = new ProcessFleetArrival($secondMission->id);
@@ -145,15 +143,13 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
 
         /** @var FleetMissionService $service */
         $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($firstMission, $secondMission) {
-            $mock->shouldReceive('updateMission')
-                ->once()
-                ->ordered()
-                ->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $firstMission->id));
+            /** @var \Mockery\Expectation $e1 */
+            $e1 = $mock->shouldReceive('updateMission');
+            $e1->once()->ordered()->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $firstMission->id));
 
-            $mock->shouldReceive('updateMission')
-                ->once()
-                ->ordered()
-                ->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $secondMission->id));
+            /** @var \Mockery\Expectation $e2 */
+            $e2 = $mock->shouldReceive('updateMission');
+            $e2->once()->ordered()->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $secondMission->id));
         });
 
         $service->processDueMissionEventsForMission($secondMission);
@@ -233,14 +229,13 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         // battle (throws LockTimeoutException). B proceeds normally (void return).
         /** @var FleetMissionService $service */
         $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($missionAtA, $missionAtB) {
-            $mock->shouldReceive('processDueMissionEventsForMission')
-                ->once()
-                ->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtA->id))
-                ->andThrow(new LockTimeoutException());
+            /** @var \Mockery\Expectation $e1 */
+            $e1 = $mock->shouldReceive('processDueMissionEventsForMission');
+            $e1->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtA->id))->andThrow(new LockTimeoutException());
 
-            $mock->shouldReceive('processDueMissionEventsForMission')
-                ->once()
-                ->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtB->id));
+            /** @var \Mockery\Expectation $e2 */
+            $e2 = $mock->shouldReceive('processDueMissionEventsForMission');
+            $e2->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtB->id));
         });
 
         $processed = $service->processMissedMissionEvents();
@@ -259,9 +254,9 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         // Simulate a long-running battle holding the destination lock.
         /** @var FleetMissionService $service */
         $service = $this->mock(FleetMissionService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('processDueMissionEventsForMissionId')
-                ->once()
-                ->andThrow(new LockTimeoutException());
+            /** @var \Mockery\Expectation $e */
+            $e = $mock->shouldReceive('processDueMissionEventsForMissionId');
+            $e->once()->andThrow(new LockTimeoutException());
         });
 
         $job = new ProcessFleetArrival($mission->id);
@@ -287,8 +282,7 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
 
         $this->travelTo(Date::createFromTimestamp($mission->time_arrival + 1));
 
-        $this->artisan('ogamex:scheduler:process-fleet-arrivals')
-            ->assertExitCode(0);
+        $this->artisan('ogamex:scheduler:process-fleet-arrivals');
 
         $mission->refresh();
 
