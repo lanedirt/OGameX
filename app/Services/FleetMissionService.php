@@ -615,7 +615,16 @@ class FleetMissionService
             'fleetMissionService' => $this,
             'messageService' => $this->messageService,
         ]);
+
+        $start = microtime(true);
         $missionObject->process($mission);
+        $durationMs = (int) round((microtime(true) - $start) * 1000);
+
+        Log::info('Fleet mission processed', [
+            'mission_id' => $mission->id,
+            'mission_type' => $mission->mission_type,
+            'duration_ms' => $durationMs,
+        ]);
     }
 
     /**
@@ -700,25 +709,22 @@ class FleetMissionService
     {
         $lockKey = $this->getMissionDestinationLockKey($mission);
 
-        try {
-            Cache::lock($lockKey, 30)->block(10, function () use ($mission) {
-                DB::transaction(function () use ($mission) {
-                    $currentTime = (int) Date::now()->timestamp;
+        // Lock TTL of 180s provides headroom for long-running battles.
+        // A TTL shorter than the actual processing time risks expiring mid-transaction,
+        // allowing another worker to enter and observe uncommitted writes.
+        Cache::lock($lockKey, 180)->block(10, function () use ($mission) {
+            DB::transaction(function () use ($mission) {
+                $currentTime = (int) Date::now()->timestamp;
 
-                    foreach ($this->getDueHoldArrivalMissionsForDestination($mission, $currentTime) as $holdMission) {
-                        $this->updateMission($holdMission);
-                    }
+                foreach ($this->getDueHoldArrivalMissionsForDestination($mission, $currentTime) as $holdMission) {
+                    $this->updateMission($holdMission);
+                }
 
-                    foreach ($this->getDueCompletionMissionsForDestination($mission, $currentTime) as $arrivalMission) {
-                        $this->updateMission($arrivalMission);
-                    }
-                });
+                foreach ($this->getDueCompletionMissionsForDestination($mission, $currentTime) as $arrivalMission) {
+                    $this->updateMission($arrivalMission);
+                }
             });
-        } catch (LockTimeoutException) {
-            // Another worker holds the lock for this destination. The scheduler fallback
-            // (ProcessFleetArrivals, runs every minute) will pick up any remaining missions.
-            Log::warning('Fleet destination lock timeout', ['lock_key' => $lockKey, 'mission_id' => $mission->id]);
-        }
+        });
     }
 
     /**
@@ -798,7 +804,19 @@ class FleetMissionService
             }
 
             $handledKeys[$lockKey] = true;
-            $this->processDueMissionEventsForMission($mission);
+
+            try {
+                $this->processDueMissionEventsForMission($mission);
+            } catch (LockTimeoutException) {
+                // A queue worker is already processing this destination (large battle in progress).
+                // Skip it this scheduler tick; the queue job will retry automatically.
+                Log::warning('Fleet destination lock busy in scheduler fallback, skipping', [
+                    'lock_key' => $lockKey,
+                    'mission_id' => $mission->id,
+                ]);
+                continue;
+            }
+
             $processedDestinations++;
         }
 

@@ -7,6 +7,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\Models\BuildingQueue;
 use OGame\Models\FleetMission;
@@ -18,7 +19,6 @@ use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Models\User;
 use OGame\Models\UserTech;
-use RuntimeException;
 use Throwable;
 
 /**
@@ -707,7 +707,13 @@ class PlayerService
                 $this->load($this->getId());
             }
         } catch (Exception $e) {
-            throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
+            // Page-load processing is a best-effort fallback; the queue worker is the primary
+            // processor. Log the error but do not break the player's request — the queue worker
+            // or scheduler fallback will process the mission on its next run.
+            Log::error('Fleet mission processing error on page load', [
+                'player_id' => $this->getId(),
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
