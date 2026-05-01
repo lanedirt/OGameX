@@ -879,9 +879,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
             2
         );
 
-        $holdSeconds = $acsDefendMission->time_holding;
-        $acsDefendMission->time_arrival = $targetSecond + $holdSeconds;
-        $acsDefendMission->time_arrival_ms = ($targetSecond + $holdSeconds) * 1000 + 200;
+        $holdSeconds = (int) $acsDefendMission->time_holding;
+        $acsDefendMission->time_arrival = (int) $targetSecond + $holdSeconds;
+        $acsDefendMission->time_arrival_ms = ((int) $targetSecond + $holdSeconds) * 1000 + 200;
         // physical arrival ms = time_arrival_ms - time_holding*1000 = targetSecond*1000 + 200
         $acsDefendMission->saveQuietly();
         $acsDefendMissionId = $acsDefendMission->id;
@@ -899,12 +899,12 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
-        $attackMission->time_arrival = $targetSecond;
-        $attackMission->time_arrival_ms = $targetSecond * 1000 + 800;
+        $attackMission->time_arrival = (int) $targetSecond;
+        $attackMission->time_arrival_ms = (int) $targetSecond * 1000 + 800;
         $attackMission->saveQuietly();
 
         // Advance to 1s past targetSecond — both missions are now overdue.
-        $this->travelTo(Date::createFromTimestamp($targetSecond + 1));
+        $this->travelTo(Date::createFromTimestamp((int) $targetSecond + 1));
 
         // Trigger processing via the destination-scoped, ms-ordered processor.
         // This mirrors what happens when a queue job (or page load) fires for this destination.
