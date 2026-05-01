@@ -68,6 +68,8 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
 
         DB::table('jobs')->delete();
 
+        config(['queue.default' => 'sync']);
+
         parent::tearDown();
     }
 
