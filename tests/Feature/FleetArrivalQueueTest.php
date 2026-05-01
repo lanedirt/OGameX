@@ -11,7 +11,10 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Jobs\ProcessFleetArrival;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
+use OGame\Models\Message;
+use OGame\Models\Planet;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -36,6 +39,36 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
     {
         parent::reloadApplication();
         config(['queue.default' => 'database']);
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->currentUserId !== 0) {
+            $planetIds = Planet::where('user_id', $this->currentUserId)->pluck('id')->all();
+
+            if (!empty($planetIds)) {
+                FleetMission::where(function ($query) use ($planetIds) {
+                    $query->whereIn('planet_id_from', $planetIds)
+                        ->orWhereIn('planet_id_to', $planetIds);
+                })->whereNotNull('parent_id')->delete();
+
+                FleetMission::where(function ($query) use ($planetIds) {
+                    $query->whereIn('planet_id_from', $planetIds)
+                        ->orWhereIn('planet_id_to', $planetIds);
+                })->delete();
+            }
+
+            Message::where('user_id', $this->currentUserId)->delete();
+            DB::table('users_tech')->where('user_id', $this->currentUserId)->delete();
+            // Clear the FK on users.planet_current before deleting the planet rows it references.
+            DB::table('users')->where('id', $this->currentUserId)->update(['planet_current' => null]);
+            Planet::where('user_id', $this->currentUserId)->delete();
+            User::where('id', $this->currentUserId)->delete();
+        }
+
+        DB::table('jobs')->delete();
+
+        parent::tearDown();
     }
 
     protected function basicSetup(): void
