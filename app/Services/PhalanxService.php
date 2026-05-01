@@ -140,7 +140,7 @@ class PhalanxService
         ->get();
 
         // Preload planet names to avoid N+1 queries
-        $planet_ids = $fleet_missions->flatMap(fn($m) => [$m->planet_id_from, $m->planet_id_to])->filter()->unique();
+        $planet_ids = $fleet_missions->flatMap(fn ($m) => [$m->planet_id_from, $m->planet_id_to])->filter()->unique();
         $planet_names = Planet::whereIn('id', $planet_ids)->pluck('name', 'id');
 
         $scan_results = [];
