@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Carbon;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Mockery;
 use Mockery\MockInterface;
@@ -13,6 +14,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlanetService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
@@ -47,7 +49,7 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
 
     public function testDispatchStoresMillisecondArrivalAndQueuesDelayedJob(): void
     {
-        $this->travelTo(Carbon::create(2024, 1, 1, 0, 0, 0)->addMilliseconds(123));
+        $this->travelTo(Date::create(2024, 1, 1, 0, 0, 0)->addMilliseconds(123));
         $this->basicSetup();
 
         $this->sendMissionToSecondPlanet($this->createCargoUnits(1), new Resources(1000, 500, 250, 0));
@@ -173,6 +175,71 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         );
     }
 
+    public function testSchedulerFallbackSkipsLockedDestinationAndContinues(): void
+    {
+        $this->basicSetup();
+
+        // Remove all overdue unprocessed missions left by previous test runs so that
+        // processMissedMissionEvents() only sees the two missions created below.
+        // Without this, the partial mock receives unexpected calls for those leftovers
+        // and falls through to the real implementation, which requires uninitialized
+        // service dependencies.
+        DB::table('fleet_missions')
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->where('time_arrival', '<=', (int) now()->timestamp)
+            ->delete();
+
+        $baseArrival = (int) now()->timestamp - 1;
+
+        // Two missions at different destinations — A goes to secondPlanet, B goes to primaryPlanet.
+        $missionAtA = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
+        $missionAtB = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 200, $this->planetService);
+
+        // Simulate both destinations being encountered. A is held by a long-running
+        // battle (throws LockTimeoutException). B proceeds normally (void return).
+        /** @var FleetMissionService $service */
+        $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($missionAtA, $missionAtB) {
+            $mock->shouldReceive('processDueMissionEventsForMission')
+                ->once()
+                ->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtA->id))
+                ->andThrow(new LockTimeoutException());
+
+            $mock->shouldReceive('processDueMissionEventsForMission')
+                ->once()
+                ->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtB->id));
+        });
+
+        $processed = $service->processMissedMissionEvents();
+
+        // Only B counted as processed; A was skipped due to lock timeout.
+        $this->assertSame(1, $processed, 'Scheduler should skip locked destinations and count only those successfully processed.');
+    }
+
+    public function testQueueJobCatchesLockTimeoutAndDoesNotThrow(): void
+    {
+        $this->basicSetup();
+
+        $baseArrival = (int) now()->timestamp - 1;
+        $mission = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
+
+        // Simulate a long-running battle holding the destination lock.
+        /** @var FleetMissionService $service */
+        $service = $this->mock(FleetMissionService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('processDueMissionEventsForMissionId')
+                ->once()
+                ->andThrow(new LockTimeoutException());
+        });
+
+        $job = new ProcessFleetArrival($mission->id);
+        $job->handle($service);
+
+        // If we reach here the exception was caught — the job does not re-throw.
+        // The mission stays unprocessed; the queue runner will retry the job automatically.
+        $mission->refresh();
+        $this->assertSame(0, $mission->processed, 'Mission should remain unprocessed when destination lock timed out.');
+    }
+
     public function testSchedulerFallbackProcessesOverdueMissionBacklog(): void
     {
         $this->basicSetup();
@@ -185,7 +252,7 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
             ->latest('id')
             ->firstOrFail();
 
-        $this->travelTo(Carbon::createFromTimestamp($mission->time_arrival + 1));
+        $this->travelTo(Date::createFromTimestamp($mission->time_arrival + 1));
 
         $this->artisan('ogamex:scheduler:process-fleet-arrivals')
             ->assertExitCode(0);
@@ -207,18 +274,20 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         return $units;
     }
 
-    private function createDueMission(int $arrivalTime, int $arrivalTimeMs): FleetMission
+    private function createDueMission(int $arrivalTime, int $arrivalTimeMs, PlanetService|null $destination = null): FleetMission
     {
+        $destination ??= $this->secondPlanetService;
+
         $mission = new FleetMission();
         $mission->user_id = $this->currentUserId;
         $mission->planet_id_from = $this->planetService->getPlanetId();
-        $mission->planet_id_to = $this->secondPlanetService->getPlanetId();
+        $mission->planet_id_to = $destination->getPlanetId();
         $mission->galaxy_from = $this->planetService->getPlanetCoordinates()->galaxy;
         $mission->system_from = $this->planetService->getPlanetCoordinates()->system;
         $mission->position_from = $this->planetService->getPlanetCoordinates()->position;
-        $mission->galaxy_to = $this->secondPlanetService->getPlanetCoordinates()->galaxy;
-        $mission->system_to = $this->secondPlanetService->getPlanetCoordinates()->system;
-        $mission->position_to = $this->secondPlanetService->getPlanetCoordinates()->position;
+        $mission->galaxy_to = $destination->getPlanetCoordinates()->galaxy;
+        $mission->system_to = $destination->getPlanetCoordinates()->system;
+        $mission->position_to = $destination->getPlanetCoordinates()->position;
         $mission->type_from = PlanetType::Planet->value;
         $mission->type_to = PlanetType::Planet->value;
         $mission->mission_type = 3;
