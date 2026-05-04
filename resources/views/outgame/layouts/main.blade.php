@@ -316,7 +316,8 @@
                 @php $outgameLocale = app()->getLocale(); @endphp
                 <a href="{{ route('language.switch', ['lang' => 'en']) }}" @if($outgameLocale === 'en') style="font-weight:bold" @endif>EN</a> |
                 <a href="{{ route('language.switch', ['lang' => 'it']) }}" @if($outgameLocale === 'it') style="font-weight:bold" @endif>IT</a> |
-                <a href="{{ route('language.switch', ['lang' => 'nl']) }}" @if($outgameLocale === 'nl') style="font-weight:bold" @endif>NL</a>
+                <a href="{{ route('language.switch', ['lang' => 'nl']) }}" @if($outgameLocale === 'nl') style="font-weight:bold" @endif>NL</a> |
+                <a href="{{ route('language.switch', ['lang' => 'zh-TW']) }}" @if($outgameLocale === 'zh-TW') style="font-weight:bold" @endif>繁體中文</a>
                 <br/>
                 <div class="align_center">
                     <a href="#" target="_blank">
