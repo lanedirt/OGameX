@@ -5,6 +5,7 @@ use OGame\Console\Commands\Scheduler\DarkMatterRegenerateCommand;
 use OGame\Console\Commands\Scheduler\GenerateAllianceHighscores;
 use OGame\Console\Commands\Scheduler\GenerateHighscoreRanks;
 use OGame\Console\Commands\Scheduler\GenerateHighscores;
+use OGame\Console\Commands\Scheduler\ProcessFleetArrivals;
 use OGame\Console\Commands\Scheduler\ResetDebrisFields;
 
 /*
@@ -29,6 +30,9 @@ Schedule::command(ResetDebrisFields::class)->weeklyOn(1, '1:00');
 
 // Clean up wreck fields hourly
 Schedule::command(CleanupWreckFields::class)->hourly()->withoutOverlapping();
+
+// Catch up any fleet arrivals missed while the queue worker or server was down.
+Schedule::command(ProcessFleetArrivals::class)->everyMinute()->withoutOverlapping();
 
 // Process Dark Matter regeneration every 5 minutes
 Schedule::command(DarkMatterRegenerateCommand::class)->everyFiveMinutes()->withoutOverlapping();

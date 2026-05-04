@@ -240,7 +240,8 @@ class PlanetMoveService
         $fleetSpeed = $settingsService->fleetSpeedPeaceful();
         $duration = (int) max(round((35000 / 10 * sqrt($distance * 10 / $slowestSpeed) + 10) / $fleetSpeed), 1);
 
-        $now = (int) Date::now()->timestamp;
+        $dispatchMoment = Date::now();
+        $now = (int) $dispatchMoment->timestamp;
 
         // Create the fleet mission record directly (bypasses GameMission::start()).
         $mission = new FleetMission();
@@ -258,6 +259,7 @@ class PlanetMoveService
         $mission->mission_type = 4; // Deployment
         $mission->time_departure = $now;
         $mission->time_arrival = $now + $duration;
+        $mission->time_arrival_ms = (int) $dispatchMoment->valueOf() + ($duration * 1000);
         $mission->metal = 0;
         $mission->crystal = 0;
         $mission->deuterium = 0;

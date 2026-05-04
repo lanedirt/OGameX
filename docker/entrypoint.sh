@@ -27,7 +27,7 @@ if [ "$role" = "scheduler" ]; then
         sleep 60
     done
 elif [ "$role" = "queue" ]; then
-      php /var/www/artisan queue:work --verbose --no-interaction
+      php /var/www/artisan queue:work --queue=fleet-arrivals,default --verbose --no-interaction
 elif [ "$role" = "reverb" ]; then
     php /var/www/artisan reverb:start --host="${REVERB_SERVER_HOST:-0.0.0.0}" --port="${REVERB_SERVER_PORT:-8090}"
 elif [ "$role" = "app" ]; then

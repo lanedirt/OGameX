@@ -378,7 +378,10 @@ class MerchantService
         // if crediting any receive resource fails, the give deduction is rolled back.
         try {
             $receivedAmounts = DB::transaction(function () use (
-                $planet, $giveResource, $totalGiveCost, $tradePlan
+                $planet,
+                $giveResource,
+                $totalGiveCost,
+                $tradePlan
             ): array {
                 // Deduct total give resource in one operation
                 $deductResources = new Resources(
