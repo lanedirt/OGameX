@@ -2,6 +2,7 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
 use OGame\Models\Setting;
 
 /**
@@ -13,6 +14,11 @@ use OGame\Models\Setting;
  */
 class SettingsService
 {
+    /**
+     * @var array<int>
+     */
+    public const ATTACK_BLOCKED_MISSION_TYPES = [1, 2, 6, 9];
+
     /**
      * Array of setting objects.
      *
@@ -384,6 +390,39 @@ class SettingsService
     public function battleEngine(): string
     {
         return $this->get('battle_engine', 'rust');
+    }
+
+    /**
+     * Returns the configured attack block end timestamp.
+     *
+     * @return int
+     */
+    public function attackBlockUntil(): int
+    {
+        return (int)$this->get('attack_block_until', 0);
+    }
+
+    /**
+     * Returns whether the server-wide attack block is currently active.
+     *
+     * @return bool
+     */
+    public function attackBlockActive(): bool
+    {
+        $until = $this->attackBlockUntil();
+
+        return $until > Date::now()->timestamp;
+    }
+
+    /**
+     * Returns whether the given mission type is blocked by attack block.
+     *
+     * @param int $missionType
+     * @return bool
+     */
+    public function missionBlockedByAttackBlock(int $missionType): bool
+    {
+        return $this->attackBlockActive() && in_array($missionType, self::ATTACK_BLOCKED_MISSION_TYPES, true);
     }
 
     /**

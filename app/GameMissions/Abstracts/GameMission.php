@@ -119,6 +119,10 @@ abstract class GameMission
             return new MissionPossibleStatus(false, __('You cannot send missions while in vacation mode!'));
         }
 
+        if ($this->settings->missionBlockedByAttackBlock(static::$typeId)) {
+            return new MissionPossibleStatus(false, __('The attack block is active. In that time only friendly fleets can be started.'));
+        }
+
         // If mission from and to coordinates and types are the same, the mission is not possible.
         if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
             return new MissionPossibleStatus(false);

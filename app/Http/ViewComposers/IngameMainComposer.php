@@ -118,6 +118,8 @@ class IngameMainComposer
 
         $impersonateManager = app('impersonate');
         $isImpersonating = $impersonateManager->isImpersonating();
+        $attackBlockUntil = $this->settingsService->attackBlockUntil();
+        $attackBlockActive = $this->settingsService->attackBlockActive();
 
         $view->with([
             'underAttack' => $this->fleetMissionService->currentPlayerUnderAttack(),
@@ -135,6 +137,13 @@ class IngameMainComposer
             'locale' => $locale,
             'isImpersonating' => $isImpersonating,
             'impersonateLeaveUrl' => $isImpersonating ? route('impersonate.leave') : null,
+            'attackBlockActive' => $attackBlockActive,
+            'attackBlockUntil' => $attackBlockUntil,
+            'attackBlockTooltip' => $attackBlockActive
+                ? __('The attack block is active till :until. In that time only friendly fleets can be started.', [
+                    'until' => \Carbon\Carbon::createFromTimestamp($attackBlockUntil)->format('d.m.Y H:i:s'),
+                ])
+                : '',
         ]);
     }
 

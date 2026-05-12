@@ -495,6 +495,10 @@ class FleetController extends OGameController
         // Extract mission type from the request
         $mission_type = (int)request()->input('mission');
 
+        if ($settingsService->missionBlockedByAttackBlock($mission_type)) {
+            return $this->validationErrorResponse(__('The attack block is active. In that time only friendly fleets can be started.'));
+        }
+
         // Extract resources from the request
         $metal = (int)request()->input('metal');
         $crystal = (int)request()->input('crystal');
@@ -625,6 +629,21 @@ class FleetController extends OGameController
         $targetType = (int)request()->input('type');
         $shipCount = (int)request()->input('shipCount');
         $mission_type = (int)request()->input('mission');
+        if ($settingsService->missionBlockedByAttackBlock($mission_type)) {
+            return response()->json([
+                'response' => [
+                    'message' => __('The attack block is active. In that time only friendly fleets can be started.'),
+                    'coordinates' => [
+                        'galaxy' => $galaxy,
+                        'system' => $system,
+                        'position' => $position,
+                    ],
+                    'success' => false,
+                ],
+                'newAjaxToken' => csrf_token(),
+                'components' => [],
+            ]);
+        }
         // Validate ship count is positive, if not, default to 1.
         if ($shipCount < 1) {
             $shipCount = 1;

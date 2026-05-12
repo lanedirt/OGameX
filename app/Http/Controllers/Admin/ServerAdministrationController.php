@@ -4,6 +4,7 @@ namespace OGame\Http\Controllers\Admin;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -138,6 +139,7 @@ class ServerAdministrationController extends OGameController
         $botSuspects = $allSuspects->reject(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->values();
         $stuckMissionsSettings = $this->stuckMissionsSettings();
         $stuckMissions = $this->getStuckFleetMissions($stuckMissionsSettings['min_overdue_hours']);
+        $attackBlockUntil = (int) $settingsService->get('attack_block_until', 0);
 
         return view('ingame.admin.server-administration', [
             'sharedIpGroups'        => $sharedIpGroups,
@@ -149,7 +151,84 @@ class ServerAdministrationController extends OGameController
             'detectionSettings'     => $settings,
             'dismissedIpCount'      => count($dismissedIps),
             'dismissedSuspectCount' => $allSuspects->filter(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->count(),
+            'attackBlockUntil'      => $attackBlockUntil,
+            'attackBlockActive'     => $attackBlockUntil > time(),
         ]);
+    }
+
+    /**
+     * Saves the server-wide attack block end time.
+     */
+    public function saveAttackBlock(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'attack_block_until_date' => ['nullable', 'date_format:Y-m-d'],
+            'attack_block_until_time' => ['nullable', 'date_format:H:i'],
+            'attack_block_until' => ['nullable', 'string', 'max:32'],
+            'clear_attack_block' => ['nullable', 'boolean'],
+        ]);
+
+        $settingsService = resolve(SettingsService::class);
+        $untilInput = $this->attackBlockUntilInput($request);
+
+        if ($request->boolean('clear_attack_block') || empty($untilInput)) {
+            $settingsService->set('attack_block_until', 0);
+
+            return redirect()->route('admin.server-administration.index')
+                ->with('status', 'Attack block cleared.');
+        }
+
+        $until = $this->parseAttackBlockUntil((string) $untilInput);
+        if ($until === null) {
+            return redirect()->route('admin.server-administration.index')
+                ->with('error', 'Attack block end must use dd.mm.yyyy hh:mm.');
+        }
+
+        if ($until->timestamp <= time()) {
+            $settingsService->set('attack_block_until', 0);
+
+            return redirect()->route('admin.server-administration.index')
+                ->with('error', 'Attack block end must be in the future.');
+        }
+
+        $settingsService->set('attack_block_until', $until->timestamp);
+
+        return redirect()->route('admin.server-administration.index')
+            ->with('status', 'Attack block saved.');
+    }
+
+    /**
+     * Returns the attack block end value from the date/time picker fields or legacy single field.
+     */
+    private function attackBlockUntilInput(Request $request): string
+    {
+        $date = (string) $request->input('attack_block_until_date', '');
+        $time = (string) $request->input('attack_block_until_time', '');
+
+        if ($date !== '' || $time !== '') {
+            return trim($date . ' ' . ($time !== '' ? $time : '00:00'));
+        }
+
+        return (string) $request->input('attack_block_until', '');
+    }
+
+    /**
+     * Parses the attack block end time from the admin form.
+     */
+    private function parseAttackBlockUntil(string $value): ?Carbon
+    {
+        foreach (['d.m.Y H:i:s', 'd.m.Y H:i', 'Y-m-d H:i:s', 'Y-m-d H:i', 'Y-m-d\TH:i'] as $format) {
+            try {
+                $parsed = Carbon::createFromFormat($format, $value);
+                if ($parsed !== false) {
+                    return $parsed;
+                }
+            } catch (Throwable) {
+                continue;
+            }
+        }
+
+        return null;
     }
 
     /**

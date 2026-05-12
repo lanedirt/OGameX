@@ -37,6 +37,16 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     protected string $missionName = 'Attack';
 
     /**
+     * Reset attack block setting after each test to avoid state leaking between tests.
+     */
+    protected function tearDown(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('attack_block_until', 0);
+        parent::tearDown();
+    }
+
+    /**
      * Prepare the planet for the test, so it has the required buildings and research.
      *
      * @return void
@@ -52,6 +62,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $settingsService->set('fleet_speed_war', 1);
         $settingsService->set('fleet_speed_holding', 1);
         $settingsService->set('fleet_speed_peaceful', 1);
+        $settingsService->set('attack_block_until', 0);
 
         // Add sufficient deuterium to the planet to ensure we don't run into fuel capacity restriction.
         $this->planetAddResources(new Resources(0, 0, 1000000, 0));
@@ -96,6 +107,32 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->fleetCheckToOtherPlayer($unitCollection, true);
+    }
+
+    /**
+     * Assert that active attack block prevents launching hostile attack missions.
+     */
+    public function testAttackBlockPreventsAttackDispatch(): void
+    {
+        $this->basicSetup();
+
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('attack_block_until', time() + 3600);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
+
+        $this->checkTargetFleet($nearbyForeignPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, false);
+
+        $this->dispatchFleet(
+            $nearbyForeignPlanet->getPlanetCoordinates(),
+            $unitCollection,
+            new Resources(0, 0, 0, 0),
+            PlanetType::Planet,
+            0,
+            false
+        );
     }
 
     /**
