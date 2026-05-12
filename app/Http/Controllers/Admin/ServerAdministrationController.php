@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use OGame\Factories\GameMissionFactory;
@@ -191,7 +192,7 @@ class ServerAdministrationController extends OGameController
                 ->with('error', 'Attack block end must be in the future.');
         }
 
-        $settingsService->set('attack_block_until', $until->timestamp);
+        $settingsService->set('attack_block_until', (int) $until->timestamp);
 
         return redirect()->route('admin.server-administration.index')
             ->with('status', 'Attack block saved.');
@@ -215,11 +216,11 @@ class ServerAdministrationController extends OGameController
     /**
      * Parses the attack block end time from the admin form.
      */
-    private function parseAttackBlockUntil(string $value): ?Carbon
+    private function parseAttackBlockUntil(string $value): Carbon|null
     {
         foreach (['d.m.Y H:i:s', 'd.m.Y H:i', 'Y-m-d H:i:s', 'Y-m-d H:i', 'Y-m-d\TH:i'] as $format) {
             try {
-                $parsed = Carbon::createFromFormat($format, $value);
+                $parsed = Date::createFromFormat($format, $value);
                 if ($parsed !== false) {
                     return $parsed;
                 }

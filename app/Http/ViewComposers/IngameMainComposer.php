@@ -6,6 +6,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
 use OGame\Facades\AppUtil;
 use OGame\Models\Alliance;
 use OGame\Models\AllianceMember;
@@ -141,7 +142,7 @@ class IngameMainComposer
             'attackBlockUntil' => $attackBlockUntil,
             'attackBlockTooltip' => $attackBlockActive
                 ? __('The attack block is active till :until. In that time only friendly fleets can be started.', [
-                    'until' => \Carbon\Carbon::createFromTimestamp($attackBlockUntil)->format('d.m.Y H:i:s'),
+                    'until' => Date::createFromTimestamp($attackBlockUntil)->format('d.m.Y H:i:s'),
                 ])
                 : '',
         ]);
