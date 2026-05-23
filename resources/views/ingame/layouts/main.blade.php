@@ -266,7 +266,7 @@
                     <div id="darkmatter_box" class="darkmatter tooltipHTML resource ipiHintable tpd-hideOnClickOutside"
                          title="{{ __('t_ingame.layout.res_dark_matter') }}|<table class=&quot;resourceTooltip&quot;><tr><th>{{ __('t_ingame.layout.res_available') }}:</th><td><span class=&quot;&quot;>{!! $resources['darkmatter']['amount_formatted'] !!}</span></td></tr></table>"
                          data-tooltip-button="{{ __('t_ingame.layout.res_purchase_dm') }}" data-ipi-hint="ipiResourcedarkmatter">
-                        <a href="#TODO_page=payment" class="overlay">
+                        <a href="{{ route('payment.overlay') }}" class="overlay">
                             <img src="/img/icons/401d1a91ff40dc7c8acfa4377d3d65.gif">
                             <div class="resourceIcon darkmatter"></div>
                         </a>
@@ -305,27 +305,28 @@
                     <div class="sprite characterclass medium {{ $classIcon }}"></div>
                 </a>
             </div>
-            <div id="officers" class="  fright">
-                <a href="#TODO_=premium&amp;openDetail=2" class="tooltipHTML   commander js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_commander_tooltip') !!}">
+            @php
+                $officerBarItems = [
+                    ['key' => 'commander', 'ref' => 2, 'titleKey' => 'hire_commander_tooltip'],
+                    ['key' => 'admiral',   'ref' => 3, 'titleKey' => 'hire_admiral_tooltip'],
+                    ['key' => 'engineer',  'ref' => 4, 'titleKey' => 'hire_engineer_tooltip'],
+                    ['key' => 'geologist', 'ref' => 5, 'titleKey' => 'hire_geologist_tooltip'],
+                    ['key' => 'technocrat','ref' => 6, 'titleKey' => 'hire_technocrat_tooltip'],
+                ];
+                $allActive = $currentOfficer->getActiveOfficerCount() >= 5;
+                $officersDivClass = $allActive ? 'all fright' : 'fright';
+            @endphp
+            <div id="officers" class="{{ $officersDivClass }}">
+                @foreach($officerBarItems as $item)
+                @php
+                    $isOn = $currentOfficer->isOfficerActive($item['key']);
+                @endphp
+                <a href="{{ route('premium.index') }}?openDetail={{ $item['ref'] }}"
+                   class="tooltipHTML {{ $item['key'] }} js_hideTipOnMobile{{ $isOn ? ' on' : '' }}"
+                   title="{!! __('t_ingame.premium.' . $item['titleKey']) !!}">
                     <img src="/img/layout/pixel.gif" width="30" height="30">
                 </a>
-                <a href="#TODO_page=premium&amp;openDetail=3" class="tooltipHTML    admiral js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_admiral_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
-                <a href="#TODO_page=premium&amp;openDetail=4" class="tooltipHTML    engineer js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_engineer_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
-                <a href="#TODO_page=premium&amp;openDetail=5" class="tooltipHTML    geologist js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_geologist_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
-                <a href="#TODO_page=premium&amp;openDetail=6" class="tooltipHTML    technocrat js_hideTipOnMobile "
-                   title="{!! __('t_ingame.premium.hire_technocrat_tooltip') !!}">
-                    <img src="/img/layout/pixel.gif" width="30" height="30">
-                </a>
+                @endforeach
             </div>
         </div>
         <div id="notificationbarcomponent" class="">
@@ -453,10 +454,10 @@
                                     $shipTooltipContent .= $shipName . ': ' . $quantity . '<br/>';
                                 }
                             } else {
-                                $shipTooltipContent .= 'No ships in wreck field';
+                                $shipTooltipContent .= __('t_ingame.layout.no_ships_in_wreck');
                             }
                         } else {
-                            $shipTooltipContent .= 'No wreck field available';
+                            $shipTooltipContent .= __('t_ingame.layout.no_wreck_available');
                         }
                     @endphp
                     @php
@@ -1410,7 +1411,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
 
                 function openPlanetRenameGiveupBox() {
                     openOverlay("{{ route('planetabandon.overlay') }}", {
-                        title: "Abandon\/Rename {{ $currentPlanet->getPlanetName() }}",
+                        title: "{{ __('t_ingame.overview.abandon_rename_modal', ['planet_name' => $currentPlanet->getPlanetName()]) }}",
                         'class': "planetRenameOverlay"
                     });
                 }

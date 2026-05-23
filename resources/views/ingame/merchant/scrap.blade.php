@@ -57,9 +57,9 @@
                     <img src="/img/icons/4161a64a933a5345d00cb9fdaa25c7.gif" alt="load...">
                 </div>
                 <div id="header_text" style="display: block;">
-                    <h2>@lang('Scrap Merchant')</h2>
-                    <a class="back_to_overview js_backToOverview tooltip js_hideTipOnMobile right" href="{{ route('merchant.index') }}" data-tooltip-title="@lang('Back')" style="display: inline;"></a>
-                    <a class="small_back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('merchant.index') }}" data-tooltip-title="@lang('Back')"></a>
+                    <h2>{{ __('t_merchant.scrap_merchant') }}</h2>
+                    <a class="back_to_overview js_backToOverview tooltip js_hideTipOnMobile right" href="{{ route('merchant.index') }}" data-tooltip-title="{{ __('t_merchant.back') }}" style="display: inline;"></a>
+                    <a class="small_back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('merchant.index') }}" data-tooltip-title="{{ __('t_merchant.back') }}"></a>
                 </div>
             </div>
             <div class="c-left c-small"></div>
@@ -68,21 +68,21 @@
             <!-- Trader Scrap Start -->
             <div id="div_traderScrap" class="div_trader">
                 <div class="header">
-                    <h2>@lang('Scrap Merchant')</h2>
+                    <h2>{{ __('t_merchant.scrap_merchant') }}</h2>
                 </div>
                 <div class="content">
                     <p class="stimulus clearfix">
-                        <a href="javascript:void(0);" class="tooltipHTML help rules" data-tooltip-title="@lang('Rules|Usually the scrap merchant will pay back 35% of the construction costs of ships and defence systems. However you can only receive as many resources back as you have space for in your storage.<br /><br />With the help of Dark Matter you can renegotiate. In doing so, the percentage of the construction costs that the scrap merchant pays you will increase by 5 - 14%. Each round of negotiations are 2,000 Dark Matter more expensive than the last. The scrap merchant will pay out no more than 75% of the construction costs.')"></a>
-                        @lang('The scrap merchant accepts used ships and defence systems.')
+                        <a href="javascript:void(0);" class="tooltipHTML help rules" data-tooltip-title="{{ __('t_merchant.scrap_rules') }}"></a>
+                        {{ __('t_merchant.scrap_merchant_desc') }}
                     </p>
 
                     <div class="left_box">
-                        <div class="left_header"><h2>@lang('Offer')</h2></div>
+                        <div class="left_header"><h2>{{ __('t_merchant.offer') }}</h2></div>
                         <div class="left_content">
                             <div class="scrap_trader_img">
-                                <img src="/img/merchant/scrap_merchant.jpg" width="140" height="140" alt="@lang('Scrap Merchant')">
+                                <img src="/img/merchant/scrap_merchant.jpg" width="140" height="140" alt="{{ __('t_merchant.scrap_merchant') }}">
                             </div>
-                            <div id="js_scrapOffer" class="offer tooltip js_hideTipOnMobile" data-tooltip-title="@lang('Offer')">
+                            <div id="js_scrapOffer" class="offer tooltip js_hideTipOnMobile" data-tooltip-title="{{ __('t_merchant.offer') }}">
                                 @php
                                     // Calculate initial bar height based on offer percentage (0-140px for 0-75%)
                                     $maxHeight = 140;
@@ -92,32 +92,32 @@
                                 <div class="js_scrap_offer_amount scrap_offer_amount" style="height: {{ $initialHeight }}px;">{{ $offerPercentage }}%</div>
                             </div>
                             <br class="clearfloat">
-                            <p class="scrap_trader_quote">@lang('You won`t get a better offer in any other galaxy.')</p>
+                            <p class="scrap_trader_quote">{{ __('t_merchant.scrap_merchant_quote') }}</p>
 
-                            <div class="resourceIcon metal resource_label odd tooltipLeft js_hideTipOnMobile" data-tooltip-title="@lang('Metal')"></div>
+                            <div class="resourceIcon metal resource_label odd tooltipLeft js_hideTipOnMobile" data-tooltip-title="{{ __('t_merchant.metal') }}"></div>
                             <div id="js_scrapAmountMetal" class="resource_amount odd">0</div><br class="clearfloat">
 
-                            <div class="resourceIcon crystal resource_label even tooltipLeft js_hideTipOnMobile" data-tooltip-title="@lang('Crystal')"></div>
+                            <div class="resourceIcon crystal resource_label even tooltipLeft js_hideTipOnMobile" data-tooltip-title="{{ __('t_merchant.crystal') }}"></div>
                             <div id="js_scrapAmountCrystal" class="resource_amount even">0</div><br class="clearfloat">
 
-                            <div class="resourceIcon deuterium resource_label odd tooltipLeft js_hideTipOnMobile" data-tooltip-title="@lang('Deuterium')"></div>
+                            <div class="resourceIcon deuterium resource_label odd tooltipLeft js_hideTipOnMobile" data-tooltip-title="{{ __('t_merchant.deuterium') }}"></div>
                             <div id="js_scrapAmountDeuterium" class="resource_amount odd">0</div><br class="clearfloat">
 
-                            <button id="js_scrapBargain" class="bargain">@lang('Bargain')</button>
+                            <button id="js_scrapBargain" class="bargain">{{ __('t_merchant.bargain') }}</button>
                             <br class="clearfloat">
-                            <span class="bargain_cost">@lang('Costs:') <span class="js_bargainCost">{{ number_format($bargainCost) }}</span> @lang('Dark Matter')</span>
+                            <span class="bargain_cost">{{ __('t_merchant.costs') }} <span class="js_bargainCost">{{ number_format($bargainCost) }}</span> {{ __('t_merchant.dark_matter') }}</span>
                         </div>
                         <div class="left_footer"></div>
                     </div>
 
                     <div class="right_box">
                         <div class="right_header">
-                            <h2>@lang('Objects to be scrapped')</h2>
+                            <h2>{{ __('t_merchant.objects_to_be_scrapped') }}</h2>
                         </div>
                         <div class="right_content">
                             <form id="breakerForm">
-                                <div class="scrap_ships selected" id="js_tabShips">@lang('Ships')</div>
-                                <div class="scrap_defense" id="js_tabDefense">@lang('Defensive structures')</div>
+                                <div class="scrap_ships selected" id="js_tabShips">{{ __('t_merchant.ships') }}</div>
+                                <div class="scrap_defense" id="js_tabDefense">{{ __('t_merchant.defensive_structures') }}</div>
 
                                 <!-- Ships Slider -->
                                 <ul id="js_anythingSliderShips" class="ships">
@@ -143,7 +143,7 @@
                                                                value="" type="text" pattern="[0-9,.]*" {!! $shipData['amount'] == 0 ? 'readonly="readonly"' : '' !!}
                                                                data-item-id="{{ $shipId }}"
                                                                data-metal="{{ $shipData['cost']['metal'] }}" data-crystal="{{ $shipData['cost']['crystal'] }}" data-deuterium="{{ $shipData['cost']['deuterium'] }}">
-                                                        <a href="javascript:void(0);" class="max tooltip js_maxShips" ref="#ship_{{ $shipId }}" data-tooltip-title="@lang('Select all')"></a>
+                                                        <a href="javascript:void(0);" class="max tooltip js_maxShips" ref="#ship_{{ $shipId }}" data-tooltip-title="{{ __('t_merchant.select_all') }}"></a>
                                                     </div>
                                                 @endforeach
                                             </li>
@@ -175,29 +175,29 @@
                                                                    value="" type="text" pattern="[0-9,.]*" {!! $defenseData['amount'] == 0 ? 'readonly="readonly"' : '' !!}
                                                                    data-item-id="{{ $defenseId }}"
                                                                    data-metal="{{ $defenseData['cost']['metal'] }}" data-crystal="{{ $defenseData['cost']['crystal'] }}" data-deuterium="{{ $defenseData['cost']['deuterium'] }}">
-                                                            <a href="javascript:void(0);" class="max tooltip js_maxShips" ref="#ship_{{ $defenseId }}" data-tooltip-title="@lang('Select all')"></a>
+                                                            <a href="javascript:void(0);" class="max tooltip js_maxShips" ref="#ship_{{ $defenseId }}" data-tooltip-title="{{ __('t_merchant.select_all') }}"></a>
                                                         </div>
                                                     @endforeach
                                                 </li>
                                             @endforeach
                                         @else
                                             <li class="panel">
-                                                <div style="padding: 20px; text-align: center;">@lang('No defensive structures available')</div>
+                                                <div style="padding: 20px; text-align: center;">{{ __('t_merchant.no_defensive_structures') }}</div>
                                             </li>
                                         @endif
                                 </ul>
 
                                 <div class="allornonewrap fleft">
                                     <span class="send_all">
-                                        <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile sendAll" data-tooltip-title="@lang('Select all')">
+                                        <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile sendAll" data-tooltip-title="{{ __('t_merchant.select_all') }}">
                                         </a>
                                     </span>
                                     <span class="send_none">
-                                        <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile sendNone" data-tooltip-title="@lang('Reset choice')">
+                                        <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile sendNone" data-tooltip-title="{{ __('t_merchant.reset_choice') }}">
                                         </a>
                                     </span>
                                 </div>
-                                <input id="js_scrapScrapIT" class="scrap_it disabled" type="submit" value="@lang('Scrap')">
+                                <input id="js_scrapScrapIT" class="scrap_it disabled" type="submit" value="{{ __('t_merchant.scrap') }}">
                             </form>
                         </div>
                         <div class="right_footer"></div>
@@ -471,15 +471,11 @@
 
                     if (maxAmount < val) {
                         // Need to reduce the amount
-                        var itemName = itemNames[itemId] || 'Unknown Item';
+                        var itemName = itemNames[itemId] || @json(__('t_merchant.unknown_item'));
                         targetInput.val(maxAmount.toLocaleString());
 
-                        var message;
-                        if (maxAmount === 0) {
-                            message = 'The space in the storage was not large enough, so the number of ' + itemName + ' was reduced to 0';
-                        } else {
-                            message = 'The space in the storage was not large enough, so the number of ' + itemName + ' was reduced to ' + maxAmount.toLocaleString();
-                        }
+                        var storageInsufficientTpl = @json(__('t_merchant.error.scrap.storage_insufficient'));
+                        var message = storageInsufficientTpl.replace(':item', itemName).replace(':amount', maxAmount === 0 ? '0' : maxAmount.toLocaleString());
                         fadeBox(message, true);
 
                         // Refresh the offer calculation with new value

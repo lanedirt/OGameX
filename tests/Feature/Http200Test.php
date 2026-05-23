@@ -224,4 +224,22 @@ class Http200Test extends AccountTestCase
             }
         }
     }
+
+    /**
+     * Verify that the premium AJAX endpoints return HTTP 200 and contain the expected content.
+     */
+    public function testAjaxPremium(): void
+    {
+        // Type 1 = Dark Matter detail panel — must contain the "Purchase Dark Matter" button
+        $response = $this->get('ajax/premium?type=1');
+        $response->assertStatus(200);
+        $response->assertSee('build-it', false);
+        $response->assertSee('/overlay/payment', false);
+
+        // Types 2-6 = Officer detail panels
+        for ($typeId = 2; $typeId <= 6; $typeId++) {
+            $response = $this->get('ajax/premium?type=' . $typeId);
+            $response->assertStatus(200);
+        }
+    }
 }
