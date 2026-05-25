@@ -46,6 +46,11 @@ abstract class GameMission
     protected static bool $hasReturnMission;
 
     /**
+     * @var bool Whether this mission is blocked when the server-wide attack block is active.
+     */
+    protected static bool $blockedByServerAttackBlock = false;
+
+    /**
      * @var FleetSpeedType The fleet speed type for this mission.
      */
     protected static FleetSpeedType $fleetSpeedType;
@@ -79,6 +84,11 @@ abstract class GameMission
     public static function getTypeId(): int
     {
         return static::$typeId;
+    }
+
+    public static function isBlockedByServerAttackBlock(): bool
+    {
+        return static::$blockedByServerAttackBlock;
     }
 
     /**
@@ -119,7 +129,7 @@ abstract class GameMission
             return new MissionPossibleStatus(false, __('You cannot send missions while in vacation mode!'));
         }
 
-        if ($this->settings->missionBlockedByAttackBlock(static::$typeId)) {
+        if (static::$blockedByServerAttackBlock && $this->settings->attackBlockActive()) {
             return new MissionPossibleStatus(false, __('The attack block is active. In that time only friendly fleets can be started.'));
         }
 

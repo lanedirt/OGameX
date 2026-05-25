@@ -32,6 +32,7 @@ class MoonDestructionMission extends GameMission
     protected static string $name = 'Moon Destruction';
     protected static int $typeId = 9;
     protected static bool $hasReturnMission = true;
+    protected static bool $blockedByServerAttackBlock = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
 
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus

@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Illuminate\Support\Facades\Date;
+use OGame\Factories\GameMissionFactory;
 use OGame\Models\Setting;
 
 /**
@@ -14,11 +15,6 @@ use OGame\Models\Setting;
  */
 class SettingsService
 {
-    /**
-     * @var array<int>
-     */
-    public const ATTACK_BLOCKED_MISSION_TYPES = [1, 2, 6, 9];
-
     /**
      * Array of setting objects.
      *
@@ -422,7 +418,7 @@ class SettingsService
      */
     public function missionBlockedByAttackBlock(int $missionType): bool
     {
-        return $this->attackBlockActive() && in_array($missionType, self::ATTACK_BLOCKED_MISSION_TYPES, true);
+        return $this->attackBlockActive() && GameMissionFactory::getMissionById($missionType, [])->isBlockedByServerAttackBlock();
     }
 
     /**

@@ -31,6 +31,7 @@ class AttackMission extends GameMission
     protected static string $name = 'Attack';
     protected static int $typeId = 1;
     protected static bool $hasReturnMission = true;
+    protected static bool $blockedByServerAttackBlock = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
     protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Hostile;
 

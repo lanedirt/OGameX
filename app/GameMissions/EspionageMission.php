@@ -31,6 +31,7 @@ class EspionageMission extends GameMission
     protected static string $name = 'Espionage';
     protected static int $typeId = 6;
     protected static bool $hasReturnMission = true;
+    protected static bool $blockedByServerAttackBlock = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
     protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Hostile;
 
