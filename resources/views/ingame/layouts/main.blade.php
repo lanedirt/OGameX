@@ -710,6 +710,60 @@
                     </li>
                 </ul>
 
+                @if ($attackBlockActive)
+                    <style>
+                        #attackblock {
+                            clear: both;
+                            margin: 0 0 0 49px;
+                            padding-top: 8px;
+                            width: 38px;
+                        }
+                        #attackblock .attackBlockIcon {
+                            position: relative;
+                            display: block;
+                            width: 34px;
+                            height: 34px;
+                            border-radius: 4px;
+                            border: 2px solid #6e2e00;
+                            background: linear-gradient(180deg, #d88020 0%, #be5d00 46%, #8c3800 100%);
+                            box-shadow:
+                                inset 0 0 0 2px rgba(255, 185, 70, 0.45),
+                                inset 0 -4px 8px rgba(80, 25, 0, 0.42),
+                                0 0 4px rgba(220, 100, 0, 0.55);
+                        }
+                        #attackblock .attackBlockIcon::before {
+                            content: "";
+                            position: absolute;
+                            left: 3px;
+                            top: 3px;
+                            width: 28px;
+                            height: 28px;
+                            border: 4px solid #fff;
+                            border-radius: 50%;
+                            box-sizing: border-box;
+                            box-shadow: 0 0 2px rgba(255, 255, 255, 0.55);
+                        }
+                        #attackblock .attackBlockIcon::after {
+                            content: "";
+                            position: absolute;
+                            left: 6px;
+                            top: 14px;
+                            width: 22px;
+                            height: 5px;
+                            border-radius: 3px;
+                            background: #fff;
+                            transform: rotate(45deg);
+                            transform-origin: center;
+                            box-shadow: 0 0 2px rgba(255, 255, 255, 0.55);
+                        }
+                    </style>
+                    <div id="attackblock">
+                        <a href="javascript:void(0);"
+                           class="tooltipHTML js_hideTipOnMobile attackBlockIcon"
+                           title="Attack block|{{ $attackBlockTooltip }}"></a>
+                    </div>
+                @endif
+
                 <div id="toolLinksWrapper">
                     <ul id="menuTableTools" class="leftmenu"></ul>
                 </div>

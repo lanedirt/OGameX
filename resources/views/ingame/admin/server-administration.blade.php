@@ -43,6 +43,74 @@
                         </div>
                     </form>
 
+                    {{-- ===== ATTACK BLOCK ===== --}}
+                    @php
+                        $attackBlockDateValue = $attackBlockUntil > 0
+                            ? \Illuminate\Support\Carbon::createFromTimestamp($attackBlockUntil)->format('Y-m-d')
+                            : '';
+                        $attackBlockTimeValue = $attackBlockUntil > 0
+                            ? \Illuminate\Support\Carbon::createFromTimestamp($attackBlockUntil)->format('H:i')
+                            : '';
+                    @endphp
+                    <p class="box_highlight textCenter no_buddies" style="margin-top: 20px;">@lang('Attack Block')</p>
+                    <form action="{{ route('admin.server-administration.attack-block') }}" method="post" style="margin-bottom: 20px;">
+                        {{ csrf_field() }}
+                        <style>
+                            #attack_block_until_date,
+                            #attack_block_until_time {
+                                background-color: #b3c3cb;
+                                border: 1px solid #668599;
+                                border-bottom-color: #d3d9de;
+                                border-radius: 3px;
+                                box-shadow: inset 0 1px 3px 0 #454f54;
+                                color: #000;
+                                font-size: 12px;
+                                height: 20px;
+                                line-height: 20px;
+                                padding: 2px 5px;
+                                box-sizing: content-box;
+                                vertical-align: middle;
+                            }
+                            #attack_block_until_date:focus,
+                            #attack_block_until_time:focus {
+                                background-color: #f0f3f5;
+                                border: 1px solid #a3b6c2;
+                                border-bottom-color: #fff;
+                                box-shadow: inset 0 1px 3px 0 #5c6970;
+                            }
+                        </style>
+                        <div class="group bborder" style="display: block;">
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy" for="attack_block_until_date" title="Hostile fleet missions are espionage, attack, ACS attack, and moon destruction.">Block hostile fleets until:</label>
+                                <div class="thefield">
+                                    <input type="date"
+                                           id="attack_block_until_date"
+                                           name="attack_block_until_date"
+                                           class="textInput w130 textCenter textBeefy"
+                                           value="{{ $attackBlockDateValue }}">
+                                    <input type="time"
+                                           id="attack_block_until_time"
+                                           name="attack_block_until_time"
+                                           class="textInput w80 textCenter textBeefy"
+                                           step="60"
+                                           value="{{ $attackBlockTimeValue }}"
+                                           style="margin-left: 6px;">
+                                </div>
+                            </div>
+                            <p style="text-align: center; padding: 4px 10px 0; color: {{ $attackBlockActive ? '#f48406' : '#888' }};">
+                                @if ($attackBlockActive)
+                                    Active until {{ \Illuminate\Support\Carbon::createFromTimestamp($attackBlockUntil)->format('d.m.Y H:i:s') }}.
+                                @else
+                                    No attack block is active.
+                                @endif
+                            </p>
+                            <div class="fieldwrapper" style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+                                <input type="submit" class="btn_blue" value="Save Attack Block">
+                                <button type="submit" class="btn_blue" name="clear_attack_block" value="1" style="margin-left: 8px;">Clear</button>
+                            </div>
+                        </div>
+                    </form>
+
                     {{-- ===== FLAGGED ACCOUNTS ===== --}}
                     <p class="box_highlight textCenter no_buddies">@lang('Flagged Accounts')</p>
 
