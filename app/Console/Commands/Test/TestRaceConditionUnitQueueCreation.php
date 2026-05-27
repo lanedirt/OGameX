@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Test;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use DateTime;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -24,11 +26,10 @@ use OGame\Services\ObjectService;
  * - Without protection: All 5 requests pass validation (reading stale resources) and 5 queue items are created
  * - With protection: Only 1 request succeeds, the others fail with "not enough resources"
  */
+#[Description('Issue parallel unit queue creation requests to test race conditions.')]
+#[Signature('ogamex:test:race-condition-unitqueue-creation')]
 class TestRaceConditionUnitQueueCreation extends TestCommand
 {
-    protected $signature = 'ogamex:test:race-condition-unitqueue-creation';
-    protected $description = 'Issue parallel unit queue creation requests to test race conditions.';
-
     /**
      * @var string The email of the test user.
      */

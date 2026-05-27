@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Test;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Validation\ValidationException;
@@ -19,11 +21,10 @@ use OGame\Services\ObjectService;
  * mission that was dispatched in the previous request. The test will assert that only 1 returning mission is created
  * for 1 transport mission.
  */
+#[Description('Issue parallel requests to test race conditions for game mission processing.')]
+#[Signature('ogamex:test:race-condition-game-mission')]
 class TestRaceConditionGameMission extends TestCommand
 {
-    protected $signature = 'ogamex:test:race-condition-game-mission';
-    protected $description = 'Issue parallel requests to test race conditions for game mission processing.';
-
     /**
      * @var string The email of the test user.
      */

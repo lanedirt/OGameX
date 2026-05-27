@@ -2,25 +2,15 @@
 
 namespace OGame\Console\Commands\Admin;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use OGame\Models\User;
 
+#[Description('Assign the admin role to a specified username')]
+#[Signature('ogamex:admin:assign-role {username}')]
 class AssignAdminRole extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:admin:assign-role {username}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Assign the admin role to a specified username';
-
     /**
      * Execute the console command.
      * @return int
