@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Dev;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -9,13 +11,11 @@ use Illuminate\Support\Facades\DB;
 use OGame\Models\Planet;
 use OGame\Models\User;
 
+#[Description('Seed fleet mission records to trigger all three bot-detection signals. Requires ogamex:dev:seed-users to have been run first.')]
+#[Signature('ogamex:dev:seed-bot-detection
+                            {--fresh : Clear existing fleet missions for test users before seeding}')]
 class SeedBotDetectionData extends Command
 {
-    protected $signature = 'ogamex:dev:seed-bot-detection
-                            {--fresh : Clear existing fleet missions for test users before seeding}';
-
-    protected $description = 'Seed fleet mission records to trigger all three bot-detection signals. Requires ogamex:dev:seed-users to have been run first.';
-
     private const EMAIL_DOMAIN = 'ogamex.dev';
 
     public function handle(): int

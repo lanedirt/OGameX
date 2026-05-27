@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Exception;
 use Illuminate\Console\Command;
 use OGame\Factories\PlayerServiceFactory;
@@ -11,26 +13,14 @@ use OGame\Services\MessageService;
 use OGame\Services\SettingsService;
 use OGame\Services\WreckFieldService;
 
+#[Description('Clean up expired wreck fields and process completed repairs')]
+#[Signature('ogamex:scheduler:cleanup-wreckfields')]
 class CleanupWreckFields extends Command
 {
     public function __construct(private readonly SettingsService $settingsService)
     {
         parent::__construct();
     }
-
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:scheduler:cleanup-wreckfields';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Clean up expired wreck fields and process completed repairs';
 
     /**
      * Execute the console command.

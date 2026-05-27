@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Admin;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -10,22 +12,10 @@ use OGame\Models\User;
 /**
  * Reset a user's password when requested or for testing purposes.
  */
+#[Description('Reset a user\'s password.')]
+#[Signature('ogamex:admin:reset-password {username-or-email} {--random}')]
 class ResetUserPassword extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:admin:reset-password {username-or-email} {--random}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Reset a user\'s password.';
-
     /**
      * Execute the console command.
      * @return int

@@ -2,25 +2,15 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use OGame\Models\DebrisField;
 
+#[Description('Resets (deletes) empty debris fields. In OGame, this happens weekly on Monday at 1:00 AM.')]
+#[Signature('ogamex:scheduler:reset-debris-fields')]
 class ResetDebrisFields extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:scheduler:reset-debris-fields';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Resets (deletes) empty debris fields. In OGame, this happens weekly on Monday at 1:00 AM.';
-
     /**
      * Execute the console command.
      */

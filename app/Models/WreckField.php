@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -56,11 +57,10 @@ use Illuminate\Support\Carbon;
     'status',
     'ship_data',
 ])]
+#[WithoutTimestamps]
 class WreckField extends Model
 {
     use HasFactory;
-
-    public $timestamps = false;
 
     protected $casts = [
         'created_at' => 'datetime',

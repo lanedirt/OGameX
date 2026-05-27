@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Cache;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -11,22 +13,10 @@ use OGame\Models\Highscore;
 use OGame\Models\User;
 use OGame\Services\SettingsService;
 
+#[Description('Generates Highscore rank data for players and alliances')]
+#[Signature('ogamex:scheduler:generate-highscore-ranks')]
 class GenerateHighscoreRanks extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:scheduler:generate-highscore-ranks';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Generates Highscore rank data for players and alliances';
-
     /**
      * Execute the console command.
      */
