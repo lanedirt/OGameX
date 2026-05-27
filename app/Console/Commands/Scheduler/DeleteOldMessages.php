@@ -2,27 +2,17 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use OGame\Models\ChatMessage;
 use OGame\Models\Message;
 
+#[Description('Deletes player inbox messages and archives chat messages older than the retention period.')]
+#[Signature('ogamex:scheduler:delete-old-messages')]
 class DeleteOldMessages extends Command
 {
     private const RETENTION_DAYS = 7;
-
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:scheduler:delete-old-messages';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Deletes player inbox messages and archives chat messages older than the retention period.';
 
     /**
      * Execute the console command.
