@@ -13,7 +13,7 @@
         "laravel/tinker": "^3.0",
         "laravel/ui": "^4.5",
         "spatie/laravel-discord-alerts": "^1.7",
-        "spatie/laravel-permission": "^7.1"
+        "spatie/laravel-permission": "^8.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.0",
