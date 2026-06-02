@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "752dbf5538c53e9d7a835fe7c947e33d",
+    "content-hash": "b0523a12771c66d53989ca242b920f3c",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -5051,16 +5051,16 @@
         },
         {
             "name": "spatie/laravel-package-tools",
-            "version": "1.93.0",
+            "version": "1.93.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-package-tools.git",
-                "reference": "0d097bce95b2bf6802fb1d83e1e753b0f5a948e7"
+                "reference": "d5552849801f2642aea710557463234b59ef65eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/0d097bce95b2bf6802fb1d83e1e753b0f5a948e7",
-                "reference": "0d097bce95b2bf6802fb1d83e1e753b0f5a948e7",
+                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/d5552849801f2642aea710557463234b59ef65eb",
+                "reference": "d5552849801f2642aea710557463234b59ef65eb",
                 "shasum": ""
             },
             "require": {
@@ -5100,7 +5100,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-package-tools/issues",
-                "source": "https://github.com/spatie/laravel-package-tools/tree/1.93.0"
+                "source": "https://github.com/spatie/laravel-package-tools/tree/1.93.1"
             },
             "funding": [
                 {
@@ -5108,20 +5108,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-21T12:49:54+00:00"
+            "time": "2026-05-19T14:06:37+00:00"
         },
         {
             "name": "spatie/laravel-permission",
-            "version": "7.4.1",
+            "version": "8.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-permission.git",
-                "reference": "ef42ecb781e5534d368a3853fa161e420ad51397"
+                "reference": "70a6ab04108616b438e0839598f473b513281644"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/ef42ecb781e5534d368a3853fa161e420ad51397",
-                "reference": "ef42ecb781e5534d368a3853fa161e420ad51397",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/70a6ab04108616b438e0839598f473b513281644",
+                "reference": "70a6ab04108616b438e0839598f473b513281644",
                 "shasum": ""
             },
             "require": {
@@ -5149,8 +5149,8 @@
                     ]
                 },
                 "branch-alias": {
-                    "dev-main": "7.x-dev",
-                    "dev-master": "7.x-dev"
+                    "dev-main": "8.x-dev",
+                    "dev-master": "8.x-dev"
                 }
             },
             "autoload": {
@@ -5187,7 +5187,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-permission/issues",
-                "source": "https://github.com/spatie/laravel-permission/tree/7.4.1"
+                "source": "https://github.com/spatie/laravel-permission/tree/8.0.0"
             },
             "funding": [
                 {
@@ -5195,7 +5195,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-04-29T07:59:45+00:00"
+            "time": "2026-05-30T19:30:22+00:00"
         },
         {
             "name": "spomky-labs/cbor-php",
