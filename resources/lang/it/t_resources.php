@@ -261,126 +261,122 @@ Mano a mano che la tecnologia viene avanzata a ogni livello, il generatore di ma
 
     'small_cargo' => [
         'title'            => 'Cargo Leggero',
-        'description'      => 'Il Cargo Leggero è un\'agile nave da trasporto che può rapidamente portare risorse su altri pianeti.',
-        'description_long' => 'I Trasportatori hanno più o meno le dimensioni dei caccia, ma rinunciano ai motori ad alte prestazioni e all\'armamento di bordo a favore di una maggiore capacità di carico. Di conseguenza, un Trasportatore dovrebbe essere inviato in battaglia solo se accompagnato da navi da combattimento.
+        'description'      => 'I cargo leggeri sono grandi, approssimativamente, come i caccia, ma hanno motori ed armamenti meno efficienti in modo da ricavare più spazio per il cargo. Pertanto, i cargo leggeri andrebbero impiegati in battaglia solo se supportati da navi forti in combattimento.
 
-Non appena il Motore ad Impulso raggiunge il livello 5 di ricerca, il Cargo Leggero viaggia con una velocità base maggiore ed è equipaggiato con un Motore ad Impulso.',
+Non appena la ricerca del motore a impulso raggiunge il livello 5, i cargo leggeri vengono equipaggiati con motori a impulso, pertanto la loro velocità di base aumenta.',
     ],
 
     'large_cargo' => [
         'title'            => 'Cargo Pesante',
-        'description'      => 'Questa nave da carico ha una capacità molto maggiore rispetto al Cargo Leggero, ed è generalmente più veloce grazie ad un motore migliorato.',
-        'description_long' => 'Con il tempo, le incursioni alle colonie portarono a catturare quantità sempre maggiori di risorse. Di conseguenza, venivano inviati in massa Cargo Leggeri per compensare i carichi sempre più grandi. Si comprese rapidamente che era necessaria una nuova classe di navi per massimizzare le risorse catturate nelle incursioni, pur essendo economicamente conveniente. Dopo un lungo sviluppo, nacque il Cargo Pesante.
-
-Per massimizzare le risorse che possono essere stivate nelle stive, questa nave ha pochissime armi o armature. Grazie al motore a combustione altamente sviluppato installato a bordo, rappresenta il fornitore di risorse più economico tra i pianeti, ed il più efficace nelle incursioni su mondi ostili.',
+        'description'      => 'I cargo pesanti sono una versione avanzata delle più piccole navi cargo, rendendo disponibile più spazio per il carico e maggiore velocità dato il sistema di propulsione migliorato.',
+        'description_long' => 'Questo tipo di nave non dovrebbe mai fare missioni da sola perché non ha armamenti seri od altre tecnologie, in modo da fornire il massimo spazio per il trasporto. I cargo pesanti possono velocemente rifornire pianeti grazie anche ai suoi motori a combustione altamente sofisticati. Naturalmente esso accompagna la flotta sui pianeti attaccati per recuperare tante più risorse quanto possibile.',
     ],
 
     'colony_ship' => [
-        'title'            => 'Nave Colonizzatrice',
-        'description'      => 'I pianeti vacanti possono essere colonizzati con questa nave.',
-        'description_long' => 'Nel XX Secolo, l\'umanità decise di puntare alle stelle. Prima fu lo sbarco sulla Luna. Poi fu costruita una stazione spaziale. Marte fu colonizzato poco dopo. Si determinò presto che la nostra crescita dipendeva dalla colonizzazione di altri mondi. Scienziati e ingegneri da tutto il mondo si riunirono per sviluppare il più grande risultato mai raggiunto dall\'uomo: la Nave Colonizzatrice.
+        'title'            => 'Colonizzatrice',
+        'description'      => 'I pianeti vuoti possono essere colonizzati grazie a questa nave.',
+        'description_long' => 'Nel ventesimo secolo, l`uomo ha deciso di puntare verso le stelle. Dapprima, è atterrato sulla Luna. In seguito, è stata creata una stazione spaziale. Poco dopo, Marte fu colonizzato. Ben presto si capì che la nostra crescita sarebbe dipesa dalla colonizzazione di altri mondi. Gli scienziati e gli ingegneri di tutto il mondo si riunirono per sviluppare quella che diventò il più grande traguardo mai raggiunto dall`uomo. Era nata la prima Colonizzatrice.
 
-Questa nave viene usata per preparare un pianeta di nuova scoperta alla colonizzazione. Una volta giunta a destinazione, la nave viene istantaneamente trasformata in spazio abitativo per assistere nel popolare e sfruttare il nuovo mondo. Il numero massimo di pianeti è determinato dai progressi nella ricerca di Astrofisica. Due nuovi livelli di Astrotecnologia permettono la colonizzazione di un pianeta aggiuntivo.',
+Questa nave è utilizzata per preparare per la colonizzazione un pianeta appena scoperto. Appena arriva a destinazione, si trasforma in spazio abitativo, per assistere i coloni durante la popolazione del nuovo mondo. Il massimo numero di pianeti colonizzabili è determinato dai progressi nella ricerca dell`astrofisica. Due nuovi livelli di Astrofisica consentono la colonizzazione di un nuovo pianeta.',
     ],
 
     'recycler' => [
-        'title'            => 'Riciclatrice',
-        'description'      => 'Le Riciclatrici sono le uniche navi in grado di raccogliere i campi di detriti che fluttuano nell\'orbita di un pianeta dopo i combattimenti.',
-        'description_long' => 'I combattimenti nello spazio assunsero proporzioni sempre maggiori. Migliaia di navi furono distrutte e le risorse dei loro resti sembravano perse per sempre nei campi di detriti. Le normali navi da carico non potevano avvicinarsi abbastanza a questi campi senza rischiare danni ingenti.
-Un recente sviluppo nelle tecnologie degli scudi aggirò efficacemente questo problema. Fu creata una nuova classe di navi simile ai Trasportatori: le Riciclatrici. I loro sforzi aiutarono a recuperare le risorse date per perse. I detriti non rappresentavano più alcun vero pericolo grazie ai nuovi scudi.
+        'title'            => 'Riciclatrici',
+        'description'      => 'Le navi riciclatrici sono usate per raccogliere detriti che fluttuano nello spazio e riciclare risorse utili.',
+        'description_long' => 'I combattimenti nello spazio si stavano intensificando sempre più. Migliaia di navi erano già andate distrutte e i loro resti sembravano essersi dispersi per sempre nei campi di detriti. Le navi cargo standard non erano in grado di avvicinarsi abbastanza a questi campi senza correre il rischio di subire enormi danni.
+Ulteriori progressi nell`ambito della tecnologia di protezione permisero di risolvere il problema in modo efficiente. Nacque, infatti, una nuova classe di navi molto simili alle navi cargo: le riciclatrici. Queste navi consentono di raccogliere e riutilizzare le risorse apparentemente perdute. Grazie ai nuovi rivestimenti protettivi, i detriti non rappresentano più alcuna minaccia per le navi.
 
-Non appena la ricerca del Motore ad Impulso raggiunge il livello 17, le Riciclatrici vengono riattrezzate con Motori ad Impulso. Non appena la ricerca del Motore Iperspaziale raggiunge il livello 15, le Riciclatrici vengono riattrezzate con Motori Iperspaziali.',
+Non appena il propulsore a impulso raggiunge il livello 17 tramite la ricerca, esso entra a far parte dell`equipaggiamento della riciclatrice. Non appena il propulsore iperspaziale raggiunge il livello 15 tramite la ricerca, esso entra a far parte dell`equipaggiamento della riciclatrice.',
     ],
 
     'espionage_probe' => [
-        'title'            => 'Sonda Spia',
-        'description'      => 'Le Sonde Spia sono piccoli droni agili che forniscono dati su flotte e pianeti su grandi distanze.',
-        'description_long' => 'Le Sonde Spia sono piccoli droni agili che forniscono dati su flotte e pianeti. Dotate di motori appositamente progettati, permettono loro di coprire vaste distanze in pochi minuti. Una volta in orbita attorno al pianeta bersaglio, raccolgono rapidamente dati e trasmettono il rapporto alla tua Rete di Comunicazione Profonda per la valutazione. Ma c\'è un rischio nell\'attività di raccolta informazioni. Durante la trasmissione del rapporto alla rete, il segnale può essere rilevato dal bersaglio e le sonde possono essere distrutte.',
+        'title'            => 'Sonda spia',
+        'description'      => 'Le sonde spia sono piccoli droni non pilotati dall`uomo con sistemi di propulsione eccezionalmente veloci usati per spiare mondi stranieri.',
+        'description_long' => 'Le sonde spia sono piccoli droni che, con i loro sistemi di comunicazione altamente avanzati, posso inviare da grandi distanze informazioni di spionaggio in pochi secondi. Esse utilizzano le orbite dei pianeti per raccogliere informazioni e, allo stesso tempo, ridirigersi verso la terra madre. Durante la permanenza nell`orbita nemica, esse sono particolarmente facili da rilevare. Non disponendo di copertura, scudi o sistemi d`armamento, esse sono particolarmente vulnerabili alle strutture difensive.',
     ],
 
     'solar_satellite' => [
         'title'            => 'Satellite Solare',
-        'description'      => 'I Satelliti Solari sono semplici piattaforme di celle solari, collocate in un\'orbita alta e stazionaria. Raccolgono la luce solare e la trasmettono alla stazione a terra tramite laser.',
-        'description_long' => 'Gli scienziati scoprirono un metodo per trasmettere energia elettrica alla colonia usando satelliti appositamente progettati in un\'orbita geosincronizzata. I Satelliti Solari raccolgono energia solare e la trasmettono a una stazione a terra utilizzando avanzate tecnologie laser. L\'efficienza di un satellite solare dipende dall\'intensità della radiazione solare che riceve. In linea di principio, la produzione di energia nelle orbite più vicine al sole è maggiore rispetto ai pianeti in orbite più lontane.
-Grazie al loro buon rapporto costo/prestazioni, i Satelliti Solari possono risolvere molti problemi energetici. Attenzione però: i Satelliti Solari possono essere facilmente distrutti in battaglia.',
+        'description'      => 'I satelliti solari sono semplici satelliti in orbita equipaggiati di celle fotovoltaiche e servono a trasferire energia al pianeta. L`energia in questo modo è trasmessa a terra utilizzando un raggio laser speciale. Su questo pianeta, un satellite solare produce una quantità di energia pari a 32.',
+        'description_long' => 'I satelliti solari vengono lanciati nell`orbita geostazionaria attorno ad un pianeta. Essi riuniscono in fasci l`energia solare e la indirizzano ad un sistema riflettente posizionato a terra. L`efficienza dei satelliti solari dipende dalla potenza dei raggi solari. Il rendimento energetico dei pianeti situati vicino al sole è normalmente più elevato rispetto a quello dei pianeti più lontani da esso. Grazie al vantaggioso rapporto qualità/prezzo, i satelliti solari sono utilizzati ad ampio raggio per risolvere i problemi a livello energetico. Va tuttavia tenuto in considerazione che i satelliti solari potrebbero venire distrutti durante i combattimenti.',
     ],
 
     'crawler' => [
         'title'            => 'Crawler',
-        'description'      => 'I Crawler aumentano la produzione di metallo, cristallo e Deuterio sul pianeta assegnato rispettivamente dello 0,02%, 0,02% e 0,02%. Come Collezionista, la produzione aumenta ulteriormente. Il bonus totale massimo dipende dal livello complessivo delle miniere.',
-        'description_long' => 'Il Crawler è un grande veicolo da trincea che aumenta la produzione di miniere e sintetizzatori. È più agile di quanto sembri ma non è particolarmente robusto. Ogni Crawler aumenta la produzione di metallo dello 0,02%, la produzione di cristallo dello 0,02% e la produzione di Deuterio dello 0,02%. Come Collezionista, la produzione aumenta ulteriormente. Il bonus totale massimo dipende dal livello complessivo delle miniere.',
+        'description'      => 'I Crawler incrementano la produzione di Metallo, Cristallo e Deuterio sui pianeti in cui vengono utilizzati rispettivamente delle seguenti percentuali: 0,02%, 0,02% e 0,02% Inoltre, quando svolge le funzioni di Collezionista, incrementa la produzione. Il bonus totale massimo dipende dal livello totale delle miniere.',
+        'description_long' => 'Il Crawler è un mezzo da lavoro di grandi dimensioni che ottimizza la produzione delle miniere e la sintetizzazione. È più agile di quanto sembri, ma non particolarmente robusto. Ogni Crawler incrementa la produzione di metallo (+0,02%), quella di cristallo (+0,02%) e quella di deuterio (+0,02%). Inoltre, quando svolge le funzioni di Collezionista, incrementa la produzione. Il bonus totale massimo dipende dal livello totale delle miniere.',
     ],
 
     'pathfinder' => [
-        'title'            => 'Esploratore',
-        'description'      => 'L\'Esploratore è una nave veloce ed agile, progettata specificamente per spedizioni in settori inesplorati dello spazio.',
-        'description_long' => 'L\'Esploratore è l\'ultimo sviluppo nella tecnologia di esplorazione. Questa nave è stata progettata appositamente per i membri della classe Scopritore per massimizzarne il potenziale. Dotato di sistemi di scansione avanzati e di una grande stiva per il recupero di risorse, l\'Esploratore eccelle nelle spedizioni. I suoi sofisticati sensori possono rilevare risorse preziose e anomalie che passerebbero inosservate ad altre navi. La nave combina un\'alta velocità con una buona capacità di carico, rendendola perfetta per rapide missioni di esplorazione e raccolta di risorse da settori distanti.',
+        'title'            => 'Pathfinder',
+        'description'      => 'I Pathfinder sono veloci, spaziosi e possono estrarre materie prime dai Campi detriti durante le spedizioni. Inoltre, la resa totale viene incrementata.',
+        'description_long' => 'I Pathfinder sono veloci e spaziosi. Sono costruiti per avanzare in modo ottimale in aree sconosciute. Durante le spedizioni, individuano i Campi detriti e ne estraggono materie prime. In aggiunta, sono in grado di trovare oggetti. Inoltre, la resa totale viene incrementata.',
     ],
 
     // ---- Navi Militari ----
 
     'light_fighter' => [
-        'title'            => 'Cacciatore Leggero',
-        'description'      => 'Questa è la prima nave da combattimento che tutti gli imperatori costruiranno. Il Cacciatore Leggero è un\'agile nave, ma vulnerabile da sola. In grande numero, possono diventare una seria minaccia per qualsiasi impero. Sono i primi ad accompagnare i Cargo Leggeri e Pesanti su pianeti ostili con difese minori.',
-        'description_long' => 'Questa è la prima nave da combattimento che tutti gli imperatori costruiranno. Il Cacciatore Leggero è un\'agile nave, ma vulnerabile quando affronta il nemico da sola. In grande numero, possono diventare una seria minaccia per qualsiasi impero. Sono i primi ad accompagnare i Cargo Leggeri e Pesanti su pianeti ostili con difese minori.',
+        'title'            => 'Caccia Leggero',
+        'description'      => 'Il caccia leggero è una nave manovrabile che si trova su quasi tutti i pianeti. I costi non sono particolarmente elevati ma allo stesso tempo la forza degli scudi e lo spazio per il trasporto sono molto limitati.',
+        'description_long' => 'Data la loro corazza leggera e il semplice sistema d`armamento, i caccia leggeri appartengono alle navi di supporto in battaglia. La loro agilità e velocità insieme alla quantità di navi che attaccano, può farle apparire come un diversivo rispetto alle navi più grandi che non sono così manovrabili.',
     ],
 
     'heavy_fighter' => [
-        'title'            => 'Cacciatore Pesante',
-        'description'      => 'Questo cacciatore è meglio corazzato e ha una maggiore forza d\'attacco rispetto al Cacciatore Leggero.',
-        'description_long' => 'Nello sviluppo del Cacciatore Pesante, i ricercatori raggiunsero un punto in cui i motori convenzionali non erano più in grado di fornire prestazioni sufficienti. Per muovere la nave in modo ottimale, il Motore ad Impulso fu utilizzato per la prima volta. Questo aumentò i costi, ma aprì anche nuove possibilità. Utilizzando questo motore, rimase più energia per armi e scudi; inoltre, vennero utilizzati materiali di alta qualità per questa nuova famiglia di caccia. Con questi cambiamenti, il Cacciatore Pesante rappresenta una nuova era nella tecnologia delle navi ed è la base per la tecnologia degli Incrociatori.
-
-Leggermente più grande del Cacciatore Leggero, il Cacciatore Pesante ha scafi più spessi, che forniscono maggiore protezione, e armamento più potente.',
+        'title'            => 'Caccia Pesante',
+        'description'      => 'Il caccia pesante è la diretta evoluzione del caccia leggero ed offre una corazzatura maggiore ed una più grande potenza d`attacco.',
+        'description_long' => 'Durante lo sviluppo del caccia leggero i ricercatori sono arrivati al punto in cui la guida convenzionale raggiunse i propri limiti. Per fornire l`agilità necessaria ai nuovi caccia, è stato usato per la prima volta un motore ad impulso. Nonostante i costi aggiuntivi e la complessità si sono rivelate nuove possibilità in parte grazie al maggior costo dei materiali generalmente utilizzati.
+Tramite l`uso della tecnologia d`impulso, è stata resa disponibile più energia per le armi e gli scudi. La corazzatura migliorata e un maggior numero di armi rendono questo caccia una minaccia molto maggiore rispetto ai suoi predecessori.',
     ],
 
     'cruiser' => [
         'title'            => 'Incrociatore',
-        'description'      => 'Gli Incrociatori sono corazzati quasi tre volte tanto i Cacciatori Pesanti e hanno più del doppio della potenza di fuoco. Inoltre, sono molto veloci.',
-        'description_long' => 'Con lo sviluppo del laser pesante e del cannone ionico, i Cacciatori Leggeri e Pesanti incontrarono un numero allarmante di sconfitte che aumentavano con ogni incursione. Nonostante molte modifiche, la potenza delle armi e i cambiamenti all\'armatura non potevano essere aumentati abbastanza velocemente per contrastare efficacemente queste nuove misure difensive. Pertanto, si decise di costruire una nuova classe di nave che combinasse più corazza e più potenza di fuoco. Come risultato di anni di ricerca e sviluppo, nacque l\'Incrociatore.
+        'description'      => 'Gli incrociatori hanno una corazza almeno tre volte più potente dei caccia pesanti e hanno a disposizione più del doppio di potenza d fuoco. La loro velocità di crociera è allo stesso modo superiore ad ogni altra cosa vista prima.',
+        'description_long' => 'Con la comparsa di laser pesanti e cannoni a ioni sui campi di battaglia, le navi da combattimento vennero sempre più sopraffatte. Nonostante le molte modifiche la potenza di fuoco e la corazzatura dello scafo non poterono essere migliorati a sufficienza per affrontare questi nuovi sistemi di difesa.
 
-Gli Incrociatori sono corazzati quasi tre volte rispetto ai Cacciatori Pesanti e possiedono più del doppio della potenza di fuoco di qualsiasi nave da combattimento esistente. Possiedono anche velocità di gran lunga superiori a qualsiasi astronave mai costruita. Per quasi un secolo, gli Incrociatori dominarono l\'universo. Tuttavia, con lo sviluppo dei cannoni Gauss e delle torrette al plasma, la loro supremazia terminò. Sono ancora usati oggi contro gruppi di caccia, ma non in modo così predominante come prima.',
+Questo è il motivo per il quale è stato scelto di sviluppare un tipo di nave completamente nuovo, fornendo più corazzatura e armi più potenti. Così nacque l`incrociatore. Gli incrociatori hanno una corazza almeno tre volte più potente dei caccia pesanti e hanno a disposizione più del doppio di potenza d fuoco. La loro velocità di crociera è allo stesso modo superiore ad ogni altra cosa vista prima. Non c`è praticamente nessuna nave migliore contro le difese planetarie leggere o medie e perciò gli incrociatori sono stati ampiamente adottati in tutto l`universo da almeno un centinaio di anni.
+
+Sfortunatamente con la creazione dei nuovi e potenti sistemi difensivi come il cannone di Gauss o gli emettitori di plasma, il regno degli incrociatori finì presto. Al giorno d`oggi essi vengono ancora usati per combattere contro battaglioni di caccia dato l`efficace sistema d`armamento contro questi ultimi',
     ],
 
     'battle_ship' => [
         'title'            => 'Nave da Battaglia',
-        'description'      => 'Le Navi da Battaglia formano la spina dorsale di una flotta. I loro pesanti cannoni, l\'alta velocità e le grandi stive le rendono avversari da prendere sul serio.',
-        'description_long' => 'Quando divenne evidente che l\'Incrociatore stava cedendo terreno al crescente numero di strutture difensive che si trovava ad affrontare, e con la perdita di navi nelle missioni a livelli inaccettabili, si decise di costruire una nave che potesse affrontare gli stessi tipi di strutture difensive con quante meno perdite possibili. Dopo un intenso sviluppo, nacque la Nave da Battaglia. Costruita per resistere alle battaglie più grandi, la Nave da Battaglia dispone di grandi stive, pesanti cannoni e un\'alta velocità con il motore iperspaziale. Una volta sviluppata, divenne il pilastro della flotta di ogni Imperatore predatore.',
+        'description'      => 'Le navi da battaglia sono la spina dorsale di ogni flotta militare. Corazzatura rinforzata, armamenti pesanti e alte velocità di spostamento, fanno di questa nave, insieme al grande spazio per il cargo, un nemico difficile da battere.',
+        'description_long' => 'Le navi da battaglia sono la spina dorsale di ogni flotta militare. La loro corazzatura rinforzata, abbinata a degli armamenti pesanti, e una velocità di crociera elevata, rendono questa nave indispensabile per ogni impero. Inoltre possiede un`ampia stiva che è ottima in situazioni ostili.',
     ],
 
     'battlecruiser' => [
-        'title'            => 'Corazzata',
-        'description'      => 'La Corazzata è altamente specializzata nell\'intercettazione di flotte ostili.',
-        'description_long' => 'Questa nave è una delle più avanzate mai sviluppate, ed è particolarmente letale quando si tratta di distruggere flotte in attacco. Con i suoi migliorati cannoni laser a bordo e il motore Iperspaziale avanzato, la Corazzata è una forza seria da affrontare in qualsiasi attacco. A causa del design della nave e del suo grande sistema d\'armi, le stive hanno dovuto essere ridotte, ma questo è compensato dal minor consumo di carburante.',
+        'title'            => 'Incrociatore da Battaglia',
+        'description'      => '\'Incrociatore da battaglia è altamente specializzato nell\'intercettare flotte nemiche.',
+        'description_long' => 'Questa nave è una delle più avanzate mai sviluppate, ed è particolarmente letale quando si tratta di distruggere flotte in attacco. Con i suoi migliorati cannoni laser a bordo e il motore Iperspaziale avanzato, l\'Incrociatore da Battaglia è una forza seria da affrontare in qualsiasi attacco. A causa del design della nave e del suo grande sistema d\'armi, le stive hanno dovuto essere ridotte, ma questo è compensato dal minor consumo di carburante.',
     ],
 
     'bomber' => [
         'title'            => 'Bombardiere',
-        'description'      => 'Il Bombardiere è stato sviluppato appositamente per distruggere le difese planetarie di un mondo.',
-        'description_long' => 'Nel corso dei secoli, man mano che le difese diventavano sempre più grandi e sofisticate, le flotte cominciarono ad essere distrutte a un ritmo allarmante. Si decise che era necessaria una nuova nave per sfondare le difese e garantire il massimo dei risultati. Dopo anni di ricerca e sviluppo, nacque il Bombardiere.
+        'description'      => 'Il bombardiere è una nave stellare speciale sviluppata per sfondare pesanti difese planetarie.',
+        'description_long' => 'Il bombardiere è una nave stellare speciale sviluppata per sfondare pesanti difese planetarie. Grazie ad un sistema di puntamento con guida laser, possono essere sganciate bombe al plasma con precisione sul bersaglio, causando enorme distruzione tra i sistemi di difesa planetari.
 
-Usando attrezzature di mira laser-guidate e Bombe al Plasma, il Bombardiere cerca e distrugge qualsiasi meccanismo difensivo che riesce a trovare. Non appena il Motore Iperspaziale viene sviluppato al Livello 8, il Bombardiere viene riequipaggiato con il motore iperspaziale e può volare a velocità maggiori.',
+La velocità base dei bombardieri è aumentata non appena viene ricercato il motore iperspaziale di livello 8 in quanto essi vengono equipaggiati con motori iperspaziali.',
     ],
 
     'destroyer' => [
-        'title'            => 'Distruttore',
-        'description'      => 'Il Distruttore è il re delle navi da guerra.',
-        'description_long' => 'Il Distruttore è il risultato di anni di lavoro e sviluppo. Con lo sviluppo delle Morti Nere, si decise che era necessaria una classe di navi per difendersi da una tale arma massiccia. Grazie ai suoi migliorati sensori di localizzazione, ai cannoni ionici multi-falange, ai Cannoni Gauss e alle Torrette al Plasma, il Distruttore si rivelò una delle navi più temibili mai costruite.
+        'title'            => 'Corazzata',
+        'La corazzata è la nave stellare più pesante mai vista e ha una potenza di fuoco mai eguagliata in precedenza.',
+        'description_long' => 'Con la corazzata, la madre di tutte le navi da guerra entra nell`arena. Il suo sistema multi-falange d`armamento consiste di cannoni ionici, al plasma e di Gauss montati su torrette veloci nella risposta che permettono loro di eliminare i caccia operativi con un margine di successo del 99%. La dimensione della nave è d`altro canto il suo svantaggio dal momento che la manovrabilità è limitata, facendo della corazzata più una stazione da combattimento che una nave da guerra. Il consumo di carburante di queste immense corazzate è però tanto alto quanto lo è il loro potere di fuoco...
 
 Poiché il Distruttore è molto grande, la sua manovrabilità è gravemente limitata, il che lo rende più una stazione di battaglia che una nave da combattimento. La mancanza di manovrabilità è compensata dalla sua pura potenza di fuoco, ma richiede anche quantità significative di Deuterio per essere costruita e operata.',
     ],
 
     'deathstar' => [
         'title'            => 'Morte Nera',
-        'description'      => 'La potenza distruttiva della Morte Nera è insuperabile.',
-        'description_long' => 'La Morte Nera è la nave più potente mai creata. Questa nave delle dimensioni di una luna è l\'unica nave che può essere vista ad occhio nudo dal suolo. Nel momento in cui la si scorge, purtroppo, è già troppo tardi per fare qualsiasi cosa.
-
-Armata di un gigantesco cannone gravitonico, il sistema d\'arma più avanzato mai creato nell\'Universo, questa enorme nave non solo ha la capacità di distruggere intere flotte e difese, ma ha anche la capacità di distruggere intere lune. Solo gli imperi più avanzati hanno la capacità di costruire una nave di queste proporzioni titaniche.',
+        'description'      => 'Non c`è nulla di così grande e pericoloso come una morte nera che si avvicina.',
+        'description_long' => 'La morte nera è equipaggiata con un singolo gigantesco Cannone di Gauss in grado di distruggere praticamente qualsiasi cosa con un singolo colpo, sia che siano corazzate o lune. In modo da produrre l`energia necessaria per quest`arma, enormi parti all`interno della Morte Nera sono utilizzate come generatori di potenza. La dimensione della Morte Nera inoltre ne limita la velocità negli spostamenti, che è molto bassa. Si dice che spesso il capitano aiuti a spingerla per aumentarne la velocità.
+Solo imperi immensi e avanzati hanno la manodopera e le conoscenze estese richieste per poter costruire una tale nave stellare della dimensione di una luna.',
     ],
 
     'reaper' => [
-        'title'            => 'Mietitore',
-        'description'      => 'Il Mietitore è una potente nave da combattimento specializzata nel saccheggio aggressivo e nella raccolta di campi di detriti.',
-        'description_long' => 'Il Mietitore rappresenta il culmine dell\'ingegneria militare della classe Generale. Questa nave pesantemente armata è stata progettata per i comandanti che valorizzano sia la capacità di combattimento che la flessibilità tattica. Sebbene il suo ruolo primario sia il combattimento, il Mietitore dispone di stive rinforzate che gli consentono di raccogliere campi di detriti dopo la battaglia. I suoi sistemi di mira avanzati e l\'armatura pesante lo rendono un avversario formidabile, mentre il suo design a doppia funzione significa che può sia creare che trarre profitto dalla carneficina del campo di battaglia. La nave è equipaggiata con tecnologia d\'arma all\'avanguardia e può tenere testa a navi molto più grandi.',
+        'title'            => 'Reaper',
+        'description'      => 'Le navi della classe Reaper sono un potente strumento di distruzione in grado di saccheggiare i Campi detriti subito dopo le battaglie.',
+        'description_long' => 'La Reaper è la regina delle navi da guerra: essa combina potenza, robusti scudi, velocità e capacità. Inoltre, è l`unica in grado di sfruttare istantaneamente parte del Campo detriti che si crea dopo la battaglia. Tale funzione non è attiva dopo le battaglie contro alieni e pirati.',
     ],
 
     // ---- Difese ----

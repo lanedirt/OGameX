@@ -13,30 +13,30 @@
     <div id="inner">
         <div class="fleft sprite building large building34"></div>
         <div class="content">
-            <p>@lang('The alliance depot supplies fuel to friendly fleets in orbit helping with defence. For each upgrade level of the alliance depot, a special demand of deuterium per hour can be sent to an orbiting fleet.')</p>
-            <span class="capacity">@lang('Capacity'): {{ number_format($capacity, 0, ',', '.') }} / {{ number_format($capacity, 0, ',', '.') }}</span>
+            <p>{{ __('t_ingame.alliance_depot.description') }}</p>
+            <span class="capacity">{{ __('t_ingame.alliance_depot.capacity') }}: {{ number_format($capacity, 0, ',', '.') }} / {{ number_format($capacity, 0, ',', '.') }}</span>
 
             @if (count($holding_fleets) === 0)
-                <div class="textBeefy">@lang('There are no holding fleets!')</div>
+                <div class="textBeefy">{{ __('t_ingame.alliance_depot.no_fleets') }}</div>
             @else
                 <form id="supplyForm">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <table id="supportWrap">
                         <tbody>
                             <tr>
-                                <th>@lang('Fleet owner'):</th>
-                                <th>@lang('Ships'):</th>
-                                <th class="textCenter tooltip" data-tooltip-title="@lang('Hold time')">
+                                <th>{{ __('t_ingame.alliance_depot.fleet_owner') }}:</th>
+                                <th>{{ __('t_ingame.alliance_depot.ships') }}:</th>
+                                <th class="textCenter tooltip" data-tooltip-title="{{ __('t_ingame.alliance_depot.hold_time') }}">
                                     <span class="dark_highlight_tablet">
                                         <img src="{{ asset('img/icons/time.gif') }}" height="16" width="16">
                                     </span>
                                 </th>
-                                <th class="textCenter tooltip" data-tooltip-title="@lang('Extend')">
+                                <th class="textCenter tooltip" data-tooltip-title="{{ __('t_ingame.alliance_depot.extend') }}">
                                     <span class="dark_highlight_tablet">
                                         <img src="{{ asset('img/icons/extend.gif') }}" height="16" width="16">
                                     </span>
                                 </th>
-                                <th class="textCenter tooltip" data-tooltip-title="@lang('Supply costs Deuterium / h')">
+                                <th class="textCenter tooltip" data-tooltip-title="{{ __('t_ingame.alliance_depot.supply_cost') }}">
                                     <span class="dark_highlight_tablet">
                                         <img src="{{ asset('img/icons/deuterium.gif') }}" height="16" width="16">
                                     </span>
@@ -64,14 +64,14 @@
                                     <input type="text" pattern="[0-9]+" class="textInput" name="supplyTime" id="supplyTimeInput" value="1" size="2" maxlength="2">&nbsp;h
                                 </td>
                                 <td class="textCenter">
-                                <span id="deutCosts" class="dark_highlight_tablet tooltip" data-tooltip-title="@lang('Supply costs Deuterium / h')">
+                                <span id="deutCosts" class="dark_highlight_tablet tooltip" data-tooltip-title="{{ __('t_ingame.alliance_depot.supply_cost') }}">
                                     {{ $holding_fleets[0]['deut_cost_per_hour'] ?? 0 }}
                                 </span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    <input type="button" class="btn_blue float_right" value="@lang('Start supply rockets')" onclick="supplyFleet();">
+                    <input type="button" class="btn_blue float_right" value="{{ __('t_ingame.alliance_depot.start_supply') }}" onclick="supplyFleet();">
                 </form>
             @endif
         </div>
@@ -114,14 +114,14 @@
 
     if (!fleetId) {
       if (typeof errorBoxDecision === 'function') {
-        errorBoxDecision('@lang("Error")', '@lang("Please select a fleet.")', '@lang("OK")', null, null);
+        errorBoxDecision('{{ __('t_ingame.shared.error') }}', '{{ __('t_ingame.alliance_depot.please_select_fleet') }}', '{{ __('t_ingame.shared.ok') }}', null, null);
       }
       return;
     }
 
     if (hours < 1 || hours > 32) {
       if (typeof errorBoxDecision === 'function') {
-        errorBoxDecision('@lang("Error")', '@lang("Extension hours must be between 1 and 32.")', '@lang("OK")', null, null);
+        errorBoxDecision('{{ __('t_ingame.shared.error') }}', '{{ __('t_ingame.alliance_depot.hours_between') }}', '{{ __('t_ingame.shared.ok') }}', null, null);
       }
       return;
     }
@@ -144,17 +144,17 @@
           // The page will not reload - user can continue supplying fleets
         } else {
           if (typeof errorBoxDecision === 'function') {
-            errorBoxDecision('@lang("Error")', response.error, '@lang("OK")', null, null);
+            errorBoxDecision('{{ __('t_ingame.shared.error') }}', response.error, '{{ __('t_ingame.shared.ok') }}', null, null);
           }
         }
       },
       error: function(xhr) {
-        var message = '@lang("An error occurred.")';
+        var message = '{{ __('t_ingame.shared.error_occurred') }}';
         if (xhr.responseJSON && xhr.responseJSON.error) {
           message = xhr.responseJSON.error;
         }
         if (typeof errorBoxDecision === 'function') {
-          errorBoxDecision('@lang("Error")', message, '@lang("OK")', null, null);
+          errorBoxDecision('{{ __('t_ingame.shared.error') }}', message, '{{ __('t_ingame.shared.ok') }}', null, null);
         }
       }
     });

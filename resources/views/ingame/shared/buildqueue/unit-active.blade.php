@@ -18,7 +18,7 @@
             </td>
         </tr>
         <tr class="data">
-            <td class="desc">@lang('Building duration')</td>
+            <td class="desc">{{ __('t_ingame.buildqueue.building_duration') }}</td>
         </tr>
         <tr class="data">
             <td class="desc timer">
@@ -27,7 +27,7 @@
             </td>
         </tr>
         <tr class="data">
-            <td class="desc">@lang('Total time'):</td>
+            <td class="desc">{{ __('t_ingame.buildqueue.total_time') }}:</td>
         </tr>
         <tr class="data">
             <td class="desc timer">
@@ -44,21 +44,21 @@
                 @endphp
                 @if ($wouldComplete)
                     <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile ship tpd-hideOnClickOutside"
-                       title="@lang('Instantly completes the current shipyard production.')"
+                       title="{{ __('t_ingame.buildqueue.complete_tooltip') }}"
                        href="javascript:void(0);"
                        rel="{{ route('shipyard.completeunit') }}?queue_item_id={{ $build_active->id }}">
-                        <div class="build-finish-img" alt="@lang('Complete')"></div>
-                        <span class="build-txt">@lang('Complete')</span>
-                        <span class="dm_cost">@lang('Costs: :amount DM', ['amount' => number_format($halvingCost)])</span>
+                        <div class="build-finish-img" alt="{{ __('t_ingame.buildqueue.complete') }}"></div>
+                        <span class="build-txt">{{ __('t_ingame.buildqueue.complete') }}</span>
+                        <span class="dm_cost">{{ __('t_ingame.buildqueue.halve_cost', ['amount' => number_format($halvingCost)]) }}</span>
                     </a>
                 @else
                     <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile ship tpd-hideOnClickOutside"
-                       title="@lang('Reduces construction time by 50% of the total construction time.')"
+                       title="{{ __('t_ingame.buildqueue.halve_tooltip_building') }}"
                        href="javascript:void(0);"
                        rel="{{ route('shipyard.halveunit') }}?queue_item_id={{ $build_active->id }}">
-                        <div class="build-faster-img" alt="@lang('Halve time')"></div>
-                        <span class="build-txt">@lang('Halve time')</span>
-                        <span class="dm_cost">@lang('Costs: :amount DM', ['amount' => number_format($halvingCost)])</span>
+                        <div class="build-faster-img" alt="{{ __('t_ingame.buildqueue.halve_time') }}"></div>
+                        <span class="build-txt">{{ __('t_ingame.buildqueue.halve_time') }}</span>
+                        <span class="dm_cost">{{ __('t_ingame.buildqueue.halve_cost', ['amount' => number_format($halvingCost)]) }}</span>
                     </a>
                 @endif
             </td>
@@ -68,9 +68,9 @@
 
     <script type="text/javascript">
         @if ($wouldComplete)
-        var questionship = '{!! __('Do you want to immediately complete the construction order for :dm_cost?', ['dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('Dark Matter') . '</span>']) !!}';
+        var questionship = '{!! __('t_ingame.buildqueue.question_complete_unit', ['dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('t_ingame.shared.dark_matter') . '</span>']) !!}';
         @else
-        var questionship = '{!! __('Do you want to reduce the construction time of the current construction project by 50% of the total construction time (:time_reduction) for :dm_cost?', ['time_reduction' => \OGame\Facades\AppUtil::formatTimeDuration(intdiv($build_active->time_total, 2)), 'dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('Dark Matter') . '</span>']) !!}';
+        var questionship = '{!! __('t_ingame.buildqueue.question_halve_unit', ['time_reduction' => \OGame\Facades\AppUtil::formatTimeDuration(intdiv($build_active->time_total, 2)), 'dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('t_ingame.shared.dark_matter') . '</span>']) !!}';
         @endif
         var priceship = {{ $halvingCost }};
         var referrerPage = $.deparam.querystring().page;
@@ -82,10 +82,10 @@
         <tbody>
         <tr>
             <td colspan="2" class="idle">
-                <a class="tooltip js_hideTipOnMobile " title="@lang('At the moment there are no ships or defense built on this planet. Click here to get to the shipyard.')" href="{{ route('shipyard.index') }}">
-                    @lang('No ships/defense in construction.')
+                <a class="tooltip js_hideTipOnMobile " title="{{ __('t_ingame.shipyard_page.no_units_idle_tooltip') }}" href="{{ route('shipyard.index') }}">
+                    {{ __('t_ingame.shipyard_page.no_units_idle') }}
                     <br>
-                    @lang('(To shipyard)')
+                    {{ __('t_ingame.shipyard_page.to_shipyard') }}
                 </a>
             </td>
         </tr>

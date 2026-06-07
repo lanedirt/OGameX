@@ -402,7 +402,15 @@ class PlanetServiceFactory
      */
     public function createAdditionalPlanetForPlayer(PlayerService $player, Coordinate $coordinate): PlanetService
     {
-        return $this->createPlanet($player, $coordinate, 'Colony', PlanetType::Planet);
+        // Translate the default "Colony" name into the player's language so newly
+        // created planets are already localized at persist time.
+        $playerLocale = $player->getUser()->lang ?: 'en';
+        $colonyName = (string) trans('t_ingame.overview.colony', [], $playerLocale);
+        if ($colonyName === 't_ingame.overview.colony') {
+            $colonyName = 'Colony';
+        }
+
+        return $this->createPlanet($player, $coordinate, $colonyName, PlanetType::Planet);
     }
 
     /**
@@ -449,7 +457,15 @@ class PlanetServiceFactory
      */
     public function createMoonForPlanet(PlanetService $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null): PlanetService
     {
-        return $this->createPlanet($planet->getPlayer(), $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon, $debrisAmount, $moonChance, $xFactor);
+        // Translate the default "Moon" name into the player's language so newly
+        // created moons are already localized at persist time.
+        $playerLocale = $planet->getPlayer()->getUser()->lang ?: 'en';
+        $moonName = (string) trans('t_ingame.overview.moon', [], $playerLocale);
+        if ($moonName === 't_ingame.overview.moon') {
+            $moonName = 'Moon';
+        }
+
+        return $this->createPlanet($planet->getPlayer(), $planet->getPlanetCoordinates(), $moonName, PlanetType::Moon, $debrisAmount, $moonChance, $xFactor);
     }
 
     /**

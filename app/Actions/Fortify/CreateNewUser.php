@@ -3,6 +3,7 @@
 namespace OGame\Actions\Fortify;
 
 use Exception;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\Http\Middleware\Locale;
 use OGame\Models\User;
 use OGame\Models\UserTech;
 use OGame\Services\MessageService;
@@ -156,12 +158,20 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
+        // Resolve the current locale so the new user inherits the language they
+        // registered in (dropdown / URL / session) instead of a hardcoded 'en'.
+        // Falls back to 'en' if the detected locale is not one we officially support.
+        $currentLocale = App::getLocale();
+        if (!in_array($currentLocale, Locale::SUPPORTED_LOCALES, true)) {
+            $currentLocale = 'en';
+        }
+
         // Add try/catch to retry creating user 5 times because exception could be triggered
         // if the username is already taken.
         for ($attempt = 0; $attempt < 5; $attempt++) {
             try {
                 $user = User::create([
-                    'lang' => 'en',
+                    'lang' => $currentLocale,
                     'username' => $this->generateUniqueName(),
                     'email' => $input['email'],
                     'password' => Hash::make($input['password']),
@@ -204,7 +214,22 @@ class CreateNewUser implements CreatesNewUsers
 
         // Create initial planet(s) for the player.
         $playerService = $this->playerServiceFactory->make($user->id);
-        $planetNames = ['Homeworld', 'Colony'];
+
+        // Translate the default planet names into the user's registration locale
+        // so the values saved to planets.name are already localized (and therefore
+        // also get retranslated later by LanguageController when the user changes lang).
+        $userLocale = $user->lang ?: 'en';
+        $homeworldName = (string) trans('t_ingame.overview.homeworld', [], $userLocale);
+        $colonyName = (string) trans('t_ingame.overview.colony', [], $userLocale);
+        // Guard against missing translation (trans() returns the key when not found).
+        if ($homeworldName === 't_ingame.overview.homeworld') {
+            $homeworldName = 'Homeworld';
+        }
+        if ($colonyName === 't_ingame.overview.colony') {
+            $colonyName = 'Colony';
+        }
+
+        $planetNames = [$homeworldName, $colonyName];
         // The amount of planets to create is defined in the settings and defaults to 1.
         for ($i = 0; $i < $this->settings->registrationPlanetAmount(); $i++) {
             $this->planetServiceFactory->createInitialPlanetForPlayer($playerService, $planetNames[$i === 0 ? 0 : 1]);
