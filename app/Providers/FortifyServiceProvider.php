@@ -46,6 +46,14 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(20)->by($request->session()->get('login.id'));
         });
 
+        RateLimiter::for('forgot-email', function (Request $request) {
+            if (app()->environment('testing')) {
+                return Limit::none();
+            }
+
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
         Fortify::loginView(function () {
             return view('outgame.login');
         });
@@ -71,16 +79,12 @@ class FortifyServiceProvider extends ServiceProvider
             return $user;
         });
 
-        /*Fortify::registerView(function () {
-            return view('auth.register');
-        });
-
         Fortify::requestPasswordResetLinkView(function () {
-            return view('auth.forgot-password');
+            return view('outgame.forgot-password');
         });
 
-        Fortify::resetPasswordView(function () {
-            return view('auth.reset-password');
-        });*/
+        Fortify::resetPasswordView(function ($request) {
+            return view('outgame.reset-password', ['request' => $request]);
+        });
     }
 }

@@ -207,9 +207,9 @@
                     </div>
                 </div>
                 <input type="submit" id="loginSubmit" value="{{ __('t_external.login.submit') }}"/>
-                <a href="#" id="pwLost" target="_blank" title="{{ __('t_external.login.forgot_password') }}">{{ __('t_external.login.forgot_password') }}</a>
+                <a href="{{ route('password.request') }}" id="pwLost" title="{{ __('t_external.login.forgot_password') }}">{{ __('t_external.login.forgot_password') }}</a>
                 <br/>
-                <a href="#" id="emailLost" target="_blank" title="{{ __('t_external.login.forgot_email') }}">{{ __('t_external.login.forgot_email') }}</a>
+                <a href="{{ route('password.email-lookup') }}" id="emailLost" title="{{ __('t_external.login.forgot_email') }}">{{ __('t_external.login.forgot_email') }}</a>
                 <p id="TermsAndConditionsAcceptWithLogin">
                     {!! __('t_external.login.terms_accept_html') !!}</p>
             </form>
