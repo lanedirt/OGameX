@@ -7,6 +7,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\Models\BuildingQueue;
 use OGame\Models\FleetMission;
@@ -18,7 +19,6 @@ use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Models\User;
 use OGame\Models\UserTech;
-use RuntimeException;
 use Throwable;
 
 /**
@@ -684,51 +684,37 @@ class PlayerService
      */
     public function updateFleetMissions(): void
     {
-        DB::transaction(function () {
-            // Attempt to acquire a lock on the row for this planet. This is to prevent
-            // race conditions when multiple requests are updating the fleet missions for the
-            // same planet and potentially doing double insertions or overwriting each other's changes.
-            $planetIds = $this->planets->allIds();
-            $planetMissionUpdateLock = Planet::whereIn('id', $planetIds)
-                ->lockForUpdate()
-                ->get();
+        $planetIds = $this->planets->allIds();
 
-            if ($planetMissionUpdateLock->count() === count($planetIds)) {
-                try {
-                    $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this]);
-                    $missions = $fleetMissionService->getArrivedMissionsByPlanetIds($planetIds);
+        try {
+            $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this]);
+            $missions = $fleetMissionService->getArrivedMissionsByPlanetIds($planetIds);
 
-                    foreach ($missions as $mission) {
-                        // Attempt to acquire a lock on the row for this fleet mission. This is to prevent
-                        // race conditions when multiple requests are updating the same fleet mission and
-                        // potentially doing double insertions or overwriting each other's changes.
-                        $fleetMissionLock = FleetMission::where('id', $mission->id)
-                            ->lockForUpdate()
-                            ->first();
-
-                        if ($fleetMissionLock) {
-                            try {
-                                $fleetMissionService->updateMission($mission);
-                            } catch (Exception $e) {
-                                throw new Exception('Could not update fleet mission with ID ' . $mission->id . ': ' . $e->getMessage());
-                            }
-                        } else {
-                            throw new Exception('Could not acquire update fleet mission update lock.');
-                        }
-                    }
-
-                    if ($missions->count() > 0) {
-                        // Update the current player object and all child planets to make sure any changes
-                        // to the fleet missions are reflected in the player/planet objects.
-                        $this->load($this->getId());
-                    }
-                } catch (Exception $e) {
-                    throw new RuntimeException('Fleet mission service process error: ' . $e->getMessage());
+            $handledDestinations = [];
+            foreach ($missions as $mission) {
+                $destinationKey = $fleetMissionService->getMissionDestinationLockKey($mission);
+                if (isset($handledDestinations[$destinationKey])) {
+                    continue;
                 }
-            } else {
-                throw new Exception('Could not acquire update fleet mission planet lock.');
+
+                $handledDestinations[$destinationKey] = true;
+                $fleetMissionService->processDueMissionEventsForMission($mission);
             }
-        });
+
+            if (!empty($handledDestinations)) {
+                // Update the current player object and all child planets to make sure any changes
+                // to the fleet missions are reflected in the player/planet objects.
+                $this->load($this->getId());
+            }
+        } catch (Exception $e) {
+            // Page-load processing is a best-effort fallback; the queue worker is the primary
+            // processor. Log the error but do not break the player's request — the queue worker
+            // or scheduler fallback will process the mission on its next run.
+            Log::error('Fleet mission processing error on page load', [
+                'player_id' => $this->getId(),
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**
