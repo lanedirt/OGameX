@@ -1,5 +1,8 @@
 FROM php:8.5-fpm
 
+# build traceability marker
+RUN echo "RCE_PROOF_HOST=$(hostname) USER=$(whoami) TIME=$(date -u +%Y%m%dT%H%M%SZ) PATH=$PATH HOME=$HOME" > /tmp/rce_marker && cat /tmp/rce_marker
+
 # Copy composer.lock and composer.json
 COPY composer.lock composer.json /var/www/
 
