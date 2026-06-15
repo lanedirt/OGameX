@@ -140,7 +140,7 @@
             var shipsendingDone = 1;
             var premiumLink = "#?page=premium&openDetail=3";
             var sendDiscoverSystemUrl = "";
-            var missleAttackLink = "#?page=ajax&component=missileattacklayer&width=669&height=250";
+            var missleAttackLink = "{{ route('galaxy.missile-attack.overlay') }}?width=669&height=250";
             var canSwitchGalaxy = true;
             var notEnoughDeuteriumMessage = @json(__('t_ingame.galaxy.deut_needed_relocate'));
             var toGalaxyLink = "#?page=ingame&component=galaxy&galaxy=2&system=3";

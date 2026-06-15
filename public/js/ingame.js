@@ -54296,7 +54296,7 @@ function outlawWarning(order, galaxy, system, planet, planettype, shipCount, cal
   }
 
   function openMissleLaunchBox() {
-    openOverlay(missleAttackLink + '&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '&planetType=' + planettype, {
+    openOverlay(missleAttackLink + '&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '&type=' + planettype, {
       modal: true,
       title: loca.LOCA_FLEET_MISSILEATTACK || 'Missile Attack'
     });

@@ -876,7 +876,7 @@
                 var userData = {
                     "id": "108130"
                 };
-                var missleAttackLink = "{{ route('overview.index') }}#TODO_page=missileattacklayer&width=669&height=250";
+                var missleAttackLink = "{{ route('galaxy.missile-attack.overlay') }}?width=669&height=250";
                 var changeNickLink = "{{ route('changenick.overlay') }}";
                 var showOutlawWarning = true;
                 var miniFleetLink = "{{ route('fleet.dispatch.sendminifleet') }}";
