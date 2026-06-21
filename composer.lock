@@ -8580,16 +8580,16 @@
         },
         {
             "name": "webmozart/assert",
-            "version": "2.4.0",
+            "version": "2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozarts/assert.git",
-                "reference": "9007ea6f45ecf352a9422b36644e4bfc039b9155"
+                "reference": "2ccb7c2e821038c03a3e6e1700c570c158c55f70"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/9007ea6f45ecf352a9422b36644e4bfc039b9155",
-                "reference": "9007ea6f45ecf352a9422b36644e4bfc039b9155",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/2ccb7c2e821038c03a3e6e1700c570c158c55f70",
+                "reference": "2ccb7c2e821038c03a3e6e1700c570c158c55f70",
                 "shasum": ""
             },
             "require": {
@@ -8640,9 +8640,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/2.4.0"
+                "source": "https://github.com/webmozarts/assert/tree/2.4.1"
             },
-            "time": "2026-05-20T13:07:01+00:00"
+            "time": "2026-06-15T15:31:57+00:00"
         }
     ],
     "packages-dev": [
@@ -9135,16 +9135,16 @@
         },
         {
             "name": "driftingly/rector-laravel",
-            "version": "2.4.0",
+            "version": "2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/driftingly/rector-laravel.git",
-                "reference": "5342df61b0a77e5a408744e5686d80a51a07a48d"
+                "reference": "0dbdd842dfdbc821cfe5f47ca7326e2502b2a107"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/driftingly/rector-laravel/zipball/5342df61b0a77e5a408744e5686d80a51a07a48d",
-                "reference": "5342df61b0a77e5a408744e5686d80a51a07a48d",
+                "url": "https://api.github.com/repos/driftingly/rector-laravel/zipball/0dbdd842dfdbc821cfe5f47ca7326e2502b2a107",
+                "reference": "0dbdd842dfdbc821cfe5f47ca7326e2502b2a107",
                 "shasum": ""
             },
             "require": {
@@ -9165,9 +9165,9 @@
             "description": "Rector upgrades rules for Laravel Framework",
             "support": {
                 "issues": "https://github.com/driftingly/rector-laravel/issues",
-                "source": "https://github.com/driftingly/rector-laravel/tree/2.4.0"
+                "source": "https://github.com/driftingly/rector-laravel/tree/2.5.0"
             },
-            "time": "2026-05-22T18:34:15+00:00"
+            "time": "2026-06-02T16:22:14+00:00"
         },
         {
             "name": "fakerphp/faker",
@@ -10803,21 +10803,21 @@
         },
         {
             "name": "rector/rector",
-            "version": "2.4.4",
+            "version": "2.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "4661c582a20f03df585d2e3fdc4af1b83d67a091"
+                "reference": "34a9124ece04df818e6b4be4ecd0a4e23f4c0c64"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/4661c582a20f03df585d2e3fdc4af1b83d67a091",
-                "reference": "4661c582a20f03df585d2e3fdc4af1b83d67a091",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/34a9124ece04df818e6b4be4ecd0a4e23f4c0c64",
+                "reference": "34a9124ece04df818e6b4be4ecd0a4e23f4c0c64",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.4|^8.0",
-                "phpstan/phpstan": "^2.1.48"
+                "phpstan/phpstan": "^2.2.2"
             },
             "conflict": {
                 "rector/rector-doctrine": "*",
@@ -10851,7 +10851,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/2.4.4"
+                "source": "https://github.com/rectorphp/rector/tree/2.5.1"
             },
             "funding": [
                 {
@@ -10859,7 +10859,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-05-20T19:30:21+00:00"
+            "time": "2026-06-21T10:28:27+00:00"
         },
         {
             "name": "sebastian/cli-parser",

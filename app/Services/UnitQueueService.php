@@ -10,7 +10,6 @@ use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Models\UnitQueue;
 use OGame\ViewModels\Queue\UnitQueueListViewModel;
 use OGame\ViewModels\Queue\UnitQueueViewModel;
-use OGame\ViewModels\QueueListViewModel;
 use RuntimeException;
 
 /**

@@ -10,7 +10,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Promise\Utils;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Validation\ValidationException;
-use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Services\ObjectService;
 
