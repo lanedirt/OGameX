@@ -1,0 +1,22 @@
+{
+  "resources/css/ingame.css": {
+    "file": "assets/ingame-CIJmxLz9.css",
+    "src": "resources/css/ingame.css",
+    "isEntry": true
+  },
+  "resources/css/outgame.css": {
+    "file": "assets/outgame-qOXg9U2x.css",
+    "src": "resources/css/outgame.css",
+    "isEntry": true
+  },
+  "resources/js/ingame.js": {
+    "file": "assets/ingame-9fae412d.js",
+    "src": "resources/js/ingame.js",
+    "isEntry": true
+  },
+  "resources/js/outgame.js": {
+    "file": "assets/outgame-b0a7e11e.js",
+    "src": "resources/js/outgame.js",
+    "isEntry": true
+  }
+}

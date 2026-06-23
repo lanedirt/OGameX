@@ -97,9 +97,14 @@ $ php artisan test:race-condition-game-mission
 ```
 
 ### 7. Run CSS and JS build
-OGameX uses Laravel Mix to compile the CSS and JS assets. Before submitting a PR, make sure to run the following command to compile the assets.
-This command can be run in watch mode to automatically recompile the assets when changes are made which is useful during development.
+OGameX uses Vite to compile the CSS and JS assets. Before submitting a PR, make sure to run the following command to compile the assets.
 
 ```
-$ npm run dev watch
+$ npm run build
+```
+
+During development, you can run the Vite dev server to automatically recompile assets and enable hot-reload:
+
+```
+$ npm run dev
 ```
