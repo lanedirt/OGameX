@@ -8,11 +8,10 @@ on:
       - 'resources/js/**'
       - 'public/css/**'
       - 'public/js/**'
-      - 'public/mix-manifest.json'
+      - 'public/build/**'
       - 'package.json'
       - 'package-lock.json'
-      - 'yarn.lock'
-      - 'webpack.mix.js'
+      - 'vite.config.js'
   pull_request:
     branches: [ "main" ]
     paths-ignore:
@@ -20,11 +19,10 @@ on:
       - 'resources/js/**'
       - 'public/css/**'
       - 'public/js/**'
-      - 'public/mix-manifest.json'
+      - 'public/build/**'
       - 'package.json'
       - 'package-lock.json'
-      - 'yarn.lock'
-      - 'webpack.mix.js'
+      - 'vite.config.js'
 
 
 concurrency:

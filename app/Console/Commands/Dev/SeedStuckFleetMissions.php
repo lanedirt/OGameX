@@ -2,19 +2,19 @@
 
 namespace OGame\Console\Commands\Dev;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\User;
 
+#[Description('Seed stuck (overdue, unprocessed) fleet missions for admin tool testing. Requires ogamex:dev:seed-users to have been run first.')]
+#[Signature('ogamex:dev:seed-stuck-fleet-missions
+                            {--fresh : Clear all unprocessed fleet missions for test users before seeding}')]
 class SeedStuckFleetMissions extends Command
 {
-    protected $signature = 'ogamex:dev:seed-stuck-fleet-missions
-                            {--fresh : Clear all unprocessed fleet missions for test users before seeding}';
-
-    protected $description = 'Seed stuck (overdue, unprocessed) fleet missions for admin tool testing. Requires ogamex:dev:seed-users to have been run first.';
-
     private const EMAIL_DOMAIN = 'ogamex.dev';
 
     public function handle(): int

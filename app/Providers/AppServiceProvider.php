@@ -5,6 +5,7 @@ namespace OGame\Providers;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use OGame\Exceptions\Handler;
 use OGame\Factories\PlanetServiceFactory;
@@ -27,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Legacy JS bundles are plain concatenated scripts that rely on jQuery globals
+        // and must not be treated as ES modules.
+        Vite::useScriptTagAttributes(['type' => false]);
 
         // Register composer file for the main ingame layout.
         view()->composer('ingame.layouts.main', 'OGame\Http\ViewComposers\IngameMainComposer');

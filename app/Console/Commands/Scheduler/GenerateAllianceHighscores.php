@@ -2,27 +2,17 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use OGame\Models\Alliance;
 use OGame\Models\AllianceHighscore;
 use OGame\Models\Highscore;
 
+#[Description('Generates Alliance Highscore data by aggregating member scores')]
+#[Signature('ogamex:scheduler:generate-alliance-highscores')]
 class GenerateAllianceHighscores extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:scheduler:generate-alliance-highscores';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Generates Alliance Highscore data by aggregating member scores';
-
     /**
      * Execute the console command.
      */

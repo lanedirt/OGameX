@@ -47,8 +47,7 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <link rel="stylesheet" href="{{ mix('css/ingame.css') }}">
-    <script src="{{ mix('js/ingame.min.js') }}"></script>
+    @vite(['resources/css/ingame.css', 'resources/js/ingame.js'])
 
     <script type="text/javascript">
         // Define timerHandler globally to prevent simpleCountdown errors
@@ -876,7 +875,7 @@
                 var userData = {
                     "id": "108130"
                 };
-                var missleAttackLink = "{{ route('overview.index') }}#TODO_page=missileattacklayer&width=669&height=250";
+                var missleAttackLink = "{{ route('galaxy.missile-attack.overlay') }}?width=669&height=250";
                 var changeNickLink = "{{ route('changenick.overlay') }}";
                 var showOutlawWarning = true;
                 var miniFleetLink = "{{ route('fleet.dispatch.sendminifleet') }}";
@@ -1904,6 +1903,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
             <a href="{{ route('language.switch', ['lang' => 'en']) }}" @if($localeActive === 'en') class="bold" @endif>EN</a>|
             <a href="{{ route('language.switch', ['lang' => 'it']) }}" @if($localeActive === 'it') class="bold" @endif>IT</a>|
             <a href="{{ route('language.switch', ['lang' => 'nl']) }}" @if($localeActive === 'nl') class="bold" @endif>NL</a>|
+            <a href="{{ route('language.switch', ['lang' => 'zh-TW']) }}" @if($localeActive === 'zh-TW') class="bold" @endif>繁體中文</a>|
             <a href="#">{{ __('t_ingame.layout.board') }}</a>|
             <a class="overlay" href="{{ route('rules.ajax') }}"
                data-overlay-title="{{ __('t_ingame.layout.rules') }}">{{ __('t_ingame.layout.rules') }}</a>|
