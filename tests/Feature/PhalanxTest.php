@@ -37,7 +37,7 @@ class PhalanxTest extends FleetDispatchTestCase
         // Add some ships for fleet dispatch tests
         $this->planetAddUnit('light_fighter', 10);
         $this->planetAddUnit('small_cargo', 10);
-        $this->planetAddResources(new Resources(0, 0, 100000, 0));
+        $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
     }
 
     /**
@@ -265,7 +265,7 @@ class PhalanxTest extends FleetDispatchTestCase
         // Send an attack fleet to a foreign planet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
-        $targetPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $targetPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         $coords = $targetPlanet->getPlanetCoordinates();
 
