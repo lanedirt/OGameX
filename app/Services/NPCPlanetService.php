@@ -4,8 +4,6 @@ namespace OGame\Services;
 
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
-use OGame\Models\Planet;
-
 /**
  * NPCPlanetService - A specialized PlanetService for NPC expedition battles.
  *

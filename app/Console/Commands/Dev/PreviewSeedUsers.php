@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Dev;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
@@ -17,23 +19,11 @@ use OGame\Models\WreckField;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 
+#[Description('Seed the database with test users. Recreates users on each run.')]
+#[Signature('ogamex:dev:seed-users
+                            {--password=test : Password for all test accounts}')]
 class PreviewSeedUsers extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:dev:seed-users
-                            {--password=test : Password for all test accounts}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Seed the database with test users. Recreates users on each run.';
-
     /**
      * The email domain for the preview users.
      *

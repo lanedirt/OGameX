@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
+use OGame\Factories\GameMissionFactory;
 use OGame\Models\Setting;
 
 /**
@@ -384,6 +386,39 @@ class SettingsService
     public function battleEngine(): string
     {
         return $this->get('battle_engine', 'rust');
+    }
+
+    /**
+     * Returns the configured attack block end timestamp.
+     *
+     * @return int
+     */
+    public function attackBlockUntil(): int
+    {
+        return (int)$this->get('attack_block_until', 0);
+    }
+
+    /**
+     * Returns whether the server-wide attack block is currently active.
+     *
+     * @return bool
+     */
+    public function attackBlockActive(): bool
+    {
+        $until = $this->attackBlockUntil();
+
+        return $until > Date::now()->timestamp;
+    }
+
+    /**
+     * Returns whether the given mission type is blocked by attack block.
+     *
+     * @param int $missionType
+     * @return bool
+     */
+    public function missionBlockedByAttackBlock(int $missionType): bool
+    {
+        return $this->attackBlockActive() && GameMissionFactory::getMissionById($missionType, [])->isBlockedByServerAttackBlock();
     }
 
     /**

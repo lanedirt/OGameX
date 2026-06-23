@@ -40,7 +40,7 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 
 ## 🖥️ Live demo
 - Main branch (nightly builds): [https://main.ogamex.dev](https://main.ogamex.dev)
-- Latest stable release **(0.13.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
+- Latest stable release **(0.14.0)**: [https://release.ogamex.dev](https://release.ogamex.dev)
 
 ## 📝 Table of Contents
 - [1. Example screenshots](#screenshots)
@@ -92,16 +92,18 @@ OGameX is under active development with a lot of core features already implement
 - Admin panel
 - Expedition mission with various outcomes
 - Basic dark matter features (non-commercial)
+- Alliances
+- ACS fleet dispatch missions
+- Multi-language
 
 ### <a name="upcoming-features"></a> Upcoming Features
 
 The next major upcoming features that are being worked on:
 
 - Improved fleet mission processing via worker queue
-- Alliances
-- ACS fleet dispatch missions
 - All dark matter features (non-commercial)
-- Multi-language (making all in-game strings translatable)
+- General bugfixes and stability improvements
+- More admin / server management features
 
 ## <a name="contributing"></a> 🚀 5. Contributing
 

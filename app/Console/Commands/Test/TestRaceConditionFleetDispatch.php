@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Test;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use DateTime;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -24,11 +26,10 @@ use OGame\Services\ObjectService;
  * - Without protection: All 3 requests pass validation (reading stale data) and 3 fleets are created
  * - With protection: Only 1 request succeeds, the others fail with "not enough units"
  */
+#[Description('Issue parallel fleet dispatch requests to test race conditions for fleet sending.')]
+#[Signature('ogamex:test:race-condition-fleet-dispatch')]
 class TestRaceConditionFleetDispatch extends TestCommand
 {
-    protected $signature = 'ogamex:test:race-condition-fleet-dispatch';
-    protected $description = 'Issue parallel fleet dispatch requests to test race conditions for fleet sending.';
-
     /**
      * @var string The email of the test user.
      */

@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Test;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Exception;
 use Illuminate\Support\Facades\Date;
 use InvalidArgumentException;
@@ -29,13 +31,12 @@ use OGame\Services\SettingsService;
  * php artisan ogamex:test:battle-engine-performance rust --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
  * ---
  */
+#[Description('Test battle engine performance with specified fleets')]
+#[Signature('ogamex:test:battle-engine-performance
+        {engine : The battle engine to test (php/rust)}
+        {--fleet= : JSON string defining attacker and defender fleets}')]
 class TestBattleEnginePerformance extends TestCommand
 {
-    protected $signature = 'ogamex:test:battle-engine-performance
-        {engine : The battle engine to test (php/rust)}
-        {--fleet= : JSON string defining attacker and defender fleets}';
-    protected $description = 'Test battle engine performance with specified fleets';
-
     protected string $email = 'battleengineperformance@test.com';
     private float $startTime;
 

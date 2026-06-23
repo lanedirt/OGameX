@@ -372,7 +372,7 @@ class PlayerService
      */
     public function validatePassword(string $password): bool
     {
-        if (Auth::Attempt((['email' => $this->getEmail(), 'password' => $password]))) {
+        if (Auth::attempt(['email' => $this->getEmail(), 'password' => $password])) {
             return true;
         }
 

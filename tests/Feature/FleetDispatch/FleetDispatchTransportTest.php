@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\FleetDispatch;
 
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
@@ -10,6 +10,7 @@ use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -26,6 +27,16 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
      * @var string The mission name for the test, displayed in UI.
      */
     protected string $missionName = 'Transport';
+
+    /**
+     * Reset attack block setting after each test to avoid state leaking between tests.
+     */
+    protected function tearDown(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('attack_block_until', 0);
+        parent::tearDown();
+    }
 
     /**
      * Prepare the planet for the test so it has the required buildings and research.
@@ -417,7 +428,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = Carbon::getTestNow()->addMinute();
+        $fleetParentTime = Date::getTestNow()->addMinute();
         $this->travelTo($fleetParentTime);
 
         // Cancel the mission
@@ -450,7 +461,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $this->get('/overview');
@@ -541,5 +552,25 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Verify resources and units were not deducted
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships were deducted despite failed mission.');
+    }
+
+    /**
+     * Assert that an active attack block does not prevent transport (friendly) missions from being dispatched.
+     */
+    public function testAttackBlockDoesNotPreventTransportDispatch(): void
+    {
+        $this->basicSetup();
+
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('attack_block_until', time() + 3600);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        // Fleet check to own second planet should succeed during an active attack block.
+        $this->fleetCheckToSecondPlanet($unitCollection, true);
+
+        // Dispatching to own second planet should also succeed during an active attack block.
+        $this->sendMissionToSecondPlanet($unitCollection, new Resources(100, 100, 0, 0));
     }
 }

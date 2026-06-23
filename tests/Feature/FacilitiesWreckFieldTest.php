@@ -8,6 +8,17 @@ use Tests\AccountTestCase;
 
 class FacilitiesWreckFieldTest extends AccountTestCase
 {
+    protected function tearDown(): void
+    {
+        $coords = $this->planetService->getPlanetCoordinates();
+        WreckField::where('galaxy', $coords->galaxy)
+            ->where('system', $coords->system)
+            ->where('planet', $coords->position)
+            ->delete();
+
+        parent::tearDown();
+    }
+
     /**
      * Set the space_dock column on the current planet directly.
      */
@@ -261,6 +272,35 @@ class FacilitiesWreckFieldTest extends AccountTestCase
         $this->assertTrue($data['wreckField']['can_repair']);
         $this->assertFalse($data['wreckField']['is_repairing']);
         $this->assertFalse($data['wreckField']['is_completed']);
+    }
+
+    public function test_wreck_field_hidden_without_space_dock(): void
+    {
+        $this->giveCurrentPlanetSpaceDock(0);
+        $this->createWreckField();
+
+        // Status endpoint must return null wreckField when Space Dock is not built.
+        $response = $this->getJson(route('facilities.wreckfieldstatus'));
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'error' => false,
+        ]);
+        $this->assertNull($response->json('wreckField'));
+    }
+
+    public function test_wreck_field_visible_with_space_dock(): void
+    {
+        $this->giveCurrentPlanetSpaceDock(1);
+        $this->createWreckField();
+
+        $response = $this->getJson(route('facilities.wreckfieldstatus'));
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'error' => false,
+        ]);
+        $this->assertNotNull($response->json('wreckField'));
     }
 
     public function test_all_endpoints_fail_when_not_authenticated(): void

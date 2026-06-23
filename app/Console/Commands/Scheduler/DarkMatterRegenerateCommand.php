@@ -2,26 +2,16 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Exception;
 use Illuminate\Console\Command;
 use OGame\Services\DarkMatterService;
 
+#[Description('Process Dark Matter regeneration for all eligible users')]
+#[Signature('ogamex:scheduler:darkmatter-regenerate')]
 class DarkMatterRegenerateCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:scheduler:darkmatter-regenerate';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Process Dark Matter regeneration for all eligible users';
-
     /**
      * DarkMatterRegenerateCommand constructor.
      *

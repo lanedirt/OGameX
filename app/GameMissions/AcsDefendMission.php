@@ -10,7 +10,6 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\Resources;
 use OGame\Services\AllianceService;
 use OGame\Services\BuddyService;
 use OGame\Services\PlanetService;
