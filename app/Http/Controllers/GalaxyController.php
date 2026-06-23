@@ -1009,9 +1009,11 @@ class GalaxyController extends OGameController
         $mission->position_to = $position;
         $mission->type_from = $currentPlanet->getPlanetType()->value;
         $mission->type_to = $type;
+        $dispatchMoment = now();
         $mission->mission_type = 10; // Missile attack mission
-        $mission->time_departure = time();
-        $mission->time_arrival = time() + $flightTime;
+        $mission->time_departure = (int) $dispatchMoment->timestamp;
+        $mission->time_arrival = (int) $dispatchMoment->timestamp + $flightTime;
+        $mission->time_arrival_ms = (int) $dispatchMoment->valueOf() + ($flightTime * 1000);
         $mission->canceled = 0;
         $mission->processed = 0;
 

@@ -116,6 +116,20 @@ class FleetUnionService
             throw new Exception(__('t_ingame.fleet.err_union_target_mismatch'));
         }
 
+        $currentCoordinatedMission = $union->activeFleetMissions()
+            ->orderByDesc('time_arrival')
+            ->orderByDesc('time_arrival_ms')
+            ->orderByDesc('id')
+            ->first();
+
+        // @phpstan-ignore nullsafe.neverNull (Larastan incorrectly infers Builder::first() as non-nullable)
+        $coordinatedArrivalTime = $currentCoordinatedMission?->time_arrival ?? $union->time_arrival;
+        // @phpstan-ignore nullsafe.neverNull
+        $coordinatedArrivalMs = $currentCoordinatedMission?->time_arrival_ms ?? ($union->time_arrival * 1000);
+
+        // Normalize ms precision for the joining mission so downstream saves never write NULL.
+        $mission->time_arrival_ms ??= $mission->time_arrival * 1000;
+
         // Validate fleet can arrive within delay limit
         $maxArrival = $union->time_arrival + $this->getMaxDelayTime($union);
         if ($mission->time_arrival > $maxArrival) {
@@ -131,8 +145,12 @@ class FleetUnionService
         $mission->mission_type = 2; // ACS Attack
 
         // Adjust arrival time to match union (if fleet arrives earlier)
-        if ($mission->time_arrival < $union->time_arrival) {
-            $mission->time_arrival = $union->time_arrival;
+        $missionArrivesEarlier = $mission->time_arrival < $coordinatedArrivalTime
+            || ($mission->time_arrival === $coordinatedArrivalTime && $mission->time_arrival_ms < $coordinatedArrivalMs);
+
+        if ($missionArrivesEarlier) {
+            $mission->time_arrival = $coordinatedArrivalTime;
+            $mission->time_arrival_ms = $coordinatedArrivalMs;
         } else {
             // Fleet arrives later - update union arrival time (within delay limit)
             $union->time_arrival = $mission->time_arrival;
@@ -141,7 +159,11 @@ class FleetUnionService
             // Also sync all existing union members to the new (later) arrival time.
             // The mission itself has not been saved yet (union_id not in DB), so
             // activeFleetMissions() only returns already-joined missions.
-            $union->activeFleetMissions()->update(['time_arrival' => $mission->time_arrival]);
+            foreach ($union->activeFleetMissions()->get() as $existingMission) {
+                $existingMission->time_arrival = $mission->time_arrival;
+                $existingMission->time_arrival_ms = $mission->time_arrival_ms;
+                $existingMission->save();
+            }
         }
 
         $mission->save();
