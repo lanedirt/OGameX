@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use OGame\GameConstants\UniverseConstants;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
@@ -18,6 +19,15 @@ class PhalanxTest extends FleetDispatchTestCase
      * @var string The mission name for fleet tests
      */
     protected string $missionName = 'Attack';
+
+    /**
+     * Reset per-test mutations that could bleed into subsequent tests.
+     */
+    protected function tearDown(): void
+    {
+        $this->missionType = 1;
+        parent::tearDown();
+    }
 
     /**
      * Basic setup required by FleetDispatchTestCase
@@ -174,10 +184,15 @@ class PhalanxTest extends FleetDispatchTestCase
         // Build phalanx level 1 (range: 0, can only scan same system)
         $moonCoords = $this->moonService->getPlanetCoordinates();
 
+        // Pick a target 2 systems away, clamping direction to stay within universe bounds.
+        $targetSystem = $moonCoords->system <= UniverseConstants::MAX_SYSTEM_COUNT - 2
+            ? $moonCoords->system + 2
+            : $moonCoords->system - 2;
+
         // Try to scan a different system (out of range for level 1)
         $response = $this->post('/ajax/phalanx/scan', [
             'galaxy' => $moonCoords->galaxy,
-            'system' => $moonCoords->system + 2, // 2 systems away, out of range
+            'system' => $targetSystem,
             'position' => 5,
         ]);
 
@@ -315,9 +330,6 @@ class PhalanxTest extends FleetDispatchTestCase
         // Check that it shows "Own fleet" (scanner's own fleet)
         $contentHtml = $response->json('content_html');
         $this->assertStringContainsString('Own fleet', $contentHtml);
-
-        // Reset mission type
-        $this->missionType = 1;
     }
 
     /**
@@ -333,10 +345,15 @@ class PhalanxTest extends FleetDispatchTestCase
 
         $moonCoords = $this->moonService->getPlanetCoordinates();
 
+        // Pick a target 1 system away, clamping direction to stay within universe bounds.
+        $targetSystem = $moonCoords->system < UniverseConstants::MAX_SYSTEM_COUNT
+            ? $moonCoords->system + 1
+            : $moonCoords->system - 1;
+
         // Try to scan 1 system away - should fail
         $response = $this->post('/ajax/phalanx/scan', [
             'galaxy' => $moonCoords->galaxy,
-            'system' => $moonCoords->system + 1,
+            'system' => $targetSystem,
             'position' => 5,
         ]);
 
