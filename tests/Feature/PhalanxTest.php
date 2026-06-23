@@ -184,10 +184,8 @@ class PhalanxTest extends FleetDispatchTestCase
         // Build phalanx level 1 (range: 0, can only scan same system)
         $moonCoords = $this->moonService->getPlanetCoordinates();
 
-        // Pick a target 2 systems away, clamping direction to stay within universe bounds.
-        $targetSystem = $moonCoords->system <= UniverseConstants::MAX_SYSTEM_COUNT - 2
-            ? $moonCoords->system + 2
-            : $moonCoords->system - 2;
+        // Wrap forward like a donut universe — always valid, always a different system.
+        $targetSystem = ($moonCoords->system % UniverseConstants::MAX_SYSTEM_COUNT) + 1;
 
         // Try to scan a different system (out of range for level 1)
         $response = $this->post('/ajax/phalanx/scan', [
@@ -345,10 +343,8 @@ class PhalanxTest extends FleetDispatchTestCase
 
         $moonCoords = $this->moonService->getPlanetCoordinates();
 
-        // Pick a target 1 system away, clamping direction to stay within universe bounds.
-        $targetSystem = $moonCoords->system < UniverseConstants::MAX_SYSTEM_COUNT
-            ? $moonCoords->system + 1
-            : $moonCoords->system - 1;
+        // Wrap forward like a donut universe — always valid, always a different system.
+        $targetSystem = ($moonCoords->system % UniverseConstants::MAX_SYSTEM_COUNT) + 1;
 
         // Try to scan 1 system away - should fail
         $response = $this->post('/ajax/phalanx/scan', [
