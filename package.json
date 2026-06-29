@@ -8,7 +8,7 @@
         "production": "npm run build"
     },
     "devDependencies": {
-        "axios": "^1.18.0",
+        "axios": "^1.18.1",
         "laravel-echo": "^2.3.7",
         "laravel-vite-plugin": "^1.0",
         "pusher-js": "^8.5.0",
