@@ -217,19 +217,22 @@ class PlanetService
     /**
      * Abandon (delete) the current planet. Careful: this action is irreversible!
      *
+     * @param bool $force When true, skip the user-facing sanity checks (last remaining planet and
+     * active fleet missions). Used when the planet is removed as part of a full account deletion,
+     * where these guards do not apply because the whole account is going away.
      * @return void
      */
-    public function abandonPlanet(): void
+    public function abandonPlanet(bool $force = false): void
     {
         // Sanity check: disallow abandoning the last remaining planet of user.
-        if ($this->isPlanet() && $this->player->planets->planetCount() < 2) {
+        if (!$force && $this->isPlanet() && $this->player->planets->planetCount() < 2) {
             throw new RuntimeException('Cannot abandon only remaining planet.');
         }
 
         // Sanity check: disallow abandoning a planet with active fleet missions.
         // Moons are exempt: moon destruction redirects incoming fleets and nulls out planet
         // references for any remaining missions, so active missions are handled gracefully.
-        if ($this->isPlanet()) {
+        if (!$force && $this->isPlanet()) {
             $fleetMissionService = resolve(FleetMissionService::class);
             $activeMissions = $fleetMissionService->getActiveMissionsByPlanetIds([$this->planet->id]);
 
@@ -240,7 +243,10 @@ class PlanetService
 
         // If this is a planet and has a moon, delete the moon first
         if ($this->isPlanet() && $this->hasMoon()) {
-            $this->moon()->abandonPlanet();
+            // TODO (#146): once "Destroyed Planet" logic is implemented, abandoning a planet with a
+            // moon should transition the moon into the destroyed-planet flow here instead of simply
+            // deleting it. For now the moon is abandoned (deleted) directly.
+            $this->moon()->abandonPlanet($force);
         }
 
         // Anonymize the planet in all tables where it is referenced.
@@ -274,6 +280,9 @@ class PlanetService
 
         // TODO: add feature test to check that abandoning a planet works correctly in various scenarios.
 
+        // TODO (#146): once "Destroyed Planet" logic is implemented, this is where an abandoned planet
+        // should transition into the destroyed-planet state (e.g. leaving a destroyed-planet marker in
+        // the galaxy) instead of being hard-deleted. Until #146 lands we simply remove the planet row.
         // Delete the planet from the database
         $this->planet->delete();
     }

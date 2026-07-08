@@ -125,6 +125,18 @@
                             </div>
                         </div>
 
+                        <p class="box_highlight textCenter no_buddies">@lang('Player deletion settings.')</p>
+
+                        <div class="group bborder" style="display: block;">
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Inactive days before player deletion:')</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $inactive_player_deletion_days }}" size="6" name="inactive_player_deletion_days">
+                                </div>
+                                <div class="smallFont">@lang('Number of days of inactivity after which a player is permanently deleted and their planets are abandoned. Set to 0 to disable.')</div>
+                            </div>
+                        </div>
+
                         <p class="box_highlight textCenter no_buddies">@lang('Dark Matter regeneration settings.')</p>
 
                         <div class="group bborder" style="display: block;">
