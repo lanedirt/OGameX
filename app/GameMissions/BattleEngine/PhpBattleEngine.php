@@ -32,9 +32,13 @@ class PhpBattleEngine extends BattleEngine
 
         // Convert attacker units to BattleUnit objects to keep track of hull plating and shields.
         // Each attacker fleet uses its own player's tech levels.
+        // Units are ordered by fleet (slot) order and ascending unit id within each fleet: units
+        // fire in this deterministic order, matching the original game. This makes ACS
+        // shield-stripping tactics work (e.g. fleet 1's destroyers break a Deathstar's shield
+        // so fleet 2's light fighters no longer bounce in the same round).
         $attackerUnits = [];
         foreach ($this->attackers as $attackerFleet) {
-            foreach ($attackerFleet->units->units as $unit) {
+            foreach ($this->sortedByUnitId($attackerFleet->units->units) as $unit) {
                 // Create new object for each unique unit in this fleet.
                 // Use THIS fleet owner's tech levels for calculations
                 $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($attackerFleet->player)->totalValue;
@@ -52,7 +56,7 @@ class PhpBattleEngine extends BattleEngine
         $defenderUnits = [];
         // Create BattleUnits for each defending fleet separately to preserve ownership and tech levels
         foreach ($this->defenders as $defenderFleet) {
-            foreach ($defenderFleet->units->units as $unit) {
+            foreach ($this->sortedByUnitId($defenderFleet->units->units) as $unit) {
                 // Create new object for each unique unit type in this fleet
                 // Use THIS fleet owner's tech levels for calculations
                 $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($defenderFleet->player)->totalValue;
@@ -216,6 +220,18 @@ class PhpBattleEngine extends BattleEngine
     }
 
     /**
+     * Return the unit entries of a fleet ordered by ascending unit id.
+     *
+     * @param array<\OGame\GameObjects\Models\Units\UnitEntry> $units
+     * @return array<\OGame\GameObjects\Models\Units\UnitEntry>
+     */
+    private function sortedByUnitId(array $units): array
+    {
+        usort($units, fn ($a, $b) => $a->unitObject->id <=> $b->unitObject->id);
+        return $units;
+    }
+
+    /**
      * Let one unit attack another unit and apply the damage to the defending unit.
      *
      * @param bool $isAttacker True if the attacker is attacking, false if the defender is attacking. This is used
@@ -231,28 +247,38 @@ class PhpBattleEngine extends BattleEngine
         // Calculate the damage dealt by the attacker to the defender.
         $damage = $attacker->attackPower;
         $shieldAbsorption = 0;
+        $bounced = false;
 
-        if ($damage < (0.01 * $defender->originalShieldPoints)) {
-            // If the damage is less than 1% of the shield points, the attack is bounced and no damage is dealt.
-            return false;
-        }
-
-        if ($defender->currentShieldPoints > 0 && $damage <= $defender->currentShieldPoints) {
-            // If the defender has a shield, first apply damage to the shield.
-            $shieldAbsorption = $damage;
-            $defender->currentShieldPoints -= $damage;
-        } elseif ($defender->currentShieldPoints > 0 && $damage > $defender->currentShieldPoints) {
-            // If the shield is destroyed, apply the remaining damage to the hull plating.
-            $shieldAbsorption = $defender->currentShieldPoints;
-            $defender->currentHullPlating -= $damage - $defender->currentShieldPoints;
-            $defender->currentShieldPoints = 0;
+        if ($defender->currentHullPlating <= 0) {
+            // Target was already destroyed earlier this round: the shot is wasted.
+            // It still counts towards the round statistics and still rolls rapidfire.
+        } elseif ($defender->currentShieldPoints <= 0) {
+            // Shield is stripped: full damage goes to the hull, however weak the shot.
+            $defender->currentHullPlating = max(0, $defender->currentHullPlating - $damage);
         } else {
-            // No shield, apply damage directly to the hull plating.
-            $defender->currentHullPlating -= $damage;
+            // Shield damage is dealt in whole multiples of 1% of the max shield, matching the
+            // original game. A shot weaker than 1% of max shield depletes zero multiples: it is
+            // fully absorbed without effect (the classic "bounce" rule).
+            $shieldPercentile = 0.01 * $defender->originalShieldPoints;
+            $depletedPercentiles = floor($damage / $shieldPercentile);
+            if ($defender->currentShieldPoints < $depletedPercentiles * $shieldPercentile) {
+                // Shield breaks: the overflow beyond the remaining shield hits the hull.
+                $shieldAbsorption = $defender->currentShieldPoints;
+                $hullDamage = $damage - $defender->currentShieldPoints;
+                $defender->currentHullPlating = max(0, $defender->currentHullPlating - $hullDamage);
+                $defender->currentShieldPoints = 0;
+            } else {
+                // Shot fully absorbed; the shield only loses whole percentiles.
+                $defender->currentShieldPoints -= $depletedPercentiles * $shieldPercentile;
+                $shieldAbsorption = $damage;
+                $bounced = $depletedPercentiles == 0;
+            }
         }
 
         // If the defender's hull integrity is less than 70%, the unit can explode randomly.
-        if ($defender->damagedHullExplosion()) {
+        // Bounced shots never trigger the roll, otherwise massed weak shots could explode a
+        // damaged unit straight through an intact shield.
+        if (!$bounced && $defender->currentHullPlating > 0 && $defender->damagedHullExplosion()) {
             // Hull was damaged and dice roll was successful, destroy the unit.
             $defender->currentShieldPoints = 0;
             $defender->currentHullPlating = 0;
