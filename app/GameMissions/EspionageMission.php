@@ -18,6 +18,7 @@ use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
+use OGame\Support\FleetMissionPlanetFormatter;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\CounterEspionageService;
@@ -170,8 +171,8 @@ class EspionageMission extends GameMission
 
             $params = [
                 // IMPORTANT: pass the raw mission planet id inside [planet]...[/planet]
-                'planet'        => '[planet]' . $mission->planet_id_from . '[/planet]',
-                'defender'      => '[planet]' . $mission->planet_id_to . '[/planet]',   // defender planet
+                'planet'        => FleetMissionPlanetFormatter::tag($mission, 'from'),
+                'defender'      => FleetMissionPlanetFormatter::tag($mission, 'to'),
                 'attacker_name' => $attackerName,
                 'chance'        => $counterEspionageChance,
             ];
