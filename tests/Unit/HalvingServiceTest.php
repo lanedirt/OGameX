@@ -273,6 +273,9 @@ class HalvingServiceTest extends AccountTestCase
         $this->assertEquals($initialBalance - $result['cost'], $newBalance, 'Balance should be reduced by exactly the halving cost');
         $this->assertGreaterThanOrEqual(750, $result['cost'], 'Cost should be at least minimum 750 DM');
         $this->assertLessThanOrEqual(72000, $result['cost'], 'Cost should not exceed max 72000 DM for building');
+
+        $queueItem->refresh();
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set');
     }
 
     /**
@@ -566,6 +569,81 @@ class HalvingServiceTest extends AccountTestCase
             // Second item should still be in queue and not modified
             $this->assertNotNull($secondQueueItemAfter, 'Second queue item should still exist');
         }
+    }
+
+    /**
+     * Test that a second building halve attempt is rejected (can only halve once).
+     */
+    public function testDoubleBuildingHalvingIsRejected(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 200000;
+        $user->save();
+
+        $this->addBuildingToQueue();
+
+        $queueItem = BuildingQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('building', 1)
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        $this->halvingService->halveBuilding($user, $queueItem->id, $this->planetService);
+
+        $queueItem->refresh();
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved should be set after first halve');
+
+        $user->refresh();
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('already been halved');
+
+        $this->halvingService->halveBuilding($user, $queueItem->id, $this->planetService);
+    }
+
+    /**
+     * Test completing a building after halving finishes the queue item.
+     */
+    public function testCompleteBuildingAfterHalve(): void
+    {
+        $user = User::find($this->currentUserId);
+        $user->dark_matter = 200000;
+        $user->save();
+
+        $this->addBuildingToQueue();
+
+        $queueItem = BuildingQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('building', 1)
+            ->where('processed', 0)
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        $levelBefore = $this->planetService->getObjectLevel('metal_mine');
+
+        $this->halvingService->halveBuilding($user, $queueItem->id, $this->planetService);
+
+        $user->refresh();
+        $balanceBeforeComplete = $user->dark_matter;
+
+        $queueItem->refresh();
+        $remainingTime = (int)$queueItem->time_end - (int)\Carbon\Carbon::now()->timestamp;
+        $expectedCost = $this->halvingService->calculateHalvingCost($remainingTime, 'building');
+
+        $result = $this->halvingService->completeBuilding($user, $queueItem->id, $this->planetService);
+
+        $user->refresh();
+        $this->assertEquals($balanceBeforeComplete - $expectedCost, $user->dark_matter, 'DM should be deducted for completion');
+        $this->assertEquals($expectedCost, $result['cost'], 'Completion cost should match remaining time');
+
+        $this->planetService->updateBuildingQueue();
+        $this->planetService->reloadPlanet();
+
+        $this->assertEquals($levelBefore + 1, $this->planetService->getObjectLevel('metal_mine'), 'Building should be completed');
+
+        $queueItem->refresh();
+        $this->assertEquals(1, (int)$queueItem->processed, 'Queue item should be processed');
+        $this->assertEquals(1, (int)$queueItem->dm_completed, 'dm_completed flag should be set');
     }
 
     /**
