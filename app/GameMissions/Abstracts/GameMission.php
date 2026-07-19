@@ -709,7 +709,7 @@ abstract class GameMission
     /**
      * @return array{planet_coords?: string, planet_name?: string, planet_type?: string}
      */
-    protected function buildAttackerPlanetSnapshot(?int $planetId): array
+    protected function buildAttackerPlanetSnapshot(int|null $planetId): array
     {
         if ($planetId === null) {
             return [];
