@@ -3,6 +3,7 @@
 namespace OGame\GameMissions;
 
 use Illuminate\Support\Facades\DB;
+use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\FleetLostContact;
 use OGame\GameMessages\MoonDestroyed;
@@ -34,6 +35,7 @@ class MoonDestructionMission extends GameMission
     protected static bool $hasReturnMission = true;
     protected static bool $blockedByServerAttackBlock = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
+    protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Hostile;
 
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
