@@ -119,6 +119,10 @@ class ExpeditionMission extends GameMission
             return $parentCheck;
         }
 
+        if ($targetType === PlanetType::DebrisField) {
+            return new MissionPossibleStatus(false);
+        }
+
         // Expedition mission is only possible for position 16.
         if ($targetCoordinate->position !== 16) {
             return new MissionPossibleStatus(false);

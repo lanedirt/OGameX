@@ -117,6 +117,20 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
+     * Assert that expedition cannot target debris fields (fixes #1355).
+     */
+    public function testFleetCheckToPosition16DebrisFieldFails(): void
+    {
+        $this->basicSetup();
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1);
+
+        $currentPlanetCoords = $this->planetService->getPlanetCoordinates();
+        $coordinates = new \OGame\Models\Planet\Coordinate($currentPlanetCoords->galaxy, $currentPlanetCoords->system, 16);
+        $this->checkTargetFleet($coordinates, $unitCollection, \OGame\Models\Enums\PlanetType::DebrisField, false);
+    }
+
+    /**
      * Test that max expedition slots restriction works correctly based on astrophysics level.
      */
     public function testMaxExpeditionSlotsRestriction(): void
