@@ -45,24 +45,40 @@
             <td colspan="2">
                 @php
                     $halvingService = app(\OGame\Services\HalvingService::class);
-                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_total, 'building');
+                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_countdown, 'building');
+                    $wouldComplete = $build_active->dm_halved;
                 @endphp
-                <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile building "
-                   title="Reduces construction time by 50% of the total construction time."
-                   href="javascript:void(0);"
-                   rel="{{ route('facilities.halvebuilding') }}?queue_item_id={{ $build_active->id }}">
-                    <div class="build-faster-img" alt="Halve time"></div>
-                    <span class="build-txt">Halve time</span>
-                    <span class="dm_cost">Costs: {{ number_format($halvingCost) }} DM</span>
-                </a>
+                @if ($wouldComplete)
+                    <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile building tpd-hideOnClickOutside"
+                       title="@lang('Instantly completes the current building construction.')"
+                       href="javascript:void(0);"
+                       rel="{{ route('facilities.completebuilding') }}?queue_item_id={{ $build_active->id }}">
+                        <div class="build-finish-img" alt="@lang('Complete')"></div>
+                        <span class="build-txt">@lang('Complete')</span>
+                        <span class="dm_cost">@lang('Costs: :amount DM', ['amount' => number_format($halvingCost)])</span>
+                    </a>
+                @else
+                    <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile building tpd-hideOnClickOutside"
+                       title="@lang('Reduces construction time by 50% of the total construction time.')"
+                       href="javascript:void(0);"
+                       rel="{{ route('facilities.halvebuilding') }}?queue_item_id={{ $build_active->id }}">
+                        <div class="build-faster-img" alt="@lang('Halve time')"></div>
+                        <span class="build-txt">@lang('Halve time')</span>
+                        <span class="dm_cost">@lang('Costs: :amount DM', ['amount' => number_format($halvingCost)])</span>
+                    </a>
+                @endif
             </td>
         </tr>
         </tbody>
     </table>
     <script type="text/javascript">
-        var cancelBuildListEntryUrl = '{{ route('resources.cancelbuildrequest') }}';
-        var questionbuilding = 'Do you want to reduce the construction time of the current construction project by 50% of the total construction time for <span style="font-weight: bold;">{{ number_format($halvingCost) }} Dark Matter</span>?';
+        @if ($wouldComplete)
+        var questionbuilding = '{!! __('Do you want to immediately complete the construction order for :dm_cost?', ['dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('Dark Matter') . '</span>']) !!}';
+        @else
+        var questionbuilding = '{!! __('Do you want to reduce the construction time of the current construction project by 50% of the total construction time (:time_reduction) for :dm_cost?', ['time_reduction' => \OGame\Facades\AppUtil::formatTimeDuration(intdiv($build_active->time_total, 2)), 'dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('Dark Matter') . '</span>']) !!}';
+        @endif
         var pricebuilding = {{ $halvingCost }};
+        var cancelBuildListEntryUrl = '{{ route('resources.cancelbuildrequest') }}';
         var referrerPage = $.deparam.querystring().page;
 
         new CountdownTimer('buildingCountdown', {{ $build_active->time_countdown }}, '{{ url()->current() }}', null, true, 3)
