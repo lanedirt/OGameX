@@ -21,6 +21,19 @@ class CoordinateDistanceCalculator
     }
 
     /**
+     * Shortest system distance within a galaxy, accounting for donut wrap-around.
+     *
+     * Example: system 490 to system 5 is 14 systems via the wrap, not 485.
+     */
+    public function getSystemDistance(int $fromSystem, int $toSystem): int
+    {
+        $diffSystems = abs($fromSystem - $toSystem);
+        $wrapDiff = abs($diffSystems - UniverseConstants::MAX_SYSTEM_COUNT);
+
+        return min($diffSystems, $wrapDiff);
+    }
+
+    /**
      * Get the number of empty systems between two coordinates.
      * Only applies when coordinates are in the same galaxy.
      *

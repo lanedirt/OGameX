@@ -189,4 +189,22 @@ class PhalanxServiceTest extends UnitTestCase
         $targetCoords4 = new Coordinate(1, 109, 5); // 9 systems forwards
         $this->assertFalse($this->phalanxService->canScanTarget($moonGalaxy, $moonSystem, $phalanxLevel, $targetCoords4));
     }
+
+    /**
+     * Test that canScanTarget uses donut wrap-around for system distance.
+     */
+    public function testCanScanAcrossGalaxyWrap(): void
+    {
+        $moonGalaxy = 1;
+        $moonSystem = 490;
+        $phalanxLevel = 4; // Range 15
+
+        // 485 systems linearly, but only 14 via wrap-around
+        $targetCoords = new Coordinate(1, 5, 8);
+
+        $this->assertTrue($this->phalanxService->canScanTarget($moonGalaxy, $moonSystem, $phalanxLevel, $targetCoords));
+
+        $outOfRangeCoords = new Coordinate(1, 7, 8); // 16 systems via wrap (490 -> 499 -> 1 -> 7)
+        $this->assertFalse($this->phalanxService->canScanTarget($moonGalaxy, $moonSystem, $phalanxLevel, $outOfRangeCoords));
+    }
 }
