@@ -340,6 +340,8 @@ class FleetMovementTest extends FleetDispatchTestCase
      */
     public function testFleetMovementShowsMoonDestructionMission(): void
     {
+        $this->missionType = 9; // Moon Destruction
+
         $this->planetAddUnit('deathstar', 1);
         $this->playerSetResearchLevel('computer_technology', 5);
         $this->planetAddResources(new Resources(0, 0, 100000, 0));
@@ -351,5 +353,6 @@ class FleetMovementTest extends FleetDispatchTestCase
         $response = $this->get('/fleet/movement');
         $response->assertStatus(200);
         $response->assertSee('Moon Destruction');
+        $response->assertSee('hostile', false);
     }
 }
