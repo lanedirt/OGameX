@@ -120,6 +120,22 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
     }
 
     /**
+     * Login page shows the configured universe name.
+     */
+    public function testLoginPageShowsConfiguredUniverseName(): void
+    {
+        /** @var SettingsService $settings */
+        $settings = app(SettingsService::class);
+        $settings->set('universe_name', 'Alpha Centauri');
+
+        $this->post('/logout');
+
+        $this->get('/login')
+            ->assertStatus(200)
+            ->assertSee('Alpha Centauri');
+    }
+
+    /**
      * Activity logs and cron tasks admin pages are accessible to admins.
      */
     public function testAdminActivityLogsAndCronPagesAccessible(): void
