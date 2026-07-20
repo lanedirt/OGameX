@@ -9,11 +9,6 @@
 <div id="technologytree" data-title="{{ __('t_ingame.techtree.page_title') }} - {{ $object->title }}">
     @include('ingame.techtree.partials.nav', ['currentAction' => 'technologies', 'objectId' => $object->id])
 
-    <style>
-        /* Override default display:none so all category sections are open by default. */
-        #technologytree .content.technologies > ul { display: block; }
-    </style>
-
     <div class="content technologies">
         @foreach ($categories as $categoryKey => $category)
             @if (empty($category['objects']))
