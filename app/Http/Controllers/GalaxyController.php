@@ -75,8 +75,8 @@ class GalaxyController extends OGameController
             'espionage_probe_count' => $planet->getObjectAmount('espionage_probe'),
             'recycler_count' => $planet->getObjectAmount('recycler'),
             'interplanetary_missiles_count' => $planet->getObjectAmount('interplanetary_missile'),
-            'used_slots' => 0,
-            'max_slots' => 1,
+            'used_slots' => $player->getFleetSlotsInUse(),
+            'max_slots' => $player->getFleetSlotsMax(),
             'max_galaxies' => $settingsService->numberOfGalaxies(),
             'is_in_vacation_mode' => $player->isInVacationMode(),
             'planet_relocation_cost' => (int)$settingsService->get('planet_relocation_cost', 240000),
@@ -594,6 +594,32 @@ class GalaxyController extends OGameController
         $has_colonize_ship = $this->playerService->planets->current()->getObjectAmount('colony_ship') > 0;
         $colonize_ship_message = "<br><div><img src='/img/galaxy/activity.gif' />" . __('t_galaxy.mission.colonize.no_ship') . "</div>";
 
+        $astrophysicsLevel = $this->playerService->getResearchLevel('astrophysics');
+        $canColonizePosition = $this->playerService->canColonizePosition($position);
+        $usedFleetSlots = $this->playerService->getFleetSlotsInUse();
+        $maximumFleetSlots = $this->playerService->getFleetSlotsMax();
+        $canFly = $usedFleetSlots < $maximumFleetSlots;
+        $hasAdmiral = $this->playerService->hasAdmiral();
+
+        $description = __('t_galaxy.mission.colonize.name') . "<br>{$planet_description}";
+        if (!$has_colonize_ship) {
+            $description .= $colonize_ship_message;
+        }
+        if ($astrophysicsLevel === 0 || !$canColonizePosition) {
+            $description .= '<br>' . __('t_ingame.galaxy.astro_required');
+        }
+        if (!$canFly) {
+            $description .= '<br>' . __('t_ingame.fleet.no_free_slots');
+            if (!$hasAdmiral) {
+                $description .= '<br>' . __('t_ingame.galaxy.hire_admiral');
+            }
+        }
+
+        $canColonize = $has_colonize_ship
+            && $astrophysicsLevel > 0
+            && $canColonizePosition
+            && $canFly;
+
         // Check if the current planet already has a pending move.
         $planetMoveService = app(PlanetMoveService::class);
         $activeMove = $planetMoveService->getActiveMoveForPlanet($this->playerService->planets->current());
@@ -610,8 +636,8 @@ class GalaxyController extends OGameController
             ],
             [
                 'missionType' => 7,
-                'link' => $has_colonize_ship ? "/fleet?galaxy={$galaxy}&system={$system}&position={$position}&type=1&mission=7" : '#',
-                'description' => __('t_galaxy.mission.colonize.name') . "<br>{$planet_description}" . (!$has_colonize_ship ? $colonize_ship_message : '')
+                'link' => $canColonize ? "/fleet?galaxy={$galaxy}&system={$system}&position={$position}&type=1&mission=7" : '#',
+                'description' => $description,
             ]
         ];
 
@@ -705,6 +731,9 @@ class GalaxyController extends OGameController
             $can_system_phalanx = $phalanx_level > 0;
         }
 
+        $usedFleetSlots = $player->getFleetSlotsInUse();
+        $maximumFleetSlots = $player->getFleetSlotsMax();
+
         return response()->json([
             'components' => [],
             'filterSettings' => [],
@@ -717,9 +746,9 @@ class GalaxyController extends OGameController
                 'availablePathfinders' => $planet->getObjectAmount('pathfinder'),
                 'availableProbes' => $planet->getObjectAmount('espionage_probe'),
                 'availableRecyclers' => $planet->getObjectAmount('recycler'),
-                'canColonize' => true,
+                'canColonize' => $player->getResearchLevel('astrophysics') > 0,
                 'canExpedition' => true,
-                'canFly' => true,
+                'canFly' => $usedFleetSlots < $maximumFleetSlots,
                 'canSendSystemDiscovery' => true,
                 'canSwitchGalaxy' => true,
                 'canSystemEspionage' => false,
@@ -729,17 +758,17 @@ class GalaxyController extends OGameController
                 'galaxy' => $galaxy,
                 'system' => $system,
                 'galaxyContent' => $galaxyContent,
-                'hasAdmiral' => false,
+                'hasAdmiral' => $player->hasAdmiral(),
                 'hasBirthdayPlanet' => false,
                 'isOutlaw' => false,
-                'maximumFleetSlots' => 13,
+                'maximumFleetSlots' => $maximumFleetSlots,
                 'playerId' => $player->getId(),
                 'settingsProbeCount' => 3,
                 'showOutlawWarning' => true,
                 'slotsColonized' => $slotsColonized,
                 'switchGalaxyDeuteriumCosts' => 10,
                 'toGalaxyLink' => route('galaxy.index', ['galaxy' => $galaxy, 'system' => $system]),
-                'usedFleetSlots' => 1
+                'usedFleetSlots' => $usedFleetSlots,
             ],
         ]);
     }
