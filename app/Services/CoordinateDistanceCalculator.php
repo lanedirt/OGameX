@@ -56,8 +56,7 @@ class CoordinateDistanceCalculator
         $diffSystems = abs($from->system - $to->system);
 
         // Check if donut galaxy wrapping provides a shorter path
-        $altDiff = UniverseConstants::MAX_SYSTEM_COUNT - $diffSystems;
-        if ($altDiff < $diffSystems) {
+        if ($this->getSystemDistance($from->system, $to->system) < $diffSystems) {
             // Path wraps around, split into two segments
             $split1 = new Coordinate($from->galaxy, UniverseConstants::MIN_SYSTEM, UniverseConstants::MAX_PLANET_POSITION);
             $split2 = new Coordinate($to->galaxy, UniverseConstants::MAX_SYSTEM_COUNT, UniverseConstants::MAX_PLANET_POSITION);
@@ -115,8 +114,7 @@ class CoordinateDistanceCalculator
         $diffSystems = abs($from->system - $to->system);
 
         // Check if donut galaxy wrapping provides a shorter path
-        $altDiff = UniverseConstants::MAX_SYSTEM_COUNT - $diffSystems;
-        if ($altDiff < $diffSystems) {
+        if ($this->getSystemDistance($from->system, $to->system) < $diffSystems) {
             // Path wraps around, split into two segments
             $split1 = new Coordinate($from->galaxy, UniverseConstants::MIN_SYSTEM, UniverseConstants::MAX_PLANET_POSITION);
             $split2 = new Coordinate($to->galaxy, UniverseConstants::MAX_SYSTEM_COUNT, UniverseConstants::MAX_PLANET_POSITION);
