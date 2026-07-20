@@ -29,6 +29,32 @@ class CronTasksController extends OGameController
     ];
 
     /**
+     * Friendly labels for known scheduler commands.
+     *
+     * @var array<string, string>
+     */
+    private const COMMAND_LABELS = [
+        'ogamex:scheduler:generate-highscores' => 'Generate player highscores',
+        'ogamex:scheduler:generate-alliance-highscores' => 'Generate alliance highscores',
+        'ogamex:scheduler:generate-highscore-ranks' => 'Generate highscore ranks',
+        'ogamex:scheduler:reset-debris-fields' => 'Reset empty debris fields',
+        'ogamex:scheduler:cleanup-wreckfields' => 'Clean up wreck fields',
+        'ogamex:scheduler:delete-old-messages' => 'Delete old messages',
+        'ogamex:scheduler:darkmatter-regenerate' => 'Dark Matter regeneration',
+    ];
+
+    /**
+     * Human-readable schedule summaries for common cron expressions.
+     *
+     * @var array<string, string>
+     */
+    private const SCHEDULE_LABELS = [
+        '*/5 * * * *' => 'Every 5 minutes',
+        '0 * * * *' => 'Hourly',
+        '0 1 * * 1' => 'Weekly (Monday 01:00)',
+    ];
+
+    /**
      * Shows scheduled cron tasks and allows manual runs.
      */
     public function index(): View
@@ -38,8 +64,8 @@ class CronTasksController extends OGameController
         foreach ($this->resolveSchedule()->events() as $event) {
             $command = $this->extractCommandName($event->command ?? '');
             $tasks[] = [
-                'expression' => $event->expression,
-                'description' => $event->description ?: $command,
+                'expression' => self::SCHEDULE_LABELS[$event->expression] ?? $event->expression,
+                'description' => self::COMMAND_LABELS[$command] ?? ($event->description ?: $command),
                 'command' => $command,
                 'next_due' => $event->nextRunDate()->format('Y-m-d H:i:s'),
                 'without_overlapping' => (bool)$event->withoutOverlapping,
