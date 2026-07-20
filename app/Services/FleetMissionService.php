@@ -713,10 +713,9 @@ class FleetMissionService
     {
         $lockKey = $this->getMissionDestinationLockKey($mission);
 
-        // Lock TTL of 180s provides headroom for long-running battles.
-        // A TTL shorter than the actual processing time risks expiring mid-transaction,
-        // allowing another worker to enter and observe uncommitted writes.
-        Cache::lock($lockKey, 180)->block(10, function () use ($mission) {
+        // Lock TTL must stay >= ProcessFleetArrival::$timeout so a long battle cannot
+        // outlive the lock and let another worker observe uncommitted writes.
+        Cache::lock($lockKey, 600)->block(10, function () use ($mission) {
             DB::transaction(function () use ($mission) {
                 $currentTime = (int) Date::now()->timestamp;
 

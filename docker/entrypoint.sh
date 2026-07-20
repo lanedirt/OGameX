@@ -27,7 +27,9 @@ if [ "$role" = "scheduler" ]; then
         sleep 60
     done
 elif [ "$role" = "queue" ]; then
-      php /var/www/artisan queue:work --queue=fleet-arrivals,default --verbose --no-interaction
+      # --sleep=0.5 keeps delayed fleet arrivals snappy (default sleep is 3s).
+      # --timeout=600 matches ProcessFleetArrival::$timeout for large battles.
+      php /var/www/artisan queue:work --queue=fleet-arrivals,default --sleep=0.5 --timeout=600 --verbose --no-interaction
 elif [ "$role" = "reverb" ]; then
     php /var/www/artisan reverb:start --host="${REVERB_SERVER_HOST:-0.0.0.0}" --port="${REVERB_SERVER_PORT:-8090}"
 elif [ "$role" = "app" ]; then

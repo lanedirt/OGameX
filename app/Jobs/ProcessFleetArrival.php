@@ -19,9 +19,18 @@ class ProcessFleetArrival implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $tries = 3;
+    /**
+     * Allow several lock-contention retries while a large battle holds the
+     * destination lock (release delay is 30s; see handle()).
+     */
+    public int $tries = 10;
 
-    public int $timeout = 120;
+    /**
+     * Must be >= the destination Cache::lock TTL (600s) so a long battle cannot
+     * be killed by the queue worker while still holding the lock.
+     * Issue #363 noted multi-million-unit battles can take 10s+; leave headroom.
+     */
+    public int $timeout = 600;
 
     public function __construct(public int $missionId)
     {
