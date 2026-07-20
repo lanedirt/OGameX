@@ -6,6 +6,7 @@ use OGame\GameObjects\Models\Fields\GameObjectPropertyDetails;
 use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
 use OGame\Services\CharacterClassService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 /**
  * Class CapacityPropertyService.
@@ -24,14 +25,16 @@ class CapacityPropertyService extends ObjectPropertyService
      */
     public function calculateProperty(PlayerService $player): GameObjectPropertyDetails
     {
+        $baseValue = $this->resolveBaseValue();
+
         $bonusPercentage = $this->getBonusPercentage($player);
         // Use integer arithmetic to avoid floating point precision issues
-        $bonusValue = intdiv($this->base_value * $bonusPercentage, 100);
+        $bonusValue = intdiv($baseValue * $bonusPercentage, 100);
 
-        $totalValue = $this->base_value + $bonusValue;
+        $totalValue = $baseValue + $bonusValue;
 
         $breakdown = [
-            'rawValue' => $this->base_value,
+            'rawValue' => $baseValue,
             'bonuses' => [
                 [
                     'type' => 'Research bonus',
@@ -46,7 +49,7 @@ class CapacityPropertyService extends ObjectPropertyService
         $classBonus = $this->getCharacterClassCargoBonus($player);
         if ($classBonus > 0) {
             // Use integer arithmetic to avoid floating point precision issues
-            $classBonusValue = intdiv($this->base_value * $classBonus, 100);
+            $classBonusValue = intdiv($baseValue * $classBonus, 100);
             $totalValue += $classBonusValue;
 
             $breakdown['bonuses'][] = [
@@ -57,7 +60,24 @@ class CapacityPropertyService extends ObjectPropertyService
             $breakdown['totalValue'] = $totalValue;
         }
 
-        return new GameObjectPropertyDetails($this->base_value, $bonusValue, $totalValue, $breakdown);
+        return new GameObjectPropertyDetails($baseValue, $bonusValue, $totalValue, $breakdown);
+    }
+
+    /**
+     * Resolve the effective base cargo capacity, applying universe settings
+     * such as espionage probe capacity when enabled.
+     */
+    private function resolveBaseValue(): int
+    {
+        if ($this->parent_object->machine_name === 'espionage_probe') {
+            $settingsService = app(SettingsService::class);
+            if ($settingsService->espionageProbeCapacityOn()) {
+                // Classic OGame: probes gain 5 cargo capacity when the setting is on.
+                return 5;
+            }
+        }
+
+        return $this->base_value;
     }
 
     /**

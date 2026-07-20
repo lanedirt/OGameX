@@ -38,6 +38,17 @@ class PlanetMoveController extends OGameController
         $system = (int) $request->input('system');
         $position = (int) $request->input('position');
 
+        $maxGalaxies = $settingsService->numberOfGalaxies();
+        $maxSystems = $settingsService->numberOfSystems();
+        if ($galaxy < 1 || $galaxy > $maxGalaxies || $system < 1 || $system > $maxSystems || $position < 1 || $position > 15) {
+            return response()->json([
+                'error' => __('Invalid coordinates. Galaxy must be 1–:maxGalaxy, system 1–:maxSystem, position 1–15.', [
+                    'maxGalaxy' => $maxGalaxies,
+                    'maxSystem' => $maxSystems,
+                ]),
+            ]);
+        }
+
         $targetCoordinate = new Coordinate($galaxy, $system, $position);
 
         // Validate the target position is empty.

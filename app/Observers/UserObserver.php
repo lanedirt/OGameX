@@ -29,8 +29,8 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        // Credit initial Dark Matter amount
-        $initialAmount = (int)$this->settingsService->get('dark_matter_initial', 8000);
+        // Credit initial Dark Matter amount (shared with admin "Dark Matter bonus" setting)
+        $initialAmount = $this->settingsService->darkMatterBonus();
 
         if ($initialAmount > 0) {
             $this->darkMatterService->credit(

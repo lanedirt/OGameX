@@ -180,7 +180,7 @@ class DeveloperShortcutsController extends OGameController
         // Validate coordinates
         $validated = $request->validate([
             'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
-            'system' => 'required|integer|min:1|max:' . UniverseConstants::MAX_SYSTEM_COUNT,
+            'system' => 'required|integer|min:1|max:' . $settingsService->numberOfSystems(),
             'position' => 'required|integer|min:1|max:' . UniverseConstants::MAX_PLANET_POSITION,
         ]);
 
@@ -244,7 +244,7 @@ class DeveloperShortcutsController extends OGameController
         // Validate coordinates
         $validated = $request->validate([
             'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
-            'system' => 'required|integer|min:1|max:' . UniverseConstants::MAX_SYSTEM_COUNT,
+            'system' => 'required|integer|min:1|max:' . $settingsService->numberOfSystems(),
             'position' => 'required|integer|min:1|max:' . UniverseConstants::MAX_PLANET_POSITION,
         ]);
 
@@ -377,7 +377,7 @@ class DeveloperShortcutsController extends OGameController
         // Validate coordinates and amount
         $validated = $request->validate([
             'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
-            'system' => 'required|integer|min:1|max:' . UniverseConstants::MAX_SYSTEM_COUNT,
+            'system' => 'required|integer|min:1|max:' . $settingsService->numberOfSystems(),
             'position' => 'required|integer|min:1|max:' . UniverseConstants::MAX_PLANET_POSITION,
             'dark_matter' => 'required',
         ]);

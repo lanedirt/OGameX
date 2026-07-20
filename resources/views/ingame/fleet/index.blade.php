@@ -146,7 +146,7 @@
                     "id": 210,
                     "name": "Espionage Probe",
                     "baseFuelCapacity": 5,
-                    "baseCargoCapacity": 0,
+                    "baseCargoCapacity": {{ $settings->espionageProbeCapacityOn() ? 5 : 0 }},
                     "fuelConsumption": 1,
                     "speed": 150000000
                 },
@@ -160,6 +160,13 @@
                 }
             };
 
+            // Apply universe deuterium consumption to static fallback ship data
+            // (checkTarget response already includes this multiplier).
+            var UNIVERSE_DEUTERIUM_CONSUMPTION = {{ $settings->deuteriumConsumption() }};
+            Object.keys(shipsData).forEach(function (id) {
+                shipsData[id].fuelConsumption = shipsData[id].fuelConsumption * UNIVERSE_DEUTERIUM_CONSUMPTION;
+            });
+
             var speed = 100
 
             var PLAYER_ID_SPACE = 99999;
@@ -167,7 +174,7 @@
             var DONUT_GALAXY = 1;
             var DONUT_SYSTEM = 1;
             var MAX_GALAXY = {{ $settings->numberOfGalaxies() }};
-            var MAX_SYSTEM = {{ \OGame\GameConstants\UniverseConstants::MAX_SYSTEM_COUNT }};
+            var MAX_SYSTEM = {{ $settings->numberOfSystems() }};
             var MAX_POSITION = {{ \OGame\GameConstants\UniverseConstants::EXPEDITION_POSITION }};
             var SPEEDFAKTOR_FLEET_PEACEFUL = {{ $settings->fleetSpeedPeaceful() }};
             var SPEEDFAKTOR_FLEET_WAR = {{ $settings->fleetSpeedWar() }};

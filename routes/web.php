@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use OGame\Http\Controllers\Admin\ActivityLogsController;
+use OGame\Http\Controllers\Admin\CronTasksController;
 use OGame\Http\Controllers\Admin\DeveloperShortcutsController;
 use OGame\Http\Controllers\Admin\FleetTimingController;
 use OGame\Http\Controllers\Admin\RulesController as AdminRulesController;
@@ -270,6 +272,13 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     Route::post('/admin/fleet-timing/fast-forward', [FleetTimingController::class, 'fastForward'])->name('admin.fleettiming.fast-forward');
     Route::post('/admin/fleet-timing/fast-forward-all', [FleetTimingController::class, 'fastForwardAll'])->name('admin.fleettiming.fast-forward-all');
     Route::post('/admin/fleet-timing/reduce', [FleetTimingController::class, 'reduceTime'])->name('admin.fleettiming.reduce');
+
+    // Activity logs (constructions, fleets, research)
+    Route::get('/admin/activity-logs', [ActivityLogsController::class, 'index'])->name('admin.activitylogs.index');
+
+    // Cron / scheduled task management
+    Route::get('/admin/cron-tasks', [CronTasksController::class, 'index'])->name('admin.crontasks.index');
+    Route::post('/admin/cron-tasks/run', [CronTasksController::class, 'run'])->name('admin.crontasks.run');
 
     // Server administration (multi-account detection, bans)
     Route::get('/admin/server-administration', [ServerAdministrationController::class, 'index'])->name('admin.server-administration.index');

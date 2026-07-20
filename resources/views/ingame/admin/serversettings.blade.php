@@ -76,6 +76,30 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Deuterium consumption:')</label>
+                                <div class="thefield">
+                                    <select name="deuterium_consumption" class="w130" data-value="{{ $deuterium_consumption }}">
+                                        <option value="0.5"{{ (float)$deuterium_consumption == 0.5 ? ' selected' : '' }}>0.5</option>
+                                        <option value="0.6"{{ (float)$deuterium_consumption == 0.6 ? ' selected' : '' }}>0.6</option>
+                                        <option value="0.7"{{ (float)$deuterium_consumption == 0.7 ? ' selected' : '' }}>0.7</option>
+                                        <option value="0.8"{{ (float)$deuterium_consumption == 0.8 ? ' selected' : '' }}>0.8</option>
+                                        <option value="0.9"{{ (float)$deuterium_consumption == 0.9 ? ' selected' : '' }}>0.9</option>
+                                        <option value="1"{{ (float)$deuterium_consumption == 1.0 ? ' selected' : '' }}>1</option>
+                                    </select>
+                                </div>
+                                <div class="smallFont">@lang('Universe-wide fleet deuterium consumption multiplier. Default is 1.')</div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">@lang('Espionage probe capacity:')</label>
+                                <div class="thefield">
+                                    <square-checkbox class="square-checkbox">
+                                        <input type="checkbox" id="square-checkEspionageProbeCapacity" name="espionage_probe_capacity_on" value="1" {{ $espionage_probe_capacity_on ? 'checked' : '' }}>
+                                        <label for="square-checkEspionageProbeCapacity"></label>
+                                    </square-checkbox>
+                                </div>
+                                <div class="smallFont">@lang('When enabled, each espionage probe has a cargo capacity of 5. Off by default.')</div>
+                            </div>
                         </div>
 
                         <p class="box_highlight textCenter no_buddies">@lang('Note: basic income values below are multiplied by economy speed.')</p>
@@ -118,10 +142,11 @@
                             </div>
 
                             <div class="fieldwrapper">
-                                <label class="styled textBeefy">@lang('Dark Matter bonus:')</label>
+                                <label class="styled textBeefy">@lang('Initial Dark Matter:')</label>
                                 <div class="thefield">
                                     <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $dark_matter_bonus }}" size="6" name="dark_matter_bonus">
                                 </div>
+                                <div class="smallFont">@lang('Dark Matter given to new players on registration. Typical range: 8000–25000.')</div>
                             </div>
                         </div>
 
@@ -468,10 +493,11 @@
                                     </square-checkbox>
                                 </div>
                             </div>
-                            <div class="fieldwrapper" style="margin-bottom: 50px;">
+                            <div class="fieldwrapper">
                                 <label class="styled textBeefy">@lang('Number of galaxies:')</label>
                                 <div class="thefield">
                                     <select name="number_of_galaxies" class="w130" data-value="{{ $number_of_galaxies }}">
+                                        <option value="4"{{ $number_of_galaxies == 4 ? ' selected' : '' }}>4</option>
                                         <option value="5"{{ $number_of_galaxies == 5 ? ' selected' : '' }}>5</option>
                                         <option value="6"{{ $number_of_galaxies == 6 ? ' selected' : '' }}>6</option>
                                         <option value="7"{{ $number_of_galaxies == 7 ? ' selected' : '' }}>7</option>
@@ -479,6 +505,13 @@
                                         <option value="9"{{ $number_of_galaxies == 9 ? ' selected' : '' }}>9</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="fieldwrapper" style="margin-bottom: 50px;">
+                                <label class="styled textBeefy">@lang('Number of systems per galaxy:')</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $number_of_systems }}" size="4" maxlength="4" name="number_of_systems">
+                                </div>
+                                <div class="smallFont">@lang('Default is 499. Changing this affects fleet distance calculations and galaxy navigation.')</div>
                             </div>
                         </div>
                     </div>

@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Date;
 use OGame\Enums\FleetSpeedType;
 use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\GameConstants\UniverseConstants;
 use OGame\GameMessages\AcsDefendArrivalHost;
 use OGame\GameMessages\AcsDefendArrivalSender;
 use OGame\GameMissions\Abstracts\GameMission;
@@ -131,7 +130,7 @@ class FleetMissionService
 
         // If the system are different
         if ($diffSystem != 0) {
-            $diff2 = abs($diffSystem - UniverseConstants::MAX_SYSTEM_COUNT);
+            $diff2 = abs($diffSystem - $this->settingsService->numberOfSystems());
             $deltaSystem = 0;
 
             if ($diff2 < $diffSystem) {
@@ -207,6 +206,12 @@ class FleetMissionService
         $characterClassService = app(CharacterClassService::class);
         $consumptionMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($fromPlanet->getPlayer()->getUser());
         $consumption = (int)($consumption * $consumptionMultiplier);
+
+        // Apply universe-wide deuterium consumption multiplier (0.5–1.0)
+        $universeConsumptionMultiplier = $this->settingsService->deuteriumConsumption();
+        if ($universeConsumptionMultiplier !== 1.0) {
+            $consumption = (int)round($consumption * $universeConsumptionMultiplier);
+        }
 
         return $consumption;
     }
