@@ -117,7 +117,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that expedition cannot target debris fields (fixes #1355).
+     * Assert that expedition cannot target debris fields.
      */
     public function testFleetCheckToPosition16DebrisFieldFails(): void
     {

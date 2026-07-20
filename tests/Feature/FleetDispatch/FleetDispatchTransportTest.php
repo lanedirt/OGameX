@@ -89,14 +89,14 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
     }
 
     /**
-     * Assert that trying to dispatch a fleet to foreign planet position fails.
+     * Assert that trying to dispatch a fleet to a foreign planet succeeds.
      */
-    public function testFleetCheckToForeignPlanetError(): void
+    public function testFleetCheckToForeignPlanetSuccess(): void
     {
         $this->basicSetup();
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
-        $this->fleetCheckToOtherPlayer($unitCollection, false);
+        $this->fleetCheckToOtherPlayer($unitCollection, true);
     }
 
     /**

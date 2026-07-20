@@ -300,12 +300,18 @@ abstract class FleetDispatchTestCase extends MoonTestCase
         // All errors should be included in the JSON response.
         $post->assertStatus(200);
 
-        // Assert that JSON response has the correct status and mission type.
+        // Assert that JSON response has the correct mission availability for this mission type.
         if ($assertSuccess) {
             $post->assertJson([
                 'status' => 'success',
                 'orders' => [
                     $this->missionType => true,
+                ]
+            ]);
+        } else {
+            $post->assertJson([
+                'orders' => [
+                    $this->missionType => false,
                 ]
             ]);
         }
