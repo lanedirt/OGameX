@@ -124,7 +124,7 @@
                                             <div>
                                                 <label for="system">@lang('System:')</label>
                                                 <input type="text" id="system" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
-                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="{{ $settings->numberOfSystems() }}" name="system">
                                             </div>
                                             <div>
                                                 <label for="position">@lang('Position:')</label>
@@ -167,7 +167,7 @@
                                             <div>
                                                 <label for="system">@lang('System:')</label>
                                                 <input type="text" id="system" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
-                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="{{ $settings->numberOfSystems() }}" name="system">
                                             </div>
                                             <div>
                                                 <label for="position">@lang('Position:')</label>
@@ -218,7 +218,7 @@
                                             <div>
                                                 <label for="system">@lang('System:')</label>
                                                 <input type="text" id="system" pattern="^[-+0-9,.kmb]+$" class="textInput w50 textCenter textBeefy"
-                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="{{ $settings->numberOfSystems() }}" name="system">
                                             </div>
                                             <div>
                                                 <label for="position">@lang('Position:') (1-16)</label>
@@ -269,7 +269,7 @@
                                             <div>
                                                 <label for="dm_system">@lang('System:')</label>
                                                 <input type="text" id="dm_system" pattern="^[0-9]+$" class="textInput w50 textCenter textBeefy"
-                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="499" name="system">
+                                                       value="{{ $currentPlanet->getPlanetCoordinates()->system }}" min="1" max="{{ $settings->numberOfSystems() }}" name="system">
                                             </div>
                                             <div>
                                                 <label for="dm_position">@lang('Position:')</label>

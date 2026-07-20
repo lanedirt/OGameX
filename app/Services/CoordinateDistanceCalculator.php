@@ -41,13 +41,14 @@ class CoordinateDistanceCalculator
         }
 
         $diffSystems = abs($from->system - $to->system);
+        $maxSystems = $this->settingsService->numberOfSystems();
 
         // Check if donut galaxy wrapping provides a shorter path
-        $altDiff = UniverseConstants::MAX_SYSTEM_COUNT - $diffSystems;
+        $altDiff = $maxSystems - $diffSystems;
         if ($altDiff < $diffSystems) {
             // Path wraps around, split into two segments
             $split1 = new Coordinate($from->galaxy, UniverseConstants::MIN_SYSTEM, UniverseConstants::MAX_PLANET_POSITION);
-            $split2 = new Coordinate($to->galaxy, UniverseConstants::MAX_SYSTEM_COUNT, UniverseConstants::MAX_PLANET_POSITION);
+            $split2 = new Coordinate($to->galaxy, $maxSystems, UniverseConstants::MAX_PLANET_POSITION);
             return $this->getNumEmptySystemsAux($split1, $to)
                 + $this->getNumEmptySystemsAux($split2, $from);
         }
@@ -100,13 +101,14 @@ class CoordinateDistanceCalculator
         }
 
         $diffSystems = abs($from->system - $to->system);
+        $maxSystems = $this->settingsService->numberOfSystems();
 
         // Check if donut galaxy wrapping provides a shorter path
-        $altDiff = UniverseConstants::MAX_SYSTEM_COUNT - $diffSystems;
+        $altDiff = $maxSystems - $diffSystems;
         if ($altDiff < $diffSystems) {
             // Path wraps around, split into two segments
             $split1 = new Coordinate($from->galaxy, UniverseConstants::MIN_SYSTEM, UniverseConstants::MAX_PLANET_POSITION);
-            $split2 = new Coordinate($to->galaxy, UniverseConstants::MAX_SYSTEM_COUNT, UniverseConstants::MAX_PLANET_POSITION);
+            $split2 = new Coordinate($to->galaxy, $maxSystems, UniverseConstants::MAX_PLANET_POSITION);
             return $this->getNumInactiveSystemsAux($split1, $to)
                 + $this->getNumInactiveSystemsAux($split2, $from);
         }

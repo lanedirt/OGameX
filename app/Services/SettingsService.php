@@ -4,6 +4,7 @@ namespace OGame\Services;
 
 use Illuminate\Support\Facades\Date;
 use OGame\Factories\GameMissionFactory;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Setting;
 
 /**
@@ -84,9 +85,12 @@ class SettingsService
             $this->loadFromDatabase();
         }
 
+        // Normalize to string so int/float request values compare correctly with DB strings.
+        $value = (string)$value;
+
         // Check if to be saved value is actually different from current one.
         $currentValue = $this->get($key, '');
-        if (!empty($currentValue) && $currentValue === $value) {
+        if ($currentValue !== '' && $currentValue === $value) {
             // To be saved value is same as current value, skip update to prevent unnecessary db call.
             return;
         }
@@ -219,11 +223,51 @@ class SettingsService
     /**
      * Returns the amount of dark matter given for a new player.
      *
+     * Uses dark_matter_initial (seeded / used by UserObserver). Falls back to
+     * legacy dark_matter_bonus for older installs that only have that key.
+     *
      * @return int
      */
     public function darkMatterBonus(): int
     {
+        $initial = $this->get('dark_matter_initial', '');
+        if ($initial !== '') {
+            return (int)$initial;
+        }
+
         return (int)$this->get('dark_matter_bonus', 8000);
+    }
+
+    /**
+     * Returns whether espionage probes have cargo capacity enabled.
+     * When enabled, each probe has a cargo capacity of 5. Default is off.
+     *
+     * @return bool
+     */
+    public function espionageProbeCapacityOn(): bool
+    {
+        return (bool)$this->get('espionage_probe_capacity_on', 0);
+    }
+
+    /**
+     * Returns the universe-wide deuterium consumption multiplier for fleets.
+     * Allowed values typically range from 0.5 to 1.0. Default is 1.0.
+     *
+     * @return float
+     */
+    public function deuteriumConsumption(): float
+    {
+        return (float)$this->get('deuterium_consumption', '1.0');
+    }
+
+    /**
+     * Returns the number of systems per galaxy.
+     *
+     * @return int
+     */
+    public function numberOfSystems(): int
+    {
+        return (int)$this->get('number_of_systems', UniverseConstants::MAX_SYSTEM_COUNT);
     }
 
     /**

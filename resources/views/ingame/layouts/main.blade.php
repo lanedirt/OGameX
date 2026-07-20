@@ -28,7 +28,7 @@
     <meta name="ogame-version" content="{{ \OGame\Facades\GitInfoUtil::getAppVersion() }}"/>
     <meta name="ogame-timestamp" content="1513426692"/>
     <meta name="ogame-universe" content="s1"/>
-    <meta name="ogame-universe-name" content="Home"/>
+    <meta name="ogame-universe-name" content="{{ $settings->universeName() }}"/>
     <meta name="ogame-universe-speed" content="{{ $settings->economySpeed() }}"/>
     <meta name="ogame-universe-speed-fleet" content="{{ $settings->fleetSpeed() }}"/>
     <meta name="ogame-language" content="en"/>
@@ -45,7 +45,7 @@
     <meta name="ogame-planet-coordinates" content="{{ $currentPlanet->getPlanetCoordinates()->asString() }}"/>
     <meta name="ogame-planet-type" content="planet"/>
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ $settings->universeName() }}</title>
 
     @vite(['resources/css/ingame.css', 'resources/js/ingame.js'])
 

@@ -69,6 +69,13 @@ class GalaxyController extends OGameController
             $system = (int)$system_qs;
         }
 
+        $maxGalaxies = $settingsService->numberOfGalaxies();
+        $maxSystems = $settingsService->numberOfSystems();
+
+        // Clamp coordinates to configured universe bounds.
+        $galaxy = max(1, min($maxGalaxies, $galaxy));
+        $system = max(1, min($maxSystems, $system));
+
         return view('ingame.galaxy.index')->with([
             'current_galaxy' => $galaxy,
             'current_system' => $system,
@@ -77,7 +84,8 @@ class GalaxyController extends OGameController
             'interplanetary_missiles_count' => $planet->getObjectAmount('interplanetary_missile'),
             'used_slots' => 0,
             'max_slots' => 1,
-            'max_galaxies' => $settingsService->numberOfGalaxies(),
+            'max_galaxies' => $maxGalaxies,
+            'max_systems' => $maxSystems,
             'is_in_vacation_mode' => $player->isInVacationMode(),
             'planet_relocation_cost' => (int)$settingsService->get('planet_relocation_cost', 240000),
         ]);
@@ -680,7 +688,7 @@ class GalaxyController extends OGameController
      * @param PhalanxService $phalanxService
      * @return JsonResponse
      */
-    public function ajax(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory, PhalanxService $phalanxService): JsonResponse
+    public function ajax(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory, PhalanxService $phalanxService, SettingsService $settingsService): JsonResponse
     {
         $this->playerService = $player;
         $this->planetServiceFactory = $planetServiceFactory;
@@ -693,8 +701,10 @@ class GalaxyController extends OGameController
         }
 
         $planet = $player->planets->current();
-        $galaxy = $request->input('galaxy');
-        $system = $request->input('system');
+        $maxGalaxies = $settingsService->numberOfGalaxies();
+        $maxSystems = $settingsService->numberOfSystems();
+        $galaxy = max(1, min($maxGalaxies, (int)$request->input('galaxy')));
+        $system = max(1, min($maxSystems, (int)$request->input('system')));
         $galaxyContent = $this->getGalaxyArray($galaxy, $system, $player, $planetServiceFactory, $phalanxService);
         $slotsColonized = $this->calculateColonizedSlots($galaxyContent);
 
@@ -921,15 +931,15 @@ class GalaxyController extends OGameController
      * @param PlanetServiceFactory $planetServiceFactory
      * @return JsonResponse
      */
-    public function missileAttack(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): JsonResponse
+    public function missileAttack(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory, SettingsService $settingsService): JsonResponse
     {
         $this->playerService = $player;
         $this->planetServiceFactory = $planetServiceFactory;
 
         // Validate input
         $validated = $request->validate([
-            'galaxy' => 'required|integer|min:1',
-            'system' => 'required|integer|min:1',
+            'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
+            'system' => 'required|integer|min:1|max:' . $settingsService->numberOfSystems(),
             'position' => 'required|integer|min:1|max:15',
             'type' => 'required|integer',
             'missile_count' => 'required|integer|min:0',
