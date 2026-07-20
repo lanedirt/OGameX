@@ -128,6 +128,10 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
 
         $this->get('/admin/activity-logs')->assertStatus(200)->assertSee('Activity logs');
         $this->get('/admin/activity-logs?tab=buildings')->assertStatus(200);
-        $this->get('/admin/cron-tasks')->assertStatus(200)->assertSee('Cron tasks');
+        $this->get('/admin/cron-tasks')
+            ->assertStatus(200)
+            ->assertSee('Cron tasks')
+            ->assertSee('ogamex:scheduler:generate-highscores')
+            ->assertDontSee('No scheduled tasks found');
     }
 }

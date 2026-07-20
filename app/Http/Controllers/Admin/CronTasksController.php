@@ -31,11 +31,11 @@ class CronTasksController extends OGameController
     /**
      * Shows scheduled cron tasks and allows manual runs.
      */
-    public function index(Schedule $schedule): View
+    public function index(): View
     {
         $tasks = [];
 
-        foreach ($schedule->events() as $event) {
+        foreach ($this->resolveSchedule()->events() as $event) {
             $command = $this->extractCommandName($event->command ?? '');
             $tasks[] = [
                 'expression' => $event->expression,
@@ -84,12 +84,30 @@ class CronTasksController extends OGameController
     }
 
     /**
+     * Resolve the application schedule, loading console schedule definitions
+     * when running in an HTTP context (where routes/console.php is not auto-loaded).
+     */
+    private function resolveSchedule(): Schedule
+    {
+        $schedule = app(Schedule::class);
+
+        if (count($schedule->events()) === 0) {
+            // Schedule:: definitions live in routes/console.php and are only
+            // registered automatically during Artisan bootstrap.
+            require base_path('routes/console.php');
+        }
+
+        return $schedule;
+    }
+
+    /**
      * Extract a readable command identifier from a scheduled event command string.
      */
     private function extractCommandName(string $command): string
     {
-        // Typical format: '/usr/bin/php artisan ogamex:scheduler:generate-highscores'
-        if (preg_match("/artisan\s+([^\s']+)/", $command, $matches)) {
+        // Typical format: '/usr/bin/php' 'artisan' ogamex:scheduler:generate-highscores
+        // or: php artisan ogamex:scheduler:generate-highscores
+        if (preg_match("/artisan['\"]?\s+['\"]?([^\s'\"]+)/", $command, $matches)) {
             return $matches[1];
         }
 
