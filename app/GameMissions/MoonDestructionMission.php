@@ -53,6 +53,11 @@ class MoonDestructionMission extends GameMission
             return new MissionPossibleStatus(false, __('No moon exists at the target coordinates.'));
         }
 
+        // Destroyed moons cannot be targeted.
+        if ($destroyedCheck = $this->checkDestroyedTarget($targetMoon, $targetType, false)) {
+            return $destroyedCheck;
+        }
+
         // Cannot attack own moon
         if ($this->checkOwnPlanet($planet, $targetMoon)) {
             return new MissionPossibleStatus(false, __('You cannot destroy your own moon.'));
@@ -289,10 +294,10 @@ class MoonDestructionMission extends GameMission
             $this->redirectFleetsFromMoon($targetMoon);
 
             // Delete the moon (this will cascade to buildings, units, queues)
-            $targetMoon->abandonPlanet();
+            $targetMoon->permanentlyDeletePlanet();
         });
 
-        // Refresh the mission so planet_id_to reflects the null value written by abandonPlanet.
+        // Refresh the mission so planet_id_to reflects the null value written by permanentlyDeletePlanet.
         // Without this, startReturn would use the stale moon ID and violate the FK constraint.
         $mission->refresh();
 

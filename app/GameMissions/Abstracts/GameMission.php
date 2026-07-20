@@ -229,7 +229,7 @@ abstract class GameMission
 
         $missionPossibleStatus = $this->isMissionPossible($planet, $targetCoordinate, $targetType, $units);
         if (!$missionPossibleStatus->possible) {
-            throw new Exception($missionPossibleStatus->reason ?? __('This mission is not possible.'));
+            throw new Exception($missionPossibleStatus->error !== '' ? $missionPossibleStatus->error : __('This mission is not possible.'));
         }
     }
 
@@ -448,6 +448,34 @@ abstract class GameMission
         if ($targetPlanet !== null && $planet->getPlayer()->equals($targetPlanet->getPlayer())) {
             return new MissionPossibleStatus(false);
         }
+        return null;
+    }
+
+    /**
+     * Helper method to check destroyed-planet / destroyed-moon targeting rules.
+     *
+     * Destroyed moons cannot be targeted at all. Destroyed planets are only allowed
+     * when $allowDestroyedPlanet is true (attack / espionage).
+     *
+     * @param PlanetService|null $targetPlanet
+     * @param PlanetType $targetType
+     * @param bool $allowDestroyedPlanet
+     * @return MissionPossibleStatus|null
+     */
+    protected function checkDestroyedTarget(PlanetService|null $targetPlanet, PlanetType $targetType, bool $allowDestroyedPlanet = false): MissionPossibleStatus|null
+    {
+        if ($targetPlanet === null || !$targetPlanet->isDestroyed()) {
+            return null;
+        }
+
+        if ($targetType === PlanetType::Moon) {
+            return new MissionPossibleStatus(false, __('Fleets cannot target a destroyed moon.'));
+        }
+
+        if (!$allowDestroyedPlanet) {
+            return new MissionPossibleStatus(false);
+        }
+
         return null;
     }
 

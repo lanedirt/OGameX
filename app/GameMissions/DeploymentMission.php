@@ -43,6 +43,11 @@ class DeploymentMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
+        // Deployment is not possible to destroyed planets/moons.
+        if ($destroyedCheck = $this->checkDestroyedTarget($targetPlanet, $targetType, false)) {
+            return $destroyedCheck;
+        }
+
         // If target player is not the same as current player, this mission is not possible.
         if (!$planet->getPlayer()->equals($targetPlanet->getPlayer())) {
             return new MissionPossibleStatus(false);

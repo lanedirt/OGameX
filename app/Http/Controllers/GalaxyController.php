@@ -148,18 +148,23 @@ class GalaxyController extends OGameController
      */
     private function createPlanetRow(int $galaxy, int $system, int $position, PlanetService $planet, PhalanxService $phalanxService): array
     {
-        $availableMissions = $this->getAvailableMissions($galaxy, $system, $position, $planet);
+        $isDestroyed = $planet->isDestroyed();
+        $availableMissions = $isDestroyed ? [] : $this->getAvailableMissions($galaxy, $system, $position, $planet);
         $planets_array = $this->createPlanetsArray($planet, $availableMissions);
 
         return [
-            'actions' => $this->getPlanetActions($planet, $galaxy, $system, $position, $phalanxService),
+            'actions' => $isDestroyed ? [] : $this->getPlanetActions($planet, $galaxy, $system, $position, $phalanxService),
             'availableMissions' => [],
             'galaxy' => $galaxy,
             'planets' => $planets_array,
-            'player' => $this->getPlayerInfo($planet->getPlayer()),
+            'player' => $isDestroyed
+                ? ['playerId' => 99999, 'playerName' => 'Deep space']
+                : $this->getPlayerInfo($planet->getPlayer()),
             'position' => $position,
             'positionFilters' => '',
             'system' => $system,
+            'playerId' => $isDestroyed ? 99999 : $planet->getPlayer()->getId(),
+            'playerName' => $isDestroyed ? 'Deep space' : $planet->getPlayer()->getUsername(),
         ];
     }
 
@@ -172,16 +177,18 @@ class GalaxyController extends OGameController
      */
     private function createPlanetsArray(PlanetService $planet, array $availableMissions): array
     {
+        $isDestroyed = $planet->isDestroyed();
+
         $planets_array = [
             [
-                'activity' => $this->getPlanetActivityStatus($planet),
+                'activity' => $isDestroyed ? null : $this->getPlanetActivityStatus($planet),
                 'availableMissions' => $availableMissions,
                 'fleet' => [],
                 'imageInformation' => $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType(),
-                'isDestroyed' => false,
+                'isDestroyed' => $isDestroyed,
                 'planetId' => $planet->getPlanetId(),
-                'planetName' => $planet->getPlanetName(),
-                'playerId' => $planet->getPlayer()?->getId(),
+                'planetName' => $isDestroyed ? __('t_galaxy.planet.destroyed') : $planet->getPlanetName(),
+                'playerId' => $isDestroyed ? 99999 : $planet->getPlayer()?->getId(),
                 'planetType' => 1,
             ]
         ];
@@ -247,7 +254,8 @@ class GalaxyController extends OGameController
      */
     private function createMoonArray(PlanetService $moon): array
     {
-        $availableMissions = $this->getAvailableMissions(
+        $isDestroyed = $moon->isDestroyed();
+        $availableMissions = $isDestroyed ? [] : $this->getAvailableMissions(
             $moon->getPlanetCoordinates()->galaxy,
             $moon->getPlanetCoordinates()->system,
             $moon->getPlanetCoordinates()->position,
@@ -255,15 +263,15 @@ class GalaxyController extends OGameController
         );
 
         return [
-            'activity' => $this->getPlanetActivityStatus($moon),
+            'activity' => $isDestroyed ? null : $this->getPlanetActivityStatus($moon),
             'availableMissions' => $availableMissions,
             'fleet' => [],
-            // TODO: moon_c appears as red (recently destroyed?)
-            'imageInformation' => 'moon_a',
-            'isDestroyed' => false,
+            // Destroyed moons use the red-border moon_c sprite.
+            'imageInformation' => $isDestroyed ? 'moon_c' : 'moon_a',
+            'isDestroyed' => $isDestroyed,
             'planetId' => $moon->getPlanetId(),
             'planetName' => $moon->getPlanetName(),
-            'playerId' => $moon->getPlayer()->getId(),
+            'playerId' => $isDestroyed ? 99999 : $moon->getPlayer()->getId(),
             'planetType' => 3,
             'size' => $moon->getPlanetDiameter(),
             'tooltipInfo' => [

@@ -3,6 +3,7 @@
 use OGame\Console\Commands\Scheduler\CleanupWreckFields;
 use OGame\Console\Commands\Scheduler\DarkMatterRegenerateCommand;
 use OGame\Console\Commands\Scheduler\DeleteOldMessages;
+use OGame\Console\Commands\Scheduler\CleanupDestroyedPlanets;
 use OGame\Console\Commands\Scheduler\GenerateAllianceHighscores;
 use OGame\Console\Commands\Scheduler\GenerateHighscoreRanks;
 use OGame\Console\Commands\Scheduler\GenerateHighscores;
@@ -33,6 +34,9 @@ Schedule::command(CleanupWreckFields::class)->hourly()->withoutOverlapping();
 
 // Delete messages once they have aged out of the seven-day retention window
 Schedule::command(DeleteOldMessages::class)->hourly()->withoutOverlapping();
+
+// Permanently delete destroyed planets/moons flagged for at least 24 hours (official 3:00 cycle)
+Schedule::command(CleanupDestroyedPlanets::class)->dailyAt('03:00')->withoutOverlapping();
 
 // Process Dark Matter regeneration every 5 minutes
 Schedule::command(DarkMatterRegenerateCommand::class)->everyFiveMinutes()->withoutOverlapping();

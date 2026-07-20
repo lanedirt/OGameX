@@ -49,6 +49,11 @@ class AcsDefendMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
+        // ACS Defend is not possible on destroyed planets/moons.
+        if ($destroyedCheck = $this->checkDestroyedTarget($targetPlanet, $targetType, false)) {
+            return $destroyedCheck;
+        }
+
         // Cannot send ACS Defend to own planet
         if ($ownPlanetCheck = $this->checkOwnPlanet($planet, $targetPlanet)) {
             return $ownPlanetCheck;
