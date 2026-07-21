@@ -63,6 +63,11 @@ class MissileMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
+        // Destroyed moons cannot be targeted; destroyed planets can (like attack).
+        if ($destroyedCheck = $this->checkDestroyedTarget($targetPlanet, $targetType, true)) {
+            return $destroyedCheck;
+        }
+
         // Cannot attack own planets
         if ($ownPlanetCheck = $this->checkOwnPlanet($planet, $targetPlanet)) {
             return $ownPlanetCheck;

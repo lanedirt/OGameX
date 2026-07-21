@@ -56,6 +56,11 @@ class EspionageMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
+        // Destroyed moons cannot be probed; destroyed planets can.
+        if ($destroyedCheck = $this->checkDestroyedTarget($targetPlanet, $targetType, true)) {
+            return $destroyedCheck;
+        }
+
         // If planet belongs to current player, the mission is not possible.
         if ($ownPlanetCheck = $this->checkOwnPlanet($planet, $targetPlanet)) {
             return $ownPlanetCheck;

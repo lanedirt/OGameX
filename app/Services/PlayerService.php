@@ -877,17 +877,19 @@ class PlayerService
      */
     public function delete(): void
     {
-        // Loop through all planets and delete all records associated with them.
-        foreach ($this->planets->all() as $planet) {
+        // Include destroyed planets still awaiting purge so related rows are cleaned up.
+        $planetIds = Planet::where('user_id', $this->getId())->pluck('id');
+
+        foreach ($planetIds as $planetId) {
             // Delete all queue items.
-            ResearchQueue::where('planet_id', $planet->getPlanetId())->delete();
-            BuildingQueue::where('planet_id', $planet->getPlanetId())->delete();
-            UnitQueue::where('planet_id', $planet->getPlanetId())->delete();
+            ResearchQueue::where('planet_id', $planetId)->delete();
+            BuildingQueue::where('planet_id', $planetId)->delete();
+            UnitQueue::where('planet_id', $planetId)->delete();
             // Delete all fleet missions.
             // Get all fleet missions for this planet then loop through them and delete them.
             // TODO: this might be a performance bottleneck if there are many missions. Consider using a bulk delete compatible
             // with the foreign key constraints instead.
-            $missions = FleetMission::where('planet_id_from', $planet->getPlanetId())->orWhere('planet_id_to', $planet->getPlanetId())->get();
+            $missions = FleetMission::where('planet_id_from', $planetId)->orWhere('planet_id_to', $planetId)->get();
             foreach ($missions as $mission) {
                 // Delete any that have this mission as their parent.
                 FleetMission::where('parent_id', $mission->id)->delete();

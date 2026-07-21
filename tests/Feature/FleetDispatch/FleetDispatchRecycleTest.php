@@ -252,7 +252,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Destroy the moon while the fleet is still in flight.
         $this->switchToFirstPlanet();
-        $this->moonService->abandonPlanet();
+        $this->moonService->permanentlyDeletePlanet();
 
         $this->reloadApplication();
         $this->switchToFirstPlanet();

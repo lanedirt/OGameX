@@ -14,14 +14,22 @@ class PlanetAbandonTest extends AccountTestCase
         // Check that the user has at least two planets.
         $startPlanetCount = $this->planetService->getPlayer()->planets->planetCount();
         $this->assertGreaterThanOrEqual(2, $startPlanetCount);
+        $this->assertNotNull($this->secondPlanetService);
+        $abandonedPlanetId = $this->secondPlanetService->getPlanetId();
 
-        // Attempt to abandon the second planet.
+        // Switch to second planet then abandon it.
+        $this->get('/overview?cp=' . $abandonedPlanetId);
         $response = $this->post('/ajax/planet-abandon/abandon', [
             '_token' => csrf_token(),
             'password' => 'password',
         ]);
         $response->assertStatus(200);
         $this->assertStringContainsString('Planet has been abandoned successfully!', (string)$response->getContent());
+
+        // Soft-delete: row remains with destroyed flag.
+        $abandonedRow = \OGame\Models\Planet::find($abandonedPlanetId);
+        $this->assertNotNull($abandonedRow);
+        $this->assertGreaterThan(0, (int) $abandonedRow->destroyed);
 
         // Reload player to get updated planet count.
         $this->planetService->getPlayer()->load($this->planetService->getPlayer()->getId());

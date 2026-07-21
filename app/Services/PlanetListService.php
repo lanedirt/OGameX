@@ -39,8 +39,10 @@ class PlanetListService
      */
     public function __construct(private PlayerService $player, private PlanetServiceFactory $planetServiceFactory)
     {
-        // Get all planets (and moons) of user.
-        $planets = Planet::where('user_id', $this->player->getId())->get();
+        // Get all active (non-destroyed) planets and moons of user.
+        $planets = Planet::where('user_id', $this->player->getId())
+            ->where('destroyed', 0)
+            ->get();
         foreach ($planets as $planetModel) {
             $planetService = $this->planetServiceFactory->makeFromModel($planetModel, $this->player);
 

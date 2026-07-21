@@ -264,7 +264,7 @@ class DeveloperShortcutsController extends OGameController
                 }
 
                 // Delete the moon.
-                $moon->abandonPlanet();
+                $moon->permanentlyDeletePlanet();
                 return redirect()->back()->with('success', 'Moon deleted successfully at ' . $coordinate->asString());
             }
 
@@ -277,7 +277,7 @@ class DeveloperShortcutsController extends OGameController
                 }
 
                 // Delete the planet.
-                $planet->abandonPlanet();
+                $planet->permanentlyDeletePlanet();
                 return redirect()->back()->with('success', 'Planet deleted successfully at ' . $coordinate->asString());
             }
 
