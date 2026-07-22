@@ -16,6 +16,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
+use OGame\Support\FleetMissionPlanetFormatter;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\CharacterClassService;
@@ -449,7 +450,7 @@ class AttackMission extends GameMission
             $reaperCargoCapacity = $reaperObject->properties->capacity->calculate($attackerPlayer)->totalValue * $reaperCount;
 
             $this->messageService->sendSystemMessageToPlayer($attackerPlayer, DebrisFieldHarvest::class, [
-                'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
+                'from' => FleetMissionPlanetFormatter::tag($mission, 'from'),
                 'to' => '[debrisfield]' . $defenderPlanet->getPlanetCoordinates()->asString(). '[/debrisfield]',
                 'coordinates' => '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]',
                 'ship_name' => $reaperObject->title,
@@ -649,7 +650,7 @@ class AttackMission extends GameMission
         $attackerCharacterClass = $characterClassService->getCharacterClass($attackPlayer->getUser());
         $defenderCharacterClass = $characterClassService->getCharacterClass($defenderPlanet->getPlayer()->getUser());
 
-        $report->attacker = [
+        $report->attacker = array_merge([
             'player_id' => $attackPlayer->getId(),
             'resource_loss' => $battleResult->attackerResourceLoss->sum(),
             'units' => $battleResult->attackerUnitsStart->toArray(),
@@ -658,7 +659,7 @@ class AttackMission extends GameMission
             'armor_technology' => $battleResult->attackerArmorLevel,
             'planet_id' => $battleResult->attackerPlanetId,
             'character_class' => $attackerCharacterClass?->getName(),
-        ];
+        ], $this->buildAttackerPlanetSnapshot($battleResult->attackerPlanetId));
 
         // TODO: Enhance battle reports to show individual participating fleets/defenders
         // Currently shows aggregated defender data (combined units, planet owner's tech, single player_id)

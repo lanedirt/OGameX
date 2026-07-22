@@ -21,6 +21,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\FleetUnion;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Support\FleetMissionPlanetFormatter;
 use OGame\Services\FleetMissionService;
 use OGame\Services\FleetUnionService;
 use OGame\Services\MessageService;
@@ -574,21 +575,8 @@ abstract class GameMission
     {
         $return_resources = $this->fleetMissionService->getResources($mission);
 
-        // Define from string based on whether the planet is available or not.
-        $from = "[coordinates]{$mission->galaxy_from}:{$mission->system_from}:{$mission->position_from}[/coordinates]";
-        switch ($mission->type_from) {
-            case PlanetType::Planet->value:
-            case PlanetType::Moon->value:
-                if ($mission->planet_id_from !== null) {
-                    $from = __('planet') . " [planet]{$mission->planet_id_from}[/planet]";
-                }
-                break;
-            case PlanetType::DebrisField->value:
-                $from = "[debrisfield]{$mission->galaxy_from}:{$mission->system_from}:{$mission->position_from}[/debrisfield]";
-                break;
-        }
-
-        $to = __('planet') . " [planet]{$mission->planet_id_to}[/planet]";
+        $from = FleetMissionPlanetFormatter::returnEndpointLabel($mission, 'from');
+        $to = FleetMissionPlanetFormatter::returnEndpointLabel($mission, 'to');
 
         if ($return_resources->any()) {
             $params = [
@@ -717,4 +705,25 @@ abstract class GameMission
      * @return void
      */
     abstract protected function processReturn(FleetMission $mission): void;
+
+    /**
+     * @return array{planet_coords?: string, planet_name?: string, planet_type?: string}
+     */
+    protected function buildAttackerPlanetSnapshot(int|null $planetId): array
+    {
+        if ($planetId === null) {
+            return [];
+        }
+
+        $planet = $this->planetServiceFactory->make($planetId, true);
+        if ($planet === null) {
+            return [];
+        }
+
+        return [
+            'planet_coords' => $planet->getPlanetCoordinates()->asString(),
+            'planet_name' => $planet->getPlanetName(),
+            'planet_type' => $planet->getPlanetType() === PlanetType::Moon ? 'Moon' : 'Planet',
+        ];
+    }
 }

@@ -181,15 +181,15 @@ class BattleReport extends GameMessage
                     $attacker_planet_coords = $attackerPlanet->getPlanetCoordinates()->asString();
                     $attacker_planet_type = $attackerPlanet->getPlanetType() === PlanetType::Moon ? 'Moon' : 'Planet';
                 } else {
-                    $attacker_planet_name = __('Unknown');
-                    $attacker_planet_coords = '';
-                    $attacker_planet_type = '';
+                    $attacker_planet_name = $this->battleReportModel->attacker['planet_name'] ?? __('Unknown');
+                    $attacker_planet_coords = $this->battleReportModel->attacker['planet_coords'] ?? '';
+                    $attacker_planet_type = $this->battleReportModel->attacker['planet_type'] ?? '';
                 }
             } catch (Throwable $e) {
-                // If attacker planet can't be loaded (e.g., planet deleted), use defaults
-                $attacker_planet_name = __('Unknown');
-                $attacker_planet_coords = '';
-                $attacker_planet_type = '';
+                // If attacker planet can't be loaded (e.g., planet deleted), use snapshotted data
+                $attacker_planet_name = $this->battleReportModel->attacker['planet_name'] ?? __('Unknown');
+                $attacker_planet_coords = $this->battleReportModel->attacker['planet_coords'] ?? '';
+                $attacker_planet_type = $this->battleReportModel->attacker['planet_type'] ?? '';
             }
         } else {
             // No planet info available

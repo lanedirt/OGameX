@@ -248,7 +248,7 @@ class PlanetService
 
         // Moon-origin fleets must keep a valid home planet so they can still return after the moon is gone.
         if ($this->isMoon()) {
-            $this->redirectActiveOutgoingMoonMissionsToParentPlanet();
+            $this->redirectActiveMoonMissionsToParentPlanet();
         }
 
         // Fleet missions
@@ -279,10 +279,9 @@ class PlanetService
     }
 
     /**
-     * Rebind active missions launched from a moon to its parent planet before the moon is deleted.
-     * This preserves the original flight while ensuring the fleet returns to the planet instead.
+     * Rebind active missions involving a moon to its parent planet before the moon is deleted.
      */
-    private function redirectActiveOutgoingMoonMissionsToParentPlanet(): void
+    private function redirectActiveMoonMissionsToParentPlanet(): void
     {
         $parentPlanet = $this->getParentPlanet();
         if ($parentPlanet === null) {
@@ -299,6 +298,16 @@ class PlanetService
                 'system_from' => $parentCoordinates->system,
                 'position_from' => $parentCoordinates->position,
                 'type_from' => PlanetType::Planet->value,
+            ]);
+
+        FleetMission::where('planet_id_to', $this->planet->id)
+            ->where('processed', 0)
+            ->update([
+                'planet_id_to' => $parentPlanet->getPlanetId(),
+                'galaxy_to' => $parentCoordinates->galaxy,
+                'system_to' => $parentCoordinates->system,
+                'position_to' => $parentCoordinates->position,
+                'type_to' => PlanetType::Planet->value,
             ]);
     }
 
