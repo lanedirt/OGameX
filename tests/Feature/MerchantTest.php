@@ -6,6 +6,7 @@ use OGame\GameMessages\ExpeditionMerchantFound;
 use OGame\Models\Resources;
 use OGame\Services\MerchantService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlayerService;
 use Tests\AccountTestCase;
 
 /**
@@ -14,6 +15,19 @@ use Tests\AccountTestCase;
  */
 class MerchantTest extends AccountTestCase
 {
+    /**
+     * Get the current player, failing the test if it is null.
+     */
+    private function player(): PlayerService
+    {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+
+        return $player;
+    }
+
     /**
      * Test that merchant index page loads successfully.
      */
@@ -58,7 +72,7 @@ class MerchantTest extends AccountTestCase
     public function testCallMerchantWithSufficientDarkMatter(): void
     {
         // Give player dark matter
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
         $player->getUser()->dark_matter = 10000;
         $player->save();
 
@@ -88,8 +102,8 @@ class MerchantTest extends AccountTestCase
     public function testCallMerchantWithoutSufficientDarkMatter(): void
     {
         // Set dark matter to less than cost
-        $this->planetService->getPlayer()->getUser()->dark_matter = 1000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 1000;
+        $this->player()->save();
 
         $response = $this->post('/merchant/call', [
             'type' => 'crystal',
@@ -100,8 +114,8 @@ class MerchantTest extends AccountTestCase
         $response->assertJson(['success' => false]);
 
         // Verify dark matter was NOT deducted
-        $this->planetService->getPlayer()->getUser()->refresh();
-        $this->assertEquals(1000, $this->planetService->getPlayer()->getUser()->dark_matter);
+        $this->player()->getUser()->refresh();
+        $this->assertEquals(1000, $this->player()->getUser()->dark_matter);
     }
 
     /**
@@ -109,7 +123,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testCallMerchantWithInvalidType(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
         $player->getUser()->dark_matter = 10000;
         $player->save();
 
@@ -129,8 +143,8 @@ class MerchantTest extends AccountTestCase
     public function testExecuteTradeWithSufficientResources(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $callResponse = $this->post('/merchant/call', [
             'type' => 'metal',
@@ -169,8 +183,8 @@ class MerchantTest extends AccountTestCase
     public function testExecuteTradeWithoutSufficientResources(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         // Give planet minimal resources
         $this->planetService->addResources(new Resources(0, 0, 100, 0));
@@ -195,8 +209,8 @@ class MerchantTest extends AccountTestCase
     public function testTradeRespectsStorageCapacity(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $callResponse = $this->post('/merchant/call', [
             'type' => 'metal',
@@ -256,8 +270,8 @@ class MerchantTest extends AccountTestCase
     public function testTradeAutomaticallyCapsToStorageCapacity(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $this->post('/merchant/call', [
             'type' => 'metal',
@@ -323,8 +337,8 @@ class MerchantTest extends AccountTestCase
     public function testTradeCappedWhenStorageNearlyFull(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $callResponse = $this->post('/merchant/call', [
             'type' => 'metal',
@@ -380,8 +394,8 @@ class MerchantTest extends AccountTestCase
     public function testExecuteTradeWithMultipleReceiveResources(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $callResponse = $this->post('/merchant/call', [
             'type' => 'metal',
@@ -432,8 +446,8 @@ class MerchantTest extends AccountTestCase
     public function testMultiResourceTradeScalesDownWhenBudgetExceeded(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $this->post('/merchant/call', [
             'type' => 'metal',
@@ -471,8 +485,8 @@ class MerchantTest extends AccountTestCase
     public function testDismissMerchant(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $this->post('/merchant/call', [
             'type' => 'metal',
@@ -604,8 +618,8 @@ class MerchantTest extends AccountTestCase
     public function testScrapMerchantBargain(): void
     {
         // Give player dark matter
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         // Bargain (first bargain costs 2000 DM)
         $response = $this->post('/merchant/scrap/bargain', [
@@ -616,8 +630,8 @@ class MerchantTest extends AccountTestCase
         $response->assertJson(['success' => true]);
 
         // Verify dark matter was deducted (10000 - 2000 = 8000)
-        $this->planetService->getPlayer()->getUser()->refresh();
-        $this->assertEquals(8000, $this->planetService->getPlayer()->getUser()->dark_matter);
+        $this->player()->getUser()->refresh();
+        $this->assertEquals(8000, $this->player()->getUser()->dark_matter);
 
         // Verify offer increased
         $data = $response->json();
@@ -631,8 +645,8 @@ class MerchantTest extends AccountTestCase
     public function testScrapMerchantBargainWithoutSufficientDarkMatter(): void
     {
         // Give player insufficient dark matter
-        $this->planetService->getPlayer()->getUser()->dark_matter = 1000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 1000;
+        $this->player()->save();
 
         $response = $this->post('/merchant/scrap/bargain', [
             '_token' => csrf_token(),
@@ -648,8 +662,8 @@ class MerchantTest extends AccountTestCase
     public function testScrapMerchantBargainCostIncrease(): void
     {
         // Give player plenty of dark matter
-        $this->planetService->getPlayer()->getUser()->dark_matter = 50000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 50000;
+        $this->player()->save();
 
         // First bargain - 2000 DM
         $response1 = $this->post('/merchant/scrap/bargain', ['_token' => csrf_token()]);
@@ -662,8 +676,8 @@ class MerchantTest extends AccountTestCase
         $this->assertEquals(6000, $response2->json()['newCost']); // Next cost is 6000
 
         // Verify total DM spent: 2000 + 4000 = 6000
-        $this->planetService->getPlayer()->getUser()->refresh();
-        $this->assertEquals(44000, $this->planetService->getPlayer()->getUser()->dark_matter);
+        $this->player()->getUser()->refresh();
+        $this->assertEquals(44000, $this->player()->getUser()->dark_matter);
     }
 
     /**
@@ -672,8 +686,8 @@ class MerchantTest extends AccountTestCase
     public function testScrapMerchantBargainCapsAt75Percent(): void
     {
         // Give player lots of dark matter
-        $this->planetService->getPlayer()->getUser()->dark_matter = 200000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 200000;
+        $this->player()->save();
 
         // Bargain multiple times to reach cap
         $maxAttempts = 20;
@@ -840,7 +854,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testAddExpeditionMerchantCallsResourceTrader(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
 
         // No active merchant initially
         $this->assertNull(cache()->get('active_merchant_' . $player->getId()));
@@ -865,7 +879,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testExpeditionMerchantNeverCallsScrapMerchant(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
 
         // Call expedition merchant multiple times to verify it's always a resource trader
         for ($i = 0; $i < 10; $i++) {
@@ -908,7 +922,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testExpeditionMerchantImprovesExistingMerchantRates(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
 
         // Call a merchant first
         $player->getUser()->dark_matter = 10000;
@@ -957,7 +971,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testExpeditionMerchantWithNoActiveMerchantCallsNew(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
 
         // No active merchant
         $this->assertNull(cache()->get('active_merchant_' . $player->getId()));
@@ -984,7 +998,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testCallingMerchantWithDarkMatterReplacesExisting(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
         $player->getUser()->dark_matter = 20000;
         $player->save();
 
@@ -1016,8 +1030,8 @@ class MerchantTest extends AccountTestCase
     public function testResourceMarketHandlesCommaSeparatedInput(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $callResponse = $this->post('/merchant/call', [
             'type' => 'metal',

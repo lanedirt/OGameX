@@ -363,7 +363,8 @@ trait ObjectAjaxTrait
         // Special handling for Interplanetary Missiles to show range based on impulse drive level
         if ($object->machine_name === 'interplanetary_missile') {
             // Use getMissileRange() for consistent formula: (level × 5) - 1
-            $missile_range = $planet->getPlayer()->getMissileRange();
+            $planetPlayer = $planet->getPlayer();
+            $missile_range = $planetPlayer !== null ? $planetPlayer->getMissileRange() : 0;
 
             // Append the specific range value to the description
             $description .= " Your interplanetary missiles have got a coverage of {$missile_range} systems.";

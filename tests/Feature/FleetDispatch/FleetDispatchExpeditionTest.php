@@ -3,12 +3,18 @@
 namespace Tests\Feature\FleetDispatch;
 
 use Exception;
+use Illuminate\Support\Facades\Date;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\BattleReport;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Highscore;
+use OGame\Models\Message;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
@@ -49,6 +55,19 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $settingsService->set('fleet_speed_holding', 1);
         $settingsService->set('fleet_speed_peaceful', 1);
         $this->planetAddResources(new Resources(0, 0, 100000, 0));
+    }
+
+    /**
+     * Get the current planet's player, failing the test if it is null.
+     */
+    private function planetPlayer(): PlayerService
+    {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Planet has no player.');
+        }
+
+        return $player;
     }
 
     protected function messageCheckMissionArrival(): void
@@ -126,8 +145,8 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1);
 
         $currentPlanetCoords = $this->planetService->getPlanetCoordinates();
-        $coordinates = new \OGame\Models\Planet\Coordinate($currentPlanetCoords->galaxy, $currentPlanetCoords->system, 16);
-        $this->checkTargetFleet($coordinates, $unitCollection, \OGame\Models\Enums\PlanetType::DebrisField, false);
+        $coordinates = new Coordinate($currentPlanetCoords->galaxy, $currentPlanetCoords->system, 16);
+        $this->checkTargetFleet($coordinates, $unitCollection, PlanetType::DebrisField, false);
     }
 
     /**
@@ -142,18 +161,18 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // First expedition should succeed
         $this->sendTestExpedition();
-        $this->assertEquals(1, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 1 after first expedition');
+        $this->assertEquals(1, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 1 after first expedition');
 
         // Second expedition should fail due to max expedition slots restriction
         $this->sendTestExpedition(false);
-        $this->assertEquals(1, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition mission has been created but should have been rejected due to max expedition slots restriction (astrophysics level 1)');
+        $this->assertEquals(1, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition mission has been created but should have been rejected due to max expedition slots restriction (astrophysics level 1)');
 
         // Upgrade astrophysics to level 4 to allow 2 expedition slots
         $this->playerSetResearchLevel('astrophysics', 4);
 
         // Now second expedition should succeed
         $this->sendTestExpedition();
-        $this->assertEquals(2, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 2 after second expedition');
+        $this->assertEquals(2, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 2 after second expedition');
     }
 
     /**
@@ -168,15 +187,15 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Send first expedition
         $this->sendTestExpedition();
-        $this->assertEquals(1, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 1 after first expedition');
+        $this->assertEquals(1, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 1 after first expedition');
 
         // Send second expedition
         $this->sendTestExpedition();
-        $this->assertEquals(2, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 2 after second expedition');
+        $this->assertEquals(2, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 2 after second expedition');
 
         // Send third expedition
         $this->sendTestExpedition();
-        $this->assertEquals(3, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 3 after third expedition');
+        $this->assertEquals(3, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 3 after third expedition');
 
         // Increase time by 10 hours to ensure all expeditions are done
         $this->travel(10)->hours();
@@ -186,7 +205,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Ensure that the expedition slots in use are updated correctly
-        $this->assertEquals(0, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 0 after all expeditions are done');
+        $this->assertEquals(0, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 0 after all expeditions are done');
     }
 
     /**
@@ -221,6 +240,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Cancel the fleet mission, so it doesn't interfere with other tests.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionService->cancelMission($fleetMission);
     }
 
@@ -241,6 +263,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the fleet mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $parentMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($parentMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Record when the mission departed
         $departureTime = (int)$parentMission->time_departure;
@@ -254,7 +279,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->travel(5)->seconds();
 
         // Recall the fleet after 5 seconds
-        $currentTime = (int)\Illuminate\Support\Carbon::now()->timestamp;
+        $currentTime = (int)Date::now()->timestamp;
         $fleetMissionService->cancelMission($parentMission);
 
         // Reload the fleet mission service
@@ -359,6 +384,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the parent mission.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $parentMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($parentMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Verify the parent mission has holding time set (expeditions should have at least 1 hour).
         $this->assertGreaterThan(0, $parentMission->time_holding, 'Expedition mission should have holding time set');
@@ -423,7 +451,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Create a highscore record with 100.000.000 points to test max resource find.
         $highscore = Highscore::create([
-            'player_id' => $this->planetService->getPlayer()->getId(),
+            'player_id' => $this->planetPlayer()->getId(),
             'general' => 100000000,
         ]);
         $highscore->save();
@@ -434,6 +462,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -477,7 +508,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Create a highscore record with 100.000.000 points.
         $highscore = Highscore::create([
-            'player_id' => $this->planetService->getPlayer()->getId(),
+            'player_id' => $this->planetPlayer()->getId(),
             'general' => 100000000,
         ]);
         $highscore->save();
@@ -490,6 +521,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -529,7 +563,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Create a highscore record with only 1 point.
         $highscore = Highscore::create([
-            'player_id' => $this->planetService->getPlayer()->getId(),
+            'player_id' => $this->planetPlayer()->getId(),
             'general' => 1,
         ]);
         $highscore->save();
@@ -540,6 +574,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -649,6 +686,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -686,6 +726,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -750,7 +793,11 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Expedition mission not created');
-        $fleetMissionId = $activeMissions->first()->id;
+        $firstMission = $activeMissions->first();
+        if ($firstMission === null) {
+            $this->fail('Expedition mission not created.');
+        }
+        $fleetMissionId = $firstMission->id;
 
         // Verify resources were deducted from planet (including fuel)
         $this->get('/overview');
@@ -765,6 +812,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Advance time to expedition arrival (1 hour holding time + travel time)
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
         $holdingTime = $fleetMission->time_holding ?? 0;
         $this->travel($travelTime + $holdingTime + 1)->seconds();
@@ -776,6 +826,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Return mission should be created');
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('Return mission should be created.');
+        }
 
         // Verify return mission has original resources
         $this->assertEquals(100000, $returnMission->metal);
@@ -833,10 +886,17 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID
         $fleetMissionService = resolve(FleetMissionService::class);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
-        $fleetMissionId = $activeMissions->first()->id;
+        $firstMission = $activeMissions->first();
+        if ($firstMission === null) {
+            $this->fail('Expedition mission not created.');
+        }
+        $fleetMissionId = $firstMission->id;
 
         // Advance time to expedition arrival
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
         $holdingTime = $fleetMission->time_holding ?? 0;
         $this->travel($travelTime + $holdingTime + 1)->seconds();
@@ -848,6 +908,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Return mission should be created');
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('Return mission should be created.');
+        }
 
         // Verify return mission has at least original resources (should have more from found resources)
         $this->assertGreaterThanOrEqual(50000, $returnMission->metal);
@@ -881,6 +944,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Verify no merchant is active initially
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Planet has no player.');
+        }
         $this->assertNull(cache()->get('active_merchant_' . $player->getId()));
 
         // Send the expedition mission
@@ -910,7 +976,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Assert that the expedition message was sent
         // Check that we have at least one expedition merchant message
-        $messages = \OGame\Models\Message::where('user_id', $player->getId())
+        $messages = Message::where('user_id', $player->getId())
             ->where('key', 'expedition_merchant_found')
             ->get();
 
@@ -1042,7 +1108,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         ]);
 
         // Check that a battle report was created
-        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $battleReports = BattleReport::where('planet_user_id', $this->planetPlayer()->getId())->get();
         $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
 
         // Verify the battle report has expedition battle markers
@@ -1051,15 +1117,15 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertEquals('pirate', $report->general['npc_type'] ?? '', 'NPC type should be pirate');
 
         // Verify NPC appears as attacker with correct ID
-        $this->assertEquals(-1, $report->attacker['player_id'], 'Pirate player ID should be -1');
+        $this->assertEquals(-1, ($report->attacker['player_id'] ?? null), 'Pirate player ID should be -1');
 
         // Verify player appears as defender
-        $this->assertEquals($this->planetService->getPlayer()->getId(), $report->defender['player_id']);
+        $this->assertEquals($this->planetPlayer()->getId(), ($report->defender['player_id'] ?? null));
 
         // Verify NPC has lower tech (player tech - 3)
-        $this->assertEquals(7, $report->attacker['weapon_technology'], 'Pirates should have player tech - 3');
-        $this->assertEquals(7, $report->attacker['shielding_technology'], 'Pirates should have player tech - 3');
-        $this->assertEquals(7, $report->attacker['armor_technology'], 'Pirates should have player tech - 3');
+        $this->assertEquals(7, ($report->attacker['weapon_technology'] ?? null), 'Pirates should have player tech - 3');
+        $this->assertEquals(7, ($report->attacker['shielding_technology'] ?? null), 'Pirates should have player tech - 3');
+        $this->assertEquals(7, ($report->attacker['armor_technology'] ?? null), 'Pirates should have player tech - 3');
     }
 
     /**
@@ -1102,7 +1168,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         ]);
 
         // Check that a battle report was created
-        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $battleReports = BattleReport::where('planet_user_id', $this->planetPlayer()->getId())->get();
         $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
 
         // Verify the battle report has expedition battle markers
@@ -1111,15 +1177,15 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertEquals('alien', $report->general['npc_type'] ?? '', 'NPC type should be alien');
 
         // Verify NPC appears as attacker with correct ID
-        $this->assertEquals(-2, $report->attacker['player_id'], 'Alien player ID should be -2');
+        $this->assertEquals(-2, ($report->attacker['player_id'] ?? null), 'Alien player ID should be -2');
 
         // Verify player appears as defender
-        $this->assertEquals($this->planetService->getPlayer()->getId(), $report->defender['player_id']);
+        $this->assertEquals($this->planetPlayer()->getId(), ($report->defender['player_id'] ?? null));
 
         // Verify NPC has higher tech (player tech + 3)
-        $this->assertEquals(13, $report->attacker['weapon_technology'], 'Aliens should have player tech + 3');
-        $this->assertEquals(13, $report->attacker['shielding_technology'], 'Aliens should have player tech + 3');
-        $this->assertEquals(13, $report->attacker['armor_technology'], 'Aliens should have player tech + 3');
+        $this->assertEquals(13, ($report->attacker['weapon_technology'] ?? null), 'Aliens should have player tech + 3');
+        $this->assertEquals(13, ($report->attacker['shielding_technology'] ?? null), 'Aliens should have player tech + 3');
+        $this->assertEquals(13, ($report->attacker['armor_technology'] ?? null), 'Aliens should have player tech + 3');
     }
 
     /**
@@ -1198,7 +1264,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->planetService->reloadPlanet();
 
         // Get the battle report
-        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $battleReports = BattleReport::where('planet_user_id', $this->planetPlayer()->getId())->get();
         $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
 
         $report = $battleReports->first();
@@ -1266,7 +1332,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->planetService->reloadPlanet();
 
         // Get the battle report
-        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $battleReports = BattleReport::where('planet_user_id', $this->planetPlayer()->getId())->get();
         $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
 
         $report = $battleReports->first();
@@ -1280,7 +1346,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $maxReasonableHitsPerRound = 500000; // Very generous upper bound to catch the original bug
 
         // The NPC is the "attacker" in expedition reports (roles are swapped)
-        foreach ($report->rounds as $i => $round) {
+        foreach (($report->rounds ?? []) as $i => $round) {
             $npcHits = $round['hits_attacker'] ?? 0; // NPC shots (attacker in swapped report)
             $playerHits = $round['hits_defender'] ?? 0; // Player shots (defender in swapped report)
 

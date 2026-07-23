@@ -13,6 +13,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Services\AllianceService;
 use OGame\Services\BuddyService;
 use OGame\Services\PlanetService;
+use RuntimeException;
 
 class AcsDefendMission extends GameMission
 {
@@ -60,8 +61,13 @@ class AcsDefendMission extends GameMission
         }
 
         // Check if players are buddies (accepted buddy request exists) or in the same alliance
-        $currentUserId = $planet->getPlayer()->getUser()->id;
-        $targetUserId = $targetPlanet->getPlayer()->getUser()->id;
+        $currentPlayer = $planet->getPlayer();
+        $targetPlayer = $targetPlanet->getPlayer();
+        if ($currentPlayer === null || $targetPlayer === null) {
+            return new MissionPossibleStatus(false);
+        }
+        $currentUserId = $currentPlayer->getUser()->id;
+        $targetUserId = $targetPlayer->getUser()->id;
 
         $buddyService = app(BuddyService::class);
         $isBuddy = $buddyService->areBuddies($currentUserId, $targetUserId);
@@ -103,7 +109,17 @@ class AcsDefendMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the destination planet (where ships are returning to)
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('ACS Defend return mission has no target planet.');
+        }
         $destination_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($destination_planet === null) {
+            throw new RuntimeException('ACS Defend return mission target planet does not exist.');
+        }
+        $targetPlayer = $destination_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('ACS Defend return mission target planet has no owner.');
+        }
 
         // Return units to the destination planet
         $destination_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -115,7 +131,7 @@ class AcsDefendMission extends GameMission
         }
 
         // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $destination_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;

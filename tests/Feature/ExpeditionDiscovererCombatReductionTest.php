@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use Exception;
 use OGame\Enums\CharacterClass;
+use OGame\GameMissions\ExpeditionMission;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
+use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Services\SettingsService;
 use ReflectionClass;
@@ -62,11 +64,16 @@ class ExpeditionDiscovererCombatReductionTest extends FleetDispatchTestCase
      */
     protected function tearDown(): void
     {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+
         // Delete any test missions we created
-        \OGame\Models\FleetMission::where('user_id', $this->planetService->getPlayer()->getUser()->id)->delete();
+        FleetMission::where('user_id', $player->getUser()->id)->delete();
 
         // Reset character class
-        $user = $this->planetService->getPlayer()->getUser();
+        $user = $player->getUser();
         $user->character_class = null;
         $user->save();
 
@@ -97,11 +104,15 @@ class ExpeditionDiscovererCombatReductionTest extends FleetDispatchTestCase
         $settingsService->set('expedition_weight_merchant', 0);
 
         // Create a test mission for Discoverer
-        $user = $this->planetService->getPlayer()->getUser();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $user = $player->getUser();
         $user->character_class = CharacterClass::DISCOVERER->value;
         $user->save();
 
-        $discovererMission = new \OGame\Models\FleetMission();
+        $discovererMission = new FleetMission();
         $discovererMission->user_id = $user->id;
         $discovererMission->mission_type = 15;
         $discovererMission->save();
@@ -110,7 +121,7 @@ class ExpeditionDiscovererCombatReductionTest extends FleetDispatchTestCase
         $totalIterations = 1000;
         $discovererCombatCount = 0;
 
-        $expeditionMission = resolve(\OGame\GameMissions\ExpeditionMission::class);
+        $expeditionMission = resolve(ExpeditionMission::class);
         $reflection = new ReflectionClass($expeditionMission);
         $method = $reflection->getMethod('selectRandomOutcome');
         $method->setAccessible(true);
@@ -129,7 +140,7 @@ class ExpeditionDiscovererCombatReductionTest extends FleetDispatchTestCase
         $user->character_class = CharacterClass::COLLECTOR->value;
         $user->save();
 
-        $collectorMission = new \OGame\Models\FleetMission();
+        $collectorMission = new FleetMission();
         $collectorMission->user_id = $user->id;
         $collectorMission->mission_type = 15;
         $collectorMission->save();
@@ -195,7 +206,11 @@ class ExpeditionDiscovererCombatReductionTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Set player as Discoverer
-        $user = $this->planetService->getPlayer()->getUser();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $user = $player->getUser();
         $user->character_class = CharacterClass::DISCOVERER->value;
         $user->save();
 
@@ -213,7 +228,7 @@ class ExpeditionDiscovererCombatReductionTest extends FleetDispatchTestCase
         $settingsService->set('expedition_weight_merchant', 0);
 
         // Create a test mission
-        $mission = new \OGame\Models\FleetMission();
+        $mission = new FleetMission();
         $mission->user_id = $user->id;
         $mission->mission_type = 15;
         $mission->save();
@@ -227,7 +242,7 @@ class ExpeditionDiscovererCombatReductionTest extends FleetDispatchTestCase
             'nothing' => 0,
         ];
 
-        $expeditionMission = resolve(\OGame\GameMissions\ExpeditionMission::class);
+        $expeditionMission = resolve(ExpeditionMission::class);
         $reflection = new ReflectionClass($expeditionMission);
         $method = $reflection->getMethod('selectRandomOutcome');
         $method->setAccessible(true);

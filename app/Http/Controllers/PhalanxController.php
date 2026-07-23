@@ -98,28 +98,41 @@ class PhalanxController extends OGameController
             return response()->json($response);
         }
 
+        if ($target_planet === null) {
+            $response['is_error'] = true;
+            $response['error_message'] = 'No planet found at these coordinates.';
+            return response()->json($response);
+        }
+
+        $target_player = $target_planet->getPlayer();
+        if ($target_player === null) {
+            $response['is_error'] = true;
+            $response['error_message'] = 'No planet found at these coordinates.';
+            return response()->json($response);
+        }
+
         // Cannot scan moons (OGame rule)
         if ($target_planet->isMoon()) {
             $response['target']['planet_name'] = $target_planet->getPlanetName();
-            $response['target']['player_name'] = $target_planet->getPlayer()->getUsername();
+            $response['target']['player_name'] = $target_player->getUsername();
             $response['is_error'] = true;
             $response['error_message'] = 'Moons cannot be scanned with Sensor Phalanx.';
             return response()->json($response);
         }
 
         // Cannot scan admin planets
-        if ($target_planet->getPlayer()->isAdmin()) {
+        if ($target_player->isAdmin()) {
             $response['target']['planet_name'] = $target_planet->getPlanetName();
-            $response['target']['player_name'] = $target_planet->getPlayer()->getUsername();
+            $response['target']['player_name'] = $target_player->getUsername();
             $response['is_error'] = true;
             $response['error_message'] = 'Administrator planets cannot be scanned.';
             return response()->json($response);
         }
 
         // Cannot scan own planets
-        if ($target_planet->getPlayer()->getId() === $player->getId()) {
+        if ($target_player->getId() === $player->getId()) {
             $response['target']['planet_name'] = $target_planet->getPlanetName();
-            $response['target']['player_name'] = $target_planet->getPlayer()->getUsername();
+            $response['target']['player_name'] = $target_player->getUsername();
             $response['is_error'] = true;
             $response['error_message'] = 'You cannot scan your own planets.';
             return response()->json($response);
@@ -147,7 +160,7 @@ class PhalanxController extends OGameController
                 'system' => $target_coordinate->system,
                 'position' => $target_coordinate->position,
                 'planet_name' => $target_planet->getPlanetName(),
-                'player_name' => $target_planet->getPlayer()->getUsername(),
+                'player_name' => $target_player->getUsername(),
             ],
             'scan_cost' => $phalanxService->getScanCost(),
             'fleet_count' => count($fleet_movements),

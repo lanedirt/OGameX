@@ -27,15 +27,18 @@ class SidebarWreckFieldIconTest extends AccountTestCase
      */
     public function test_sidebar_shows_wreck_field_icon_for_planet_with_space_dock_when_other_planet_selected(): void
     {
-        $this->assertNotNull($this->secondPlanetService);
+        $secondPlanet = $this->secondPlanetService;
+        if ($secondPlanet === null) {
+            $this->fail('Second planet not found.');
+        }
 
         $this->setPlanetSpaceDock($this->planetService->getPlanetId(), 1);
-        $this->setPlanetSpaceDock($this->secondPlanetService->getPlanetId(), 0);
+        $this->setPlanetSpaceDock($secondPlanet->getPlanetId(), 0);
         $this->createWreckFieldOnPlanet($this->planetService->getPlanetId());
 
         $this->switchToSecondPlanet();
 
-        $response = $this->get('/overview?cp=' . $this->secondPlanetService->getPlanetId());
+        $response = $this->get('/overview?cp=' . $secondPlanet->getPlanetId());
         $response->assertStatus(200);
 
         $html = (string) $response->getContent();
@@ -45,7 +48,7 @@ class SidebarWreckFieldIconTest extends AccountTestCase
             'Wreck field icon should appear on the planet that has both a wreck field and Space Dock, even when another planet is selected.'
         );
         $this->assertFalse(
-            $this->sidebarPlanetHasWreckFieldIcon($html, $this->secondPlanetService->getPlanetId()),
+            $this->sidebarPlanetHasWreckFieldIcon($html, $secondPlanet->getPlanetId()),
             'Wreck field icon should not appear on the selected planet that has no wreck field.'
         );
     }
@@ -56,15 +59,18 @@ class SidebarWreckFieldIconTest extends AccountTestCase
      */
     public function test_sidebar_hides_wreck_field_icon_when_wreck_planet_lacks_space_dock(): void
     {
-        $this->assertNotNull($this->secondPlanetService);
+        $secondPlanet = $this->secondPlanetService;
+        if ($secondPlanet === null) {
+            $this->fail('Second planet not found.');
+        }
 
         $this->setPlanetSpaceDock($this->planetService->getPlanetId(), 0);
-        $this->setPlanetSpaceDock($this->secondPlanetService->getPlanetId(), 1);
+        $this->setPlanetSpaceDock($secondPlanet->getPlanetId(), 1);
         $this->createWreckFieldOnPlanet($this->planetService->getPlanetId());
 
         $this->switchToSecondPlanet();
 
-        $response = $this->get('/overview?cp=' . $this->secondPlanetService->getPlanetId());
+        $response = $this->get('/overview?cp=' . $secondPlanet->getPlanetId());
         $response->assertStatus(200);
 
         $html = (string) $response->getContent();
@@ -74,7 +80,7 @@ class SidebarWreckFieldIconTest extends AccountTestCase
             'Wreck field icon must not appear when the wreck planet has no Space Dock, even if the selected planet does.'
         );
         $this->assertFalse(
-            $this->sidebarPlanetHasWreckFieldIcon($html, $this->secondPlanetService->getPlanetId()),
+            $this->sidebarPlanetHasWreckFieldIcon($html, $secondPlanet->getPlanetId()),
             'Wreck field icon should not appear on the selected planet that has no wreck field.'
         );
     }
