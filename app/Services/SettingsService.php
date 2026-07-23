@@ -729,6 +729,17 @@ class SettingsService
     }
 
     /**
+     * Returns the number of days of inactivity after which a player is
+     * permanently deleted. Returns 0 when the feature is disabled (default).
+     *
+     * @return int
+     */
+    public function inactivePlayerDeletionDays(): int
+    {
+        return (int)$this->get('inactive_player_deletion_days', 0);
+    }
+
+    /**
      * Returns the server rules content (BBCode).
      *
      * @return string

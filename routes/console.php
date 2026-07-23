@@ -2,6 +2,7 @@
 
 use OGame\Console\Commands\Scheduler\CleanupWreckFields;
 use OGame\Console\Commands\Scheduler\DarkMatterRegenerateCommand;
+use OGame\Console\Commands\Scheduler\DeleteInactivePlayers;
 use OGame\Console\Commands\Scheduler\DeleteOldMessages;
 use OGame\Console\Commands\Scheduler\GenerateAllianceHighscores;
 use OGame\Console\Commands\Scheduler\GenerateHighscoreRanks;
@@ -36,3 +37,6 @@ Schedule::command(DeleteOldMessages::class)->hourly()->withoutOverlapping();
 
 // Process Dark Matter regeneration every 5 minutes
 Schedule::command(DarkMatterRegenerateCommand::class)->everyFiveMinutes()->withoutOverlapping();
+
+// Delete players that have been inactive beyond the configured threshold (0 = disabled)
+Schedule::command(DeleteInactivePlayers::class)->daily()->withoutOverlapping();
