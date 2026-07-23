@@ -65,7 +65,11 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function fleetCheckToSecondPlanet(UnitCollection $units, bool $assertSuccess): void
     {
-        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $coordinates = $secondPlanetService->getPlanetCoordinates();
         $this->checkTargetFleet($coordinates, $units, PlanetType::Planet, $assertSuccess);
     }
 
@@ -91,7 +95,11 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function fleetCheckToSecondPlanetDebrisField(UnitCollection $units, bool $assertSuccess): void
     {
-        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $coordinates = $secondPlanetService->getPlanetCoordinates();
         $this->checkTargetFleet($coordinates, $units, PlanetType::DebrisField, $assertSuccess);
     }
 
@@ -159,7 +167,11 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
     {
-        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $coordinates = $secondPlanetService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Planet, 0, $assertStatus);
     }
 
@@ -187,7 +199,11 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToSecondPlanetDebrisField(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
     {
-        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $coordinates = $secondPlanetService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::DebrisField, 0, $assertStatus);
     }
 

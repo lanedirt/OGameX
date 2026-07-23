@@ -97,6 +97,10 @@ class PlayerService
     {
         // Fetch user from model
         $user = User::with('highscore')->where('id', $id)->first();
+        if ($user === null) {
+            throw new RuntimeException('User not found.');
+        }
+
         $this->user = $user;
 
         // Fetch user tech from model
@@ -481,7 +485,12 @@ class PlayerService
     {
         if (!$this->user->planet_current) {
             // If no current planet is set, return the first planet of the player.
-            return $this->planets->first()->getPlanetId();
+            $firstPlanet = $this->planets->first();
+            if ($firstPlanet === null) {
+                throw new RuntimeException('Player has no planets.');
+            }
+
+            return $firstPlanet->getPlanetId();
         }
 
         return $this->user->planet_current;

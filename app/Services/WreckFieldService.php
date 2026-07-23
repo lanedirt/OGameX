@@ -142,6 +142,10 @@ class WreckFieldService
      */
     public function getCoordinates(): Coordinate
     {
+        if ($this->wreckField === null) {
+            throw new Exception('No wreck field loaded.');
+        }
+
         return new Coordinate($this->wreckField->galaxy, $this->wreckField->system, $this->wreckField->planet);
     }
 

@@ -50,12 +50,14 @@ class ChatMessageSent implements ShouldBroadcast
      */
     public function broadcastWith(): array
     {
+        $createdAt = $this->message->created_at;
+
         $data = [
             'id' => $this->message->id,
             'senderId' => $this->message->sender_id,
             'senderName' => $this->message->sender->username,
             'text' => e($this->message->message),
-            'date' => $this->message->created_at->timestamp,
+            'date' => $createdAt !== null ? $createdAt->timestamp : 0,
         ];
 
         if ($this->message->alliance_id) {

@@ -130,7 +130,11 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Assert that last message sent to second player contains the transport confirm message.
-        $this->assertMessageReceivedAndContainsDatabase($foreignPlanet->getPlayer(), [
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet player is null.');
+        }
+        $this->assertMessageReceivedAndContainsDatabase($foreignPlayer, [
             'An incoming fleet from',
             'has reached your',
         ]);
@@ -227,10 +231,17 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanetService->getPlanetCoordinates(), $unitCollection, resolve(TransportMission::class));
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is null.');
+        }
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $secondPlanetService->getPlanetCoordinates(), $unitCollection, resolve(TransportMission::class));
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
@@ -245,10 +256,13 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that message has been received by calling extended method
-        $this->messageCheckMissionArrival($this->secondPlanetService);
+        $this->messageCheckMissionArrival($secondPlanetService);
 
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
@@ -256,7 +270,11 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->assertCount(1, $activeMissions, 'No return trip launched after fleet has arrived at destination.');
 
         // Advance time to the return trip arrival.
-        $returnTripDuration = $activeMissions->first()->time_arrival - $activeMissions->first()->time_departure;
+        $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('No return mission found.');
+        }
+        $returnTripDuration = $returnMission->time_arrival - $returnMission->time_departure;
         $this->travel($returnTripDuration + 1)->seconds();
 
         // Do a request to trigger the update logic.
@@ -271,7 +289,7 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships are not at 5 units after return trip.');
 
-        $this->messageCheckMissionReturn($this->secondPlanetService);
+        $this->messageCheckMissionReturn($secondPlanetService);
     }
 
     /**
@@ -293,6 +311,9 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
@@ -311,6 +332,9 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that message has been received by calling extended method
@@ -322,7 +346,11 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $this->assertCount(1, $activeMissions, 'No return trip launched after fleet has arrived at destination.');
 
         // Advance time to the return trip arrival.
-        $returnTripDuration = $activeMissions->first()->time_arrival - $activeMissions->first()->time_departure;
+        $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('No return mission found.');
+        }
+        $returnTripDuration = $returnMission->time_arrival - $returnMission->time_departure;
         $this->travel($returnTripDuration + 1)->seconds();
 
         // Do a request to trigger the update logic.
@@ -361,7 +389,11 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $response = $this->get('/ajax/fleet/eventlist/fetch');
         $response->assertStatus(200);
         $response->assertSee('planetIcon planet');
-        $response->assertSee($this->secondPlanetService->getPlanetName());
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is null.');
+        }
+        $response->assertSee($secondPlanetService->getPlanetName());
 
         // If the mission has a return mission, we should see both in the event list.
         $response->assertSee($this->missionName);
@@ -425,10 +457,17 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = Date::getTestNow()->addMinute();
+        $testNow = Date::getTestNow();
+        if ($testNow === null) {
+            $this->fail('Test now is null.');
+        }
+        $fleetParentTime = $testNow->addMinute();
         $this->travelTo($fleetParentTime);
 
         // Cancel the mission
@@ -441,6 +480,9 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Assert that the original mission is now canceled.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->canceled == 1, 'Fleet mission is not canceled after fleet recall is requested.');
 
         // Assert that only the return trip is now visible.
@@ -453,8 +495,14 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
 
         // Assert that the return trip arrival time is exactly 1 minute after the cancelation time.
         // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
@@ -468,6 +516,9 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
 
         // Assert that the return trip is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Return trip is not processed after fleet has arrived back at origin planet.');
 
         // Assert that the units have been returned to the origin planet.
@@ -498,6 +549,9 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
@@ -539,7 +593,11 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
 
         // Use second planet coordinates but specify it's a (non existent) moon target
-        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is null.');
+        }
+        $coordinates = $secondPlanetService->getPlanetCoordinates();
 
         // Dispatch fleet to the non-existent moon and expect mission to fail (assertStatus is false)
         $this->dispatchFleet($coordinates, $unitCollection, new Resources(100, 100, 0, 0), PlanetType::Moon, 0, false);

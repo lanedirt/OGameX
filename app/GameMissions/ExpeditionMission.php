@@ -46,6 +46,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use RuntimeException;
 
 class ExpeditionMission extends GameMission
 {
@@ -99,7 +100,11 @@ class ExpeditionMission extends GameMission
     {
         parent::startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
         // Check if there are enough expedition slots available.
-        if ($planet->getPlayer()->getExpeditionSlotsInUse() >= $planet->getPlayer()->getExpeditionSlotsMax()) {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Expedition mission origin planet has no owner.');
+        }
+        if ($player->getExpeditionSlotsInUse() >= $player->getExpeditionSlotsMax()) {
             throw new Exception('You are conducting too many expeditions at the same time.');
         }
 
@@ -129,7 +134,11 @@ class ExpeditionMission extends GameMission
         }
 
         // Only possible if player has astrophysics research level 1 or higher.
-        if ($planet->getPlayer()->getResearchLevel('astrophysics') <= 0) {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            return new MissionPossibleStatus(false);
+        }
+        if ($player->getResearchLevel('astrophysics') <= 0) {
             return new MissionPossibleStatus(false, __('Fleets cannot be sent to this target. You have to research Astrophysics first.'));
         }
 
@@ -218,7 +227,17 @@ class ExpeditionMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Expedition return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Expedition return mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Expedition return mission target planet has no owner.');
+        }
 
         // Expedition mission: add back the units to the source planet.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -230,7 +249,7 @@ class ExpeditionMission extends GameMission
         }
 
         // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;
@@ -693,7 +712,13 @@ class ExpeditionMission extends GameMission
         $npcPlayer = $npcData['player'];
 
         // Get origin planet for battle context
+        if ($mission->planet_id_from === null) {
+            throw new RuntimeException('Expedition mission has no origin planet.');
+        }
         $originPlanet = $this->planetServiceFactory->make($mission->planet_id_from, true);
+        if ($originPlanet === null) {
+            throw new RuntimeException('Expedition mission origin planet does not exist.');
+        }
 
         // Create NPC planet service for the battle
         $npcPlanetService = new NPCPlanetService(
@@ -733,6 +758,9 @@ class ExpeditionMission extends GameMission
 
         // Create debris field for expedition battles at position 16 (deep space)
         // Expedition battles create debris fields that can only be collected by Pathfinders (Discoverer class)
+        if ($mission->galaxy_to === null || $mission->system_to === null) {
+            throw new RuntimeException('Expedition mission has no target coordinate.');
+        }
         $expeditionCoords = new Coordinate($mission->galaxy_to, $mission->system_to, 16);
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadOrCreateForCoordinates($expeditionCoords);
@@ -980,7 +1008,8 @@ class ExpeditionMission extends GameMission
         // < 75.000.000 points: 3.600.000 metal
         // < 100.000.000 points: 4.200.000 metal
         // > 100.000.000 points: 5.000.000 metal
-        $rank_1_highscore_points = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first()->general;
+        $rank_1_highscore = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first();
+        $rank_1_highscore_points = $rank_1_highscore === null ? 0 : $rank_1_highscore->general;
 
         if ($rank_1_highscore_points < 10000) {
             $max = 40000;

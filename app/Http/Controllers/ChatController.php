@@ -193,12 +193,14 @@ class ChatController extends OGameController
 
             $message = $chatService->sendDirectMessage($userId, $recipientId, $text, $replyToId);
 
+            $createdAt = $message->created_at;
+
             $response = [
                 'status' => 'OK',
                 'id' => $message->id,
                 'targetId' => $recipientId,
                 'text' => e($message->message),
-                'date' => $message->created_at->timestamp,
+                'date' => $createdAt !== null ? (int) $createdAt->timestamp : 0,
             ];
 
             if ($message->replyTo) {
@@ -220,12 +222,14 @@ class ChatController extends OGameController
 
             $message = $chatService->sendAllianceMessage($userId, $allianceId, $text, $replyToId);
 
+            $createdAt = $message->created_at;
+
             $response = [
                 'status' => 'OK',
                 'id' => $message->id,
                 'targetAssociationId' => $allianceId,
                 'text' => e($message->message),
-                'date' => $message->created_at->timestamp,
+                'date' => $createdAt !== null ? (int) $createdAt->timestamp : 0,
             ];
 
             if ($message->replyTo) {

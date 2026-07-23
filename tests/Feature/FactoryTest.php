@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use DB;
+use Illuminate\Support\Collection;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Planet;
 use Tests\AccountTestCase;
 
@@ -32,7 +34,7 @@ class FactoryTest extends AccountTestCase
         }
 
         // Get the player service factory.
-        $playerServiceFactory =  resolve(\OGame\Factories\PlayerServiceFactory::class);
+        $playerServiceFactory =  resolve(PlayerServiceFactory::class);
 
         // Load the first user.
         $playerService1 = $playerServiceFactory->make($playerIds[0]);
@@ -64,22 +66,36 @@ class FactoryTest extends AccountTestCase
 
         // Load the first planet.
         $planetService1 = $planetServiceFactory->make($planet1->id);
+        if ($planetService1 === null) {
+            $this->fail('First planet service could not be loaded.');
+        }
         $this->assertEquals($planet1->id, $planetService1->getPlanetId());
-        $this->assertEquals($playerIds[0], $planetService1->getPlayer()->getId());
+        $player1 = $planetService1->getPlayer();
+        if ($player1 === null) {
+            $this->fail('First planet player could not be loaded.');
+        }
+        $this->assertEquals($playerIds[0], $player1->getId());
 
         // Load the second planet.
         $planetService2 = $planetServiceFactory->make($planet2->id);
+        if ($planetService2 === null) {
+            $this->fail('Second planet service could not be loaded.');
+        }
         $this->assertEquals($planet2->id, $planetService2->getPlanetId());
-        $this->assertEquals($playerIds[1], $planetService2->getPlayer()->getId());
+        $player2 = $planetService2->getPlayer();
+        if ($player2 === null) {
+            $this->fail('Second planet player could not be loaded.');
+        }
+        $this->assertEquals($playerIds[1], $player2->getId());
     }
 
     /**
      * Create users with planets and wait for planet creation to complete.
      *
      * @param int $count Number of users to create
-     * @return \Illuminate\Support\Collection<int, int>
+     * @return Collection<int, int>
      */
-    private function getPlayerIdsWithPlanets(int $count): \Illuminate\Support\Collection
+    private function getPlayerIdsWithPlanets(int $count): Collection
     {
         $playerIds = collect();
 

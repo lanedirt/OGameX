@@ -16,7 +16,11 @@ class AdminAttackBlockTest extends AccountTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->artisan('ogamex:admin:assign-role', ['username' => auth()->user()->username]);
+        $user = auth()->user();
+        if ($user === null) {
+            $this->fail('No authenticated user found.');
+        }
+        $this->artisan('ogamex:admin:assign-role', ['username' => $user->username]);
     }
 
     /**

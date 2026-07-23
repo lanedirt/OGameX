@@ -174,7 +174,16 @@ class ChatService
         foreach ($messages as $message) {
             $partnerId = $message->sender_id === $userId ? $message->recipient_id : $message->sender_id;
 
+            if ($partnerId === null) {
+                continue;
+            }
+
             if (isset($conversations[$partnerId])) {
+                continue;
+            }
+
+            $createdAt = $message->created_at;
+            if ($createdAt === null) {
                 continue;
             }
 
@@ -184,7 +193,7 @@ class ChatService
                 'partner_id' => $partnerId,
                 'partner_name' => $partner->username ?? 'Unknown',
                 'last_message' => $message->message,
-                'last_message_date' => $message->created_at,
+                'last_message_date' => $createdAt,
                 'unread_count' => $unreadCounts[$partnerId] ?? 0,
             ];
         }
@@ -218,8 +227,10 @@ class ChatService
             $key = (string) $message->id;
             $isOwnMessage = $message->sender_id === $currentPlayerId;
 
+            $createdAt = $message->created_at;
+
             $item = [
-                'date' => $message->created_at->timestamp,
+                'date' => $createdAt !== null ? $createdAt->timestamp : 0,
                 'newClass' => '',
                 'playerName' => $message->sender->username,
                 'altClass' => $isOwnMessage ? 'odd' : '',

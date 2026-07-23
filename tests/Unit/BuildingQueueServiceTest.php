@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
-use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\ObjectService;
@@ -68,6 +67,9 @@ class BuildingQueueServiceTest extends UnitTestCase
         $this->assertCount(1, $queue_items);
 
         $queue_item = $queue_items->first();
+        if ($queue_item === null) {
+            $this->fail('Queue item not found.');
+        }
         $this->assertEquals($building->id, $queue_item->object_id);
         $this->assertEquals($initial_level - 1, $queue_item->object_level_target);
         $this->assertTrue((bool)($queue_item->is_downgrade ?? false), 'is_downgrade should be true');

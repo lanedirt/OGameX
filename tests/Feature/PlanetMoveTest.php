@@ -34,6 +34,9 @@ class PlanetMoveTest extends AccountTestCase
 
         // Give the user enough Dark Matter for relocations.
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $user->dark_matter = 500000;
         $user->save();
     }
@@ -89,8 +92,12 @@ class PlanetMoveTest extends AccountTestCase
 
         // Verify coordinates have NOT changed yet (move is only scheduled).
         $this->reloadApplication();
-        $this->planetService->getPlayer()->load($this->planetService->getPlayer()->getId());
-        $updatedPlanet = $this->planetService->getPlayer()->planets->current();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+        $player->load($player->getId());
+        $updatedPlanet = $player->planets->current();
         $currentCoordinates = $updatedPlanet->getPlanetCoordinates();
 
         $this->assertEquals($originalCoordinates->galaxy, $currentCoordinates->galaxy);
@@ -99,6 +106,9 @@ class PlanetMoveTest extends AccountTestCase
 
         // Verify DM was NOT deducted (only deducted when move executes).
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $this->assertEquals(500000, $user->dark_matter);
     }
 
@@ -108,7 +118,11 @@ class PlanetMoveTest extends AccountTestCase
     public function testRelocationToOccupiedPosition(): void
     {
         // The second planet of the user is occupied, try to relocate there.
-        $occupiedCoordinate = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanet = $this->secondPlanetService;
+        if ($secondPlanet === null) {
+            $this->fail('Second planet service is null.');
+        }
+        $occupiedCoordinate = $secondPlanet->getPlanetCoordinates();
 
         $response = $this->post('/ajax/planet-move', [
             '_token' => csrf_token(),
@@ -122,6 +136,9 @@ class PlanetMoveTest extends AccountTestCase
 
         // Verify DM was not deducted.
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $this->assertEquals(500000, $user->dark_matter);
     }
 
@@ -132,6 +149,9 @@ class PlanetMoveTest extends AccountTestCase
     {
         // Set DM to less than the cost.
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $user->dark_matter = 100;
         $user->save();
 
@@ -253,10 +273,16 @@ class PlanetMoveTest extends AccountTestCase
 
         // Verify the move is canceled.
         $move = PlanetMove::where('planet_id', $this->planetService->getPlanetId())->first();
+        if ($move === null) {
+            $this->fail('Planet move not found.');
+        }
         $this->assertTrue((bool) $move->canceled);
 
         // Verify DM was not deducted.
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $this->assertEquals(500000, $user->dark_matter);
     }
 
@@ -276,6 +302,9 @@ class PlanetMoveTest extends AccountTestCase
             ->where('canceled', false)
             ->where('processed', false)
             ->first();
+        if ($move === null) {
+            $this->fail('Planet move not found.');
+        }
         $move->time_arrive = time() - 1;
         $move->save();
 
@@ -314,12 +343,19 @@ class PlanetMoveTest extends AccountTestCase
 
         // Verify DM was deducted.
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $this->assertEquals(260000, $user->dark_matter);
 
         // Verify the planet coordinates changed.
         $this->reloadApplication();
-        $this->planetService->getPlayer()->load($this->planetService->getPlayer()->getId());
-        $updatedPlanet = $this->planetService->getPlayer()->planets->current();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+        $player->load($player->getId());
+        $updatedPlanet = $player->planets->current();
         $newCoordinates = $updatedPlanet->getPlanetCoordinates();
 
         $this->assertEquals($emptyCoordinate->galaxy, $newCoordinates->galaxy);
@@ -533,6 +569,9 @@ class PlanetMoveTest extends AccountTestCase
             ->where('canceled', false)
             ->where('processed', false)
             ->first();
+        if ($move === null) {
+            $this->fail('Planet move not found.');
+        }
         $move->time_arrive = time() - 1;
         $move->save();
 
@@ -568,6 +607,9 @@ class PlanetMoveTest extends AccountTestCase
 
         // Verify DM was NOT deducted.
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $this->assertEquals(500000, $user->dark_matter);
     }
 
@@ -616,8 +658,12 @@ class PlanetMoveTest extends AccountTestCase
     public function testRelocationAllowedWithResearchOnDifferentPlanet(): void
     {
         // Insert a research queue item on the SECOND planet (not the one being moved).
+        $secondPlanet = $this->secondPlanetService;
+        if ($secondPlanet === null) {
+            $this->fail('Second planet service is null.');
+        }
         DB::table('research_queues')->insert([
-            'planet_id' => $this->secondPlanetService->getPlanetId(),
+            'planet_id' => $secondPlanet->getPlanetId(),
             'object_id' => 113, // energy_technology
             'object_level_target' => 1,
             'time_duration' => 3600,
@@ -642,7 +688,7 @@ class PlanetMoveTest extends AccountTestCase
         $response->assertJson(['error' => '']);
 
         // Clean up the research queue item on the second planet.
-        DB::table('research_queues')->where('planet_id', $this->secondPlanetService->getPlanetId())->delete();
+        DB::table('research_queues')->where('planet_id', $secondPlanet->getPlanetId())->delete();
     }
 
     /**
@@ -655,6 +701,9 @@ class PlanetMoveTest extends AccountTestCase
         // Get a foreign planet to use as the attacker origin.
         $foreignPlanet = $this->getNearbyForeignPlanet();
         $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign player is null.');
+        }
 
         $emptyCoordinate = $this->getNearbyEmptyCoordinate();
 
@@ -754,8 +803,12 @@ class PlanetMoveTest extends AccountTestCase
 
         // Verify the move was processed and planet is at new coordinates.
         $this->reloadApplication();
-        $this->planetService->getPlayer()->load($this->planetService->getPlayer()->getId());
-        $updatedPlanet = $this->planetService->getPlayer()->planets->current();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+        $player->load($player->getId());
+        $updatedPlanet = $player->planets->current();
         $newCoordinates = $updatedPlanet->getPlanetCoordinates();
         $this->assertEquals($emptyCoordinate->galaxy, $newCoordinates->galaxy);
 
@@ -798,8 +851,12 @@ class PlanetMoveTest extends AccountTestCase
 
         // Colonize the target position (create a planet there) so the move fails.
         $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign player is null.');
+        }
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $blockerPlanet = $planetServiceFactory->createAdditionalPlanetForPlayer($foreignPlanet->getPlayer(), $emptyCoordinate);
+        $blockerPlanet = $planetServiceFactory->createAdditionalPlanetForPlayer($foreignPlayer, $emptyCoordinate);
 
         // Trigger processing — the move should fail because target is occupied.
         $planetMoveService = resolve(PlanetMoveService::class);
@@ -822,6 +879,9 @@ class PlanetMoveTest extends AccountTestCase
 
         // Verify DM was NOT deducted.
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $this->assertEquals(500000, $user->dark_matter);
 
         // Clean up the blocker planet.

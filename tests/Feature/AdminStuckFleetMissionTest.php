@@ -46,9 +46,21 @@ class AdminStuckFleetMissionTest extends AccountTestCase
         parent::tearDown();
     }
 
+    /**
+     * Returns the currently authenticated user's username.
+     */
+    private function currentUsername(): string
+    {
+        $user = auth()->user();
+        if ($user === null) {
+            $this->fail('Not authenticated.');
+        }
+        return $user->username;
+    }
+
     public function testAdminCanSeeBrokenOverdueMissionInServerAdministration(): void
     {
-        $this->artisan('ogamex:admin:assign-role', ['username' => auth()->user()->username]);
+        $this->artisan('ogamex:admin:assign-role', ['username' => $this->currentUsername()]);
 
         $victim = $this->createTrackedSecondaryUser();
         $returnMission = $this->createBrokenReturnMission($victim['user_id'], $victim['homeworld_id']);
@@ -64,7 +76,7 @@ class AdminStuckFleetMissionTest extends AccountTestCase
 
     public function testAdminCanRecoverBrokenReturnMissionToVictimHomeworld(): void
     {
-        $this->artisan('ogamex:admin:assign-role', ['username' => auth()->user()->username]);
+        $this->artisan('ogamex:admin:assign-role', ['username' => $this->currentUsername()]);
 
         $victim = $this->createTrackedSecondaryUser();
         $returnMission = $this->createBrokenReturnMission($victim['user_id'], $victim['homeworld_id']);
@@ -90,7 +102,7 @@ class AdminStuckFleetMissionTest extends AccountTestCase
 
     public function testAdminCanProcessOverdueMissionWithMissingDestination(): void
     {
-        $this->artisan('ogamex:admin:assign-role', ['username' => auth()->user()->username]);
+        $this->artisan('ogamex:admin:assign-role', ['username' => $this->currentUsername()]);
 
         $victim = $this->createTrackedSecondaryUser();
         $outboundMission = $this->createMissingDestinationOutboundMission($victim['user_id'], $victim['homeworld_id']);

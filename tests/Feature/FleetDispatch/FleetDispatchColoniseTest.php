@@ -2,13 +2,15 @@
 
 namespace Tests\Feature\FleetDispatch;
 
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlayerService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -27,6 +29,18 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
     protected string $missionName = 'Colonisation';
 
     protected bool $hasReturnMission = false;
+
+    /**
+     * Returns the current planet's player, failing the test if none is set.
+     */
+    private function currentPlayer(): PlayerService
+    {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        return $player;
+    }
 
     /**
      * Prepare the planet for the test, so it has the required buildings and research.
@@ -119,7 +133,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->assertNotNull($newPlanet, 'New planet cannot be loaded while it should have been created.');
 
         // Assert that last message sent to current player contains the new planet colonize confirm message.
-        $this->assertMessageReceivedAndContainsDatabase($this->planetService->getPlayer(), [
+        $this->assertMessageReceivedAndContainsDatabase($this->currentPlayer(), [
             'The fleet has arrived',
             'found a new planet there and are beginning to develop upon it immediately.',
         ]);
@@ -167,7 +181,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->assertCount(2, $created_planets, 'Exactly two planets should have been created with astrophysics level 5. Check astrophysics logic.');
 
         // Check that 3 messages have been sent to the player about failed colonization attempts.
-        $this->assertMessageReceivedAndContainsDatabase($this->planetService->getPlayer(), [
+        $this->assertMessageReceivedAndContainsDatabase($this->currentPlayer(), [
             'The fleet has arrived',
             'knowledge of astrophysics is not sufficient',
         ], 3);
@@ -309,7 +323,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Create custom coordinates for position 3
         $planetCoords = $this->planetService->getPlanetCoordinates();
-        $targetCoordinates = new \OGame\Models\Planet\Coordinate($planetCoords->galaxy, $planetCoords->system, 3);
+        $targetCoordinates = new Coordinate($planetCoords->galaxy, $planetCoords->system, 3);
 
         // This should fail with 400 status
         $this->dispatchFleet($targetCoordinates, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, false);
@@ -349,7 +363,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Create custom coordinates for position 2
         $planetCoords = $this->planetService->getPlanetCoordinates();
-        $targetCoordinates = new \OGame\Models\Planet\Coordinate($planetCoords->galaxy, $planetCoords->system, 2);
+        $targetCoordinates = new Coordinate($planetCoords->galaxy, $planetCoords->system, 2);
 
         // This should fail with 400 status
         $this->dispatchFleet($targetCoordinates, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, false);
@@ -389,7 +403,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Create custom coordinates for position 1
         $planetCoords = $this->planetService->getPlanetCoordinates();
-        $targetCoordinates = new \OGame\Models\Planet\Coordinate($planetCoords->galaxy, $planetCoords->system, 1);
+        $targetCoordinates = new Coordinate($planetCoords->galaxy, $planetCoords->system, 1);
 
         // This should fail with 400 status
         $this->dispatchFleet($targetCoordinates, $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, false);
@@ -436,10 +450,15 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = Carbon::getTestNow()->addMinute();
+        $testNow = Date::getTestNow();
+        $this->assertNotNull($testNow, 'Test time not set');
+        $fleetParentTime = $testNow->addMinute();
         $this->travelTo($fleetParentTime);
 
         // Cancel the mission
@@ -451,6 +470,9 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         // Assert that the original mission is now canceled.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->canceled == 1, 'Fleet mission is not canceled after fleet recall is requested.');
 
         // Assert that only the return trip is now visible.
@@ -462,21 +484,30 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
 
         // Assert that the return trip arrival time is exactly 1 minute after the cancellation time.
         // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
         $this->assertTrue($fleetMission->time_arrival == $fleetParentTime->addSeconds(60)->timestamp, 'Return trip duration is not the same as the original mission has been active.');
 
         // Advance time by amount it takes for the return trip to arrive.
-        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $this->get('/overview');
 
         // Assert that the return trip is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Return trip is not processed after fleet has arrived back at origin planet.');
 
         // Assert that the units have been returned to the origin planet.
@@ -488,7 +519,7 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are not returned to origin planet after recalling mission.');
 
         // Assert that the last message sent contains the return trip message.
-        $this->assertMessageReceivedAndContainsDatabase($this->planetService->getPlayer(), [
+        $this->assertMessageReceivedAndContainsDatabase($this->currentPlayer(), [
             'Your fleet is returning from',
             '[' . $emptyPositionCoordinate->asString() . ']',
             'Metal: 5,000',
