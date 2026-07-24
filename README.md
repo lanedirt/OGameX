@@ -238,7 +238,6 @@ Guidelines:
 - Keep `QUEUE_WORKERS_HEAVY` at or above the number of large battles you expect to resolve at the same moment, otherwise simultaneous battles queue behind each other.
 - More workers means more parallel processing but also more concurrent database connections — make sure your MySQL `max_connections` has headroom.
 - `DB_QUEUE_RETRY_AFTER` (660) must stay larger than the job timeout (600s), or a long battle job can be picked up by a second worker while it is still running.
-- The queue and its locks run on the database driver by default, which is fine for most servers. For very high concurrency, point `CACHE_STORE` and the queue connection at redis to relieve database contention.
 
 After changing these values, recreate the worker container so it picks them up (they are read at container start):
   ```
