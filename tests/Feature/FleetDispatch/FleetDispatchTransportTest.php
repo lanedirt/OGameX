@@ -3,6 +3,7 @@
 namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
@@ -610,6 +611,43 @@ class FleetDispatchTransportTest extends FleetDispatchTestCase
         // Verify resources and units were not deducted
         $response = $this->get('/shipyard');
         $this->assertObjectLevelOnPage($response, 'small_cargo', 5, 'Small Cargo ships were deducted despite failed mission.');
+    }
+
+    /**
+     * Transport with fractional deuterium on planet should accept max cargo amounts (#1131).
+     *
+     * Mirrors the fixed client calculation: floor(planet deuterium) minus ceil(fuel).
+     */
+    public function testDispatchTransportWithFractionalDeuteriumAtMaxCargo(): void
+    {
+        $this->basicSetup();
+
+        DB::table('planets')->where('id', $this->planetService->getPlanetId())->update([
+            'deuterium' => 10000.7,
+        ]);
+        $this->planetService->reloadPlanet();
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $fleetMissionService = resolve(FleetMissionService::class);
+        $consumption = $fleetMissionService->calculateConsumption(
+            $this->planetService,
+            $unitCollection,
+            $coordinates,
+            0,
+            10.0
+        );
+
+        $maxCargoDeuterium = (int)floor(10000.7) - (int)ceil($consumption);
+        $this->assertGreaterThan(0, $maxCargoDeuterium, 'Test setup should allow sending deuterium cargo');
+
+        $this->sendMissionToSecondPlanet(
+            $unitCollection,
+            new Resources(0, 0, $maxCargoDeuterium, 0),
+            true
+        );
     }
 
     /**
