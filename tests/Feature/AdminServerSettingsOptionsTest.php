@@ -19,7 +19,11 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
      */
     public function testAdminCanSaveNewServerSettings(): void
     {
-        $this->artisan('ogamex:admin:assign-role', ['username' => auth()->user()->username]);
+        $authUser = auth()->user();
+        if ($authUser === null) {
+            $this->fail('Not authenticated.');
+        }
+        $this->artisan('ogamex:admin:assign-role', ['username' => $authUser->username]);
 
         $response = $this->post('/admin/server-settings', [
             '_token' => csrf_token(),
@@ -72,11 +76,16 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
         $settings = app(SettingsService::class);
         $settings->set('espionage_probe_capacity_on', 0);
 
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+
         $probe = ObjectService::getShipObjectByMachineName('espionage_probe');
-        $this->assertSame(0, $probe->properties->capacity->calculate($this->planetService->getPlayer())->totalValue);
+        $this->assertSame(0, $probe->properties->capacity->calculate($player)->totalValue);
 
         $settings->set('espionage_probe_capacity_on', 1);
-        $this->assertSame(5, $probe->properties->capacity->calculate($this->planetService->getPlayer())->totalValue);
+        $this->assertSame(5, $probe->properties->capacity->calculate($player)->totalValue);
     }
 
     /**
@@ -140,7 +149,11 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
      */
     public function testAdminActivityLogsAndCronPagesAccessible(): void
     {
-        $this->artisan('ogamex:admin:assign-role', ['username' => auth()->user()->username]);
+        $authUser = auth()->user();
+        if ($authUser === null) {
+            $this->fail('Not authenticated.');
+        }
+        $this->artisan('ogamex:admin:assign-role', ['username' => $authUser->username]);
 
         $this->get('/admin/activity-logs')->assertStatus(200)->assertSee('Activity logs');
         $this->get('/admin/activity-logs?tab=buildings')->assertStatus(200);
