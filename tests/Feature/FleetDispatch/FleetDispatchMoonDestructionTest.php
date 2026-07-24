@@ -157,7 +157,11 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
 
         // Boost the foreign player's computer tech to guarantee enough fleet slots, even if
         // previous tests in the suite left unprocessed fleet missions for this player in the DB.
-        $foreignMoon->getPlayer()->setResearchLevel('computer_technology', 25);
+        $foreignMoonPlayer = $foreignMoon->getPlayer();
+        if ($foreignMoonPlayer === null) {
+            $this->fail('Foreign moon has no player.');
+        }
+        $foreignMoonPlayer->setResearchLevel('computer_technology', 25);
 
         $outgoingUnits = new UnitCollection();
         $outgoingUnits->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
@@ -238,6 +242,10 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
 
         // --- Attacker setup ---
         $attacker = $this->planetService;
+        $attackerPlayer = $attacker->getPlayer();
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker has no player.');
+        }
         $attacker->removeUnits($attacker->getShipUnits(), true);
         $attacker->save();
         $attacker->reloadPlanet();
@@ -250,7 +258,7 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
         $foreignMoon = $this->sendMissionToOtherPlayerMoon($units, new Resources(0, 0, 0, 0));
 
         // Snapshot the outbound mission ID so we can locate it (and its return child) precisely.
-        $outboundMission = FleetMission::where('user_id', $attacker->getPlayer()->getId())
+        $outboundMission = FleetMission::where('user_id', $attackerPlayer->getId())
             ->where('mission_type', 9)
             ->whereNull('parent_id')
             ->where('processed', 0)
@@ -266,6 +274,9 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
         $foreignMoon->reloadPlanet();
 
         $defenderPlayer = $foreignMoon->getPlayer();
+        if ($defenderPlayer === null) {
+            $this->fail('Foreign moon has no player.');
+        }
         $defenderPlayerId = $defenderPlayer->getId();
         // Force weapon tech to 0 so LF attack (50) stays below the 1%-of-shield bounce
         // threshold (500) for the death star — DS remain untouchable.
@@ -299,7 +310,7 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
         $this->assertSame(
             0,
             Message::where('id', '>', $maxMessageIdBefore)
-                ->where('user_id', $attacker->getPlayer()->getId())
+                ->where('user_id', $attackerPlayer->getId())
                 ->whereIn('key', [
                     'moon_destruction_success',
                     'moon_destruction_failure',

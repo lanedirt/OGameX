@@ -159,12 +159,14 @@ class GalaxyController extends OGameController
         $availableMissions = $this->getAvailableMissions($galaxy, $system, $position, $planet);
         $planets_array = $this->createPlanetsArray($planet, $availableMissions);
 
+        $planetPlayer = $planet->getPlayer();
+
         return [
             'actions' => $this->getPlanetActions($planet, $galaxy, $system, $position, $phalanxService),
             'availableMissions' => [],
             'galaxy' => $galaxy,
             'planets' => $planets_array,
-            'player' => $this->getPlayerInfo($planet->getPlayer()),
+            'player' => $planetPlayer !== null ? $this->getPlayerInfo($planetPlayer) : [],
             'position' => $position,
             'positionFilters' => '',
             'system' => $system,
@@ -271,7 +273,7 @@ class GalaxyController extends OGameController
             'isDestroyed' => false,
             'planetId' => $moon->getPlanetId(),
             'planetName' => $moon->getPlanetName(),
-            'playerId' => $moon->getPlayer()->getId(),
+            'playerId' => $moon->getPlayer()?->getId(),
             'planetType' => 3,
             'size' => $moon->getPlanetDiameter(),
             'tooltipInfo' => [
@@ -302,9 +304,14 @@ class GalaxyController extends OGameController
             'name' => __('Transport'),
         ];
 
-        if ($planet->getPlayer()->getId() !== $this->playerService->getId()) {
+        $targetPlayer = $planet->getPlayer();
+        if ($targetPlayer === null) {
+            return $availableMissions;
+        }
+
+        if ($targetPlayer->getId() !== $this->playerService->getId()) {
             // Skip aggressive missions (Espionage, Attack) against Legor
-            $isLegor = $planet->getPlayer()->getUsername(false) === 'Legor';
+            $isLegor = $targetPlayer->getUsername(false) === 'Legor';
 
             if (!$isLegor) {
                 // Espionage (only if foreign planet and not Legor).
@@ -327,7 +334,7 @@ class GalaxyController extends OGameController
 
             // Check if target player is a buddy or ally member
             $currentUserId = $this->playerService->getUser()->id;
-            $targetUserId = $planet->getPlayer()->getUser()->id;
+            $targetUserId = $targetPlayer->getUser()->id;
 
             $isBuddy = $this->buddyService->areBuddies($currentUserId, $targetUserId);
 
@@ -387,8 +394,8 @@ class GalaxyController extends OGameController
         // Check if phalanx can be used: must be on moon, target must be planet, not own planet, not admin
         if ($current_planet->isMoon()
             && !$planet->isMoon()
-            && $planet->getPlayer()->getId() !== $this->playerService->getId()
-            && !$planet->getPlayer()->isAdmin()) {
+            && $planet->getPlayer()?->getId() !== $this->playerService->getId()
+            && !$planet->getPlayer()?->isAdmin()) {
             // All basic checks passed, now check phalanx level and range
             $phalanx_level = $current_planet->getObjectLevel('sensor_phalanx');
             if ($phalanx_level > 0) {
@@ -416,8 +423,8 @@ class GalaxyController extends OGameController
         // Check if buddy request can be sent:
         // - Must be foreign planet (not own)
         // - Target player must not be admin (can't send requests to admins)
-        $canBuddyRequest = $planet->getPlayer()->getId() !== $this->playerService->getId()
-            && !$planet->getPlayer()->isAdmin();
+        $canBuddyRequest = $planet->getPlayer()?->getId() !== $this->playerService->getId()
+            && !$planet->getPlayer()?->isAdmin();
 
         // Check if missile attack is possible:
         // - Must be foreign planet (not own)
@@ -425,7 +432,7 @@ class GalaxyController extends OGameController
         $canMissileAttack = false;
         $missileAttackLink = route('galaxy.index');
 
-        if ($planet->getPlayer()->getId() !== $this->playerService->getId()) {
+        if ($planet->getPlayer()?->getId() !== $this->playerService->getId()) {
             $currentPlanet = $this->playerService->planets->current();
             $missileRange = $this->playerService->getMissileRange();
             $targetCoordinate = new Coordinate($galaxy, $system, $position);
@@ -882,7 +889,7 @@ class GalaxyController extends OGameController
         }
 
         // Check if target is own planet
-        if ($currentPlanet->getPlayer()->equals($targetPlanet->getPlayer())) {
+        if ($currentPlanet->getPlayer()?->equals($targetPlanet->getPlayer())) {
             $data['error'] = __('You cannot attack your own planet');
             return view('ingame.galaxy.missileattack', $data);
         }
@@ -896,7 +903,7 @@ class GalaxyController extends OGameController
 
         // Get target info
         $data['target_planet_name'] = $targetPlanet->getPlanetName();
-        $data['target_player_name'] = $targetPlanet->getPlayer()->getUsername();
+        $data['target_player_name'] = $targetPlanet->getPlayer()?->getUsername() ?? '';
 
         // Get ABM count for warning
         $targetAbmCount = $targetPlanet->getObjectAmount('anti_ballistic_missile');
@@ -985,7 +992,7 @@ class GalaxyController extends OGameController
         }
 
         // Check if target is own planet
-        if ($currentPlanet->getPlayer()->equals($targetPlanet->getPlayer())) {
+        if ($currentPlanet->getPlayer()?->equals($targetPlanet->getPlayer())) {
             return response()->json([
                 'success' => false,
                 'error' => __('You cannot attack your own planet'),

@@ -21,6 +21,20 @@ class CoordinateDistanceCalculator
     }
 
     /**
+     * Shortest system distance within a galaxy, accounting for donut wrap-around.
+     *
+     * Example: system 490 to system 5 is 14 systems via the wrap, not 485
+     * (when the universe is configured with 499 systems).
+     */
+    public function getSystemDistance(int $fromSystem, int $toSystem): int
+    {
+        $diffSystems = abs($fromSystem - $toSystem);
+        $wrapDiff = abs($diffSystems - $this->settingsService->numberOfSystems());
+
+        return min($diffSystems, $wrapDiff);
+    }
+
+    /**
      * Get the number of empty systems between two coordinates.
      * Only applies when coordinates are in the same galaxy.
      *
@@ -44,8 +58,7 @@ class CoordinateDistanceCalculator
         $maxSystems = $this->settingsService->numberOfSystems();
 
         // Check if donut galaxy wrapping provides a shorter path
-        $altDiff = $maxSystems - $diffSystems;
-        if ($altDiff < $diffSystems) {
+        if ($this->getSystemDistance($from->system, $to->system) < $diffSystems) {
             // Path wraps around, split into two segments
             $split1 = new Coordinate($from->galaxy, UniverseConstants::MIN_SYSTEM, UniverseConstants::MAX_PLANET_POSITION);
             $split2 = new Coordinate($to->galaxy, $maxSystems, UniverseConstants::MAX_PLANET_POSITION);
@@ -104,8 +117,7 @@ class CoordinateDistanceCalculator
         $maxSystems = $this->settingsService->numberOfSystems();
 
         // Check if donut galaxy wrapping provides a shorter path
-        $altDiff = $maxSystems - $diffSystems;
-        if ($altDiff < $diffSystems) {
+        if ($this->getSystemDistance($from->system, $to->system) < $diffSystems) {
             // Path wraps around, split into two segments
             $split1 = new Coordinate($from->galaxy, UniverseConstants::MIN_SYSTEM, UniverseConstants::MAX_PLANET_POSITION);
             $split2 = new Coordinate($to->galaxy, $maxSystems, UniverseConstants::MAX_PLANET_POSITION);
