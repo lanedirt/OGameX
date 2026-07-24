@@ -282,6 +282,7 @@ class BuildingQueueService
                 $item['building'],
                 $item['object_level_target'],
                 $is_downgrade,
+                (bool)($item['dm_halved'] ?? false),
             );
 
             $list[] = $viewModel;

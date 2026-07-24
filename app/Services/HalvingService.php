@@ -170,6 +170,10 @@ class HalvingService
                 throw new Exception('Queue item not found or already completed');
             }
 
+            if ($queueItem->dm_halved) {
+                throw new Exception('Queue item has already been halved. Use Complete to finish instantly.');
+            }
+
             // Calculate new time values
             // Cost is based on remaining time, reduction is 50% of original time
             $timeValues = $this->calculateNewTimeValues(
@@ -201,6 +205,7 @@ class HalvingService
 
             // Update queue item time_end
             $queueItem->time_end = $timeValues['new_time_end'];
+            $queueItem->dm_halved = 1;
             $queueItem->save();
 
             return [
@@ -209,6 +214,93 @@ class HalvingService
                 'cost' => $cost,
                 'new_balance' => $lockedUser->dark_matter,
                 'remaining_time' => $timeValues['remaining_time'],
+            ];
+        });
+
+        return $result;
+    }
+
+    /**
+     * Complete a building queue item instantly using Dark Matter.
+     *
+     * This is used when the building has already been halved once. Instead of halving
+     * again, the queue is completed immediately.
+     *
+     * @param User $user The user performing the completion
+     * @param int $queueItemId The building queue item ID
+     * @param PlanetService $planet The planet service
+     * @return array{success: bool, cost: int, new_balance: int}
+     * @throws Exception If insufficient Dark Matter or invalid queue item
+     */
+    public function completeBuilding(User $user, int $queueItemId, PlanetService $planet): array
+    {
+        /** @var array{success: bool, cost: int, new_balance: int} $result */
+        $result = DB::transaction(function () use ($user, $queueItemId, $planet) {
+            // Lock user row for Dark Matter balance
+            $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
+            if (!$lockedUser) {
+                throw new Exception('User not found');
+            }
+
+            // Lock and retrieve queue item
+            $queueItem = BuildingQueue::where('id', $queueItemId)
+                ->where('planet_id', $planet->getPlanetId())
+                ->where('processed', 0)
+                ->where('canceled', 0)
+                ->where('building', 1)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$queueItem) {
+                throw new Exception('Queue item not found or already completed');
+            }
+
+            // Calculate cost based on remaining time
+            $currentTime = $this->getCurrentTimestamp();
+            $remainingTime = (int)$queueItem->time_end - $currentTime;
+
+            if ($remainingTime <= 0) {
+                throw new Exception('Queue item already completed');
+            }
+
+            $cost = $this->calculateHalvingCost($remainingTime, 'building');
+
+            // Check balance
+            if ($lockedUser->dark_matter < $cost) {
+                throw new Exception("Insufficient Dark Matter. Required: {$cost}, Available: {$lockedUser->dark_matter}");
+            }
+
+            // Debit Dark Matter
+            $lockedUser->dark_matter -= $cost;
+            $lockedUser->save();
+
+            // Record transaction
+            $object = ObjectService::getObjectById($queueItem->object_id);
+            $description = "Completing building: {$object->title} on planet {$planet->getPlanetName()} (ID: {$planet->getPlanetId()})";
+            $this->transactionService->recordTransaction(
+                $lockedUser,
+                -$cost,
+                DarkMatterTransactionType::HALVING->value,
+                $description,
+                $lockedUser->dark_matter
+            );
+
+            $originalTimeEnd = (int)$queueItem->time_end;
+
+            // Set time_end to now so the building queue processor grants the level immediately.
+            $queueItem->time_end = $currentTime;
+            if ((int)$queueItem->time_start > $currentTime) {
+                $queueItem->time_start = $currentTime;
+            }
+            $queueItem->dm_completed = 1;
+            $queueItem->save();
+
+            $this->updateFutureBuildingQueueItems($planet->getPlanetId(), $originalTimeEnd, $currentTime);
+
+            return [
+                'success' => true,
+                'cost' => $cost,
+                'new_balance' => $lockedUser->dark_matter,
             ];
         });
 
@@ -621,6 +713,33 @@ class HalvingService
 
         UnitQueue::where('planet_id', $planetId)
             ->where('processed', 0)
+            ->where('time_start', '>=', $oldTimeEnd)
+            ->update([
+                'time_start' => DB::raw("time_start - {$timeReduction}"),
+                'time_end'   => DB::raw("time_end - {$timeReduction}"),
+            ]);
+    }
+
+    /**
+     * Update future building queue items for this planet to advance their time_start and time_end
+     * equally based on a issued halving/completing time reduction.
+     *
+     * @param int $planetId    Planet whose building queue should be updated
+     * @param int $oldTimeEnd  Original time_end of the modified item (before the change)
+     * @param int $newTimeEnd  New time_end of the modified item (after the change)
+     * @return void
+     */
+    private function updateFutureBuildingQueueItems(int $planetId, int $oldTimeEnd, int $newTimeEnd): void
+    {
+        if ($newTimeEnd >= $oldTimeEnd) {
+            return;
+        }
+
+        $timeReduction = $oldTimeEnd - $newTimeEnd;
+
+        BuildingQueue::where('planet_id', $planetId)
+            ->where('processed', 0)
+            ->where('canceled', 0)
             ->where('time_start', '>=', $oldTimeEnd)
             ->update([
                 'time_start' => DB::raw("time_start - {$timeReduction}"),
