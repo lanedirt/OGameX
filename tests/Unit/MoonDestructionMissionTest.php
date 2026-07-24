@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use OGame\Enums\FleetMissionStatus;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMissions\MoonDestructionMission;
@@ -29,6 +30,11 @@ class MoonDestructionMissionTest extends UnitTestCase
             $this->app->make(PlayerServiceFactory::class),
             $this->app->make(SettingsService::class)
         );
+    }
+
+    public function testFriendlyStatusIsHostile(): void
+    {
+        $this->assertSame(FleetMissionStatus::Hostile, MoonDestructionMission::getFriendlyStatus());
     }
 
     /**
