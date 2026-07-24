@@ -12,7 +12,11 @@ class PlanetAbandonTest extends AccountTestCase
     public function testSecondPlanetAbandon(): void
     {
         // Check that the user has at least two planets.
-        $startPlanetCount = $this->planetService->getPlayer()->planets->planetCount();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+        $startPlanetCount = $player->planets->planetCount();
         $this->assertGreaterThanOrEqual(2, $startPlanetCount);
 
         // Attempt to abandon the second planet.
@@ -24,9 +28,9 @@ class PlanetAbandonTest extends AccountTestCase
         $this->assertStringContainsString('Planet has been abandoned successfully!', (string)$response->getContent());
 
         // Reload player to get updated planet count.
-        $this->planetService->getPlayer()->load($this->planetService->getPlayer()->getId());
+        $player->load($player->getId());
         // Check that the user now has one less planet.
-        $this->assertEquals($startPlanetCount - 1, $this->planetService->getPlayer()->planets->planetCount());
+        $this->assertEquals($startPlanetCount - 1, $player->planets->planetCount());
     }
 
     /**
@@ -35,10 +39,14 @@ class PlanetAbandonTest extends AccountTestCase
     public function testFirstPlanetAbandonFail(): void
     {
         // Check that the user has at least two planets.
-        $startPlanetCount = $this->planetService->getPlayer()->planets->planetCount();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+        $startPlanetCount = $player->planets->planetCount();
         if ($startPlanetCount >= 2) {
             // Abandon all planets except the first one.
-            foreach ($this->planetService->getPlayer()->planets->all() as $planet) {
+            foreach ($player->planets->all() as $planet) {
                 if ($planet->getPlanetId() !== $this->planetService->getPlanetId()) {
                     $response = $this->post('/ajax/planet-abandon/abandon', [
                         '_token' => csrf_token(),
@@ -51,9 +59,9 @@ class PlanetAbandonTest extends AccountTestCase
         }
 
         // Reload player to get updated planet count.
-        $this->planetService->getPlayer()->load($this->planetService->getPlayer()->getId());
+        $player->load($player->getId());
         // Check that the user now has only one planet.
-        $this->assertEquals(1, $this->planetService->getPlayer()->planets->planetCount());
+        $this->assertEquals(1, $player->planets->planetCount());
 
         // Attempt to abandon the only remaining planet.
         $response = $this->post('/ajax/planet-abandon/abandon', [

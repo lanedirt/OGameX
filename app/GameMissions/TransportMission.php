@@ -15,6 +15,7 @@ use OGame\Support\FleetMissionPlanetFormatter;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
+use RuntimeException;
 
 class TransportMission extends GameMission
 {
@@ -59,14 +60,25 @@ class TransportMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
+        if ($mission->planet_id_from === null || $mission->planet_id_to === null) {
+            throw new RuntimeException('Transport mission is missing origin or target planet.');
+        }
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($origin_planet === null || $target_planet === null) {
+            throw new RuntimeException('Transport mission origin or target planet does not exist.');
+        }
+        $originPlayer = $origin_planet->getPlayer();
+        $targetPlayer = $target_planet->getPlayer();
+        if ($originPlayer === null || $targetPlayer === null) {
+            throw new RuntimeException('Transport mission origin or target planet has no owner.');
+        }
 
         // Add resources to the target planet
         $target_planet->addResources($this->fleetMissionService->getResources($mission));
 
         // Send a message to the origin player that the mission has arrived
-        $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), TransportArrived::class, [
+        $this->messageService->sendSystemMessageToPlayer($originPlayer, TransportArrived::class, [
             'from' => FleetMissionPlanetFormatter::tag($mission, 'from'),
             'to' => FleetMissionPlanetFormatter::tag($mission, 'to'),
             'metal' => (string)$mission->metal,
@@ -74,9 +86,9 @@ class TransportMission extends GameMission
             'deuterium' => (string)$mission->deuterium,
         ]);
 
-        if ($origin_planet->getPlayer()->getId() !== $target_planet->getPlayer()->getId()) {
+        if ($originPlayer->getId() !== $targetPlayer->getId()) {
             // Send a message to the target player that the mission has arrived
-            $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), TransportReceived::class, [
+            $this->messageService->sendSystemMessageToPlayer($targetPlayer, TransportReceived::class, [
                 'from' => FleetMissionPlanetFormatter::tag($mission, 'from'),
                 'to' => FleetMissionPlanetFormatter::tag($mission, 'to'),
                 'metal' => (string)$mission->metal,
@@ -101,7 +113,17 @@ class TransportMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Transport return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Transport return mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Transport return mission target planet has no owner.');
+        }
 
         // Transport return trip: add back the units to the source planet.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -113,7 +135,7 @@ class TransportMission extends GameMission
         }
 
         // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;

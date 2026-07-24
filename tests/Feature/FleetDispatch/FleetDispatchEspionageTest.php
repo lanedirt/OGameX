@@ -8,7 +8,6 @@ use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMissions\EspionageMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\EspionageReport;
-use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
@@ -260,6 +259,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
@@ -277,6 +277,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that message has been received by calling extended method
@@ -320,6 +321,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Cancel the fleet mission, so it doesn't interfere with other tests.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
         $fleetMissionService->cancelMission($fleetMission);
     }
 
@@ -346,10 +348,13 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 5 seconds.
-        $fleetParentTime = Date::getTestNow()->addSeconds(5);
+        $testNow = Date::getTestNow();
+        $this->assertNotNull($testNow, 'Test time not set');
+        $fleetParentTime = $testNow->addSeconds(5);
         $this->travelTo($fleetParentTime);
 
         // Cancel the mission
@@ -361,6 +366,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Assert that the original mission is now canceled.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
         $this->assertTrue($fleetMission->canceled == 1, 'Fleet mission is not canceled after fleet recall is requested.');
 
         // Assert that only the return trip is now visible.
@@ -372,8 +378,10 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
 
         // Assert that the return trip arrival time is exactly 10 seconds  after the cancelation time.
         // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
@@ -391,6 +399,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Assert that the return trip is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
         $this->assertTrue($fleetMission->processed == 1, 'Return trip is not processed after fleet has arrived back at origin planet.');
 
         // Assert that the units have been returned to the origin planet.
@@ -420,6 +429,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 5 seconds
@@ -482,6 +492,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Cancel the fleet mission, so it doesn't interfere with other tests.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($fleetMission, 'Fleet mission not found');
         $fleetMissionService->cancelMission($fleetMission);
     }
 
@@ -494,6 +505,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Set user's preferred espionage probe count
         $playerService = $this->planetService->getPlayer();
+        $this->assertNotNull($playerService, 'Player not found');
         $playerService->setEspionageProbesAmount(5);
         $playerService->save();
 
@@ -537,6 +549,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
 
         // Ensure user has no saved preference (should be null by default)
         $playerService = $this->planetService->getPlayer();
+        $this->assertNotNull($playerService, 'Player not found');
         $playerService->setEspionageProbesAmount(null);
         $playerService->save();
 
@@ -589,7 +602,9 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         $this->get('/overview');
 
         // Verify that an espionage report was created targeting the foreign player.
-        $targetUserId = $foreignPlanet->getPlayer()->getId();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        $this->assertNotNull($foreignPlayer, 'Foreign player not found');
+        $targetUserId = $foreignPlayer->getId();
         $report = EspionageReport::where('planet_user_id', $targetUserId)->first();
         $this->assertNotNull($report, 'Espionage report should exist before target player is deleted.');
 

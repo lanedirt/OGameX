@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Tests\AccountTestCase;
 
 class GlobalGameTest extends AccountTestCase
@@ -13,11 +13,15 @@ class GlobalGameTest extends AccountTestCase
     public function testPageLoadOnlyUpdatesCurrentPlanet(): void
     {
         // Check that the user has at least two planets.
-        $startPlanetCount = $this->planetService->getPlayer()->planets->planetCount();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $startPlanetCount = $player->planets->planetCount();
         $this->assertGreaterThanOrEqual(2, $startPlanetCount);
 
         // Set time to +1 hour, so we can verify that only the current planet will be updated with the new time.
-        $testTime = Carbon::now()->addHour();
+        $testTime = Date::now()->addHour();
         $this->travelTo($testTime);
 
         // Request overview page.
@@ -30,8 +34,12 @@ class GlobalGameTest extends AccountTestCase
             'time_last_update' => $testTime->getTimestamp(),
         ]);
 
+        $secondPlanet = $this->secondPlanetService;
+        if ($secondPlanet === null) {
+            $this->fail('Second planet not found.');
+        }
         $this->assertDatabaseMissing('planets', [
-            'id' => $this->secondPlanetService->getPlanetId(),
+            'id' => $secondPlanet->getPlanetId(),
             'time_last_update' => $testTime->getTimestamp(),
         ]);
     }
