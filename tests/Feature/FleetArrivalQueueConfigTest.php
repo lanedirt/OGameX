@@ -75,6 +75,25 @@ class FleetArrivalQueueConfigTest extends TestCase
         }
     }
 
+    public function testEveryWorkerPoolRecyclesOnMemory(): void
+    {
+        // Each queue:work command must set --memory so a worker that creeps in memory across
+        // battles is recycled before it can exhaust the container.
+        $config = file_get_contents(base_path('docker/supervisor/queue-worker.conf'));
+        $this->assertIsString($config);
+
+        $commandCount = preg_match_all('/queue:work[^\n]*/', $config, $commands);
+        $this->assertGreaterThanOrEqual(1, $commandCount, 'The supervisor config must define at least one worker command.');
+
+        foreach ($commands[0] as $command) {
+            $this->assertMatchesRegularExpression(
+                '/--memory=\d+/',
+                $command,
+                "Worker command is missing a --memory recycle limit: {$command}"
+            );
+        }
+    }
+
     public function testJobAllowsMultipleLockContentionRetries(): void
     {
         // Simultaneous arrivals at one destination contend for the lock; the job

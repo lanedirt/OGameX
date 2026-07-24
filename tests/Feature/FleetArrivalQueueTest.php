@@ -20,6 +20,7 @@ use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\SettingsService;
+use RuntimeException;
 use Tests\FleetDispatchTestCase;
 
 class FleetArrivalQueueTest extends FleetDispatchTestCase
@@ -368,6 +369,39 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         // The mission stays unprocessed; the queue runner will retry the job automatically.
         $mission->refresh();
         $this->assertSame(0, $mission->processed, 'Mission should remain unprocessed when destination lock timed out.');
+    }
+
+    public function testSchedulerFallbackSkipsFailedDestinationAndContinues(): void
+    {
+        $this->basicSetup();
+
+        // Only the two missions created below should be seen by processMissedMissionEvents().
+        DB::table('fleet_missions')
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->where('time_arrival', '<=', (int) now()->timestamp)
+            ->delete();
+
+        $baseArrival = (int) now()->timestamp - 1;
+        $missionAtA = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
+        $missionAtB = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 200, $this->planetService);
+
+        // Destination A throws a non-lock error (e.g. a broken/poison mission). It must not
+        // abort the whole catch-up run: B still gets processed.
+        /** @var FleetMissionService $service */
+        $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($missionAtA, $missionAtB) {
+            /** @var Expectation $e1 */
+            $e1 = $mock->shouldReceive('processDueMissionEventsForMission');
+            $e1->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtA->id))->andThrow(new RuntimeException('boom'));
+
+            /** @var Expectation $e2 */
+            $e2 = $mock->shouldReceive('processDueMissionEventsForMission');
+            $e2->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtB->id));
+        });
+
+        $processed = $service->processMissedMissionEvents();
+
+        $this->assertSame(1, $processed, 'A failing destination must be skipped while others still process.');
     }
 
     public function testSchedulerFallbackProcessesOverdueMissionBacklog(): void

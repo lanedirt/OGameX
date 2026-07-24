@@ -237,6 +237,7 @@ Tune the pool sizes with these environment variables (defaults shown):
 Guidelines:
 - Keep `QUEUE_WORKERS_HEAVY` at or above the number of large battles you expect to resolve at the same moment, otherwise simultaneous battles queue behind each other.
 - More workers means more parallel processing but also more concurrent database connections — make sure your MySQL `max_connections` has headroom.
+- Each heavy worker can use up to the PHP `memory_limit` (1024M by default) during a very large battle, so budget roughly `QUEUE_WORKERS_HEAVY × memory_limit` of RAM for the worker container. Workers recycle at 900MB to avoid accumulating memory across battles.
 - `DB_QUEUE_RETRY_AFTER` (660) must stay larger than the job timeout (600s), or a long battle job can be picked up by a second worker while it is still running.
 
 After changing these values, recreate the worker container so it picks them up (they are read at container start):

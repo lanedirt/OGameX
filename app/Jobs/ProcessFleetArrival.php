@@ -51,8 +51,12 @@ class ProcessFleetArrival implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
-        Log::error('Fleet arrival job failed permanently', [
+        // The mission stays unprocessed (processed=0), so the every-minute scheduler keeps
+        // retrying it and the admin stuck-fleet tooling will surface it. Log with enough
+        // context to identify a poison mission (e.g. a battle that repeatedly runs out of memory).
+        Log::error('Fleet arrival job failed permanently after all retries; fleet may be stuck', [
             'mission_id' => $this->missionId,
+            'attempts' => $this->attempts(),
             'error' => $exception->getMessage(),
         ]);
     }

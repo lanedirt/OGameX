@@ -24,6 +24,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use Throwable;
 
 /**
  * Class FleetMissionService.
@@ -886,6 +887,16 @@ class FleetMissionService
                 Log::warning('Fleet destination lock busy in scheduler fallback, skipping', [
                     'lock_key' => $lockKey,
                     'mission_id' => $mission->id,
+                ]);
+                continue;
+            } catch (Throwable $e) {
+                // One destination failing (e.g. a broken mission) must not abort the whole
+                // catch-up run and starve every other stuck fleet this tick. Log and move on;
+                // the destination stays unprocessed and is retried on the next tick.
+                Log::error('Fleet destination failed in scheduler fallback, skipping', [
+                    'lock_key' => $lockKey,
+                    'mission_id' => $mission->id,
+                    'error' => $e->getMessage(),
                 ]);
                 continue;
             }
