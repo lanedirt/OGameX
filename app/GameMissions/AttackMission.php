@@ -24,6 +24,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\WreckFieldService;
+use RuntimeException;
 use Throwable;
 
 class AttackMission extends GameMission
@@ -88,7 +89,17 @@ class AttackMission extends GameMission
             return;
         }
 
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Attack mission has no target planet.');
+        }
         $defenderPlanet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($defenderPlanet === null) {
+            throw new RuntimeException('Attack mission target planet does not exist.');
+        }
+        $defenderPlayer = $defenderPlanet->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Attack mission target planet has no owner.');
+        }
 
         // Trigger defender planet update to make sure the battle uses up-to-date info.
         $defenderPlanet->update();
@@ -118,6 +129,9 @@ class AttackMission extends GameMission
         $battleResult = $battleEngine->simulateBattle();
 
         // Set the attacker's origin planet ID on the battle result for the battle report.
+        if ($mission->planet_id_from === null) {
+            throw new RuntimeException('Attack mission has no origin planet.');
+        }
         $battleResult->attackerPlanetId = $mission->planet_id_from;
 
         // Deduct loot from the target planet.
@@ -246,6 +260,9 @@ class AttackMission extends GameMission
                     // In original OGame, post-battle returns use each fleet's own natural speed,
                     // not the synced union speed. The origin planet provides correct tech levels
                     // for speed calculation, and distance is symmetric.
+                    if ($fleetMission->planet_id_from === null) {
+                        throw new RuntimeException('Attacking fleet mission has no origin planet.');
+                    }
                     $originPlanet = $this->planetServiceFactory->makeForPlayer(
                         $fleetOwner,
                         $fleetMission->planet_id_from
@@ -336,7 +353,7 @@ class AttackMission extends GameMission
         );
 
         // Defender Reaper collection (from remaining debris after attacker collection)
-        $defenderDebrisCollectionPercentage = $characterClassService->getReaperDebrisCollectionPercentage($defenderPlanet->getPlayer()->getUser());
+        $defenderDebrisCollectionPercentage = $characterClassService->getReaperDebrisCollectionPercentage($defenderPlayer->getUser());
         if ($defenderDebrisCollectionPercentage > 0 && $battleResult->defenderUnitsResult->getAmountByMachineName('reaper') > 0) {
             // Calculate 30% of the remaining debris
             $collectionAmount = new Resources(
@@ -349,7 +366,7 @@ class AttackMission extends GameMission
             // Calculate defender Reaper cargo capacity
             $reaperObject = ObjectService::getShipObjectByMachineName('reaper');
             $defenderReaperCount = $battleResult->defenderUnitsResult->getAmountByMachineName('reaper');
-            $defenderReaperCargoCapacity = $reaperObject->properties->capacity->calculate($defenderPlanet->getPlayer())->totalValue * $defenderReaperCount;
+            $defenderReaperCargoCapacity = $reaperObject->properties->capacity->calculate($defenderPlayer)->totalValue * $defenderReaperCount;
 
             // Limit collected debris to Reaper cargo capacity
             if ($collectionAmount->sum() <= $defenderReaperCargoCapacity) {
@@ -390,7 +407,7 @@ class AttackMission extends GameMission
         // IMPORTANT: If the battle is on a moon, the wreck field is created at the planet's coordinates
         // (not the moon's), and can only be interacted with from the planet.
         if (!empty($battleResult->wreckField) && $battleResult->wreckField['formed']) {
-            $wreckFieldService = new WreckFieldService($defenderPlanet->getPlayer(), $this->settings);
+            $wreckFieldService = new WreckFieldService($defenderPlayer, $this->settings);
 
             // Determine the coordinates for the wreck field
             // If battle is on a moon, use the planet's coordinates. If on a planet, use its own coordinates.
@@ -401,7 +418,7 @@ class AttackMission extends GameMission
             $wreckField = $wreckFieldService->createWreckField(
                 $wreckFieldCoordinates,
                 $battleResult->wreckField['ships'],
-                $defenderPlanet->getPlayer()->getId()
+                $defenderPlayer->getId()
             );
         }
 
@@ -432,14 +449,14 @@ class AttackMission extends GameMission
 
             // Send full battle report to defender
             $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $collectedDebris, $attackerCollectedDebris, $defenderCollectedDebris);
-            $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
+            $this->messageService->sendBattleReportMessageToPlayer($defenderPlayer, $reportId);
         } else {
             // Normal behavior: send battle report to both attacker and defender
             $reportId = $this->createBattleReport($attackerPlayer, $defenderPlanet, $battleResult, $collectedDebris, $attackerCollectedDebris, $defenderCollectedDebris);
             // Send to attacker.
             $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
             // Send to defender.
-            $this->messageService->sendBattleReportMessageToPlayer($defenderPlanet->getPlayer(), $reportId);
+            $this->messageService->sendBattleReportMessageToPlayer($defenderPlayer, $reportId);
         }
 
         // Send Reaper auto-collection message to attacker if debris was collected
@@ -468,9 +485,9 @@ class AttackMission extends GameMission
         if ($defenderCollectedDebris->sum() > 0) {
             $reaperObject = ObjectService::getShipObjectByMachineName('reaper');
             $defenderReaperCount = $battleResult->defenderUnitsResult->getAmountByMachineName('reaper');
-            $defenderReaperCargoCapacity = $reaperObject->properties->capacity->calculate($defenderPlanet->getPlayer())->totalValue * $defenderReaperCount;
+            $defenderReaperCargoCapacity = $reaperObject->properties->capacity->calculate($defenderPlayer)->totalValue * $defenderReaperCount;
 
-            $this->messageService->sendSystemMessageToPlayer($defenderPlanet->getPlayer(), DebrisFieldHarvest::class, [
+            $this->messageService->sendSystemMessageToPlayer($defenderPlayer, DebrisFieldHarvest::class, [
                 'from' => '[planet]' . $defenderPlanet->getPlanetId() . '[/planet]',
                 'to' => '[debrisfield]' . $defenderPlanet->getPlanetCoordinates()->asString(). '[/debrisfield]',
                 'coordinates' => '[coordinates]' . $defenderPlanet->getPlanetCoordinates()->asString() . '[/coordinates]',
@@ -538,7 +555,17 @@ class AttackMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Attack return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Attack return mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Attack return mission target planet has no owner.');
+        }
 
         // Attack return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -552,7 +579,7 @@ class AttackMission extends GameMission
         // Create wreck field at origin planet if data exists (General class perk)
         // The wreck field is created from the attacker's lost ships and appears at the origin planet
         if (!empty($mission->wreck_field_data) && is_array($mission->wreck_field_data)) {
-            $wreckFieldService = new WreckFieldService($target_planet->getPlayer(), $this->settings);
+            $wreckFieldService = new WreckFieldService($targetPlayer, $this->settings);
 
             // Determine coordinates for wreck field
             // If returning to a moon, create wreck field at the planet's coordinates
@@ -564,12 +591,12 @@ class AttackMission extends GameMission
             $wreckFieldService->createWreckField(
                 $wreckFieldCoordinates,
                 $mission->wreck_field_data,
-                $target_planet->getPlayer()->getId()
+                $targetPlayer->getId()
             );
         }
 
         // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;
@@ -589,7 +616,11 @@ class AttackMission extends GameMission
     {
         $spaceDockPlanet = $originPlanet->isMoon() ? $originPlanet->planet() : $originPlanet;
         $spaceDockLevel = max(1, $spaceDockPlanet->getObjectLevel('space_dock'));
-        $wreckFieldService = new WreckFieldService($spaceDockPlanet->getPlayer(), $this->settings);
+        $spaceDockPlayer = $spaceDockPlanet->getPlayer();
+        if ($spaceDockPlayer === null) {
+            throw new RuntimeException('Space dock planet has no owner.');
+        }
+        $wreckFieldService = new WreckFieldService($spaceDockPlayer, $this->settings);
         $wreckFieldData = $wreckFieldService->calculateShipsForWreckField($attackerUnitsLost, $spaceDockLevel);
 
         // Check if wreck field conditions are met
@@ -629,6 +660,11 @@ class AttackMission extends GameMission
      */
     private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderPlanet, BattleResult $battleResult, Resources $collectedDebris, Resources $attackerCollectedDebris, Resources $defenderCollectedDebris): int
     {
+        $defenderPlayer = $defenderPlanet->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Battle report defender planet has no owner.');
+        }
+
         // Create new battle report record.
         $report = new BattleReport();
         $report->planet_galaxy = $defenderPlanet->getPlanetCoordinates()->galaxy;
@@ -636,7 +672,7 @@ class AttackMission extends GameMission
         $report->planet_position = $defenderPlanet->getPlanetCoordinates()->position;
         $report->planet_type = $defenderPlanet->getPlanetType()->value;
 
-        $report->planet_user_id = $defenderPlanet->getPlayer()->getId();
+        $report->planet_user_id = $defenderPlayer->getId();
 
         $report->general = [
             'moon_existed' => $battleResult->moonExisted,
@@ -647,7 +683,7 @@ class AttackMission extends GameMission
 
         $characterClassService = app(CharacterClassService::class);
         $attackerCharacterClass = $characterClassService->getCharacterClass($attackPlayer->getUser());
-        $defenderCharacterClass = $characterClassService->getCharacterClass($defenderPlanet->getPlayer()->getUser());
+        $defenderCharacterClass = $characterClassService->getCharacterClass($defenderPlayer->getUser());
 
         $report->attacker = [
             'player_id' => $attackPlayer->getId(),
@@ -670,7 +706,7 @@ class AttackMission extends GameMission
         // - Per-fleet losses and survivors
         // Data available in: $battleResult->defenderFleetResults
         $report->defender = [
-            'player_id' => $defenderPlanet->getPlayer()->getId(),
+            'player_id' => $defenderPlayer->getId(),
             'resource_loss' => $battleResult->defenderResourceLoss->sum(),
             'units' => $battleResult->defenderUnitsStart->toArray(),
             'weapon_technology' => $battleResult->defenderWeaponLevel,

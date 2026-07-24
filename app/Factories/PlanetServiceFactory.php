@@ -449,7 +449,12 @@ class PlanetServiceFactory
      */
     public function createMoonForPlanet(PlanetService $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null): PlanetService
     {
-        return $this->createPlanet($planet->getPlayer(), $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon, $debrisAmount, $moonChance, $xFactor);
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        return $this->createPlanet($player, $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon, $debrisAmount, $moonChance, $xFactor);
     }
 
     /**

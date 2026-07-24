@@ -3,6 +3,7 @@
 namespace OGame\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use RuntimeException;
 
 class AppUtil extends Facade
 {
@@ -221,6 +222,12 @@ class AppUtil extends Facade
                 return $key;
             }
         }
-        return array_key_first($weights);
+
+        $firstKey = array_key_first($weights);
+        if ($firstKey === null) {
+            throw new RuntimeException('Cannot select a weighted random key from an empty array.');
+        }
+
+        return $firstKey;
     }
 }

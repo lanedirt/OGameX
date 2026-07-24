@@ -38,8 +38,10 @@ class JumpGateTest extends MoonTestCase
         $this->moonService->setObjectLevel($jumpGateObject->id, 1, true);
 
         // Create second moon for the second planet
+        $secondPlanet = $this->secondPlanetService;
+        $this->assertNotNull($secondPlanet, 'Second planet not found');
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $this->secondMoonService = $planetServiceFactory->createMoonForPlanet($this->secondPlanetService, 100000, 20);
+        $this->secondMoonService = $planetServiceFactory->createMoonForPlanet($secondPlanet, 100000, 20);
 
         // Set up Jump Gate on second moon
         $this->secondMoonService->setObjectLevel($jumpGateObject->id, 1, true);
@@ -188,6 +190,7 @@ class JumpGateTest extends MoonTestCase
     public function testEligibleTargetsExcludesCurrentMoon(): void
     {
         $player = $this->moonService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
         $eligibleTargets = $this->jumpGateService->getEligibleTargets($player, $this->moonService);
 
         // Should not include the current moon
@@ -205,6 +208,7 @@ class JumpGateTest extends MoonTestCase
         $this->secondMoonService->setJumpGateCooldown((int) Date::now()->addHour()->timestamp);
 
         $player = $this->moonService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
         $eligibleTargets = $this->jumpGateService->getEligibleTargets($player, $this->moonService);
 
         // Second moon should not be in eligible targets
@@ -223,6 +227,7 @@ class JumpGateTest extends MoonTestCase
         $this->secondMoonService->setObjectLevel($jumpGateObject->id, 0, true);
 
         $player = $this->moonService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
         $eligibleTargets = $this->jumpGateService->getEligibleTargets($player, $this->moonService);
 
         // Second moon should not be in eligible targets
@@ -241,10 +246,12 @@ class JumpGateTest extends MoonTestCase
 
         // Create a foreign player's attack fleet that has arrived but not processed
         $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        $this->assertNotNull($foreignPlayer, 'Foreign player not found');
 
         // Create fleet mission directly in database
         $fleetMission = new FleetMission();
-        $fleetMission->user_id = $foreignPlanet->getPlayer()->getId();
+        $fleetMission->user_id = $foreignPlayer->getId();
         $fleetMission->planet_id_from = $foreignPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 1; // Attack
@@ -266,9 +273,11 @@ class JumpGateTest extends MoonTestCase
     {
         // Create a foreign player's attack fleet that has NOT arrived yet
         $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        $this->assertNotNull($foreignPlayer, 'Foreign player not found');
 
         $fleetMission = new FleetMission();
-        $fleetMission->user_id = $foreignPlanet->getPlayer()->getId();
+        $fleetMission->user_id = $foreignPlayer->getId();
         $fleetMission->planet_id_from = $foreignPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 1; // Attack
@@ -289,9 +298,13 @@ class JumpGateTest extends MoonTestCase
     public function testOwnFleetDoesNotTriggerRaceCondition(): void
     {
         // Create own player's return fleet
+        $ownPlayer = $this->moonService->getPlayer();
+        $this->assertNotNull($ownPlayer, 'Player not found');
+        $secondPlanet = $this->secondPlanetService;
+        $this->assertNotNull($secondPlanet, 'Second planet not found');
         $fleetMission = new FleetMission();
-        $fleetMission->user_id = $this->moonService->getPlayer()->getId(); // Own player
-        $fleetMission->planet_id_from = $this->secondPlanetService->getPlanetId();
+        $fleetMission->user_id = $ownPlayer->getId(); // Own player
+        $fleetMission->planet_id_from = $secondPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 3; // Transport
         $fleetMission->time_departure = (int) Date::now()->subMinutes(10)->timestamp;
@@ -311,9 +324,11 @@ class JumpGateTest extends MoonTestCase
     public function testProcessedFleetDoesNotTriggerRaceCondition(): void
     {
         $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        $this->assertNotNull($foreignPlayer, 'Foreign player not found');
 
         $fleetMission = new FleetMission();
-        $fleetMission->user_id = $foreignPlanet->getPlayer()->getId();
+        $fleetMission->user_id = $foreignPlayer->getId();
         $fleetMission->planet_id_from = $foreignPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 1; // Attack
@@ -413,9 +428,11 @@ class JumpGateTest extends MoonTestCase
     public function testDefaultTargetSetAndGet(): void
     {
         // Initially no default target
+        $moonPlayer = $this->moonService->getPlayer();
+        $this->assertNotNull($moonPlayer, 'Player not found');
         $defaultTarget = $this->jumpGateService->getDefaultTarget(
             $this->moonService,
-            $this->moonService->getPlayer()
+            $moonPlayer
         );
         $this->assertNull($defaultTarget);
 
@@ -428,6 +445,7 @@ class JumpGateTest extends MoonTestCase
         // Reload moon and player to get fresh data
         $this->moonService->reloadPlanet();
         $player = $this->moonService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
         $player->load($player->getId());
 
         $defaultTarget = $this->jumpGateService->getDefaultTarget(

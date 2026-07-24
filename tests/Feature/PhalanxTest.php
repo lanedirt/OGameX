@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use OGame\GameConstants\UniverseConstants;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
@@ -20,6 +21,15 @@ class PhalanxTest extends FleetDispatchTestCase
     protected string $missionName = 'Attack';
 
     /**
+     * Reset per-test mutations that could bleed into subsequent tests.
+     */
+    protected function tearDown(): void
+    {
+        $this->missionType = 1;
+        parent::tearDown();
+    }
+
+    /**
      * Basic setup required by FleetDispatchTestCase
      */
     protected function basicSetup(): void
@@ -27,7 +37,7 @@ class PhalanxTest extends FleetDispatchTestCase
         // Add some ships for fleet dispatch tests
         $this->planetAddUnit('light_fighter', 10);
         $this->planetAddUnit('small_cargo', 10);
-        $this->planetAddResources(new Resources(0, 0, 100000, 0));
+        $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
     }
 
     /**
@@ -174,10 +184,13 @@ class PhalanxTest extends FleetDispatchTestCase
         // Build phalanx level 1 (range: 0, can only scan same system)
         $moonCoords = $this->moonService->getPlanetCoordinates();
 
+        // Wrap around to system 1 if at the boundary, so the target is always valid and always different.
+        $targetSystem = ($moonCoords->system % UniverseConstants::MAX_SYSTEM_COUNT) + 1;
+
         // Try to scan a different system (out of range for level 1)
         $response = $this->post('/ajax/phalanx/scan', [
             'galaxy' => $moonCoords->galaxy,
-            'system' => $moonCoords->system + 2, // 2 systems away, out of range
+            'system' => $targetSystem,
             'position' => 5,
         ]);
 
@@ -252,7 +265,7 @@ class PhalanxTest extends FleetDispatchTestCase
         // Send an attack fleet to a foreign planet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
-        $targetPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $targetPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(0, 0, 0, 0));
 
         $coords = $targetPlanet->getPlanetCoordinates();
 
@@ -315,9 +328,6 @@ class PhalanxTest extends FleetDispatchTestCase
         // Check that it shows "Own fleet" (scanner's own fleet)
         $contentHtml = $response->json('content_html');
         $this->assertStringContainsString('Own fleet', $contentHtml);
-
-        // Reset mission type
-        $this->missionType = 1;
     }
 
     /**
@@ -333,10 +343,13 @@ class PhalanxTest extends FleetDispatchTestCase
 
         $moonCoords = $this->moonService->getPlanetCoordinates();
 
+        // Wrap around to system 1 if at the boundary, so the target is always valid and always different.
+        $targetSystem = ($moonCoords->system % UniverseConstants::MAX_SYSTEM_COUNT) + 1;
+
         // Try to scan 1 system away - should fail
         $response = $this->post('/ajax/phalanx/scan', [
             'galaxy' => $moonCoords->galaxy,
-            'system' => $moonCoords->system + 1,
+            'system' => $targetSystem,
             'position' => 5,
         ]);
 

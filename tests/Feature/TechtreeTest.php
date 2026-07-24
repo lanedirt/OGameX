@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use OGame\Enums\CharacterClass;
 use OGame\Services\ObjectService;
+use PHPUnit\Framework\AssertionFailedError;
 use Tests\AccountTestCase;
 
 /**
@@ -21,7 +23,7 @@ class TechtreeTest extends AccountTestCase
 
             try {
                 $response->assertStatus(200);
-            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+            } catch (AssertionFailedError $e) {
                 $this->fail('AJAX techtree info page for "' . $object->title . '" does not return HTTP 200.');
             }
         }
@@ -40,7 +42,7 @@ class TechtreeTest extends AccountTestCase
 
             try {
                 $response->assertStatus(200);
-            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+            } catch (AssertionFailedError $e) {
                 $this->fail('AJAX techtree applications page for "' . $object->title . '" does not return HTTP 200.');
             }
         }
@@ -60,8 +62,12 @@ class TechtreeTest extends AccountTestCase
         $response->assertDontSee('data-prerequisites-met="true"', false);
 
         // Set character class to Collector (required for Crawler)
-        $user = $this->planetService->getPlayer()->getUser();
-        $user->character_class = \OGame\Enums\CharacterClass::COLLECTOR->value;
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('No player found for planet.');
+        }
+        $user = $player->getUser();
+        $user->character_class = CharacterClass::COLLECTOR->value;
         $user->save();
 
         // User/planet with all levels/prerequisites for laser technology applications.
@@ -110,7 +116,7 @@ class TechtreeTest extends AccountTestCase
             try {
                 $response->assertStatus(200);
                 $response->assertDontSee(['Speed','Cargo Capacity','Fuel usage (Deuterium)']);
-            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+            } catch (AssertionFailedError $e) {
                 $this->fail('AJAX techinfo applications page for "' . $defenseObject->title . '"');
             }
         }
@@ -130,7 +136,7 @@ class TechtreeTest extends AccountTestCase
             try {
                 $response->assertStatus(200);
                 $response->assertSee(['Speed','Cargo Capacity','Fuel usage (Deuterium)']);
-            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+            } catch (AssertionFailedError $e) {
                 $this->fail('AJAX techinfo applications page for "' . $nonDefenseObject->title . '"');
             }
         }

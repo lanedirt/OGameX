@@ -167,6 +167,46 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->planetAddResources(new Resources(0, 0, 1000000, 0));
     }
 
+    private function targetPlanet(): PlanetService
+    {
+        $planet = $this->targetPlanet;
+        if ($planet === null) {
+            $this->fail('targetPlanet is not initialized.');
+        }
+
+        return $planet;
+    }
+
+    private function allyPlanet(): PlanetService
+    {
+        $planet = $this->allyPlanet;
+        if ($planet === null) {
+            $this->fail('allyPlanet is not initialized.');
+        }
+
+        return $planet;
+    }
+
+    private function targetUser(): User
+    {
+        $user = $this->targetUser;
+        if ($user === null) {
+            $this->fail('targetUser is not initialized.');
+        }
+
+        return $user;
+    }
+
+    private function allyUser(): User
+    {
+        $user = $this->allyUser;
+        if ($user === null) {
+            $this->fail('allyUser is not initialized.');
+        }
+
+        return $user;
+    }
+
     /**
      * Create a target player (defender) with resources on their planet.
      */
@@ -181,7 +221,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->targetUser = $targetUser;
 
         // Give the target some resources to loot
-        $this->targetPlanet->addResources(new Resources(100000, 100000, 100000, 0));
+        $this->targetPlanet()->addResources(new Resources(100000, 100000, 100000, 0));
 
         return $targetUser;
     }
@@ -197,11 +237,11 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Place ally in same system as the target to minimize travel time
         // (avoids exceeding the 30% delay limit when joining a union).
         // Find an empty slot in the target's system outside the allocator range (4-12).
-        $targetGalaxy  = $this->targetPlanet->getPlanetCoordinates()->galaxy;
-        $targetSystem  = $this->targetPlanet->getPlanetCoordinates()->system;
+        $targetGalaxy  = $this->targetPlanet()->getPlanetCoordinates()->galaxy;
+        $targetSystem  = $this->targetPlanet()->getPlanetCoordinates()->system;
         // Prefer positions close to the target (13-15) to minimize same-system travel distance.
         // Fall back to positions 1-3 if 13-15 are exhausted in this system.
-        $targetPosition = $this->targetPlanet->getPlanetCoordinates()->position;
+        $targetPosition = $this->targetPlanet()->getPlanetCoordinates()->position;
         $preferredOrder = array_filter([13, 14, 15, 1, 2, 3], fn ($p) => $p !== $targetPosition);
         $allyPosition = collect(array_values($preferredOrder))->first(
             fn ($p) => !Planet::where('galaxy', $targetGalaxy)->where('system', $targetSystem)->where('planet', $p)->exists()
@@ -219,8 +259,8 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->allyUser = $allyUser;
 
         // Give ally some ships and fuel
-        $this->allyPlanet->addUnit('light_fighter', 30);
-        $this->allyPlanet->addResources(new Resources(0, 0, 1000000, 0));
+        $this->allyPlanet()->addUnit('light_fighter', 30);
+        $this->allyPlanet()->addResources(new Resources(0, 0, 1000000, 0));
 
         // Create buddy relationship between current player and ally
         $buddyService = resolve(BuddyService::class);
@@ -241,13 +281,16 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send attack fleet to target
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         // Get the fleet mission
         $fleetMissionService = resolve(FleetMissionService::class);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions);
         $mission = $activeMissions->first();
+        if ($mission === null) {
+            $this->fail('No active mission found.');
+        }
         $this->assertEquals(1, $mission->mission_type, 'Mission should be type 1 (Attack) before union creation');
 
         // Create union via API
@@ -277,27 +320,30 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send attack fleet to target
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         // Get the fleet mission
         $fleetMissionService = resolve(FleetMissionService::class);
         $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($mission === null) {
+            $this->fail('No active mission found.');
+        }
 
         // Create union with ally invited
         $response = $this->post('/ajax/fleet/union/create', [
             'fleetID' => $mission->id,
             'groupname' => 'TestUnion',
-            'unionUsers' => $this->currentUsername . ';' . $this->allyUser->username,
+            'unionUsers' => $this->currentUsername . ';' . $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $response->assertStatus(200);
 
         // Verify invite record was created
-        $invite = FleetUnionInvite::where('user_id', $this->allyUser->id)->first();
+        $invite = FleetUnionInvite::where('user_id', $this->allyUser()->id)->first();
         $this->assertNotNull($invite, 'Invite record should be created for the ally');
 
         // Verify invite message was sent to ally (check body contains sender name and "invited you")
-        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser->id]);
+        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser()->id]);
         $this->assertMessageReceivedAndContainsDatabase($allyPlayerService, [
             'invited you to mission',
             $this->currentUsername,
@@ -316,15 +362,18 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send attack and create union with ally
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($mission === null) {
+            $this->fail('No active mission found.');
+        }
 
         $response = $this->post('/ajax/fleet/union/create', [
             'fleetID' => $mission->id,
             'groupname' => 'TestUnion',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $response->assertStatus(200);
@@ -333,7 +382,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         // Verify invite record exists
         $invite = FleetUnionInvite::where('fleet_union_id', $mission->union_id)
-            ->where('user_id', $this->allyUser->id)
+            ->where('user_id', $this->allyUser()->id)
             ->first();
         $this->assertNotNull($invite, 'Invite record should exist for the invited ally');
 
@@ -356,15 +405,18 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send attack and create union
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($mission === null) {
+            $this->fail('No active mission found.');
+        }
 
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $mission->id,
             'groupname' => 'TestUnion',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $mission->refresh();
@@ -387,10 +439,13 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send attack and create union (invite nobody)
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($mission === null) {
+            $this->fail('No active mission found.');
+        }
 
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $mission->id,
@@ -403,9 +458,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Now check the available unions API as the ally (who was NOT invited)
         // The ally is a buddy but should NOT see the union without explicit invite
         $response = $this->get('/ajax/fleet/union/available?' . http_build_query([
-            'galaxy' => $this->targetPlanet->getPlanetCoordinates()->galaxy,
-            'system' => $this->targetPlanet->getPlanetCoordinates()->system,
-            'position' => $this->targetPlanet->getPlanetCoordinates()->position,
+            'galaxy' => $this->targetPlanet()->getPlanetCoordinates()->galaxy,
+            'system' => $this->targetPlanet()->getPlanetCoordinates()->system,
+            'position' => $this->targetPlanet()->getPlanetCoordinates()->position,
             'planet_type' => PlanetType::Planet->value,
         ]));
         $response->assertStatus(200);
@@ -427,21 +482,24 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->createAllyPlayer();
 
         // Give target some defenses
-        $this->targetPlanet->addUnit('rocket_launcher', 5);
+        $this->targetPlanet()->addUnit('rocket_launcher', 5);
 
         // Send initiator attack fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         // Get mission and create union
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'BattleUnion',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -451,10 +509,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 15);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1, // Attack
             $allyFleet,
@@ -466,6 +524,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Join the union
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         // Verify both missions are in the union
@@ -487,7 +548,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         // Verify both attackers participated: initiator sent 20 + ally sent 15 = 35 light fighters
         // (but may include additional units depending on test state, so check minimum)
-        $attackerStartUnits = $battleReport->attacker['units'];
+        $attackerStartUnits = $battleReport->attacker['units'] ?? [];
         $totalAttackerUnits = array_sum($attackerStartUnits);
         $this->assertGreaterThanOrEqual(35, $totalAttackerUnits, 'Both fleets should participate in battle (at least 20 + 15 light fighters)');
     }
@@ -504,16 +565,19 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send initiator fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'ReturnTestUnion',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -523,10 +587,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 15);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -537,6 +601,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         // Advance to arrival
@@ -569,7 +636,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
             $this->assertEquals($this->currentUserId, $initiatorReturn->user_id, 'Initiator return should belong to initiator');
         }
         if ($hasAllyReturn) {
-            $this->assertEquals($this->allyUser->id, $allyReturn->user_id, 'Ally return should belong to ally');
+            $this->assertEquals($this->allyUser()->id, $allyReturn->user_id, 'Ally return should belong to ally');
         }
     }
 
@@ -584,10 +651,13 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send attack fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($mission === null) {
+            $this->fail('No active mission found.');
+        }
 
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $mission->id,
@@ -624,16 +694,19 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send attack and create union with ally
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($mission === null) {
+            $this->fail('No active mission found.');
+        }
 
         // Create union with ally
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $mission->id,
             'groupname' => 'DupeTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $mission->refresh();
@@ -643,13 +716,13 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $mission->id,
             'groupname' => 'DupeTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
 
         // Verify only one invite record exists
         $inviteCount = FleetUnionInvite::where('fleet_union_id', $unionId)
-            ->where('user_id', $this->allyUser->id)
+            ->where('user_id', $this->allyUser()->id)
             ->count();
         $this->assertEquals(1, $inviteCount, 'Should have exactly one invite record, not duplicates');
     }
@@ -666,16 +739,19 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send initiator fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'RecallSlotTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -685,10 +761,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 15);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -699,6 +775,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         // Verify ally is slot 2
@@ -711,7 +790,11 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->reloadApplication();
 
         // Recall ally's fleet: switch to ally user context
-        $this->be(User::find($this->allyUser->id));
+        $allyUserModel = User::find($this->allyUser()->id);
+        if ($allyUserModel === null) {
+            $this->fail('Ally user not found.');
+        }
+        $this->be($allyUserModel);
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
             'fleet_mission_id' => $allyMission->id,
             '_token' => csrf_token(),
@@ -727,11 +810,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Verify a return mission was created for the ally
         $allyReturn = FleetMission::where('parent_id', $allyMission->id)->where('canceled', 0)->first();
         $this->assertNotNull($allyReturn, 'Ally should have a return mission');
-        $this->assertEquals($this->allyUser->id, $allyReturn->user_id, 'Return mission should belong to ally');
+        $this->assertEquals($this->allyUser()->id, $allyReturn->user_id, 'Return mission should belong to ally');
 
         // Verify union still exists with initiator as slot 1
         $union->refresh();
-        $this->assertNotNull($union, 'Union should still exist');
         $initiatorMission->refresh();
         $this->assertEquals(1, $initiatorMission->union_slot, 'Initiator should still be slot 1');
         $this->assertEquals($unionId, $initiatorMission->union_id, 'Initiator should still be in the union');
@@ -750,16 +832,19 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send initiator fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'InitiatorRecallTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -769,10 +854,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 15);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -783,6 +868,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         // Verify initial state: initiator = slot 1, ally = slot 2, union owned by initiator
@@ -814,14 +902,18 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyMission->refresh();
         $union->refresh();
         $this->assertEquals(1, $allyMission->union_slot, 'Ally should now be slot 1 (new initiator)');
-        $this->assertEquals($this->allyUser->id, $union->user_id, 'Union ownership should transfer to ally');
+        $this->assertEquals($this->allyUser()->id, $union->user_id, 'Union ownership should transfer to ally');
 
         // Verify battle still processes at arrival (ally as slot 1).
         // The ally's mission goes from ally planet → target planet, so we need to trigger
         // processing from the target's perspective (the target planet is the destination).
         $this->travelTo(Date::createFromTimestamp($allyMission->time_arrival + 10));
         $this->refreshApplication();
-        $this->be(User::find($this->targetUser->id));
+        $targetUserModel = User::find($this->targetUser()->id);
+        if ($targetUserModel === null) {
+            $this->fail('Target user not found.');
+        }
+        $this->be($targetUserModel);
         $this->get('/overview');
 
         $battleReport = BattleReport::orderBy('id', 'desc')->first();
@@ -843,24 +935,27 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->createAllyPlayer();
 
         // Give ally impulse drive for faster natural speed
-        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser->id]);
+        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser()->id]);
         $allyPlayerService->setResearchLevel('impulse_drive', 5);
         $allyPlayerService->setResearchLevel('combustion_drive', 5);
 
         // Send initiator fleet (slower)
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
         $initiatorOutboundDuration = $initiatorMission->time_arrival - $initiatorMission->time_departure;
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'SpeedTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -871,10 +966,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -889,6 +984,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Join union — ally's arrival should be pushed out to match the union's time
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
         $allyMission->refresh();
 
@@ -903,7 +1001,11 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->reloadApplication();
 
         // Recall ally's fleet
-        $this->be(User::find($this->allyUser->id));
+        $allyUserModel = User::find($this->allyUser()->id);
+        if ($allyUserModel === null) {
+            $this->fail('Ally user not found.');
+        }
+        $this->be($allyUserModel);
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
             'fleet_mission_id' => $allyMission->id,
             '_token' => csrf_token(),
@@ -932,16 +1034,19 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send initiator fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'ProcessTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -951,10 +1056,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -965,6 +1070,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         // Record battle report count before arrival
@@ -1001,31 +1109,34 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'LootTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
         $unionId = $initiatorMission->union_id;
 
         // Ally joins with cargo ships too
-        $this->allyPlanet->addUnit('small_cargo', 20);
+        $this->allyPlanet()->addUnit('small_cargo', 20);
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 15);
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 10);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -1036,6 +1147,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         // Advance to arrival
@@ -1057,7 +1171,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         // Verify return missions go to correct owners
         $this->assertEquals($this->currentUserId, $initiatorReturn->user_id, 'Initiator return should belong to initiator');
-        $this->assertEquals($this->allyUser->id, $allyReturn->user_id, 'Ally return should belong to ally');
+        $this->assertEquals($this->allyUser()->id, $allyReturn->user_id, 'Ally return should belong to ally');
 
         // Verify outbound missions are processed
         $initiatorMission->refresh();
@@ -1078,23 +1192,26 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->createAllyPlayer();
 
         // Give ally higher drive tech so they are naturally faster
-        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser->id]);
+        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser()->id]);
         $allyPlayerService->setResearchLevel('impulse_drive', 5);
         $allyPlayerService->setResearchLevel('combustion_drive', 5);
 
         // Send initiator fleet (slower, no drive tech upgrades)
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'NaturalSpeedTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -1104,10 +1221,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -1122,6 +1239,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Join union — ally's arrival gets pushed out to match the slower initiator
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
         $allyMission->refresh();
 
@@ -1147,16 +1267,16 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->assertLessThan($allySyncedDuration, $allyReturnDuration, 'Return duration should be less than synced outbound duration (natural speed is faster)');
 
         // Verify it matches the recalculated natural duration for surviving ships
-        $allyPlayerServiceForCalc = resolve(PlayerService::class, ['player_id' => $this->allyUser->id]);
+        $allyPlayerServiceForCalc = resolve(PlayerService::class, ['player_id' => $this->allyUser()->id]);
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $originPlanet = $planetServiceFactory->makeForPlayer($allyPlayerServiceForCalc, $allyMission->planet_id_from);
+        $originPlanet = $planetServiceFactory->makeForPlayer($allyPlayerServiceForCalc, (int) $allyMission->planet_id_from);
 
         // Get surviving units from the return mission
         $survivingUnits = $allyFleetMissionService->getFleetUnits($allyReturn);
 
         $expectedNaturalDuration = $allyFleetMissionService->calculateFleetMissionDuration(
             $originPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             $survivingUnits,
             resolve(AttackMission::class),
             10
@@ -1178,16 +1298,19 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send initiator fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'FullUnionTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -1195,16 +1318,23 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         // Set max_fleets to 1 so the union is already full (initiator occupies the only slot)
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $union->max_fleets = 1;
         $union->save();
 
         // Switch to ally and try to send a fleet to join the full union
-        $this->be(User::find($this->allyUser->id));
+        $allyUserModel = User::find($this->allyUser()->id);
+        if ($allyUserModel === null) {
+            $this->fail('Ally user not found.');
+        }
+        $this->be($allyUserModel);
 
         $response = $this->post('/ajax/fleet/dispatch/send-fleet', [
-            'galaxy' => $this->targetPlanet->getPlanetCoordinates()->galaxy,
-            'system' => $this->targetPlanet->getPlanetCoordinates()->system,
-            'position' => $this->targetPlanet->getPlanetCoordinates()->position,
+            'galaxy' => $this->targetPlanet()->getPlanetCoordinates()->galaxy,
+            'system' => $this->targetPlanet()->getPlanetCoordinates()->system,
+            'position' => $this->targetPlanet()->getPlanetCoordinates()->position,
             'type' => PlanetType::Planet->value,
             'metal' => 0,
             'crystal' => 0,
@@ -1242,16 +1372,19 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send initiator fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'TimingSyncTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -1263,6 +1396,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $initiatorMission->time_arrival = $baseArrivalTime;
         $initiatorMission->save();
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $union->time_arrival = $baseArrivalTime;
         $union->save();
 
@@ -1270,10 +1406,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -1319,10 +1455,13 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($mission === null) {
+            $this->fail('No active mission found.');
+        }
 
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('alliance_combat_system_on', 0);
@@ -1372,10 +1511,13 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Send attack and create a union while ACS is on
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
-        $this->dispatchFleet($this->targetPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
+        $this->dispatchFleet($this->targetPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($mission === null) {
+            $this->fail('No active mission found.');
+        }
 
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $mission->id,
@@ -1391,9 +1533,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $lightFighterObj = ObjectService::getUnitObjectByMachineName('light_fighter');
         $response = $this->post('/ajax/fleet/dispatch/check-target', [
-            'galaxy' => $this->targetPlanet->getPlanetCoordinates()->galaxy,
-            'system' => $this->targetPlanet->getPlanetCoordinates()->system,
-            'position' => $this->targetPlanet->getPlanetCoordinates()->position,
+            'galaxy' => $this->targetPlanet()->getPlanetCoordinates()->galaxy,
+            'system' => $this->targetPlanet()->getPlanetCoordinates()->system,
+            'position' => $this->targetPlanet()->getPlanetCoordinates()->position,
             'type' => PlanetType::Planet->value,
             'mission' => 1,
             'union' => $unionId,
@@ -1432,7 +1574,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         // Set exact defender resources for deterministic loot calculation.
         DB::table('planets')
-            ->where('id', $this->targetPlanet->getPlanetId())
+            ->where('id', $this->targetPlanet()->getPlanetId())
             ->update(['metal' => 22000, 'crystal' => 0, 'deuterium' => 0]);
 
         // Give initiator planet metal to carry as cargo and add 2 large cargoes.
@@ -1441,7 +1583,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $initiatorFleet = new UnitCollection();
         $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 2);
         $this->dispatchFleet(
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             $initiatorFleet,
             new Resources(1000, 0, 0, 0),
             PlanetType::Planet
@@ -1449,27 +1591,30 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union and invite ally.
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'LootDistTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
         $unionId = $initiatorMission->union_id;
 
         // Give ally planet metal to carry and add 1 small cargo (different type from initiator).
-        $this->allyPlanet->addResources(new Resources(1000, 0, 0, 0));
-        $this->allyPlanet->addUnit('small_cargo', 1);
+        $this->allyPlanet()->addResources(new Resources(1000, 0, 0, 0));
+        $this->allyPlanet()->addUnit('small_cargo', 1);
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -1480,6 +1625,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         // Advance time past arrival and trigger fleet processing.
@@ -1541,14 +1689,14 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->createAllyPlayer();
 
         DB::table('planets')
-            ->where('id', $this->targetPlanet->getPlanetId())
+            ->where('id', $this->targetPlanet()->getPlanetId())
             ->update(['metal' => 22500, 'crystal' => 0, 'deuterium' => 0]);
 
         $this->planetAddUnit('small_cargo', 1);
         $initiatorFleet = new UnitCollection();
         $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->dispatchFleet(
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             $initiatorFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -1556,28 +1704,34 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'CapacityBonusTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
         $unionId = $initiatorMission->union_id;
 
-        $allyPlayer = $this->allyPlanet->getPlayer();
+        $allyPlayer = $this->allyPlanet()->getPlayer();
+        if ($allyPlayer === null) {
+            $this->fail('Ally planet has no player.');
+        }
         $allyPlayer->getUser()->character_class = CharacterClass::COLLECTOR->value;
         $allyPlayer->getUser()->save();
 
-        $this->allyPlanet->addUnit('small_cargo', 1);
+        $this->allyPlanet()->addUnit('small_cargo', 1);
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
 
         $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $allyPlayer]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -1588,6 +1742,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
@@ -1635,14 +1792,14 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->createAllyPlayer();
 
         DB::table('planets')
-            ->where('id', $this->targetPlanet->getPlanetId())
+            ->where('id', $this->targetPlanet()->getPlanetId())
             ->update(['metal' => 2, 'crystal' => 2, 'deuterium' => 0]);
 
         $this->planetAddUnit('small_cargo', 1);
         $initiatorFleet = new UnitCollection();
         $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->dispatchFleet(
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             $initiatorFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -1650,24 +1807,27 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'RoundingTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
         $unionId = $initiatorMission->union_id;
 
-        $this->allyPlanet->addUnit('small_cargo', 1);
+        $this->allyPlanet()->addUnit('small_cargo', 1);
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -1678,6 +1838,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
@@ -1730,7 +1893,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->createAllyPlayer();
 
         DB::table('planets')
-            ->where('id', $this->targetPlanet->getPlanetId())
+            ->where('id', $this->targetPlanet()->getPlanetId())
             ->update(['metal' => 2000, 'crystal' => 0, 'deuterium' => 0]);
 
         $this->planetAddResources(new Resources(5000, 0, 0, 0));
@@ -1738,7 +1901,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $initiatorFleet = new UnitCollection();
         $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->dispatchFleet(
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             $initiatorFleet,
             new Resources(4900, 0, 0, 0),
             PlanetType::Planet
@@ -1746,24 +1909,27 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'CapacityInvariantTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
         $unionId = $initiatorMission->union_id;
 
-        $this->allyPlanet->addUnit('small_cargo', 1);
+        $this->allyPlanet()->addUnit('small_cargo', 1);
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -1774,6 +1940,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
@@ -1826,7 +1995,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->createAllyPlayer();
 
         DB::table('planets')
-            ->where('id', $this->targetPlanet->getPlanetId())
+            ->where('id', $this->targetPlanet()->getPlanetId())
             ->update(['metal' => 12000, 'crystal' => 0, 'deuterium' => 0]);
 
         $this->planetAddResources(new Resources(5000, 0, 0, 0));
@@ -1834,7 +2003,7 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $initiatorFleet = new UnitCollection();
         $initiatorFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
         $this->dispatchFleet(
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             $initiatorFleet,
             new Resources(4900, 0, 0, 0),
             PlanetType::Planet
@@ -1842,24 +2011,27 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'LeaveLootTest',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
         $unionId = $initiatorMission->union_id;
 
-        $this->allyPlanet->addUnit('small_cargo', 1);
+        $this->allyPlanet()->addUnit('small_cargo', 1);
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -1870,6 +2042,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
@@ -1896,9 +2071,13 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         );
 
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $targetPlayer = $this->targetPlanet()->getPlayer();
+        if ($targetPlayer === null) {
+            $this->fail('Target planet has no player.');
+        }
         $refreshedTargetPlanet = $planetServiceFactory->makeForPlayer(
-            $this->targetPlanet->getPlayer(),
-            $this->targetPlanet->getPlanetId()
+            $targetPlayer,
+            $this->targetPlanet()->getPlanetId()
         );
         $this->assertEquals(
             12000 - $actualLootTaken,
@@ -1927,13 +2106,13 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         // Give both planets enough cruisers (cruiser has no prerequisites in test env)
         $this->planetAddUnit('cruiser', $initiatorCruiserCount);
-        $this->allyPlanet->addUnit('cruiser', $allyCruiserCount);
+        $this->allyPlanet()->addUnit('cruiser', $allyCruiserCount);
 
         // Dispatch initiator fleet
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), $initiatorCruiserCount);
         $this->dispatchFleet(
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             $unitCollection,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -1941,12 +2120,15 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class);
         $initiatorMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($initiatorMission === null) {
+            $this->fail('No initiator mission found.');
+        }
 
         // Create union
         $this->post('/ajax/fleet/union/create', [
             'fleetID' => $initiatorMission->id,
             'groupname' => 'AliasRegressionUnion',
-            'unionUsers' => $this->allyUser->username,
+            'unionUsers' => $this->allyUser()->username,
             '_token' => csrf_token(),
         ]);
         $initiatorMission->refresh();
@@ -1957,10 +2139,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $allyFleet = new UnitCollection();
         $allyFleet->addUnit(ObjectService::getUnitObjectByMachineName('cruiser'), $allyCruiserCount);
 
-        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet->getPlayer()]);
+        $allyFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->allyPlanet()->getPlayer()]);
         $allyMission = $allyFleetMissionService->createNewFromPlanet(
-            $this->allyPlanet,
-            $this->targetPlanet->getPlanetCoordinates(),
+            $this->allyPlanet(),
+            $this->targetPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $allyFleet,
@@ -1971,6 +2153,9 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $fleetUnionService = resolve(FleetUnionService::class);
         $union = FleetUnion::find($unionId);
+        if ($union === null) {
+            $this->fail('Union not found.');
+        }
         $fleetUnionService->joinUnion($union, $allyMission);
 
         // Advance to arrival and trigger mission processing
