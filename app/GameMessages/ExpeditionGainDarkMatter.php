@@ -22,7 +22,11 @@ class ExpeditionGainDarkMatter extends ExpeditionGameMessage
      *
      * @var int
      */
-    protected static int $numberOfVariations = 8;
+    protected static int $numberOfVariations = 10;
+
+    protected static int $normalVariations = 7;
+    protected static int $rareVariations = 2;
+    protected static int $exceptionalVariations = 1;
 
     /**
      * Overrides the body of the message to append the Dark Matter amount based on the params.

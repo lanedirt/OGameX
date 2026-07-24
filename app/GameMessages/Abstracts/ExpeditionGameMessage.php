@@ -33,6 +33,27 @@ abstract class ExpeditionGameMessage extends GameMessage
     protected static int $numberOfVariations;
 
     /**
+     * Number of message variations in each find-variant tier. Subclasses that support
+     * variant messages set these so the body keys are laid out as:
+     *   [1 .. normal] normal, then rare, then exceptional.
+     * The three MUST sum to $numberOfVariations. Left at 0 for messages without tiers,
+     * in which case getRandomMessageVariationIdForVariant() falls back to the full range.
+     *
+     * @var int
+     */
+    protected static int $normalVariations = 0;
+
+    /**
+     * @var int
+     */
+    protected static int $rareVariations = 0;
+
+    /**
+     * @var int
+     */
+    protected static int $exceptionalVariations = 0;
+
+    /**
      * The base key for the message.
      * @var string
      */
@@ -65,6 +86,35 @@ abstract class ExpeditionGameMessage extends GameMessage
     public static function getRandomMessageVariationId(): int
     {
         return random_int(1, static::$numberOfVariations);
+    }
+
+    /**
+     * Get a random message variation id for a specific find variant (normal/rare/exceptional).
+     * The variation ids are laid out in tiers (normal, then rare, then exceptional) sized by
+     * $normalVariations / $rareVariations / $exceptionalVariations. Messages that do not define
+     * tiers fall back to a random id across the full range.
+     *
+     * @param string $variant 'normal', 'rare', or 'exceptional'
+     * @return int
+     */
+    public static function getRandomMessageVariationIdForVariant(string $variant): int
+    {
+        // No tiers configured: behave like a plain random variation.
+        if (static::$normalVariations === 0) {
+            return static::getRandomMessageVariationId();
+        }
+
+        return match ($variant) {
+            'rare' => random_int(
+                static::$normalVariations + 1,
+                static::$normalVariations + static::$rareVariations
+            ),
+            'exceptional' => random_int(
+                static::$normalVariations + static::$rareVariations + 1,
+                static::$normalVariations + static::$rareVariations + static::$exceptionalVariations
+            ),
+            default => random_int(1, static::$normalVariations),
+        };
     }
 
     /**
