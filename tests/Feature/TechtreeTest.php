@@ -98,7 +98,7 @@ class TechtreeTest extends AccountTestCase
         }
 
         $this->assertMatchesRegularExpression(
-            '/<li class="fusionPlant">.*?<li class="fulfilled">.*?<\/li>.*?<li class="fulfilled">/s',
+            '/<li class="fusionPlant">.*?<div class="fulfilled">.*?<\/div>.*?<div class="fulfilled">/s',
             $content,
             'Fusion plant prerequisites should both be marked fulfilled after meeting requirements.'
         );

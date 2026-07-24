@@ -28,20 +28,18 @@
                             <a class="prerequisites overlay"
                                href="{{ route('techtree.ajax', ['tab' => 1, 'object_id' => $categoryObject->id]) }}"
                                data-overlay-same="true">
-                                <ul>
-                                    @foreach ($reqs as $requirement)
-                                        <li class="{{ $requirement->levelCurrent >= $requirement->levelRequired ? 'fulfilled' : 'unfulfilled' }}">
-                                            {{ $requirement->gameObject->title }}
-                                            ({{ __('t_ingame.techtree.level') }}
-                                            @if ($requirement->levelCurrent >= $requirement->levelRequired)
-                                                {{ $requirement->levelRequired }}
-                                            @else
-                                                {{ $requirement->levelCurrent }}/{{ $requirement->levelRequired }}
-                                            @endif
-                                            )
-                                        </li>
-                                    @endforeach
-                                </ul>
+                                @foreach ($reqs as $requirement)
+                                    <div class="{{ $requirement->levelCurrent >= $requirement->levelRequired ? 'fulfilled' : 'unfulfilled' }}">
+                                        {{ $requirement->gameObject->title }}
+                                        ({{ __('t_ingame.techtree.level') }}
+                                        @if ($requirement->levelCurrent >= $requirement->levelRequired)
+                                            {{ $requirement->levelRequired }}
+                                        @else
+                                            {{ $requirement->levelCurrent }}/{{ $requirement->levelRequired }}
+                                        @endif
+                                        )
+                                    </div>
+                                @endforeach
                             </a>
                         @endif
                     </li>
