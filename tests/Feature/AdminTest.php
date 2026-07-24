@@ -24,7 +24,11 @@ class AdminTest extends AccountTestCase
     public function testNormalUserAdminAccessDenied(): void
     {
         // Remove the admin role from the current user if it has it.
-        $this->artisan('ogamex:admin:remove-role', ['username' => auth()->user()->username]);
+        $authUser = auth()->user();
+        if ($authUser === null) {
+            $this->fail('Not authenticated.');
+        }
+        $this->artisan('ogamex:admin:remove-role', ['username' => $authUser->username]);
 
         // Verify that on overview page the admin bar doesn't show up.
         $response = $this->get('/overview');
@@ -44,7 +48,11 @@ class AdminTest extends AccountTestCase
     public function testAdminUserAdminAccessGranted(): void
     {
         // Create a new user and assign the admin role
-        $this->artisan('ogamex:admin:assign-role', ['username' => auth()->user()->username]);
+        $authUser = auth()->user();
+        if ($authUser === null) {
+            $this->fail('Not authenticated.');
+        }
+        $this->artisan('ogamex:admin:assign-role', ['username' => $authUser->username]);
 
         // Verify that on overview page the admin bar shows up.
         $response = $this->get('/overview');

@@ -12,6 +12,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\PlanetMove;
+use RuntimeException;
 
 class PlanetMoveService
 {
@@ -32,7 +33,10 @@ class PlanetMoveService
             return 0;
         }
 
-        return (int) max(0, ((int) $lastMove->updated_at->timestamp + 86400) - (int) Date::now()->timestamp);
+        $updatedAt = $lastMove->updated_at;
+        $updatedTimestamp = $updatedAt !== null ? (int) $updatedAt->timestamp : 0;
+
+        return (int) max(0, ($updatedTimestamp + 86400) - (int) Date::now()->timestamp);
     }
 
     /**
@@ -100,6 +104,10 @@ class PlanetMoveService
 
         // Load the planet being moved.
         $planet = $planetServiceFactory->make($move->planet_id);
+        if ($planet === null) {
+            $this->cancelMove($move);
+            return false;
+        }
 
         // Re-validate no active building queue.
         $buildingQueue = $buildingQueueService->retrieveQueueItems($planet);
@@ -130,7 +138,12 @@ class PlanetMoveService
         }
 
         // Re-validate DM affordability.
-        $user = $planet->getPlayer()->getUser();
+        $planetPlayer = $planet->getPlayer();
+        if ($planetPlayer === null) {
+            $this->cancelMove($move);
+            return false;
+        }
+        $user = $planetPlayer->getUser();
         $cost = (int) $settingsService->get('planet_relocation_cost', 240000);
         if (!$darkMatterService->canAfford($user, $cost)) {
             $this->cancelMove($move);
@@ -142,6 +155,10 @@ class PlanetMoveService
 
         // Save old coordinates before updating.
         $planetModel = Planet::find($move->planet_id);
+        if ($planetModel === null) {
+            $this->cancelMove($move);
+            return false;
+        }
         $oldCoordinate = new Coordinate($planetModel->galaxy, $planetModel->system, $planetModel->planet);
 
         // Move planet coordinates and recalculate temperature.
@@ -158,6 +175,9 @@ class PlanetMoveService
         if ($planet->hasMoon()) {
             $moon = $planet->moon();
             $moonModel = Planet::find($moon->getPlanetId());
+            if ($moonModel === null) {
+                throw new RuntimeException('Moon model not found for relocated planet.');
+            }
             $moonModel->galaxy = $move->target_galaxy;
             $moonModel->system = $move->target_system;
             $moonModel->planet = $move->target_position;
@@ -205,7 +225,7 @@ class PlanetMoveService
             $planetIds[] = $planet->moon()->getPlanetId();
         }
         FleetMission::whereIn('planet_id_to', $planetIds)
-            ->where('user_id', '!=', $planet->getPlayer()->getId())
+            ->where('user_id', '!=', $planetPlayer->getId())
             ->where('processed', 0)
             ->update(['planet_id_to' => null]);
 
@@ -214,7 +234,7 @@ class PlanetMoveService
 
         // Send success message to the player.
         $messageService = resolve(MessageService::class);
-        $messageService->sendSystemMessageToPlayer($planet->getPlayer(), PlanetRelocationSuccess::class, [
+        $messageService->sendSystemMessageToPlayer($planetPlayer, PlanetRelocationSuccess::class, [
             'planet_name' => $planet->getPlanetName(),
             'old_coordinates' => $oldCoordinate->asString(),
             'new_coordinates' => $targetCoordinate->asString(),
@@ -234,9 +254,14 @@ class PlanetMoveService
         FleetMissionService $fleetMissionService,
         SettingsService $settingsService,
     ): void {
+        $planetPlayer = $planet->getPlayer();
+        if ($planetPlayer === null) {
+            throw new RuntimeException('Planet has no owner for ship transfer mission.');
+        }
+
         // Calculate flight duration using a simple distance formula.
         $distance = $this->calculateCoordinateDistance($oldCoordinate, $newCoordinate);
-        $slowestSpeed = $shipUnits->getSlowestUnitSpeed($planet->getPlayer());
+        $slowestSpeed = $shipUnits->getSlowestUnitSpeed($planetPlayer);
         $fleetSpeed = $settingsService->fleetSpeedPeaceful();
         $duration = (int) max(round((35000 / 10 * sqrt($distance * 10 / $slowestSpeed) + 10) / $fleetSpeed), 1);
 
@@ -245,7 +270,7 @@ class PlanetMoveService
 
         // Create the fleet mission record directly (bypasses GameMission::start()).
         $mission = new FleetMission();
-        $mission->user_id = $planet->getPlayer()->getId();
+        $mission->user_id = $planetPlayer->getId();
         $mission->planet_id_from = $planet->getPlanetId();
         $mission->planet_id_to = $planet->getPlanetId();
         $mission->galaxy_from = $oldCoordinate->galaxy;

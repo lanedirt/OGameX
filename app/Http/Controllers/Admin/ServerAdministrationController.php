@@ -137,7 +137,7 @@ class ServerAdministrationController extends OGameController
             ->sortByDesc(fn ($entry) => count($entry['signals']))
             ->values();
 
-        $botSuspects = $allSuspects->reject(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->values();
+        $botSuspects = $allSuspects->reject(fn ($s) => in_array($s['user']?->id, $dismissedUserIds, true))->values();
         $stuckMissionsSettings = $this->stuckMissionsSettings();
         $stuckMissions = $this->getStuckFleetMissions($stuckMissionsSettings['min_overdue_hours']);
         $attackBlockUntil = (int) $settingsService->get('attack_block_until', 0);
@@ -151,7 +151,7 @@ class ServerAdministrationController extends OGameController
             'stuckMissionsSettings' => $stuckMissionsSettings,
             'detectionSettings'     => $settings,
             'dismissedIpCount'      => count($dismissedIps),
-            'dismissedSuspectCount' => $allSuspects->filter(fn ($s) => in_array($s['user']->id, $dismissedUserIds, true))->count(),
+            'dismissedSuspectCount' => $allSuspects->filter(fn ($s) => in_array($s['user']?->id, $dismissedUserIds, true))->count(),
             'attackBlockUntil'      => $attackBlockUntil,
             'attackBlockActive'     => $attackBlockUntil > time(),
         ]);

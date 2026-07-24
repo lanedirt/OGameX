@@ -32,6 +32,10 @@ class CharacterClassController extends OGameController
         $this->setBodyId('characterclassselection');
 
         $user = Auth::user();
+        if ($user === null) {
+            abort(403);
+        }
+
         $currentClass = $this->characterClassService->getCharacterClass($user);
         $changeCost = $this->characterClassService->getChangeCost($user);
 
@@ -64,6 +68,13 @@ class CharacterClassController extends OGameController
         ]);
 
         $user = Auth::user();
+        if ($user === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Not authenticated',
+            ], 401);
+        }
+
         $classId = (int)$request->input('characterClassId');
         $newClass = CharacterClass::from($classId);
 
@@ -104,6 +115,12 @@ class CharacterClassController extends OGameController
     public function deselectClass(): JsonResponse
     {
         $user = Auth::user();
+        if ($user === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Not authenticated',
+            ], 401);
+        }
 
         try {
             $this->characterClassService->deselectClass($user);

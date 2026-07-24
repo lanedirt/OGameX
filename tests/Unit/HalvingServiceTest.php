@@ -3,11 +3,14 @@
 namespace Tests\Unit;
 
 use Exception;
+use Illuminate\Support\Facades\Date;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Models\BuildingQueue;
 use OGame\Models\DarkMatterTransaction;
+use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Models\User;
+use OGame\Services\BuildingQueueService;
 use OGame\Services\DarkMatterTransactionService;
 use OGame\Services\HalvingService;
 use OGame\Services\ObjectService;
@@ -24,6 +27,19 @@ class HalvingServiceTest extends AccountTestCase
 
         $transactionService = app(DarkMatterTransactionService::class);
         $this->halvingService = new HalvingService($transactionService);
+    }
+
+    /**
+     * Get the current user model, failing the test if it cannot be found.
+     */
+    private function findCurrentUser(): User
+    {
+        $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('Current user not found.');
+        }
+
+        return $user;
     }
 
     /**
@@ -220,7 +236,7 @@ class HalvingServiceTest extends AccountTestCase
     public function testDarkMatterDeductionCorrectness(): void
     {
         // Set up user with sufficient Dark Matter
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -239,7 +255,7 @@ class HalvingServiceTest extends AccountTestCase
         $initialBalance = $user->dark_matter;
 
         // Calculate expected cost based on remaining time
-        $currentTime = (int)\Carbon\Carbon::now()->timestamp;
+        $currentTime = (int)Date::now()->timestamp;
         $remainingTime = (int)$queueItem->time_end - $currentTime;
         $expectedCost = $this->halvingService->calculateHalvingCost($remainingTime, 'building');
 
@@ -265,7 +281,7 @@ class HalvingServiceTest extends AccountTestCase
     public function testInsufficientBalanceRejection(): void
     {
         // Set up user with insufficient Dark Matter
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100;
         $user->save();
 
@@ -305,7 +321,7 @@ class HalvingServiceTest extends AccountTestCase
     public function testTransactionLoggingOnSuccess(): void
     {
         // Set up user with sufficient Dark Matter
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -352,7 +368,7 @@ class HalvingServiceTest extends AccountTestCase
     public function testNoTransactionOnFailure(): void
     {
         // Set up user with insufficient Dark Matter
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100;
         $user->save();
 
@@ -364,6 +380,10 @@ class HalvingServiceTest extends AccountTestCase
             ->where('building', 1)
             ->where('processed', 0)
             ->first();
+
+        if ($queueItem === null) {
+            $this->fail('Queue item should exist');
+        }
 
         // Count transactions before
         $transactionCountBefore = DarkMatterTransaction::where('user_id', $this->currentUserId)
@@ -398,7 +418,7 @@ class HalvingServiceTest extends AccountTestCase
         $metalMine = ObjectService::getObjectByMachineName('metal_mine');
 
         // Add to queue via service
-        $buildingQueueService = app(\OGame\Services\BuildingQueueService::class);
+        $buildingQueueService = app(BuildingQueueService::class);
         $buildingQueueService->add($this->planetService, $metalMine->id);
     }
 
@@ -411,7 +431,7 @@ class HalvingServiceTest extends AccountTestCase
     public function testTimeReductionBy50PercentOfOriginalTime(): void
     {
         // Set up user with sufficient Dark Matter
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -427,7 +447,7 @@ class HalvingServiceTest extends AccountTestCase
         $this->assertNotNull($queueItem, 'Queue item should exist');
 
         // Get remaining time and original duration before halving
-        $currentTime = (int)\Carbon\Carbon::now()->timestamp;
+        $currentTime = (int)Date::now()->timestamp;
         $remainingTimeBefore = (int)$queueItem->time_end - $currentTime;
         $originalDuration = (int)$queueItem->time_duration;
 
@@ -454,7 +474,7 @@ class HalvingServiceTest extends AccountTestCase
     public function testOriginalTimePreservation(): void
     {
         // Set up user with sufficient Dark Matter
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -494,12 +514,12 @@ class HalvingServiceTest extends AccountTestCase
     public function testOperationIsolation(): void
     {
         // Set up user with sufficient Dark Matter
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
         // Add resources to build multiple buildings
-        $this->planetAddResources(new \OGame\Models\Resources(50000, 50000, 50000, 0));
+        $this->planetAddResources(new Resources(50000, 50000, 50000, 0));
 
         // Add first building to queue
         $this->addBuildingToQueue();
@@ -517,7 +537,7 @@ class HalvingServiceTest extends AccountTestCase
 
         // Add second building to queue (different building)
         $crystalMine = ObjectService::getObjectByMachineName('crystal_mine');
-        $buildingQueueService = app(\OGame\Services\BuildingQueueService::class);
+        $buildingQueueService = app(BuildingQueueService::class);
         $buildingQueueService->add($this->planetService, $crystalMine->id);
 
         // Get the second queue item (not building yet, waiting in queue)
@@ -558,7 +578,7 @@ class HalvingServiceTest extends AccountTestCase
         $this->planetSetObjectLevel('robot_factory', 2);
         $this->planetSetObjectLevel('shipyard', 2);
         $this->playerSetResearchLevel('combustion_drive', 1);
-        $this->planetAddResources(new \OGame\Models\Resources(500000, 500000, 500000, 0));
+        $this->planetAddResources(new Resources(500000, 500000, 500000, 0));
         $this->addShipyardBuildRequest('light_fighter', $amount);
     }
 
@@ -567,7 +587,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testUnitHalvingAwardsHalfUnitsInstantly(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -597,7 +617,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testUnitHalvingRestructuresQueue(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -625,7 +645,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testUnitHalvingPreservesTimePerUnit(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -656,7 +676,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testUnitHalvingWithOddNumberOfUnits(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -688,7 +708,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testDoubleUnitHalvingIsRejected(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 200000;
         $user->save();
 
@@ -719,7 +739,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testUnitHalvingWithTwoUnits(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -752,7 +772,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testUnitHalvingDeductsDarkMatter(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -767,7 +787,7 @@ class HalvingServiceTest extends AccountTestCase
         $initialBalance = $user->dark_matter;
 
         // Calculate expected cost based on remaining time
-        $currentTime = (int)\Carbon\Carbon::now()->timestamp;
+        $currentTime = (int)Date::now()->timestamp;
         $remainingTime = (int)$queueItem->time_end - $currentTime;
         $expectedCost = $this->halvingService->calculateHalvingCost($remainingTime, 'unit');
 
@@ -783,7 +803,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testUnitHalvingInsufficientDarkMatter(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100;
         $user->save();
 
@@ -823,7 +843,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testHalveAndCompleteChainedQueueItems(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 1000000;
         $user->save();
 
@@ -831,7 +851,7 @@ class HalvingServiceTest extends AccountTestCase
         $this->planetSetObjectLevel('shipyard', 2);
         $this->playerSetResearchLevel('combustion_drive', 1);
 
-        $now      = (int)\Carbon\Carbon::now()->timestamp;
+        $now      = (int)Date::now()->timestamp;
         $duration = 2000; // 1000 units × 2 s/unit
         $objectId = ObjectService::getObjectByMachineName('light_fighter')->id;
         $planetId = $this->planetService->getPlanetId();
@@ -901,7 +921,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testUnitHalvingLogsTransaction(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 

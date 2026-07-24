@@ -354,6 +354,10 @@ class ObjectService
     public static function objectCharacterClassMet(string $machine_name, PlanetService $planet): bool
     {
         $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         $user = $player->getUser();
         $characterClassService = app(CharacterClassService::class);
 
@@ -570,7 +574,12 @@ class ObjectService
             if ($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) {
                 $current_level = $planet->getObjectLevel($object->machine_name);
             } else {
-                $current_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+                $player = $planet->getPlayer();
+                if ($player === null) {
+                    throw new Exception('Planet has no owner.');
+                }
+
+                $current_level = $player->getResearchLevel($object->machine_name);
             }
 
             $price = self::getObjectRawPrice($machine_name, $current_level + 1);
@@ -790,8 +799,13 @@ class ObjectService
                 $object = self::getObjectByMachineName($requirement->object_machine_name);
 
                 if ($object->type === GameObjectType::Research) {
+                    $player = $planet->getPlayer();
+                    if ($player === null) {
+                        throw new Exception('Planet has no owner.');
+                    }
+
                     // Check if requirements are met with existing technology.
-                    if ($planet->getPlayer()->getResearchLevel($requirement->object_machine_name) < $requirement->level) {
+                    if ($player->getResearchLevel($requirement->object_machine_name) < $requirement->level) {
                         return true;
                     }
                 } else {
@@ -827,8 +841,13 @@ class ObjectService
                 }
 
                 if ($object->type === GameObjectType::Research) {
+                    $player = $planet->getPlayer();
+                    if ($player === null) {
+                        throw new Exception('Planet has no owner.');
+                    }
+
                     // Check if the requirements are met by the items in the research queue.
-                    if (!$planet->getPlayer()->isResearchingTech($requirement->object_machine_name, $requirement->level)) {
+                    if (!$player->isResearchingTech($requirement->object_machine_name, $requirement->level)) {
                         return true;
                     }
                 } else {
@@ -859,7 +878,12 @@ class ObjectService
         $current_level = 0;
 
         if ($object->type === GameObjectType::Research) {
-            $current_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+            $player = $planet->getPlayer();
+            if ($player === null) {
+                throw new Exception('Planet has no owner.');
+            }
+
+            $current_level = $player->getResearchLevel($object->machine_name);
         } else {
             $current_level = $planet->getObjectLevel($object->machine_name);
         }
@@ -882,15 +906,20 @@ class ObjectService
      */
     private static function hasPreviousLevelsInQueue(int $target_level, GameObject $object, PlanetService $planet): bool
     {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         // Check prior levels from queues.
         if ($object->type === GameObjectType::Research) {
-            $current_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+            $current_level = $player->getResearchLevel($object->machine_name);
         } else {
             $current_level = $planet->getObjectLevel($object->machine_name);
         }
 
         for ($i = $current_level + 1; $i < $target_level; $i++) {
-            if (!$planet->isBuildingObject($object->machine_name, $i) && !$planet->getPlayer()->isResearchingTech($object->machine_name, $i)) {
+            if (!$planet->isBuildingObject($object->machine_name, $i) && !$player->isResearchingTech($object->machine_name, $i)) {
                 return false;
             }
         }
@@ -990,7 +1019,12 @@ class ObjectService
                             // Get the current level of the requiring object
                             $requiring_object_level = 0;
                             if ($checkObject->type === GameObjectType::Research) {
-                                $requiring_object_level = $planet->getPlayer()->getResearchLevel($checkObject->machine_name);
+                                $player = $planet->getPlayer();
+                                if ($player === null) {
+                                    throw new Exception('Planet has no owner.');
+                                }
+
+                                $requiring_object_level = $player->getResearchLevel($checkObject->machine_name);
                             } else {
                                 $requiring_object_level = $planet->getObjectLevel($checkObject->machine_name);
                             }

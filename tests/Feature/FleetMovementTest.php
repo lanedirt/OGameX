@@ -68,7 +68,11 @@ class FleetMovementTest extends FleetDispatchTestCase
 
         // Should show the fleet details
         $response->assertSee('Transport');
-        $response->assertSee($this->secondPlanetService->getPlanetName());
+        $secondPlanet = $this->secondPlanetService;
+        if ($secondPlanet === null) {
+            $this->fail('Second planet not found.');
+        }
+        $response->assertSee($secondPlanet->getPlanetName());
     }
 
     /**
@@ -186,6 +190,9 @@ class FleetMovementTest extends FleetDispatchTestCase
         // Get fleet mission ID
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
 
         // Advance time by 1 minute
         $this->travel(1)->minutes();
@@ -290,7 +297,11 @@ class FleetMovementTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Should show both planets as destinations
-        $response->assertSee($this->secondPlanetService->getPlanetName());
+        $secondPlanet = $this->secondPlanetService;
+        if ($secondPlanet === null) {
+            $this->fail('Second planet not found.');
+        }
+        $response->assertSee($secondPlanet->getPlanetName());
         $response->assertSee($this->moonService->getPlanetName());
     }
 

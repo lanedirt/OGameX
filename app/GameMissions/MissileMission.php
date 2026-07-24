@@ -18,6 +18,7 @@ use OGame\Services\MessageService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use RuntimeException;
 
 /**
  * Interplanetary Ballistic Missile (IBM/IPM) Attack Mission
@@ -70,6 +71,9 @@ class MissileMission extends GameMission
 
         // Check if target is within missile range
         $attackerPlayer = $planet->getPlayer();
+        if ($attackerPlayer === null) {
+            return new MissionPossibleStatus(false);
+        }
         $missileRange = $attackerPlayer->getMissileRange();
 
         // Calculate distance in systems
@@ -117,6 +121,17 @@ class MissileMission extends GameMission
     protected function processArrival(FleetMission $mission): void
     {
         try {
+            if ($mission->planet_id_to === null || $mission->planet_id_from === null) {
+                Log::error('Missile mission: Invalid planet IDs', [
+                    'mission_id' => $mission->id,
+                    'planet_id_from' => $mission->planet_id_from,
+                    'planet_id_to' => $mission->planet_id_to,
+                ]);
+                $mission->processed = 1;
+                $mission->save();
+                return;
+            }
+
             $defenderTarget = $this->planetServiceFactory->make($mission->planet_id_to, true);
             $attackerPlanet = $this->planetServiceFactory->make($mission->planet_id_from, true);
 
@@ -137,6 +152,10 @@ class MissileMission extends GameMission
             // Get players for technology levels
             $attackerPlayer = $attackerPlanet->getPlayer();
             $defenderPlayer = $defenderTarget->getPlayer();
+
+            if ($attackerPlayer === null || $defenderPlayer === null) {
+                throw new RuntimeException('Missile mission attacker or defender planet has no owner.');
+            }
 
             // Get number of missiles sent (now stored in dedicated column!)
             $missileCount = (int)$mission->interplanetary_missile;

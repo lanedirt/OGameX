@@ -84,6 +84,43 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
     }
 
     /**
+     * Get the buddy's planet, failing the test if it is not set.
+     */
+    private function buddyPlanet(): PlanetService
+    {
+        if ($this->buddyPlanet === null) {
+            $this->fail('Buddy planet is not set.');
+        }
+
+        return $this->buddyPlanet;
+    }
+
+    /**
+     * Get the buddy user, failing the test if it is not set.
+     */
+    private function buddyUser(): User
+    {
+        if ($this->buddyUser === null) {
+            $this->fail('Buddy user is not set.');
+        }
+
+        return $this->buddyUser;
+    }
+
+    /**
+     * Get the current planet's player, failing the test if it is null.
+     */
+    private function planetPlayer(): PlayerService
+    {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Planet has no player.');
+        }
+
+        return $player;
+    }
+
+    /**
      * Prepare the attacker planet for testing.
      */
     protected function basicSetup(): void
@@ -130,8 +167,8 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         self::$allCreatedBuddyUserIds[] = $defenderUser->id;
 
         // Place defender 1 system away from the buddy so fleet arrival is fast.
-        $buddyGalaxy  = $this->buddyPlanet->getPlanetCoordinates()->galaxy;
-        $buddySystem  = $this->buddyPlanet->getPlanetCoordinates()->system;
+        $buddyGalaxy  = $this->buddyPlanet()->getPlanetCoordinates()->galaxy;
+        $buddySystem  = $this->buddyPlanet()->getPlanetCoordinates()->system;
         $defenderSystem = min(499, $buddySystem + 1);
         $defenderPosition = collect([13, 14, 15, 1, 2, 3])->first(
             fn ($p) => !Planet::where('galaxy', $buddyGalaxy)->where('system', $defenderSystem)->where('planet', $p)->exists()
@@ -149,8 +186,8 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Create buddy relationship between defender and buddy (target planet owner)
         $buddyService = resolve(BuddyService::class);
-        $request = $buddyService->sendRequest($defenderUser->id, $this->buddyUser->id);
-        $buddyService->acceptRequest($request->id, $this->buddyUser->id);
+        $request = $buddyService->sendRequest($defenderUser->id, $this->buddyUser()->id);
+        $buddyService->acceptRequest($request->id, $this->buddyUser()->id);
 
         return [
             'user' => $defenderUser,
@@ -160,7 +197,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
     protected function messageCheckMissionArrival(): void
     {
-        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())
+        $messageAttacker = Message::where('user_id', $this->planetPlayer()->getId())
             ->whereIn('key', ['battle_report', 'fleet_lost_contact'])
             ->orderByDesc('id')
             ->first();
@@ -184,7 +221,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $this->createBuddyPlayer();
 
         // Give buddy planet some defenses
-        $this->buddyPlanet->addUnit('rocket_launcher', 10);
+        $this->buddyPlanet()->addUnit('rocket_launcher', 10);
 
         // Create ACS defender and send defend fleet
         $acsDefender = $this->createAcsDefender();
@@ -198,7 +235,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
         $acsDefendMission = $fleetMissionService->createNewFromPlanet(
             $acsDefender['planet'],
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5, // ACS Defend mission type
             $acsDefendFleet,
@@ -217,7 +254,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $attackFleet = new UnitCollection();
         $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 50);
         $this->dispatchFleet(
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             $attackFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -225,6 +262,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($attackMission === null) {
+            $this->fail('No active attack mission found.');
+        }
 
         // Advance time for attack to arrive (defend fleet should still be holding)
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
@@ -240,7 +280,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Planet owner: 10 rocket launchers
         // ACS defender: 20 light fighters
         // Total should be 30+ units
-        $defenderStartUnits = $battleReport->defender['units'];
+        $defenderStartUnits = $battleReport->defender['units'] ?? [];
         $totalDefenderUnits = array_sum($defenderStartUnits);
         $this->assertGreaterThan(25, $totalDefenderUnits, 'ACS defend fleet should participate in battle');
     }
@@ -265,7 +305,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
         $acsDefendMission = $fleetMissionService->createNewFromPlanet(
             $acsDefender['planet'],
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $acsDefendFleet,
@@ -285,7 +325,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $attackFleet = new UnitCollection();
         $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
         $this->dispatchFleet(
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             $attackFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -293,6 +333,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($attackMission === null) {
+            $this->fail('No active attack mission found.');
+        }
 
         // Advance time for attack to arrive
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
@@ -302,6 +345,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Check that ACS defend mission is marked as processed
         $acsDefendMissionReloaded = FleetMission::find($acsDefendMission->id);
+        if ($acsDefendMissionReloaded === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertEquals(1, $acsDefendMissionReloaded->processed, 'Destroyed ACS defend fleet should be marked as processed');
 
         // Check that defender received fleet lost contact message
@@ -319,6 +365,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Reload planet and check units are still 0
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $acsDefenderPlanetReloaded = $planetServiceFactory->make($acsDefender['planet']->getPlanetId());
+        if ($acsDefenderPlanetReloaded === null) {
+            $this->fail('Planet could not be loaded.');
+        }
         $this->assertEquals(
             0,
             $acsDefenderPlanetReloaded->getShipUnits()->getAmountByMachineName('light_fighter'),
@@ -339,7 +388,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $this->createBuddyPlayer();
 
         // Give buddy planet strong defenses to ensure defenders win
-        $this->buddyPlanet->addUnit('rocket_launcher', 50);
+        $this->buddyPlanet()->addUnit('rocket_launcher', 50);
 
         // Create ACS defender and send defend fleet
         $acsDefender = $this->createAcsDefender();
@@ -353,7 +402,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
         $acsDefendMission = $fleetMissionService->createNewFromPlanet(
             $acsDefender['planet'],
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $acsDefendFleet,
@@ -373,7 +422,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $attackFleet = new UnitCollection();
         $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
         $this->dispatchFleet(
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             $attackFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -381,6 +430,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($attackMission === null) {
+            $this->fail('No active attack mission found.');
+        }
 
         // Advance time for attack to arrive - battle occurs, outbound mission unit counts updated
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
@@ -414,6 +466,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Check that ships returned to ACS defender's planet
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $acsDefenderPlanetReloaded = $planetServiceFactory->make($acsDefender['planet']->getPlanetId(), true);
+        if ($acsDefenderPlanetReloaded === null) {
+            $this->fail('Planet could not be loaded.');
+        }
         $returnedShips = $acsDefenderPlanetReloaded->getShipUnits()->getAmountByMachineName('light_fighter');
         $this->assertGreaterThan(0, $returnedShips, 'Some ships should have returned');
     }
@@ -446,7 +501,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $acsFleetMissionService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
         $acsDefendMission = $acsFleetMissionService->createNewFromPlanet(
             $acsDefender['planet'],
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $acsDefendFleet,
@@ -465,7 +520,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $attackFleet = new UnitCollection();
         $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $this->dispatchFleet(
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             $attackFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -473,6 +528,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($attackMission === null) {
+            $this->fail('No active attack mission found.');
+        }
 
         // Advance time to attack arrival - battle occurs during ACS defend hold time
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
@@ -496,6 +554,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance past return mission arrival and process it
         $returnMission = $returnMissionsAfterHold->first();
+        if ($returnMission === null) {
+            $this->fail('Return mission should exist.');
+        }
         $this->travelTo(Date::createFromTimestamp($returnMission->time_arrival + 10));
         $this->reloadApplication();
         $acsDefenderPlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
@@ -504,6 +565,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Reload ACS defender's planet and verify exactly 100 light fighters returned (no duplication)
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $acsDefenderPlanetReloaded = $planetServiceFactory->make($acsDefender['planet']->getPlanetId(), true);
+        if ($acsDefenderPlanetReloaded === null) {
+            $this->fail('Planet could not be loaded.');
+        }
         $returnedLightFighters = $acsDefenderPlanetReloaded->getShipUnits()->getAmountByMachineName('light_fighter');
         $this->assertEquals(
             100,
@@ -529,7 +593,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $this->createBuddyPlayer();
 
         // Give buddy planet some defenses to force real combat (so attacker doesn't just walk through)
-        $this->buddyPlanet->addUnit('rocket_launcher', 20);
+        $this->buddyPlanet()->addUnit('rocket_launcher', 20);
 
         // ACS defender: 100 LFs with same tech as the attacker (basicSetup sets weapon/shield/armor 5)
         // Attacker: 100 LFs (same tech, same numbers) → roughly 50% losses on both sides each battle
@@ -547,7 +611,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $acsFleetMissionService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
         $acsDefendMission = $acsFleetMissionService->createNewFromPlanet(
             $acsDefender['planet'],
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $acsDefendFleet,
@@ -566,7 +630,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $attackFleet = new UnitCollection();
         $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
         $this->dispatchFleet(
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             $attackFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -574,6 +638,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($attackMission === null) {
+            $this->fail('No active attack mission found.');
+        }
 
         // Advance to attack arrival - battle occurs during ACS defend hold time
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
@@ -583,6 +650,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // After battle: no return mission yet - fleet is still holding with updated unit counts.
         // If completely destroyed, the outbound mission is marked processed=1 and no return ever arrives.
         $acsDefendMissionReloaded = FleetMission::find($acsDefendMission->id);
+        if ($acsDefendMissionReloaded === null) {
+            $this->fail('Fleet mission not found.');
+        }
 
         if ($acsDefendMissionReloaded->processed === 1) {
             // Fleet was completely destroyed - nothing to duplicate, test ends here
@@ -608,6 +678,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $allReturnMissions = FleetMission::where('parent_id', $acsDefendMission->id)->get();
         $this->assertCount(1, $allReturnMissions, 'Exactly 1 return mission must be created when hold expires (no duplication)');
         $returnMission = $allReturnMissions->first();
+        if ($returnMission === null) {
+            $this->fail('Return mission should exist.');
+        }
 
         // Process the return trip
         $this->travelTo(Date::createFromTimestamp($returnMission->time_arrival + 10));
@@ -618,6 +691,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Planet must receive exactly the survivor count - not survivor + original 100 from a duplicate return
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $acsDefenderPlanetReloaded = $planetServiceFactory->make($acsDefender['planet']->getPlanetId(), true);
+        if ($acsDefenderPlanetReloaded === null) {
+            $this->fail('Planet could not be loaded.');
+        }
         $returnedLightFighters = $acsDefenderPlanetReloaded->getShipUnits()->getAmountByMachineName('light_fighter');
         $this->assertEquals(
             $survivorCount,
@@ -635,8 +711,8 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $this->createBuddyPlayer();
 
         // Give buddy planet some ships and defenses
-        $this->buddyPlanet->addUnit('light_fighter', 10);
-        $this->buddyPlanet->addUnit('rocket_launcher', 10);
+        $this->buddyPlanet()->addUnit('light_fighter', 10);
+        $this->buddyPlanet()->addUnit('rocket_launcher', 10);
         $originalBuddyShips = 10;
         $originalBuddyDefenses = 10;
 
@@ -652,7 +728,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
         $acsDefendMission = $fleetMissionService->createNewFromPlanet(
             $acsDefender['planet'],
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $acsDefendFleet,
@@ -672,7 +748,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $attackFleet = new UnitCollection();
         $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 40);
         $this->dispatchFleet(
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             $attackFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -680,6 +756,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($attackMission === null) {
+            $this->fail('No active attack mission found.');
+        }
 
         // Advance time for attack to arrive
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
@@ -689,7 +768,10 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Reload buddy's planet
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $buddyPlanetReloaded = $planetServiceFactory->make($this->buddyPlanet->getPlanetId());
+        $buddyPlanetReloaded = $planetServiceFactory->make($this->buddyPlanet()->getPlanetId());
+        if ($buddyPlanetReloaded === null) {
+            $this->fail('Planet could not be loaded.');
+        }
 
         // Check that buddy's planet had units removed
         $currentBuddyShips = $buddyPlanetReloaded->getShipUnits()->getAmountByMachineName('light_fighter');
@@ -721,10 +803,14 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $this->createBuddyPlayer();
 
         // Set buddy's tech levels (low)
-        $this->buddyPlanet->getPlayer()->setResearchLevel('weapon_technology', 1);
-        $this->buddyPlanet->getPlayer()->setResearchLevel('shielding_technology', 1);
-        $this->buddyPlanet->getPlayer()->setResearchLevel('armor_technology', 1);
-        $this->buddyPlanet->addUnit('light_fighter', 10);
+        $buddyPlayer = $this->buddyPlanet()->getPlayer();
+        if ($buddyPlayer === null) {
+            $this->fail('Buddy planet has no player.');
+        }
+        $buddyPlayer->setResearchLevel('weapon_technology', 1);
+        $buddyPlayer->setResearchLevel('shielding_technology', 1);
+        $buddyPlayer->setResearchLevel('armor_technology', 1);
+        $this->buddyPlanet()->addUnit('light_fighter', 10);
 
         // Create first ACS defender with medium tech
         $acsDefender1 = $this->createAcsDefender();
@@ -738,29 +824,33 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $acsDefender2User = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $acsDefender2User->id;
         // Place second defender 2 systems away from buddy to keep fleet arrival fast.
-        $acsDefender2System = min(499, $this->buddyPlanet->getPlanetCoordinates()->system + 2);
+        $acsDefender2System = min(499, $this->buddyPlanet()->getPlanetCoordinates()->system + 2);
         $acsDefender2Position = collect([13, 14, 15, 1, 2, 3])->first(
-            fn ($p) => !Planet::where('galaxy', $this->buddyPlanet->getPlanetCoordinates()->galaxy)->where('system', $acsDefender2System)->where('planet', $p)->exists()
+            fn ($p) => !Planet::where('galaxy', $this->buddyPlanet()->getPlanetCoordinates()->galaxy)->where('system', $acsDefender2System)->where('planet', $p)->exists()
         );
         $acsDefender2Planet = Planet::factory()->create([
             'user_id' => $acsDefender2User->id,
-            'galaxy'  => $this->buddyPlanet->getPlanetCoordinates()->galaxy,
+            'galaxy'  => $this->buddyPlanet()->getPlanetCoordinates()->galaxy,
             'system'  => $acsDefender2System,
             'planet'  => $acsDefender2Position,
         ]);
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $acsDefender2PlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender2User->id]);
         $acsDefender2PlanetService = $planetServiceFactory->makeForPlayer($acsDefender2PlayerService, $acsDefender2Planet->id);
-        $acsDefender2PlanetService->getPlayer()->setResearchLevel('weapon_technology', 10);
-        $acsDefender2PlanetService->getPlayer()->setResearchLevel('shielding_technology', 10);
-        $acsDefender2PlanetService->getPlayer()->setResearchLevel('armor_technology', 10);
+        $acsDefender2Player = $acsDefender2PlanetService->getPlayer();
+        if ($acsDefender2Player === null) {
+            $this->fail('ACS defender 2 planet has no player.');
+        }
+        $acsDefender2Player->setResearchLevel('weapon_technology', 10);
+        $acsDefender2Player->setResearchLevel('shielding_technology', 10);
+        $acsDefender2Player->setResearchLevel('armor_technology', 10);
         $acsDefender2PlanetService->addUnit('light_fighter', 20);
         $acsDefender2PlanetService->addResources(new Resources(0, 0, 1000000, 0));
 
         // Create buddy relationships
         $buddyService = resolve(BuddyService::class);
-        $request = $buddyService->sendRequest($acsDefender2User->id, $this->buddyUser->id);
-        $buddyService->acceptRequest($request->id, $this->buddyUser->id);
+        $request = $buddyService->sendRequest($acsDefender2User->id, $this->buddyUser()->id);
+        $buddyService->acceptRequest($request->id, $this->buddyUser()->id);
 
         // Send first ACS defend fleet
         $acsDefendFleet1 = new UnitCollection();
@@ -768,7 +858,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $fleetMissionService1 = resolve(FleetMissionService::class, ['player' => $acsDefender1['planet']->getPlayer()]);
         $acsDefendMission1 = $fleetMissionService1->createNewFromPlanet(
             $acsDefender1['planet'],
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $acsDefendFleet1,
@@ -783,7 +873,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $fleetMissionService2 = resolve(FleetMissionService::class, ['player' => $acsDefender2PlanetService->getPlayer()]);
         $acsDefendMission2 = $fleetMissionService2->createNewFromPlanet(
             $acsDefender2PlanetService,
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $acsDefendFleet2,
@@ -805,7 +895,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $attackFleet = new UnitCollection();
         $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 30);
         $this->dispatchFleet(
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             $attackFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -813,6 +903,9 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($attackMission === null) {
+            $this->fail('No active attack mission found.');
+        }
 
         // Advance time for attack to arrive
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
@@ -829,7 +922,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // ACS defender 1: 15 light fighters (medium tech)
         // ACS defender 2: 20 light fighters (high tech)
         // Total: 45 light fighters
-        $defenderStartUnits = $battleReport->defender['units'];
+        $defenderStartUnits = $battleReport->defender['units'] ?? [];
         $totalDefenderLightFighters = $defenderStartUnits['light_fighter'] ?? 0;
         $this->assertEquals(45, $totalDefenderLightFighters, 'All defending fleets should participate with their units');
     }

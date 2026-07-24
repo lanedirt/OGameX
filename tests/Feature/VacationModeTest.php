@@ -34,6 +34,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Verify player is not in vacation mode initially
         $this->assertFalse($player->isInVacationMode());
@@ -64,6 +67,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Send a fleet to the second planet
         $unitCollection = new UnitCollection();
@@ -85,6 +91,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Activate vacation mode
         $player->activateVacationMode();
@@ -114,6 +123,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Activate vacation mode
         $player->activateVacationMode();
@@ -139,6 +151,9 @@ class VacationModeTest extends FleetDispatchTestCase
         // Get a nearby foreign planet
         $otherPlanet = $this->getNearbyForeignPlanet();
         $otherPlayer = $otherPlanet->getPlayer();
+        if ($otherPlayer === null) {
+            $this->fail('Player not found.');
+        }
 
         // Put the other player in vacation mode
         $otherPlayer->activateVacationMode();
@@ -182,6 +197,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Activate vacation mode
         $player->activateVacationMode();
@@ -192,10 +210,14 @@ class VacationModeTest extends FleetDispatchTestCase
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
 
         // Check if missions are possible to own second planet
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service not initialized.');
+        }
         $response = $this->post('/ajax/fleet/dispatch/check-target', [
-            'galaxy' => $this->secondPlanetService->getPlanetCoordinates()->galaxy,
-            'system' => $this->secondPlanetService->getPlanetCoordinates()->system,
-            'position' => $this->secondPlanetService->getPlanetCoordinates()->position,
+            'galaxy' => $secondPlanetService->getPlanetCoordinates()->galaxy,
+            'system' => $secondPlanetService->getPlanetCoordinates()->system,
+            'position' => $secondPlanetService->getPlanetCoordinates()->position,
             'type' => PlanetType::Planet->value,
         ]);
 
@@ -223,6 +245,9 @@ class VacationModeTest extends FleetDispatchTestCase
 
         $planet = $this->planetService;
         $player = $planet->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Build a metal mine to have some production
         $this->planetSetObjectLevel('metal_mine', 5);
@@ -259,6 +284,9 @@ class VacationModeTest extends FleetDispatchTestCase
 
         $planet = $this->planetService;
         $player = $planet->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Calculate base income (before building any mines)
         $planet->updateResourceProductionStats();
@@ -331,6 +359,9 @@ class VacationModeTest extends FleetDispatchTestCase
         // Get a nearby foreign planet
         $otherPlanet = $this->getNearbyForeignPlanet();
         $otherPlayer = $otherPlanet->getPlayer();
+        if ($otherPlayer === null) {
+            $this->fail('Player not found.');
+        }
 
         // Put the other player in vacation mode
         $otherPlayer->activateVacationMode();
@@ -373,6 +404,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Verify player is not in vacation mode
         $this->assertFalse($player->isInVacationMode());
@@ -402,6 +436,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Activate vacation mode first
         $player->activateVacationMode();
@@ -435,6 +472,9 @@ class VacationModeTest extends FleetDispatchTestCase
 
         $planet = $this->planetService;
         $player = $planet->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Give planet resources to build
         $this->planetAddResources(new Resources(10000, 10000, 10000, 0));
@@ -496,6 +536,9 @@ class VacationModeTest extends FleetDispatchTestCase
 
         $planet = $this->planetService;
         $player = $planet->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Get initial unit count before adding to queue
         $initialUnits = $planet->getObjectAmount('light_fighter');
@@ -533,6 +576,9 @@ class VacationModeTest extends FleetDispatchTestCase
 
         $planet = $this->planetService;
         $player = $planet->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
 
         // Give planet resources and build research lab
         $this->planetAddResources(new Resources(50000, 50000, 50000, 0));
@@ -591,6 +637,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
         $planet = $this->planetService;
 
         // Give planet resources to build
@@ -625,6 +674,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
         $planet = $this->planetService;
 
         // Give planet resources and build research lab
@@ -660,6 +712,9 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
         $planet = $this->planetService;
 
         // Give planet resources and build shipyard

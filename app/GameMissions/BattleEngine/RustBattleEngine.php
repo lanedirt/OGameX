@@ -12,6 +12,7 @@ use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\SettingsService;
+use RuntimeException;
 use stdClass;
 
 /**
@@ -128,6 +129,10 @@ class RustBattleEngine extends BattleEngine
         }
 
         // Build defender fleets (planet owner + ACS defend fleets)
+        $defenderPlayer = $this->defenderPlanet->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Battle defender planet has no owner.');
+        }
         $defenderFleets = [];
         foreach ($result->defenderFleetResults as $fleetResult) {
             $defenderUnits = new stdClass();
@@ -141,9 +146,9 @@ class RustBattleEngine extends BattleEngine
                 $defenderUnits->{$unit->unitObject->id} = (object)[
                     'unit_id' => $unit->unitObject->id,
                     'amount' => $unit->amount,
-                    'shield_points' => $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue,
-                    'attack_power' => $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue,
-                    'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue / 10),
+                    'shield_points' => $unit->unitObject->properties->shield->calculate($defenderPlayer)->totalValue,
+                    'attack_power' => $unit->unitObject->properties->attack->calculate($defenderPlayer)->totalValue,
+                    'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($defenderPlayer)->totalValue / 10),
                     'rapidfire' => $rapidfire,
                 ];
             }
