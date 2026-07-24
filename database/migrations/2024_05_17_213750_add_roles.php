@@ -28,6 +28,9 @@ return new class () extends Migration {
         if (!$legorExists && !$planetExists) {
             // Get admin role ID
             $adminRole = Role::where('name', 'admin')->first();
+            if ($adminRole === null) {
+                throw new RuntimeException('Admin role not found.');
+            }
 
             // Insert Legor user with ID 1
             $legorId = DB::table('users')->insertGetId([
@@ -91,6 +94,9 @@ return new class () extends Migration {
 
         if ($firstUserId !== null) {
             $adminRole = Role::where('name', 'admin')->first();
+            if ($adminRole === null) {
+                throw new RuntimeException('Admin role not found.');
+            }
             $adminRoleId = (int) $adminRole->id;
 
             // Assign admin role

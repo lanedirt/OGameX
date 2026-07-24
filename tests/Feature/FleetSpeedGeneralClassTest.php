@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use OGame\Enums\CharacterClass;
 use Tests\AccountTestCase;
 
 class FleetSpeedGeneralClassTest extends AccountTestCase
@@ -12,8 +13,12 @@ class FleetSpeedGeneralClassTest extends AccountTestCase
     public function testGeneralClassCanUse5PercentFleetSpeed(): void
     {
         // Set user character class to General
-        $user = $this->planetService->getPlayer()->getUser();
-        $user->character_class = \OGame\Enums\CharacterClass::GENERAL->value;
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $user = $player->getUser();
+        $user->character_class = CharacterClass::GENERAL->value;
         $user->save();
 
         // Add a ship to the planet
@@ -49,7 +54,11 @@ class FleetSpeedGeneralClassTest extends AccountTestCase
     public function testNonGeneralClassCannotUse5PercentFleetSpeed(): void
     {
         // Ensure user is not General class (default is no class)
-        $user = $this->planetService->getPlayer()->getUser();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $user = $player->getUser();
         $user->character_class = null;
         $user->save();
 
@@ -86,8 +95,12 @@ class FleetSpeedGeneralClassTest extends AccountTestCase
     public function testCollectorClassCannotUse5PercentFleetSpeed(): void
     {
         // Set user character class to Collector
-        $user = $this->planetService->getPlayer()->getUser();
-        $user->character_class = \OGame\Enums\CharacterClass::COLLECTOR->value;
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $user = $player->getUser();
+        $user->character_class = CharacterClass::COLLECTOR->value;
         $user->save();
 
         // Add a ship to the planet
@@ -123,8 +136,12 @@ class FleetSpeedGeneralClassTest extends AccountTestCase
     public function testDiscovererClassCannotUse5PercentFleetSpeed(): void
     {
         // Set user character class to Discoverer
-        $user = $this->planetService->getPlayer()->getUser();
-        $user->character_class = \OGame\Enums\CharacterClass::DISCOVERER->value;
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $user = $player->getUser();
+        $user->character_class = CharacterClass::DISCOVERER->value;
         $user->save();
 
         // Add a ship to the planet
@@ -160,8 +177,12 @@ class FleetSpeedGeneralClassTest extends AccountTestCase
     public function testGeneralClassCanUseNormalSpeedRanges(): void
     {
         // Set user character class to General
-        $user = $this->planetService->getPlayer()->getUser();
-        $user->character_class = \OGame\Enums\CharacterClass::GENERAL->value;
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $user = $player->getUser();
+        $user->character_class = CharacterClass::GENERAL->value;
         $user->save();
 
         // Add a ship to the planet

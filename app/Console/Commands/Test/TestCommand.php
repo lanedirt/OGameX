@@ -20,6 +20,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\User;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use RuntimeException;
 
 abstract class TestCommand extends Command
 {
@@ -214,6 +215,10 @@ abstract class TestCommand extends Command
             if (isset($matches[1])) {
                 $csrfToken = $matches[1];
             }
+        }
+
+        if ($csrfToken === null) {
+            throw new RuntimeException('Failed to retrieve CSRF token.');
         }
 
         return $csrfToken;
