@@ -222,6 +222,35 @@ By default, the first registered user is assigned the admin role which can see t
   $ php artisan ogamex:admin:remove-role {username}
   ```
 
+### Tuning the fleet arrival queue workers
+Fleet arrivals (battles, transports, deployments, etc.) are processed in the background by the `ogamex-queue-worker` container. It runs several workers under supervisor, split into two lanes so a large battle can never hold up ordinary logistics:
+
+- **Light lane**: transports, deployments, colonisations and all returning fleets. Never runs a battle.
+- **Heavy lane**: attacks, ACS attacks/defends, espionage and moon destruction. Runs battles, and also helps drain the light lane when idle.
+
+The worker is an opt-in service locally, so a plain `docker compose up` (and the CI test run) does not start it. Otherwise a live worker would drain the queue out from under the test suite. Start the fleet workers explicitly when you want them:
+  ```
+  $ docker compose --profile queue up -d
+  ```
+In production the worker always runs (it is defined without a profile in `docker-compose.prod.yml`).
+
+Tune the pool sizes with these environment variables (defaults shown):
+  ```
+  QUEUE_WORKERS_LIGHT=2   # workers reserved for logistics (never blocked by battles)
+  QUEUE_WORKERS_HEAVY=3   # workers that run battles
+  ```
+
+Guidelines:
+- Keep `QUEUE_WORKERS_HEAVY` at or above the number of large battles you expect to resolve at the same moment, otherwise simultaneous battles queue behind each other.
+- More workers means more parallel processing but also more concurrent database connections, so make sure your MySQL `max_connections` has headroom.
+- Each heavy worker can use up to the PHP `memory_limit` (1024M by default) during a very large battle, so budget roughly `QUEUE_WORKERS_HEAVY × memory_limit` of RAM for the worker container. Workers recycle at 900MB to avoid accumulating memory across battles.
+- `DB_QUEUE_RETRY_AFTER` (660) must stay larger than the job timeout (600s), or a long battle job can be picked up by a second worker while it is still running.
+
+After changing these values, recreate the worker container so it picks them up (they are read at container start):
+  ```
+  $ docker compose up -d --force-recreate ogamex-queue-worker
+  ```
+
 ## <a name="support"></a> 📞 9. Support
 
 Did you encounter issues in this project? Please open a ticket on GitHub and we'll try to help you out as soon as possible.
