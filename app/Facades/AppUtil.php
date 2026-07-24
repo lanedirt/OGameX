@@ -213,8 +213,15 @@ class AppUtil extends Facade
      */
     public static function selectWeightedRandom(array $weights): int|string
     {
+        if ($weights === []) {
+            throw new RuntimeException('Cannot select a weighted random key from an empty array.');
+        }
+
+        // max(1, ...) keeps random_int valid when every weight is zero; the loop then never
+        // matches and we fall through to the first key below.
         $totalWeight = array_sum($weights);
-        $rand = mt_rand(1, $totalWeight);
+        $rand = random_int(1, max(1, $totalWeight));
+
         $cumulative = 0;
         foreach ($weights as $key => $weight) {
             $cumulative += $weight;
@@ -223,11 +230,7 @@ class AppUtil extends Facade
             }
         }
 
-        $firstKey = array_key_first($weights);
-        if ($firstKey === null) {
-            throw new RuntimeException('Cannot select a weighted random key from an empty array.');
-        }
-
-        return $firstKey;
+        // Reached only when all weights are zero; return the first key deterministically.
+        return array_key_first($weights);
     }
 }

@@ -29,18 +29,6 @@ class ExpeditionGainDarkMatter extends ExpeditionGameMessage
     protected static int $exceptionalVariations = 1;
 
     /**
-     * @inheritdoc
-     */
-    public static function getRandomMessageVariationIdForVariant(string $variant): int
-    {
-        return match($variant) {
-            'rare' => random_int(static::$normalVariations + 1, static::$normalVariations + static::$rareVariations),
-            'exceptional' => random_int(static::$normalVariations + static::$rareVariations + 1, static::$numberOfVariations),
-            default => random_int(1, static::$normalVariations),
-        };
-    }
-
-    /**
      * Overrides the body of the message to append the Dark Matter amount based on the params.
      */
     public function getBody(): string
