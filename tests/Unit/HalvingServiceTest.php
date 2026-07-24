@@ -576,7 +576,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testDoubleBuildingHalvingIsRejected(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 200000;
         $user->save();
 
@@ -606,7 +606,7 @@ class HalvingServiceTest extends AccountTestCase
      */
     public function testCompleteBuildingAfterHalve(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 200000;
         $user->save();
 
