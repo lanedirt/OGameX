@@ -9,6 +9,7 @@ use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use RuntimeException;
 
 /**
  * Represents a single defending fleet in a battle.
@@ -62,9 +63,13 @@ class DefenderFleet
         $defender->units->addCollection($planet->getShipUnits());
         $defender->units->addCollection(self::getDefenseUnitsForCombat($planet));
 
-        $defender->player = $planet->getPlayer();
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Defender planet has no owner.');
+        }
+        $defender->player = $player;
         $defender->fleetMissionId = 0; // 0 indicates stationary planet forces
-        $defender->ownerId = $planet->getPlayer()->getId();
+        $defender->ownerId = $player->getId();
         $defender->fleetMission = null;
 
         return $defender;

@@ -150,7 +150,12 @@ class PlanetListService
         }
 
         // No valid current planet set, return first planet instead.
-        return $this->first();
+        $firstPlanet = $this->first();
+        if ($firstPlanet === null) {
+            throw new Exception('Player has no planets.');
+        }
+
+        return $firstPlanet;
     }
 
     /**

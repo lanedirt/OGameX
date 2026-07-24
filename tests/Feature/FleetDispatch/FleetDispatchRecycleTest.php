@@ -11,6 +11,7 @@ use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlanetService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -45,7 +46,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Add debris field to the second planet of the test user.
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanet()->getPlanetCoordinates());
         $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
         $debrisFieldService->save();
     }
@@ -60,6 +61,19 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         }
 
         parent::tearDown();
+    }
+
+    /**
+     * Get the second planet service, failing the test if it is not set.
+     */
+    private function secondPlanet(): PlanetService
+    {
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is null.');
+        }
+
+        return $secondPlanetService;
     }
 
     protected function messageCheckMissionArrival(): void
@@ -157,10 +171,13 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanetService->getPlanetCoordinates(), $unitCollection, resolve(RecycleMission::class));
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanet()->getPlanetCoordinates(), $unitCollection, resolve(RecycleMission::class));
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
@@ -175,6 +192,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that message has been received by calling extended method
@@ -182,7 +202,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Assert that the debris field is now empty after harvesting.
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanet()->getPlanetCoordinates());
         $this->assertFalse($debrisFieldService->getResources()->any(), 'Debris field still has resources after recyclers have harvested it.');
 
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
@@ -190,6 +210,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Assert that a return trip has been launched by checking the active missions for the current planet.
         $this->assertCount(1, $activeMissions, 'No return trip launched after fleet has arrived at destination.');
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('No return mission found.');
+        }
         // Assert that the return mission contains the correct resources.
         $this->assertTrue($returnMission->metal === 5000.0, 'Metal resources are not correct in return trip.');
         $this->assertTrue($returnMission->crystal === 4000.0, 'Crystal resources are not correct in return trip.');
@@ -241,6 +264,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $outboundMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($outboundMission === null) {
+            $this->fail('No outbound mission found.');
+        }
         $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration(
             $this->moonService,
             $targetCoordinate,
@@ -267,6 +293,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $this->assertCount(1, $activeMissions, 'Recycle mission should create a return trip even after the moon is destroyed.');
 
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('No return mission found.');
+        }
         $this->assertSame($this->planetService->getPlanetId(), $returnMission->planet_id_to, 'Return trip should be rerouted to the parent planet.');
         $this->assertSame(PlanetType::Planet->value, $returnMission->type_to, 'Return trip should target the parent planet.');
 
@@ -322,7 +351,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Make sure the debris field has a lot of resources.
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadForCoordinates($this->secondPlanet()->getPlanetCoordinates());
         $debrisFieldService->appendResources(new Resources(500000, 500000, 500000, 0));
         $debrisFieldService->save();
 
@@ -336,10 +365,13 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanetService->getPlanetCoordinates(), $unitCollection, resolve(RecycleMission::class));
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanet()->getPlanetCoordinates(), $unitCollection, resolve(RecycleMission::class));
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
@@ -351,11 +383,14 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Assert that the debris field contents have been reduced by the amount the recyclers can carry.
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadForCoordinates($this->secondPlanet()->getPlanetCoordinates());
 
         $this->assertEquals($beforeDebrisFieldResources->metal->get() - 33333.33333333, $debrisFieldService->getResources()->metal->get(), 'Metal resources are not correct in debris field after recyclers have harvested it.');
         $this->assertEquals($beforeDebrisFieldResources->crystal->get() - 33333.33333333, $debrisFieldService->getResources()->crystal->get(), 'Crystal resources are not correct in debris field after recyclers have harvested it.');
@@ -364,6 +399,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Expecting a return trip that will contain the extracted resources.
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('No return mission found.');
+        }
 
         // Assert that the return mission contains the correct resources
         // which should be the same as the total capacity of the recyclers.
@@ -383,7 +421,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Make sure the debris field contains resources when sending the fleet.
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanet()->getPlanetCoordinates());
         $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
         $debrisFieldService->save();
 
@@ -398,10 +436,13 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
-        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanetService->getPlanetCoordinates(), $unitCollection, resolve(RecycleMission::class));
+        $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $this->secondPlanet()->getPlanetCoordinates(), $unitCollection, resolve(RecycleMission::class));
 
         // Set time to fleet mission duration + 30 seconds (we do 30 instead of 1 second to test later if the return trip start and endtime work as expected
         // and are calculated based on the arrival time instead of the time the job got processed).
@@ -413,11 +454,17 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Expecting a return trip that will contain 0 resources.
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('No return mission found.');
+        }
 
         // Assert that the return mission contains the correct resources
         // which should be the same as the total capacity of the recyclers.
@@ -445,10 +492,17 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
-        $fleetParentTime = Date::getTestNow()->addMinute();
+        $testNow = Date::getTestNow();
+        if ($testNow === null) {
+            $this->fail('Test now is null.');
+        }
+        $fleetParentTime = $testNow->addMinute();
         $this->travelTo($fleetParentTime);
 
         // Cancel the mission
@@ -461,6 +515,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Assert that the original mission is now canceled.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->canceled == 1, 'Fleet mission is not canceled after fleet recall is requested.');
 
         // Assert that only the return trip is now visible.
@@ -473,8 +530,14 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
 
         // Assert that the return trip arrival time is exactly 1 minute after the cancelation time.
         // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
@@ -488,6 +551,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Assert that the return trip is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Return trip is not processed after fleet has arrived back at origin planet.');
 
         // Assert that the units have been returned to the origin planet.
@@ -511,6 +577,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 1 minute
@@ -588,7 +657,7 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Add debris field to the second planet of the test user.
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanet()->getPlanetCoordinates());
         $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
         $debrisFieldService->save();
 
@@ -613,7 +682,11 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Recycle mission not created');
-        $fleetMissionId = $activeMissions->first()->id;
+        $firstMission = $activeMissions->first();
+        if ($firstMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+        $fleetMissionId = $firstMission->id;
 
         // Verify resources were deducted from planet
         $this->get('/overview');
@@ -628,13 +701,16 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Get debris field resources before harvest
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadForCoordinates($this->secondPlanet()->getPlanetCoordinates());
         $debrisFieldResources = $debrisFieldService->getResources();
         $debrisFieldMetal = $debrisFieldResources->metal->get();
         $debrisFieldCrystal = $debrisFieldResources->crystal->get();
 
         // Advance time to mission arrival
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
         $this->travel($travelTime + 1)->seconds();
 
@@ -645,6 +721,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Return mission should be created');
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('No return mission found.');
+        }
 
         // Verify return mission has original + harvested resources
         $debrisFieldDeuterium = $debrisFieldResources->deuterium->get();
@@ -692,13 +771,13 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
 
         // Add debris field to the second planet of the test user.
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanet()->getPlanetCoordinates());
         $debrisFieldService->appendResources(new Resources(5000, 4000, 3000, 0));
         $debrisFieldService->save();
 
         // Empty the debris field completely
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadForCoordinates($this->secondPlanet()->getPlanetCoordinates());
         $debrisFieldService->deductResources($debrisFieldService->getResources());
         $debrisFieldService->save();
 
@@ -722,10 +801,17 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Get the mission
         $fleetMissionService = resolve(FleetMissionService::class);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
-        $fleetMissionId = $activeMissions->first()->id;
+        $firstMission = $activeMissions->first();
+        if ($firstMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+        $fleetMissionId = $firstMission->id;
 
         // Advance time to mission arrival
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
         $this->travel($travelTime + 1)->seconds();
 
@@ -735,6 +821,9 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         // Verify return mission has exact original resources (nothing harvested from empty field)
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('No return mission found.');
+        }
 
         $this->assertEquals(80000, $returnMission->metal);
         $this->assertEquals(40000, $returnMission->crystal);
