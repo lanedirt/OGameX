@@ -19,6 +19,7 @@ use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Models\User;
 use OGame\Models\UserTech;
+use RuntimeException;
 use Throwable;
 
 /**

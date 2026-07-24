@@ -76,6 +76,12 @@ services:
       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     environment:
       CONTAINER_ROLE: queue
+      # Fleet-arrival worker pools. The light pool is reserved for light traffic
+      # (transports, deployments, returns) so it is never blocked by battles; the
+      # heavy pool runs battles and backfills light work when idle. More workers =
+      # more planet destinations processed in parallel.
+      QUEUE_WORKERS_LIGHT: ${QUEUE_WORKERS_LIGHT:-2}
+      QUEUE_WORKERS_HEAVY: ${QUEUE_WORKERS_HEAVY:-3}
     networks:
       - app-network
     depends_on:

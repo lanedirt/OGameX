@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     dos2unix \
     pkg-config \
+    supervisor \
     libffi-dev  # Install PHP FFI development files required to interface with Rust for BattleEngine  \
     && \ apt-get clean && rm -rf /var/lib/apt/lists/ # Clear cache
 

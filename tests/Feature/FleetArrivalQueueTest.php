@@ -6,6 +6,7 @@ use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Mockery;
+use Mockery\Expectation;
 use Mockery\MockInterface;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Jobs\ProcessFleetArrival;
@@ -108,6 +109,77 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         );
     }
 
+    public function testCombatMissionsRouteToHeavyLaneAndLogisticsRouteToLightLane(): void
+    {
+        $service = resolve(FleetMissionService::class);
+
+        // Attack (1), ACS Attack (2), ACS Defend (5) and Moon Destruction (9) can run
+        // or batch a large battle, so their outbound arrival jobs use the heavy lane.
+        foreach ([1, 2, 5, 9] as $type) {
+            $mission = new FleetMission();
+            $mission->mission_type = $type;
+            $mission->parent_id = null;
+
+            $this->assertSame(
+                FleetMissionService::ARRIVAL_QUEUE_NAME_HEAVY,
+                $service->arrivalQueueForMission($mission),
+                "Outbound combat mission type {$type} must route to the heavy lane."
+            );
+        }
+
+        // Transport (3), Deployment (4), Espionage (6), Colonisation (7), Recycle (8),
+        // Missile (10) and Expedition (15) never run a large fleet battle: light lane.
+        foreach ([3, 4, 6, 7, 8, 10, 15] as $type) {
+            $mission = new FleetMission();
+            $mission->mission_type = $type;
+            $mission->parent_id = null;
+
+            $this->assertSame(
+                FleetMissionService::ARRIVAL_QUEUE_NAME,
+                $service->arrivalQueueForMission($mission),
+                "Logistics mission type {$type} must route to the light lane."
+            );
+        }
+    }
+
+    public function testReturnMissionsAlwaysRouteToLightLane(): void
+    {
+        $service = resolve(FleetMissionService::class);
+
+        // A return carries its outbound mission_type but only delivers resources home,
+        // so even a returning attack (type 1) must use the light lane.
+        $mission = new FleetMission();
+        $mission->mission_type = 1;
+        $mission->parent_id = 4242;
+
+        $this->assertSame(
+            FleetMissionService::ARRIVAL_QUEUE_NAME,
+            $service->arrivalQueueForMission($mission),
+            'Return missions never run a battle and must use the light lane.'
+        );
+    }
+
+    public function testDispatchedTransportIsQueuedOnLightLane(): void
+    {
+        $this->basicSetup();
+        $this->sendMissionToSecondPlanet($this->createCargoUnits(1), new Resources(1000, 500, 250, 0));
+
+        $mission = FleetMission::query()
+            ->where('user_id', $this->currentUserId)
+            ->whereNull('parent_id')
+            ->latest('id')
+            ->firstOrFail();
+
+        $this->assertNotNull($mission->arrival_job_id, 'Transport did not store a delayed arrival job ID.');
+
+        $queue = DB::table('jobs')->where('id', $mission->arrival_job_id)->value('queue');
+        $this->assertSame(
+            FleetMissionService::ARRIVAL_QUEUE_NAME,
+            $queue,
+            'A dispatched transport must be queued on the light lane.'
+        );
+    }
+
     public function testJobHandlerProcessesAllDueMissionsAtDestinationInMillisecondOrder(): void
     {
         $this->basicSetup();
@@ -122,11 +194,11 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         // mission-scoped.
         /** @var FleetMissionService $service */
         $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($firstMission, $secondMission) {
-            /** @var \Mockery\Expectation $e1 */
+            /** @var Expectation $e1 */
             $e1 = $mock->shouldReceive('updateMission');
             $e1->once()->ordered()->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $firstMission->id));
 
-            /** @var \Mockery\Expectation $e2 */
+            /** @var Expectation $e2 */
             $e2 = $mock->shouldReceive('updateMission');
             $e2->once()->ordered()->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $secondMission->id));
         });
@@ -145,11 +217,11 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
 
         /** @var FleetMissionService $service */
         $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($firstMission, $secondMission) {
-            /** @var \Mockery\Expectation $e1 */
+            /** @var Expectation $e1 */
             $e1 = $mock->shouldReceive('updateMission');
             $e1->once()->ordered()->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $firstMission->id));
 
-            /** @var \Mockery\Expectation $e2 */
+            /** @var Expectation $e2 */
             $e2 = $mock->shouldReceive('updateMission');
             $e2->once()->ordered()->with(Mockery::on(fn (FleetMission $mission) => $mission->id === $secondMission->id));
         });
@@ -231,11 +303,11 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         // battle (throws LockTimeoutException). B proceeds normally (void return).
         /** @var FleetMissionService $service */
         $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($missionAtA, $missionAtB) {
-            /** @var \Mockery\Expectation $e1 */
+            /** @var Expectation $e1 */
             $e1 = $mock->shouldReceive('processDueMissionEventsForMission');
             $e1->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtA->id))->andThrow(new LockTimeoutException());
 
-            /** @var \Mockery\Expectation $e2 */
+            /** @var Expectation $e2 */
             $e2 = $mock->shouldReceive('processDueMissionEventsForMission');
             $e2->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtB->id));
         });
@@ -256,7 +328,7 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         // Simulate a long-running battle holding the destination lock.
         /** @var FleetMissionService $service */
         $service = $this->mock(FleetMissionService::class, function (MockInterface $mock) {
-            /** @var \Mockery\Expectation $e */
+            /** @var Expectation $e */
             $e = $mock->shouldReceive('processDueMissionEventsForMissionId');
             $e->once()->andThrow(new LockTimeoutException());
         });
@@ -306,6 +378,9 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
     private function createDueMission(int $arrivalTime, int $arrivalTimeMs, PlanetService|null $destination = null): FleetMission
     {
         $destination ??= $this->secondPlanetService;
+        if ($destination === null) {
+            $this->fail('Destination planet service not initialised.');
+        }
 
         $mission = new FleetMission();
         $mission->user_id = $this->currentUserId;

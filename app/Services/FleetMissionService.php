@@ -37,6 +37,31 @@ class FleetMissionService
     public const ARRIVAL_QUEUE_NAME = 'fleet-arrivals';
 
     /**
+     * Dedicated queue for arrivals whose processing can run a large fleet battle.
+     * A separate worker pool drains this lane so battles cannot occupy every worker
+     * and stall light traffic (transports, deployments) at unrelated destinations.
+     */
+    public const ARRIVAL_QUEUE_NAME_HEAVY = 'fleet-arrivals-heavy';
+
+    /**
+     * Outbound mission types whose arrival processing can run a large battle, routed
+     * to the heavy arrival lane. Attack (1) and ACS Attack (2) run the battle directly;
+     * Moon Destruction (9) fights the moon's defenders; ACS Defend (5) holds at a
+     * contested planet and, when arrivals batch during catch-up, can pull the attacker's
+     * battle into its own processing. Everything else — and every return mission — is light.
+     *
+     * @var array<int, int>
+     */
+    private const HEAVY_MISSION_TYPES = [1, 2, 5, 9];
+
+    /**
+     * TTL (seconds) for the per-destination processing lock. Must stay >=
+     * ProcessFleetArrival::$timeout so a long battle cannot outlive the lock
+     * and let another worker observe uncommitted writes.
+     */
+    public const DESTINATION_LOCK_TTL = 600;
+
+    /**
      * The queue model where this class should get its data from.
      *
      * @var FleetMission
@@ -729,22 +754,43 @@ class FleetMissionService
     {
         $lockKey = $this->getMissionDestinationLockKey($mission);
 
-        // Lock TTL of 180s provides headroom for long-running battles.
-        // A TTL shorter than the actual processing time risks expiring mid-transaction,
-        // allowing another worker to enter and observe uncommitted writes.
-        Cache::lock($lockKey, 180)->block(10, function () use ($mission) {
-            DB::transaction(function () use ($mission) {
+        // Lock TTL must stay >= ProcessFleetArrival::$timeout so a long battle cannot
+        // outlive the lock and let another worker observe uncommitted writes.
+        Cache::lock($lockKey, self::DESTINATION_LOCK_TTL)->block(10, function () use ($mission, $lockKey) {
+            DB::transaction(function () use ($mission, $lockKey) {
                 $currentTime = (int) Date::now()->timestamp;
 
                 foreach ($this->getDueHoldArrivalMissionsForDestination($mission, $currentTime) as $holdMission) {
-                    $this->updateMission($holdMission);
+                    $this->updateMissionAtDestination($holdMission, $lockKey);
                 }
 
                 foreach ($this->getDueCompletionMissionsForDestination($mission, $currentTime) as $arrivalMission) {
-                    $this->updateMission($arrivalMission);
+                    $this->updateMissionAtDestination($arrivalMission, $lockKey);
                 }
             });
         });
+    }
+
+    /**
+     * Process a due mission only while it still belongs to the destination this worker
+     * holds the lock for. A mission can be redirected to a different destination mid-batch
+     * (e.g. a fleet targeting a moon that another mission in this same batch just destroyed).
+     * Processing it here would resolve it against its new destination under the wrong lock,
+     * racing a worker that legitimately holds that destination. Skip it instead; its own
+     * re-synced arrival job processes it under the correct lock.
+     */
+    private function updateMissionAtDestination(FleetMission $mission, string $lockKey): void
+    {
+        $current = FleetMission::find($mission->id);
+        if ($current === null) {
+            return;
+        }
+
+        if ($this->getMissionDestinationLockKey($current) !== $lockKey) {
+            return;
+        }
+
+        $this->updateMission($current);
     }
 
     /**
@@ -1045,6 +1091,21 @@ class FleetMissionService
     }
 
     /**
+     * Choose the arrival queue lane for a mission. Outbound combat missions whose
+     * processing can run a large battle go to the heavy lane; everything else — and
+     * every return mission (which only delivers resources home) — goes to the light
+     * lane, which has a dedicated worker pool that battles never occupy.
+     */
+    public function arrivalQueueForMission(FleetMission $mission): string
+    {
+        if ($mission->parent_id === null && in_array($mission->mission_type, self::HEAVY_MISSION_TYPES, true)) {
+            return self::ARRIVAL_QUEUE_NAME_HEAVY;
+        }
+
+        return self::ARRIVAL_QUEUE_NAME;
+    }
+
+    /**
      * Dispatch the delayed arrival job and return the queued database job ID when available.
      */
     private function dispatchMissionArrivalJob(FleetMission $mission, int $triggerTime): int|null
@@ -1054,7 +1115,7 @@ class FleetMissionService
         }
 
         $jobId = Queue::laterOn(
-            self::ARRIVAL_QUEUE_NAME,
+            $this->arrivalQueueForMission($mission),
             Date::createFromTimestamp($triggerTime),
             new ProcessFleetArrival($mission->id)
         );

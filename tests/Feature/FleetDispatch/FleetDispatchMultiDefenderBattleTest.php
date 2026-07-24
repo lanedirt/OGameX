@@ -963,7 +963,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $acsFleetService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
         $acsDefendMission = $acsFleetService->createNewFromPlanet(
             $acsDefender['planet'],
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5,
             $acsDefendFleet,
@@ -984,7 +984,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $attackFleet = new UnitCollection();
         $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
         $this->dispatchFleet(
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->buddyPlanet()->getPlanetCoordinates(),
             $attackFleet,
             new Resources(0, 0, 0, 0),
             PlanetType::Planet
@@ -992,6 +992,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($attackMission, 'Attack mission must exist after dispatch.');
         $attackMission->time_arrival = (int) $targetSecond;
         $attackMission->time_arrival_ms = (int) $targetSecond * 1000 + 800;
         $attackMission->saveQuietly();
@@ -1001,11 +1002,14 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Trigger processing via the destination-scoped, ms-ordered processor.
         // This mirrors what happens when a queue job (or page load) fires for this destination.
+        $freshAttackMission = $attackMission->fresh();
+        $this->assertNotNull($freshAttackMission, 'Attack mission must still exist before processing.');
         resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()])
-            ->processDueMissionEventsForMission($attackMission->fresh());
+            ->processDueMissionEventsForMission($freshAttackMission);
 
         // The hold-arrivals loop runs first: ACS Defend physical arrival fires and sets processed_hold=1.
         $acsDefendMission = FleetMission::find($acsDefendMissionId);
+        $this->assertNotNull($acsDefendMission, 'ACS Defend mission must still exist after processing.');
         $this->assertSame(
             1,
             $acsDefendMission->processed_hold,
@@ -1018,7 +1022,7 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $this->assertNotNull($battleReport, 'A battle report must exist after the attack resolves.');
         $this->assertGreaterThan(
             0,
-            array_sum($battleReport->defender['units']),
+            array_sum($battleReport->defender['units'] ?? []),
             'ACS Defend fleet must appear in the battle report as a defending unit.'
         );
     }
