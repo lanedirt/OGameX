@@ -9,6 +9,7 @@ use OGame\GameMissions\EspionageMission;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
@@ -26,7 +27,11 @@ class DestroyedPlanetTest extends AccountTestCase
     {
         $this->assertNotNull($this->secondPlanetService);
         $planetId = $this->secondPlanetService->getPlanetId();
-        $startCount = $this->planetService->getPlayer()->planets->planetCount();
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+        $startCount = $player->planets->planetCount();
 
         $this->get('/overview?cp=' . $planetId);
         $response = $this->post('/ajax/planet-abandon/abandon', [
@@ -43,8 +48,8 @@ class DestroyedPlanetTest extends AccountTestCase
         $this->assertEquals(0, (int) $row->crystal_production);
         $this->assertEquals(0, (int) $row->deuterium_production);
 
-        $this->planetService->getPlayer()->load($this->planetService->getPlayer()->getId());
-        $this->assertEquals($startCount - 1, $this->planetService->getPlayer()->planets->planetCount());
+        $player->load($player->getId());
+        $this->assertEquals($startCount - 1, $player->planets->planetCount());
     }
 
     /**
@@ -89,13 +94,16 @@ class DestroyedPlanetTest extends AccountTestCase
      */
     public function testDestroyedMoonIsUntargetableAndUsesRedBorderSprite(): void
     {
-        $this->assertNotNull($this->secondPlanetService);
+        $secondPlanet = $this->secondPlanetService;
+        if ($secondPlanet === null) {
+            $this->fail('Second planet is null.');
+        }
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $moon = $planetServiceFactory->createMoonForPlanet($this->secondPlanetService, 2000000, 20);
+        $moon = $planetServiceFactory->createMoonForPlanet($secondPlanet, 2000000, 20);
         $this->assertNotNull($moon);
 
-        $coords = $this->secondPlanetService->getPlanetCoordinates();
-        $this->secondPlanetService->markAsDestroyed();
+        $coords = $secondPlanet->getPlanetCoordinates();
+        $secondPlanet->markAsDestroyed();
 
         $moonRow = Planet::find($moon->getPlanetId());
         $this->assertNotNull($moonRow);
@@ -144,9 +152,9 @@ class DestroyedPlanetTest extends AccountTestCase
     }
 
     /**
-     * Attack and espionage remain possible against destroyed planets; transport does not.
+     * Attack, espionage and transport remain possible against destroyed planets.
      */
-    public function testAttackAndEspionageAllowedOnDestroyedPlanet(): void
+    public function testAttackEspionageAndTransportAllowedOnDestroyedPlanet(): void
     {
         $foreignPlanet = $this->getNearbyForeignCleanPlanet();
         $foreignPlanet->addResources(new Resources(1000, 1000, 1000, 0));
@@ -165,14 +173,17 @@ class DestroyedPlanetTest extends AccountTestCase
         $probes = new UnitCollection();
         $probes->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
 
+        $cargo = new UnitCollection();
+        $cargo->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
         $this->assertTrue(
             $attackMission->isMissionPossible($this->planetService, $coords, PlanetType::Planet, $fighters)->possible
         );
         $this->assertTrue(
             $espionageMission->isMissionPossible($this->planetService, $coords, PlanetType::Planet, $probes)->possible
         );
-        $this->assertFalse(
-            $transportMission->isMissionPossible($this->planetService, $coords, PlanetType::Planet, $fighters)->possible
+        $this->assertTrue(
+            $transportMission->isMissionPossible($this->planetService, $coords, PlanetType::Planet, $cargo)->possible
         );
     }
 
@@ -189,8 +200,8 @@ class DestroyedPlanetTest extends AccountTestCase
 
         $this->assertDatabaseHas('planets', ['id' => $planetId]);
 
-        $this->artisan('ogamex:scheduler:cleanup-destroyed-planets')
-            ->assertSuccessful();
+        // @phpstan-ignore-next-line
+        $this->artisan('ogamex:scheduler:cleanup-destroyed-planets')->assertSuccessful();
 
         $this->assertDatabaseMissing('planets', ['id' => $planetId]);
     }
@@ -205,12 +216,102 @@ class DestroyedPlanetTest extends AccountTestCase
 
         $this->secondPlanetService->applyDestroyedFlag((int) Date::now()->subHours(1)->timestamp);
 
-        $this->artisan('ogamex:scheduler:cleanup-destroyed-planets')
-            ->assertSuccessful();
+        // @phpstan-ignore-next-line
+        $this->artisan('ogamex:scheduler:cleanup-destroyed-planets')->assertSuccessful();
 
         $this->assertDatabaseHas('planets', [
             'id' => $planetId,
         ]);
-        $this->assertGreaterThan(0, (int) Planet::find($planetId)->destroyed);
+        $keptPlanet = Planet::find($planetId);
+        $this->assertNotNull($keptPlanet);
+        $this->assertGreaterThan(0, (int) $keptPlanet->destroyed);
+    }
+
+    /**
+     * Purge teleports an in-flight return mission home before deleting the body.
+     */
+    public function testCleanupTeleportsInFlightReturnMission(): void
+    {
+        $this->assertNotNull($this->secondPlanetService);
+
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+
+        $homePlanet = $this->planetService;
+        $abandonedPlanet = $this->secondPlanetService;
+        $homeId = $homePlanet->getPlanetId();
+        $abandonedId = $abandonedPlanet->getPlanetId();
+        $homeCoords = $homePlanet->getPlanetCoordinates();
+        $abandonedCoords = $abandonedPlanet->getPlanetCoordinates();
+
+        $shipsBefore = $homePlanet->getObjectAmount('small_cargo');
+        $metalBefore = (int) $homePlanet->metal()->get();
+
+        $parent = new FleetMission();
+        $parent->user_id = $player->getId();
+        $parent->planet_id_from = $homeId;
+        $parent->planet_id_to = $abandonedId;
+        $parent->galaxy_from = $homeCoords->galaxy;
+        $parent->system_from = $homeCoords->system;
+        $parent->position_from = $homeCoords->position;
+        $parent->galaxy_to = $abandonedCoords->galaxy;
+        $parent->system_to = $abandonedCoords->system;
+        $parent->position_to = $abandonedCoords->position;
+        $parent->type_from = PlanetType::Planet->value;
+        $parent->type_to = PlanetType::Planet->value;
+        $parent->mission_type = 3;
+        $parent->time_departure = (int) Date::now()->subHours(2)->timestamp;
+        $parent->time_arrival = (int) Date::now()->subHour()->timestamp;
+        $parent->processed = 1;
+        $parent->processed_hold = 0;
+        $parent->canceled = 0;
+        $parent->metal = 0;
+        $parent->crystal = 0;
+        $parent->deuterium = 0;
+        $parent->deuterium_consumption = 0;
+        $parent->small_cargo = 0;
+        $parent->save();
+
+        $returnMission = new FleetMission();
+        $returnMission->user_id = $player->getId();
+        $returnMission->parent_id = $parent->id;
+        $returnMission->planet_id_from = $abandonedId;
+        $returnMission->planet_id_to = $homeId;
+        $returnMission->galaxy_from = $abandonedCoords->galaxy;
+        $returnMission->system_from = $abandonedCoords->system;
+        $returnMission->position_from = $abandonedCoords->position;
+        $returnMission->galaxy_to = $homeCoords->galaxy;
+        $returnMission->system_to = $homeCoords->system;
+        $returnMission->position_to = $homeCoords->position;
+        $returnMission->type_from = PlanetType::Planet->value;
+        $returnMission->type_to = PlanetType::Planet->value;
+        $returnMission->mission_type = 3;
+        $returnMission->time_departure = (int) Date::now()->subMinutes(30)->timestamp;
+        $returnMission->time_arrival = (int) Date::now()->addHour()->timestamp;
+        $returnMission->processed = 0;
+        $returnMission->processed_hold = 0;
+        $returnMission->canceled = 0;
+        $returnMission->metal = 500;
+        $returnMission->crystal = 0;
+        $returnMission->deuterium = 0;
+        $returnMission->deuterium_consumption = 0;
+        $returnMission->small_cargo = 3;
+        $returnMission->save();
+
+        $abandonedPlanet->applyDestroyedFlag((int) Date::now()->subHours(25)->timestamp);
+
+        // @phpstan-ignore-next-line
+        $this->artisan('ogamex:scheduler:cleanup-destroyed-planets')->assertSuccessful();
+
+        $this->assertDatabaseMissing('planets', ['id' => $abandonedId]);
+
+        $returnMission->refresh();
+        $this->assertSame(1, (int) $returnMission->processed, 'Return mission should be force-processed during purge');
+
+        $homePlanet->reloadPlanet();
+        $this->assertSame($shipsBefore + 3, $homePlanet->getObjectAmount('small_cargo'));
+        $this->assertSame($metalBefore + 500, (int) $homePlanet->metal()->get());
     }
 }

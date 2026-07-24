@@ -470,7 +470,7 @@ abstract class GameMission
      * Helper method to check destroyed-planet / destroyed-moon targeting rules.
      *
      * Destroyed moons cannot be targeted at all. Destroyed planets are only allowed
-     * when $allowDestroyedPlanet is true (attack / espionage).
+     * when $allowDestroyedPlanet is true (attack / espionage / transport / missile).
      *
      * @param PlanetService|null $targetPlanet
      * @param PlanetType $targetType

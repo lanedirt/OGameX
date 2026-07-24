@@ -250,7 +250,8 @@ class PlanetService
 
         $destroyedAt = (int) Date::now()->timestamp;
 
-        // Flag moon first with the same timestamp (destroyed alongside parent).
+        // Flag moon with the same timestamp so it is purged in the same 03:00 job as the parent.
+        // (Wiki also mentions a separate 01:10 moon release; we deliberately keep them paired.)
         if ($this->isPlanet() && $this->hasMoon()) {
             $this->moon()->applyDestroyedFlag($destroyedAt);
         }
@@ -275,8 +276,9 @@ class PlanetService
         UnitQueue::where('planet_id', $this->planet->id)->delete();
         PlanetMove::where('planet_id', $this->planet->id)->delete();
 
-        if ($this->getPlayer()->getCurrentPlanetId() === $this->planet->id) {
-            $this->getPlayer()->setCurrentPlanetId(0);
+        $player = $this->getPlayer();
+        if ($player !== null && $player->getCurrentPlanetId() === $this->planet->id) {
+            $player->setCurrentPlanetId(0);
         }
 
         $this->planet->destroyed = $destroyedAt;
@@ -347,10 +349,12 @@ class PlanetService
      */
     private function teleportFleetsAwayFromPlanet(): void
     {
-        $fleetMissionService = resolve(FleetMissionService::class);
+        $player = $this->getPlayer();
+        $fleetMissionService = $player !== null
+            ? resolve(FleetMissionService::class, ['player' => $player])
+            : resolve(FleetMissionService::class);
         $missions = $fleetMissionService->getActiveMissionsByPlanetIds([$this->planet->id]);
-        $now = Date::now();
-        $nowTs = (int) $now->timestamp;
+        $nowTs = (int) Date::now()->timestamp;
 
         foreach ($missions as $mission) {
             // Skip missions that have already arrived and are mid-processing (e.g. moon destruction).
@@ -365,12 +369,11 @@ class PlanetService
             } else {
                 // Return trip still in flight: force immediate arrival at the home planet.
                 $mission->time_arrival = $nowTs;
-                $mission->time_arrival_ms = (int) $now->valueOf();
                 if ($mission->time_holding !== null) {
                     $mission->time_holding = 0;
                 }
                 $mission->save();
-                $fleetMissionService->processDueMissionEventsForMission($mission);
+                $fleetMissionService->updateMission($mission);
             }
         }
     }
@@ -386,7 +389,7 @@ class PlanetService
     /**
      * Unix timestamp when this body was marked destroyed, or null if active.
      */
-    public function getDestroyedAt(): ?int
+    public function getDestroyedAt(): int|null
     {
         $destroyed = (int) $this->planet->destroyed;
 
