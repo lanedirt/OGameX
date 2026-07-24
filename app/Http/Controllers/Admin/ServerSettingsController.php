@@ -6,6 +6,7 @@ use Cache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use OGame\Enums\HighscoreTypeEnum;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Http\Controllers\OGameController;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -121,7 +122,7 @@ class ServerSettingsController extends OGameController
         $settingsService->set('ignore_empty_systems_on', request('ignore_empty_systems_on', 0));
         $settingsService->set('ignore_inactive_systems_on', request('ignore_inactive_systems_on', 0));
         $numberOfGalaxies = max(4, min(9, (int)request('number_of_galaxies', 9)));
-        $numberOfSystems = max(1, min(499, (int)request('number_of_systems', \OGame\GameConstants\UniverseConstants::MAX_SYSTEM_COUNT)));
+        $numberOfSystems = max(1, min(499, (int)request('number_of_systems', UniverseConstants::MAX_SYSTEM_COUNT)));
         $settingsService->set('number_of_galaxies', $numberOfGalaxies);
         $settingsService->set('number_of_systems', $numberOfSystems);
 
