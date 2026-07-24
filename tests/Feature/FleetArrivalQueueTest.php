@@ -113,9 +113,9 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
     {
         $service = resolve(FleetMissionService::class);
 
-        // Attack (1), ACS Attack (2), ACS Defend (5) and Moon Destruction (9) can run
-        // or batch a large battle, so their outbound arrival jobs use the heavy lane.
-        foreach ([1, 2, 5, 9] as $type) {
+        // Attack (1), ACS Attack (2), ACS Defend (5), Espionage (6) and Moon Destruction (9)
+        // can run or batch a large battle at a contested destination: heavy lane.
+        foreach ([1, 2, 5, 6, 9] as $type) {
             $mission = new FleetMission();
             $mission->mission_type = $type;
             $mission->parent_id = null;
@@ -127,9 +127,9 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
             );
         }
 
-        // Transport (3), Deployment (4), Espionage (6), Colonisation (7), Recycle (8),
-        // Missile (10) and Expedition (15) never run a large fleet battle: light lane.
-        foreach ([3, 4, 6, 7, 8, 10, 15] as $type) {
+        // Transport (3), Deployment (4), Colonisation (7), Recycle (8), Missile (10) and
+        // Expedition (15, bounded combat at an uncontested position) use the light lane.
+        foreach ([3, 4, 7, 8, 10, 15] as $type) {
             $mission = new FleetMission();
             $mission->mission_type = $type;
             $mission->parent_id = null;
@@ -177,6 +177,34 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
             FleetMissionService::ARRIVAL_QUEUE_NAME,
             $queue,
             'A dispatched transport must be queued on the light lane.'
+        );
+    }
+
+    public function testDispatchedAttackIsQueuedOnHeavyLane(): void
+    {
+        $this->basicSetup();
+        $this->planetAddUnit('light_fighter', 5);
+
+        // Dispatch a real attack (mission type 1) at a foreign planet.
+        $this->missionType = 1;
+        $attackUnits = new UnitCollection();
+        $attackUnits->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $this->sendMissionToOtherPlayerPlanet($attackUnits, new Resources(0, 0, 0, 0));
+
+        $mission = FleetMission::query()
+            ->where('user_id', $this->currentUserId)
+            ->whereNull('parent_id')
+            ->where('mission_type', 1)
+            ->latest('id')
+            ->firstOrFail();
+
+        $this->assertNotNull($mission->arrival_job_id, 'Attack did not store a delayed arrival job ID.');
+
+        $queue = DB::table('jobs')->where('id', $mission->arrival_job_id)->value('queue');
+        $this->assertSame(
+            FleetMissionService::ARRIVAL_QUEUE_NAME_HEAVY,
+            $queue,
+            'A dispatched attack must be queued on the heavy lane.'
         );
     }
 

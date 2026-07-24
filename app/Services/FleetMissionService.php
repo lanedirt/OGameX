@@ -44,15 +44,22 @@ class FleetMissionService
     public const ARRIVAL_QUEUE_NAME_HEAVY = 'fleet-arrivals-heavy';
 
     /**
-     * Outbound mission types whose arrival processing can run a large battle, routed
-     * to the heavy arrival lane. Attack (1) and ACS Attack (2) run the battle directly;
-     * Moon Destruction (9) fights the moon's defenders; ACS Defend (5) holds at a
-     * contested planet and, when arrivals batch during catch-up, can pull the attacker's
-     * battle into its own processing. Everything else — and every return mission — is light.
+     * Outbound mission types whose arrival processing can run a large battle against
+     * another player's holdings at a contested destination, routed to the heavy arrival
+     * lane so a big battle never blocks light traffic. Attack (1) and ACS Attack (2) run
+     * the battle directly; Moon Destruction (9) fights the moon's defenders; Espionage (6)
+     * can trigger counter-espionage against the target's full fleet/defenses; ACS Defend
+     * (5) holds at a contested planet and, when arrivals batch during catch-up, can pull
+     * the attacker's battle into its own processing.
+     *
+     * Everything else is light — including Expedition (15): its combat is scaled to the
+     * fleet the player sent and resolves at an uncontested deep-space position (16), so it
+     * is bounded and never batches another player's battle. Transport (3), Deployment (4),
+     * Colonisation (7), Recycle (8), Missile (10) and every return mission are light too.
      *
      * @var array<int, int>
      */
-    private const HEAVY_MISSION_TYPES = [1, 2, 5, 9];
+    private const HEAVY_MISSION_TYPES = [1, 2, 5, 6, 9];
 
     /**
      * TTL (seconds) for the per-destination processing lock. Must stay >=
