@@ -39,7 +39,7 @@ return [
             'queue' => env('DB_QUEUE', 'default'),
             // Must exceed ProcessFleetArrival::$timeout (600s), otherwise a long
             // battle job is re-dispatched to a second worker while still running.
-            'retry_after' => env('DB_QUEUE_RETRY_AFTER', 660),
+            'retry_after' => (int) env('DB_QUEUE_RETRY_AFTER', 660),
             'after_commit' => false,
         ],
 
@@ -68,7 +68,7 @@ return [
             'connection' => env('REDIS_QUEUE_CONNECTION', 'default'),
             'queue' => env('REDIS_QUEUE', 'default'),
             // Must exceed ProcessFleetArrival::$timeout (600s); see database connection above.
-            'retry_after' => env('REDIS_QUEUE_RETRY_AFTER', 660),
+            'retry_after' => (int) env('REDIS_QUEUE_RETRY_AFTER', 660),
             'block_for' => null,
             'after_commit' => false,
         ],
