@@ -30,6 +30,83 @@ class TechtreeTest extends AccountTestCase
     }
 
     /**
+     * Verify that techtree technology popups for all objects return HTTP 200.
+     */
+    public function testTechtreeTechnologyPopupsHttp200(): void
+    {
+        foreach (ObjectService::getObjects() as $object) {
+            $response = $this->get('ajax/techtree?tab=3&object_id=' . $object->id);
+
+            try {
+                $response->assertStatus(200);
+            } catch (\PHPUnit\Framework\AssertionFailedError $e) {
+                $this->fail('AJAX techtree technology page for "' . $object->title . '" does not return HTTP 200.');
+            }
+        }
+    }
+
+    /**
+     * Verify that the technology tab shows the global category list with prerequisites status.
+     */
+    public function testTechtreeTechnologyTabGlobalList(): void
+    {
+        $object = ObjectService::getObjectByMachineName('metal_mine');
+
+        $response = $this->get('ajax/techtree?tab=3&object_id=' . $object->id);
+        $response->assertStatus(200);
+
+        // Category headings
+        $response->assertSee('data-category="building"', false);
+        $response->assertSee('data-category="research"', false);
+        $response->assertSee('data-category="ship"', false);
+        $response->assertSee('data-category="defense"', false);
+        $response->assertSee('data-category="missile"', false);
+        $response->assertSee(__('t_ingame.techtree.technology_category_construction'));
+        $response->assertSee(__('t_ingame.techtree.technology_category_research'));
+        $response->assertSee(__('t_ingame.techtree.technology_category_ships'));
+        $response->assertSee(__('t_ingame.techtree.technology_category_defense'));
+        $response->assertSee(__('t_ingame.techtree.technology_category_rockets'));
+
+        // Sample objects from each category
+        $response->assertSee('class="technology sprite_before sprite_tiny metalMine overlay"', false);
+        $response->assertSee('class="technology sprite_before sprite_tiny energyTechnology overlay"', false);
+        $response->assertSee('class="technology sprite_before sprite_tiny fighterLight overlay"', false);
+        $response->assertSee('class="technology sprite_before sprite_tiny rocketLauncher overlay"', false);
+        $response->assertSee('class="technology sprite_before sprite_tiny missileInterceptor overlay"', false);
+
+        // Fusion plant prerequisites should be unfulfilled for a fresh account.
+        $fusionPlant = ObjectService::getObjectByMachineName('fusion_plant');
+        $response->assertSee('class="technology sprite_before sprite_tiny fusionPlant overlay"', false);
+        $response->assertSee('class="prerequisites overlay"', false);
+        $content = $response->getContent();
+        if ($content === false) {
+            $this->fail('AJAX techtree technology page returned no content.');
+        }
+        $this->assertMatchesRegularExpression(
+            '/<li class="fusionPlant">.*?class="unfulfilled"/s',
+            $content,
+            'Fusion plant prerequisites should be unfulfilled for a fresh account.'
+        );
+
+        // Meet fusion plant requirements and assert those prerequisites become fulfilled.
+        $this->planetSetObjectLevel('deuterium_synthesizer', 5);
+        $this->playerSetResearchLevel('energy_technology', 3);
+
+        $response = $this->get('ajax/techtree?tab=3&object_id=' . $object->id);
+        $response->assertStatus(200);
+        $content = $response->getContent();
+        if ($content === false) {
+            $this->fail('AJAX techtree technology page returned no content.');
+        }
+
+        $this->assertMatchesRegularExpression(
+            '/<li class="fusionPlant">.*?<li class="fulfilled">.*?<\/li>.*?<li class="fulfilled">/s',
+            $content,
+            'Fusion plant prerequisites should both be marked fulfilled after meeting requirements.'
+        );
+    }
+
+    /**
      * Verify that techtree applications popups for all objects return HTTP 200.
      */
     public function testTechtreeApplicationsPopupsHttp200(): void

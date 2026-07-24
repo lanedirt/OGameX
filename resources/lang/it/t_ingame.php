@@ -909,6 +909,13 @@ return [
         'is_requirement_for'                    => 'è un requisito per',
         'level'                                 => 'Livello',
 
+        // Categorie scheda Tecnologia
+        'technology_category_construction'      => 'Costruzioni',
+        'technology_category_research'          => 'Ricerca',
+        'technology_category_ships'             => 'Navi',
+        'technology_category_defense'           => 'Difese',
+        'technology_category_rockets'           => 'Missili',
+
         // Colonne tabella condivise
         'col_level'                             => 'Livello',
         'col_difference'                        => 'Differenza',
