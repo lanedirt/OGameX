@@ -24,7 +24,13 @@ return [
         'switch_to_moon'       => 'Schakel naar maan',
         'switch_to_planet'     => 'Schakel naar planeet',
         'abandon_rename'       => 'Verlaten/Hernoemen',
-        'abandon_rename_title' => 'Planeet verlaten/hernoemen',
+        'abandon_rename_title'  => 'Planeet verlaten/hernoemen',
+        'abandon_rename_modal'  => 'Verlaten/Hernoemen :planet_name',
+
+        // Default planet names (used at registration)
+        'homeworld'            => 'Hoofdplaneet',
+        'colony'               => 'Kolonie',
+        'moon'                 => 'Maan',
     ],
 
     // -------------------------------------------------------------------------
@@ -42,6 +48,15 @@ return [
         'relocate'       => 'Verplaatsen',
         'cancel'         => 'annuleren',
         'explanation'    => 'Met de verplaatsing kunt u uw planeten verplaatsen naar een andere positie in een ver systeem naar keuze.<br /><br />De daadwerkelijke verplaatsing vindt voor het eerst 24 uur na activering plaats. In deze tijd kunt u uw planeten normaal gebruiken. Een afteltimer toont hoeveel tijd er resteert voor de verplaatsing.<br /><br />Zodra de afteltimer is verlopen en de planeet moet worden verplaatst, mogen geen van uw vloten die daar gestationeerd zijn actief zijn. Op dit moment mag er ook niets in aanbouw zijn, niets worden gerepareerd en niets worden onderzocht. Als er een bouwactiviteit, een reparatietaak of een vloot nog actief is bij het verstrijken van de afteltimer, wordt de verplaatsing geannuleerd.<br /><br />Als de verplaatsing succesvol is, worden 240.000 Donkere Materie in rekening gebracht. De planeten, de gebouwen en de opgeslagen grondstoffen inclusief maan worden onmiddellijk verplaatst. Uw vloten reizen automatisch naar de nieuwe coördinaten met de snelheid van het langzaamste schip. De sprongpoort naar een verplaatste maan wordt 24 uur gedeactiveerd.',
+        'err_position_not_empty'      => 'De doelpositie is niet leeg.',
+        'err_already_in_progress'     => 'Er is al een planeetverplaatsing bezig.',
+        'err_on_cooldown'             => 'Verplaatsing is in afkoeling. Wacht even voordat je het opnieuw probeert.',
+        'err_insufficient_dm'         => 'Onvoldoende Donkere Materie. Je hebt :amount DM nodig.',
+        'err_buildings_in_progress'   => 'Kan niet verplaatsen terwijl gebouwen worden gebouwd.',
+        'err_research_in_progress'    => 'Kan niet verplaatsen terwijl onderzoek wordt uitgevoerd.',
+        'err_units_in_progress'       => 'Kan niet verplaatsen terwijl eenheden worden gebouwd.',
+        'err_fleets_active'           => 'Kan niet verplaatsen terwijl vlootmissies actief zijn.',
+        'err_no_active_relocation'    => 'Geen actieve planeetverplaatsing gevonden.',
     ],
 
     // -------------------------------------------------------------------------
@@ -49,10 +64,15 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Waarschuwing',
-        'yes'     => 'ja',
-        'no'      => 'Nee',
-        'error'   => 'Fout',
+        'caution'        => 'Waarschuwing',
+        'yes'            => 'ja',
+        'no'             => 'Nee',
+        'error'          => 'Fout',
+        'dark_matter'    => 'Donkere Materie',
+        'duration'       => 'Duur',
+        'error_occurred' => 'Er is een fout opgetreden.',
+        'level'          => 'Niveau',
+        'ok'             => 'OK',
     ],
 
     // -------------------------------------------------------------------------
@@ -86,6 +106,12 @@ return [
         'loca_lifeform_cap'      => 'Een of meer gekoppelde bonussen hebben al het maximum bereikt. Wilt u toch doorgaan met de bouw?',
         'last_inquiry_error'     => 'Uw laatste actie kon niet worden verwerkt. Probeer het opnieuw.',
         'planet_move_warning'    => 'Waarschuwing! Deze missie kan nog actief zijn wanneer de verplaatsingsperiode begint. Als dat zo is, wordt het proces geannuleerd. Wilt u toch doorgaan met deze taak?',
+        'building_started'       => 'Gebouw succesvol gestart.',
+        'invalid_token'          => 'Ongeldig token.',
+        'downgrade_started'      => 'Gebouwafbraak gestart.',
+        'construction_canceled'  => 'Bouw geannuleerd.',
+        'added_to_queue'         => 'Toegevoegd aan bouwwachtrij.',
+        'invalid_queue_item'     => 'Ongeldig wachtrij-item ID',
     ],
 
     // -------------------------------------------------------------------------
@@ -127,8 +153,11 @@ return [
     // -------------------------------------------------------------------------
 
     'shipyard_page' => [
-        'battleships' => 'Gevechtsschepen',
-        'civil_ships' => 'Civiele schepen',
+        'battleships'           => 'Gevechtsschepen',
+        'civil_ships'           => 'Civiele schepen',
+        'no_units_idle'         => 'Er worden momenteel geen eenheden gebouwd.',
+        'no_units_idle_tooltip' => 'Klik om naar de Werf te gaan.',
+        'to_shipyard'           => 'Ga naar de Werf',
     ],
 
     // -------------------------------------------------------------------------
@@ -192,9 +221,9 @@ return [
 
     'fleet' => [
         // Pagina / stap koppen
-        'dispatch_1_title'         => 'Vloot versturen I',
-        'dispatch_2_title'         => 'Vloot versturen II',
-        'dispatch_3_title'         => 'Vloot versturen III',
+        'dispatch_1_title'         => 'Vlootverzending I',
+        'dispatch_2_title'         => 'Vlootverzending II',
+        'dispatch_3_title'         => 'Vlootverzending III',
         'movement_title'           => 'Vlootbeweging',
         'to_movement'              => 'Naar vlootbeweging',
 
@@ -215,19 +244,19 @@ return [
 
         // Waarschuwing / onmogelijke staten
         'fleet_dispatch'           => 'Vloot versturen',
-        'dispatch_impossible'      => 'Vloot versturen onmogelijk',
+        'dispatch_impossible'      => 'Vloot verzending onmogelijk',
         'no_ships'                 => 'Er zijn geen schepen op deze planeet.',
         'in_combat'                => 'De vloot is momenteel in gevecht.',
         'vacation_error'           => 'Er kunnen geen vloten worden verstuurd vanuit vakantiemodus!',
         'not_enough_deuterium'     => 'Onvoldoende deuterium!',
         'no_target'                => 'U moet een geldig doel selecteren.',
         'cannot_send_to_target'    => 'Vloten kunnen niet naar dit doel worden gestuurd.',
-        'cannot_start_mission'     => 'U kunt deze missie niet starten.',
+        'cannot_start_mission'     => 'Deze missie kan niet gestart worden.',
 
         // Statusbalk labels (zonder afsluitende dubbele punt)
         'mission_label'            => 'Missie',
         'target_label'             => 'Doel',
-        'player_name_label'        => 'Spelernaam',
+        'player_name_label'        => 'Spelersnaam',
         'no_selection'             => 'Niets geselecteerd',
         'no_mission_selected'      => 'Geen missie geselecteerd!',
 
@@ -239,13 +268,13 @@ return [
         'select_all_ships'         => 'Alle schepen selecteren',
         'reset_choice'             => 'Selectie resetten',
         'api_data'                 => 'Deze gegevens kunnen worden ingevoerd in een compatibele gevechtssimulator:',
-        'tactical_retreat'         => 'Tactische terugtrekking',
+        'tactical_retreat'         => 'Tactische Terugtrekking',
         'tactical_retreat_tooltip' => 'Toon deuteriumverbruik per tactische terugtrekking',
         'continue'                 => 'Doorgaan',
         'back'                     => 'Terug',
 
         // Stap 2 – bestemming
-        'origin'                   => 'Herkomst',
+        'origin'                   => 'Vertrek locatie',
         'destination'              => 'Bestemming',
         'planet'                   => 'Planeet',
         'moon'                     => 'Maan',
@@ -264,15 +293,15 @@ return [
 
         // Missienamen
         'mission_expedition'       => 'Expeditie',
-        'mission_colonise'         => 'Kolonisatie',
-        'mission_recycle'          => 'Puinveld opruimen',
+        'mission_colonise'         => 'Koloniseren',
+        'mission_recycle'          => 'Recycle puinveld',
         'mission_transport'        => 'Transport',
-        'mission_deploy'           => 'Stationering',
-        'mission_espionage'        => 'Spionage',
-        'mission_acs_defend'       => 'ACS Verdedigen',
-        'mission_attack'           => 'Aanval',
-        'mission_acs_attack'       => 'ACS Aanval',
-        'mission_destroy_moon'     => 'Maanvernietiging',
+        'mission_deploy'           => 'Plaatsen',
+        'mission_espionage'        => 'Spioneren',
+        'mission_acs_defend'       => 'Halt',
+        'mission_attack'           => 'Aanvallen',
+        'mission_acs_attack'       => 'Federatie aanval',
+        'mission_destroy_moon'     => 'Vernietigen',
 
         // Missiebeschrijvingen
         'desc_attack'              => 'Valt de vloot en verdediging van uw tegenstander aan.',
@@ -288,7 +317,7 @@ return [
 
         // Briefingsectie (zonder afsluitende dubbele punt)
         'briefing'                 => 'Briefing',
-        'load_resources'           => 'Grondstoffen laden',
+        'load_resources'           => 'Grondstoffen inladen',
         'load_all_resources'       => 'Alle grondstoffen laden',
         'all_resources'            => 'alle grondstoffen',
         'flight_duration'          => 'Vluchttijd (enkel)',
@@ -298,16 +327,16 @@ return [
         'speed'                    => 'Snelheid:',
         'max_abbr'                 => 'max.',
         'hour_abbr'                => 'u',
-        'deuterium_consumption'    => 'Deuteriumverbruik',
+        'deuterium_consumption'    => 'Brandstofverbruik',
         'empty_cargobays'          => 'Lege laadruimte',
         'hold_time'                => 'Bezettingstijd',
         'expedition_duration'      => 'Duur van expeditie',
         'cargo_bay'                => 'laadruimte',
         'cargo_space'              => 'Beschikbare ruimte / Max. laadruimte',
-        'send_fleet'               => 'Vloot sturen',
-        'retreat_on_defender'      => 'Terugtrekken bij verdedigersvlucht',
+        'send_fleet'               => 'Stuur vloot',
+        'retreat_on_defender'      => 'Terugkeren als verdediger ontsnapt.',
         'retreat_tooltip'          => 'Als deze optie is geactiveerd, zal uw vloot zich ook zonder gevecht terugtrekken als uw tegenstander vlucht.',
-        'plunder_food'             => 'Voedsel plunderen',
+        'plunder_food'             => 'Plunder voedsel',
 
         // Grondstoffenlabels (voor loca-object)
         'metal'                    => 'Metaal',
@@ -356,7 +385,27 @@ return [
         'err_no_planet'            => 'Fout, er is geen planeet',
         'err_no_cargo'             => 'Fout, onvoldoende laadruimte',
         'err_multi_alarm'          => 'Multi-alarm',
-        'err_attack_ban'           => 'Aanvalverbod',
+        'err_attack_ban'                  => 'Aanvalverbod',
+
+        // Vlootbeweging labels
+        'enemy_fleet'                     => 'Vijandig',
+        'friendly_fleet'                  => 'Vriendelijk',
+
+        // Vlootslot / admiraal
+        'admiral_slot_bonus'              => 'Admiraal bonus: extra vlootslot',
+        'general_slot_bonus'              => 'Bonus vlootslot',
+
+        // Bash bescherming
+        'bash_warning'                    => 'Waarschuwing: de aanvalslimiet is bereikt! Verdere aanvallen kunnen leiden tot een ban.',
+
+        // Vlootsjablonen
+        'add_new_template'                => 'Vlootsjabloon opslaan',
+
+        // Tactische terugtrekking
+        'tactical_retreat_label'          => 'Tactische terugtrekking',
+        'tactical_retreat_full_tooltip'   => 'Activeer tactische terugtrekking: je vloot trekt zich terug als de gevechtsverhouding ongunstig is. Admiraal vereist voor 3:1 verhouding.',
+        'tactical_retreat_admiral_tooltip'=> 'Tactische terugtrekking bij 3:1 verhouding (vereist Admiraal)',
+        'fleet_sent_success'             => 'Je vloot is succesvol verstuurd.',
     ],
 
     // -------------------------------------------------------------------------
@@ -464,6 +513,7 @@ return [
 
         // Phalanx-resultaatdialoog (JS-strings in Blade-rendered scriptblok)
         'sensor_report'                => 'sensorrapport',
+        'sensor_report_from'           => 'Sensorrapport van',
         'refresh'                      => 'Vernieuwen',
         'arrived'                      => 'Aangekomen',
 
@@ -480,6 +530,9 @@ return [
         'not_enough_missiles'          => 'U heeft niet genoeg raketten',
         'launched_success'             => 'Raketten succesvol gelanceerd!',
         'launch_failed'                => 'Lancering van raketten mislukt',
+        'alliance_page'                => 'Alliantie informatie',
+        'apply'                        => 'Solliciteer',
+        'contact_support'              => 'Neem contact op met support',
         'insufficient_range'           => 'Onvoldoende bereik (onderzoeksniveau impulsaandrijving) van uw interplanetaire raketten!',
     ],
 
@@ -891,6 +944,8 @@ return [
         'msg_kick_error'                => 'Kon lid niet verwijderen',
         'msg_invalid_action'            => 'Ongeldige actie',
         'msg_error'                     => 'Er is een fout opgetreden',
+        'rank_founder_default'          => 'Oprichter',
+        'rank_newcomer_default'         => 'Nieuwkomer',
     ],
 
     // -------------------------------------------------------------------
@@ -1006,6 +1061,35 @@ return [
 
         // Tab 3 — Weergave
         'section_general_display'               => 'Algemeen',
+        'language'                              => 'Taal:',
+        'language_en'                           => 'English',
+        'language_de'                           => 'Deutsch',
+        'language_it'                           => 'Italiano',
+        'language_nl'                           => 'Nederlands',
+        'language_ar'                           => 'Español (AR)',
+        'language_br'                           => 'Português (BR)',
+        'language_cz'                           => 'Čeština',
+        'language_dk'                           => 'Dansk',
+        'language_es'                           => 'Español',
+        'language_fi'                           => 'Suomi',
+        'language_fr'                           => 'Français',
+        'language_gr'                           => 'Ελληνικά',
+        'language_hr'                           => 'Hrvatski',
+        'language_hu'                           => 'Magyar',
+        'language_jp'                           => '日本語',
+        'language_mx'                           => 'Español (MX)',
+        'language_pl'                           => 'Polski',
+        'language_pt'                           => 'Português',
+        'language_ro'                           => 'Română',
+        'language_ru'                           => 'Русский',
+        'language_se'                           => 'Svenska',
+        'language_si'                           => 'Slovenščina',
+        'language_sk'                           => 'Slovenčina',
+        'language_tr'                           => 'Türkçe',
+        'language_tw'                           => '繁體中文',
+        'language_us'                           => 'English (US)',
+        'language_yu'                           => 'Srpski',
+        'msg_language_changed'                  => 'Taalvoorkeur opgeslagen.',
         'show_mobile_version'                   => 'Mobiele versie weergeven:',
         'show_alt_dropdowns'                    => 'Alternatieve dropdowns weergeven:',
         'activate_autofocus'                    => 'Autofocus activeren in de ranglijsten:',
@@ -1202,6 +1286,32 @@ return [
         'js_activate_item_question' => 'Wil je het bestaande item vervangen? De oude bonus gaat verloren.',
         'js_activate_item_header'   => 'Item vervangen?',
 
+        // Welcome dialog
+        'welcome_title'             => 'Welkom bij OGame!',
+        'welcome_body'              => 'Om je snel op weg te helpen, hebben we je de naam Commodore Nebula gegeven. Je kunt dit op elk moment wijzigen door op je gebruikersnaam te klikken.<br/>Het Vlootcommando heeft informatie over je eerste stappen in je inbox achtergelaten.<br/><br/>Veel plezier!',
+
+        // Time unit abbreviations (short)
+        'time_short_year'            => 'j',
+        'time_short_month'           => 'm',
+        'time_short_week'            => 'w',
+        'time_short_day'             => 'd',
+        'time_short_hour'            => 'u',
+        'time_short_minute'          => 'min',
+        'time_short_second'          => 's',
+
+        // Time unit names (long)
+        'time_long_day'              => 'dag',
+        'time_long_hour'             => 'uur',
+        'time_long_minute'           => 'minuut',
+        'time_long_second'           => 'seconde',
+
+        // Number formatting
+        'decimal_point'             => ',',
+        'thousand_separator'        => '.',
+        'unit_mega'                 => 'M',
+        'unit_kilo'                 => 'K',
+        'unit_milliard'             => 'Mrd',
+
         // JS — chatLoca
         'chat_text_empty'           => 'Waar is het bericht?',
         'chat_text_too_long'        => 'Het bericht is te lang.',
@@ -1238,6 +1348,8 @@ return [
         'loca_notice'               => 'Referentie',
         'loca_planet_giveup'        => 'Weet je zeker dat je planeet %planetName% %planetCoordinates% wilt verlaten?',
         'loca_moon_giveup'          => 'Weet je zeker dat je maan %planetName% %planetCoordinates% wilt verlaten?',
+        'no_ships_in_wreck'         => 'Geen schepen in het wrakstuk.',
+        'no_wreck_available'        => 'Geen wrakstuk beschikbaar.',
     ],
 
     // ── Highscore ───────────────────────────────────────────────────────────
@@ -1298,6 +1410,59 @@ return [
         'benefit_mines'              => '+2% mijnproductie',
         'benefit_espionage_title'    => '1 niveau wordt toegevoegd aan jouw spionageonderzoek.',
         'benefit_espionage'          => '+1 spionageniveaus',
+
+        // ── Officer detail panel ──────────────���──────────────────────────────
+        'active_for_days'            => 'Nog actief: :days dagen',
+        'not_active'                 => 'Niet actief',
+        'advantages'                 => 'Voordelen:',
+        'days'                       => 'dagen',
+        'dark_matter_label'          => 'Donkere Materie',
+        'insufficient_dark_matter'   => 'Niet genoeg Donkere Materie.',
+        'purchase_success'           => 'Officier succesvol geactiveerd.',
+        'already_active'             => 'Officier is al actief.',
+        'purchase_error'             => 'Er is een fout opgetreden. Probeer het opnieuw.',
+
+        // ── Officer titles, descriptions & benefits ──────────────────────────
+        'officer_commander_title' => 'Commander',
+        'officer_commander_description' => 'Een Commander is berucht in de moderne oorlogsvoering. Door de snelle en eenvoudige commando-structuur is je koninkrijk sneller en efficiënter te besturen. Hiermee houd je eenvoudig overzicht over heel het koninkrijk! Nieuwe strategieën zijn mogelijk, waarmee je je tegenstander altijd een stap voor kan blijven.',
+        'officer_commander_benefit_favourites' => '+40 favorieten',
+        'officer_commander_benefit_queue' => 'Bouwlijst',
+        'officer_commander_benefit_scanner' => 'Transportscanner',
+        'officer_commander_benefit_ads' => 'Vrij van advertenties',
+        'officer_commander_tooltip' => '<b>+40 favorieten</b><p>Met meer favorieten kun je meer berichten opslaan, die dan ook weer gedeeld kunnen worden</p><br/><b>Bouwlijst</b><p>Plaats tot 4 extra gebouwen tegelijkertijd in de bouwlijst.</p><br/><b>Transportscanner</b><p>Het aantal grondstoffen dat de vrachter naar je planeet transporteert wordt getoond.</p><br/><b>Vrij van advertenties</b><p>Je zult niet langer advertenties voor andere spellen zien. Alleen advertenties voor OGame-specifieke evenementen zullen getoond worden.</p>',
+
+        'officer_admiral_title' => 'Admiraal',
+        'officer_admiral_description' => 'De Vloot Admiraal is een ervaren oorlogsveteraan en groot strateeg. Zelfs in het heetst van de strijd houdt hij het hoofd koel. Door zijn groot inzicht is hij in staat al zijn ondergeschikte admiralen te dirigeren. Slimme heersers rekenen op de Vloot Admiraal zijn onvoorwaardelijke ondersteuning in gevechten, wat hen toestaat om twee extra vloten uit te sturen. Ook geeft hij een extra expeditieslot en kan hij instructies geven aan de vloot welke grondstoffen voorrang moeten krijgen bij het inladen van de buit na een succesvolle aanval. En naast al deze voordelen, ontgrendeld hij ook nog eens 20 extra velden voor gevechtssimulaties.',
+        'officer_admiral_benefit_fleet_slots' => 'Max. vlootsloten +2',
+        'officer_admiral_benefit_expeditions' => 'Max. expeditions +1',
+        'officer_admiral_benefit_escape' => 'Verbeterde vlootontsnappingsratio',
+        'officer_admiral_benefit_save_slots' => 'Max. slots +20',
+        'officer_admiral_tooltip' => '<b>Max. vlootsloten +2</b><p>Je kunt meer vloten tegelijkertijd verzenden</p><br/><b>Max. expeditions +1</b><p>Je kunt een extra expeditie op pad sturen.</p><br/><b>Verbeterde vlootontsnappingsratio</b><p>Tot dat je 500.000 punten hebt behaald, kan je vloot ontsnappen als de aanvallende vloot drie keer sterker is dan de jouwe.</p><br/><b>Max. slots +20</b><p>Je kan meer gevechtssimulaties tegelijkertijd opslaan.</p>',
+
+        'officer_engineer_title' => 'Ingenieur',
+        'officer_engineer_description' => 'Een ervaren Hoofdingenieur is een specialist op het gebied van energiebeheer. Tijdens een aanval verzekert hij de energiebehoefte van de kanonnen. Zo voorkomt hij overbelasting wat leidt tot lagere verliezen aan de verdediging.',
+        'officer_engineer_benefit_defence' => 'Halveert het verlies van verdediging.',
+        'officer_engineer_benefit_energy' => '+10% energieproductie',
+        'officer_engineer_tooltip' => '<b>Halveert het verlies van verdediging.</b><p>Na een gevecht zal de helft van de vernietigde verdediging gerepareerd worden.</p><br/><b>+10% energieproductie</b><p>Je energiecentrales en zonnesatellieten produceren 10% meer energie.</p>',
+
+        'officer_geologist_title' => 'Geoloog',
+        'officer_geologist_description' => 'De geoloog is een erkend expert in Astro-mineralogie en Kristallografie. Met hulp van zijn team, bestaande uit metallurgen en chemici ondersteunt hij interplanetaire regeringen bij het ontginnen van grondstoffen. De Geoloog verhoogt de productie van de mijnen met 10%.',
+        'officer_geologist_benefit_mines' => '+10% mijnproductie',
+        'officer_geologist_tooltip' => '<b>+10% mijnproductie</b><p>Je mijnen produceren 10% meer.</p>',
+
+        'officer_technocrat_title' => 'Technocraat',
+        'officer_technocrat_description' => 'De Gilde van Technocraten bestaat uit geniale wetenschappers die men daar aantreft waar het technische mogelijke en denkbare ver overschreden wordt. Een normaal mens zal nooit in staat zijn de becijferingen van een technocraat te doorgronden, en alleen al door zijn aanwezigheid worden andere onderzoekers aangezet tot het ontwikkelen van wat men voorheen niet mogelijk achtte.',
+        'officer_technocrat_benefit_espionage' => '+2 spionagelevels',
+        'officer_technocrat_benefit_research' => '25% kortere onderzoekstijd',
+        'officer_technocrat_tooltip' => '<b>+2 spionagelevels</b><p>2 levels extra voor je spionageonderzoek.</p><br/><b>25% kortere onderzoekstijd</b><p>Je onderzoek vereist 25% minder tijd om te voltooien.</p>',
+
+        'officer_all_officers_title' => 'Legerleiding',
+        'officer_all_officers_description' => 'Deze bundel geeft je niet slechts één specialist, maar een volledige ploeg. Je ontvangt alle effecten van de individuele officiers met extra voordelen die enkel de volledige bundel biedt.\nTerwijl de strategisch commandant het overzicht bewaart, zorgen de officieren voor energiemanagement, grondstofproductie en andere zaken. Uiteraard zorgen zij ook voor onderzoeken en brengen zij hun ervaring in gevechten in.',
+        'officer_all_officers_benefit_fleet_slots' => 'Max. vlootsloten +1',
+        'officer_all_officers_benefit_energy' => '+2% energieproductie',
+        'officer_all_officers_benefit_mines' => '+2% mijnproductie',
+        'officer_all_officers_benefit_espionage' => '+1 spionagelevel(s)',
+        'officer_all_officers_tooltip' => '<b>Max. vlootsloten +1</b><p>Je kunt meer vloten tegelijkertijd verzenden</p><br/><b>+2% energieproductie</b><p>Je centrales en satellieten produceren 2% meer energie.</p><br/><b>+2% mijnproductie</b><p>Je mijnen produceren 2% meer.</p><br/><b>+1 spionagelevel(s)</b><p>1 level(s) worden toegevoegd aan je spionagetechtniek.</p>',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
@@ -1361,6 +1526,12 @@ return [
         'points'                  => 'Punten',
         'action'                  => 'Actie',
         'apply_for_alliance'      => 'Solliciteer bij deze alliantie',
+        'search_player_link'      => 'Speler zoeken',
+        'alliance'                => 'Alliantie',
+        'home_planet'             => 'Thuisplaneet',
+        'send_message'            => 'Stuur bericht',
+        'buddy_request'           => 'Vriendschapsverzoek',
+        'highscore'               => 'Score ranking',
     ],
 
     // -------------------------------------------------------------------------
@@ -1368,7 +1539,25 @@ return [
     // -------------------------------------------------------------------------
 
     'notes' => [
-        'no_notes_found'          => 'Geen notities gevonden',
+        'no_notes_found'      => 'Geen notities gevonden',
+        'add_note'            => 'Notitie toevoegen',
+        'new_note'            => 'Nieuwe notitie',
+        'subject_label'       => 'Onderwerp',
+        'date_label'          => 'Datum',
+        'edit_note'           => 'Notitie bewerken',
+        'select_action'       => 'Selecteer actie',
+        'delete_marked'       => 'Geselecteerde verwijderen',
+        'delete_all'          => 'Alles verwijderen',
+        'unsaved_warning'     => 'Je hebt niet-opgeslagen wijzigingen.',
+        'save_question'       => 'Wil je je wijzigingen opslaan?',
+        'your_subject'        => 'Onderwerp',
+        'subject_placeholder' => 'Voer onderwerp in...',
+        'priority_label'      => 'Prioriteit',
+        'priority_important'  => 'Belangrijk',
+        'priority_normal'     => 'Normaal',
+        'priority_unimportant'=> 'Niet belangrijk',
+        'your_message'        => 'Bericht',
+        'save_btn'            => 'Opslaan',
     ],
 
     // -------------------------------------------------------------------------
@@ -1440,5 +1629,419 @@ return [
         'msg_yes'                       => 'Ja',
         'msg_no'                        => 'Nee',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // AJAX object overlay — detail panel gebouw/schip/onderzoek
+    // -------------------------------------------------------------------------
+    'ajax_object' => [
+        'open_techtree'            => 'Open technologieboom',
+        'techtree'                 => 'Technologieboom',
+        'no_requirements'          => 'Geen vereisten',
+        'cancel_expansion_confirm' => 'Wil je de uitbreiding van :name naar niveau :level annuleren?',
+        'number'                   => 'Aantal',
+        'level'                    => 'Niveau',
+        'production_duration'      => 'Productietijd',
+        'energy_needed'            => 'Benodigde energie',
+        'production'               => 'Productie',
+        'costs_per_piece'          => 'Kosten per eenheid',
+        'required_to_improve'      => 'Vereist om te upgraden naar niveau',
+        'metal'                    => 'Metaal',
+        'crystal'                  => 'Kristal',
+        'deuterium'                => 'Deuterium',
+        'energy'                   => 'Energie',
+        'deconstruction_costs'     => 'Sloopkosten',
+        'ion_technology_bonus'     => 'Iontechnologie bonus',
+        'duration'                 => 'Duur',
+        'number_label'             => 'Aantal',
+        'max_btn'                  => 'Max. :amount',
+        'vacation_mode'            => 'Je bevindt je momenteel in vakantiestand.',
+        'tear_down_btn'            => 'Slopen',
+        'wrong_character_class'    => 'Verkeerde karakterklasse!',
+        'shipyard_upgrading'       => 'De werf wordt uitgebreid.',
+        'shipyard_busy'            => 'De werf is momenteel bezig.',
+        'not_enough_fields'        => 'Niet genoeg planetaire velden!',
+        'build'                    => 'Bouwen',
+        'in_queue'                 => 'In wachtrij',
+        'improve'                  => 'Upgraden',
+        'storage_capacity'         => 'Opslagcapaciteit',
+        'gain_resources'           => 'Grondstoffen verkrijgen',
+        'view_offers'              => 'Bekijk aanbiedingen',
+        'destroy_rockets_desc'     => 'Hier kun je opgeslagen raketten vernietigen.',
+        'destroy_rockets_btn'      => 'Vernietig raketten',
+        'more_details'             => 'Meer details',
+        'error'                    => 'Fout',
+        'commander_queue_info'     => 'Je hebt een Commander nodig om de bouwwachtrij te gebruiken. Wil je meer weten over de voordelen van de Commander?',
+        'no_rocket_silo_capacity'  => 'Niet genoeg ruimte in de raketbasis.',
+        'detail_now'               => 'Details',
+        'start_with_dm'            => 'Starten met Donkere Materie',
+        'err_dm_price_too_low'     => 'De Donkere Materie prijs is te laag.',
+        'err_resource_limit'       => 'Resourcelimiet overschreden.',
+        'err_storage_capacity'     => 'Onvoldoende opslagcapaciteit.',
+        'err_no_dark_matter'       => 'Niet genoeg Donkere Materie.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Bouwwachtrij widget (building-active, research-active, unit-active)
+    // -------------------------------------------------------------------------
+    'buildqueue' => [
+        'building_duration'        => 'Bouwtijd',
+        'total_time'               => 'Totale tijd',
+        'complete_tooltip'         => 'Voltooi deze bouw direct met Donkere Materie',
+        'complete'                 => 'Nu voltooien',
+        'halve_cost'               => ':amount',
+        'halve_tooltip_building'   => 'Halveer de resterende bouwtijd met Donkere Materie',
+        'halve_tooltip_research'   => 'Halveer de resterende onderzoekstijd met Donkere Materie',
+        'halve_time'               => 'Tijd halveren',
+        'question_complete_unit'   => 'Wil je deze eenheid direct voltooien voor :dm_cost?',
+        'question_halve_unit'      => 'Wil je de bouwtijd met :time_reduction verkorten voor :dm_cost?',
+        'question_halve_building'  => 'Wil je de bouwtijd halveren voor :dm_cost?',
+        'question_halve_research'  => 'Wil je de onderzoekstijd halveren voor :dm_cost?',
+        'downgrade_to'             => 'Downgraden naar',
+        'improve_to'               => 'Upgraden naar',
+        'no_building_idle'         => 'Er wordt momenteel geen gebouw gebouwd.',
+        'no_building_idle_tooltip' => 'Klik om naar de Gebouwenpagina te gaan.',
+        'no_research_idle'         => 'Er wordt momenteel geen onderzoek uitgevoerd.',
+        'no_research_idle_tooltip' => 'Klik om naar de Onderzoekspagina te gaan.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Chatpaneel (chat/index.blade.php)
+    // -------------------------------------------------------------------------
+    'chat' => [
+        'buddy_tooltip'      => 'Vriend',
+        'alliance_tooltip'   => 'Alliantielid',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Status niet zichtbaar',
+        'highscore_ranking'  => 'Rang: :rank',
+        'alliance_label'     => 'Alliantie: :alliance',
+        'planet_alt'         => 'Planeet',
+        'no_messages_yet'    => 'Nog geen berichten.',
+        'submit'             => 'Versturen',
+        'alliance_chat'      => 'Alliantiechat',
+        'list_title'         => 'Gesprekken',
+        'player_list'        => 'Spelers',
+        'buddies'            => 'Vrienden',
+        'no_buddies'         => 'Nog geen vrienden.',
+        'alliance'           => 'Alliantie',
+        'strangers'          => 'Andere spelers',
+        'no_strangers'       => 'Geen andere spelers.',
+        'no_conversations'   => 'Nog geen gesprekken.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Springspoort dialoog (jumpgate/dialog.blade.php)
+    // -------------------------------------------------------------------------
+    'jumpgate' => [
+        'select_target'      => 'Selecteer doel',
+        'origin_coordinates' => 'Herkomst',
+        'standard_target'    => 'Standaarddoel',
+        'target_coordinates' => 'Doelcoördinaten',
+        'not_ready'          => 'Springspoort is niet klaar.',
+        'cooldown_time'      => 'Afkoeltijd',
+        'select_ships'       => 'Selecteer schepen',
+        'select_all'         => 'Alles selecteren',
+        'reset_selection'    => 'Selectie resetten',
+        'jump_btn'           => 'Springen',
+        'ok_btn'             => 'OK',
+        'valid_target'       => 'Selecteer een geldig doel.',
+        'no_ships'           => 'Selecteer minimaal één schip.',
+        'jump_success'       => 'Sprong succesvol uitgevoerd.',
+        'jump_error'         => 'Sprong mislukt.',
+        'error_occurred'     => 'Er is een fout opgetreden.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Serverinstellingen overlay (serversettings/overlay.blade.php)
+    // -------------------------------------------------------------------------
+    'serversettings_overlay' => [
+        'acs_enabled'         => 'Alliantie gevechtssysteem',
+        'dm_bonus'            => 'Donkere Materie bonus:',
+        'debris_defense'      => 'Puin van verdedigingen:',
+        'debris_ships'        => 'Puin van schepen:',
+        'debris_deuterium'    => 'Deuterium in puinvelden',
+        'fleet_deut_reduction'=> 'Vloot deuterium reductie:',
+        'fleet_speed_war'     => 'Vlootsnelheid (oorlog):',
+        'fleet_speed_holding' => 'Vlootsnelheid (vasthouden):',
+        'fleet_speed_peace'   => 'Vlootsnelheid (vrede):',
+        'ignore_empty'        => 'Lege systemen negeren',
+        'ignore_inactive'     => 'Inactieve systemen negeren',
+        'num_galaxies'        => 'Aantal sterrenstelsels:',
+        'planet_field_bonus'  => 'Planeetveld bonus:',
+        'dev_speed'           => 'Economische snelheid:',
+        'research_speed'      => 'Onderzoekssnelheid:',
+        'dm_regen_enabled'    => 'Donkere Materie regeneratie',
+        'dm_regen_amount'     => 'DM regeneratie hoeveelheid:',
+        'dm_regen_period'     => 'DM regeneratie periode:',
+        'days'                => 'dagen',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Alliantiedepot dialoog (alliancedepot/dialog.blade.php)
+    // -------------------------------------------------------------------------
+    'alliance_depot' => [
+        'description'         => 'Het Alliantiedepot stelt bevriende vloten in een baan om de planeet in staat te bijtanken tijdens het verdedigen. Elk niveau levert 10.000 deuterium per uur.',
+        'capacity'            => 'Capaciteit',
+        'no_fleets'           => 'Momenteel geen bevriende vloten in een baan.',
+        'fleet_owner'         => 'Vlooteigenaar',
+        'ships'               => 'Schepen',
+        'hold_time'           => 'Houdtijd',
+        'extend'              => 'Verlengen (uren)',
+        'supply_cost'         => 'Bevoorradingskosten (deuterium)',
+        'start_supply'        => 'Vloot bevoorraden',
+        'please_select_fleet' => 'Selecteer een vloot.',
+        'hours_between'       => 'Uren moeten tussen 1 en 32 liggen.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Admin paneel (admin/serversettings.blade.php + admin/developershortcuts.blade.php)
+    // -------------------------------------------------------------------------
+    'admin' => [
+        // Adminbalk menu
+        'server_admin_label'           => 'Serverbeheer',
+        'masquerading_as'              => 'Ingelogd als gebruiker',
+        'exit_masquerade'              => 'Verlaat impersonatie',
+        'menu_dev_shortcuts'           => 'Ontwikkelaarssnelkoppelingen',
+        'menu_server_settings'         => 'Serverinstellingen',
+        'menu_fleet_timing'            => 'Vloot timing',
+        'menu_server_administration'   => 'Serverbeheer',
+        'menu_rules_legal'             => 'Regels & Juridisch',
+
+        'title'                        => 'Serverinstellingen',
+        'section_basic'                => 'Basisinstellingen',
+        'section_changes_note'         => 'Opmerking: de meeste wijzigingen vereisen een herstart van de server om van kracht te worden.',
+        'section_income_note'          => 'Opmerking: inkomenswaarden worden toegevoegd aan de basisproductie.',
+        'section_new_player'           => 'Nieuwe speler instellingen',
+        'section_dm_regen'             => 'Donkere Materie regeneratie',
+        'section_relocation'           => 'Planeetverplaatsing',
+        'section_alliance'             => 'Alliantie-instellingen',
+        'section_battle'               => 'Gevechtsinstelling',
+        'section_expedition'           => 'Expeditie-instellingen',
+        'section_expedition_slots'     => 'Expeditieslots',
+        'section_expedition_weights'   => 'Expeditie uitkomstgewichten',
+        'section_highscore'            => 'Highscore-instellingen',
+        'section_galaxy'               => 'Sterrenstelsel-instellingen',
+        'universe_name'                => 'Universum naam',
+        'economy_speed'                => 'Economische snelheid',
+        'research_speed'               => 'Onderzoekssnelheid',
+        'fleet_speed_war'              => 'Vlootsnelheid (oorlog)',
+        'fleet_speed_holding'          => 'Vlootsnelheid (vasthouden)',
+        'fleet_speed_peaceful'         => 'Vlootsnelheid (vrede)',
+        'planet_fields_bonus'          => 'Planeetveld bonus',
+        'income_metal'                 => 'Basisinkomen metaal',
+        'income_crystal'               => 'Basisinkomen kristal',
+        'income_deuterium'             => 'Basisinkomen deuterium',
+        'income_energy'                => 'Basisinkomen energie',
+        'registration_planet_amount'   => 'Startplaneten',
+        'dm_bonus'                     => 'Start Donkere Materie bonus',
+        'dm_regen_description'         => 'Indien ingeschakeld ontvangen spelers elke X dagen Donkere Materie.',
+        'dm_regen_enabled'             => 'DM regeneratie inschakelen',
+        'dm_regen_amount'              => 'DM hoeveelheid per periode',
+        'dm_regen_period'              => 'Regeneratieperiode (seconden)',
+        'relocation_cost'              => 'Verplaatsingskosten (Donkere Materie)',
+        'relocation_duration'          => 'Verplaatsingsduur (uren)',
+        'alliance_cooldown'            => 'Alliantie cooldown (dagen)',
+        'alliance_cooldown_desc'       => 'Aantal dagen dat een speler moet wachten na het verlaten van een alliantie voordat hij een nieuwe kan toetreden.',
+        'battle_engine'                => 'Gevechtsmotor',
+        'battle_engine_desc'           => 'Selecteer de gevechtsmotor voor gevechtberekeningen.',
+        'acs'                          => 'Alliantie Gevechtssysteem (ACS)',
+        'debris_ships'                 => 'Puin van schepen (%)',
+        'debris_defense'               => 'Puin van verdedigingen (%)',
+        'debris_deuterium'             => 'Deuterium in puinvelden',
+        'moon_chance'                  => 'Maancreatiekans (%)',
+        'hamill_probability'           => 'Hamill kans (%)',
+        'wreck_min_resources'          => 'Wrak minimum grondstoffen',
+        'wreck_min_resources_desc'     => 'Minimum totale grondstoffen in de vernietigde vloot voor een wrak.',
+        'wreck_min_fleet_pct'          => 'Wrak minimum vlootpercentage (%)',
+        'wreck_min_fleet_pct_desc'     => 'Minimum percentage van de aanvallende vloot dat vernietigd moet worden voor een wrak.',
+        'wreck_lifetime'               => 'Wrak levensduur (seconden)',
+        'wreck_lifetime_desc'          => 'Hoe lang een wrak blijft voordat het verdwijnt.',
+        'wreck_repair_max'             => 'Wrak maximum reparatiepercentage (%)',
+        'wreck_repair_max_desc'        => 'Maximum percentage vernietigde schepen dat gerepareerd kan worden uit een wrak.',
+        'wreck_repair_min'             => 'Wrak minimum reparatiepercentage (%)',
+        'wreck_repair_min_desc'        => 'Minimum percentage vernietigde schepen dat gerepareerd kan worden uit een wrak.',
+        'expedition_slots_desc'        => 'Maximum aantal gelijktijdige expeditieveloten.',
+        'expedition_bonus_slots'       => 'Bonus expeditieslots',
+        'expedition_multiplier_res'    => 'Grondstoffen vermenigvuldiger',
+        'expedition_multiplier_ships'  => 'Schepen vermenigvuldiger',
+        'expedition_multiplier_dm'     => 'Donkere Materie vermenigvuldiger',
+        'expedition_multiplier_items'  => 'Items vermenigvuldiger',
+        'expedition_weights_desc'      => 'Relatieve kansgewichten voor expeditie-uitkomsten. Hogere waarden verhogen de kans.',
+        'expedition_weights_defaults'  => 'Standaard herstellen',
+        'expedition_weights_values'    => 'Huidige gewichten',
+        'weight_ships'                 => 'Schepen gevonden',
+        'weight_resources'             => 'Grondstoffen gevonden',
+        'weight_delay'                 => 'Vertraging',
+        'weight_speedup'               => 'Versnelling',
+        'weight_nothing'               => 'Niets',
+        'weight_black_hole'            => 'Zwart gat',
+        'weight_pirates'               => 'Piraten',
+        'weight_aliens'                => 'Buitenaardse wezens',
+        'weight_dm'                    => 'Donkere Materie',
+        'weight_merchant'              => 'Handelaar',
+        'weight_items'                 => 'Items',
+        'highscore_admin_visible'      => 'Toon admin in highscore',
+        'highscore_admin_visible_desc' => 'Indien ingeschakeld verschijnen adminaccounts in de highscore.',
+        'galaxy_ignore_empty'          => 'Lege systemen negeren in sterrenstelselweergave',
+        'galaxy_ignore_inactive'       => 'Inactieve systemen negeren in sterrenstelselweergave',
+        'galaxy_count'                 => 'Aantal sterrenstelsels',
+        'save'                         => 'Instellingen opslaan',
+        'dev_title'                    => 'Ontwikkelaarshulpmiddelen',
+        'dev_masquerade'               => 'Voordoen als gebruiker',
+        'dev_username'                 => 'Gebruikersnaam',
+        'dev_username_placeholder'     => 'Voer gebruikersnaam in...',
+        'dev_masquerade_btn'           => 'Voordoen',
+        'dev_update_planet'            => 'Planeetgrondstoffen bijwerken',
+        'dev_set_mines'                => 'Mijnen instellen (max)',
+        'dev_set_storages'             => 'Opslag instellen (max)',
+        'dev_set_shipyard'             => 'Werf instellen (max)',
+        'dev_set_research'             => 'Onderzoek instellen (max)',
+        'dev_add_units'                => 'Eenheden toevoegen',
+        'dev_units_amount'             => 'Hoeveelheid',
+        'dev_light_fighter'            => 'Lichte Jagers',
+        'dev_set_building'             => 'Gebouwniveau instellen',
+        'dev_level_to_set'             => 'Niveau',
+        'dev_set_research_level'       => 'Onderzoeksniveau instellen',
+        'dev_class_settings'           => 'Karakterklasse',
+        'dev_disable_free_class'       => 'Gratis klassewisseling uitschakelen',
+        'dev_enable_free_class'        => 'Gratis klassewisseling inschakelen',
+        'dev_reset_class'              => 'Klasse resetten',
+        'dev_goto_class'               => 'Ga naar klassepagina',
+        'dev_reset_planet'             => 'Planeet resetten',
+        'dev_reset_buildings'          => 'Gebouwen resetten',
+        'dev_reset_research'           => 'Onderzoek resetten',
+        'dev_reset_units'              => 'Eenheden resetten',
+        'dev_reset_resources'          => 'Grondstoffen resetten',
+        'dev_add_resources'            => 'Grondstoffen toevoegen',
+        'dev_resources_desc'           => 'Maximale grondstoffen toevoegen aan het huidige planeet.',
+        'dev_coordinates'              => 'Coördinaten',
+        'dev_galaxy'                   => 'Sterrenstelsel',
+        'dev_system'                   => 'Systeem',
+        'dev_position'                 => 'Positie',
+        'dev_resources_label'          => 'Grondstoffen',
+        'dev_update_resources_planet'  => 'Planeetgrondstoffen bijwerken',
+        'dev_update_resources_moon'    => 'Maangrondstoffen bijwerken',
+        'dev_create_planet_moon'       => 'Planeet / maan aanmaken',
+        'dev_moon_size'                => 'Maangrootte',
+        'dev_debris_amount'            => 'Puinhoeveelheid',
+        'dev_x_factor'                 => 'X factor',
+        'dev_create_planet'            => 'Planeet aanmaken',
+        'dev_create_moon'              => 'Maan aanmaken',
+        'dev_delete_planet'            => 'Planeet verwijderen',
+        'dev_delete_moon'              => 'Maan verwijderen',
+        'dev_create_debris'            => 'Puinveld aanmaken',
+        'dev_debris_resources_label'   => 'Grondstoffen in puinveld',
+        'dev_create_debris_btn'        => 'Puin aanmaken',
+        'dev_delete_debris_btn'        => 'Puin verwijderen',
+        'dev_quick_shortcut_desc'      => 'Snelle snelkoppelingen voor ontwikkeling en testen.',
+        'dev_create_expedition_debris' => 'Expeditie puin aanmaken',
+        'dev_add_dm'                   => 'Donkere Materie toevoegen',
+        'dev_dm_desc'                  => 'Donkere Materie toevoegen aan het huidige spelersaccount.',
+        'dev_dm_amount'                => 'Hoeveelheid',
+        'dev_update_dm'                => 'Donkere Materie toevoegen',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Character class selection page
+    // -------------------------------------------------------------------------
+
+    'characterclass' => [
+        'page_title'              => 'Klasse Keuze',
+        'choose_your_class'       => 'Kies Jouw Klasse',
+        'choose_description'      => 'Selecteer een klasse om extra voordelen te ontvangen. Je kunt je klasse wijzigen in het klasseselectie-gedeelte rechtsboven.',
+        'select_for_free'         => 'Gratis Activatie',
+        'buy_for'                 => 'Kopen voor',
+        'deactivate'              => 'Deactiveren',
+        'confirm'                 => 'Bevestigen',
+        'cancel'                  => 'Annuleren',
+        'select_title'            => 'Personageklasse selecteren',
+        'deactivate_title'        => 'Personageklasse deactiveren',
+        'activated_free_msg'      => 'Wil je de klasse :className gratis activeren?',
+        'activated_paid_msg'      => 'Wil je de klasse :className activeren voor :price Donkere Materie? Je verliest hierdoor je huidige klasse.',
+        'deactivate_confirm_msg'  => 'Wil je je personageklasse echt deactiveren? Heractivering vereist :price Donkere Materie.',
+        'success_selected'        => 'Personageklasse succesvol geselecteerd!',
+        'success_deactivated'     => 'Personageklasse succesvol gedeactiveerd!',
+        'not_enough_dm_title'     => 'Niet genoeg Donkere Materie',
+        'not_enough_dm_msg'       => 'Niet genoeg Donkere Materie beschikbaar! Wil je er nu kopen?',
+        'buy_dm'                  => 'Donkere Materie kopen',
+        'error_generic'           => 'Er is een fout opgetreden. Probeer het opnieuw.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Rewards page
+    // -------------------------------------------------------------------------
+
+    'rewards' => [
+        'page_title'          => 'Beloningen',
+        'hint_tooltip'        => 'Beloningen worden elke dag verzonden en kunnen handmatig worden opgehaald. Vanaf de 7e dag worden er geen beloningen meer verzonden. De eerste beloning wordt gegeven op de 2e dag na registratie.',
+        'new_awards'          => 'Nieuwe onderscheidingen',
+        'not_yet_reached'     => 'Nog niet behaalde onderscheidingen',
+        'not_fulfilled'       => 'Niet behaald',
+        'collected_awards'    => 'Opgehaalde onderscheidingen',
+        'claim'               => 'Ophalen',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Phalanx scan overlay
+    // -------------------------------------------------------------------------
+
+    'phalanx' => [
+        'no_movements'      => 'Geen vlootbewegingen gedetecteerd op deze locatie.',
+        'fleet_details'     => 'Vlootdetails',
+        'ships'             => 'Schepen',
+        'loading'           => 'Laden...',
+        'time_label'        => 'Tijd',
+        'speed_label'       => 'Snelheid',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Wreckage / Space Dock (facilities page)
+    // -------------------------------------------------------------------------
+
+    'wreckage' => [
+        'no_wreckage'          => 'Er is geen wrak op deze positie.',
+        'burns_up_in'          => 'Wrak verbrandt over:',
+        'leave_to_burn'        => 'Laat verbranden',
+        'leave_confirm'        => 'Het wrak zal in de atmosfeer van de planeet vallen en verbranden. Weet je het zeker?',
+        'repair_time'          => 'Reparatietijd:',
+        'ships_being_repaired' => 'Schepen worden gerepareerd:',
+        'repair_time_remaining'=> 'Resterende reparatietijd:',
+        'no_ship_data'         => 'Geen scheepsgegevens beschikbaar',
+        'collect'              => 'Verzamelen',
+        'start_repairs'        => 'Start reparaties',
+        'err_network_start'    => 'Netwerkfout bij starten reparaties',
+        'err_network_complete' => 'Netwerkfout bij voltooien reparaties',
+        'err_network_collect'  => 'Netwerkfout bij verzamelen schepen',
+        'err_network_burn'     => 'Netwerkfout bij verbranden wrak',
+        'wreckage_label'       => 'Wrak',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Fleet template labels (fleet/index)
+    // -------------------------------------------------------------------------
+
+    'fleet_templates' => [
+        'name_col'            => 'Naam',
+        'actions_col'         => 'Acties',
+        'template_name_label' => 'Naam',
+        'delete_tooltip'      => 'Verwijder sjabloon/invoer',
+        'save_tooltip'        => 'Opslaan sjabloon',
+        'err_name_required'   => 'Templatenaam is vereist.',
+        'err_need_ships'      => 'Template moet minstens één schip bevatten.',
+        'err_not_found'       => 'Template niet gevonden.',
+        'err_max_reached'     => 'Maximum aantal templates bereikt (10).',
+        'saved_success'       => 'Template succesvol opgeslagen.',
+        'deleted_success'     => 'Template succesvol verwijderd.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Fleet events (eventlist, eventrow)
+    // -------------------------------------------------------------------------
+
+    'fleet_events' => [
+        'events'              => 'Gebeurtenissen',
+        'recall_title'        => 'Terugroepen',
+        'recall_fleet'        => 'Vloot terugroepen',
     ],
 ];

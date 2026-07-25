@@ -71,16 +71,12 @@ class FortifyServiceProvider extends ServiceProvider
             return $user;
         });
 
-        /*Fortify::registerView(function () {
-            return view('auth.register');
-        });
-
         Fortify::requestPasswordResetLinkView(function () {
-            return view('auth.forgot-password');
+            return view('outgame.forgot-password');
         });
 
-        Fortify::resetPasswordView(function () {
-            return view('auth.reset-password');
-        });*/
+        Fortify::resetPasswordView(function ($request) {
+            return view('outgame.reset-password', ['request' => $request]);
+        });
     }
 }

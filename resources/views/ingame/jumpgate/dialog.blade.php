@@ -2,10 +2,10 @@
     <form id="jumpgateForm" name="jumpgateForm">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <div id="selecttarget">
-            <h4>@lang('Select jump target')</h4>
+            <h4>{{ __('t_ingame.jumpgate.select_target') }}</h4>
             <div class="fleft">
                 <span class="textBeefy">
-                    @lang('Origin coordinates')
+                    {{ __('t_ingame.jumpgate.origin_coordinates') }}
                 </span>
                 <a class="dark_highlight_tablet" target="_parent" href="{{ route('galaxy.index', ['galaxy' => $current_moon->getPlanetCoordinates()->galaxy, 'system' => $current_moon->getPlanetCoordinates()->system]) }}">
                     [{{ $current_moon->getPlanetCoordinates()->asString() }}]
@@ -13,11 +13,11 @@
             </div>
             @if (!$is_on_cooldown)
                 @if ($default_target)
-                    <div class="homeIcon openStandardMoonMenu js_openStandardMoonMenu tooltip js_hideTipOnMobile" data-tooltip-title="@lang('Standard Jump Gate Target')"></div>
+                    <div class="homeIcon openStandardMoonMenu js_openStandardMoonMenu tooltip js_hideTipOnMobile" data-tooltip-title="{{ __('t_ingame.jumpgate.standard_target') }}"></div>
                 @endif
                 <div class="fright">
                     <span class="textBeefy">
-                        @lang('Target coordinates'):
+                        {{ __('t_ingame.jumpgate.target_coordinates') }}:
                     </span>
                     <select name="targetMoonId" id="targetMoonId" class="dropdown">
                         @if (count($eligible_targets) === 0)
@@ -42,13 +42,13 @@
         @if ($is_on_cooldown)
             {{-- Cooldown state --}}
             <div id="jumpgateNotReady">
-                <p>@lang('Jump Gate is not ready!')</p>
-                <p>@lang('Time until next jump'):</p>
+                <p>{{ __('t_ingame.jumpgate.not_ready') }}</p>
+                <p>{{ __('t_ingame.jumpgate.cooldown_time') }}:</p>
                 <p class="countdown" id="cooldown">{{ $cooldown_formatted }}</p>
             </div>
         @else
             {{-- Normal state - show ships --}}
-            <h4>@lang('Select ships')</h4>
+            <h4>{{ __('t_ingame.jumpgate.select_ships') }}</h4>
             <table cellspacing="0" cellpadding="0" class="list ship_selection_table">
                 <tbody>
                 @php
@@ -98,21 +98,21 @@
             </table>
             <div class="secondcol">
                 <span class="float_left send_all">
-                    <a id="sendall" href="javascript:void(0);" class="tooltip js_hideTipOnMobile" onclick="setMaxIntInputJumpgate()" data-tooltip-title="@lang('Select all available ships')">
+                    <a id="sendall" href="javascript:void(0);" class="tooltip js_hideTipOnMobile" onclick="setMaxIntInputJumpgate()" data-tooltip-title="{{ __('t_ingame.jumpgate.select_all') }}">
                     </a>
                 </span>
                 <span class="float_left send_none">
-                    <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" onclick="document.jumpgateForm.reset();" data-tooltip-title="@lang('Reset selection')">
+                    <a href="javascript:void(0);" class="tooltip js_hideTipOnMobile" onclick="document.jumpgateForm.reset();" data-tooltip-title="{{ __('t_ingame.jumpgate.reset_selection') }}">
                     </a>
                 </span>
 
-                <input type="button" class="btn_blue float_right js_executeJumpButton" value="@lang('Jump')" onclick="executeJump()">
+                <input type="button" class="btn_blue float_right js_executeJumpButton" value="{{ __('t_ingame.jumpgate.jump_btn') }}" onclick="executeJump()">
             </div>
 
             {{-- Default target selection form --}}
             <div class="showmessage">
                 <div class="answerHeadline">
-                    @lang('Standard Jump Gate Target')
+                    {{ __('t_ingame.jumpgate.standard_target') }}
                     <a class="openCloseForm" href="javascript:void(0);"></a>
                 </div>
             </div>
@@ -133,7 +133,7 @@
                             @endforeach
                         </select>
                     </span>
-                    <input type="button" onclick="setDefaultTarget()" class="btn_blue float_left" value="@lang('OK')">
+                    <input type="button" onclick="setDefaultTarget()" class="btn_blue float_left" value="{{ __('t_ingame.jumpgate.ok_btn') }}">
                 </form>
             </div>
         @endif
@@ -142,10 +142,10 @@
 
 <script type="text/javascript">
     var jumpgateTranslation = {
-        "validTargetNeeded": "@lang('You must select a valid target.')",
-        "noShipsWereSelected": "@lang('No ships were selected!')",
-        "jumpSuccess": "@lang('Jump has been executed successfully.')",
-        "jumpError": "@lang('An error occurred during the jump.')"
+        "validTargetNeeded": "{{ __('t_ingame.jumpgate.valid_target') }}",
+        "noShipsWereSelected": "{{ __('t_ingame.jumpgate.no_ships') }}",
+        "jumpSuccess": "{{ __('t_ingame.jumpgate.jump_success') }}",
+        "jumpError": "{{ __('t_ingame.jumpgate.jump_error') }}"
     };
 
     @php
@@ -208,7 +208,7 @@
             dataType: 'json',
             success: function(response) {
                 // Show success message with errorBoxNotify and redirect on OK
-                errorBoxNotify('@lang('OK')', response.message || jumpgateTranslation.jumpSuccess, '@lang('OK')', function() {
+                errorBoxNotify('{{ __('t_ingame.jumpgate.ok_btn') }}', response.message || jumpgateTranslation.jumpSuccess, '{{ __('t_ingame.jumpgate.ok_btn') }}', function() {
                     if (response.redirect) {
                         window.location.href = response.redirect;
                     } else {
@@ -241,7 +241,7 @@
                 fadeBox(response.message, false);
             },
             error: function(xhr) {
-                var message = '@lang("An error occurred.")';
+                var message = '{{ __('t_ingame.jumpgate.error_occurred') }}';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     message = xhr.responseJSON.message;
                 }

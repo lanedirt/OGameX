@@ -1,4 +1,11 @@
-@php /** @var \OGame\ViewModels\FleetEventRowViewModel $fleet_event_row */ @endphp
+@php
+/** @var \OGame\ViewModels\FleetEventRowViewModel $fleet_event_row */
+$fleet_type_label = match($fleet_event_row->friendly_status ?? 'friendly') {
+    'hostile' => __('t_ingame.fleet.enemy_fleet'),
+    'neutral' => __('t_ingame.fleet.friendly_fleet'),
+    default   => __('t_ingame.fleet.own_fleet'),
+};
+@endphp
 
 @if ($fleet_event_row->is_return_trip)
     <tr class="eventFleet" id="eventRow-{{ $fleet_event_row->id }}"
@@ -7,14 +14,14 @@
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
     >
         <td class="countDown">
-            <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="friendly textBeefy">
+            <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->friendly_status ?? 'friendly' }} textBeefy">
                 load...
             </span>
         </td>
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="Own fleet | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
+                 title="{{ $fleet_type_label }} | {{ $fleet_event_row->mission_label }} (R)" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -31,7 +38,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    <span class="deep-space-text">{{ __('Deep space') }}</span>
+                    <span class="deep-space-text">{{ __('t_ingame.fleet.deep_space') }}</span>
                     @break
             @endswitch
         </td>
@@ -48,11 +55,11 @@
         <td class="icon_movement_reserve">
             <span class="tooltip tooltipRight tooltipClose"
                   title="&lt;div class=&quot;htmlTooltip&quot;&gt;
-    &lt;h1&gt;@lang('Fleet details'):&lt;/h1&gt;
+    &lt;h1&gt;{{ __('t_ingame.fleet.fleet_details') }}:&lt;/h1&gt;
     &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
             &lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;&gt;
             &lt;tr&gt;
-                &lt;th colspan=&quot;3&quot;&gt;@lang('Ships'):&lt;/th&gt;
+                &lt;th colspan=&quot;3&quot;&gt;{{ __('t_ingame.fleet.ships') }}:&lt;/th&gt;
             &lt;/tr&gt;
             @php /** @var \OGame\GameObjects\Models\Units\UnitCollection $fleet_unit */ @endphp
             @foreach ($fleet_event_row->fleet_units->units as $fleet_unit)
@@ -67,20 +74,20 @@
                 &lt;/tr&gt;
 
                 &lt;tr&gt;
-                    &lt;th colspan=&quot;3&quot;&gt;@lang('Shipment'):&lt;/th&gt;
+                    &lt;th colspan=&quot;3&quot;&gt;{{ __('t_ingame.fleet.shipment') }}:&lt;/th&gt;
                 &lt;/tr&gt;
 
                 &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;@lang('Metal'):&lt;/td&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;{{ __('t_ingame.fleet.metal') }}:&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->metal->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
 
                                 &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;@lang('Crystal'):&lt;/td&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;{{ __('t_ingame.fleet.crystal') }}:&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->crystal->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
                                 &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;{{ __('t_ingame.fleet.deuterium') }}:&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
             &lt;/table&gt;
@@ -104,7 +111,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    <span class="deep-space-text">{{ __('Deep space') }}</span>
+                    <span class="deep-space-text">{{ __('t_ingame.fleet.deep_space') }}</span>
                     @break
             @endswitch
         </td>
@@ -120,9 +127,6 @@
         <td class="sendProbe">
         </td>
         <td class="sendMail">
-            @if ($fleet_event_row->destination_player_id !== null && $fleet_event_row->destination_player_id !== auth()->id())
-                <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $fleet_event_row->destination_player_id }}" title="{{ $fleet_event_row->destination_player_name }}"><span class="icon icon_chat"></span></a>
-            @endif
         </td>
     </tr>
 @else
@@ -132,14 +136,14 @@
         data-arrival-time="{{ $fleet_event_row->mission_time_arrival }}"
     >
         <td class="countDown">
-        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="friendly textBeefy">
+        <span id="counter-eventlist-{{ $fleet_event_row->id }}" class="{{ $fleet_event_row->friendly_status ?? 'friendly' }} textBeefy">
                     load...
         </span>
         </td>
         <td class="arrivalTime">{{ date('H:i:s', $fleet_event_row->mission_time_arrival) }} Clock</td>
         <td class="missionFleet">
             <img src="/img/fleet/{{ $fleet_event_row->mission_type }}.gif" class="tooltipHTML"
-                 title="Own fleet | {{ $fleet_event_row->mission_label }}" alt=""/>
+                 title="{{ $fleet_type_label }} | {{ $fleet_event_row->mission_label }}" alt=""/>
         </td>
 
         <td class="originFleet">
@@ -156,7 +160,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    <span class="deep-space-text">{{ __('Deep space') }}</span>
+                    <span class="deep-space-text">{{ __('t_ingame.fleet.deep_space') }}</span>
                     @break
             @endswitch
         </td>
@@ -173,11 +177,11 @@
         <td class="icon_movement">
             <span class="tooltip tooltipRight tooltipClose"
                   title="&lt;div class=&quot;htmlTooltip&quot;&gt;
-    &lt;h1&gt;@lang('Fleet details'):&lt;/h1&gt;
+    &lt;h1&gt;{{ __('t_ingame.fleet.fleet_details') }}:&lt;/h1&gt;
     &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
             &lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;&gt;
             &lt;tr&gt;
-                &lt;th colspan=&quot;3&quot;&gt;@lang('Ships'):&lt;/th&gt;
+                &lt;th colspan=&quot;3&quot;&gt;{{ __('t_ingame.fleet.ships') }}:&lt;/th&gt;
             &lt;/tr&gt;
             @php /** @var \OGame\GameObjects\Models\Units\UnitCollection $fleet_unit */ @endphp
             @foreach ($fleet_event_row->fleet_units->units as $fleet_unit)
@@ -192,20 +196,20 @@
                 &lt;/tr&gt;
 
                 &lt;tr&gt;
-                    &lt;th colspan=&quot;3&quot;&gt;@lang('Shipment'):&lt;/th&gt;
+                    &lt;th colspan=&quot;3&quot;&gt;{{ __('t_ingame.fleet.shipment') }}:&lt;/th&gt;
                 &lt;/tr&gt;
 
                 &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;@lang('Metal'):&lt;/td&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;{{ __('t_ingame.fleet.metal') }}:&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->metal->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
 
                                 &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;@lang('Crystal'):&lt;/td&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;{{ __('t_ingame.fleet.crystal') }}:&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->crystal->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
                                 &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;{{ __('t_ingame.fleet.deuterium') }}:&lt;/td&gt;
                     &lt;td class=&quot;value&quot;&gt;{{ $fleet_event_row->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
                 &lt;/tr&gt;
             &lt;/table&gt;
@@ -229,7 +233,7 @@
                     <figure class="planetIcon tf js_hideTipOnMobile" title="Debris Field"></figure>debris field
                     @break
                 @case (OGame\Models\Enums\PlanetType::DeepSpace)
-                    <span class="deep-space-text">{{ __('Deep space') }}</span>
+                    <span class="deep-space-text">{{ __('t_ingame.fleet.deep_space') }}</span>
                     @break
             @endswitch
         </td>
@@ -243,7 +247,7 @@
             @if ($fleet_event_row->is_recallable)
                 <span class="reversal reversal_time" ref="{{ $fleet_event_row->id }}">
                     <a class="icon_link tooltipHTML recallFleet" data-fleet-id="{{ $fleet_event_row->real_mission_id }}"
-                       title="Recall:| {{ \Carbon\Carbon::parse($fleet_event_row->active_recall_time)->format('d.m.Y') }}<br>
+                       title="{{ __('t_ingame.fleet.recall') }}:| {{ \Carbon\Carbon::parse($fleet_event_row->active_recall_time)->format('d.m.Y') }}<br>
                                             {{ \Carbon\Carbon::parse($fleet_event_row->active_recall_time)->format('H:i:s') }}">
                         <img src="/img/icons/89624964d4b06356842188dba05b1b.gif" height="16" width="16"/>
                     </a>
@@ -253,9 +257,6 @@
         <td class="sendProbe">
         </td>
         <td class="sendMail">
-            @if ($fleet_event_row->destination_player_id !== null && $fleet_event_row->destination_player_id !== auth()->id())
-                <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $fleet_event_row->destination_player_id }}" title="{{ $fleet_event_row->destination_player_name }}"><span class="icon icon_chat"></span></a>
-            @endif
         </td>
     </tr>
 @endif
@@ -288,4 +289,3 @@
         wrappedCountdown();
     })(jQuery);
 </script>
-
