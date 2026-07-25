@@ -23,7 +23,7 @@ class FleetEventRowViewModel
      */
     public bool $is_recallable;
 
-    public string $friendly_status;
+    public string $friendly_status = 'own';
 
     public bool $has_return_trip = false;
 
