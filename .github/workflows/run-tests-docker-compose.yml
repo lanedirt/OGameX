@@ -36,7 +36,7 @@ jobs:
         image: docker:26.0.0
         options: --privileged
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Check for no external remote sources
         uses: ./.github/actions/check-remote-sources
