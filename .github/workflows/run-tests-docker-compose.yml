@@ -45,14 +45,14 @@ jobs:
         uses: ./.github/actions/docker-compose-setup
 
       - name: Run Tests
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: docker compose exec -T ogamex-app php artisan test
 
       - name: Run custom Race Condition Tests
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 10
           max_attempts: 3
