@@ -402,7 +402,15 @@ class PlanetServiceFactory
      */
     public function createAdditionalPlanetForPlayer(PlayerService $player, Coordinate $coordinate): PlanetService
     {
-        return $this->createPlanet($player, $coordinate, 'Colony', PlanetType::Planet);
+        // Translate the default "Colony" name into the player's language so newly
+        // created planets are already localized at persist time.
+        $playerLocale = $player->getUser()->lang ?: 'en';
+        $colonyName = (string) trans('t_ingame.overview.colony', [], $playerLocale);
+        if ($colonyName === 't_ingame.overview.colony') {
+            $colonyName = 'Colony';
+        }
+
+        return $this->createPlanet($player, $coordinate, $colonyName, PlanetType::Planet);
     }
 
     /**
@@ -454,7 +462,15 @@ class PlanetServiceFactory
             throw new RuntimeException('Planet has no owner.');
         }
 
-        return $this->createPlanet($player, $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon, $debrisAmount, $moonChance, $xFactor);
+        // Translate the default "Moon" name into the player's language so newly
+        // created moons are already localized at persist time.
+        $playerLocale = $player->getUser()->lang ?: 'en';
+        $moonName = (string) trans('t_ingame.overview.moon', [], $playerLocale);
+        if ($moonName === 't_ingame.overview.moon') {
+            $moonName = 'Moon';
+        }
+
+        return $this->createPlanet($player, $planet->getPlanetCoordinates(), $moonName, PlanetType::Moon, $debrisAmount, $moonChance, $xFactor);
     }
 
     /**

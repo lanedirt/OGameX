@@ -6,7 +6,6 @@ use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
-use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use RuntimeException;
 
@@ -144,10 +143,6 @@ class PhalanxService
         ->orderBy('time_arrival', 'asc')
         ->get();
 
-        // Preload planet names to avoid N+1 queries
-        $planet_ids = $fleet_missions->flatMap(fn($m) => [$m->planet_id_from, $m->planet_id_to])->filter()->unique();
-        $planet_names = Planet::whereIn('id', $planet_ids)->pluck('name', 'id');
-
         $scan_results = [];
 
         foreach ($fleet_missions as $mission) {
@@ -189,20 +184,17 @@ class PhalanxService
                             'time_departure' => $mission->time_arrival,
                             'time_arrival' => $return_time_arrival,
                             'fleet_direction' => $fleet_direction,
-                            'fleet_owner_id' => $mission->user_id,
                             'fleet_icon' => '014a5d88b102d4b47ab5146d4807c6.gif',
                             'display_time' => $return_time_arrival,
                             'origin' => [
                                 'galaxy' => $mission->galaxy_to,
                                 'system' => $mission->system_to,
                                 'position' => $mission->position_to,
-                                'planet_name' => $planet_names[$mission->planet_id_to] ?? '',
                             ],
                             'destination' => [
                                 'galaxy' => $mission->galaxy_from,
                                 'system' => $mission->system_from,
                                 'position' => $mission->position_from,
-                                'planet_name' => $planet_names[$mission->planet_id_from] ?? '',
                             ],
                             'ships' => $ships,
                             'ship_count' => array_sum($ships),
@@ -265,20 +257,17 @@ class PhalanxService
                 'time_departure' => $mission->time_departure,
                 'time_arrival' => $display_time_arrival,
                 'fleet_direction' => $fleet_direction,
-                'fleet_owner_id' => $mission->user_id,
                 'fleet_icon' => $fleet_icon,
                 'display_time' => $display_time_arrival,
                 'origin' => [
                     'galaxy' => $mission->galaxy_from,
                     'system' => $mission->system_from,
                     'position' => $mission->position_from,
-                    'planet_name' => $planet_names[$mission->planet_id_from] ?? '',
                 ],
                 'destination' => [
                     'galaxy' => $mission->galaxy_to,
                     'system' => $mission->system_to,
                     'position' => $mission->position_to,
-                    'planet_name' => $planet_names[$mission->planet_id_to] ?? '',
                 ],
                 'ships' => $ships,
                 'ship_count' => array_sum($ships),
@@ -317,7 +306,7 @@ class PhalanxService
     {
         // If scanner owns the fleet
         if ($fleet_owner_id === $scanner_player_id) {
-            return 'Own fleet';
+            return 'Your fleet';
         }
 
         // If attack mission (type 1 = Attack) or ACS Attack (type 2)

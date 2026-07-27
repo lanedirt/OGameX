@@ -24,7 +24,13 @@ return [
         'switch_to_moon'       => 'Passa alla luna',
         'switch_to_planet'     => 'Passa al pianeta',
         'abandon_rename'       => 'Abbandona/Rinomina',
-        'abandon_rename_title' => 'Abbandona/Rinomina Pianeta',
+        'abandon_rename_title'  => 'Abbandona/Rinomina Pianeta',
+        'abandon_rename_modal'  => 'Abbandona/Rinomina :planet_name',
+
+        // Default planet names (used at registration)
+        'homeworld'            => 'Pianeta Madre',
+        'colony'               => 'Colonia',
+        'moon'                 => 'Luna',
     ],
 
     // -------------------------------------------------------------------------
@@ -42,6 +48,15 @@ return [
         'relocate'       => 'Trasferisci',
         'cancel'         => 'annulla',
         'explanation'    => 'Il trasferimento ti permette di spostare i tuoi pianeti in un\'altra posizione in un sistema lontano a tua scelta.<br /><br />Il trasferimento effettivo avviene per la prima volta 24 ore dopo l\'attivazione. In questo periodo puoi usare i tuoi pianeti normalmente. Un conto alla rovescia mostra quanto tempo rimane prima del trasferimento.<br /><br />Una volta scaduto il conto alla rovescia e il pianeta deve essere spostato, nessuna delle tue flotte stazionate lì può essere attiva. A questo punto non deve essere in costruzione nulla, nulla in riparazione e nulla in ricerca. Se ci sono attività di costruzione, riparazione o flotte ancora attive alla scadenza del conto alla rovescia, il trasferimento verrà annullato.<br /><br />Se il trasferimento ha successo, ti verranno addebitati 240.000 Materia Oscura. I pianeti, gli edifici e le risorse immagazzinate inclusa la luna verranno spostati immediatamente. Le tue flotte viaggiano automaticamente verso le nuove coordinate alla velocità della nave più lenta. Il portale di salto verso una luna trasferita viene disattivato per 24 ore.',
+        'err_position_not_empty'      => 'La posizione di destinazione non è vuota.',
+        'err_already_in_progress'     => 'Un trasferimento è già in corso.',
+        'err_on_cooldown'             => 'Il trasferimento è in raffreddamento. Attendi prima di riprovare.',
+        'err_insufficient_dm'         => 'Materia Oscura insufficiente. Ti servono :amount MO.',
+        'err_buildings_in_progress'   => 'Impossibile trasferirsi durante la costruzione di edifici.',
+        'err_research_in_progress'    => 'Impossibile trasferirsi durante una ricerca in corso.',
+        'err_units_in_progress'       => 'Impossibile trasferirsi durante la costruzione di unità.',
+        'err_fleets_active'           => 'Impossibile trasferirsi con missioni di flotta attive.',
+        'err_no_active_relocation'    => 'Nessun trasferimento attivo trovato.',
     ],
 
     // -------------------------------------------------------------------------
@@ -49,10 +64,15 @@ return [
     // -------------------------------------------------------------------------
 
     'shared' => [
-        'caution' => 'Attenzione',
-        'yes'     => 'sì',
-        'no'      => 'No',
-        'error'   => 'Errore',
+        'caution'        => 'Attenzione',
+        'yes'            => 'sì',
+        'no'             => 'No',
+        'error'          => 'Errore',
+        'dark_matter'    => 'Materia Oscura',
+        'duration'       => 'Durata',
+        'error_occurred' => 'Si è verificato un errore.',
+        'level'          => 'Livello',
+        'ok'             => 'OK',
     ],
 
     // -------------------------------------------------------------------------
@@ -86,6 +106,12 @@ return [
         'loca_lifeform_cap'      => 'Uno o più bonus associati hanno già raggiunto il massimo. Vuoi continuare la costruzione comunque?',
         'last_inquiry_error'     => "Impossibile elaborare l'ultima azione. Per favore riprova.",
         'planet_move_warning'    => 'Attenzione! Questa missione potrebbe essere ancora in corso quando inizia il periodo di ricollocazione e, in tal caso, il processo verrà annullato. Vuoi davvero continuare con questo lavoro?',
+        'building_started'       => 'Costruzione avviata con successo.',
+        'invalid_token'          => 'Token non valido.',
+        'downgrade_started'      => 'Demolizione dell`edificio avviata.',
+        'construction_canceled'  => 'Costruzione annullata.',
+        'added_to_queue'         => 'Aggiunto alla coda di produzione.',
+        'invalid_queue_item'     => 'ID elemento coda non valido',
     ],
 
     // -------------------------------------------------------------------------
@@ -127,8 +153,11 @@ return [
     // -------------------------------------------------------------------------
 
     'shipyard_page' => [
-        'battleships' => 'Astronavi da guerra',
-        'civil_ships' => 'Navi civili',
+        'battleships'           => 'Astronavi da guerra',
+        'civil_ships'           => 'Navi civili',
+        'no_units_idle'         => 'Nessuna unità è attualmente in costruzione.',
+        'no_units_idle_tooltip' => 'Clicca per andare al Cantiere Spaziale.',
+        'to_shipyard'           => 'Vai al Cantiere Spaziale',
     ],
 
     // -------------------------------------------------------------------------
@@ -356,7 +385,27 @@ return [
         'err_no_planet'            => 'Errore, non c\'è nessun pianeta lì',
         'err_no_cargo'             => 'Errore, capacità di carico insufficiente',
         'err_multi_alarm'          => 'Multi-allarme',
-        'err_attack_ban'           => 'Divieto di attacco',
+        'err_attack_ban'                  => 'Divieto di attacco',
+
+        // Etichette movimento flotta
+        'enemy_fleet'                     => 'Ostile',
+        'friendly_fleet'                  => 'Amico',
+
+        // Slot flotta / ammiraglio
+        'admiral_slot_bonus'              => 'Bonus Ammiraglio: slot flotta aggiuntivo',
+        'general_slot_bonus'              => 'Slot flotta bonus',
+
+        // Protezione bash
+        'bash_warning'                    => 'Attenzione: il limite di attacchi è stato raggiunto! Ulteriori attacchi potrebbero comportare un ban.',
+
+        // Modelli flotta
+        'add_new_template'                => 'Salva modello flotta',
+
+        // Ritirata tattica
+        'tactical_retreat_label'          => 'Ritirata tattica',
+        'tactical_retreat_full_tooltip'   => 'Attiva la ritirata tattica: la tua flotta si ritirerà se il rapporto di combattimento è sfavorevole. Richiede Ammiraglio per il rapporto 3:1.',
+        'tactical_retreat_admiral_tooltip'=> 'Ritirata tattica al rapporto 3:1 (richiede Ammiraglio)',
+        'fleet_sent_success'             => 'La tua flotta è stata inviata con successo.',
     ],
 
     // -------------------------------------------------------------------------
@@ -464,6 +513,7 @@ return [
 
         // Dialogo risultati phalanx (stringhe JS nel blocco script Blade-rendered)
         'sensor_report'                => 'rapporto sensore',
+        'sensor_report_from'           => 'Rapporto sensore da',
         'refresh'                      => 'Aggiorna',
         'arrived'                      => 'Arrivata',
 
@@ -480,6 +530,9 @@ return [
         'not_enough_missiles'          => 'Non hai abbastanza missili',
         'launched_success'             => 'Missili lanciati con successo!',
         'launch_failed'                => 'Lancio dei missili fallito',
+        'alliance_page'                => 'Informazioni alleanza',
+        'apply'                        => 'Candidati',
+        'contact_support'              => 'Contatta il supporto',
         'insufficient_range'           => 'Gittata insufficiente (livello ricerca propulsori a impulso) dei tuoi missili interplanetari!',
     ],
 
@@ -891,6 +944,8 @@ return [
         'msg_kick_error'                => 'Impossibile espellere il membro',
         'msg_invalid_action'            => 'Azione non valida',
         'msg_error'                     => 'Si è verificato un errore',
+        'rank_founder_default'          => 'Fondatore',
+        'rank_newcomer_default'         => 'Novellino',
     ],
 
     // -------------------------------------------------------------------
@@ -1006,6 +1061,35 @@ return [
 
         // Tab 3 — Visualizzazione
         'section_general_display'               => 'Generale',
+        'language'                              => 'Lingua:',
+        'language_en'                           => 'English',
+        'language_de'                           => 'Deutsch',
+        'language_it'                           => 'Italiano',
+        'language_nl'                           => 'Nederlands',
+        'language_ar'                           => 'Español (AR)',
+        'language_br'                           => 'Português (BR)',
+        'language_cz'                           => 'Čeština',
+        'language_dk'                           => 'Dansk',
+        'language_es'                           => 'Español',
+        'language_fi'                           => 'Suomi',
+        'language_fr'                           => 'Français',
+        'language_gr'                           => 'Ελληνικά',
+        'language_hr'                           => 'Hrvatski',
+        'language_hu'                           => 'Magyar',
+        'language_jp'                           => '日本語',
+        'language_mx'                           => 'Español (MX)',
+        'language_pl'                           => 'Polski',
+        'language_pt'                           => 'Português',
+        'language_ro'                           => 'Română',
+        'language_ru'                           => 'Русский',
+        'language_se'                           => 'Svenska',
+        'language_si'                           => 'Slovenščina',
+        'language_sk'                           => 'Slovenčina',
+        'language_tr'                           => 'Türkçe',
+        'language_tw'                           => '繁體中文',
+        'language_us'                           => 'English (US)',
+        'language_yu'                           => 'Srpski',
+        'msg_language_changed'                  => 'Preferenza lingua salvata.',
         'show_mobile_version'                   => 'Mostra versione mobile:',
         'show_alt_dropdowns'                    => 'Mostra menu a tendina alternativi:',
         'activate_autofocus'                    => 'Attiva autofocus nella classifica:',
@@ -1202,6 +1286,32 @@ return [
         'js_activate_item_question' => 'Vuoi sostituire l\'oggetto esistente? Il vecchio bonus andrà perso.',
         'js_activate_item_header'   => 'Sostituisci oggetto?',
 
+        // Dialogo di benvenuto
+        'welcome_title'             => 'Benvenuto su OGame!',
+        'welcome_body'              => 'Per aiutarti a iniziare rapidamente, ti abbiamo assegnato il nome Commodore Nebula. Puoi cambiarlo in qualsiasi momento cliccando sul nome utente.<br/>Il Comando Flotta ha lasciato informazioni sui primi passi nella tua casella di posta, per aiutarti a partire preparato.<br/><br/>Buon divertimento!',
+
+        // Abbreviazioni unità di tempo (corte)
+        'time_short_year'           => 'a',
+        'time_short_month'          => 'M',
+        'time_short_week'           => 'sett',
+        'time_short_day'            => 'g',
+        'time_short_hour'           => 'h',
+        'time_short_minute'         => 'm',
+        'time_short_second'         => 's',
+
+        // Nomi unità di tempo (lunghi)
+        'time_long_day'             => 'giorno',
+        'time_long_hour'            => 'ora',
+        'time_long_minute'          => 'minuto',
+        'time_long_second'          => 'secondo',
+
+        // Formattazione numeri
+        'decimal_point'             => ',',
+        'thousand_separator'        => '.',
+        'unit_mega'                 => 'M',
+        'unit_kilo'                 => 'K',
+        'unit_milliard'             => 'Mld',
+
         // JS — chatLoca
         'chat_text_empty'           => 'Dove è il messaggio?',
         'chat_text_too_long'        => 'Il messaggio è troppo lungo.',
@@ -1238,6 +1348,8 @@ return [
         'loca_notice'               => 'Riferimento',
         'loca_planet_giveup'        => 'Sei sicuro di voler abbandonare il pianeta %planetName% %planetCoordinates%?',
         'loca_moon_giveup'          => 'Sei sicuro di voler abbandonare la luna %planetName% %planetCoordinates%?',
+        'no_ships_in_wreck'         => 'Nessuna nave nel campo di relitti.',
+        'no_wreck_available'        => 'Nessun campo di relitti disponibile.',
     ],
 
     // ── Highscore ───────────────────────────────────────────────────────────
@@ -1278,17 +1390,17 @@ return [
         'your_officers'              => 'I tuoi ufficiali',
         'intro_text'                 => 'Con i tuoi ufficiali puoi guidare il tuo impero a dimensioni oltre i tuoi sogni più sfrenati - tutto ciò di cui hai bisogno è un po\' di Materia Oscura e i tuoi lavoratori e consiglieri lavoreranno ancora più duramente!',
         'info_dark_matter'           => 'Maggiori informazioni su: Materia Oscura',
-        'info_commander'             => 'Maggiori informazioni su: Comandante',
+        'info_commander'             => 'Maggiori informazioni su: Commander',
         'info_admiral'               => 'Maggiori informazioni su: Ammiraglio',
         'info_engineer'              => 'Maggiori informazioni su: Ingegnere',
         'info_geologist'             => 'Maggiori informazioni su: Geologo',
-        'info_technocrat'            => 'Maggiori informazioni su: Tecnocrate',
-        'info_commanding_staff'      => 'Maggiori informazioni su: Stato Maggiore',
-        'hire_commander_tooltip'     => 'Assumi comandante|+40 preferiti, coda costruzione, scorciatoie, scanner trasporto, senza pubblicità* <span style=\'font-size: 10px; line-height: 10px\'>(*esclusi: riferimenti relativi al gioco)</span>',
+        'info_technocrat'            => 'Maggiori informazioni su: Tecnico',
+        'info_commanding_staff'      => 'Maggiori informazioni su: Staff di comando',
+        'hire_commander_tooltip'     => 'Assumi Commander|+40 preferiti, coda costruzione, scorciatoie, scanner trasporto, senza pubblicità* <span style=\'font-size: 10px; line-height: 10px\'>(*esclusi: riferimenti relativi al gioco)</span>',
         'hire_admiral_tooltip'       => "Assumi ammiraglio|Slot flotta max +2,\nSpedizioni max +1,\nTasso fuga flotta migliorato,\nSlot salvataggio simulazione combattimento +20",
         'hire_engineer_tooltip'      => 'Assumi ingegnere|Dimezza le perdite nelle difese, +10% produzione energia',
         'hire_geologist_tooltip'     => 'Assumi geologo|+10% produzione miniere',
-        'hire_technocrat_tooltip'    => 'Assumi tecnocrate|+2 livelli spionaggio, 25% meno tempo di ricerca',
+        'hire_technocrat_tooltip'    => 'Assumi Tecnico|+2 livelli spionaggio, 25% meno tempo di ricerca',
         'remaining_officers'         => ':current di :max',
         'benefit_fleet_slots_title'  => 'Puoi inviare più flotte contemporaneamente.',
         'benefit_fleet_slots'        => 'Slot flotta max +1',
@@ -1298,6 +1410,73 @@ return [
         'benefit_mines'              => '+2% produzione miniere',
         'benefit_espionage_title'    => '1 livello verrà aggiunto alla tua ricerca di spionaggio.',
         'benefit_espionage'          => '+1 livelli spionaggio',
+
+        // ── Detail panel / acquisto ufficiali ──────────────────────────────
+        'dark_matter_title'          => 'Materia Oscura',
+        'dark_matter_label'          => 'Materia Oscura',
+        'no_dark_matter'             => 'Non hai materia oscura disponibile',
+        'dark_matter_description'    => 'La Materia Oscura è una sostanza che è possibile conservare solo da pochi anni, e con gran fatica. Essa consente di ricavare grandi quantità di energia. Il metodo utilizzato per ottenere la Materia Oscura è complesso e rischioso e questo la rende particolarmente preziosa.<br><b>Solo la Materia Oscura acquistata e ancora disponibile può proteggere dall\'eliminazione dell\'account!</b>',
+        'dark_matter_benefits'       => 'La Materia Oscura permette di ingaggiare Ufficiali e Commander e di pagare le offerte dei mercanti, gli spostamenti dei pianeti e gli item.',
+        'your_balance'               => 'Il tuo saldo',
+        'active_until'               => 'Attivo fino al :date',
+        'active_for_days'            => 'Attivo ancora per: :days giorni',
+        'not_active'                 => 'Non attivo',
+        'days'                       => 'giorni',
+        'dm'                         => 'MO',
+        'advantages'                 => 'Vantaggi:',
+        'buy_dark_matter'            => 'Acquista la Materia Oscura',
+        'confirm_purchase'           => 'Vuoi ingaggiare questo ufficiale per :days giorni al costo di :cost Materia Oscura?',
+        'insufficient_dark_matter'   => 'Non hai abbastanza Materia Oscura.',
+        'purchase_success'           => 'Ufficiale attivato con successo!',
+        'purchase_error'             => 'Si è verificato un errore. Riprova.',
+
+        // ── Titoli, descrizioni e vantaggi ufficiali ───────────────────────
+        'officer_commander_title' => 'Commander',
+        'officer_commander_description' => 'Il Commander ha assunto un ruolo importante nelle guerre moderne. La struttura di comando semplificata consente di gestire in modo più rapido le informazioni. Con il Commander sarai in grado di tenere sotto controllo tutto il tuo impero! In questo modo potrai sviluppare strutture che saranno sempre un passo più avanti rispetto a quelle dei tuoi nemici.',
+        'officer_commander_benefits'              => 'Con il Commander avrai una panoramica dell\'intero impero, uno slot missione aggiuntivo e la possibilità di impostare l\'ordine delle risorse saccheggiate.',
+        'officer_commander_benefit_favourites' => '+40 favoriti',
+        'officer_commander_benefit_queue' => 'Coda costruzione',
+        'officer_commander_benefit_scanner' => 'Informazioni sul carico',
+        'officer_commander_benefit_ads' => 'Nessuna pubblicità',
+        'officer_commander_tooltip' => '<b>+40 favoriti</b><p>Più "favoriti" a disposizione permettono di salvare più messaggi, che possono anche essere condivisi.</p><br/><b>Coda costruzione</b><p>Puoi avviare contemporaneamente fino a 4 incarichi in più per edifici e ricerche.</p><br/><b>Informazioni sul carico</b><p>Viene visualizzata la quantità di risorse trasportate dai cargo verso i tuoi pianeti.</p><br/><b>Nessuna pubblicità</b><p>Non ricevi più alcun messaggio pubblicitario riguardante altri giochi, ma solo avvisi sugli eventi e offerte speciali relativi a OGame.</p>',
+
+        'officer_admiral_title' => 'Ammiraglio',
+        'officer_admiral_description' => 'L`ammiraglio è un veterano esperto e stratega eccellente. Anche nelle battaglie più accese mantiene una visione d`insieme nel centro di controllo della battaglia e mantiene i contatti con gli ammiragli sotto il suo comando. Un sovrano saggio può contare completamente sul suo sostegno in battaglia e può quindi guidare più flotte spaziali in battaglia contemporaneamente. Consente uno slot spedizione aggiuntivo e può determinare quali risorse dovrebbero essere invitate per prime dopo un attacco. Fornisce inoltre venti slot di memoria aggiuntivi per le simulazioni di battaglia.',
+        'officer_admiral_benefits'                => '+1 slot spedizione, possibilità di impostare priorità risorse dopo un attacco, +20 slot simulatore battaglie.',
+        'officer_admiral_benefit_fleet_slots' => 'Quantità max. flotte +2',
+        'officer_admiral_benefit_expeditions' => 'Numero massimo di spedizioni +1',
+        'officer_admiral_benefit_escape' => 'Miglioramento del tasso di fuga delle flotte',
+        'officer_admiral_benefit_save_slots' => 'Slot memoria massimi +20',
+        'officer_admiral_tooltip' => '<b>Quantità max. flotte +2</b><p>Puoi inviare più flotte contemporaneamente.</p><br/><b>Numero massimo di spedizioni +1</b><p>Ricevi uno slot spedizione in più.</p><br/><b>Miglioramento del tasso di fuga delle flotte </b><p>La tua flotta può fuggire in caso di potenze 3 volte superiori alla propria fino a quando avrai raggiunto 500.000 punti</p><br/><b> Slot memoria massimi +20</b><p>Puoi salvare più simulazioni di battaglia contemporaneamente.</p>',
+
+        'officer_engineer_title' => 'Ingegnere',
+        'officer_engineer_description' => 'L`Ingegnere è specializzato nella gestione dell`energia e delle difese. In tempi di pace, aumenta l`energia prodotta dai pianeti, assicurando un`adeguata distribuzione di energia attraverso tutte le griglie. In caso di attacco nemico, dirotta tutta l`energia disponibile alle difese, evitando sovraccarichi e riducendo il numero di difese perse durante la battaglia.',
+        'officer_engineer_benefits'               => '+10% energia prodotta su tutti i pianeti, il 50% delle difese distrutte sopravvive alla battaglia.',
+        'officer_engineer_benefit_defence' => 'Dimezza le perdite delle strutture difensive',
+        'officer_engineer_benefit_energy' => '+10% di produzione di energia',
+        'officer_engineer_tooltip' => '<b>Dimezza le perdite delle strutture difensive</b><p>Dopo un combattimento, la metà delle tue strutture difensive viene ripristinata.</p><br/><b>+10% di produzione di energia</b><p>Le tue centrali e i tuoi satelliti solari producono la seguente percentuale di energia in più: 10%</p>',
+
+        'officer_geologist_title' => 'Geologo',
+        'officer_geologist_description' => 'Il geologo è esperto in astromineralogia e cristallografia. Egli assiste la sua squadra in metallurgia e chimica, mentre si prende anche cura della comunicazione interplanetaria ottimizzando l`utilizzo e raffinando i materiali grezzi in tutto l`impero. Utilizzando un equipaggiamento appropriato, è in grado di localizzare ottimi giacimenti, aumentando la produzione delle miniere del 10%.',
+        'officer_geologist_benefits'              => '+10% produzione di metallo, cristallo e deuterio su tutti i pianeti.',
+        'officer_geologist_benefit_mines' => '+10% produzione delle miniere',
+        'officer_geologist_tooltip' => '<b>+10% produzione delle miniere</b><p>Le tue miniere producono la seguente percentuale in più: 10%</p>',
+
+        'officer_technocrat_title' => 'Tecnico',
+        'officer_technocrat_description' => 'La cooperativa dei Tecnici è composta da scienziati geniali, e vedrete che non hanno limiti; nessun altro comprenderebbe certe tecnologie. Nessun essere umano normale cercherà mai di decifrare il codice di un tecnico, egli inoltre, ispira i ricercatori dell`impero con la sua sola presenza.',
+        'officer_technocrat_benefits'             => '-25% tempo di ricerca su tutte le tecnologie.',
+        'officer_technocrat_benefit_espionage' => '+2 livelli di spionaggio',
+        'officer_technocrat_benefit_research' => '25% di riduzione del tempo di ricerca',
+        'officer_technocrat_tooltip' => '<b>+2 livelli di spionaggio</b><p>Vengono aggiunti 2 livelli alla tua ricerca di spionaggio.</p><br/><b>25% di riduzione del tempo di ricerca</b><p>Le tue ricerche necessitano della seguente percentuale di tempo in meno per essere completate: 25%.</p>',
+
+        'officer_all_officers_title' => 'Staff di comando',
+        'officer_all_officers_description' => 'Con questo pacchetto non ti assicurerai solo uno specialista, bensì un intero staff di bordo. Beneficerai di tutti gli effetti dei singoli ufficiali, nonché dei vantaggi extra disponibili solo col pacchetto.\nMentre il Commander, esperto di strategia, tiene la situazione sotto controllo, gli Ufficiali si occupano della gestione dell`energia, del rifornimento del sistema, dello sfruttamento delle risorse e del raffinamento. Inoltre, essi si dedicano alla ricerca e impiegano la loro esperienza militare nelle battaglie spaziali.',
+        'officer_all_officers_benefits'           => 'Tutti i vantaggi di Commander, Ammiraglio, Ingegnere, Geologo e Tecnico, più bonus extra esclusivi del pacchetto completo.',
+        'officer_all_officers_benefit_fleet_slots' => 'Quantità max. flotte +1',
+        'officer_all_officers_benefit_energy' => '+2% Produzione di energia',
+        'officer_all_officers_benefit_mines' => '+2% Prodotto delle miniere',
+        'officer_all_officers_benefit_espionage' => '+1 Livelli di spionaggio',
+        'officer_all_officers_tooltip' => '<b>Quantità max. flotte +1</b><p>Puoi inviare più flotte contemporaneamente.</p><br/><b>+2% Produzione di energia</b><p>Le tue centrali e i tuoi satelliti solari producono un 2% in più di energia.</p><br/><b>+2% Prodotto delle miniere</b><p>Le tue miniere producono un 2% in più.</p><br/><b>+1 Livelli di spionaggio</b><p>Saranno aggiunti 1 livelli alla tua ricerca di spionaggio.</p>',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
@@ -1361,6 +1540,12 @@ return [
         'points'                  => 'Punti',
         'action'                  => 'Azione',
         'apply_for_alliance'      => 'Candidati per questa alleanza',
+        'search_player_link'      => 'Cerca giocatore',
+        'alliance'                => 'Alleanza',
+        'home_planet'             => 'Pianeta Madre',
+        'send_message'            => 'Scrivi messaggio',
+        'buddy_request'           => 'Richiesta amico',
+        'highscore'               => 'Classifica punti',
     ],
 
     // -------------------------------------------------------------------------
@@ -1368,7 +1553,25 @@ return [
     // -------------------------------------------------------------------------
 
     'notes' => [
-        'no_notes_found'          => 'Nessuna nota trovata',
+        'no_notes_found'      => 'Nessuna nota trovata',
+        'add_note'            => 'Aggiungi nota',
+        'new_note'            => 'Nuova nota',
+        'subject_label'       => 'Soggetto',
+        'date_label'          => 'Data',
+        'edit_note'           => 'Modifica nota',
+        'select_action'       => 'Seleziona azione',
+        'delete_marked'       => 'Elimina selezionati',
+        'delete_all'          => 'Elimina tutto',
+        'unsaved_warning'     => 'Hai modifiche non salvate.',
+        'save_question'       => 'Vuoi salvare le modifiche?',
+        'your_subject'        => 'Soggetto',
+        'subject_placeholder' => 'Inserisci soggetto...',
+        'priority_label'      => 'Priorità',
+        'priority_important'  => 'Importante',
+        'priority_normal'     => 'Normale',
+        'priority_unimportant'=> 'Non importante',
+        'your_message'        => 'Messaggio',
+        'save_btn'            => 'Salva',
     ],
 
     // -------------------------------------------------------------------------
@@ -1440,5 +1643,444 @@ return [
         'msg_yes'                       => 'Sì',
         'msg_no'                        => 'No',
         'msg_ok'                        => 'Ok',
+    ],
+
+    // -------------------------------------------------------------------------
+    // AJAX object overlay — pannello dettaglio edificio/nave/ricerca
+    // -------------------------------------------------------------------------
+    'ajax_object' => [
+        'open_techtree'            => 'Apri albero tecnologico',
+        'techtree'                 => 'Albero tecnologico',
+        'no_requirements'          => 'Nessun prerequisito',
+        'cancel_expansion_confirm' => 'Vuoi annullare l\'espansione di :name al livello :level?',
+        'number'                   => 'Numero',
+        'level'                    => 'Livello',
+        'production_duration'      => 'Tempo di produzione',
+        'energy_needed'            => 'Energia richiesta',
+        'production'               => 'Produzione',
+        'costs_per_piece'          => 'Costo per unità',
+        'required_to_improve'      => 'Necessario per migliorare al livello',
+        'metal'                    => 'Metallo',
+        'crystal'                  => 'Cristallo',
+        'deuterium'                => 'Deuterio',
+        'energy'                   => 'Energia',
+        'deconstruction_costs'     => 'Costi di demolizione',
+        'ion_technology_bonus'     => 'Bonus tecnologia ionica',
+        'duration'                 => 'Durata',
+        'number_label'             => 'Quantità',
+        'max_btn'                  => 'Max. :amount',
+        'vacation_mode'            => 'Sei attualmente in modalità vacanza.',
+        'tear_down_btn'            => 'Demolisci',
+        'wrong_character_class'    => 'Classe personaggio errata!',
+        'shipyard_upgrading'       => 'Il Cantiere Spaziale è in fase di potenziamento.',
+        'shipyard_busy'            => 'Il Cantiere Spaziale è attualmente occupato.',
+        'not_enough_fields'        => 'Campi pianeta insufficienti!',
+        'build'                    => 'Costruisci',
+        'in_queue'                 => 'In coda',
+        'improve'                  => 'Migliora',
+        'storage_capacity'         => 'Capacità di stoccaggio',
+        'gain_resources'           => 'Acquisisci risorse',
+        'view_offers'              => 'Vedi offerte',
+        'destroy_rockets_desc'     => 'Qui puoi distruggere i missili in deposito.',
+        'destroy_rockets_btn'      => 'Distruggi missili',
+        'more_details'             => 'Più dettagli',
+        'error'                    => 'Errore',
+        'commander_queue_info'     => 'Hai bisogno di un Commander per usare la coda di costruzione. Vuoi saperne di più sui vantaggi del Commander?',
+        'no_rocket_silo_capacity'  => 'Spazio insufficiente nella base missilistica.',
+        'detail_now'               => 'Dettagli',
+        'start_with_dm'            => 'Avvia con Materia Oscura',
+        'err_dm_price_too_low'     => 'Il prezzo in Materia Oscura è troppo basso.',
+        'err_resource_limit'       => 'Limite risorse superato.',
+        'err_storage_capacity'     => 'Capacità di stoccaggio insufficiente.',
+        'err_no_dark_matter'       => 'Materia Oscura insufficiente.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Widget coda di costruzione (building-active, research-active, unit-active)
+    // -------------------------------------------------------------------------
+    'buildqueue' => [
+        'building_duration'        => 'Tempo di costruzione',
+        'total_time'               => 'Tempo totale',
+        'complete_tooltip'         => 'Completa subito questa costruzione con Materia Oscura',
+        'complete'                 => 'Completa ora',
+        'halve_cost'               => ':amount',
+        'halve_tooltip_building'   => 'Dimezza il tempo di costruzione rimanente con Materia Oscura',
+        'halve_tooltip_research'   => 'Dimezza il tempo di ricerca rimanente con Materia Oscura',
+        'halve_time'               => 'Dimezza il tempo',
+        'question_complete_unit'   => 'Vuoi completare subito questa costruzione per :dm_cost?',
+        'question_halve_unit'      => 'Vuoi ridurre il tempo di costruzione di :time_reduction per :dm_cost?',
+        'question_halve_building'  => 'Vuoi dimezzare il tempo di costruzione per :dm_cost?',
+        'question_halve_research'  => 'Vuoi dimezzare il tempo di ricerca per :dm_cost?',
+        'downgrade_to'             => 'Degrada a',
+        'improve_to'               => 'Migliora a',
+        'no_building_idle'         => 'Nessun edificio è attualmente in costruzione.',
+        'no_building_idle_tooltip' => 'Clicca per andare alla pagina Edifici.',
+        'no_research_idle'         => 'Nessuna ricerca è attualmente in corso.',
+        'no_research_idle_tooltip' => 'Clicca per andare alla pagina Ricerche.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Pannello chat (chat/index.blade.php)
+    // -------------------------------------------------------------------------
+    'chat' => [
+        'buddy_tooltip'      => 'Amico',
+        'alliance_tooltip'   => 'Membro dell\'alleanza',
+        'status_online'      => 'Online',
+        'status_offline'     => 'Offline',
+        'status_not_visible' => 'Stato non visibile',
+        'highscore_ranking'  => 'Posizione: :rank',
+        'alliance_label'     => 'Alleanza: :alliance',
+        'planet_alt'         => 'Pianeta',
+        'no_messages_yet'    => 'Nessun messaggio ancora.',
+        'submit'             => 'Invia',
+        'alliance_chat'      => 'Chat alleanza',
+        'list_title'         => 'Conversazioni',
+        'player_list'        => 'Giocatori',
+        'buddies'            => 'Amici',
+        'no_buddies'         => 'Nessun amico ancora.',
+        'alliance'           => 'Alleanza',
+        'strangers'          => 'Altri giocatori',
+        'no_strangers'       => 'Nessun altro giocatore.',
+        'no_conversations'   => 'Nessuna conversazione ancora.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Dialogo Portale iperspaziale (jumpgate/dialog.blade.php)
+    // -------------------------------------------------------------------------
+    'jumpgate' => [
+        'select_target'      => 'Seleziona bersaglio',
+        'origin_coordinates' => 'Coordinate di origine',
+        'standard_target'    => 'Bersaglio standard',
+        'target_coordinates' => 'Coordinate bersaglio',
+        'not_ready'          => 'Il portale iperspaziale non è pronto.',
+        'cooldown_time'      => 'Tempo di ricarica',
+        'select_ships'       => 'Seleziona navi',
+        'select_all'         => 'Seleziona tutto',
+        'reset_selection'    => 'Reimposta selezione',
+        'jump_btn'           => 'Salta',
+        'ok_btn'             => 'OK',
+        'valid_target'       => 'Seleziona un bersaglio valido.',
+        'no_ships'           => 'Seleziona almeno una nave.',
+        'jump_success'       => 'Salto eseguito con successo.',
+        'jump_error'         => 'Salto fallito.',
+        'error_occurred'     => 'Si è verificato un errore.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Overlay impostazioni server (serversettings/overlay.blade.php)
+    // -------------------------------------------------------------------------
+    'serversettings_overlay' => [
+        'acs_enabled'         => 'Sistema di combattimento dell\'alleanza',
+        'dm_bonus'            => 'Bonus Materia Oscura:',
+        'debris_defense'      => 'Rottami dalle difese:',
+        'debris_ships'        => 'Rottami dalle navi:',
+        'debris_deuterium'    => 'Deuterio nei campi di rottami',
+        'fleet_deut_reduction'=> 'Riduzione deuterio flotta:',
+        'fleet_speed_war'     => 'Velocità flotta (guerra):',
+        'fleet_speed_holding' => 'Velocità flotta (stazionamento):',
+        'fleet_speed_peace'   => 'Velocità flotta (pace):',
+        'ignore_empty'        => 'Ignora sistemi vuoti',
+        'ignore_inactive'     => 'Ignora sistemi inattivi',
+        'num_galaxies'        => 'Numero di galassie:',
+        'planet_field_bonus'  => 'Bonus campi pianeta:',
+        'dev_speed'           => 'Velocità economia:',
+        'research_speed'      => 'Velocità ricerca:',
+        'dm_regen_enabled'    => 'Rigenerazione Materia Oscura',
+        'dm_regen_amount'     => 'Quantità rigenerazione MO:',
+        'dm_regen_period'     => 'Periodo rigenerazione MO:',
+        'days'                => 'giorni',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Dialogo base di appoggio (alliancedepot/dialog.blade.php)
+    // -------------------------------------------------------------------------
+    'alliance_depot' => [
+        'description'         => 'La base di appoggio permette alle flotte alleate in orbita di rifornirsi mentre difendono il tuo pianeta. Ogni livello fornisce 10.000 deuterio all\'ora.',
+        'capacity'            => 'Capacità',
+        'no_fleets'           => 'Nessuna flotta alleata attualmente in orbita.',
+        'fleet_owner'         => 'Proprietario flotta',
+        'ships'               => 'Navi',
+        'hold_time'           => 'Tempo di stazionamento',
+        'extend'              => 'Estendi (ore)',
+        'supply_cost'         => 'Costo rifornimento (deuterio)',
+        'start_supply'        => 'Rifornisci flotta',
+        'please_select_fleet' => 'Seleziona una flotta.',
+        'hours_between'       => 'Le ore devono essere comprese tra 1 e 32.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Pannello admin (admin/serversettings.blade.php + admin/developershortcuts.blade.php)
+    // -------------------------------------------------------------------------
+    'admin' => [
+        // Barra menu admin
+        'server_admin_label'           => 'Admin server',
+        'masquerading_as'              => 'Impersonando utente',
+        'exit_masquerade'              => 'Esci dall\'impersonificazione',
+        'menu_dev_shortcuts'           => 'Scorciatoie sviluppatore',
+        'menu_server_settings'         => 'Impostazioni server',
+        'menu_fleet_timing'            => 'Tempistica flotta',
+        'menu_server_administration'   => 'Amministrazione server',
+        'menu_rules_legal'             => 'Regole e note legali',
+
+        'title'                        => 'Impostazioni server',
+        'section_basic'                => 'Impostazioni di base',
+        'section_changes_note'         => 'Nota: la maggior parte delle modifiche richiede un riavvio del server per avere effetto.',
+        'section_income_note'          => 'Nota: i valori di reddito vengono aggiunti alla produzione base.',
+        'section_new_player'           => 'Impostazioni nuovo giocatore',
+        'section_dm_regen'             => 'Rigenerazione Materia Oscura',
+        'section_relocation'           => 'Trasferimento pianeta',
+        'section_alliance'             => 'Impostazioni alleanza',
+        'section_battle'               => 'Impostazioni battaglia',
+        'section_expedition'           => 'Impostazioni spedizione',
+        'section_expedition_slots'     => 'Slot spedizione',
+        'section_expedition_weights'   => 'Pesi esiti spedizione',
+        'section_highscore'            => 'Impostazioni classifica',
+        'section_galaxy'               => 'Impostazioni galassia',
+        'universe_name'                => 'Nome universo',
+        'economy_speed'                => 'Velocità economia',
+        'research_speed'               => 'Velocità ricerca',
+        'fleet_speed_war'              => 'Velocità flotta (guerra)',
+        'fleet_speed_holding'          => 'Velocità flotta (stazionamento)',
+        'fleet_speed_peaceful'         => 'Velocità flotta (pace)',
+        'planet_fields_bonus'          => 'Bonus campi pianeta',
+        'income_metal'                 => 'Reddito base metallo',
+        'income_crystal'               => 'Reddito base cristallo',
+        'income_deuterium'             => 'Reddito base deuterio',
+        'income_energy'                => 'Reddito base energia',
+        'registration_planet_amount'   => 'Pianeti iniziali',
+        'dm_bonus'                     => 'Bonus Materia Oscura iniziale',
+        'dm_regen_description'         => 'Se abilitato, i giocatori riceveranno Materia Oscura ogni X giorni.',
+        'dm_regen_enabled'             => 'Abilita rigenerazione MO',
+        'dm_regen_amount'              => 'Quantità MO per periodo',
+        'dm_regen_period'              => 'Periodo di rigenerazione (secondi)',
+        'relocation_cost'              => 'Costo trasferimento (Materia Oscura)',
+        'relocation_duration'          => 'Durata trasferimento (ore)',
+        'alliance_cooldown'            => 'Cooldown ingresso alleanza (giorni)',
+        'alliance_cooldown_desc'       => 'Giorni di attesa dopo aver lasciato un\'alleanza prima di poterne entrare un\'altra.',
+        'battle_engine'                => 'Motore di battaglia',
+        'battle_engine_desc'           => 'Seleziona il motore di battaglia da utilizzare per i calcoli di combattimento.',
+        'acs'                          => 'Sistema di combattimento dell\'alleanza (ACS)',
+        'debris_ships'                 => 'Rottami dalle navi (%)',
+        'debris_defense'               => 'Rottami dalle difese (%)',
+        'debris_deuterium'             => 'Deuterio nei campi di rottami',
+        'moon_chance'                  => 'Probabilità creazione luna (%)',
+        'hamill_probability'           => 'Probabilità Hamill (%)',
+        'wreck_min_resources'          => 'Risorse minime campo di relitti',
+        'wreck_min_resources_desc'     => 'Risorse totali minime nella flotta distrutta per creare un campo di relitti.',
+        'wreck_min_fleet_pct'          => 'Percentuale minima flotta per campo relitti (%)',
+        'wreck_min_fleet_pct_desc'     => 'Percentuale minima della flotta attaccante che deve essere distrutta per creare un campo di relitti.',
+        'wreck_lifetime'               => 'Durata campo di relitti (secondi)',
+        'wreck_lifetime_desc'          => 'Quanto a lungo rimane un campo di relitti prima di scomparire.',
+        'wreck_repair_max'             => 'Percentuale massima riparazione relitti (%)',
+        'wreck_repair_max_desc'        => 'Percentuale massima delle navi distrutte che possono essere riparate da un campo di relitti.',
+        'wreck_repair_min'             => 'Percentuale minima riparazione relitti (%)',
+        'wreck_repair_min_desc'        => 'Percentuale minima delle navi distrutte che possono essere riparate da un campo di relitti.',
+        'expedition_slots_desc'        => 'Numero massimo di flotte in spedizione simultanee.',
+        'expedition_bonus_slots'       => 'Slot spedizione bonus',
+        'expedition_multiplier_res'    => 'Moltiplicatore risorse',
+        'expedition_multiplier_ships'  => 'Moltiplicatore navi',
+        'expedition_multiplier_dm'     => 'Moltiplicatore Materia Oscura',
+        'expedition_multiplier_items'  => 'Moltiplicatore oggetti',
+        'expedition_weights_desc'      => 'Pesi di probabilità relativi per gli esiti delle spedizioni. Valori più alti aumentano la probabilità.',
+        'expedition_weights_defaults'  => 'Ripristina predefiniti',
+        'expedition_weights_values'    => 'Pesi attuali',
+        'weight_ships'                 => 'Navi trovate',
+        'weight_resources'             => 'Risorse trovate',
+        'weight_delay'                 => 'Ritardo',
+        'weight_speedup'               => 'Accelerazione',
+        'weight_nothing'               => 'Niente',
+        'weight_black_hole'            => 'Buco nero',
+        'weight_pirates'               => 'Pirati',
+        'weight_aliens'                => 'Alieni',
+        'weight_dm'                    => 'Materia Oscura',
+        'weight_merchant'              => 'Mercante',
+        'weight_items'                 => 'Oggetti',
+        'highscore_admin_visible'      => 'Mostra admin in classifica',
+        'highscore_admin_visible_desc' => 'Se abilitato, gli account admin appariranno nella classifica.',
+        'galaxy_ignore_empty'          => 'Ignora sistemi vuoti nella vista galattica',
+        'galaxy_ignore_inactive'       => 'Ignora sistemi inattivi nella vista galattica',
+        'galaxy_count'                 => 'Numero di galassie',
+        'save'                         => 'Salva impostazioni',
+        'dev_title'                    => 'Strumenti sviluppatore',
+        'dev_masquerade'               => 'Maschera come utente',
+        'dev_username'                 => 'Nome utente',
+        'dev_username_placeholder'     => 'Inserisci nome utente...',
+        'dev_masquerade_btn'           => 'Maschera',
+        'dev_update_planet'            => 'Aggiorna risorse pianeta',
+        'dev_set_mines'                => 'Imposta miniere (max)',
+        'dev_set_storages'             => 'Imposta magazzini (max)',
+        'dev_set_shipyard'             => 'Imposta cantiere (max)',
+        'dev_set_research'             => 'Imposta ricerche (max)',
+        'dev_add_units'                => 'Aggiungi unità',
+        'dev_units_amount'             => 'Quantità',
+        'dev_light_fighter'            => 'Caccia Leggeri',
+        'dev_set_building'             => 'Imposta livello edificio',
+        'dev_level_to_set'             => 'Livello',
+        'dev_set_research_level'       => 'Imposta livello ricerca',
+        'dev_class_settings'           => 'Classe personaggio',
+        'dev_disable_free_class'       => 'Disabilita cambio classe gratuito',
+        'dev_enable_free_class'        => 'Abilita cambio classe gratuito',
+        'dev_reset_class'              => 'Ripristina classe',
+        'dev_goto_class'               => 'Vai alla pagina classe',
+        'dev_reset_planet'             => 'Ripristina pianeta',
+        'dev_reset_buildings'          => 'Ripristina edifici',
+        'dev_reset_research'           => 'Ripristina ricerche',
+        'dev_reset_units'              => 'Ripristina unità',
+        'dev_reset_resources'          => 'Ripristina risorse',
+        'dev_add_resources'            => 'Aggiungi risorse',
+        'dev_resources_desc'           => 'Aggiungi risorse massime al pianeta corrente.',
+        'dev_coordinates'              => 'Coordinate',
+        'dev_galaxy'                   => 'Galassia',
+        'dev_system'                   => 'Sistema',
+        'dev_position'                 => 'Posizione',
+        'dev_resources_label'          => 'Risorse',
+        'dev_update_resources_planet'  => 'Aggiorna risorse pianeta',
+        'dev_update_resources_moon'    => 'Aggiorna risorse luna',
+        'dev_create_planet_moon'       => 'Crea pianeta / luna',
+        'dev_moon_size'                => 'Dimensione luna',
+        'dev_debris_amount'            => 'Quantità rottami',
+        'dev_x_factor'                 => 'Fattore X',
+        'dev_create_planet'            => 'Crea pianeta',
+        'dev_create_moon'              => 'Crea luna',
+        'dev_delete_planet'            => 'Elimina pianeta',
+        'dev_delete_moon'              => 'Elimina luna',
+        'dev_create_debris'            => 'Crea campo di rottami',
+        'dev_debris_resources_label'   => 'Risorse nel campo di rottami',
+        'dev_create_debris_btn'        => 'Crea rottami',
+        'dev_delete_debris_btn'        => 'Elimina rottami',
+        'dev_quick_shortcut_desc'      => 'Scorciatoie rapide per sviluppo e test.',
+        'dev_create_expedition_debris' => 'Crea rottami spedizione',
+        'dev_add_dm'                   => 'Aggiungi Materia Oscura',
+        'dev_dm_desc'                  => 'Aggiungi Materia Oscura all\'account giocatore corrente.',
+        'dev_dm_amount'                => 'Quantità',
+        'dev_update_dm'                => 'Aggiungi Materia Oscura',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Character class selection page
+    // -------------------------------------------------------------------------
+
+    'characterclass' => [
+        'page_title'              => 'Seleziona classe',
+        'choose_your_class'       => 'Scegli la tua classe',
+        'choose_description'      => 'Seleziona una classe per ottenere dei bonus speciali. Puoi cambiare la tua classe nella sezione di selezione classe in alto a destra.',
+        'select_for_free'         => 'Attiva gratis',
+        'buy_for'                 => 'Acquista per',
+        'deactivate'              => 'Disattiva',
+        'confirm'                 => 'Conferma',
+        'cancel'                  => 'Annulla',
+        'select_title'            => 'Seleziona classe personaggio',
+        'deactivate_title'        => 'Disattiva classe personaggio',
+        'activated_free_msg'      => 'Vuoi attivare la classe :className gratuitamente?',
+        'activated_paid_msg'      => 'Vuoi attivare la classe :className per :price Materia Oscura? Perderai la tua classe attuale.',
+        'deactivate_confirm_msg'  => 'Vuoi davvero disattivare la tua classe personaggio? La riattivazione richiede :price Materia Oscura.',
+        'success_selected'        => 'Classe personaggio selezionata con successo!',
+        'success_deactivated'     => 'Classe personaggio disattivata con successo!',
+        'not_enough_dm_title'     => 'Materia Oscura insufficiente',
+        'not_enough_dm_msg'       => 'Materia Oscura insufficiente! Vuoi acquistarne adesso?',
+        'buy_dm'                  => 'Acquista Materia Oscura',
+        'error_generic'           => 'Si è verificato un errore. Riprova.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Rewards page
+    // -------------------------------------------------------------------------
+
+    'rewards' => [
+        'page_title'          => 'Ricompense',
+        'hint_tooltip'        => 'Le ricompense vengono inviate ogni giorno e possono essere riscosse manualmente. Dal 7° giorno in poi non verranno più inviate ricompense. La prima ricompensa viene concessa al 2° giorno dalla registrazione.',
+        'new_awards'          => 'Nuovi premi',
+        'not_yet_reached'     => 'Premi non ancora raggiunti',
+        'not_fulfilled'       => 'Non raggiunto',
+        'collected_awards'    => 'Premi riscossi',
+        'claim'               => 'Riscuoti',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Phalanx scan overlay
+    // -------------------------------------------------------------------------
+
+    'phalanx' => [
+        'no_movements'      => 'Nessun movimento di flotta rilevato in questa posizione.',
+        'fleet_details'     => 'Dettagli flotta',
+        'ships'             => 'Navi',
+        'loading'           => 'Caricamento...',
+        'time_label'        => 'Orario',
+        'speed_label'       => 'Velocità',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Wreckage / Space Dock (facilities page)
+    // -------------------------------------------------------------------------
+
+    'wreckage' => [
+        'no_wreckage'          => 'Non ci sono relitti in questa posizione.',
+        'burns_up_in'          => 'I relitti bruceranno tra:',
+        'leave_to_burn'        => 'Lascia bruciare',
+        'leave_confirm'        => 'I relitti precipiteranno nell`atmosfera del pianeta e bruceranno. Sei sicuro?',
+        'repair_time'          => 'Tempo di riparazione:',
+        'ships_being_repaired' => 'Navi in riparazione:',
+        'repair_time_remaining'=> 'Tempo di riparazione rimanente:',
+        'no_ship_data'         => 'Nessun dato nave disponibile',
+        'collect'              => 'Raccogli',
+        'start_repairs'        => 'Avvia riparazioni',
+        'err_network_start'    => 'Errore di rete nell`avvio riparazioni',
+        'err_network_complete' => 'Errore di rete nel completamento riparazioni',
+        'err_network_collect'  => 'Errore di rete nella raccolta navi',
+        'err_network_burn'     => 'Errore di rete nella distruzione relitti',
+        'err_burn_up'          => 'Errore nella distruzione del campo di relitti',
+        'wreckage_label'       => 'Relitti',
+        'repairs_started'      => 'Riparazioni avviate con successo!',
+        'repairs_completed'    => 'Riparazioni completate e navi raccolte con successo!',
+        'ships_back_service'   => 'Tutte le navi sono state rimesse in servizio',
+        'wreck_burned'         => 'Campo di relitti bruciato con successo!',
+        'err_start_repairs'    => 'Errore nell\'avvio delle riparazioni',
+        'err_complete_repairs' => 'Errore nel completamento delle riparazioni',
+        'err_collect_ships'    => 'Errore nella raccolta delle navi',
+        'err_burn_wreck'       => 'Errore nella distruzione del campo di relitti',
+        'can_be_repaired'      => 'I relitti possono essere riparati nello Space Dock.',
+        'collect_back_service' => 'Rimetti in servizio le navi gi\u00e0 riparate',
+        'auto_return_service'  => 'Le tue ultime navi saranno automaticamente rimesse in servizio il',
+        'no_ships_for_repair'  => 'Nessuna nave disponibile per la riparazione',
+        'repairable_ships'     => 'Navi riparabili:',
+        'repaired_ships'       => 'Navi riparate:',
+        'ships_count'          => 'Navi',
+        'details'              => 'Dettagli',
+        'tooltip_late_added'   => 'Le navi aggiunte durante le riparazioni in corso non possono essere raccolte manualmente. Devi attendere il completamento automatico.',
+        'tooltip_in_progress'  => 'Riparazioni ancora in corso. Usa la finestra Dettagli per la raccolta parziale.',
+        'tooltip_no_repaired'  => 'Nessuna nave ancora riparata',
+        'tooltip_must_complete'=> 'Le riparazioni devono essere completate per raccogliere le navi.',
+        'burn_confirm_title'   => 'Lascia bruciare',
+        'burn_confirm_msg'     => 'I relitti precipiteranno nell\'atmosfera del pianeta e bruceranno. Una volta fatto, la riparazione non sar\u00e0 pi\u00f9 possibile. Sei sicuro di voler bruciare i relitti?',
+        'burn_confirm_yes'     => 's\u00ec',
+        'burn_confirm_no'      => 'No',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Fleet template labels (fleet/index)
+    // -------------------------------------------------------------------------
+
+    'fleet_templates' => [
+        'name_col'            => 'Nome',
+        'actions_col'         => 'Azioni',
+        'template_name_label' => 'Nome',
+        'delete_tooltip'      => 'Cancella template/input',
+        'save_tooltip'        => 'Salva template',
+        'err_name_required'   => 'Il nome del template è obbligatorio.',
+        'err_need_ships'      => 'Il template deve contenere almeno una nave.',
+        'err_not_found'       => 'Template non trovato.',
+        'err_max_reached'     => 'Numero massimo di template raggiunto (10).',
+        'saved_success'       => 'Template salvato con successo.',
+        'deleted_success'     => 'Template eliminato con successo.',
+    ],
+
+    // -------------------------------------------------------------------------
+    // Fleet events (eventlist, eventrow)
+    // -------------------------------------------------------------------------
+
+    'fleet_events' => [
+        'events'              => 'Eventi',
+        'recall_title'        => 'Richiama',
+        'recall_fleet'        => 'Richiama flotta',
     ],
 ];

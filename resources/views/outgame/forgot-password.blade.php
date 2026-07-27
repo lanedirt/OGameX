@@ -1,0 +1,53 @@
+@extends('outgame.layouts.main')
+
+@section('content')
+
+<div id="menu">
+    <ul id="tabs">
+        <li><a id="tab1" class="tabActive" href="#tabContentContainer">{{ __('t_external.nav.home') }}</a></li>
+    </ul>
+    <br class="clearfloat" />
+    <div id="tabContentContainer">
+        <div class="tabContent">
+            <div id="ajaxContent">
+                <div class="inner-box clearfix">
+                    <h2>{{ __('t_external.forgot_password.title') }}</h2>
+                    <p>{{ __('t_external.forgot_password.description') }}</p>
+
+                    @if (session('status'))
+                        <p class="help-block" style="color: #4caf50;">
+                            {{ session('status') }}
+                        </p>
+                    @endif
+
+                    <form method="POST" action="{{ route('password.email') }}">
+                        {{ csrf_field() }}
+
+                        <div class="input-wrap">
+                            <label for="email">{{ __('t_external.forgot_password.email_label') }}</label>
+                            <div class="black-border">
+                                <input type="text"
+                                       id="email"
+                                       name="email"
+                                       value="{{ old('email') }}"
+                                />
+                            </div>
+                            @if ($errors->has('email'))
+                                <span class="help-block" style="color: #e74c3c;">
+                                    <strong>{{ $errors->first('email') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+
+                        <input type="submit" value="{{ __('t_external.forgot_password.submit') }}"/>
+                        <br/>
+                        <a href="{{ route('login') }}">{{ __('t_external.forgot_password.back_to_login') }}</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="contentFooter"></div>
+</div>
+
+@endsection
