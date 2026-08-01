@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Illuminate\Support\Facades\DB;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\User;
@@ -22,6 +23,8 @@ class CoordinateDistanceCalculatorTest extends TestCase
     {
         parent::setUp();
         $this->settingsService = app(SettingsService::class);
+        // Wrap-around distance assumes the default 499 systems per galaxy.
+        $this->settingsService->set('number_of_systems', UniverseConstants::MAX_SYSTEM_COUNT);
         $this->calculator = new CoordinateDistanceCalculator($this->settingsService);
     }
 
