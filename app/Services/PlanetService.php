@@ -364,9 +364,23 @@ class PlanetService
             }
 
             if ($mission->parent_id === null) {
+                // Moon-origin outbound fleets are rebound to the parent planet afterwards
+                // (see redirectActiveOutgoingMoonMissionsToParentPlanet) so they can finish
+                // the mission and return home. Recalling them here would send them back to
+                // the dying moon and then null planet_id_to on delete.
+                if ($this->isMoon() && (int) $mission->planet_id_from === (int) $this->planet->id) {
+                    continue;
+                }
+
                 // Outbound still in flight: recall so ships return to origin immediately.
                 $fleetMissionService->cancelMission($mission);
             } else {
+                // Return trips still headed to a moon being deleted are rebound to the parent
+                // planet below; force-arriving here would land ships on a body about to vanish.
+                if ($this->isMoon() && (int) $mission->planet_id_to === (int) $this->planet->id) {
+                    continue;
+                }
+
                 // Return trip still in flight: force immediate arrival at the home planet.
                 $mission->time_arrival = $nowTs;
                 if ($mission->time_holding !== null) {
@@ -399,6 +413,7 @@ class PlanetService
     /**
      * Rebind active missions launched from a moon to its parent planet before the moon is deleted.
      * This preserves the original flight while ensuring the fleet returns to the planet instead.
+     * Also rebinds return trips that were still headed back to the moon.
      */
     private function redirectActiveOutgoingMoonMissionsToParentPlanet(): void
     {
@@ -408,15 +423,26 @@ class PlanetService
         }
 
         $parentCoordinates = $parentPlanet->getPlanetCoordinates();
+        $parentPlanetId = $parentPlanet->getPlanetId();
 
         FleetMission::where('planet_id_from', $this->planet->id)
             ->where('processed', 0)
             ->update([
-                'planet_id_from' => $parentPlanet->getPlanetId(),
+                'planet_id_from' => $parentPlanetId,
                 'galaxy_from' => $parentCoordinates->galaxy,
                 'system_from' => $parentCoordinates->system,
                 'position_from' => $parentCoordinates->position,
                 'type_from' => PlanetType::Planet->value,
+            ]);
+
+        FleetMission::where('planet_id_to', $this->planet->id)
+            ->where('processed', 0)
+            ->update([
+                'planet_id_to' => $parentPlanetId,
+                'galaxy_to' => $parentCoordinates->galaxy,
+                'system_to' => $parentCoordinates->system,
+                'position_to' => $parentCoordinates->position,
+                'type_to' => PlanetType::Planet->value,
             ]);
     }
 
