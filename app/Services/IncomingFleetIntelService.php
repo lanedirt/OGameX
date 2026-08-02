@@ -111,7 +111,8 @@ class IncomingFleetIntelService
     {
         foreach ($row->union_player_breakdown as $playerIndex => $playerInfo) {
             foreach ($playerInfo['origins'] as $originIndex => $origin) {
-                $row->union_player_breakdown[$playerIndex]['origins'][$originIndex]['ship_count'] = 0;
+                $origin['ship_count'] = 0;
+                $row->union_player_breakdown[$playerIndex]['origins'][$originIndex] = $origin;
             }
         }
     }

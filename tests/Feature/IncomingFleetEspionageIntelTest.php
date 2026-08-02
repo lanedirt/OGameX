@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Testing\TestResponse;
+use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\ObjectService;
@@ -123,22 +126,28 @@ class IncomingFleetEspionageIntelTest extends FleetDispatchTestCase
     }
 
     /**
-     * Send an attack from the current user to a foreign planet, then fetch the
-     * event list as the defender with the given espionage level.
+     * Send an attack from the current user to a freshly created defender planet,
+     * then fetch the event list as that defender with the given espionage level.
+     *
+     * Uses a brand-new defender so leftover missions from other tests cannot
+     * pollute the event list (e.g. prior attackers reused as foreign targets).
      */
-    private function fetchDefenderEventListWithIncomingAttack(int $defenderEspionageLevel, int $shipCount)
+    private function fetchDefenderEventListWithIncomingAttack(int $defenderEspionageLevel, int $shipCount): TestResponse
     {
         $this->basicSetup();
 
+        $defenderUser = User::factory()->create();
+        $defenderPlanet = $this->createPlanetAtSafeCoordinate($defenderUser->id);
+
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), $shipCount);
-        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($unitCollection, new Resources(0, 0, 0, 0));
+        $this->dispatchFleet($defenderPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet);
 
-        $defenderPlayer = $foreignPlanet->getPlayer();
+        $defenderPlayer = resolve(PlayerServiceFactory::class)->make($defenderUser->id, true);
         $defenderPlayer->setResearchLevel('espionage_technology', $defenderEspionageLevel);
 
         // Switch auth context to the defender so event list is built for them.
-        $this->currentUserId = $defenderPlayer->getId();
+        $this->currentUserId = $defenderUser->id;
         $this->be(User::findOrFail($this->currentUserId));
         $this->reloadApplication();
 
