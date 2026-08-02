@@ -28,11 +28,16 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   laravel-pint-psr12-code-style-checker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
@@ -53,4 +58,9 @@ jobs:
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Run Laravel Pint (PSR-12)
-        run: composer run cs -- --verbose --test
+        run: composer run cs -- --verbose
+
+      - name: Commit fixed files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: fix code style (Laravel Pint)"
