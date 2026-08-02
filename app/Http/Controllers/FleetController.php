@@ -143,7 +143,7 @@ class FleetController extends OGameController
             if ($eventRowViewModel->is_return_trip) {
                 // Origin becomes destination (where fleet is coming from)
                 $eventRowViewModel->origin_planet_name = '';
-                $eventRowViewModel->origin_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
+                $eventRowViewModel->origin_planet_coords = new Coordinate((int) $row->galaxy_to, (int) $row->system_to, (int) $row->position_to);
                 $eventRowViewModel->origin_planet_type = PlanetType::from($row->type_to);
                 if ($row->planet_id_to !== null) {
                     $planetToService = $planetServiceFactory->make($row->planet_id_to);
@@ -157,7 +157,7 @@ class FleetController extends OGameController
 
                 // Destination becomes origin (where fleet is going back to)
                 $eventRowViewModel->destination_planet_name = '';
-                $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
+                $eventRowViewModel->destination_planet_coords = new Coordinate((int) $row->galaxy_from, (int) $row->system_from, (int) $row->position_from);
                 $eventRowViewModel->destination_planet_type = PlanetType::from($row->type_from);
                 if ($row->planet_id_from !== null) {
                     $planetFromService = $planetServiceFactory->make($row->planet_id_from);
@@ -171,7 +171,7 @@ class FleetController extends OGameController
             } else {
                 // Normal trip - origin is where fleet started, destination is where it's going
                 $eventRowViewModel->origin_planet_name = '';
-                $eventRowViewModel->origin_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
+                $eventRowViewModel->origin_planet_coords = new Coordinate((int) $row->galaxy_from, (int) $row->system_from, (int) $row->position_from);
                 $eventRowViewModel->origin_planet_type = PlanetType::from($row->type_from);
                 if ($row->planet_id_from !== null) {
                     $planetFromService = $planetServiceFactory->make($row->planet_id_from);
@@ -184,7 +184,7 @@ class FleetController extends OGameController
                 }
 
                 $eventRowViewModel->destination_planet_name = '';
-                $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
+                $eventRowViewModel->destination_planet_coords = new Coordinate((int) $row->galaxy_to, (int) $row->system_to, (int) $row->position_to);
                 $eventRowViewModel->destination_planet_type = PlanetType::from($row->type_to);
 
                 if ($row->planet_id_to !== null) {
@@ -339,9 +339,9 @@ class FleetController extends OGameController
         if ($targetPlanet !== null) {
             $targetPlayer = $targetPlanet->getPlayer();
 
-            $targetPlayerId = $targetPlayer->getId();
+            $targetPlayerId = $targetPlayer?->getId() ?? 99999;
             $targetPlanetName = $targetPlanet->getPlanetName();
-            $targetPlayerName = $targetPlayer->getUsername(false);
+            $targetPlayerName = $targetPlayer?->getUsername(false) ?? 'Deep space';
             $targetCoordinates = $targetPlanet->getPlanetCoordinates();
         } else {
             $targetPlayerId = 99999;
@@ -934,7 +934,7 @@ class FleetController extends OGameController
         // Resolve the target planet owner name
         $targetPlayerName = '';
         $planetServiceFactory = app(PlanetServiceFactory::class);
-        $targetCoordinate = new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to);
+        $targetCoordinate = new Coordinate((int) $mission->galaxy_to, (int) $mission->system_to, (int) $mission->position_to);
         $targetPlanetService = $planetServiceFactory->makeForCoordinate($targetCoordinate);
         if ($targetPlanetService !== null) {
             $targetPlayer = $targetPlanetService->getPlayer();

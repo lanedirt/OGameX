@@ -106,7 +106,11 @@ abstract class AccountTestCase extends TestCase
     public function reloadApplication(): void
     {
         $this->refreshApplication();
-        $this->be(User::find($this->currentUserId));
+        $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('Current user not found.');
+        }
+        $this->be($user);
     }
 
     /**
@@ -207,7 +211,7 @@ abstract class AccountTestCase extends TestCase
         $this->assertNotEmpty($planetId);
 
         $this->currentUserId = (int)$playerId;
-        $this->currentUsername = $playerName;
+        $this->currentUsername = (string)$playerName;
         $this->currentPlanetId = (int)$planetId;
 
         // Initialize the player service with factory.
@@ -301,7 +305,11 @@ abstract class AccountTestCase extends TestCase
             // Create and return a new PlanetService instance for the found planet.
             try {
                 $planetServiceFactory =  resolve(PlanetServiceFactory::class);
-                return $planetServiceFactory->make($planet_id[0]);
+                $foundPlanet = $planetServiceFactory->make($planet_id[0]);
+                if ($foundPlanet === null) {
+                    $this->fail('Failed to create planet service for planet id: ' . $planet_id[0]);
+                }
+                return $foundPlanet;
             } catch (Exception $e) {
                 $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
             }
@@ -319,6 +327,9 @@ abstract class AccountTestCase extends TestCase
         // First get a nearby foreign planet to obtain its player
         $foreignPlanet = $this->getNearbyForeignPlanet();
         $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet has no owner.');
+        }
 
         // Get a random empty coordinate near the current planet
         $coordinate = $this->getNearbyEmptyCoordinate();
@@ -388,7 +399,11 @@ abstract class AccountTestCase extends TestCase
             // Create and return a new PlanetService instance for the found planet.
             try {
                 $planetServiceFactory =  resolve(PlanetServiceFactory::class);
-                return $planetServiceFactory->make($planet_id[0]);
+                $foundPlanet = $planetServiceFactory->make($planet_id[0]);
+                if ($foundPlanet === null) {
+                    $this->fail('Failed to create planet service for planet id: ' . $planet_id[0]);
+                }
+                return $foundPlanet;
             } catch (Exception $e) {
                 $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
             }
@@ -475,7 +490,11 @@ abstract class AccountTestCase extends TestCase
     {
         // Update current users planet buildings to allow for research by mutating database.
         try {
-            $this->planetService->getPlayer()->setResearchLevel($machine_name, $object_level);
+            $player = $this->planetService->getPlayer();
+            if ($player === null) {
+                $this->fail('Current planet has no owner.');
+            }
+            $player->setResearchLevel($machine_name, $object_level);
         } catch (Exception $e) {
             $this->fail('Failed to set research level for player. Error: ' . $e->getMessage());
         }
@@ -939,7 +958,11 @@ abstract class AccountTestCase extends TestCase
      */
     protected function switchToSecondPlanet(): void
     {
-        $response = $this->get('/overview?cp=' . $this->secondPlanetService->getPlanetId());
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $response = $this->get('/overview?cp=' . $secondPlanetService->getPlanetId());
         $response->assertStatus(200);
     }
 

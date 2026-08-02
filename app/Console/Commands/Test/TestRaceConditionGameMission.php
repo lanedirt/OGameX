@@ -2,14 +2,15 @@
 
 namespace OGame\Console\Commands\Test;
 
-use Illuminate\Console\Attributes\Description;
-use Illuminate\Console\Attributes\Signature;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Validation\ValidationException;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
+use RuntimeException;
 
 /**
  * Class TestRaceConditionGameMission.
@@ -107,7 +108,11 @@ class TestRaceConditionGameMission extends TestCommand
     {
         $missionTypeTransport = 3;
         $secondPlanet = $this->playerService->planets->all()[1];
-        $this->playerService->planets->first()->addResources(new Resources(0, 0, 1000000, 0));
+        $firstPlanet = $this->playerService->planets->first();
+        if ($firstPlanet === null) {
+            throw new RuntimeException('Player has no planets.');
+        }
+        $firstPlanet->addResources(new Resources(0, 0, 1000000, 0));
         $secondPlanetCoordinates = $secondPlanet->getPlanetCoordinates();
 
         $csrfToken = $this->getCsrfToken();
