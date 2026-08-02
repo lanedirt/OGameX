@@ -2,10 +2,10 @@
 
 namespace OGame\Console\Commands\Test;
 
-use Illuminate\Console\Attributes\Description;
-use Illuminate\Console\Attributes\Signature;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Validation\ValidationException;
