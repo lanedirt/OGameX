@@ -909,7 +909,6 @@ return [
         'is_requirement_for'                    => 'è un requisito per',
         'level'                                 => 'Livello',
 
-        // Categorie
         'category_construction' => 'Costruzione',
         'category_research' => 'Ricerca',
         'category_shipyard' => 'Cantiere navale',
