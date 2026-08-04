@@ -141,4 +141,79 @@ class TechtreeTest extends AccountTestCase
             }
         }
     }
+
+    /**
+     * Verify that technology overview popups return HTTP 200 for all objects.
+     */
+    public function testTechtreeTechnologyPopupsHttp200(): void
+    {
+        foreach (ObjectService::getObjects() as $object) {
+            $response = $this->get(
+                'ajax/techtree?tab=3&object_id=' . $object->id
+            );
+
+            try {
+                $response->assertStatus(200);
+            } catch (AssertionFailedError $e) {
+                $this->fail(
+                    'AJAX technology page for "' .
+                    $object->title .
+                    '" does not return HTTP 200.'
+                );
+            }
+        }
+    }
+
+    /**
+     * Verify that technology requirements show their current status.
+     */
+    public function testTechtreeTechnologyPopupRequirementStatus(): void
+    {
+        $object = ObjectService::getObjectByMachineName('metal_mine');
+
+        $this->planetSetObjectLevel('deuterium_synthesizer', 0);
+        $this->playerSetResearchLevel('energy_technology', 0);
+
+        $response = $this->get(
+            'ajax/techtree?tab=3&object_id=' . $object->id
+        );
+
+        $response->assertStatus(200);
+        $response->assertSee('data-object="fusion_plant"', false);
+
+        $response->assertSeeInOrder([
+            'data-requirement="deuterium_synthesizer"',
+            'data-current-level="0"',
+            'data-required-level="5"',
+            'data-requirement-met="false"',
+        ], false);
+
+        $response->assertSeeInOrder([
+            'data-requirement="energy_technology"',
+            'data-current-level="0"',
+            'data-required-level="3"',
+            'data-requirement-met="false"',
+        ], false);
+
+        $this->planetSetObjectLevel('deuterium_synthesizer', 5);
+        $this->playerSetResearchLevel('energy_technology', 3);
+
+        $response = $this->get(
+            'ajax/techtree?tab=3&object_id=' . $object->id
+        );
+
+        $response->assertSeeInOrder([
+            'data-requirement="deuterium_synthesizer"',
+            'data-current-level="5"',
+            'data-required-level="5"',
+            'data-requirement-met="true"',
+        ], false);
+
+        $response->assertSeeInOrder([
+            'data-requirement="energy_technology"',
+            'data-current-level="3"',
+            'data-required-level="3"',
+            'data-requirement-met="true"',
+        ], false);
+    }
 }
