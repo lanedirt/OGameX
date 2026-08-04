@@ -930,7 +930,6 @@ return [
         'is_requirement_for'                    => 'is a requirement for',
         'level'                                 => 'Level',
 
-        // Categories
         'category_construction' => 'Construction',
         'category_research' => 'Research',
         'category_shipyard' => 'Shipyard',
