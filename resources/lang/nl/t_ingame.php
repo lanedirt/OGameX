@@ -909,7 +909,6 @@ return [
         'is_requirement_for'                    => 'is een vereiste voor',
         'level'                                 => 'Niveau',
 
-        // Categorieën
         'category_construction' => 'Bouw',
         'category_research' => 'Onderzoek',
         'category_shipyard' => 'Scheepswerf',
