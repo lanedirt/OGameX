@@ -12,6 +12,7 @@ use Illuminate\Testing\TestResponse;
 use OGame\Factories\GameMessageFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
 use OGame\Models\Planet;
@@ -75,19 +76,27 @@ abstract class AccountTestCase extends TestCase
         $this->travelTo(Date::create(2024, 1, 1, 0, 0, 0));
 
         // Set default server settings for all tests.
+        // Reset universe bounds / fleet settings that other tests may have mutated
+        // (settings persist in the shared test DB across test classes).
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
+        $settingsService->set('espionage_probe_capacity_on', 0);
+        $settingsService->set('deuterium_consumption', '1.0');
+        $settingsService->set('number_of_galaxies', 9);
+        $settingsService->set('number_of_systems', UniverseConstants::MAX_SYSTEM_COUNT);
 
         // Set amount of planets to be created for the user because planet switching
         // is a part of the test suite.
         $settingsService->set('registration_planet_amount', $this->userPlanetAmount);
 
-        // Reset planet assignment to start within valid galaxy bounds.
-        // This ensures tests don't fail when the database has planets in galaxies
-        // beyond the configured max (e.g., from previous test runs with different settings).
+        // Reset planet assignment to start within valid galaxy/system bounds.
+        // This ensures tests don't fail when the database has planets outside the
+        // configured max (e.g., from previous test runs with different settings).
         $maxGalaxies = $settingsService->numberOfGalaxies();
+        $maxSystems = $settingsService->numberOfSystems();
         $lastAssignedGalaxy = (int)$settingsService->get('last_assigned_galaxy', 1);
-        if ($lastAssignedGalaxy > $maxGalaxies) {
+        $lastAssignedSystem = (int)$settingsService->get('last_assigned_system', 1);
+        if ($lastAssignedGalaxy > $maxGalaxies || $lastAssignedSystem > $maxSystems) {
             $settingsService->set('last_assigned_galaxy', 1);
             $settingsService->set('last_assigned_system', 1);
         }

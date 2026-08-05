@@ -11,6 +11,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PhalanxService;
 use OGame\Services\PlayerService;
+use OGame\Services\SettingsService;
 
 class PhalanxController extends OGameController
 {
@@ -21,15 +22,16 @@ class PhalanxController extends OGameController
      * @param PlayerService $player
      * @param PlanetServiceFactory $planetServiceFactory
      * @param PhalanxService $phalanxService
+     * @param SettingsService $settingsService
      * @return JsonResponse
      * @throws Exception
      */
-    public function scan(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory, PhalanxService $phalanxService): JsonResponse
+    public function scan(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory, PhalanxService $phalanxService, SettingsService $settingsService): JsonResponse
     {
         // Validate request
         $request->validate([
-            'galaxy' => 'required|integer|min:1',
-            'system' => 'required|integer|min:1|max:' . UniverseConstants::MAX_SYSTEM_COUNT,
+            'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
+            'system' => 'required|integer|min:1|max:' . $settingsService->numberOfSystems(),
             'position' => 'required|integer|min:1|max:' . UniverseConstants::MAX_PLANET_POSITION,
         ]);
 

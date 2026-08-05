@@ -40,4 +40,9 @@ final class UniverseConstants
      * It's one position beyond the last planet position.
      */
     public const int EXPEDITION_POSITION = 16;
+
+    /**
+     * Cargo capacity granted to espionage probes when the universe setting is enabled.
+     */
+    public const int ESPIONAGE_PROBE_CARGO_CAPACITY = 5;
 }
