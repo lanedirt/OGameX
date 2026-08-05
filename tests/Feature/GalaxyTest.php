@@ -64,6 +64,7 @@ class GalaxyTest extends AccountTestCase
     {
         $coordinates = $this->planetService->getPlanetCoordinates();
         $player = $this->planetService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
 
         $this->get('/');
 
@@ -89,6 +90,7 @@ class GalaxyTest extends AccountTestCase
 
         $coordinates = $this->planetService->getPlanetCoordinates();
         $player = $this->planetService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
 
         // Fill the only available fleet slot with an active mission.
         $mission = new FleetMission();
