@@ -72,6 +72,9 @@ class AllianceTest extends AccountTestCase
 
         // Verify user's alliance_id is updated
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $this->assertEquals($alliance->id, $user->alliance_id);
     }
 
@@ -266,6 +269,9 @@ class AllianceTest extends AccountTestCase
         $member = AllianceMember::where('alliance_id', $alliance->id)
             ->where('user_id', $newMember->id)
             ->first();
+        if ($member === null) {
+            $this->fail('Alliance member not found.');
+        }
         $this->assertEquals($rank->id, $member->rank_id);
     }
 
@@ -359,6 +365,9 @@ class AllianceTest extends AccountTestCase
 
         // Verify user's alliance_id cleared
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $this->assertNull($user->alliance_id);
     }
 
@@ -428,6 +437,9 @@ class AllianceTest extends AccountTestCase
 
         // Verify members' alliance_id cleared
         $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
         $this->assertNull($user->alliance_id);
         $member->refresh();
         $this->assertNull($member->alliance_id);
@@ -447,6 +459,9 @@ class AllianceTest extends AccountTestCase
         $founderMember = AllianceMember::where('alliance_id', $alliance->id)
             ->where('user_id', $this->currentUserId)
             ->first();
+        if ($founderMember === null) {
+            $this->fail('Founder member not found.');
+        }
 
         // Test all permissions
         $this->assertTrue($founderMember->hasPermission(AllianceRank::PERMISSION_SEE_APPLICATIONS));
@@ -485,6 +500,9 @@ class AllianceTest extends AccountTestCase
         $allianceMember = AllianceMember::where('alliance_id', $alliance->id)
             ->where('user_id', $member->id)
             ->first();
+        if ($allianceMember === null) {
+            $this->fail('Alliance member not found.');
+        }
 
         // Test permissions
         $this->assertTrue($allianceMember->hasPermission(AllianceRank::PERMISSION_SEE_MEMBERS));

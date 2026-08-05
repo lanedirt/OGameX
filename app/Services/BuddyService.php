@@ -268,7 +268,7 @@ class BuddyService
         }
 
         // Delete the request instead of marking it as rejected
-        return $request->delete();
+        return (bool) $request->delete();
     }
 
     /**
@@ -296,7 +296,7 @@ class BuddyService
             throw new Exception(__('t_buddies.error.already_processed'));
         }
 
-        return $request->delete();
+        return (bool) $request->delete();
     }
 
     /**
@@ -338,7 +338,7 @@ class BuddyService
             ]);
         }
 
-        return $request->delete();
+        return (bool) $request->delete();
     }
 
     /**
@@ -439,7 +439,7 @@ class BuddyService
             throw new Exception(__('t_buddies.error.not_in_ignore_list'));
         }
 
-        return $ignoredPlayer->delete();
+        return (bool) $ignoredPlayer->delete();
     }
 
     /**

@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Date;
 use OGame\Models\BuildingQueue;
 use OGame\Models\DarkMatterTransaction;
 use OGame\Models\ResearchQueue;
+use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Models\User;
+use OGame\Services\HalvingService;
 use Tests\AccountTestCase;
 
 /**
@@ -15,11 +18,24 @@ use Tests\AccountTestCase;
 class HalvingIntegrationTest extends AccountTestCase
 {
     /**
+     * Get the current user model, failing the test if it cannot be found.
+     */
+    private function findCurrentUser(): User
+    {
+        $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('Current user not found.');
+        }
+
+        return $user;
+    }
+
+    /**
      * Test building halving end-to-end workflow.
      */
     public function testBuildingHalvingEndToEnd(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -67,12 +83,12 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testResearchHalvingEndToEnd(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
         $this->planetSetObjectLevel('research_lab', 1);
-        $this->planetAddResources(new \OGame\Models\Resources(10000, 10000, 10000, 0));
+        $this->planetAddResources(new Resources(10000, 10000, 10000, 0));
         $this->addResearchBuildRequest('energy_technology');
 
         $queueItem = ResearchQueue::query()
@@ -102,6 +118,9 @@ class HalvingIntegrationTest extends AccountTestCase
         $this->assertLessThan($initialBalance, $user->dark_matter, 'Dark Matter should be deducted');
 
         $queueItem = ResearchQueue::find($queueItem->id);
+        if ($queueItem === null) {
+            $this->fail('Queue item should exist');
+        }
         $this->assertLessThan($initialTimeEnd, $queueItem->time_end, 'time_end should be reduced');
     }
 
@@ -114,14 +133,14 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testUnitHalvingEndToEnd(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
         $this->planetSetObjectLevel('robot_factory', 2);
         $this->planetSetObjectLevel('shipyard', 2);
         $this->playerSetResearchLevel('combustion_drive', 1);
-        $this->planetAddResources(new \OGame\Models\Resources(50000, 50000, 50000, 0));
+        $this->planetAddResources(new Resources(50000, 50000, 50000, 0));
         $this->addShipyardBuildRequest('light_fighter', 10);
 
         $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
@@ -180,7 +199,7 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testDoubleHalvingCompletesTask(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 200000;
         $user->save();
 
@@ -230,7 +249,7 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testHalvingWithInsufficientDarkMatter(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100;
         $user->save();
 
@@ -260,7 +279,7 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testHalvingWithInvalidQueueItemId(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -281,7 +300,7 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testHalvingWithVeryShortRemainingTime(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -294,7 +313,7 @@ class HalvingIntegrationTest extends AccountTestCase
 
         $this->assertNotNull($queueItem, 'Queue item should exist');
 
-        $queueItem->time_end = (int)\Carbon\Carbon::now()->timestamp + 2;
+        $queueItem->time_end = (int)Date::now()->timestamp + 2;
         $queueItem->save();
 
         $response = $this->post('/ajax/facilities/halve-building', [
@@ -323,10 +342,10 @@ class HalvingIntegrationTest extends AccountTestCase
 
         $this->assertNotNull($queueItem, 'Queue item should exist');
 
-        $halvingService = app(\OGame\Services\HalvingService::class);
+        $halvingService = app(HalvingService::class);
         $cost = $halvingService->calculateHalvingCost($queueItem->time_duration, 'building');
 
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = $cost;
         $user->save();
 
@@ -347,7 +366,7 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testHalvingInvalidQueueItems(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -371,6 +390,10 @@ class HalvingIntegrationTest extends AccountTestCase
             ->where('building', 1)
             ->where('processed', 0)
             ->first();
+
+        if ($queueItem === null) {
+            $this->fail('Queue item should exist');
+        }
 
         $queueItem->processed = 1;
         $queueItem->save();

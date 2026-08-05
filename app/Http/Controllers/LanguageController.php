@@ -39,9 +39,10 @@ class LanguageController extends OGameController
         session()->put('locale', $locale);
 
         // Persist to DB so the preference survives session expiry / new devices.
-        if (Auth::check()) {
-            Auth::user()->lang = $locale;
-            Auth::user()->save();
+        $user = Auth::user();
+        if ($user !== null) {
+            $user->lang = $locale;
+            $user->save();
         }
 
         // Flush session to the store immediately so the locale key is visible to

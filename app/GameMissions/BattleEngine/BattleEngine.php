@@ -20,6 +20,7 @@ use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 use OGame\Services\WreckFieldService;
+use RuntimeException;
 
 /**
  * Abstract class BattleEngine.
@@ -105,14 +106,18 @@ abstract class BattleEngine
         $attackerShieldBase = $attackerPlayer->getResearchLevel('shielding_technology');
         $attackerArmorBase = $attackerPlayer->getResearchLevel('armor_technology');
 
-        $defenderWeaponBase = $this->defenderPlanet->getPlayer()->getResearchLevel('weapon_technology');
-        $defenderShieldBase = $this->defenderPlanet->getPlayer()->getResearchLevel('shielding_technology');
-        $defenderArmorBase = $this->defenderPlanet->getPlayer()->getResearchLevel('armor_technology');
+        $defenderPlayer = $this->defenderPlanet->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Battle defender planet has no owner.');
+        }
+        $defenderWeaponBase = $defenderPlayer->getResearchLevel('weapon_technology');
+        $defenderShieldBase = $defenderPlayer->getResearchLevel('shielding_technology');
+        $defenderArmorBase = $defenderPlayer->getResearchLevel('armor_technology');
 
         // Apply General class combat research bonus (+2 levels)
         $characterClassService = app(CharacterClassService::class);
         $attackerCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($attackerPlayer->getUser());
-        $defenderCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($this->defenderPlanet->getPlayer()->getUser());
+        $defenderCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($defenderPlayer->getUser());
 
         $result->attackerWeaponLevel = $attackerWeaponBase + $attackerCombatBonus;
         $result->attackerShieldLevel = $attackerShieldBase + $attackerCombatBonus;
@@ -601,7 +606,11 @@ abstract class BattleEngine
     {
         $spaceDockPlanet = $this->defenderPlanet->isMoon() ? $this->defenderPlanet->planet() : $this->defenderPlanet;
         $spaceDockLevel = max(1, $spaceDockPlanet->getObjectLevel('space_dock'));
-        $wreckFieldService = new WreckFieldService($spaceDockPlanet->getPlayer(), $this->settings);
+        $spaceDockPlayer = $spaceDockPlanet->getPlayer();
+        if ($spaceDockPlayer === null) {
+            throw new RuntimeException('Wreck field calculation planet has no owner.');
+        }
+        $wreckFieldService = new WreckFieldService($spaceDockPlayer, $this->settings);
         $wreckFieldPercentage = $wreckFieldService->getRecoverableWreckFieldPercentage($spaceDockLevel) / 100;
         $wreckFieldData = $wreckFieldService->calculateShipsForWreckField($defenderUnitsLost, $spaceDockLevel);
 

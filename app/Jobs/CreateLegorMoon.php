@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use OGame\Models\DebrisField;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
+
 class CreateLegorMoon implements ShouldQueue
 {
     use Dispatchable;
