@@ -14,6 +14,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\FleetMissionService;
+use OGame\Services\IncomingFleetIntelService;
 use OGame\Services\PlayerService;
 use OGame\ViewModels\FleetEventRowViewModel;
 
@@ -199,10 +200,11 @@ class FleetEventsController extends OGameController
      * @param PlanetServiceFactory $planetServiceFactory
      * @return View
      */
-    public function fetchEventList(PlayerService $player, FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory): View
+    public function fetchEventList(PlayerService $player, FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory, IncomingFleetIntelService $incomingFleetIntelService): View
     {
         // Get all the fleet movements for the current user.
         $friendlyMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
+        $viewerIntelLevel = $incomingFleetIntelService->resolveLevel($player);
 
         $fleet_events = [];
         foreach ($friendlyMissionRows as $row) {
@@ -275,6 +277,11 @@ class FleetEventsController extends OGameController
             $friendlyStatus = $this->determineFriendly($row, $player);
             $eventRowViewModel->friendly_status = $friendlyStatus->value;
 
+            // Redact foreign fleet composition based on viewer's espionage technology.
+            if ($friendlyStatus !== FleetMissionStatus::Friendly) {
+                $incomingFleetIntelService->apply($eventRowViewModel, $viewerIntelLevel);
+            }
+
             $eventRowViewModel->is_recallable = false;
             if ($friendlyStatus === FleetMissionStatus::Friendly) {
                 // Missile attacks (mission type 10) cannot be recalled.
@@ -345,6 +352,9 @@ class FleetEventsController extends OGameController
                 $waitEndRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $waitEndRow->fleet_units = $eventRowViewModel->fleet_units;
                 $waitEndRow->resources = $eventRowViewModel->resources;
+                $waitEndRow->fleet_intel_level = $eventRowViewModel->fleet_intel_level;
+                $waitEndRow->show_shipment = $eventRowViewModel->show_shipment;
+                $waitEndRow->friendly_status = $eventRowViewModel->friendly_status;
                 $fleet_events[] = $waitEndRow;
             }
 
@@ -381,6 +391,9 @@ class FleetEventsController extends OGameController
                 $returnTripRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
                 $returnTripRow->resources = new Resources(0, 0, 0, 0);
+                $returnTripRow->fleet_intel_level = $eventRowViewModel->fleet_intel_level;
+                $returnTripRow->show_shipment = $eventRowViewModel->show_shipment;
+                $returnTripRow->friendly_status = $eventRowViewModel->friendly_status;
                 $returnTripRow->destination_player_id = $eventRowViewModel->destination_player_id;
                 $returnTripRow->destination_player_name = $eventRowViewModel->destination_player_name;
                 $fleet_events[] = $returnTripRow;
@@ -555,6 +568,11 @@ class FleetEventsController extends OGameController
 
             // Attach all member fleets (own + foreign) for expanded view
             $summaryRow->union_member_fleets = $allMemberViewModels;
+
+            // Defender (hostile/neutral) views of ACS: redact foreign member composition by espionage level.
+            if ($summaryRow->friendly_status !== FleetMissionStatus::Friendly->value) {
+                $incomingFleetIntelService->applyToUnionSummary($summaryRow, $viewerIntelLevel, $player->getId());
+            }
 
             $nonUnionEvents[] = $summaryRow;
         }
