@@ -11,9 +11,9 @@ use OGame\GameMissions\Models\MissionPossibleStatus;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
-use OGame\Support\FleetMissionPlanetFormatter;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
+use OGame\Support\FleetMissionPlanetFormatter;
 use RuntimeException;
 
 class DeploymentMission extends GameMission

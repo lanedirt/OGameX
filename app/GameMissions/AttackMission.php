@@ -16,7 +16,6 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
-use OGame\Support\FleetMissionPlanetFormatter;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\CharacterClassService;
@@ -25,6 +24,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\WreckFieldService;
+use OGame\Support\FleetMissionPlanetFormatter;
 use RuntimeException;
 use Throwable;
 
