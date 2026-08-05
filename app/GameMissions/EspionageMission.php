@@ -24,6 +24,7 @@ use OGame\Services\CounterEspionageService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Support\FleetMissionPlanetFormatter;
 use RuntimeException;
 use Throwable;
 
@@ -182,8 +183,8 @@ class EspionageMission extends GameMission
 
             $params = [
                 // IMPORTANT: pass the raw mission planet id inside [planet]...[/planet]
-                'planet'        => '[planet]' . $mission->planet_id_from . '[/planet]',
-                'defender'      => '[planet]' . $mission->planet_id_to . '[/planet]',   // defender planet
+                'planet'        => FleetMissionPlanetFormatter::tag($mission, 'from'),
+                'defender'      => FleetMissionPlanetFormatter::tag($mission, 'to'),
                 'attacker_name' => $attackerName,
                 'chance'        => $counterEspionageChance,
             ];

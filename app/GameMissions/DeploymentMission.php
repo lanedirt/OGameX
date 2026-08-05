@@ -13,6 +13,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
+use OGame\Support\FleetMissionPlanetFormatter;
 use RuntimeException;
 
 class DeploymentMission extends GameMission
@@ -85,16 +86,16 @@ class DeploymentMission extends GameMission
         // Send a message to the player that the mission has arrived
         if ($resources->any()) {
             $this->messageService->sendSystemMessageToPlayer($targetPlayer, FleetDeploymentWithResources::class, [
-                'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
-                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'from' => FleetMissionPlanetFormatter::tag($mission, 'from'),
+                'to' => FleetMissionPlanetFormatter::tag($mission, 'to'),
                 'metal' => (string)$mission->metal,
                 'crystal' => (string)$mission->crystal,
                 'deuterium' => (string)($mission->deuterium +  ($mission->deuterium_consumption / 2)), //if mission deployment: Add half of the consumed deuterium
             ]);
         } else {
             $this->messageService->sendSystemMessageToPlayer($targetPlayer, FleetDeployment::class, [
-                'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
-                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'from' => FleetMissionPlanetFormatter::tag($mission, 'from'),
+                'to' => FleetMissionPlanetFormatter::tag($mission, 'to'),
             ]);
         }
 

@@ -14,6 +14,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\PlanetService;
+use OGame\Support\FleetMissionPlanetFormatter;
 use RuntimeException;
 
 class TransportMission extends GameMission
@@ -78,8 +79,8 @@ class TransportMission extends GameMission
 
         // Send a message to the origin player that the mission has arrived
         $this->messageService->sendSystemMessageToPlayer($originPlayer, TransportArrived::class, [
-            'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
-            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+            'from' => FleetMissionPlanetFormatter::tag($mission, 'from'),
+            'to' => FleetMissionPlanetFormatter::tag($mission, 'to'),
             'metal' => (string)$mission->metal,
             'crystal' => (string)$mission->crystal,
             'deuterium' => (string)$mission->deuterium,
@@ -88,8 +89,8 @@ class TransportMission extends GameMission
         if ($originPlayer->getId() !== $targetPlayer->getId()) {
             // Send a message to the target player that the mission has arrived
             $this->messageService->sendSystemMessageToPlayer($targetPlayer, TransportReceived::class, [
-                'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
-                'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+                'from' => FleetMissionPlanetFormatter::tag($mission, 'from'),
+                'to' => FleetMissionPlanetFormatter::tag($mission, 'to'),
                 'metal' => (string)$mission->metal,
                 'crystal' => (string)$mission->crystal,
                 'deuterium' => (string)$mission->deuterium,
