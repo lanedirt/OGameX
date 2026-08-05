@@ -13,6 +13,13 @@ use OGame\Services\SettingsService;
 class ServerSettingsController extends OGameController
 {
     /**
+     * Minimum number of days a non-zero inactive-player-deletion threshold is clamped to.
+     * Because this setting permanently deletes accounts, a low value could wipe recently
+     * inactive players by accident; 0 remains valid and disables the feature entirely.
+     */
+    private const MIN_INACTIVE_DELETION_DAYS = 30;
+
+    /**
      * Shows the server settings page.
      *
      * @param PlayerService $player
@@ -73,6 +80,7 @@ class ServerSettingsController extends OGameController
             'expedition_weight_items' => $settingsService->expeditionWeightItems(),
             'hamill_probability' => $settingsService->hamillManoeuvreChance(),
             'highscore_admin_visible' => $settingsService->highscoreAdminVisible(),
+            'inactive_player_deletion_days' => $settingsService->inactivePlayerDeletionDays(),
         ]);
     }
 
@@ -143,6 +151,13 @@ class ServerSettingsController extends OGameController
         $settingsService->set('hamill_manoeuvre_chance', max(1, (int)request('hamill_probability', 1000)));
 
         $settingsService->set('highscore_admin_visible', request('highscore_admin_visible', 0));
+
+        // Clamp non-zero values up to a safe minimum floor; 0 stays valid and disables the feature.
+        $inactiveDeletionDays = (int) request('inactive_player_deletion_days', 0);
+        if ($inactiveDeletionDays > 0) {
+            $inactiveDeletionDays = max(self::MIN_INACTIVE_DELETION_DAYS, $inactiveDeletionDays);
+        }
+        $settingsService->set('inactive_player_deletion_days', $inactiveDeletionDays);
 
         // Clear highscore cache when admin visibility setting changes
         $this->clearHighscoreCache();

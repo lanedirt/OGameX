@@ -79,6 +79,19 @@ class PlanetServiceFactory
     }
 
     /**
+     * Clear all local instance caches. Useful for long-running jobs (e.g. batch deletion) that
+     * would otherwise accumulate a PlanetService for every processed planet/moon in memory.
+     *
+     * @return void
+     */
+    public function clearInstances(): void
+    {
+        $this->planetInstancesByCoordinate = [];
+        $this->moonInstancesByCoordinate = [];
+        $this->instancesById = [];
+    }
+
+    /**
      * Returns a planetService either from local instances cache or creates a new one. Note:
      * it is advised to use makeForPlayer() method if playerService is already available.
      *
