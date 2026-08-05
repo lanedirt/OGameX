@@ -909,6 +909,13 @@ return [
         'is_requirement_for'                    => 'is een vereiste voor',
         'level'                                 => 'Niveau',
 
+        // Technologie-tab categorieën
+        'technology_category_construction'      => 'Constructie',
+        'technology_category_research'          => 'Onderzoek',
+        'technology_category_ships'             => 'Schepen',
+        'technology_category_defense'           => 'Verdediging',
+        'technology_category_rockets'           => 'Raketten',
+
         // Gedeelde tabelkolommen
         'col_level'                             => 'Niveau',
         'col_difference'                        => 'Verschil',
