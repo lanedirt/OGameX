@@ -5,13 +5,17 @@ namespace Tests\Feature;
 use Illuminate\Support\Facades\Date;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMissions\AttackMission;
+use OGame\GameMissions\ColonisationMission;
+use OGame\GameMissions\DeploymentMission;
 use OGame\GameMissions\EspionageMission;
 use OGame\GameMissions\TransportMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
+use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use Tests\AccountTestCase;
 
@@ -188,6 +192,117 @@ class DestroyedPlanetTest extends AccountTestCase
     }
 
     /**
+     * Defense left on a destroyed planet stays and fights when attacked.
+     */
+    public function testAttackFightsDefenseOnDestroyedPlanet(): void
+    {
+        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet->addUnit('rocket_launcher', 50);
+        $foreignPlanet->addResources(new Resources(10000, 10000, 10000, 0));
+        $this->assertSame(50, $foreignPlanet->getObjectAmount('rocket_launcher'));
+
+        $coords = $foreignPlanet->getPlanetCoordinates();
+        $foreignPlanet->applyDestroyedFlag((int) Date::now()->timestamp);
+        $this->assertSame(50, $foreignPlanet->getObjectAmount('rocket_launcher'), 'Defense must remain after soft-delete');
+
+        $this->planetAddUnit('light_fighter', 200);
+        $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 200);
+
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+        $fleetMission = $fleetMissionService->createNewFromPlanet(
+            $this->planetService,
+            $coords,
+            PlanetType::Planet,
+            1,
+            $units,
+            new Resources(0, 0, 0, 0),
+            10
+        );
+
+        $duration = $fleetMissionService->calculateFleetMissionDuration(
+            $this->planetService,
+            $coords,
+            $units,
+            resolve(AttackMission::class)
+        );
+        $this->travel($duration + 1)->seconds();
+        $this->reloadApplication();
+
+        $response = $this->get('/overview');
+        $response->assertStatus(200);
+
+        $fleetMission = $fleetMissionService->getFleetMissionById($fleetMission->id, false);
+        $this->assertNotNull($fleetMission);
+        $this->assertSame(1, (int) $fleetMission->processed, 'Attack against destroyed planet should process');
+
+        $battleReport = BattleReport::orderBy('id', 'desc')->first();
+        $this->assertNotNull($battleReport, 'Battle report should be created against destroyed planet defense');
+    }
+
+    /**
+     * Deployment is blocked; colonisation is blocked while the destroyed row occupies the slot.
+     */
+    public function testDeploymentAndColonisationBlockedOnDestroyedPlanet(): void
+    {
+        $this->assertNotNull($this->secondPlanetService);
+        $coords = $this->secondPlanetService->getPlanetCoordinates();
+        $this->secondPlanetService->applyDestroyedFlag((int) Date::now()->timestamp);
+
+        $cargo = new UnitCollection();
+        $cargo->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        $colonyShips = new UnitCollection();
+        $colonyShips->addUnit(ObjectService::getUnitObjectByMachineName('colony_ship'), 1);
+
+        $deploymentMission = resolve(DeploymentMission::class);
+        $colonisationMission = resolve(ColonisationMission::class);
+
+        $this->assertFalse(
+            $deploymentMission->isMissionPossible($this->planetService, $coords, PlanetType::Planet, $cargo)->possible,
+            'Deployment must be blocked to destroyed planets'
+        );
+        $this->assertFalse(
+            $colonisationMission->isMissionPossible($this->planetService, $coords, PlanetType::Planet, $colonyShips)->possible,
+            'Colonisation must stay blocked while destroyed planet occupies the slot'
+        );
+    }
+
+    /**
+     * Destroyed planets do not accrue resources even if production rates are non-zero.
+     */
+    public function testDestroyedPlanetDoesNotAccrueResources(): void
+    {
+        $this->assertNotNull($this->secondPlanetService);
+        $planet = $this->secondPlanetService;
+        $planet->applyDestroyedFlag((int) Date::now()->timestamp);
+
+        // Simulate stale non-zero rates that could race with soft-delete.
+        $row = Planet::find($planet->getPlanetId());
+        $this->assertNotNull($row);
+        $row->metal_production = 1000;
+        $row->crystal_production = 1000;
+        $row->deuterium_production = 1000;
+        $row->save();
+        $planet->reloadPlanet();
+
+        $metalBefore = (int) $planet->metal()->get();
+        $until = (int) Date::now()->addHour()->timestamp;
+        $planet->updateResourcesUntil($until);
+
+        $this->assertSame($metalBefore, (int) $planet->metal()->get(), 'Destroyed planets must not accrue resources');
+        $row->refresh();
+        $this->assertSame($until, (int) $row->time_last_update);
+    }
+
+    /**
      * Daily purge permanently deletes bodies flagged for at least 24 hours.
      */
     public function testCleanupDestroyedPlanetsPurgesAfter24Hours(): void
@@ -313,5 +428,61 @@ class DestroyedPlanetTest extends AccountTestCase
         $homePlanet->reloadPlanet();
         $this->assertSame($shipsBefore + 3, $homePlanet->getObjectAmount('small_cargo'));
         $this->assertSame($metalBefore + 500, (int) $homePlanet->metal()->get());
+    }
+
+    /**
+     * Purge recalls an in-flight outbound mission targeting the body before deleting it.
+     */
+    public function testCleanupRecallsOutboundMissionToDestroyedPlanet(): void
+    {
+        $this->assertNotNull($this->secondPlanetService);
+
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+
+        $homePlanet = $this->planetService;
+        $abandonedPlanet = $this->secondPlanetService;
+        $abandonedId = $abandonedPlanet->getPlanetId();
+        $abandonedCoords = $abandonedPlanet->getPlanetCoordinates();
+
+        $homePlanet->addUnit('small_cargo', 5);
+        $homePlanet->addResources(new Resources(0, 0, 100000, 0));
+        $shipsBeforeDispatch = $homePlanet->getObjectAmount('small_cargo');
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 3);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
+        $outbound = $fleetMissionService->createNewFromPlanet(
+            $homePlanet,
+            $abandonedCoords,
+            PlanetType::Planet,
+            3,
+            $units,
+            new Resources(0, 0, 0, 0),
+            10
+        );
+
+        $homePlanet->reloadPlanet();
+        $this->assertSame($shipsBeforeDispatch - 3, $homePlanet->getObjectAmount('small_cargo'));
+
+        // Soft-flag after dispatch: abandon normally blocks active fleets, but attackers/transports
+        // can still be in flight when the daily purge runs.
+        $abandonedPlanet->applyDestroyedFlag((int) Date::now()->subHours(25)->timestamp);
+
+        // @phpstan-ignore-next-line
+        $this->artisan('ogamex:scheduler:cleanup-destroyed-planets')->assertSuccessful();
+
+        $this->assertDatabaseMissing('planets', ['id' => $abandonedId]);
+
+        $outbound->refresh();
+        $this->assertSame(1, (int) $outbound->canceled, 'Outbound mission should be recalled during purge');
+        $this->assertSame(1, (int) $outbound->processed);
+
+        $returnMission = FleetMission::where('parent_id', $outbound->id)->first();
+        $this->assertNotNull($returnMission, 'Recall should create a return mission with the ships');
+        $this->assertSame(3, (int) $returnMission->small_cargo);
     }
 }

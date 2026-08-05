@@ -305,38 +305,42 @@ class PlanetService
      */
     public function permanentlyDeletePlanet(): void
     {
-        // If this is a planet and has a moon, permanently delete the moon first.
-        if ($this->isPlanet() && $this->hasMoon()) {
-            $this->moon()->permanentlyDeletePlanet();
-        }
-
-        $this->teleportFleetsAwayFromPlanet();
-
-        // Moon-origin fleets must keep a valid home planet so they can still return after the moon is gone.
-        if ($this->isMoon()) {
-            $this->redirectActiveOutgoingMoonMissionsToParentPlanet();
-        }
-
-        // Anonymize remaining fleet mission FK references.
-        FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
-        FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
-
-        BuildingQueue::where('planet_id', $this->planet->id)->delete();
-        ResearchQueue::where('planet_id', $this->planet->id)->delete();
-        UnitQueue::where('planet_id', $this->planet->id)->delete();
-        PlanetMove::where('planet_id', $this->planet->id)->delete();
-
-        // Update the player's current planet if it is the planet being abandoned.
-        $player = $this->getPlayer();
-        if ($player !== null && $player->getCurrentPlanetId() === $this->planet->id) {
-            $player->setCurrentPlanetId(0);
-        }
-
         $planetId = $this->planet->id;
         $coordinateKey = $this->getPlanetCoordinates()->asString();
         $planetType = $this->getPlanetType();
 
-        $this->planet->delete();
+        // Keep fleet teleports and the row delete atomic so a mid-purge failure
+        // cannot leave fleets recalled while the body still exists.
+        DB::transaction(function () {
+            // If this is a planet and has a moon, permanently delete the moon first.
+            if ($this->isPlanet() && $this->hasMoon()) {
+                $this->moon()->permanentlyDeletePlanet();
+            }
+
+            $this->teleportFleetsAwayFromPlanet();
+
+            // Moon-origin fleets must keep a valid home planet so they can still return after the moon is gone.
+            if ($this->isMoon()) {
+                $this->redirectActiveOutgoingMoonMissionsToParentPlanet();
+            }
+
+            // Anonymize remaining fleet mission FK references.
+            FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
+            FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
+
+            BuildingQueue::where('planet_id', $this->planet->id)->delete();
+            ResearchQueue::where('planet_id', $this->planet->id)->delete();
+            UnitQueue::where('planet_id', $this->planet->id)->delete();
+            PlanetMove::where('planet_id', $this->planet->id)->delete();
+
+            // Update the player's current planet if it is the planet being abandoned.
+            $player = $this->getPlayer();
+            if ($player !== null && $player->getCurrentPlanetId() === $this->planet->id) {
+                $player->setCurrentPlanetId(0);
+            }
+
+            $this->planet->delete();
+        });
 
         resolve(PlanetServiceFactory::class)->forgetPlanetCache($planetId, $coordinateKey, $planetType);
     }
@@ -1356,6 +1360,19 @@ class PlanetService
         if ($time_last_update <= 0) {
             $time_last_update = $until_time;
             $this->planet->time_last_update = $until_time;
+        }
+
+        // Destroyed planets produce nothing; advance the clock without accruing resources
+        // even if production rates were left non-zero by a concurrent update.
+        if ($this->isDestroyed()) {
+            if ($time_last_update < $until_time) {
+                $this->planet->time_last_update = $until_time;
+                if ($save_planet) {
+                    $this->save();
+                }
+            }
+
+            return;
         }
 
         if ($time_last_update < $until_time) {

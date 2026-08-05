@@ -6,6 +6,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Log;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
@@ -31,6 +32,7 @@ class CleanupDestroyedPlanets extends Command
             ->get();
 
         $deletedCount = 0;
+        $failedCount = 0;
 
         foreach ($destroyedBodies as $planetModel) {
             // Row may already be gone if a parent planet permanently deleted its moon.
@@ -43,11 +45,20 @@ class CleanupDestroyedPlanets extends Command
                 $planetService->permanentlyDeletePlanet();
                 $deletedCount++;
             } catch (Throwable $e) {
-                $this->error("Failed to permanently delete planet #{$planetModel->id}: {$e->getMessage()}");
+                $failedCount++;
+                $message = "Failed to permanently delete planet #{$planetModel->id}: {$e->getMessage()}";
+                $this->error($message);
+                Log::error($message, ['exception' => $e]);
             }
         }
 
         $this->info("Permanently deleted {$deletedCount} destroyed planet(s)/moon(s).");
+
+        if ($failedCount > 0) {
+            $this->error("Failed to permanently delete {$failedCount} destroyed planet(s)/moon(s).");
+
+            return Command::FAILURE;
+        }
 
         return Command::SUCCESS;
     }

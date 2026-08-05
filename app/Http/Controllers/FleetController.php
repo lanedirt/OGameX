@@ -331,7 +331,7 @@ class FleetController extends OGameController
             $targetPlanetName = $targetPlanet->isMoon()
                 ? $targetPlanet->getPlanetName()
                 : __('t_galaxy.planet.destroyed');
-            $targetPlayerName = 'space';
+            $targetPlayerName = 'Deep space';
             $targetCoordinates = $targetPlanet->getPlanetCoordinates();
         } elseif ($targetPlanet !== null) {
             $targetPlayer = $targetPlanet->getPlayer();
