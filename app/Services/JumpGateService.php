@@ -351,10 +351,15 @@ class JumpGateService
      */
     public function hasUnprocessedArrivedFleet(PlanetService $moon): bool
     {
+        $player = $moon->getPlayer();
+        if ($player === null) {
+            throw new Exception('Moon has no owner.');
+        }
+
         return FleetMission::where('planet_id_to', $moon->getPlanetId())
             ->where('processed', 0)
             ->where('time_arrival', '<=', Date::now()->timestamp)
-            ->where('user_id', '!=', $moon->getPlayer()->getId())
+            ->where('user_id', '!=', $player->getId())
             ->exists();
     }
 }

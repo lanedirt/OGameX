@@ -456,7 +456,7 @@ class TechtreeController extends OGameController
         // If we're at the beginning, add current object to requirement array as depth 0 (root)
         if ($depth === 1) {
             if ($object->type === GameObjectType::Research) {
-                $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+                $object_level = $planet->getPlayer()?->getResearchLevel($object->machine_name) ?? 0;
             } else {
                 $object_level = $planet->getObjectLevel($object->machine_name);
             }
@@ -472,7 +472,7 @@ class TechtreeController extends OGameController
             $object = ObjectService::getObjectByMachineName($requirement->object_machine_name);
 
             if ($object->type === GameObjectType::Research) {
-                $object_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+                $object_level = $planet->getPlayer()?->getResearchLevel($object->machine_name) ?? 0;
             } else {
                 $object_level = $planet->getObjectLevel($object->machine_name);
             }

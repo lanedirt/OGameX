@@ -110,9 +110,7 @@ trait ObjectAjaxTrait
             $production_current = $planet->getObjectProduction($object->machine_name);
             $production_next = $planet->getObjectProduction($object->machine_name, $next_level);
 
-            if (!empty($production_current->energy->get())) {
-                $energy_difference = ($production_next->energy->get() - $production_current->energy->get()) * -1;
-            }
+            $energy_difference = ($production_next->energy->get() - $production_current->energy->get()) * -1;
         } elseif ($object->machine_name === 'crawler') {
             // Special handling for Crawlers: they consume energy but don't have production property
             // Each crawler consumes 50 energy at 100%, with additional cost for overcharge
@@ -365,7 +363,8 @@ trait ObjectAjaxTrait
         // Special handling for Interplanetary Missiles to show range based on impulse drive level
         if ($object->machine_name === 'interplanetary_missile') {
             // Use getMissileRange() for consistent formula: (level × 5) - 1
-            $missile_range = $planet->getPlayer()->getMissileRange();
+            $planetPlayer = $planet->getPlayer();
+            $missile_range = $planetPlayer !== null ? $planetPlayer->getMissileRange() : 0;
 
             // Append the specific range value to the description
             $description .= " Your interplanetary missiles have got a coverage of {$missile_range} systems.";
