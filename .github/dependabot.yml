@@ -35,3 +35,12 @@ updates:
       day: "monday"
       time: "09:00"
 
+  # Enable version updates for Github Actions
+  - package-ecosystem: "github-actions"
+    # Look for a `Dockerfile` in the `root` directory
+    directory: "/"
+    # Check for updates every week
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
