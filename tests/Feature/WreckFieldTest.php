@@ -16,7 +16,11 @@ class WreckFieldTest extends AccountTestCase
     private function getWreckFieldService(): WreckFieldService
     {
         $settingsService = resolve(SettingsService::class);
-        return new WreckFieldService($this->planetService->getPlayer(), $settingsService);
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+        return new WreckFieldService($player, $settingsService);
     }
 
     private function getCurrentCoordinate(): Coordinate
@@ -110,6 +114,9 @@ class WreckFieldTest extends AccountTestCase
         $this->assertTrue($result);
 
         $updatedWreckField = $wreckFieldService->getWreckField();
+        if ($updatedWreckField === null) {
+            $this->fail('Wreck field is null.');
+        }
         $this->assertEquals('repairing', $updatedWreckField->status);
         $this->assertNotNull($updatedWreckField->repair_started_at);
         $this->assertNotNull($updatedWreckField->repair_completed_at);
@@ -135,7 +142,15 @@ class WreckFieldTest extends AccountTestCase
         $wreckFieldService->startRepairs(1);
 
         $updatedWreckField = $wreckFieldService->getWreckField();
-        $repairDuration = (int) $updatedWreckField->repair_completed_at->timestamp - (int) $updatedWreckField->repair_started_at->timestamp;
+        if ($updatedWreckField === null) {
+            $this->fail('Wreck field is null.');
+        }
+        $repairCompletedAt = $updatedWreckField->repair_completed_at;
+        $repairStartedAt = $updatedWreckField->repair_started_at;
+        if ($repairCompletedAt === null || $repairStartedAt === null) {
+            $this->fail('Repair timestamps are null.');
+        }
+        $repairDuration = (int) $repairCompletedAt->timestamp - (int) $repairStartedAt->timestamp;
 
         $this->assertEquals(12 * 3600, $repairDuration);
     }
@@ -201,6 +216,9 @@ class WreckFieldTest extends AccountTestCase
         $this->assertEquals(100, $repairedShips[0]['repair_progress']);
 
         $updatedWreckField = $wreckFieldService->getWreckField();
+        if ($updatedWreckField === null) {
+            $this->fail('Wreck field is null.');
+        }
         $this->assertEquals('completed', $updatedWreckField->status);
     }
 
@@ -226,6 +244,9 @@ class WreckFieldTest extends AccountTestCase
         $this->assertTrue($result);
 
         $updatedWreckField = $wreckFieldService->getWreckField();
+        if ($updatedWreckField === null) {
+            $this->fail('Wreck field is null.');
+        }
         $this->assertEquals('burned', $updatedWreckField->status);
     }
 
@@ -336,7 +357,7 @@ class WreckFieldTest extends AccountTestCase
         $wreckField->refresh();
 
         // Check that ships were added
-        $this->assertCount(2, $wreckField->ship_data);
+        $this->assertCount(2, $wreckField->ship_data ?? []);
 
         // Check that expiration was extended
         $this->assertGreaterThan($originalExpiresAt, $wreckField->expires_at);
@@ -345,7 +366,7 @@ class WreckFieldTest extends AccountTestCase
         $lightFighter = null;
         $heavyFighter = null;
 
-        foreach ($wreckField->ship_data as $ship) {
+        foreach ($wreckField->ship_data ?? [] as $ship) {
             if ($ship['machine_name'] === 'light_fighter') {
                 $lightFighter = $ship;
             } elseif ($ship['machine_name'] === 'heavy_fighter') {
@@ -381,7 +402,7 @@ class WreckFieldTest extends AccountTestCase
         $updatedWreckField = $wreckFieldService->createWreckField($coordinate, $newShips, $this->currentUserId);
 
         // Check that ships were combined
-        $this->assertCount(2, $updatedWreckField->ship_data);
+        $this->assertCount(2, $updatedWreckField->ship_data ?? []);
 
         // Check that expiration was RESET (not just extended) - should be much later than original
         $this->assertGreaterThan($originalExpiresAt->addHours(10), $updatedWreckField->expires_at);
@@ -390,7 +411,7 @@ class WreckFieldTest extends AccountTestCase
         $lightFighter = null;
         $heavyFighter = null;
 
-        foreach ($updatedWreckField->ship_data as $ship) {
+        foreach ($updatedWreckField->ship_data ?? [] as $ship) {
             if ($ship['machine_name'] === 'light_fighter') {
                 $lightFighter = $ship;
             } elseif ($ship['machine_name'] === 'heavy_fighter') {
@@ -418,6 +439,9 @@ class WreckFieldTest extends AccountTestCase
 
         $wreckField->refresh();
         $originalRepairCompletionTime = $wreckField->repair_completed_at;
+        if ($originalRepairCompletionTime === null) {
+            $this->fail('Repair completion time is null.');
+        }
 
         // Create another wreck field at the same coordinates while repairs are ongoing
         $newShips = [
@@ -431,18 +455,22 @@ class WreckFieldTest extends AccountTestCase
         $this->assertNotEquals($wreckField->id, $newWreckField->id);
 
         // Check that the new wreck field has only the new ships
-        $this->assertCount(1, $newWreckField->ship_data);
+        $this->assertCount(1, $newWreckField->ship_data ?? []);
         $this->assertEquals(5, $newWreckField->getTotalShips());
 
         // Check that the original wreck field was NOT modified
         $wreckField->refresh();
-        $this->assertCount(1, $wreckField->ship_data);
+        $this->assertCount(1, $wreckField->ship_data ?? []);
         $this->assertEquals(10, $wreckField->getTotalShips());
-        $this->assertEquals($originalRepairCompletionTime->timestamp, $wreckField->repair_completed_at->timestamp);
+        $repairCompletedAt = $wreckField->repair_completed_at;
+        if ($repairCompletedAt === null) {
+            $this->fail('Repair completion time is null.');
+        }
+        $this->assertEquals($originalRepairCompletionTime->timestamp, $repairCompletedAt->timestamp);
 
         // Verify the specific ships in the new wreck field
         $heavyFighter = null;
-        foreach ($newWreckField->ship_data as $ship) {
+        foreach ($newWreckField->ship_data ?? [] as $ship) {
             if ($ship['machine_name'] === 'heavy_fighter') {
                 $heavyFighter = $ship;
             }
@@ -476,7 +504,7 @@ class WreckFieldTest extends AccountTestCase
         $wreckField->refresh();
 
         // Check that ships were added
-        $this->assertCount(2, $wreckField->ship_data);
+        $this->assertCount(2, $wreckField->ship_data ?? []);
 
         // Check that expiration was RESET (should be much later than original)
         $this->assertGreaterThan($originalExpiresAt->addHours(10), $wreckField->expires_at);
@@ -485,7 +513,7 @@ class WreckFieldTest extends AccountTestCase
         $lightFighter = null;
         $heavyFighter = null;
 
-        foreach ($wreckField->ship_data as $ship) {
+        foreach ($wreckField->ship_data ?? [] as $ship) {
             if ($ship['machine_name'] === 'light_fighter') {
                 $lightFighter = $ship;
             } elseif ($ship['machine_name'] === 'heavy_fighter') {
@@ -513,6 +541,9 @@ class WreckFieldTest extends AccountTestCase
 
         $wreckField->refresh();
         $originalRepairCompletionTime = $wreckField->repair_completed_at;
+        if ($originalRepairCompletionTime === null) {
+            $this->fail('Repair completion time is null.');
+        }
 
         // Add new ships using addShipsToOngoingRepairs
         $newShips = [
@@ -524,16 +555,20 @@ class WreckFieldTest extends AccountTestCase
         $wreckField->refresh();
 
         // Check that ships were added
-        $this->assertCount(2, $wreckField->ship_data);
+        $this->assertCount(2, $wreckField->ship_data ?? []);
 
         // Check that repair completion time was NOT modified
-        $this->assertEquals($originalRepairCompletionTime->timestamp, $wreckField->repair_completed_at->timestamp);
+        $repairCompletedAt = $wreckField->repair_completed_at;
+        if ($repairCompletedAt === null) {
+            $this->fail('Repair completion time is null.');
+        }
+        $this->assertEquals($originalRepairCompletionTime->timestamp, $repairCompletedAt->timestamp);
 
         // Verify the specific ships
         $lightFighter = null;
         $heavyFighter = null;
 
-        foreach ($wreckField->ship_data as $ship) {
+        foreach ($wreckField->ship_data ?? [] as $ship) {
             if ($ship['machine_name'] === 'light_fighter') {
                 $lightFighter = $ship;
             } elseif ($ship['machine_name'] === 'heavy_fighter') {

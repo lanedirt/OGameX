@@ -121,6 +121,7 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
         $this->assertGreaterThan(0, $activeMissions->count(), 'No return mission found');
 
         $returnMission = $activeMissions->first();
+        $this->assertNotNull($returnMission, 'Return mission not found');
         $returnedTotal = $returnMission->metal + $returnMission->crystal + $returnMission->deuterium;
         $originalTotal = $initialMetal + $initialCrystal + $initialDeuterium;
 
@@ -227,8 +228,10 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
         $this->planetAddResources(new Resources($initialMetal, $initialCrystal, $initialDeuterium + 100000, 0));
 
         // Create debris field at second planet coordinates
+        $secondPlanet = $this->secondPlanetService;
+        $this->assertNotNull($secondPlanet, 'Second planet not found');
         $debrisFieldService = resolve(DebrisFieldService::class);
-        $debrisFieldService->loadOrCreateForCoordinates($this->secondPlanetService->getPlanetCoordinates());
+        $debrisFieldService->loadOrCreateForCoordinates($secondPlanet->getPlanetCoordinates());
         $debrisFieldService->appendResources(new Resources(5000, 3000, 0, 0));
         $debrisFieldService->save();
 
@@ -255,6 +258,7 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
         $this->assertGreaterThan(0, $activeMissions->count(), 'No return mission found');
 
         $returnMission = $activeMissions->first();
+        $this->assertNotNull($returnMission, 'Return mission not found');
         $returnedTotal = $returnMission->metal + $returnMission->crystal + $returnMission->deuterium;
         $originalTotal = $initialMetal + $initialCrystal + $initialDeuterium;
 
@@ -318,6 +322,7 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
         $this->assertGreaterThan(0, $activeMissions->count(), 'No return mission found');
 
         $returnMission = $activeMissions->first();
+        $this->assertNotNull($returnMission, 'Return mission not found');
         $returnedTotal = $returnMission->metal + $returnMission->crystal + $returnMission->deuterium;
         $originalTotal = $initialMetal + $initialCrystal + $initialDeuterium;
 

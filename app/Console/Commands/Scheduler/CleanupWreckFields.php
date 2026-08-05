@@ -2,9 +2,9 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Exception;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
-use Exception;
 use Illuminate\Console\Command;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\WreckFieldRepairCompleted;

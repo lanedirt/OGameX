@@ -162,12 +162,17 @@ class ResearchQueueService
      */
     public function retrieveQueue(PlanetService $planet): ResearchQueueListViewModel
     {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         // Fetch queue items from model
         $queue_items = $this->model
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
-                ['users.id', $planet->getPlayer()->getId()],
+                ['users.id', $player->getId()],
                 ['research_queues.processed', 0],
                 ['research_queues.canceled', 0],
             ])
@@ -180,7 +185,7 @@ class ResearchQueueService
         $list = [];
         foreach ($queue_items as $item) {
             $object = ObjectService::getResearchObjectById($item->object_id);
-            $planetService = $planet->getPlayer()->planets->getById($item['planet_id']);
+            $planetService = $player->planets->getById($item['planet_id']);
             $time_countdown = $item->time_end - (int)Date::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
@@ -212,6 +217,11 @@ class ResearchQueueService
      */
     public function retrieveQueueForPlanet(PlanetService $planet): ResearchQueueListViewModel
     {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         // Fetch queue items from model scoped to this specific planet.
         $queue_items = $this->model
             ->where([
@@ -227,7 +237,7 @@ class ResearchQueueService
         $list = [];
         foreach ($queue_items as $item) {
             $object = ObjectService::getResearchObjectById($item->object_id);
-            $planetService = $planet->getPlayer()->planets->getById($item['planet_id']);
+            $planetService = $player->planets->getById($item['planet_id']);
             $time_countdown = $item->time_end - (int)Date::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;

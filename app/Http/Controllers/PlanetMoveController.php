@@ -47,7 +47,7 @@ class PlanetMoveController extends OGameController
         }
 
         $planet = $player->planets->current();
-        $user = $planet->getPlayer()->getUser();
+        $user = $player->getUser();
 
         // Validate the player doesn't already have an active move for this planet.
         $activeMove = $planetMoveService->getActiveMoveForPlanet($planet);

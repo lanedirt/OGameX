@@ -25,15 +25,15 @@ class EspionageReport extends GameMessage
     }
 
     /**
-     * Load espionage report model from database. If already loaded, do nothing.
+     * Load espionage report model from database. If already loaded, return the cached model.
      *
-     * @return void
+     * @return \OGame\Models\EspionageReport
      */
-    private function loadEspionageReportModel(): void
+    private function loadEspionageReportModel(): \OGame\Models\EspionageReport
     {
         if ($this->espionageReportModel !== null) {
             // Already loaded.
-            return ;
+            return $this->espionageReportModel;
         }
 
         // Load espionage report model from database associated with the message.
@@ -44,6 +44,8 @@ class EspionageReport extends GameMessage
         } else {
             $this->espionageReportModel = $espionageReport;
         }
+
+        return $this->espionageReportModel;
     }
 
     /**
@@ -51,11 +53,11 @@ class EspionageReport extends GameMessage
      */
     public function getSubject(): string
     {
-        $this->loadEspionageReportModel();
+        $espionageReportModel = $this->loadEspionageReportModel();
 
         // Load the planet name from the references table and return the subject filled with the planet name.
-        $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
+        $coordinate = new Coordinate($espionageReportModel->planet_galaxy, $espionageReportModel->planet_system, $espionageReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($espionageReportModel->planet_type));
         if ($planet) {
             $subject = __('Espionage report from :planet', ['planet' => '[planet]' . $planet->getPlanetId() . '[/planet]']);
         } else {
@@ -70,11 +72,11 @@ class EspionageReport extends GameMessage
      */
     public function getBody(): string
     {
-        $this->loadEspionageReportModel();
+        $espionageReportModel = $this->loadEspionageReportModel();
 
         // Load planet by coordinate.
-        $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
+        $coordinate = new Coordinate($espionageReportModel->planet_galaxy, $espionageReportModel->planet_system, $espionageReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($espionageReportModel->planet_type));
 
         if ($planet === null) {
             return __('Planet has been deleted and espionage report is no longer available.');
@@ -89,11 +91,11 @@ class EspionageReport extends GameMessage
      */
     public function getBodyFull(): string
     {
-        $this->loadEspionageReportModel();
+        $espionageReportModel = $this->loadEspionageReportModel();
 
         // Load planet by coordinate.
-        $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
+        $coordinate = new Coordinate($espionageReportModel->planet_galaxy, $espionageReportModel->planet_system, $espionageReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($espionageReportModel->planet_type));
 
         if ($planet === null) {
             return __('Planet has been deleted and espionage report is no longer available.');
@@ -124,38 +126,39 @@ class EspionageReport extends GameMessage
     private function getEspionageReportParams(): array
     {
         // Sanity check to make sure the espionage report model is loaded.
-        $this->loadEspionageReportModel();
+        $espionageReportModel = $this->loadEspionageReportModel();
 
         // TODO: add feature test for code below and check edgecases, such as when the planet has been deleted and
         // does not exist anymore. What should we show in that case?
 
         // Load planet by coordinate.
-        $coordinate = new Coordinate($this->espionageReportModel->planet_galaxy, $this->espionageReportModel->planet_system, $this->espionageReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->espionageReportModel->planet_type));
+        $coordinate = new Coordinate($espionageReportModel->planet_galaxy, $espionageReportModel->planet_system, $espionageReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($espionageReportModel->planet_type));
 
         // If planet owner is the same as the player, we load the player by planet owner which is already loaded.
-        if ($this->espionageReportModel->planet_user_id === $planet->getPlayer()->getId()) {
-            $player = $this->playerServiceFactory->make($planet->getPlayer()->getId());
+        $planetPlayer = $planet?->getPlayer();
+        if ($planetPlayer !== null && $espionageReportModel->planet_user_id === $planetPlayer->getId()) {
+            $player = $this->playerServiceFactory->make($planetPlayer->getId());
         } else {
             // It is theoretically possible that the original player has deleted their planet and another user has
             // colonized the same position of the original planet. In that case, we should load the player by user_id
             // from the espionage report.
-            $player = $this->playerServiceFactory->make($this->espionageReportModel->planet_user_id);
+            $player = $this->playerServiceFactory->make($espionageReportModel->planet_user_id);
         }
 
         // Extract resources
-        $resources = new Resources($this->espionageReportModel->resources['metal'], $this->espionageReportModel->resources['crystal'], $this->espionageReportModel->resources['deuterium'], $this->espionageReportModel->resources['energy']);
+        $resources = new Resources($espionageReportModel->resources['metal'] ?? 0, $espionageReportModel->resources['crystal'] ?? 0, $espionageReportModel->resources['deuterium'] ?? 0, $espionageReportModel->resources['energy'] ?? 0);
 
         // Extract debris if available.
         $debris = new Resources(0, 0, 0, 0);
-        if ($this->espionageReportModel->debris !== null) {
-            $debris = new Resources($this->espionageReportModel->debris['metal'], $this->espionageReportModel->debris['crystal'], $this->espionageReportModel->debris['deuterium'], 0);
+        if ($espionageReportModel->debris !== null) {
+            $debris = new Resources($espionageReportModel->debris['metal'] ?? 0, $espionageReportModel->debris['crystal'] ?? 0, $espionageReportModel->debris['deuterium'] ?? 0, 0);
         }
 
         // Extract ships
         $ships = [];
-        if ($this->espionageReportModel->ships !== null) {
-            foreach ($this->espionageReportModel->ships as $machine_name => $amount) {
+        if ($espionageReportModel->ships !== null) {
+            foreach ($espionageReportModel->ships as $machine_name => $amount) {
                 // Get object
                 $unit = ObjectService::getUnitObjectByMachineName($machine_name);
 
@@ -169,8 +172,8 @@ class EspionageReport extends GameMessage
 
         // Extract defense
         $defense = [];
-        if ($this->espionageReportModel->defense !== null) {
-            foreach ($this->espionageReportModel->defense as $machine_name => $amount) {
+        if ($espionageReportModel->defense !== null) {
+            foreach ($espionageReportModel->defense as $machine_name => $amount) {
                 // Get object
                 $unit = ObjectService::getUnitObjectByMachineName($machine_name);
 
@@ -184,8 +187,8 @@ class EspionageReport extends GameMessage
 
         // Extract buildings
         $buildings = [];
-        if ($this->espionageReportModel->buildings !== null) {
-            foreach ($this->espionageReportModel->buildings as $machine_name => $amount) {
+        if ($espionageReportModel->buildings !== null) {
+            foreach ($espionageReportModel->buildings as $machine_name => $amount) {
                 // Get object
                 $unit = ObjectService::getObjectByMachineName($machine_name);
 
@@ -199,8 +202,8 @@ class EspionageReport extends GameMessage
 
         // Extract research
         $research = [];
-        if ($this->espionageReportModel->research !== null) {
-            foreach ($this->espionageReportModel->research as $machine_name => $amount) {
+        if ($espionageReportModel->research !== null) {
+            foreach ($espionageReportModel->research as $machine_name => $amount) {
                 // Get object
                 $unit = ObjectService::getObjectByMachineName($machine_name);
 
@@ -223,11 +226,11 @@ class EspionageReport extends GameMessage
             'defense' => $defense,
             'buildings' => $buildings,
             'research' => $research,
-            'counter_espionage_chance' => $this->espionageReportModel->counter_espionage_chance ?? 0,
-            'galaxy' => $this->espionageReportModel->planet_galaxy,
-            'system' => $this->espionageReportModel->planet_system,
-            'position' => $this->espionageReportModel->planet_position,
-            'planet_type' => $this->espionageReportModel->planet_type,
+            'counter_espionage_chance' => $espionageReportModel->counter_espionage_chance ?? 0,
+            'galaxy' => $espionageReportModel->planet_galaxy,
+            'system' => $espionageReportModel->planet_system,
+            'position' => $espionageReportModel->planet_position,
+            'planet_type' => $espionageReportModel->planet_type,
         ];
     }
 }

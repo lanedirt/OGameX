@@ -122,6 +122,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         ]);
         $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
 
         // Add buddy relationship first
         $buddyService = resolve(BuddyService::class);
@@ -177,6 +180,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Get deuterium before (from buddy's planet now, reload to get current values)
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanetService->getPlanetId(), true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
         $deuteriumBefore = $buddyPlanetService->deuterium()->get();
 
         // Buddy sends supply rocket to extend hold time by 2 hours
@@ -191,6 +197,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Assert deuterium was deducted from buddy's planet (10 light fighters * 2 deut/hour * 2 hours = 40)
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanetService->getPlanetId(), true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
         $deuteriumAfter = $buddyPlanetService->deuterium()->get();
         $this->assertEquals(40, $deuteriumBefore - $deuteriumAfter, 'Should deduct 40 deuterium from buddy planet');
 
@@ -222,6 +231,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         ]);
         $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
 
         // Add buddy relationship
         $buddyService = resolve(BuddyService::class);
@@ -273,6 +285,8 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             ->whereNull('parent_id')
             ->first();
 
+        $this->assertNotNull($outboundMission, 'Outbound mission should exist');
+
         // Try to send supply rocket (5 cruisers * 30 deut/hour * 1 hour = 150 deuterium needed)
         $response = $this->post('/ajax/alliance-depot/send-supply-rocket', [
             'fleet_mission_id' => $outboundMission->id,
@@ -308,6 +322,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         ]);
         $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
 
         // Add buddy relationship
         $buddyService = resolve(BuddyService::class);
@@ -360,6 +377,8 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             ->where('planet_id_to', $buddyPlanetService->getPlanetId())
             ->whereNull('parent_id')
             ->first();
+
+        $this->assertNotNull($outboundMission, 'Outbound mission should exist');
 
         // Try to send supply rocket
         $response = $this->post('/ajax/alliance-depot/send-supply-rocket', [
@@ -427,6 +446,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         ]);
         $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
 
         $buddyService = resolve(BuddyService::class);
         $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
@@ -490,7 +512,11 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         $this->assertEquals(14400 + 7200, $outboundMission->time_holding, 'Hold time should be extended to 6 hours');
 
         // Switch back to original user (fleet owner)
-        $this->be(User::find($this->currentUserId));
+        $currentUser = User::find($this->currentUserId);
+        if ($currentUser === null) {
+            $this->fail('Current user not found.');
+        }
+        $this->be($currentUser);
 
         // Try to recall the fleet (should succeed)
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -533,6 +559,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         ]);
         $this->trackPlanet($allianceMemberPlanet);
         $allianceMemberPlanetService = $planetServiceFactory->make($allianceMemberPlanet->id, true);
+        if ($allianceMemberPlanetService === null) {
+            $this->fail('Alliance member planet service is null.');
+        }
 
         // Add alliance member to alliance (bypass cooldown for testing)
         /** @phpstan-ignore assign.propertyType */
@@ -596,6 +625,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Get deuterium before (from alliance member's planet now, reload to get current values)
         $allianceMemberPlanetService = $planetServiceFactory->make($allianceMemberPlanetService->getPlanetId(), true);
+        if ($allianceMemberPlanetService === null) {
+            $this->fail('Alliance member planet service is null.');
+        }
         $deuteriumBefore = $allianceMemberPlanetService->deuterium()->get();
 
         // Alliance member sends supply rocket to extend hold time by 2 hours
@@ -610,6 +642,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Assert deuterium was deducted from alliance member's planet (10 light fighters * 2 deut/hour * 2 hours = 40)
         $allianceMemberPlanetService = $planetServiceFactory->make($allianceMemberPlanetService->getPlanetId(), true);
+        if ($allianceMemberPlanetService === null) {
+            $this->fail('Alliance member planet service is null.');
+        }
         $deuteriumAfter = $allianceMemberPlanetService->deuterium()->get();
         $this->assertEquals(40, $deuteriumBefore - $deuteriumAfter, 'Should deduct 40 deuterium from alliance member planet');
 
