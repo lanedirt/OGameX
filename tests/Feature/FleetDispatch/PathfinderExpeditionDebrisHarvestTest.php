@@ -3,8 +3,13 @@
 namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
+use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -39,7 +44,7 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
         $planet->addUnit('pathfinder', 10);
 
         // Add deuterium for fleet travel
-        $this->planetAddResources(new \OGame\Models\Resources(0, 0, 10000, 0));
+        $this->planetAddResources(new Resources(0, 0, 10000, 0));
 
         // Create debris field at position 16 (expedition position)
         $debrisCoordinate = new Coordinate(
@@ -50,7 +55,7 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
 
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadOrCreateForCoordinates($debrisCoordinate);
-        $debrisFieldService->appendResources(new \OGame\Models\Resources(100000, 50000, 25000, 0));
+        $debrisFieldService->appendResources(new Resources(100000, 50000, 25000, 0));
         $debrisFieldService->save();
 
         // Get initial debris amount
@@ -59,13 +64,16 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
         $this->assertGreaterThan(0, $initialDebris, 'Debris field should have resources');
 
         // Send harvest mission with Pathfinders to position 16
-        $units = new \OGame\GameObjects\Models\Units\UnitCollection();
-        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('pathfinder'), 10);
-        $this->sendMissionToPosition16($units, new \OGame\Models\Resources(0, 0, 0, 0), true, \OGame\Models\Enums\PlanetType::DebrisField);
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getShipObjectByMachineName('pathfinder'), 10);
+        $this->sendMissionToPosition16($units, new Resources(0, 0, 0, 0), true, PlanetType::DebrisField);
 
         // Get the mission to calculate travel time
-        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class, ['player' => $planet->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $planet->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process the mission (arrival)
@@ -81,6 +89,9 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
 
         // Process return mission
         $returnMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($returnMission === null) {
+            $this->fail('Return mission not found.');
+        }
         $returnDuration = $returnMission->time_arrival - $returnMission->time_departure;
         $this->travel($returnDuration + 1)->seconds();
         $this->get('/overview'); // Trigger return mission processing
@@ -114,7 +125,7 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
 
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadOrCreateForCoordinates($debrisCoordinate);
-        $debrisFieldService->appendResources(new \OGame\Models\Resources(100000, 50000, 25000, 0));
+        $debrisFieldService->appendResources(new Resources(100000, 50000, 25000, 0));
         $debrisFieldService->save();
 
         // Try to send harvest mission with Recyclers to position 16
@@ -123,7 +134,7 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
             'galaxy' => $debrisCoordinate->galaxy,
             'system' => $debrisCoordinate->system,
             'position' => $debrisCoordinate->position,
-            'type' => \OGame\Models\Enums\PlanetType::DebrisField->value,
+            'type' => PlanetType::DebrisField->value,
             'mission' => 8, // Harvest mission
             'recycler' => 10,
         ]);
@@ -146,7 +157,7 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
         $planet->addUnit('pathfinder', 10);
 
         // Add deuterium for fleet travel
-        $this->planetAddResources(new \OGame\Models\Resources(0, 0, 10000, 0));
+        $this->planetAddResources(new Resources(0, 0, 10000, 0));
 
         // Create debris field at a regular position (not 16)
         $debrisCoordinate = new Coordinate(
@@ -157,7 +168,7 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
 
         $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldService->loadOrCreateForCoordinates($debrisCoordinate);
-        $debrisFieldService->appendResources(new \OGame\Models\Resources(100000, 50000, 25000, 0));
+        $debrisFieldService->appendResources(new Resources(100000, 50000, 25000, 0));
         $debrisFieldService->save();
 
         // Get initial debris amount
@@ -171,7 +182,7 @@ class PathfinderExpeditionDebrisHarvestTest extends FleetDispatchTestCase
             'galaxy' => $debrisCoordinate->galaxy,
             'system' => $debrisCoordinate->system,
             'position' => $debrisCoordinate->position,
-            'type' => \OGame\Models\Enums\PlanetType::DebrisField->value,
+            'type' => PlanetType::DebrisField->value,
             'mission' => 8, // Harvest mission
             'pathfinder' => 10,
         ]);

@@ -24,6 +24,9 @@ class MoonFieldRestrictionTest extends MoonTestCase
     {
         // Set the moon to have very few fields and fill them up
         $moonModel = Planet::where('id', $this->moonService->getPlanetId())->first();
+        if ($moonModel === null) {
+            $this->fail('Moon model not found.');
+        }
         $moonModel->field_max = 3;
         $moonModel->save();
 
@@ -53,7 +56,11 @@ class MoonFieldRestrictionTest extends MoonTestCase
         $this->assertEquals(6, $this->moonService->getPlanetFieldMax());
 
         // Set hyperspace_technology to level 7 (required for jump_gate)
-        $this->moonService->getPlayer()->setResearchLevel('hyperspace_technology', 7);
+        $moonPlayer = $this->moonService->getPlayer();
+        if ($moonPlayer === null) {
+            $this->fail('Player is null.');
+        }
+        $moonPlayer->setResearchLevel('hyperspace_technology', 7);
 
         // Add resources to build jump_gate
         $this->moonAddResources(new GameResources(3000000, 5000000, 3000000));
@@ -82,6 +89,9 @@ class MoonFieldRestrictionTest extends MoonTestCase
     {
         // Set the moon to have 3 base fields
         $moonModel = Planet::where('id', $this->moonService->getPlanetId())->first();
+        if ($moonModel === null) {
+            $this->fail('Moon model not found.');
+        }
         $moonModel->field_max = 3;
         $moonModel->lunar_base = 0;
         $moonModel->save();
@@ -123,6 +133,9 @@ class MoonFieldRestrictionTest extends MoonTestCase
     private function moonAddResources(GameResources $resources): void
     {
         $moonModel = Planet::where('id', $this->moonService->getPlanetId())->first();
+        if ($moonModel === null) {
+            $this->fail('Moon model not found.');
+        }
         $moonModel->metal += $resources->metal->get();
         $moonModel->crystal += $resources->crystal->get();
         $moonModel->deuterium += $resources->deuterium->get();

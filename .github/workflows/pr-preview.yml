@@ -35,7 +35,7 @@ jobs:
     steps:
       - name: Get PR details (for manual dispatch)
         id: pr
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             let prNumber, headRef, headSha, repoFullName;
@@ -170,7 +170,7 @@ jobs:
           docker compose -f docker-compose.prod.yml -f docker-compose.override.yml -p pr-${{ env.PR_NUMBER }} exec -T ogamex-app php artisan ogamex:dev:seed-users
 
       - name: Comment on PR with preview URL
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const prNumber = ${{ env.PR_NUMBER }};

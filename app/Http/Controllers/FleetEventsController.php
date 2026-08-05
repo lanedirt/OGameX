@@ -220,7 +220,7 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->is_return_trip = !empty($row->parent_id); // If mission has a parent, it is a return trip
 
             $eventRowViewModel->origin_planet_name = '';
-            $eventRowViewModel->origin_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
+            $eventRowViewModel->origin_planet_coords = new Coordinate((int) $row->galaxy_from, (int) $row->system_from, (int) $row->position_from);
             $eventRowViewModel->origin_planet_type = PlanetType::from($row->type_from);
             if ($row->planet_id_from !== null) {
                 $planetFromService = $planetServiceFactory->make($row->planet_id_from);
@@ -231,7 +231,7 @@ class FleetEventsController extends OGameController
             }
 
             $eventRowViewModel->destination_planet_name = '';
-            $eventRowViewModel->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
+            $eventRowViewModel->destination_planet_coords = new Coordinate((int) $row->galaxy_to, (int) $row->system_to, (int) $row->position_to);
             $eventRowViewModel->destination_planet_type = PlanetType::from($row->type_to);
 
             if ($row->planet_id_to !== null) {
@@ -447,7 +447,7 @@ class FleetEventsController extends OGameController
 
                     // Origin
                     $vm->origin_planet_name = '';
-                    $vm->origin_planet_coords = new Coordinate($row->galaxy_from, $row->system_from, $row->position_from);
+                    $vm->origin_planet_coords = new Coordinate((int) $row->galaxy_from, (int) $row->system_from, (int) $row->position_from);
                     $vm->origin_planet_type = PlanetType::from($row->type_from);
                     if ($row->planet_id_from !== null) {
                         $originPlanet = $planetServiceFactory->make($row->planet_id_from);
@@ -459,7 +459,7 @@ class FleetEventsController extends OGameController
 
                     // Destination
                     $vm->destination_planet_name = '';
-                    $vm->destination_planet_coords = new Coordinate($row->galaxy_to, $row->system_to, $row->position_to);
+                    $vm->destination_planet_coords = new Coordinate((int) $row->galaxy_to, (int) $row->system_to, (int) $row->position_to);
                     $vm->destination_planet_type = PlanetType::from($row->type_to);
                     if ($row->planet_id_to !== null) {
                         $destPlanet = $planetServiceFactory->make($row->planet_id_to);

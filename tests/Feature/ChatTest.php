@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use OGame\Models\Alliance;
 use OGame\Models\User;
 use OGame\Services\AllianceService;
 use OGame\Services\BuddyService;
@@ -16,7 +17,7 @@ class ChatTest extends AccountTestCase
     /**
      * Create an alliance for the current user via the AllianceService.
      */
-    private function createAllianceForCurrentUser(): \OGame\Models\Alliance
+    private function createAllianceForCurrentUser(): Alliance
     {
         $allianceService = resolve(AllianceService::class);
         $tag = 'CT' . substr(md5(uniqid((string) mt_rand(), true)), 0, 5);
@@ -192,9 +193,15 @@ class ChatTest extends AccountTestCase
         $conversation = $chatService->getConversation($this->currentUserId, $otherUser->id);
 
         $this->assertCount(3, $conversation);
-        $this->assertEquals('Message 1', $conversation[0]->message);
-        $this->assertEquals('Message 2', $conversation[1]->message);
-        $this->assertEquals('Message 3', $conversation[2]->message);
+        $message0 = $conversation[0];
+        $message1 = $conversation[1];
+        $message2 = $conversation[2];
+        if ($message0 === null || $message1 === null || $message2 === null) {
+            $this->fail('Conversation message missing.');
+        }
+        $this->assertEquals('Message 1', $message0->message);
+        $this->assertEquals('Message 2', $message1->message);
+        $this->assertEquals('Message 3', $message2->message);
     }
 
     /**
@@ -314,6 +321,9 @@ class ChatTest extends AccountTestCase
 
         // Verify conversation data structure
         $user1Conv = collect($conversations)->firstWhere('partner_id', $user1->id);
+        if ($user1Conv === null) {
+            $this->fail('Conversation not found.');
+        }
         $this->assertEquals($user1->username, $user1Conv['partner_name']);
         $this->assertEquals('Hello user1', $user1Conv['last_message']);
     }
