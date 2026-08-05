@@ -70,11 +70,7 @@ class CapacityPropertyService extends ObjectPropertyService
     private function resolveBaseValue(): int
     {
         if ($this->parent_object->machine_name === 'espionage_probe') {
-            $settingsService = app(SettingsService::class);
-            if ($settingsService->espionageProbeCapacityOn()) {
-                // Classic OGame: probes gain 5 cargo capacity when the setting is on.
-                return 5;
-            }
+            return app(SettingsService::class)->espionageProbeCargoCapacity();
         }
 
         return $this->base_value;

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
@@ -15,17 +16,11 @@ use Tests\AccountTestCase;
 class AdminServerSettingsOptionsTest extends AccountTestCase
 {
     /**
-     * Admin can save new universe settings and SettingsService reflects them.
+     * @return array<string, mixed>
      */
-    public function testAdminCanSaveNewServerSettings(): void
+    private function baseServerSettingsPayload(array $overrides = []): array
     {
-        $authUser = auth()->user();
-        if ($authUser === null) {
-            $this->fail('Not authenticated.');
-        }
-        $this->artisan('ogamex:admin:assign-role', ['username' => $authUser->username]);
-
-        $response = $this->post('/admin/server-settings', [
+        return array_merge([
             '_token' => csrf_token(),
             'universe_name' => 'TestUniverse',
             'fleet_speed_war' => 1,
@@ -51,7 +46,34 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
             'number_of_systems' => 100,
             'battle_engine' => 'php',
             'hamill_probability' => 1000,
-        ]);
+        ], $overrides);
+    }
+
+    private function grantAdminRole(): void
+    {
+        $authUser = auth()->user();
+        if ($authUser === null) {
+            $this->fail('Not authenticated.');
+        }
+        $this->artisan('ogamex:admin:assign-role', ['username' => $authUser->username]);
+    }
+
+    /**
+     * Admin can save new universe settings and SettingsService reflects them.
+     */
+    public function testAdminCanSaveNewServerSettings(): void
+    {
+        $this->grantAdminRole();
+
+        $occupiedGalaxy = max(1, (int)(Planet::query()->max('galaxy') ?? 1));
+        $occupiedSystem = max(1, (int)(Planet::query()->max('system') ?? 1));
+        $numberOfGalaxies = max(4, $occupiedGalaxy);
+        $numberOfSystems = max(100, $occupiedSystem);
+
+        $response = $this->post('/admin/server-settings', $this->baseServerSettingsPayload([
+            'number_of_galaxies' => $numberOfGalaxies,
+            'number_of_systems' => $numberOfSystems,
+        ]));
 
         $response->assertRedirect(route('admin.serversettings.index'));
 
@@ -63,8 +85,55 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
         $this->assertSame('12000', $settings->get('dark_matter_initial'));
         $this->assertTrue($settings->espionageProbeCapacityOn());
         $this->assertSame(0.7, $settings->deuteriumConsumption());
-        $this->assertSame(4, $settings->numberOfGalaxies());
-        $this->assertSame(100, $settings->numberOfSystems());
+        $this->assertSame($numberOfGalaxies, $settings->numberOfGalaxies());
+        $this->assertSame($numberOfSystems, $settings->numberOfSystems());
+    }
+
+    /**
+     * Tampered deuterium consumption values are snapped back to the default.
+     */
+    public function testAdminRejectsInvalidDeuteriumConsumption(): void
+    {
+        $this->grantAdminRole();
+
+        $this->post('/admin/server-settings', $this->baseServerSettingsPayload([
+            'deuterium_consumption' => '0.01',
+        ]))->assertRedirect(route('admin.serversettings.index'));
+
+        /** @var SettingsService $settings */
+        $settings = app(SettingsService::class);
+        $this->assertSame(1.0, $settings->deuteriumConsumption());
+    }
+
+    /**
+     * Shrinking systems/galaxies below existing planets is rejected.
+     */
+    public function testAdminCannotShrinkUniverseBelowOccupiedCoordinates(): void
+    {
+        $this->grantAdminRole();
+
+        $coords = $this->planetService->getPlanetCoordinates();
+        Planet::query()->where('id', $this->planetService->getPlanetId())->update([
+            'galaxy' => 5,
+            'system' => 250,
+            'planet' => $coords->position,
+        ]);
+
+        /** @var SettingsService $settings */
+        $settings = app(SettingsService::class);
+        $settings->set('number_of_galaxies', 9);
+        $settings->set('number_of_systems', 499);
+
+        $response = $this->post('/admin/server-settings', $this->baseServerSettingsPayload([
+            'number_of_galaxies' => 4,
+            'number_of_systems' => 100,
+        ]));
+
+        $response->assertRedirect(route('admin.serversettings.index'));
+        $response->assertSessionHas('error');
+
+        $this->assertSame(9, $settings->numberOfGalaxies());
+        $this->assertSame(499, $settings->numberOfSystems());
     }
 
     /**
@@ -129,6 +198,53 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
     }
 
     /**
+     * Fleet check-target rejects systems outside the configured universe size.
+     */
+    public function testFleetRejectsCoordinatesOutsideConfiguredSystems(): void
+    {
+        /** @var SettingsService $settings */
+        $settings = app(SettingsService::class);
+        $settings->set('number_of_systems', 100);
+
+        $this->planetSetObjectLevel('shipyard', 1);
+        $this->playerSetResearchLevel('combustion_drive', 1);
+        $this->planetAddUnit('small_cargo', 1);
+
+        $response = $this->post('/ajax/fleet/dispatch/check-target', [
+            'galaxy' => 1,
+            'system' => 150,
+            'position' => 5,
+            'type' => 1,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertSame('failure', $response->json('status'));
+        $errors = $response->json('errors');
+        $this->assertIsArray($errors);
+        $this->assertNotEmpty($errors);
+        $this->assertStringContainsString('system', strtolower((string)($errors[0]['message'] ?? '')));
+    }
+
+    /**
+     * Phalanx scan rejects systems outside the configured universe size.
+     */
+    public function testPhalanxRejectsCoordinatesOutsideConfiguredSystems(): void
+    {
+        /** @var SettingsService $settings */
+        $settings = app(SettingsService::class);
+        $settings->set('number_of_systems', 100);
+
+        $response = $this->post('/ajax/phalanx/scan', [
+            'galaxy' => 1,
+            'system' => 250,
+            'position' => 5,
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors(['system']);
+    }
+
+    /**
      * Login page shows the configured universe name.
      */
     public function testLoginPageShowsConfiguredUniverseName(): void
@@ -149,11 +265,7 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
      */
     public function testAdminActivityLogsAndCronPagesAccessible(): void
     {
-        $authUser = auth()->user();
-        if ($authUser === null) {
-            $this->fail('Not authenticated.');
-        }
-        $this->artisan('ogamex:admin:assign-role', ['username' => $authUser->username]);
+        $this->grantAdminRole();
 
         $this->get('/admin/activity-logs')->assertStatus(200)->assertSee('Activity logs');
         $this->get('/admin/activity-logs?tab=buildings')->assertStatus(200);
@@ -162,5 +274,21 @@ class AdminServerSettingsOptionsTest extends AccountTestCase
             ->assertSee('Cron tasks')
             ->assertSee('ogamex:scheduler:generate-highscores')
             ->assertDontSee('No scheduled tasks found');
+    }
+
+    /**
+     * Cron run endpoint rejects commands outside the allowlist.
+     */
+    public function testCronRunRejectsCommandsOutsideAllowlist(): void
+    {
+        $this->grantAdminRole();
+
+        $response = $this->post('/admin/cron-tasks/run', [
+            '_token' => csrf_token(),
+            'command' => 'migrate:fresh',
+        ]);
+
+        $response->assertRedirect(route('admin.crontasks.index'));
+        $response->assertSessionHas('error');
     }
 }

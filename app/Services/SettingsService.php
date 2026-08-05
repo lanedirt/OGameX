@@ -239,6 +239,13 @@ class SettingsService
     }
 
     /**
+     * Allowed universe deuterium consumption multipliers (classic OGame options).
+     *
+     * @var list<float>
+     */
+    public const DEUTERIUM_CONSUMPTION_OPTIONS = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+
+    /**
      * Returns whether espionage probes have cargo capacity enabled.
      * When enabled, each probe has a cargo capacity of 5. Default is off.
      *
@@ -250,6 +257,19 @@ class SettingsService
     }
 
     /**
+     * Returns the effective espionage probe cargo capacity for this universe.
+     * Zero when the setting is off; classic OGame grants 5 when enabled.
+     */
+    public function espionageProbeCargoCapacity(): int
+    {
+        if (!$this->espionageProbeCapacityOn()) {
+            return 0;
+        }
+
+        return UniverseConstants::ESPIONAGE_PROBE_CARGO_CAPACITY;
+    }
+
+    /**
      * Returns the universe-wide deuterium consumption multiplier for fleets.
      * Allowed values typically range from 0.5 to 1.0. Default is 1.0.
      *
@@ -257,7 +277,21 @@ class SettingsService
      */
     public function deuteriumConsumption(): float
     {
-        return (float)$this->get('deuterium_consumption', '1.0');
+        return self::normalizeDeuteriumConsumption((float)$this->get('deuterium_consumption', '1.0'));
+    }
+
+    /**
+     * Snap a deuterium consumption value to the nearest allowed option (default 1.0).
+     */
+    public static function normalizeDeuteriumConsumption(float $value): float
+    {
+        foreach (self::DEUTERIUM_CONSUMPTION_OPTIONS as $option) {
+            if (abs($value - $option) < 0.001) {
+                return $option;
+            }
+        }
+
+        return 1.0;
     }
 
     /**

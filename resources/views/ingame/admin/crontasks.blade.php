@@ -89,7 +89,7 @@
                                                 {{ csrf_field() }}
                                                 <input type="hidden" name="command" value="{{ $task['command'] }}">
                                                 <input type="submit" class="btn_blue" value="@lang('Run now')"
-                                                       onclick="return confirm('@lang('Run this scheduled task now?')');">
+                                                       onclick="return confirm(@json(__('Run this scheduled task now?')));">
                                             </form>
                                         @endif
                                     </div>

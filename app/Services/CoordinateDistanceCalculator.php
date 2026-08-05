@@ -21,6 +21,17 @@ class CoordinateDistanceCalculator
     }
 
     /**
+     * Shortest galaxy distance, accounting for donut wrap-around.
+     */
+    public function getGalaxyDistance(int $fromGalaxy, int $toGalaxy): int
+    {
+        $diffGalaxies = abs($fromGalaxy - $toGalaxy);
+        $wrapDiff = abs($diffGalaxies - $this->settingsService->numberOfGalaxies());
+
+        return min($diffGalaxies, $wrapDiff);
+    }
+
+    /**
      * Shortest system distance within a galaxy, accounting for donut wrap-around.
      *
      * Example: system 490 to system 5 is 14 systems via the wrap, not 485

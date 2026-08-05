@@ -146,7 +146,7 @@
                     "id": 210,
                     "name": "Espionage Probe",
                     "baseFuelCapacity": 5,
-                    "baseCargoCapacity": {{ $settings->espionageProbeCapacityOn() ? 5 : 0 }},
+                    "baseCargoCapacity": {{ $settings->espionageProbeCargoCapacity() }},
                     "fuelConsumption": 1,
                     "speed": 150000000
                 },

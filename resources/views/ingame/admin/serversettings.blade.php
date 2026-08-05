@@ -2,10 +2,11 @@
 
 @section('content')
 
-    @if (session('status'))
-        <div class="alert alert-success">
-            {{ session('status') }}
-        </div>
+    @if (session('success'))
+        <script>fadeBox(@json(session('success')), false);</script>
+    @endif
+    @if (session('error'))
+        <script>fadeBox(@json(session('error')), true);</script>
     @endif
 
     <div id="resourcesettingscomponent" class="maincontent">
