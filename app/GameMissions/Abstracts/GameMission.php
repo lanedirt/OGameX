@@ -21,13 +21,13 @@ use OGame\Models\FleetMission;
 use OGame\Models\FleetUnion;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
-use OGame\Support\FleetMissionPlanetFormatter;
 use OGame\Services\FleetMissionService;
 use OGame\Services\FleetUnionService;
 use OGame\Services\MessageService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use OGame\Support\FleetMissionPlanetFormatter;
 
 abstract class GameMission
 {
