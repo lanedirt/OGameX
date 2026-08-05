@@ -17,6 +17,7 @@ use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use RuntimeException;
 
 class RecycleMission extends GameMission
 {
@@ -83,7 +84,20 @@ class RecycleMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
+        if ($mission->planet_id_from === null) {
+            throw new RuntimeException('Recycle mission has no origin planet.');
+        }
         $originPlanet = $this->planetServiceFactory->make($mission->planet_id_from, true);
+        if ($originPlanet === null) {
+            throw new RuntimeException('Recycle mission origin planet does not exist.');
+        }
+        $originPlayer = $originPlanet->getPlayer();
+        if ($originPlayer === null) {
+            throw new RuntimeException('Recycle mission origin planet has no owner.');
+        }
+        if ($mission->galaxy_to === null || $mission->system_to === null || $mission->position_to === null) {
+            throw new RuntimeException('Recycle mission has no target coordinate.');
+        }
         $targetCoordinate = new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to);
 
         // Load the debris field for the target coordinate.
@@ -105,7 +119,7 @@ class RecycleMission extends GameMission
         }
 
         // Calculate total cargo capacity.
-        $total_cargo_capacity = $harvesterShip->properties->capacity->calculate($originPlanet->getPlayer())->totalValue * $harvesterCount;
+        $total_cargo_capacity = $harvesterShip->properties->capacity->calculate($originPlayer)->totalValue * $harvesterCount;
 
         // Get resources from the debris field and take as much as the harvesters can carry.
         $resourcesToHarvest = $debrisField->getResources();
@@ -118,7 +132,7 @@ class RecycleMission extends GameMission
         }
 
         // Send a message to the player that the mission has arrived and the resources (if any) have been collected.
-        $this->messageService->sendSystemMessageToPlayer($originPlanet->getPlayer(), DebrisFieldHarvest::class, [
+        $this->messageService->sendSystemMessageToPlayer($originPlayer, DebrisFieldHarvest::class, [
             'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
             'to' => '[debrisfield]' . $targetCoordinate->asString(). '[/debrisfield]',
             'coordinates' => '[coordinates]' . $targetCoordinate->asString() . '[/coordinates]',
@@ -154,7 +168,17 @@ class RecycleMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Recycle return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Recycle return mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Recycle return mission target planet has no owner.');
+        }
 
         // Recycle return trip: add back the units to the source planet.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -166,7 +190,7 @@ class RecycleMission extends GameMission
         }
 
         // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;

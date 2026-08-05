@@ -194,7 +194,11 @@ class MessagesTest extends MoonTestCase
 
         // Create a new espionage report record in the db and set the espionage_report_id to its ID.
         $espionageReportId = $this->createEspionageReport();
-        $messageModel = $messageService->sendEspionageReportMessageToPlayer($this->planetService->getPlayer(), $espionageReportId);
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $messageModel = $messageService->sendEspionageReportMessageToPlayer($player, $espionageReportId);
         $espionageMessage = GameMessageFactory::createGameMessage($messageModel);
 
         // Try to open the espionage report message via full screen AJAX request.
@@ -219,7 +223,11 @@ class MessagesTest extends MoonTestCase
 
         // Create a new espionage report record in the db and set the battle_report_id to its ID.
         $battleReportId = $this->createBattleReport();
-        $messageModel = $messageService->sendBattleReportMessageToPlayer($this->planetService->getPlayer(), $battleReportId);
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $messageModel = $messageService->sendBattleReportMessageToPlayer($player, $battleReportId);
         $battleReport = GameMessageFactory::createGameMessage($messageModel);
 
         // Try to open the espionage report message via full screen AJAX request.
@@ -302,11 +310,16 @@ class MessagesTest extends MoonTestCase
         // Get a random planet to create the battle report for.
         $foreignPlanet = $this->getNearbyForeignPlanet();
 
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign player not found.');
+        }
+
         $battleReport = new BattleReport();
         $battleReport->planet_galaxy = $foreignPlanet->getPlanetCoordinates()->galaxy;
         $battleReport->planet_system = $foreignPlanet->getPlanetCoordinates()->system;
         $battleReport->planet_position = $foreignPlanet->getPlanetCoordinates()->position;
-        $battleReport->planet_user_id = $foreignPlanet->getPlayer()->getId();
+        $battleReport->planet_user_id = $foreignPlayer->getId();
         $battleReport->attacker = [
             'player_id' => $this->currentUserId,
             'resource_loss' => 20000,
@@ -316,7 +329,7 @@ class MessagesTest extends MoonTestCase
             'armor_technology' => 0,
         ];
         $battleReport->defender = [
-            'player_id' => $foreignPlanet->getPlayer()->getId(),
+            'player_id' => $foreignPlayer->getId(),
             'resource_loss' => 10000,
             'units' => [],
             'weapon_technology' => 0,
@@ -343,11 +356,16 @@ class MessagesTest extends MoonTestCase
         // Get a random planet to create the espionage report for.
         $foreignPlanet = $this->getNearbyForeignPlanet();
 
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign player not found.');
+        }
+
         $espionageReport = new EspionageReport();
         $espionageReport->planet_galaxy = $foreignPlanet->getPlanetCoordinates()->galaxy;
         $espionageReport->planet_system = $foreignPlanet->getPlanetCoordinates()->system;
         $espionageReport->planet_position = $foreignPlanet->getPlanetCoordinates()->position;
-        $espionageReport->planet_user_id = $foreignPlanet->getPlayer()->getId();
+        $espionageReport->planet_user_id = $foreignPlayer->getId();
         $espionageReport->resources = ['metal' => 1000, 'crystal' => 500, 'deuterium' => 100, 'energy' => 1000];
         $espionageReport->debris = ['metal' => 5000, 'crystal' => 2000, 'deuterium' => 0, 'energy' => 0];
         $espionageReport->buildings = ['metal_mine' => 10, 'crystal_mine' => 10, 'deuterium_synthesizer' => 10];

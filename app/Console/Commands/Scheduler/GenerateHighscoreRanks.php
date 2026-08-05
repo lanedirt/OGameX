@@ -2,9 +2,9 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Cache;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
-use Cache;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use OGame\Enums\HighscoreTypeEnum;

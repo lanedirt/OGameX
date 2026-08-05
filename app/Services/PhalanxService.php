@@ -28,8 +28,10 @@ class PhalanxService
     /**
      * PhalanxService constructor.
      */
-    public function __construct(private PlayerServiceFactory $playerServiceFactory)
-    {
+    public function __construct(
+        private PlayerServiceFactory $playerServiceFactory,
+        private CoordinateDistanceCalculator $coordinateDistanceCalculator,
+    ) {
     }
 
     /**
@@ -87,8 +89,11 @@ class PhalanxService
             return false;
         }
 
-        // Calculate system distance
-        $system_distance = abs($moon_system - $target_coordinate->system);
+        // Calculate shortest system distance (donut galaxy wrap-around)
+        $system_distance = $this->coordinateDistanceCalculator->getSystemDistance(
+            $moon_system,
+            $target_coordinate->system,
+        );
 
         return $system_distance <= $max_range;
     }
@@ -140,7 +145,7 @@ class PhalanxService
         ->get();
 
         // Preload planet names to avoid N+1 queries
-        $planet_ids = $fleet_missions->flatMap(fn($m) => [$m->planet_id_from, $m->planet_id_to])->filter()->unique();
+        $planet_ids = $fleet_missions->flatMap(fn ($m) => [$m->planet_id_from, $m->planet_id_to])->filter()->unique();
         $planet_names = Planet::whereIn('id', $planet_ids)->pluck('name', 'id');
 
         $scan_results = [];
