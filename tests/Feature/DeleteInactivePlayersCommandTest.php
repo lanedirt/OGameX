@@ -139,6 +139,27 @@ class DeleteInactivePlayersCommandTest extends AccountTestCase
     }
 
     /**
+     * Moderator players are excluded alongside admins (the moderator role targets exactly the
+     * infrequent-login staff accounts this command would otherwise delete).
+     */
+    public function testExcludesModeratorPlayers(): void
+    {
+        $this->setDeletionDays(35);
+
+        $user = User::findOrFail($this->currentUserId);
+        $user->assignRole('moderator');
+        $this->setLastActivityDaysAgo($this->currentUserId, 40);
+
+        // @phpstan-ignore-next-line
+        $this->artisan(self::COMMAND)->assertSuccessful();
+
+        $this->assertDatabaseHas('users', ['id' => $this->currentUserId]);
+
+        // Clean up the role assignment so the account is not left as a moderator.
+        $user->removeRole('moderator');
+    }
+
+    /**
      * Full-wipe integrity: planets, moons and queues are removed and the player's own fleet
      * missions are deleted, while battle/espionage reports are preserved (planet_user_id nulled).
      */

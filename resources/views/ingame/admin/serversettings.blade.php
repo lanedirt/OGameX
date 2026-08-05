@@ -131,9 +131,9 @@
                             <div class="fieldwrapper">
                                 <label class="styled textBeefy">@lang('Inactive days before player deletion:')</label>
                                 <div class="thefield">
-                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $inactive_player_deletion_days }}" size="6" name="inactive_player_deletion_days">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $inactive_player_deletion_days }}" size="6" name="inactive_player_deletion_days" id="inactive_player_deletion_days">
                                 </div>
-                                <div class="smallFont">@lang('Number of days of inactivity after which a player is permanently deleted and their planets are abandoned. Set to 0 to disable.')</div>
+                                <div class="smallFont">@lang('Number of days of inactivity after which a player is permanently deleted and their planets are abandoned. Set to 0 to disable. When enabled, values below 30 are raised to a minimum of 30 days.')</div>
                             </div>
                         </div>
 
@@ -506,6 +506,32 @@
         <script language="javascript">
             initBBCodes();
             initOverlays();
+
+            // Confirm before saving a non-zero inactive-player deletion threshold, since it
+            // permanently deletes accounts with no undo. Uses the in-game Caution overlay
+            // (errorBoxDecision) rather than a native browser confirm dialog.
+            document.form.addEventListener('submit', function (event) {
+                var field = document.getElementById('inactive_player_deletion_days');
+                if (!field || parseInt(field.value, 10) <= 0) {
+                    return;
+                }
+
+                // Hold the submit until the admin confirms via the overlay. A native
+                // form.submit() (fired from the confirm handler) does not re-trigger this
+                // listener, so there is no risk of a confirmation loop.
+                event.preventDefault();
+
+                errorBoxDecision(
+                    LocalizationStrings.attention,
+                    'Enabling inactive player deletion will PERMANENTLY delete inactive accounts and ' +
+                    'abandon their planets. This action cannot be undone. Are you sure you want to continue?',
+                    LocalizationStrings.yes,
+                    LocalizationStrings.no,
+                    function () {
+                        document.form.submit();
+                    }
+                );
+            });
         </script>
     </div>
 

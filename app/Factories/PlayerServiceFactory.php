@@ -38,4 +38,15 @@ class PlayerServiceFactory
 
         return $this->instances[$playerId];
     }
+
+    /**
+     * Clear the local instances cache. Useful for long-running jobs (e.g. batch deletion) that
+     * would otherwise accumulate a PlayerService for every processed player in memory.
+     *
+     * @return void
+     */
+    public function clearInstances(): void
+    {
+        $this->instances = [];
+    }
 }

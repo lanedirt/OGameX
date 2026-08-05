@@ -882,9 +882,62 @@ class PlayerService
     /**
      * Delete the player and all associated records from the database.
      *
+     * Wrapped in a transaction so a partial failure cannot leave the account half-deleted.
+     * Careful: this action is irreversible!
+     *
+     * @param bool $abandonPlanets When true, each planet is removed through the abandonment flow
+     * (PlanetService::abandonPlanet()) so galaxy slots are freed and incoming missions from other
+     * players are handled gracefully; the abandonment guards (last remaining planet / active fleet
+     * missions) are bypassed because the whole account is being removed. When false (default),
+     * planets and their per-planet records are hard-deleted directly.
+     *
      * @return void
      */
-    public function delete(): void
+    public function delete(bool $abandonPlanets = false): void
+    {
+        DB::transaction(function () use ($abandonPlanets) {
+            // Clear the current planet reference first so planet rows can be removed without
+            // violating the users.planet_current foreign key.
+            $this->user->planet_current = null;
+            $this->user->save();
+
+            if ($abandonPlanets) {
+                $this->deleteOwnFleetMissions();
+
+                // Abandon every planet; each call cascades to its moon. Force bypasses the user-facing
+                // guards which do not apply during full account deletion. Abandoning frees the galaxy
+                // slot and nulls out any remaining incoming missions from other players.
+                foreach ($this->planets->allPlanets() as $planet) {
+                    $planet->abandonPlanet(true);
+                }
+            } else {
+                $this->rawDeletePlanets();
+            }
+
+            // Delete remaining user-scoped records that no database cascade covers.
+            Message::where('user_id', $this->getId())->delete();
+            UserTech::where('user_id', $this->getId())->delete();
+
+            // Remove any lingering login sessions for this user (the sessions table has no foreign key).
+            DB::table('sessions')->where('user_id', $this->getId())->delete();
+
+            // Note: highscores and battle/espionage reports are intentionally not deleted here. The
+            // highscores foreign key cascades on user deletion, and the report foreign keys are
+            // ON DELETE SET NULL so those reports are preserved for the other party involved.
+
+            // Delete the user. Cascade deletes handle highscores, notes, buddies, alliance membership,
+            // chat messages, dark matter transactions, bans, etc.
+            $this->user->delete();
+        });
+    }
+
+    /**
+     * Hard-delete all of the player's planets and their per-planet records (queues and fleet
+     * missions referencing each planet). Used by delete() when planets are not abandoned.
+     *
+     * @return void
+     */
+    private function rawDeletePlanets(): void
     {
         // Loop through all planets and delete all records associated with them.
         foreach ($this->planets->all() as $planet) {
@@ -892,8 +945,7 @@ class PlayerService
             ResearchQueue::where('planet_id', $planet->getPlanetId())->delete();
             BuildingQueue::where('planet_id', $planet->getPlanetId())->delete();
             UnitQueue::where('planet_id', $planet->getPlanetId())->delete();
-            // Delete all fleet missions.
-            // Get all fleet missions for this planet then loop through them and delete them.
+            // Delete all fleet missions referencing this planet (from or to).
             // TODO: this might be a performance bottleneck if there are many missions. Consider using a bulk delete compatible
             // with the foreign key constraints instead.
             $missions = FleetMission::where('planet_id_from', $planet->getPlanetId())->orWhere('planet_id_to', $planet->getPlanetId())->get();
@@ -905,74 +957,24 @@ class PlayerService
             }
         }
 
-        // Delete all messages.
-        Message::where('user_id', $this->getId())->delete();
-
-        // Delete highscore record.
-        Highscore::where('player_id', $this->getId())->delete();
-
-        // Delete tech record.
-        UserTech::where('user_id', $this->getId())->delete();
-
-        // Clear planet_current reference before deleting planets (FK constraint).
-        $this->user->planet_current = null;
-        $this->user->save();
-
         // Delete all planets.
         Planet::where('user_id', $this->getId())->delete();
-
-        // Delete the actual user.
-        $this->user->delete();
     }
 
     /**
-     * Permanently delete an inactive player: abandon all of their planets (and moons) and remove
-     * the account with all associated records.
-     *
-     * Unlike delete(), planets are removed through the abandonment flow (PlanetService::abandonPlanet())
-     * so galaxy slots are freed and incoming missions from other players are handled gracefully. The
-     * abandonment guards (last remaining planet / active fleet missions) are bypassed because the whole
-     * account is being removed. Careful: this action is irreversible!
+     * Delete the player's own fleet missions. Child (return) missions reference their parent via
+     * parent_id, so those are removed first to satisfy the self-referencing foreign key. Used by
+     * delete() when planets are abandoned (abandonPlanet() nulls other players' incoming missions).
      *
      * @return void
      */
-    public function deleteInactiveAccount(): void
+    private function deleteOwnFleetMissions(): void
     {
-        DB::transaction(function () {
-            // Delete the player's own fleet missions. Child (return) missions reference their parent
-            // via parent_id, so remove those first to satisfy the self-referencing foreign key.
-            $missions = FleetMission::where('user_id', $this->getId())->get();
-            foreach ($missions as $mission) {
-                FleetMission::where('parent_id', $mission->id)->delete();
-                $mission->delete();
-            }
-
-            // Abandon every planet; each call cascades to its moon. Force bypasses the user-facing
-            // guards which do not apply during full account deletion. Abandoning frees the galaxy slot
-            // and nulls out any remaining incoming missions from other players.
-            foreach ($this->planets->allPlanets() as $planet) {
-                $planet->abandonPlanet(true);
-            }
-
-            // Delete remaining user-scoped records that no database cascade covers.
-            Message::where('user_id', $this->getId())->delete();
-            Highscore::where('player_id', $this->getId())->delete();
-            UserTech::where('user_id', $this->getId())->delete();
-
-            // Remove any lingering login sessions for this user (the sessions table has no foreign key).
-            DB::table('sessions')->where('user_id', $this->getId())->delete();
-
-            // Note: battle and espionage reports are intentionally kept. Their planet_user_id foreign
-            // key is ON DELETE SET NULL, so the reports are preserved for the other party involved.
-
-            // Clear the current planet reference before deleting the user (foreign key constraint).
-            $this->user->planet_current = null;
-            $this->user->save();
-
-            // Delete the user. Cascade deletes handle notes, buddies, alliance membership, chat
-            // messages, dark matter transactions, bans, etc.
-            $this->user->delete();
-        });
+        $missions = FleetMission::where('user_id', $this->getId())->get();
+        foreach ($missions as $mission) {
+            FleetMission::where('parent_id', $mission->id)->delete();
+            $mission->delete();
+        }
     }
 
     /**

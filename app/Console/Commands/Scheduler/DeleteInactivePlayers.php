@@ -5,6 +5,8 @@ namespace OGame\Console\Commands\Scheduler;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 use OGame\Services\SettingsService;
@@ -17,7 +19,7 @@ class DeleteInactivePlayers extends Command
     /**
      * Execute the console command.
      */
-    public function handle(SettingsService $settings, PlayerServiceFactory $playerServiceFactory): int
+    public function handle(SettingsService $settings, PlayerServiceFactory $playerServiceFactory, PlanetServiceFactory $planetServiceFactory): int
     {
         $days = $settings->inactivePlayerDeletionDays();
 
@@ -32,27 +34,42 @@ class DeleteInactivePlayers extends Command
         $deletedCount = 0;
         $failedCount = 0;
 
-        // Admins are excluded to protect the server operator and system accounts, mirroring the
+        // Admins and moderators are excluded to protect operator and staff accounts, mirroring the
         // existing "administrators cannot be banned" rule. Vacation mode does NOT exempt a player.
         // The users.time column holds the last-activity UNIX timestamp.
-        User::withoutRole('admin')
+        User::withoutRole(['admin', 'moderator'])
             ->whereNotNull('time')
             ->where('time', '<', $cutoff)
-            ->chunkById(200, function ($users) use ($playerServiceFactory, &$deletedCount, &$failedCount): void {
+            ->chunkById(200, function ($users) use ($playerServiceFactory, $planetServiceFactory, &$deletedCount, &$failedCount): void {
                 foreach ($users as $user) {
                     try {
                         // Load with a fresh cache so the deletion acts on the player's current
                         // planets, moons and missions rather than any stale cached state.
-                        $playerServiceFactory->make($user->id, true)->deleteInactiveAccount();
+                        $playerServiceFactory->make($user->id, true)->delete(abandonPlanets: true);
                         $deletedCount++;
                     } catch (Throwable $e) {
                         $failedCount++;
-                        $this->error("Failed to delete inactive player #{$user->id}: " . $e->getMessage());
+                        // Console output isn't captured for scheduled runs, and this job deletes
+                        // accounts irreversibly, so also record failures in the application log.
+                        $message = "Failed to delete inactive player #{$user->id}: " . $e->getMessage();
+                        $this->error($message);
+                        Log::error($message, ['exception' => $e]);
                     }
                 }
+
+                // The factories are shared singletons with no automatic eviction, so clear their
+                // instance caches after each batch to keep memory bounded on a large backlog.
+                $playerServiceFactory->clearInstances();
+                $planetServiceFactory->clearInstances();
             });
 
-        $this->info("Deleted {$deletedCount} inactive player(s) with no activity in the last {$days} day(s).");
+        $message = "Deleted {$deletedCount} inactive player(s) with no activity in the last {$days} day(s).";
+
+        // Outputs to terminal
+        $this->info($message);
+
+        // Writes to storage/logs/laravel.log
+        Log::info($message);
 
         if ($failedCount > 0) {
             $this->warn("{$failedCount} player(s) could not be deleted; see errors above.");
