@@ -100,7 +100,6 @@ class WreckFieldTest extends AccountTestCase
             'galaxy' => $coords->galaxy,
             'system' => $coords->system,
             'planet' => $coords->position,
-            'owner_player_id' => $this->currentUserId,
             'status' => 'active',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
@@ -132,7 +131,6 @@ class WreckFieldTest extends AccountTestCase
             'galaxy' => $coords->galaxy,
             'system' => $coords->system,
             'planet' => $coords->position,
-            'owner_player_id' => $this->currentUserId,
             'status' => 'active',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 5000000, 'repair_progress' => 0],
@@ -201,7 +199,6 @@ class WreckFieldTest extends AccountTestCase
             'galaxy' => $coords->galaxy,
             'system' => $coords->system,
             'planet' => $coords->position,
-            'owner_player_id' => $this->currentUserId,
             'status' => 'repairing',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
@@ -233,7 +230,6 @@ class WreckFieldTest extends AccountTestCase
             'galaxy' => $coords->galaxy,
             'system' => $coords->system,
             'planet' => $coords->position,
-            'owner_player_id' => $this->currentUserId,
             'status' => 'active',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
@@ -262,7 +258,6 @@ class WreckFieldTest extends AccountTestCase
             'galaxy' => $coords->galaxy,
             'system' => $coords->system,
             'planet' => $coords->position,
-            'owner_player_id' => $this->currentUserId,
             'status' => 'repairing',
             'ship_data' => [
                 ['machine_name' => 'light_fighter', 'quantity' => 10, 'repair_progress' => 0]
