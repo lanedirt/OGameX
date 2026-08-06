@@ -15,7 +15,6 @@ use OGame\Models\FleetMission;
 use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
-use OGame\Models\User;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
@@ -1670,18 +1669,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->planetAddUnit('light_fighter', 100);
         $this->playerSetResearchLevel('computer_technology', 20);
 
-        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
-        $foreignPlayer = $foreignPlanet->getPlayer();
-        if ($foreignPlayer === null) {
-            $this->fail('Foreign planet has no owner.');
-        }
-        $foreignUser = User::find($foreignPlayer->getUserId());
-        if ($foreignUser === null) {
-            $this->fail('Foreign player user not found.');
-        }
-        $foreignUser->vacation_mode = false;
-        $foreignUser->banned_until = null;
-        $foreignUser->save();
+        $foreignPlanet = $this->getNearbyForeignPlanet();
 
         $validSpeeds = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
 
