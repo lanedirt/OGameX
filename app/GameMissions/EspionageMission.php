@@ -22,6 +22,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\CounterEspionageService;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\OfficerService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use RuntimeException;
@@ -107,8 +108,13 @@ class EspionageMission extends GameMission
         // Calculate counter-espionage chance
         $counterEspionageService = resolve(CounterEspionageService::class);
         $attackerProbeCount = $mission->espionage_probe;
-        $attackerEspionageLevel = $originPlayer->getResearchLevel('espionage_technology');
-        $defenderEspionageLevel = $targetPlayer->getResearchLevel('espionage_technology');
+        $officerService = app(OfficerService::class);
+        $attackerEspionageLevel = $originPlayer->getResearchLevel('espionage_technology')
+            + $officerService->getAdditionalEspionageLevels($originPlayer->getUser())
+            + $officerService->getCommandingStaffEspionageLevels($originPlayer->getUser());
+        $defenderEspionageLevel = $targetPlayer->getResearchLevel('espionage_technology')
+            + $officerService->getAdditionalEspionageLevels($targetPlayer->getUser())
+            + $officerService->getCommandingStaffEspionageLevels($targetPlayer->getUser());
 
         // TODO: Include ACS Defend fleets in counter-espionage chance calculation
         // Currently only counts planet owner's ships via getDefenderShipCount()
@@ -487,8 +493,13 @@ class EspionageMission extends GameMission
         }
 
         // TODO: Validate this does not cause issues when probing slot 16
-        $attackerEspionageLevel = $originPlayer->getResearchLevel('espionage_technology');
-        $defenderEspionageLevel = $targetPlayer->getResearchLevel('espionage_technology');
+        $officerServiceReport = app(OfficerService::class);
+        $attackerEspionageLevel = $originPlayer->getResearchLevel('espionage_technology')
+            + $officerServiceReport->getAdditionalEspionageLevels($originPlayer->getUser())
+            + $officerServiceReport->getCommandingStaffEspionageLevels($originPlayer->getUser());
+        $defenderEspionageLevel = $targetPlayer->getResearchLevel('espionage_technology')
+            + $officerServiceReport->getAdditionalEspionageLevels($targetPlayer->getUser())
+            + $officerServiceReport->getCommandingStaffEspionageLevels($targetPlayer->getUser());
         $techDifference = $defenderEspionageLevel - $attackerEspionageLevel;
         $levelDifference = max(0, $techDifference);
         $extraProbesRequired = pow($levelDifference, 2);

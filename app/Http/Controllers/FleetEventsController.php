@@ -499,7 +499,7 @@ class FleetEventsController extends OGameController
             $summaryRow->time_departure = $initiator->time_departure;
             $summaryRow->is_return_trip = false;
             $summaryRow->is_recallable = false;
-            $summaryRow->friendly_status = $initiator->friendly_status ?? 'friendly';
+            $summaryRow->friendly_status = $initiator->friendly_status;
 
             $summaryRow->destination_planet_name = $initiator->destination_planet_name;
             $summaryRow->destination_planet_coords = $initiator->destination_planet_coords;

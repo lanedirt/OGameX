@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @property int $building
  * @property int $processed
  * @property int $canceled
+ * @property bool $dm_halved
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|BuildingQueue newModelQuery()
