@@ -15,6 +15,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
@@ -1674,7 +1675,10 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         if ($foreignPlayer === null) {
             $this->fail('Foreign planet has no owner.');
         }
-        $foreignUser = $foreignPlayer->getUser();
+        $foreignUser = User::find($foreignPlayer->getUserId());
+        if ($foreignUser === null) {
+            $this->fail('Foreign player user not found.');
+        }
         $foreignUser->vacation_mode = false;
         $foreignUser->banned_until = null;
         $foreignUser->save();
