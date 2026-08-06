@@ -97,12 +97,10 @@ class WreckFieldService
      */
     public function loadForCoordinates(Coordinate $coordinate): bool
     {
-        // Fetch wreck field model for the current player at this coordinate.
+        // Fetch wreck field model
         $wreckField = WreckField::where('galaxy', $coordinate->galaxy)
             ->where('system', $coordinate->system)
             ->where('planet', $coordinate->position)
-            ->where('owner_player_id', $this->playerService->getId())
-            ->orderByRaw("FIELD(status, 'active', 'repairing', 'blocked')")
             ->first();
 
         if ($wreckField !== null) {
