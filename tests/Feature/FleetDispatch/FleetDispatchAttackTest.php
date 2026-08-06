@@ -1676,6 +1676,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         }
         $foreignUser = $foreignPlayer->getUser();
         $foreignUser->vacation_mode = false;
+        $foreignUser->banned_until = null;
         $foreignUser->save();
 
         $validSpeeds = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
