@@ -24,7 +24,11 @@ class ExpeditionGainShips extends ExpeditionGameMessage
      *
      * @var int
      */
-    protected static int $numberOfVariations = 7;
+    protected static int $numberOfVariations = 8;
+
+    protected static int $normalVariations = 5;
+    protected static int $rareVariations = 2;
+    protected static int $exceptionalVariations = 1;
 
     /**
      * Overides the body of the message to append the captured resource type and amount based on the params.
