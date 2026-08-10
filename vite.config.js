@@ -1,8 +1,35 @@
 import { defineConfig } from 'vite'
 import laravel from 'laravel-vite-plugin'
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
+import { resolve, dirname } from 'node:path'
 import { createHash } from 'node:crypto'
+
+/**
+ * Reads the chunk manifest and returns the ordered list of chunk file paths
+ * for use in the ingameScripts concatenation array.
+ *
+ * Falls back to the original single file if the manifest doesn't exist.
+ */
+function getChunkPaths() {
+    const manifestPath = 'resources/js/ingame/chunks/manifest.json'
+    const fallback = ['resources/js/ingame/e7c74974620fa35b197315ebdbb8c2.js']
+
+    if (!existsSync(manifestPath)) {
+        console.warn('Chunk manifest not found, using original single file.')
+        return fallback
+    }
+
+    try {
+        const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+        if (!manifest.chunks || manifest.chunks.length === 0) {
+            return fallback
+        }
+        return manifest.chunks.map(c => `resources/js/ingame/chunks/${c.path}`)
+    } catch (err) {
+        console.warn('Failed to read chunk manifest:', err.message)
+        return fallback
+    }
+}
 
 const ingameScripts = [
     'resources/js/ingame/jquery-1.12.4.min.js',
@@ -16,8 +43,10 @@ const ingameScripts = [
     'resources/js/ingame/messages.js',
     'resources/js/ingame/tooltips.js',
     'resources/js/ingame/trader.js',
-    'resources/js/ingame/timerhandler.js',
-    'resources/js/ingame/e7c74974620fa35b197315ebdbb8c2.js',
+    // timerhandler.js was removed: the chunks (or the original big file
+    // in fallback mode) already include TimerHandler. The separate file
+    // was a duplicate that got overwritten on load.
+    ...getChunkPaths(),
     'resources/js/ingame/messages-pagination.js',
     'node_modules/pusher-js/dist/web/pusher.min.js',
     'node_modules/laravel-echo/dist/echo.iife.js',
@@ -114,6 +143,11 @@ function concatLegacyBundles(bundles, outDir = 'public/build') {
 }
 
 export default defineConfig({
+    // lightningcss (Vite 8 default CSS minifier) rejects legacy OGame
+    // CSS hacks (*html selectors, // comments). Disable CSS minification.
+    build: {
+        cssMinify: false,
+    },
     plugins: [
         laravel({
             input: [
