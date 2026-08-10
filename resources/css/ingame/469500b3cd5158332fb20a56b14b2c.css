@@ -9851,7 +9851,7 @@ div#buddyCopyOverlay .code {
     position: relative;
     top: 4px;
 }
-#chatMsgList .playerstatus { //margin: 0 -1px -4px 0px; }
+#chatMsgList .playerstatus { /* margin: 0 -1px -4px 0px; */ }
 /*#chatMsgList .msg_title { width: 290px; }*/
 #chatMsgList .msg_title { width: inherit; }
 #chatMsgList .msg_date { margin: 0 18px 0 0; }
