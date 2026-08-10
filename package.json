@@ -8,10 +8,21 @@
         "production": "npm run build"
     },
     "devDependencies": {
+        "@babel/generator": "8.0.0",
+        "@babel/parser": "8.0.4",
+        "@babel/traverse": "8.0.4",
+        "@babel/types": "8.0.4",
         "axios": "^1.19.0",
+        "dependency-cruiser": "18.2.0",
+        "js-beautify": "2.0.3",
+        "jscodeshift": "17.4.0",
         "laravel-echo": "^2.4.0",
         "laravel-vite-plugin": "^3.1",
+        "madge": "8.0.0",
+        "prettier": "3.9.6",
         "pusher-js": "^8.6.0",
+        "putout": "42.11.0",
+        "terser": "5.49.2",
         "vite": "^8.2"
     }
 }
