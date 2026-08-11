@@ -1,0 +1,1 @@
+ResourceTicker.Food = "food";

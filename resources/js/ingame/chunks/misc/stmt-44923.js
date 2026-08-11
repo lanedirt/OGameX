@@ -1,0 +1,1 @@
+ResourceTicker.Population = "population";

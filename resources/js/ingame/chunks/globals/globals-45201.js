@@ -1,0 +1,1 @@
+var resourcesBar = new ResourceTicker();

@@ -1,0 +1,1 @@
+var elem, messageId, senderId;

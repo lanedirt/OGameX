@@ -1,0 +1,5087 @@
+{
+  "description": "Chunk manifest for OGame in-game JavaScript",
+  "source": "resources/js/ingame/e7c74974620fa35b197315ebdbb8c2.js",
+  "totalChunks": 508,
+  "chunks": [
+    {
+      "id": "class-timerhandler",
+      "type": "class",
+      "name": "TimerHandler",
+      "category": "core",
+      "path": "core/timerhandler.js",
+      "startLine": 7,
+      "endLine": 76,
+      "lineCount": 70
+    },
+    {
+      "id": "iife-84",
+      "type": "iife",
+      "name": "IIFE_84",
+      "category": "iife",
+      "path": "iife/iife-84.js",
+      "startLine": 84,
+      "endLine": 176,
+      "lineCount": 93
+    },
+    {
+      "id": "iife-186",
+      "type": "iife",
+      "name": "IIFE_186",
+      "category": "iife",
+      "path": "iife/iife-186.js",
+      "startLine": 186,
+      "endLine": 373,
+      "lineCount": 188
+    },
+    {
+      "id": "iife-378",
+      "type": "iife",
+      "name": "IIFE_378",
+      "category": "iife",
+      "path": "iife/iife-378.js",
+      "startLine": 378,
+      "endLine": 508,
+      "lineCount": 131
+    },
+    {
+      "id": "iife-538",
+      "type": "iife",
+      "name": "IIFE_538",
+      "category": "iife",
+      "path": "iife/iife-538.js",
+      "startLine": 538,
+      "endLine": 626,
+      "lineCount": 89
+    },
+    {
+      "id": "iife-637",
+      "type": "iife",
+      "name": "IIFE_637",
+      "category": "iife",
+      "path": "iife/iife-637.js",
+      "startLine": 637,
+      "endLine": 860,
+      "lineCount": 224
+    },
+    {
+      "id": "iife-887",
+      "type": "iife",
+      "name": "IIFE_887",
+      "category": "iife",
+      "path": "iife/iife-887.js",
+      "startLine": 887,
+      "endLine": 1712,
+      "lineCount": 826
+    },
+    {
+      "id": "iife-1720",
+      "type": "iife",
+      "name": "IIFE_1720",
+      "category": "iife",
+      "path": "iife/iife-1720.js",
+      "startLine": 1720,
+      "endLine": 1837,
+      "lineCount": 118
+    },
+    {
+      "id": "iife-1838",
+      "type": "iife",
+      "name": "IIFE_1838",
+      "category": "iife",
+      "path": "iife/iife-1838.js",
+      "startLine": 1838,
+      "endLine": 2773,
+      "lineCount": 936
+    },
+    {
+      "id": "iife-2786",
+      "type": "iife",
+      "name": "IIFE_2786",
+      "category": "iife",
+      "path": "iife/iife-2786.js",
+      "startLine": 2786,
+      "endLine": 4976,
+      "lineCount": 2191
+    },
+    {
+      "id": "iife-5026",
+      "type": "iife",
+      "name": "IIFE_5026",
+      "category": "iife",
+      "path": "iife/iife-5026.js",
+      "startLine": 5026,
+      "endLine": 5327,
+      "lineCount": 302
+    },
+    {
+      "id": "iife-5329",
+      "type": "iife",
+      "name": "IIFE_5329",
+      "category": "iife",
+      "path": "iife/iife-5329.js",
+      "startLine": 5329,
+      "endLine": 7300,
+      "lineCount": 1972
+    },
+    {
+      "id": "var-ogame",
+      "type": "standalone",
+      "name": "var ogame",
+      "category": "globals",
+      "path": "globals/globals-7311.js",
+      "startLine": 7311,
+      "endLine": 7311,
+      "lineCount": 1
+    },
+    {
+      "id": "iife-7319",
+      "type": "iife",
+      "name": "IIFE_7319",
+      "category": "iife",
+      "path": "iife/iife-7319.js",
+      "startLine": 7319,
+      "endLine": 12135,
+      "lineCount": 4817
+    },
+    {
+      "id": "var-spinners",
+      "type": "standalone",
+      "name": "var Spinners",
+      "category": "globals",
+      "path": "globals/globals-12144.js",
+      "startLine": 12144,
+      "endLine": 12146,
+      "lineCount": 3
+    },
+    {
+      "id": "iife-12148",
+      "type": "iife",
+      "name": "IIFE_12148",
+      "category": "iife",
+      "path": "iife/iife-12148.js",
+      "startLine": 12148,
+      "endLine": 12602,
+      "lineCount": 455
+    },
+    {
+      "id": "iife-12611",
+      "type": "iife",
+      "name": "IIFE_12611",
+      "category": "iife",
+      "path": "iife/iife-12611.js",
+      "startLine": 12611,
+      "endLine": 16674,
+      "lineCount": 4064
+    },
+    {
+      "id": "func-reloadrightmenu",
+      "type": "function",
+      "name": "reloadRightmenu",
+      "category": "functions",
+      "path": "functions/reloadrightmenu.js",
+      "startLine": 16675,
+      "endLine": 16677,
+      "lineCount": 3
+    },
+    {
+      "id": "func-displayrightmenu",
+      "type": "function",
+      "name": "displayRightmenu",
+      "category": "functions",
+      "path": "functions/displayrightmenu.js",
+      "startLine": 16679,
+      "endLine": 16682,
+      "lineCount": 4
+    },
+    {
+      "id": "func-ajaxformsubmit",
+      "type": "function",
+      "name": "ajaxFormSubmit",
+      "category": "functions",
+      "path": "functions/ajaxformsubmit.js",
+      "startLine": 16684,
+      "endLine": 16709,
+      "lineCount": 26
+    },
+    {
+      "id": "func-initconnectionerrorfunction",
+      "type": "function",
+      "name": "initConnectionErrorFunction",
+      "category": "functions",
+      "path": "functions/initconnectionerrorfunction.js",
+      "startLine": 16711,
+      "endLine": 16723,
+      "lineCount": 13
+    },
+    {
+      "id": "func-initallianceinfo",
+      "type": "function",
+      "name": "initAllianceInfo",
+      "category": "functions",
+      "path": "functions/initallianceinfo.js",
+      "startLine": 16725,
+      "endLine": 16730,
+      "lineCount": 6
+    },
+    {
+      "id": "stmt-16732",
+      "type": "standalone",
+      "name": "statement_16732",
+      "category": "misc",
+      "path": "misc/stmt-16732.js",
+      "startLine": 16732,
+      "endLine": 16745,
+      "lineCount": 14
+    },
+    {
+      "id": "func-initbbcodeeditor",
+      "type": "function",
+      "name": "initBBCodeEditor",
+      "category": "functions",
+      "path": "functions/initbbcodeeditor.js",
+      "startLine": 16768,
+      "endLine": 17374,
+      "lineCount": 607
+    },
+    {
+      "id": "func-initbbcodes",
+      "type": "function",
+      "name": "initBBCodes",
+      "category": "functions",
+      "path": "functions/initbbcodes.js",
+      "startLine": 17376,
+      "endLine": 17387,
+      "lineCount": 12
+    },
+    {
+      "id": "stmt-17388",
+      "type": "standalone",
+      "name": "statement_17388",
+      "category": "misc",
+      "path": "misc/stmt-17388.js",
+      "startLine": 17388,
+      "endLine": 17463,
+      "lineCount": 76
+    },
+    {
+      "id": "func-initinvitecodes",
+      "type": "function",
+      "name": "initInviteCodes",
+      "category": "functions",
+      "path": "functions/initinvitecodes.js",
+      "startLine": 17465,
+      "endLine": 17469,
+      "lineCount": 5
+    },
+    {
+      "id": "func-incrementbuddycount",
+      "type": "function",
+      "name": "incrementBuddyCount",
+      "category": "functions",
+      "path": "functions/incrementbuddycount.js",
+      "startLine": 17471,
+      "endLine": 17476,
+      "lineCount": 6
+    },
+    {
+      "id": "func-updaterequestcount",
+      "type": "function",
+      "name": "updateRequestCount",
+      "category": "functions",
+      "path": "functions/updaterequestcount.js",
+      "startLine": 17478,
+      "endLine": 17480,
+      "lineCount": 3
+    },
+    {
+      "id": "func-updatebuddycount",
+      "type": "function",
+      "name": "updateBuddyCount",
+      "category": "functions",
+      "path": "functions/updatebuddycount.js",
+      "startLine": 17482,
+      "endLine": 17484,
+      "lineCount": 3
+    },
+    {
+      "id": "func-reportmessage",
+      "type": "function",
+      "name": "reportMessage",
+      "category": "functions",
+      "path": "functions/reportmessage.js",
+      "startLine": 17486,
+      "endLine": 17501,
+      "lineCount": 16
+    },
+    {
+      "id": "func-reportallymessage",
+      "type": "function",
+      "name": "reportAllyMessage",
+      "category": "functions",
+      "path": "functions/reportallymessage.js",
+      "startLine": 17503,
+      "endLine": 17517,
+      "lineCount": 15
+    },
+    {
+      "id": "var-elem",
+      "type": "standalone",
+      "name": "var elem, var messageId, var senderId",
+      "category": "globals",
+      "path": "globals/globals-17519.js",
+      "startLine": 17519,
+      "endLine": 17519,
+      "lineCount": 1
+    },
+    {
+      "id": "func-reportallyroundmessage",
+      "type": "function",
+      "name": "reportAllyRoundMessage",
+      "category": "functions",
+      "path": "functions/reportallyroundmessage.js",
+      "startLine": 17521,
+      "endLine": 17532,
+      "lineCount": 12
+    },
+    {
+      "id": "func-reportmessagecallback",
+      "type": "function",
+      "name": "reportMessageCallback",
+      "category": "functions",
+      "path": "functions/reportmessagecallback.js",
+      "startLine": 17534,
+      "endLine": 17537,
+      "lineCount": 4
+    },
+    {
+      "id": "func-requestsready",
+      "type": "function",
+      "name": "requestsReady",
+      "category": "functions",
+      "path": "functions/requestsready.js",
+      "startLine": 17539,
+      "endLine": 17544,
+      "lineCount": 6
+    },
+    {
+      "id": "func-initbuddyrequestform",
+      "type": "function",
+      "name": "initBuddyRequestForm",
+      "category": "functions",
+      "path": "functions/initbuddyrequestform.js",
+      "startLine": 17546,
+      "endLine": 17579,
+      "lineCount": 34
+    },
+    {
+      "id": "func-initbuyresourceoverlay",
+      "type": "function",
+      "name": "initBuyResourceOverlay",
+      "category": "functions",
+      "path": "functions/initbuyresourceoverlay.js",
+      "startLine": 17580,
+      "endLine": 17613,
+      "lineCount": 34
+    },
+    {
+      "id": "func-senddmacceptanceform",
+      "type": "function",
+      "name": "sendDMAcceptanceForm",
+      "category": "functions",
+      "path": "functions/senddmacceptanceform.js",
+      "startLine": 17615,
+      "endLine": 17617,
+      "lineCount": 3
+    },
+    {
+      "id": "func-openbuyresourcedialog",
+      "type": "function",
+      "name": "openBuyResourceDialog",
+      "category": "functions",
+      "path": "functions/openbuyresourcedialog.js",
+      "startLine": 17619,
+      "endLine": 17623,
+      "lineCount": 5
+    },
+    {
+      "id": "func-abortbuyresource",
+      "type": "function",
+      "name": "abortBuyResource",
+      "category": "functions",
+      "path": "functions/abortbuyresource.js",
+      "startLine": 17625,
+      "endLine": 17629,
+      "lineCount": 5
+    },
+    {
+      "id": "func-initbuyresources",
+      "type": "function",
+      "name": "initBuyResources",
+      "category": "functions",
+      "path": "functions/initbuyresources.js",
+      "startLine": 17631,
+      "endLine": 17636,
+      "lineCount": 6
+    },
+    {
+      "id": "func-onchangetopremium",
+      "type": "function",
+      "name": "onChangeToPremium",
+      "category": "functions",
+      "path": "functions/onchangetopremium.js",
+      "startLine": 17638,
+      "endLine": 17670,
+      "lineCount": 33
+    },
+    {
+      "id": "func-submitbuyrequest",
+      "type": "function",
+      "name": "submitBuyRequest",
+      "category": "functions",
+      "path": "functions/submitbuyrequest.js",
+      "startLine": 17672,
+      "endLine": 17725,
+      "lineCount": 54
+    },
+    {
+      "id": "func-reallysubmitbuyrequest",
+      "type": "function",
+      "name": "reallySubmitBuyRequest",
+      "category": "functions",
+      "path": "functions/reallysubmitbuyrequest.js",
+      "startLine": 17727,
+      "endLine": 17759,
+      "lineCount": 33
+    },
+    {
+      "id": "func-handleinputforresourcepackages",
+      "type": "function",
+      "name": "handleInputForResourcePackages",
+      "category": "functions",
+      "path": "functions/handleinputforresourcepackages.js",
+      "startLine": 17761,
+      "endLine": 17791,
+      "lineCount": 31
+    },
+    {
+      "id": "func-updatecostsafterusermodification",
+      "type": "function",
+      "name": "updateCostsAfterUserModification",
+      "category": "functions",
+      "path": "functions/updatecostsafterusermodification.js",
+      "startLine": 17793,
+      "endLine": 17827,
+      "lineCount": 35
+    },
+    {
+      "id": "func-updatepercentagebasedpackages",
+      "type": "function",
+      "name": "updatePercentageBasedPackages",
+      "category": "functions",
+      "path": "functions/updatepercentagebasedpackages.js",
+      "startLine": 17829,
+      "endLine": 17858,
+      "lineCount": 30
+    },
+    {
+      "id": "func-updateproductionbasedpackages",
+      "type": "function",
+      "name": "updateProductionBasedPackages",
+      "category": "functions",
+      "path": "functions/updateproductionbasedpackages.js",
+      "startLine": 17860,
+      "endLine": 17897,
+      "lineCount": 38
+    },
+    {
+      "id": "func-updatebuytextandactivatepackage",
+      "type": "function",
+      "name": "updateBuyTextAndActivatePackage",
+      "category": "functions",
+      "path": "functions/updatebuytextandactivatepackage.js",
+      "startLine": 17899,
+      "endLine": 17908,
+      "lineCount": 10
+    },
+    {
+      "id": "var-_ogame_chat_removed",
+      "type": "standalone",
+      "name": "var _ogame_chat_removed, var characterClassArr, var allianceClassArr, var characterClassBonuses, var allianceClassBonuses",
+      "category": "globals",
+      "path": "globals/globals-17911.js",
+      "startLine": 17911,
+      "endLine": 19691,
+      "lineCount": 1781
+    },
+    {
+      "id": "func-isjsonstring",
+      "type": "function",
+      "name": "isJsonString",
+      "category": "functions",
+      "path": "functions/isjsonstring.js",
+      "startLine": 19693,
+      "endLine": 19701,
+      "lineCount": 9
+    },
+    {
+      "id": "func-isreportstring",
+      "type": "function",
+      "name": "isReportString",
+      "category": "functions",
+      "path": "functions/isreportstring.js",
+      "startLine": 19703,
+      "endLine": 19722,
+      "lineCount": 20
+    },
+    {
+      "id": "func-loadplanetaction",
+      "type": "function",
+      "name": "loadPlanetAction",
+      "category": "functions",
+      "path": "functions/loadplanetaction.js",
+      "startLine": 19724,
+      "endLine": 19755,
+      "lineCount": 32
+    },
+    {
+      "id": "func-loadspyreport",
+      "type": "function",
+      "name": "loadSpyReport",
+      "category": "functions",
+      "path": "functions/loadspyreport.js",
+      "startLine": 19757,
+      "endLine": 19795,
+      "lineCount": 39
+    },
+    {
+      "id": "func-adjustresearchclassbonuses",
+      "type": "function",
+      "name": "adjustResearchClassBonuses",
+      "category": "functions",
+      "path": "functions/adjustresearchclassbonuses.js",
+      "startLine": 19797,
+      "endLine": 19823,
+      "lineCount": 27
+    },
+    {
+      "id": "func-simchanged",
+      "type": "function",
+      "name": "simChanged",
+      "category": "functions",
+      "path": "functions/simchanged.js",
+      "startLine": 19825,
+      "endLine": 19846,
+      "lineCount": 22
+    },
+    {
+      "id": "func-switchspaceobject",
+      "type": "function",
+      "name": "switchSpaceObject",
+      "category": "functions",
+      "path": "functions/switchspaceobject.js",
+      "startLine": 19848,
+      "endLine": 19878,
+      "lineCount": 31
+    },
+    {
+      "id": "func-changeclass",
+      "type": "function",
+      "name": "changeClass",
+      "category": "functions",
+      "path": "functions/changeclass.js",
+      "startLine": 19880,
+      "endLine": 19939,
+      "lineCount": 60
+    },
+    {
+      "id": "func-filldata",
+      "type": "function",
+      "name": "fillData",
+      "category": "functions",
+      "path": "functions/filldata.js",
+      "startLine": 19941,
+      "endLine": 20041,
+      "lineCount": 101
+    },
+    {
+      "id": "func-clearplayer",
+      "type": "function",
+      "name": "clearPlayer",
+      "category": "functions",
+      "path": "functions/clearplayer.js",
+      "startLine": 20043,
+      "endLine": 20069,
+      "lineCount": 27
+    },
+    {
+      "id": "func-cleartechnologies",
+      "type": "function",
+      "name": "clearTechnologies",
+      "category": "functions",
+      "path": "functions/cleartechnologies.js",
+      "startLine": 20071,
+      "endLine": 20085,
+      "lineCount": 15
+    },
+    {
+      "id": "func-expandlifeforms",
+      "type": "function",
+      "name": "expandLifeforms",
+      "category": "functions",
+      "path": "functions/expandlifeforms.js",
+      "startLine": 20087,
+      "endLine": 20095,
+      "lineCount": 9
+    },
+    {
+      "id": "func-showspaceobjectselection",
+      "type": "function",
+      "name": "showSpaceObjectSelection",
+      "category": "functions",
+      "path": "functions/showspaceobjectselection.js",
+      "startLine": 20097,
+      "endLine": 20101,
+      "lineCount": 5
+    },
+    {
+      "id": "func-selectspaceobject",
+      "type": "function",
+      "name": "selectSpaceObject",
+      "category": "functions",
+      "path": "functions/selectspaceobject.js",
+      "startLine": 20103,
+      "endLine": 20114,
+      "lineCount": 12
+    },
+    {
+      "id": "func-loadplanetinfo",
+      "type": "function",
+      "name": "loadPlanetInfo",
+      "category": "functions",
+      "path": "functions/loadplanetinfo.js",
+      "startLine": 20116,
+      "endLine": 20125,
+      "lineCount": 10
+    },
+    {
+      "id": "func-loadinfoparticipant",
+      "type": "function",
+      "name": "loadInfoParticipant",
+      "category": "functions",
+      "path": "functions/loadinfoparticipant.js",
+      "startLine": 20127,
+      "endLine": 20140,
+      "lineCount": 14
+    },
+    {
+      "id": "func-selectcharacterclass",
+      "type": "function",
+      "name": "selectCharacterClass",
+      "category": "functions",
+      "path": "functions/selectcharacterclass.js",
+      "startLine": 20142,
+      "endLine": 20148,
+      "lineCount": 7
+    },
+    {
+      "id": "func-selectallianceclass",
+      "type": "function",
+      "name": "selectAllianceClass",
+      "category": "functions",
+      "path": "functions/selectallianceclass.js",
+      "startLine": 20150,
+      "endLine": 20156,
+      "lineCount": 7
+    },
+    {
+      "id": "func-switchparticipant",
+      "type": "function",
+      "name": "switchParticipant",
+      "category": "functions",
+      "path": "functions/switchparticipant.js",
+      "startLine": 20158,
+      "endLine": 20183,
+      "lineCount": 26
+    },
+    {
+      "id": "func-deleterequest",
+      "type": "function",
+      "name": "deleteRequest",
+      "category": "functions",
+      "path": "functions/deleterequest.js",
+      "startLine": 20185,
+      "endLine": 20198,
+      "lineCount": 14
+    },
+    {
+      "id": "func-deletesim",
+      "type": "function",
+      "name": "deleteSim",
+      "category": "functions",
+      "path": "functions/deletesim.js",
+      "startLine": 20200,
+      "endLine": 20242,
+      "lineCount": 43
+    },
+    {
+      "id": "func-savesimname",
+      "type": "function",
+      "name": "saveSimName",
+      "category": "functions",
+      "path": "functions/savesimname.js",
+      "startLine": 20244,
+      "endLine": 20282,
+      "lineCount": 39
+    },
+    {
+      "id": "func-filterplayernames",
+      "type": "function",
+      "name": "filterPlayerNames",
+      "category": "functions",
+      "path": "functions/filterplayernames.js",
+      "startLine": 20284,
+      "endLine": 20303,
+      "lineCount": 20
+    },
+    {
+      "id": "func-loadsiminfo",
+      "type": "function",
+      "name": "loadSimInfo",
+      "category": "functions",
+      "path": "functions/loadsiminfo.js",
+      "startLine": 20305,
+      "endLine": 20318,
+      "lineCount": 14
+    },
+    {
+      "id": "func-saverequest",
+      "type": "function",
+      "name": "saveRequest",
+      "category": "functions",
+      "path": "functions/saverequest.js",
+      "startLine": 20320,
+      "endLine": 20333,
+      "lineCount": 14
+    },
+    {
+      "id": "func-savesim",
+      "type": "function",
+      "name": "saveSim",
+      "category": "functions",
+      "path": "functions/savesim.js",
+      "startLine": 20335,
+      "endLine": 20670,
+      "lineCount": 336
+    },
+    {
+      "id": "func-removecombatsim",
+      "type": "function",
+      "name": "removeCombatSim",
+      "category": "functions",
+      "path": "functions/removecombatsim.js",
+      "startLine": 20672,
+      "endLine": 20679,
+      "lineCount": 8
+    },
+    {
+      "id": "func-changecombatsimstate",
+      "type": "function",
+      "name": "changeCombatSimState",
+      "category": "functions",
+      "path": "functions/changecombatsimstate.js",
+      "startLine": 20681,
+      "endLine": 20703,
+      "lineCount": 23
+    },
+    {
+      "id": "func-loadsim",
+      "type": "function",
+      "name": "loadSim",
+      "category": "functions",
+      "path": "functions/loadsim.js",
+      "startLine": 20705,
+      "endLine": 20830,
+      "lineCount": 126
+    },
+    {
+      "id": "func-addparticipant",
+      "type": "function",
+      "name": "addParticipant",
+      "category": "functions",
+      "path": "functions/addparticipant.js",
+      "startLine": 20832,
+      "endLine": 20912,
+      "lineCount": 81
+    },
+    {
+      "id": "func-newcombatplanning",
+      "type": "function",
+      "name": "newCombatPlanning",
+      "category": "functions",
+      "path": "functions/newcombatplanning.js",
+      "startLine": 20914,
+      "endLine": 20992,
+      "lineCount": 79
+    },
+    {
+      "id": "func-resetanim",
+      "type": "function",
+      "name": "resetAnim",
+      "category": "functions",
+      "path": "functions/resetanim.js",
+      "startLine": 20994,
+      "endLine": 20998,
+      "lineCount": 5
+    },
+    {
+      "id": "func-inviteplayertosim",
+      "type": "function",
+      "name": "invitePlayerToSim",
+      "category": "functions",
+      "path": "functions/inviteplayertosim.js",
+      "startLine": 21000,
+      "endLine": 21038,
+      "lineCount": 39
+    },
+    {
+      "id": "func-removeparticipant",
+      "type": "function",
+      "name": "removeParticipant",
+      "category": "functions",
+      "path": "functions/removeparticipant.js",
+      "startLine": 21040,
+      "endLine": 21070,
+      "lineCount": 31
+    },
+    {
+      "id": "func-loadsimdetails",
+      "type": "function",
+      "name": "loadSimDetails",
+      "category": "functions",
+      "path": "functions/loadsimdetails.js",
+      "startLine": 21072,
+      "endLine": 21100,
+      "lineCount": 29
+    },
+    {
+      "id": "func-updatesimshortinfo",
+      "type": "function",
+      "name": "updateSimShortInfo",
+      "category": "functions",
+      "path": "functions/updatesimshortinfo.js",
+      "startLine": 21102,
+      "endLine": 21112,
+      "lineCount": 11
+    },
+    {
+      "id": "func-joincombatsim",
+      "type": "function",
+      "name": "joinCombatSim",
+      "category": "functions",
+      "path": "functions/joincombatsim.js",
+      "startLine": 21114,
+      "endLine": 21140,
+      "lineCount": 27
+    },
+    {
+      "id": "func-startsimulation",
+      "type": "function",
+      "name": "startSimulation",
+      "category": "functions",
+      "path": "functions/startsimulation.js",
+      "startLine": 21142,
+      "endLine": 21168,
+      "lineCount": 27
+    },
+    {
+      "id": "stmt-21170",
+      "type": "standalone",
+      "name": "statement_21170",
+      "category": "misc",
+      "path": "misc/stmt-21170.js",
+      "startLine": 21170,
+      "endLine": 21278,
+      "lineCount": 109
+    },
+    {
+      "id": "stmt-21279",
+      "type": "standalone",
+      "name": "statement_21279",
+      "category": "misc",
+      "path": "misc/stmt-21279.js",
+      "startLine": 21279,
+      "endLine": 21291,
+      "lineCount": 13
+    },
+    {
+      "id": "func-closecombatsimresultoverlay",
+      "type": "function",
+      "name": "closeCombatSimResultOverlay",
+      "category": "functions",
+      "path": "functions/closecombatsimresultoverlay.js",
+      "startLine": 21293,
+      "endLine": 21299,
+      "lineCount": 7
+    },
+    {
+      "id": "func-getrounddata",
+      "type": "function",
+      "name": "getRoundData",
+      "category": "functions",
+      "path": "functions/getrounddata.js",
+      "startLine": 21302,
+      "endLine": 21358,
+      "lineCount": 57
+    },
+    {
+      "id": "func-selectround",
+      "type": "function",
+      "name": "selectRound",
+      "category": "functions",
+      "path": "functions/selectround.js",
+      "startLine": 21360,
+      "endLine": 21378,
+      "lineCount": 19
+    },
+    {
+      "id": "func-displayrounddata",
+      "type": "function",
+      "name": "displayRoundData",
+      "category": "functions",
+      "path": "functions/displayrounddata.js",
+      "startLine": 21380,
+      "endLine": 21460,
+      "lineCount": 81
+    },
+    {
+      "id": "func-getroundstatistic",
+      "type": "function",
+      "name": "getRoundStatistic",
+      "category": "functions",
+      "path": "functions/getroundstatistic.js",
+      "startLine": 21462,
+      "endLine": 21489,
+      "lineCount": 28
+    },
+    {
+      "id": "func-displayroundstatistics",
+      "type": "function",
+      "name": "displayRoundStatistics",
+      "category": "functions",
+      "path": "functions/displayroundstatistics.js",
+      "startLine": 21491,
+      "endLine": 21496,
+      "lineCount": 6
+    },
+    {
+      "id": "func-getcombatresearchpercentages",
+      "type": "function",
+      "name": "getCombatResearchPercentages",
+      "category": "functions",
+      "path": "functions/getcombatresearchpercentages.js",
+      "startLine": 21498,
+      "endLine": 21549,
+      "lineCount": 52
+    },
+    {
+      "id": "func-displaycombatresearchpercentages",
+      "type": "function",
+      "name": "displayCombatResearchPercentages",
+      "category": "functions",
+      "path": "functions/displaycombatresearchpercentages.js",
+      "startLine": 21551,
+      "endLine": 21562,
+      "lineCount": 12
+    },
+    {
+      "id": "func-findclassname",
+      "type": "function",
+      "name": "findClassName",
+      "category": "functions",
+      "path": "functions/findclassname.js",
+      "startLine": 21564,
+      "endLine": 21566,
+      "lineCount": 3
+    },
+    {
+      "id": "func-findclassid",
+      "type": "function",
+      "name": "findClassId",
+      "category": "functions",
+      "path": "functions/findclassid.js",
+      "startLine": 21568,
+      "endLine": 21570,
+      "lineCount": 3
+    },
+    {
+      "id": "func-formattimewrapper",
+      "type": "function",
+      "name": "formatTimeWrapper",
+      "category": "functions",
+      "path": "functions/formattimewrapper.js",
+      "startLine": 21582,
+      "endLine": 21620,
+      "lineCount": 39
+    },
+    {
+      "id": "func-reload_page",
+      "type": "function",
+      "name": "reload_page",
+      "category": "functions",
+      "path": "functions/reload-page.js",
+      "startLine": 21626,
+      "endLine": 21631,
+      "lineCount": 6
+    },
+    {
+      "id": "stmt-21633",
+      "type": "standalone",
+      "name": "statement_21633",
+      "category": "misc",
+      "path": "misc/stmt-21633.js",
+      "startLine": 21633,
+      "endLine": 21690,
+      "lineCount": 58
+    },
+    {
+      "id": "stmt-21692",
+      "type": "standalone",
+      "name": "statement_21692",
+      "category": "misc",
+      "path": "misc/stmt-21692.js",
+      "startLine": 21692,
+      "endLine": 21760,
+      "lineCount": 69
+    },
+    {
+      "id": "stmt-21762",
+      "type": "standalone",
+      "name": "statement_21762",
+      "category": "misc",
+      "path": "misc/stmt-21762.js",
+      "startLine": 21762,
+      "endLine": 21848,
+      "lineCount": 87
+    },
+    {
+      "id": "func-oldcountdown",
+      "type": "function",
+      "name": "oldcountdown",
+      "category": "functions",
+      "path": "functions/oldcountdown.js",
+      "startLine": 21853,
+      "endLine": 21894,
+      "lineCount": 42
+    },
+    {
+      "id": "func-eventboxcountdown",
+      "type": "function",
+      "name": "eventboxCountdown",
+      "category": "functions",
+      "path": "functions/eventboxcountdown.js",
+      "startLine": 21899,
+      "endLine": 21955,
+      "lineCount": 57
+    },
+    {
+      "id": "func-simplecountdown",
+      "type": "function",
+      "name": "simpleCountdown",
+      "category": "functions",
+      "path": "functions/simplecountdown.js",
+      "startLine": 21960,
+      "endLine": 22003,
+      "lineCount": 44
+    },
+    {
+      "id": "func-countdownwithtickfunction",
+      "type": "function",
+      "name": "countdownWithTickFunction",
+      "category": "functions",
+      "path": "functions/countdownwithtickfunction.js",
+      "startLine": 22005,
+      "endLine": 22058,
+      "lineCount": 54
+    },
+    {
+      "id": "func-movementimagecountdown",
+      "type": "function",
+      "name": "movementImageCountdown",
+      "category": "functions",
+      "path": "functions/movementimagecountdown.js",
+      "startLine": 22060,
+      "endLine": 22099,
+      "lineCount": 40
+    },
+    {
+      "id": "func-inititemactivation",
+      "type": "function",
+      "name": "initItemActivation",
+      "category": "functions",
+      "path": "functions/inititemactivation.js",
+      "startLine": 22100,
+      "endLine": 22183,
+      "lineCount": 84
+    },
+    {
+      "id": "func-initbuffbar",
+      "type": "function",
+      "name": "initBuffBar",
+      "category": "functions",
+      "path": "functions/initbuffbar.js",
+      "startLine": 22185,
+      "endLine": 22268,
+      "lineCount": 84
+    },
+    {
+      "id": "func-getitem",
+      "type": "function",
+      "name": "getItem",
+      "category": "functions",
+      "path": "functions/getitem.js",
+      "startLine": 22270,
+      "endLine": 22276,
+      "lineCount": 7
+    },
+    {
+      "id": "func-updateitemdetails",
+      "type": "function",
+      "name": "updateItemDetails",
+      "category": "functions",
+      "path": "functions/updateitemdetails.js",
+      "startLine": 22278,
+      "endLine": 22335,
+      "lineCount": 58
+    },
+    {
+      "id": "var-startedactivation",
+      "type": "standalone",
+      "name": "var startedActivation",
+      "category": "globals",
+      "path": "globals/globals-22337.js",
+      "startLine": 22337,
+      "endLine": 22337,
+      "lineCount": 1
+    },
+    {
+      "id": "func-nohandleritemactivation",
+      "type": "function",
+      "name": "noHandlerItemActivation",
+      "category": "functions",
+      "path": "functions/nohandleritemactivation.js",
+      "startLine": 22339,
+      "endLine": 22341,
+      "lineCount": 3
+    },
+    {
+      "id": "func-activateitem",
+      "type": "function",
+      "name": "activateItem",
+      "category": "functions",
+      "path": "functions/activateitem.js",
+      "startLine": 22343,
+      "endLine": 22568,
+      "lineCount": 226
+    },
+    {
+      "id": "func-initempireequipment",
+      "type": "function",
+      "name": "initEmpireEquipment",
+      "category": "functions",
+      "path": "functions/initempireequipment.js",
+      "startLine": 22570,
+      "endLine": 22574,
+      "lineCount": 5
+    },
+    {
+      "id": "func-startcooldown",
+      "type": "function",
+      "name": "startCooldown",
+      "category": "functions",
+      "path": "functions/startcooldown.js",
+      "startLine": 22576,
+      "endLine": 22592,
+      "lineCount": 17
+    },
+    {
+      "id": "var-activatingitem",
+      "type": "standalone",
+      "name": "var activatingItem",
+      "category": "globals",
+      "path": "globals/globals-22594.js",
+      "startLine": 22594,
+      "endLine": 22594,
+      "lineCount": 1
+    },
+    {
+      "id": "func-fetchdataaboutcurrentallianceclass",
+      "type": "function",
+      "name": "fetchDataAboutCurrentAllianceClass",
+      "category": "functions",
+      "path": "functions/fetchdataaboutcurrentallianceclass.js",
+      "startLine": 22596,
+      "endLine": 22617,
+      "lineCount": 22
+    },
+    {
+      "id": "func-promptuserforallianceclasschange",
+      "type": "function",
+      "name": "promptUserForAllianceClassChange",
+      "category": "functions",
+      "path": "functions/promptuserforallianceclasschange.js",
+      "startLine": 22619,
+      "endLine": 22649,
+      "lineCount": 31
+    },
+    {
+      "id": "func-errorboxasarray",
+      "type": "function",
+      "name": "errorBoxAsArray",
+      "category": "functions",
+      "path": "functions/errorboxasarray.js",
+      "startLine": 22650,
+      "endLine": 22658,
+      "lineCount": 9
+    },
+    {
+      "id": "func-notifyboxasarray",
+      "type": "function",
+      "name": "notifyBoxAsArray",
+      "category": "functions",
+      "path": "functions/notifyboxasarray.js",
+      "startLine": 22660,
+      "endLine": 22669,
+      "lineCount": 10
+    },
+    {
+      "id": "func-fadebox",
+      "type": "function",
+      "name": "fadeBox",
+      "category": "functions",
+      "path": "functions/fadebox.js",
+      "startLine": 22671,
+      "endLine": 22683,
+      "lineCount": 13
+    },
+    {
+      "id": "var-notificationtimers",
+      "type": "standalone",
+      "name": "var NotificationTimers",
+      "category": "globals",
+      "path": "globals/globals-22685.js",
+      "startLine": 22685,
+      "endLine": 22685,
+      "lineCount": 1
+    },
+    {
+      "id": "func-shownotification",
+      "type": "function",
+      "name": "showNotification",
+      "category": "functions",
+      "path": "functions/shownotification.js",
+      "startLine": 22687,
+      "endLine": 22739,
+      "lineCount": 53
+    },
+    {
+      "id": "func-removenotification",
+      "type": "function",
+      "name": "removeNotification",
+      "category": "functions",
+      "path": "functions/removenotification.js",
+      "startLine": 22741,
+      "endLine": 22747,
+      "lineCount": 7
+    },
+    {
+      "id": "func-decisionboxasarray",
+      "type": "function",
+      "name": "decisionBoxAsArray",
+      "category": "functions",
+      "path": "functions/decisionboxasarray.js",
+      "startLine": 22749,
+      "endLine": 22759,
+      "lineCount": 11
+    },
+    {
+      "id": "func-errorboxdecision",
+      "type": "function",
+      "name": "errorBoxDecision",
+      "category": "functions",
+      "path": "functions/errorboxdecision.js",
+      "startLine": 22761,
+      "endLine": 22831,
+      "lineCount": 71
+    },
+    {
+      "id": "func-errorboxnotify",
+      "type": "function",
+      "name": "errorBoxNotify",
+      "category": "functions",
+      "path": "functions/errorboxnotify.js",
+      "startLine": 22833,
+      "endLine": 22868,
+      "lineCount": 36
+    },
+    {
+      "id": "func-eventbdayinitgalaxy",
+      "type": "function",
+      "name": "eventBDayInitGalaxy",
+      "category": "functions",
+      "path": "functions/eventbdayinitgalaxy.js",
+      "startLine": 22877,
+      "endLine": 22897,
+      "lineCount": 21
+    },
+    {
+      "id": "func-eventbdayinit",
+      "type": "function",
+      "name": "eventBDayInit",
+      "category": "functions",
+      "path": "functions/eventbdayinit.js",
+      "startLine": 22899,
+      "endLine": 22968,
+      "lineCount": 70
+    },
+    {
+      "id": "func-initbdayeventhints",
+      "type": "function",
+      "name": "initBDayEventHints",
+      "category": "functions",
+      "path": "functions/initbdayeventhints.js",
+      "startLine": 22970,
+      "endLine": 22982,
+      "lineCount": 13
+    },
+    {
+      "id": "func-toggleevents",
+      "type": "function",
+      "name": "toggleEvents",
+      "category": "functions",
+      "path": "functions/toggleevents.js",
+      "startLine": 22983,
+      "endLine": 23003,
+      "lineCount": 21
+    },
+    {
+      "id": "func-refreshfleetevents",
+      "type": "function",
+      "name": "refreshFleetEvents",
+      "category": "functions",
+      "path": "functions/refreshfleetevents.js",
+      "startLine": 23005,
+      "endLine": 23020,
+      "lineCount": 16
+    },
+    {
+      "id": "func-toggledetails",
+      "type": "function",
+      "name": "toggleDetails",
+      "category": "functions",
+      "path": "functions/toggledetails.js",
+      "startLine": 23022,
+      "endLine": 23032,
+      "lineCount": 11
+    },
+    {
+      "id": "class-exodus",
+      "type": "class",
+      "name": "Exodus",
+      "category": "exodus",
+      "path": "exodus/exodus.js",
+      "startLine": 23033,
+      "endLine": 23259,
+      "lineCount": 227
+    },
+    {
+      "id": "stmt-23264",
+      "type": "standalone",
+      "name": "statement_23264",
+      "category": "misc",
+      "path": "misc/stmt-23264.js",
+      "startLine": 23264,
+      "endLine": 23286,
+      "lineCount": 23
+    },
+    {
+      "id": "stmt-23292",
+      "type": "standalone",
+      "name": "statement_23292",
+      "category": "misc",
+      "path": "misc/stmt-23292.js",
+      "startLine": 23292,
+      "endLine": 23303,
+      "lineCount": 12
+    },
+    {
+      "id": "var-formatter",
+      "type": "standalone",
+      "name": "var Formatter",
+      "category": "globals",
+      "path": "globals/globals-23305.js",
+      "startLine": 23305,
+      "endLine": 23600,
+      "lineCount": 296
+    },
+    {
+      "id": "stmt-23601",
+      "type": "standalone",
+      "name": "statement_23601",
+      "category": "misc",
+      "path": "misc/stmt-23601.js",
+      "startLine": 23601,
+      "endLine": 23731,
+      "lineCount": 131
+    },
+    {
+      "id": "func-reloadcomponent",
+      "type": "function",
+      "name": "reloadComponent",
+      "category": "functions",
+      "path": "functions/reloadcomponent.js",
+      "startLine": 23733,
+      "endLine": 23761,
+      "lineCount": 29
+    },
+    {
+      "id": "stmt-23763",
+      "type": "standalone",
+      "name": "statement_23763",
+      "category": "misc",
+      "path": "misc/stmt-23763.js",
+      "startLine": 23763,
+      "endLine": 23765,
+      "lineCount": 3
+    },
+    {
+      "id": "class-graveyard",
+      "type": "class",
+      "name": "Graveyard",
+      "category": "graveyard",
+      "path": "graveyard/graveyard.js",
+      "startLine": 23766,
+      "endLine": 23989,
+      "lineCount": 224
+    },
+    {
+      "id": "var-dom_get_element_by_id_cache",
+      "type": "standalone",
+      "name": "var DOM_GET_ELEMENT_BY_ID_CACHE",
+      "category": "globals",
+      "path": "globals/globals-23993.js",
+      "startLine": 23993,
+      "endLine": 23993,
+      "lineCount": 1
+    },
+    {
+      "id": "func-getelementbyidwithcache",
+      "type": "function",
+      "name": "getElementByIdWithCache",
+      "category": "functions",
+      "path": "functions/getelementbyidwithcache.js",
+      "startLine": 23995,
+      "endLine": 24001,
+      "lineCount": 7
+    },
+    {
+      "id": "func-number_format",
+      "type": "function",
+      "name": "number_format",
+      "category": "functions",
+      "path": "functions/number-format.js",
+      "startLine": 24008,
+      "endLine": 24043,
+      "lineCount": 36
+    },
+    {
+      "id": "func-gfnumbergethumanreadable",
+      "type": "function",
+      "name": "gfNumberGetHumanReadable",
+      "category": "functions",
+      "path": "functions/gfnumbergethumanreadable.js",
+      "startLine": 24045,
+      "endLine": 24079,
+      "lineCount": 35
+    },
+    {
+      "id": "func-getnumberformatshort",
+      "type": "function",
+      "name": "getNumberFormatShort",
+      "category": "functions",
+      "path": "functions/getnumberformatshort.js",
+      "startLine": 24081,
+      "endLine": 24108,
+      "lineCount": 28
+    },
+    {
+      "id": "func-createexpiretime",
+      "type": "function",
+      "name": "createExpireTime",
+      "category": "functions",
+      "path": "functions/createexpiretime.js",
+      "startLine": 24110,
+      "endLine": 24115,
+      "lineCount": 6
+    },
+    {
+      "id": "func-inithighscore",
+      "type": "function",
+      "name": "initHighscore",
+      "category": "functions",
+      "path": "functions/inithighscore.js",
+      "startLine": 24116,
+      "endLine": 24183,
+      "lineCount": 68
+    },
+    {
+      "id": "func-inithighscorecontent",
+      "type": "function",
+      "name": "initHighscoreContent",
+      "category": "functions",
+      "path": "functions/inithighscorecontent.js",
+      "startLine": 24185,
+      "endLine": 24218,
+      "lineCount": 34
+    },
+    {
+      "id": "var-ipi",
+      "type": "standalone",
+      "name": "var IPI",
+      "category": "globals",
+      "path": "globals/globals-24219.js",
+      "startLine": 24219,
+      "endLine": 24545,
+      "lineCount": 327
+    },
+    {
+      "id": "func-saveimperiumorder",
+      "type": "function",
+      "name": "saveImperiumOrder",
+      "category": "functions",
+      "path": "functions/saveimperiumorder.js",
+      "startLine": 24551,
+      "endLine": 24568,
+      "lineCount": 18
+    },
+    {
+      "id": "func-clearimperiumorder",
+      "type": "function",
+      "name": "clearImperiumOrder",
+      "category": "functions",
+      "path": "functions/clearimperiumorder.js",
+      "startLine": 24574,
+      "endLine": 24589,
+      "lineCount": 16
+    },
+    {
+      "id": "func-createsummaryhtml",
+      "type": "function",
+      "name": "createSummaryHtml",
+      "category": "functions",
+      "path": "functions/createsummaryhtml.js",
+      "startLine": 24598,
+      "endLine": 24699,
+      "lineCount": 102
+    },
+    {
+      "id": "func-createheaderhtml",
+      "type": "function",
+      "name": "createHeaderHtml",
+      "category": "functions",
+      "path": "functions/createheaderhtml.js",
+      "startLine": 24708,
+      "endLine": 24796,
+      "lineCount": 89
+    },
+    {
+      "id": "func-createplanetshtml",
+      "type": "function",
+      "name": "createPlanetsHtml",
+      "category": "functions",
+      "path": "functions/createplanetshtml.js",
+      "startLine": 24805,
+      "endLine": 24936,
+      "lineCount": 132
+    },
+    {
+      "id": "func-createimperiumhtml",
+      "type": "function",
+      "name": "createImperiumHtml",
+      "category": "functions",
+      "path": "functions/createimperiumhtml.js",
+      "startLine": 24945,
+      "endLine": 25015,
+      "lineCount": 71
+    },
+    {
+      "id": "func-displaymessage",
+      "type": "function",
+      "name": "displayMessage",
+      "category": "functions",
+      "path": "functions/displaymessage.js",
+      "startLine": 25017,
+      "endLine": 25020,
+      "lineCount": 4
+    },
+    {
+      "id": "func-doupgrade",
+      "type": "function",
+      "name": "doUpgrade",
+      "category": "functions",
+      "path": "functions/doupgrade.js",
+      "startLine": 25022,
+      "endLine": 25044,
+      "lineCount": 23
+    },
+    {
+      "id": "func-executebuildaction",
+      "type": "function",
+      "name": "executeBuildAction",
+      "category": "functions",
+      "path": "functions/executebuildaction.js",
+      "startLine": 25046,
+      "endLine": 25054,
+      "lineCount": 9
+    },
+    {
+      "id": "func-initempire",
+      "type": "function",
+      "name": "initEmpire",
+      "category": "functions",
+      "path": "functions/initempire.js",
+      "startLine": 25056,
+      "endLine": 25127,
+      "lineCount": 72
+    },
+    {
+      "id": "func-initbuffbarempire",
+      "type": "function",
+      "name": "initBuffBarEmpire",
+      "category": "functions",
+      "path": "functions/initbuffbarempire.js",
+      "startLine": 25129,
+      "endLine": 25131,
+      "lineCount": 3
+    },
+    {
+      "id": "func-changesetting",
+      "type": "function",
+      "name": "changeSetting",
+      "category": "functions",
+      "path": "functions/changesetting.js",
+      "startLine": 25133,
+      "endLine": 25166,
+      "lineCount": 34
+    },
+    {
+      "id": "func-getoverlaytext",
+      "type": "function",
+      "name": "getOverlayText",
+      "category": "functions",
+      "path": "functions/getoverlaytext.js",
+      "startLine": 25168,
+      "endLine": 25194,
+      "lineCount": 27
+    },
+    {
+      "id": "func-getfastbuildprice",
+      "type": "function",
+      "name": "getFastBuildPrice",
+      "category": "functions",
+      "path": "functions/getfastbuildprice.js",
+      "startLine": 25196,
+      "endLine": 25210,
+      "lineCount": 15
+    },
+    {
+      "id": "func-getredirectlink",
+      "type": "function",
+      "name": "getRedirectLink",
+      "category": "functions",
+      "path": "functions/getredirectlink.js",
+      "startLine": 25212,
+      "endLine": 25224,
+      "lineCount": 13
+    },
+    {
+      "id": "func-sendships",
+      "type": "function",
+      "name": "sendShips",
+      "category": "functions",
+      "path": "functions/sendships.js",
+      "startLine": 25226,
+      "endLine": 25261,
+      "lineCount": 36
+    },
+    {
+      "id": "func-sendshipswithpopup",
+      "type": "function",
+      "name": "sendShipsWithPopup",
+      "category": "functions",
+      "path": "functions/sendshipswithpopup.js",
+      "startLine": 25263,
+      "endLine": 25298,
+      "lineCount": 36
+    },
+    {
+      "id": "func-outlawwarning",
+      "type": "function",
+      "name": "outlawWarning",
+      "category": "functions",
+      "path": "functions/outlawwarning.js",
+      "startLine": 25300,
+      "endLine": 25334,
+      "lineCount": 35
+    },
+    {
+      "id": "func-initthousandseparator",
+      "type": "function",
+      "name": "initThousandSeparator",
+      "category": "functions",
+      "path": "functions/initthousandseparator.js",
+      "startLine": 25336,
+      "endLine": 25363,
+      "lineCount": 28
+    },
+    {
+      "id": "var-speedingupbuildlistentry",
+      "type": "standalone",
+      "name": "var speedingUpBuildListEntry",
+      "category": "globals",
+      "path": "globals/globals-25365.js",
+      "startLine": 25365,
+      "endLine": 25365,
+      "lineCount": 1
+    },
+    {
+      "id": "func-initindex",
+      "type": "function",
+      "name": "initIndex",
+      "category": "functions",
+      "path": "functions/initindex.js",
+      "startLine": 25367,
+      "endLine": 25492,
+      "lineCount": 126
+    },
+    {
+      "id": "func-initplanetsorting",
+      "type": "function",
+      "name": "initPlanetSorting",
+      "category": "functions",
+      "path": "functions/initplanetsorting.js",
+      "startLine": 25494,
+      "endLine": 25529,
+      "lineCount": 36
+    },
+    {
+      "id": "func-inithideelements",
+      "type": "function",
+      "name": "initHideElements",
+      "category": "functions",
+      "path": "functions/inithideelements.js",
+      "startLine": 25531,
+      "endLine": 25577,
+      "lineCount": 47
+    },
+    {
+      "id": "func-initjumpgate",
+      "type": "function",
+      "name": "initJumpgate",
+      "category": "functions",
+      "path": "functions/initjumpgate.js",
+      "startLine": 25579,
+      "endLine": 25630,
+      "lineCount": 52
+    },
+    {
+      "id": "func-jumpgatedone",
+      "type": "function",
+      "name": "jumpgateDone",
+      "category": "functions",
+      "path": "functions/jumpgatedone.js",
+      "startLine": 25632,
+      "endLine": 25645,
+      "lineCount": 14
+    },
+    {
+      "id": "func-jumpgatedefaulttargetselectioncallback",
+      "type": "function",
+      "name": "jumpgateDefaultTargetSelectionCallback",
+      "category": "functions",
+      "path": "functions/jumpgatedefaulttargetselectioncallback.js",
+      "startLine": 25647,
+      "endLine": 25679,
+      "lineCount": 33
+    },
+    {
+      "id": "func-setnewtokendata",
+      "type": "function",
+      "name": "setNewTokenData",
+      "category": "functions",
+      "path": "functions/setnewtokendata.js",
+      "startLine": 25681,
+      "endLine": 25685,
+      "lineCount": 5
+    },
+    {
+      "id": "func-openjumpgate",
+      "type": "function",
+      "name": "openJumpgate",
+      "category": "functions",
+      "path": "functions/openjumpgate.js",
+      "startLine": 25687,
+      "endLine": 25692,
+      "lineCount": 6
+    },
+    {
+      "id": "func-redirectlogout",
+      "type": "function",
+      "name": "redirectLogout",
+      "category": "functions",
+      "path": "functions/redirectlogout.js",
+      "startLine": 25694,
+      "endLine": 25696,
+      "lineCount": 3
+    },
+    {
+      "id": "func-redirectbuypremium",
+      "type": "function",
+      "name": "redirectBuyPremium",
+      "category": "functions",
+      "path": "functions/redirectbuypremium.js",
+      "startLine": 25698,
+      "endLine": 25700,
+      "lineCount": 3
+    },
+    {
+      "id": "func-redirectoverview",
+      "type": "function",
+      "name": "redirectOverview",
+      "category": "functions",
+      "path": "functions/redirectoverview.js",
+      "startLine": 25702,
+      "endLine": 25704,
+      "lineCount": 3
+    },
+    {
+      "id": "func-redirectspacedock",
+      "type": "function",
+      "name": "redirectSpaceDock",
+      "category": "functions",
+      "path": "functions/redirectspacedock.js",
+      "startLine": 25706,
+      "endLine": 25708,
+      "lineCount": 3
+    },
+    {
+      "id": "stmt-25709",
+      "type": "standalone",
+      "name": "statement_25709",
+      "category": "misc",
+      "path": "misc/stmt-25709.js",
+      "startLine": 25709,
+      "endLine": 25827,
+      "lineCount": 119
+    },
+    {
+      "id": "iife-25829",
+      "type": "iife",
+      "name": "IIFE_25829",
+      "category": "iife",
+      "path": "iife/iife-25829.js",
+      "startLine": 25829,
+      "endLine": 26386,
+      "lineCount": 558
+    },
+    {
+      "id": "stmt-26387",
+      "type": "standalone",
+      "name": "statement_26387",
+      "category": "misc",
+      "path": "misc/stmt-26387.js",
+      "startLine": 26387,
+      "endLine": 26402,
+      "lineCount": 16
+    },
+    {
+      "id": "class-ogameloadingindicator",
+      "type": "class",
+      "name": "OGameLoadingIndicator",
+      "category": "ui",
+      "path": "ui/ogameloadingindicator.js",
+      "startLine": 26403,
+      "endLine": 26420,
+      "lineCount": 18
+    },
+    {
+      "id": "iife-26422",
+      "type": "iife",
+      "name": "IIFE_26422",
+      "category": "iife",
+      "path": "iife/iife-26422.js",
+      "startLine": 26422,
+      "endLine": 26439,
+      "lineCount": 18
+    },
+    {
+      "id": "func-messageslider",
+      "type": "function",
+      "name": "MessageSlider",
+      "category": "functions",
+      "path": "functions/messageslider.js",
+      "startLine": 26440,
+      "endLine": 26478,
+      "lineCount": 39
+    },
+    {
+      "id": "stmt-26479",
+      "type": "standalone",
+      "name": "statement_26479",
+      "category": "misc",
+      "path": "misc/stmt-26479.js",
+      "startLine": 26479,
+      "endLine": 26768,
+      "lineCount": 290
+    },
+    {
+      "id": "stmt-26769",
+      "type": "standalone",
+      "name": "statement_26769",
+      "category": "misc",
+      "path": "misc/stmt-26769.js",
+      "startLine": 26769,
+      "endLine": 26954,
+      "lineCount": 186
+    },
+    {
+      "id": "stmt-26955",
+      "type": "standalone",
+      "name": "statement_26955",
+      "category": "misc",
+      "path": "misc/stmt-26955.js",
+      "startLine": 26955,
+      "endLine": 27938,
+      "lineCount": 984
+    },
+    {
+      "id": "func-initshowmessage",
+      "type": "function",
+      "name": "initShowMessage",
+      "category": "functions",
+      "path": "functions/initshowmessage.js",
+      "startLine": 27942,
+      "endLine": 27971,
+      "lineCount": 30
+    },
+    {
+      "id": "func-initnetworkajax",
+      "type": "function",
+      "name": "initNetworkAjax",
+      "category": "functions",
+      "path": "functions/initnetworkajax.js",
+      "startLine": 27973,
+      "endLine": 28016,
+      "lineCount": 44
+    },
+    {
+      "id": "stmt-28017",
+      "type": "standalone",
+      "name": "statement_28017",
+      "category": "misc",
+      "path": "misc/stmt-28017.js",
+      "startLine": 28017,
+      "endLine": 29022,
+      "lineCount": 1006
+    },
+    {
+      "id": "func-closedetails",
+      "type": "function",
+      "name": "closeDetails",
+      "category": "functions",
+      "path": "functions/closedetails.js",
+      "startLine": 29023,
+      "endLine": 29032,
+      "lineCount": 10
+    },
+    {
+      "id": "func-opendetails",
+      "type": "function",
+      "name": "openDetails",
+      "category": "functions",
+      "path": "functions/opendetails.js",
+      "startLine": 29034,
+      "endLine": 29043,
+      "lineCount": 10
+    },
+    {
+      "id": "func-updatecookiestatus",
+      "type": "function",
+      "name": "updateCookieStatus",
+      "category": "functions",
+      "path": "functions/updatecookiestatus.js",
+      "startLine": 29045,
+      "endLine": 29051,
+      "lineCount": 7
+    },
+    {
+      "id": "func-openclosedetails",
+      "type": "function",
+      "name": "openCloseDetails",
+      "category": "functions",
+      "path": "functions/openclosedetails.js",
+      "startLine": 29053,
+      "endLine": 29059,
+      "lineCount": 7
+    },
+    {
+      "id": "func-preclosemovements",
+      "type": "function",
+      "name": "preCloseMovements",
+      "category": "functions",
+      "path": "functions/preclosemovements.js",
+      "startLine": 29061,
+      "endLine": 29069,
+      "lineCount": 9
+    },
+    {
+      "id": "func-initmovement",
+      "type": "function",
+      "name": "initMovement",
+      "category": "functions",
+      "path": "functions/initmovement.js",
+      "startLine": 29071,
+      "endLine": 29100,
+      "lineCount": 30
+    },
+    {
+      "id": "func-addusertounion",
+      "type": "function",
+      "name": "addUserToUnion",
+      "category": "functions",
+      "path": "functions/addusertounion.js",
+      "startLine": 29102,
+      "endLine": 29104,
+      "lineCount": 3
+    },
+    {
+      "id": "func-removeuserfromunion",
+      "type": "function",
+      "name": "removeUserFromUnion",
+      "category": "functions",
+      "path": "functions/removeuserfromunion.js",
+      "startLine": 29106,
+      "endLine": 29108,
+      "lineCount": 3
+    },
+    {
+      "id": "func-addusertounionbyform",
+      "type": "function",
+      "name": "addUserToUnionByForm",
+      "category": "functions",
+      "path": "functions/addusertounionbyform.js",
+      "startLine": 29110,
+      "endLine": 29120,
+      "lineCount": 11
+    },
+    {
+      "id": "func-setunionusers",
+      "type": "function",
+      "name": "setUnionUsers",
+      "category": "functions",
+      "path": "functions/setunionusers.js",
+      "startLine": 29122,
+      "endLine": 29131,
+      "lineCount": 10
+    },
+    {
+      "id": "func-unionuser",
+      "type": "function",
+      "name": "unionUser",
+      "category": "functions",
+      "path": "functions/unionuser.js",
+      "startLine": 29133,
+      "endLine": 29141,
+      "lineCount": 9
+    },
+    {
+      "id": "func-initfederationlayer",
+      "type": "function",
+      "name": "initFederationLayer",
+      "category": "functions",
+      "path": "functions/initfederationlayer.js",
+      "startLine": 29143,
+      "endLine": 29161,
+      "lineCount": 19
+    },
+    {
+      "id": "func-submit_unionform",
+      "type": "function",
+      "name": "submit_unionform",
+      "category": "functions",
+      "path": "functions/submit-unionform.js",
+      "startLine": 29163,
+      "endLine": 29166,
+      "lineCount": 4
+    },
+    {
+      "id": "func-recallshipcountdown",
+      "type": "function",
+      "name": "recallShipCountdown",
+      "category": "functions",
+      "path": "functions/recallshipcountdown.js",
+      "startLine": 29168,
+      "endLine": 29183,
+      "lineCount": 16
+    },
+    {
+      "id": "func-initnotesform",
+      "type": "function",
+      "name": "initNotesForm",
+      "category": "functions",
+      "path": "functions/initnotesform.js",
+      "startLine": 29184,
+      "endLine": 29191,
+      "lineCount": 8
+    },
+    {
+      "id": "func-initnotes",
+      "type": "function",
+      "name": "initNotes",
+      "category": "functions",
+      "path": "functions/initnotes.js",
+      "startLine": 29193,
+      "endLine": 29331,
+      "lineCount": 139
+    },
+    {
+      "id": "func-getajaxeventbox",
+      "type": "function",
+      "name": "getAjaxEventbox",
+      "category": "functions",
+      "path": "functions/getajaxeventbox.js",
+      "startLine": 29332,
+      "endLine": 29338,
+      "lineCount": 7
+    },
+    {
+      "id": "var-reloadeventboxtimer",
+      "type": "standalone",
+      "name": "var reloadEventBoxTimer",
+      "category": "globals",
+      "path": "globals/globals-29340.js",
+      "startLine": 29340,
+      "endLine": 29340,
+      "lineCount": 1
+    },
+    {
+      "id": "func-reloadeventbox",
+      "type": "function",
+      "name": "reloadEventbox",
+      "category": "functions",
+      "path": "functions/reloadeventbox.js",
+      "startLine": 29342,
+      "endLine": 29447,
+      "lineCount": 106
+    },
+    {
+      "id": "iife-29449",
+      "type": "iife",
+      "name": "IIFE_29449",
+      "category": "iife",
+      "path": "iife/iife-29449.js",
+      "startLine": 29449,
+      "endLine": 29476,
+      "lineCount": 28
+    },
+    {
+      "id": "stmt-29480",
+      "type": "standalone",
+      "name": "statement_29480",
+      "category": "misc",
+      "path": "misc/stmt-29480.js",
+      "startLine": 29480,
+      "endLine": 29482,
+      "lineCount": 3
+    },
+    {
+      "id": "stmt-29484",
+      "type": "standalone",
+      "name": "statement_29484",
+      "category": "misc",
+      "path": "misc/stmt-29484.js",
+      "startLine": 29484,
+      "endLine": 29506,
+      "lineCount": 23
+    },
+    {
+      "id": "stmt-29508",
+      "type": "standalone",
+      "name": "statement_29508",
+      "category": "misc",
+      "path": "misc/stmt-29508.js",
+      "startLine": 29508,
+      "endLine": 29510,
+      "lineCount": 3
+    },
+    {
+      "id": "stmt-29512",
+      "type": "standalone",
+      "name": "statement_29512",
+      "category": "misc",
+      "path": "misc/stmt-29512.js",
+      "startLine": 29512,
+      "endLine": 29514,
+      "lineCount": 3
+    },
+    {
+      "id": "stmt-29516",
+      "type": "standalone",
+      "name": "statement_29516",
+      "category": "misc",
+      "path": "misc/stmt-29516.js",
+      "startLine": 29516,
+      "endLine": 29521,
+      "lineCount": 6
+    },
+    {
+      "id": "func-scrolltotopofdialog",
+      "type": "function",
+      "name": "scrollToTopOfDialog",
+      "category": "functions",
+      "path": "functions/scrolltotopofdialog.js",
+      "startLine": 29522,
+      "endLine": 29531,
+      "lineCount": 10
+    },
+    {
+      "id": "func-openoverlay",
+      "type": "function",
+      "name": "openOverlay",
+      "category": "functions",
+      "path": "functions/openoverlay.js",
+      "startLine": 29533,
+      "endLine": 29887,
+      "lineCount": 355
+    },
+    {
+      "id": "func-isoverlayopen",
+      "type": "function",
+      "name": "isOverlayOpen",
+      "category": "functions",
+      "path": "functions/isoverlayopen.js",
+      "startLine": 29889,
+      "endLine": 29891,
+      "lineCount": 3
+    },
+    {
+      "id": "func-initoverlays",
+      "type": "function",
+      "name": "initOverlays",
+      "category": "functions",
+      "path": "functions/initoverlays.js",
+      "startLine": 29893,
+      "endLine": 29988,
+      "lineCount": 96
+    },
+    {
+      "id": "func-updateoverlaytoken",
+      "type": "function",
+      "name": "updateOverlayToken",
+      "category": "functions",
+      "path": "functions/updateoverlaytoken.js",
+      "startLine": 29990,
+      "endLine": 29993,
+      "lineCount": 4
+    },
+    {
+      "id": "func-initoverview",
+      "type": "function",
+      "name": "initOverview",
+      "category": "functions",
+      "path": "functions/initoverview.js",
+      "startLine": 29994,
+      "endLine": 30057,
+      "lineCount": 64
+    },
+    {
+      "id": "func-clearfield",
+      "type": "function",
+      "name": "clearField",
+      "category": "functions",
+      "path": "functions/clearfield.js",
+      "startLine": 30059,
+      "endLine": 30065,
+      "lineCount": 7
+    },
+    {
+      "id": "func-fillfield",
+      "type": "function",
+      "name": "fillField",
+      "category": "functions",
+      "path": "functions/fillfield.js",
+      "startLine": 30067,
+      "endLine": 30073,
+      "lineCount": 7
+    },
+    {
+      "id": "func-openbuddyoverlay",
+      "type": "function",
+      "name": "openBuddyOverlay",
+      "category": "functions",
+      "path": "functions/openbuddyoverlay.js",
+      "startLine": 30075,
+      "endLine": 30080,
+      "lineCount": 6
+    },
+    {
+      "id": "func-planetgivenup",
+      "type": "function",
+      "name": "planetGivenup",
+      "category": "functions",
+      "path": "functions/planetgivenup.js",
+      "startLine": 30082,
+      "endLine": 30092,
+      "lineCount": 11
+    },
+    {
+      "id": "stmt-30094",
+      "type": "standalone",
+      "name": "statement_30094",
+      "category": "misc",
+      "path": "misc/stmt-30094.js",
+      "startLine": 30094,
+      "endLine": 30133,
+      "lineCount": 40
+    },
+    {
+      "id": "stmt-30135",
+      "type": "standalone",
+      "name": "statement_30135",
+      "category": "misc",
+      "path": "misc/stmt-30135.js",
+      "startLine": 30135,
+      "endLine": 30174,
+      "lineCount": 40
+    },
+    {
+      "id": "func-initpreferences",
+      "type": "function",
+      "name": "initPreferences",
+      "category": "functions",
+      "path": "functions/initpreferences.js",
+      "startLine": 30175,
+      "endLine": 30412,
+      "lineCount": 238
+    },
+    {
+      "id": "func-onclickexecuteptrcopy",
+      "type": "function",
+      "name": "onClickExecutePtrCopy",
+      "category": "functions",
+      "path": "functions/onclickexecuteptrcopy.js",
+      "startLine": 30414,
+      "endLine": 30440,
+      "lineCount": 27
+    },
+    {
+      "id": "func-pqchangetarget",
+      "type": "function",
+      "name": "pqChangeTarget",
+      "category": "functions",
+      "path": "functions/pqchangetarget.js",
+      "startLine": 30441,
+      "endLine": 30443,
+      "lineCount": 3
+    },
+    {
+      "id": "func-switchproductiontab",
+      "type": "function",
+      "name": "switchProductionTab",
+      "category": "functions",
+      "path": "functions/switchproductiontab.js",
+      "startLine": 30445,
+      "endLine": 30451,
+      "lineCount": 7
+    },
+    {
+      "id": "func-display_info",
+      "type": "function",
+      "name": "display_info",
+      "category": "functions",
+      "path": "functions/display-info.js",
+      "startLine": 30452,
+      "endLine": 30459,
+      "lineCount": 8
+    },
+    {
+      "id": "func-display_error",
+      "type": "function",
+      "name": "display_error",
+      "category": "functions",
+      "path": "functions/display-error.js",
+      "startLine": 30461,
+      "endLine": 30469,
+      "lineCount": 9
+    },
+    {
+      "id": "func-hide_error",
+      "type": "function",
+      "name": "hide_error",
+      "category": "functions",
+      "path": "functions/hide-error.js",
+      "startLine": 30471,
+      "endLine": 30474,
+      "lineCount": 4
+    },
+    {
+      "id": "func-checkusername",
+      "type": "function",
+      "name": "checkUsername",
+      "category": "functions",
+      "path": "functions/checkusername.js",
+      "startLine": 30476,
+      "endLine": 30484,
+      "lineCount": 9
+    },
+    {
+      "id": "func-checkemail",
+      "type": "function",
+      "name": "checkEmail",
+      "category": "functions",
+      "path": "functions/checkemail.js",
+      "startLine": 30486,
+      "endLine": 30495,
+      "lineCount": 10
+    },
+    {
+      "id": "var-techid_repair_dock",
+      "type": "standalone",
+      "name": "var TECHID_REPAIR_DOCK, var burnUpCountDownForStationScreen, var repairTimeDownForStationScreen",
+      "category": "globals",
+      "path": "globals/globals-30499.js",
+      "startLine": 30499,
+      "endLine": 30501,
+      "lineCount": 3
+    },
+    {
+      "id": "func-displayburnupenquiry",
+      "type": "function",
+      "name": "displayBurnUpEnquiry",
+      "category": "functions",
+      "path": "functions/displayburnupenquiry.js",
+      "startLine": 30503,
+      "endLine": 30527,
+      "lineCount": 25
+    },
+    {
+      "id": "func-startwreckfieldrepairs",
+      "type": "function",
+      "name": "startWreckFieldRepairs",
+      "category": "functions",
+      "path": "functions/startwreckfieldrepairs.js",
+      "startLine": 30529,
+      "endLine": 30544,
+      "lineCount": 16
+    },
+    {
+      "id": "func-recommissionships",
+      "type": "function",
+      "name": "reCommissionShips",
+      "category": "functions",
+      "path": "functions/recommissionships.js",
+      "startLine": 30546,
+      "endLine": 30561,
+      "lineCount": 16
+    },
+    {
+      "id": "func-registerburnupcountdown",
+      "type": "function",
+      "name": "registerBurnUpCountDown",
+      "category": "functions",
+      "path": "functions/registerburnupcountdown.js",
+      "startLine": 30563,
+      "endLine": 30574,
+      "lineCount": 12
+    },
+    {
+      "id": "func-registerrepairtimecountdown",
+      "type": "function",
+      "name": "registerRepairTimeCountDown",
+      "category": "functions",
+      "path": "functions/registerrepairtimecountdown.js",
+      "startLine": 30576,
+      "endLine": 30591,
+      "lineCount": 16
+    },
+    {
+      "id": "stmt-30593",
+      "type": "standalone",
+      "name": "statement_30593",
+      "category": "misc",
+      "path": "misc/stmt-30593.js",
+      "startLine": 30593,
+      "endLine": 30593,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-30594",
+      "type": "standalone",
+      "name": "statement_30594",
+      "category": "misc",
+      "path": "misc/stmt-30594.js",
+      "startLine": 30594,
+      "endLine": 30594,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-30595",
+      "type": "standalone",
+      "name": "statement_30595",
+      "category": "misc",
+      "path": "misc/stmt-30595.js",
+      "startLine": 30595,
+      "endLine": 30595,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-30596",
+      "type": "standalone",
+      "name": "statement_30596",
+      "category": "misc",
+      "path": "misc/stmt-30596.js",
+      "startLine": 30596,
+      "endLine": 30601,
+      "lineCount": 6
+    },
+    {
+      "id": "stmt-30602",
+      "type": "standalone",
+      "name": "statement_30602",
+      "category": "misc",
+      "path": "misc/stmt-30602.js",
+      "startLine": 30602,
+      "endLine": 30605,
+      "lineCount": 4
+    },
+    {
+      "id": "func-initresourcetrader",
+      "type": "function",
+      "name": "initResourceTrader",
+      "category": "functions",
+      "path": "functions/initresourcetrader.js",
+      "startLine": 30606,
+      "endLine": 30612,
+      "lineCount": 7
+    },
+    {
+      "id": "func-onselectresource",
+      "type": "function",
+      "name": "onSelectResource",
+      "category": "functions",
+      "path": "functions/onselectresource.js",
+      "startLine": 30614,
+      "endLine": 30634,
+      "lineCount": 21
+    },
+    {
+      "id": "func-showtradenowbutton",
+      "type": "function",
+      "name": "showTradeNowButton",
+      "category": "functions",
+      "path": "functions/showtradenowbutton.js",
+      "startLine": 30636,
+      "endLine": 30642,
+      "lineCount": 7
+    },
+    {
+      "id": "func-calccosts",
+      "type": "function",
+      "name": "calcCosts",
+      "category": "functions",
+      "path": "functions/calccosts.js",
+      "startLine": 30645,
+      "endLine": 30647,
+      "lineCount": 3
+    },
+    {
+      "id": "func-calcinputfromcosts",
+      "type": "function",
+      "name": "calcInputFromCosts",
+      "category": "functions",
+      "path": "functions/calcinputfromcosts.js",
+      "startLine": 30649,
+      "endLine": 30651,
+      "lineCount": 3
+    },
+    {
+      "id": "func-setvalue",
+      "type": "function",
+      "name": "setValue",
+      "category": "functions",
+      "path": "functions/setvalue.js",
+      "startLine": 30653,
+      "endLine": 30659,
+      "lineCount": 7
+    },
+    {
+      "id": "func-checkvalue",
+      "type": "function",
+      "name": "checkValue",
+      "category": "functions",
+      "path": "functions/checkvalue.js",
+      "startLine": 30661,
+      "endLine": 30681,
+      "lineCount": 21
+    },
+    {
+      "id": "func-setmaxvalue",
+      "type": "function",
+      "name": "setMaxValue",
+      "category": "functions",
+      "path": "functions/setmaxvalue.js",
+      "startLine": 30683,
+      "endLine": 30686,
+      "lineCount": 4
+    },
+    {
+      "id": "func-calltrader",
+      "type": "function",
+      "name": "callTrader",
+      "category": "functions",
+      "path": "functions/calltrader.js",
+      "startLine": 30688,
+      "endLine": 30778,
+      "lineCount": 91
+    },
+    {
+      "id": "func-tradedone",
+      "type": "function",
+      "name": "tradeDone",
+      "category": "functions",
+      "path": "functions/tradedone.js",
+      "startLine": 30780,
+      "endLine": 30789,
+      "lineCount": 10
+    },
+    {
+      "id": "func-closetraderesourcesoverlay",
+      "type": "function",
+      "name": "closeTradeResourcesOverlay",
+      "category": "functions",
+      "path": "functions/closetraderesourcesoverlay.js",
+      "startLine": 30791,
+      "endLine": 30802,
+      "lineCount": 12
+    },
+    {
+      "id": "func-closesearch",
+      "type": "function",
+      "name": "closeSearch",
+      "category": "functions",
+      "path": "functions/closesearch.js",
+      "startLine": 30803,
+      "endLine": 30811,
+      "lineCount": 9
+    },
+    {
+      "id": "stmt-30813",
+      "type": "standalone",
+      "name": "statement_30813",
+      "category": "misc",
+      "path": "misc/stmt-30813.js",
+      "startLine": 30813,
+      "endLine": 31693,
+      "lineCount": 881
+    },
+    {
+      "id": "func-gfslider",
+      "type": "function",
+      "name": "GFSlider",
+      "category": "functions",
+      "path": "functions/gfslider.js",
+      "startLine": 31694,
+      "endLine": 31839,
+      "lineCount": 146
+    },
+    {
+      "id": "func-supplyfleet",
+      "type": "function",
+      "name": "supplyFleet",
+      "category": "functions",
+      "path": "functions/supplyfleet.js",
+      "startLine": 31840,
+      "endLine": 31856,
+      "lineCount": 17
+    },
+    {
+      "id": "func-updatesupplydetails",
+      "type": "function",
+      "name": "updateSupplyDetails",
+      "category": "functions",
+      "path": "functions/updatesupplydetails.js",
+      "startLine": 31858,
+      "endLine": 31863,
+      "lineCount": 6
+    },
+    {
+      "id": "func-initalliancedepot",
+      "type": "function",
+      "name": "initAllianceDepot",
+      "category": "functions",
+      "path": "functions/initalliancedepot.js",
+      "startLine": 31865,
+      "endLine": 31882,
+      "lineCount": 18
+    },
+    {
+      "id": "stmt-31903",
+      "type": "standalone",
+      "name": "statement_31903",
+      "category": "misc",
+      "path": "misc/stmt-31903.js",
+      "startLine": 31903,
+      "endLine": 31903,
+      "lineCount": 1
+    },
+    {
+      "id": "var-pushbutton",
+      "type": "standalone",
+      "name": "var pushButton, var applicationServerPublicKey, var isSubscribed, var swRegistration",
+      "category": "globals",
+      "path": "globals/globals-31905.js",
+      "startLine": 31905,
+      "endLine": 31909,
+      "lineCount": 5
+    },
+    {
+      "id": "func-urlb64touint8array",
+      "type": "function",
+      "name": "urlB64ToUint8Array",
+      "category": "functions",
+      "path": "functions/urlb64touint8array.js",
+      "startLine": 31911,
+      "endLine": 31922,
+      "lineCount": 12
+    },
+    {
+      "id": "func-initializeui",
+      "type": "function",
+      "name": "initializeUI",
+      "category": "functions",
+      "path": "functions/initializeui.js",
+      "startLine": 31924,
+      "endLine": 31945,
+      "lineCount": 22
+    },
+    {
+      "id": "func-updatebtn",
+      "type": "function",
+      "name": "updateBtn",
+      "category": "functions",
+      "path": "functions/updatebtn.js",
+      "startLine": 31947,
+      "endLine": 31964,
+      "lineCount": 18
+    },
+    {
+      "id": "func-subscribeuser",
+      "type": "function",
+      "name": "subscribeUser",
+      "category": "functions",
+      "path": "functions/subscribeuser.js",
+      "startLine": 31966,
+      "endLine": 31983,
+      "lineCount": 18
+    },
+    {
+      "id": "func-unsubscribeuser",
+      "type": "function",
+      "name": "unsubscribeUser",
+      "category": "functions",
+      "path": "functions/unsubscribeuser.js",
+      "startLine": 31985,
+      "endLine": 32002,
+      "lineCount": 18
+    },
+    {
+      "id": "func-updatesubscriptiononserver",
+      "type": "function",
+      "name": "updateSubscriptionOnServer",
+      "category": "functions",
+      "path": "functions/updatesubscriptiononserver.js",
+      "startLine": 32004,
+      "endLine": 32010,
+      "lineCount": 7
+    },
+    {
+      "id": "func-initsubscriptionsystem",
+      "type": "function",
+      "name": "initSubscriptionSystem",
+      "category": "functions",
+      "path": "functions/initsubscriptionsystem.js",
+      "startLine": 32012,
+      "endLine": 32035,
+      "lineCount": 24
+    },
+    {
+      "id": "func-tabletinitoverviewadvice",
+      "type": "function",
+      "name": "tabletInitOverviewAdvice",
+      "category": "functions",
+      "path": "functions/tabletinitoverviewadvice.js",
+      "startLine": 32041,
+      "endLine": 32052,
+      "lineCount": 12
+    },
+    {
+      "id": "func-tabletinitgalaxydetails",
+      "type": "function",
+      "name": "tabletInitGalaxyDetails",
+      "category": "functions",
+      "path": "functions/tabletinitgalaxydetails.js",
+      "startLine": 32054,
+      "endLine": 32125,
+      "lineCount": 72
+    },
+    {
+      "id": "func-tablettoggletechtreeinfos",
+      "type": "function",
+      "name": "tabletToggleTechtreeInfos",
+      "category": "functions",
+      "path": "functions/tablettoggletechtreeinfos.js",
+      "startLine": 32127,
+      "endLine": 32167,
+      "lineCount": 41
+    },
+    {
+      "id": "func-tabletinitempire",
+      "type": "function",
+      "name": "tabletInitEmpire",
+      "category": "functions",
+      "path": "functions/tabletinitempire.js",
+      "startLine": 32169,
+      "endLine": 32178,
+      "lineCount": 10
+    },
+    {
+      "id": "func-tabletinitpayment",
+      "type": "function",
+      "name": "tabletInitPayment",
+      "category": "functions",
+      "path": "functions/tabletinitpayment.js",
+      "startLine": 32180,
+      "endLine": 32211,
+      "lineCount": 32
+    },
+    {
+      "id": "func-tabletinitgalaxy",
+      "type": "function",
+      "name": "tabletInitGalaxy",
+      "category": "functions",
+      "path": "functions/tabletinitgalaxy.js",
+      "startLine": 32213,
+      "endLine": 32234,
+      "lineCount": 22
+    },
+    {
+      "id": "func-initretinaimages",
+      "type": "function",
+      "name": "initRetinaImages",
+      "category": "functions",
+      "path": "functions/initretinaimages.js",
+      "startLine": 32236,
+      "endLine": 32243,
+      "lineCount": 8
+    },
+    {
+      "id": "func-setupoverlay",
+      "type": "function",
+      "name": "setupOverlay",
+      "category": "functions",
+      "path": "functions/setupoverlay.js",
+      "startLine": 32244,
+      "endLine": 32249,
+      "lineCount": 6
+    },
+    {
+      "id": "func-drawerrorbox",
+      "type": "function",
+      "name": "drawErrorbox",
+      "category": "functions",
+      "path": "functions/drawerrorbox.js",
+      "startLine": 32251,
+      "endLine": 32278,
+      "lineCount": 28
+    },
+    {
+      "id": "func-showerrors",
+      "type": "function",
+      "name": "showErrors",
+      "category": "functions",
+      "path": "functions/showerrors.js",
+      "startLine": 32280,
+      "endLine": 32320,
+      "lineCount": 41
+    },
+    {
+      "id": "func-initglobaltechtree",
+      "type": "function",
+      "name": "initGlobalTechtree",
+      "category": "functions",
+      "path": "functions/initglobaltechtree.js",
+      "startLine": 32321,
+      "endLine": 32353,
+      "lineCount": 33
+    },
+    {
+      "id": "func-initoverlayname",
+      "type": "function",
+      "name": "initOverlayName",
+      "category": "functions",
+      "path": "functions/initoverlayname.js",
+      "startLine": 32355,
+      "endLine": 32358,
+      "lineCount": 4
+    },
+    {
+      "id": "func-drawarrows",
+      "type": "function",
+      "name": "drawArrows",
+      "category": "functions",
+      "path": "functions/drawarrows.js",
+      "startLine": 32360,
+      "endLine": 32644,
+      "lineCount": 285
+    },
+    {
+      "id": "func-inittechtree",
+      "type": "function",
+      "name": "initTechtree",
+      "category": "functions",
+      "path": "functions/inittechtree.js",
+      "startLine": 32646,
+      "endLine": 32652,
+      "lineCount": 7
+    },
+    {
+      "id": "func-readableversionoflabel",
+      "type": "function",
+      "name": "readableVersionOfLabel",
+      "category": "functions",
+      "path": "functions/readableversionoflabel.js",
+      "startLine": 32660,
+      "endLine": 32669,
+      "lineCount": 10
+    },
+    {
+      "id": "func-lineincoordinatesblocked",
+      "type": "function",
+      "name": "lineInCoordinatesBlocked",
+      "category": "functions",
+      "path": "functions/lineincoordinatesblocked.js",
+      "startLine": 32680,
+      "endLine": 32705,
+      "lineCount": 26
+    },
+    {
+      "id": "func-positionincoordinatesblocked",
+      "type": "function",
+      "name": "positionInCoordinatesBlocked",
+      "category": "functions",
+      "path": "functions/positionincoordinatesblocked.js",
+      "startLine": 32714,
+      "endLine": 32722,
+      "lineCount": 9
+    },
+    {
+      "id": "var-javascriptavailable",
+      "type": "standalone",
+      "name": "var javascriptAvailable, var days, var months",
+      "category": "globals",
+      "path": "globals/globals-32723.js",
+      "startLine": 32723,
+      "endLine": 32725,
+      "lineCount": 3
+    },
+    {
+      "id": "func-getformateddate",
+      "type": "function",
+      "name": "getFormatedDate",
+      "category": "functions",
+      "path": "functions/getformateddate.js",
+      "startLine": 32727,
+      "endLine": 32743,
+      "lineCount": 17
+    },
+    {
+      "id": "func-dezint",
+      "type": "function",
+      "name": "dezInt",
+      "category": "functions",
+      "path": "functions/dezint.js",
+      "startLine": 32752,
+      "endLine": 32765,
+      "lineCount": 14
+    },
+    {
+      "id": "func-getformatedtime",
+      "type": "function",
+      "name": "getFormatedTime",
+      "category": "functions",
+      "path": "functions/getformatedtime.js",
+      "startLine": 32767,
+      "endLine": 32774,
+      "lineCount": 8
+    },
+    {
+      "id": "func-tsdpkt",
+      "type": "function",
+      "name": "tsdpkt",
+      "category": "functions",
+      "path": "functions/tsdpkt.js",
+      "startLine": 32775,
+      "endLine": 32806,
+      "lineCount": 32
+    },
+    {
+      "id": "func-formattime",
+      "type": "function",
+      "name": "formatTime",
+      "category": "functions",
+      "path": "functions/formattime.js",
+      "startLine": 32808,
+      "endLine": 32816,
+      "lineCount": 9
+    },
+    {
+      "id": "func-round",
+      "type": "function",
+      "name": "round",
+      "category": "functions",
+      "path": "functions/round.js",
+      "startLine": 32818,
+      "endLine": 32825,
+      "lineCount": 8
+    },
+    {
+      "id": "func-show_hide_menus",
+      "type": "function",
+      "name": "show_hide_menus",
+      "category": "functions",
+      "path": "functions/show-hide-menus.js",
+      "startLine": 32827,
+      "endLine": 32833,
+      "lineCount": 7
+    },
+    {
+      "id": "func-change_class",
+      "type": "function",
+      "name": "change_class",
+      "category": "functions",
+      "path": "functions/change-class.js",
+      "startLine": 32835,
+      "endLine": 32841,
+      "lineCount": 7
+    },
+    {
+      "id": "func-show_hide_tbl",
+      "type": "function",
+      "name": "show_hide_tbl",
+      "category": "functions",
+      "path": "functions/show-hide-tbl.js",
+      "startLine": 32843,
+      "endLine": 32852,
+      "lineCount": 10
+    },
+    {
+      "id": "func-cntchar",
+      "type": "function",
+      "name": "cntchar",
+      "category": "functions",
+      "path": "functions/cntchar.js",
+      "startLine": 32854,
+      "endLine": 32862,
+      "lineCount": 9
+    },
+    {
+      "id": "func-showgalaxy",
+      "type": "function",
+      "name": "showGalaxy",
+      "category": "functions",
+      "path": "functions/showgalaxy.js",
+      "startLine": 32864,
+      "endLine": 32868,
+      "lineCount": 5
+    },
+    {
+      "id": "func-openparentlocation",
+      "type": "function",
+      "name": "openParentLocation",
+      "category": "functions",
+      "path": "functions/openparentlocation.js",
+      "startLine": 32870,
+      "endLine": 32880,
+      "lineCount": 11
+    },
+    {
+      "id": "func-submitonenter",
+      "type": "function",
+      "name": "submitOnEnter",
+      "category": "functions",
+      "path": "functions/submitonenter.js",
+      "startLine": 32882,
+      "endLine": 32893,
+      "lineCount": 12
+    },
+    {
+      "id": "func-setmaxintinput",
+      "type": "function",
+      "name": "setMaxIntInput",
+      "category": "functions",
+      "path": "functions/setmaxintinput.js",
+      "startLine": 32895,
+      "endLine": 32908,
+      "lineCount": 14
+    },
+    {
+      "id": "func-clearinput",
+      "type": "function",
+      "name": "clearInput",
+      "category": "functions",
+      "path": "functions/clearinput.js",
+      "startLine": 32910,
+      "endLine": 32912,
+      "lineCount": 3
+    },
+    {
+      "id": "func-checkintinput",
+      "type": "function",
+      "name": "checkIntInput",
+      "category": "functions",
+      "path": "functions/checkintinput.js",
+      "startLine": 32914,
+      "endLine": 32926,
+      "lineCount": 13
+    },
+    {
+      "id": "func-clampint",
+      "type": "function",
+      "name": "clampInt",
+      "category": "functions",
+      "path": "functions/clampint.js",
+      "startLine": 32928,
+      "endLine": 32942,
+      "lineCount": 15
+    },
+    {
+      "id": "func-clampfloat",
+      "type": "function",
+      "name": "clampFloat",
+      "category": "functions",
+      "path": "functions/clampfloat.js",
+      "startLine": 32944,
+      "endLine": 32954,
+      "lineCount": 11
+    },
+    {
+      "id": "func-handlertosubmitajaxform",
+      "type": "function",
+      "name": "handlerToSubmitAjaxForm",
+      "category": "functions",
+      "path": "functions/handlertosubmitajaxform.js",
+      "startLine": 32956,
+      "endLine": 32964,
+      "lineCount": 9
+    },
+    {
+      "id": "func-ajaxcall",
+      "type": "function",
+      "name": "ajaxCall",
+      "category": "functions",
+      "path": "functions/ajaxcall.js",
+      "startLine": 32966,
+      "endLine": 32984,
+      "lineCount": 19
+    },
+    {
+      "id": "func-ajaxsubmit",
+      "type": "function",
+      "name": "ajaxSubmit",
+      "category": "functions",
+      "path": "functions/ajaxsubmit.js",
+      "startLine": 32986,
+      "endLine": 33005,
+      "lineCount": 20
+    },
+    {
+      "id": "class-number",
+      "type": "class",
+      "name": "Number",
+      "category": "other",
+      "path": "misc/stmt-33007.js",
+      "startLine": 33007,
+      "endLine": 33009,
+      "lineCount": 3
+    },
+    {
+      "id": "func-getvalue",
+      "type": "function",
+      "name": "getValue",
+      "category": "functions",
+      "path": "functions/getvalue.js",
+      "startLine": 33011,
+      "endLine": 33021,
+      "lineCount": 11
+    },
+    {
+      "id": "func-loadscript",
+      "type": "function",
+      "name": "loadScript",
+      "category": "functions",
+      "path": "functions/loadscript.js",
+      "startLine": 33029,
+      "endLine": 33060,
+      "lineCount": 32
+    },
+    {
+      "id": "func-formatnumber",
+      "type": "function",
+      "name": "formatNumber",
+      "category": "functions",
+      "path": "functions/formatnumber.js",
+      "startLine": 33062,
+      "endLine": 33082,
+      "lineCount": 21
+    },
+    {
+      "id": "func-inittoggleheader",
+      "type": "function",
+      "name": "initToggleHeader",
+      "category": "functions",
+      "path": "functions/inittoggleheader.js",
+      "startLine": 33084,
+      "endLine": 33093,
+      "lineCount": 10
+    },
+    {
+      "id": "func-initformvalidation",
+      "type": "function",
+      "name": "initFormValidation",
+      "category": "functions",
+      "path": "functions/initformvalidation.js",
+      "startLine": 33095,
+      "endLine": 33100,
+      "lineCount": 6
+    },
+    {
+      "id": "class-function",
+      "type": "class",
+      "name": "Function",
+      "category": "other",
+      "path": "misc/stmt-33102.js",
+      "startLine": 33102,
+      "endLine": 33118,
+      "lineCount": 17
+    },
+    {
+      "id": "func-hidetipsontabchange",
+      "type": "function",
+      "name": "hideTipsOnTabChange",
+      "category": "functions",
+      "path": "functions/hidetipsontabchange.js",
+      "startLine": 33120,
+      "endLine": 33123,
+      "lineCount": 4
+    },
+    {
+      "id": "stmt-33125",
+      "type": "standalone",
+      "name": "statement_33125",
+      "category": "misc",
+      "path": "misc/stmt-33125.js",
+      "startLine": 33125,
+      "endLine": 33135,
+      "lineCount": 11
+    },
+    {
+      "id": "func-focusontabchange",
+      "type": "function",
+      "name": "focusOnTabChange",
+      "category": "functions",
+      "path": "functions/focusontabchange.js",
+      "startLine": 33137,
+      "endLine": 33147,
+      "lineCount": 11
+    },
+    {
+      "id": "func-getieversion",
+      "type": "function",
+      "name": "getIEVersion",
+      "category": "functions",
+      "path": "functions/getieversion.js",
+      "startLine": 33153,
+      "endLine": 33157,
+      "lineCount": 5
+    },
+    {
+      "id": "stmt-33159",
+      "type": "standalone",
+      "name": "statement_33159",
+      "category": "misc",
+      "path": "misc/stmt-33159.js",
+      "startLine": 33159,
+      "endLine": 33200,
+      "lineCount": 42
+    },
+    {
+      "id": "func-refreshbars",
+      "type": "function",
+      "name": "refreshBars",
+      "category": "functions",
+      "path": "functions/refreshbars.js",
+      "startLine": 33215,
+      "endLine": 33253,
+      "lineCount": 39
+    },
+    {
+      "id": "func-inittooltipskins",
+      "type": "function",
+      "name": "initTooltipSkins",
+      "category": "functions",
+      "path": "functions/inittooltipskins.js",
+      "startLine": 33254,
+      "endLine": 33295,
+      "lineCount": 42
+    },
+    {
+      "id": "func-changetooltip",
+      "type": "function",
+      "name": "changeTooltip",
+      "category": "functions",
+      "path": "functions/changetooltip.js",
+      "startLine": 33296,
+      "endLine": 33306,
+      "lineCount": 11
+    },
+    {
+      "id": "func-removetooltip",
+      "type": "function",
+      "name": "removeTooltip",
+      "category": "functions",
+      "path": "functions/removetooltip.js",
+      "startLine": 33308,
+      "endLine": 33316,
+      "lineCount": 9
+    },
+    {
+      "id": "func-gettooltipoptions",
+      "type": "function",
+      "name": "getTooltipOptions",
+      "category": "functions",
+      "path": "functions/gettooltipoptions.js",
+      "startLine": 33318,
+      "endLine": 33402,
+      "lineCount": 85
+    },
+    {
+      "id": "func-gettooltipselector",
+      "type": "function",
+      "name": "getTooltipSelector",
+      "category": "functions",
+      "path": "functions/gettooltipselector.js",
+      "startLine": 33404,
+      "endLine": 33420,
+      "lineCount": 17
+    },
+    {
+      "id": "func-sanitizetooltip",
+      "type": "function",
+      "name": "sanitizeTooltip",
+      "category": "functions",
+      "path": "functions/sanitizetooltip.js",
+      "startLine": 33422,
+      "endLine": 33424,
+      "lineCount": 3
+    },
+    {
+      "id": "func-inittooltips",
+      "type": "function",
+      "name": "initTooltips",
+      "category": "functions",
+      "path": "functions/inittooltips.js",
+      "startLine": 33426,
+      "endLine": 33568,
+      "lineCount": 143
+    },
+    {
+      "id": "stmt-33570",
+      "type": "standalone",
+      "name": "statement_33570",
+      "category": "misc",
+      "path": "misc/stmt-33570.js",
+      "startLine": 33570,
+      "endLine": 33572,
+      "lineCount": 3
+    },
+    {
+      "id": "func-inittrader",
+      "type": "function",
+      "name": "initTrader",
+      "category": "functions",
+      "path": "functions/inittrader.js",
+      "startLine": 33573,
+      "endLine": 35472,
+      "lineCount": 1900
+    },
+    {
+      "id": "class-alliance",
+      "type": "class",
+      "name": "Alliance",
+      "category": "alliance",
+      "path": "alliance/alliance.js",
+      "startLine": 35474,
+      "endLine": 36220,
+      "lineCount": 747
+    },
+    {
+      "id": "stmt-36222",
+      "type": "standalone",
+      "name": "statement_36222",
+      "category": "misc",
+      "path": "misc/stmt-36222.js",
+      "startLine": 36222,
+      "endLine": 36237,
+      "lineCount": 16
+    },
+    {
+      "id": "class-allianceclassboxes",
+      "type": "class",
+      "name": "AllianceClassBoxes",
+      "category": "alliance",
+      "path": "alliance/allianceclassboxes.js",
+      "startLine": 36238,
+      "endLine": 36469,
+      "lineCount": 232
+    },
+    {
+      "id": "var-buildlistactioncalled",
+      "type": "standalone",
+      "name": "var buildListActionCalled",
+      "category": "globals",
+      "path": "globals/globals-36470.js",
+      "startLine": 36470,
+      "endLine": 36470,
+      "lineCount": 1
+    },
+    {
+      "id": "func-buildlistactionbuild",
+      "type": "function",
+      "name": "buildListActionBuild",
+      "category": "functions",
+      "path": "functions/buildlistactionbuild.js",
+      "startLine": 36472,
+      "endLine": 36531,
+      "lineCount": 60
+    },
+    {
+      "id": "func-buildlistactiondemolish",
+      "type": "function",
+      "name": "buildListActionDemolish",
+      "category": "functions",
+      "path": "functions/buildlistactiondemolish.js",
+      "startLine": 36533,
+      "endLine": 36583,
+      "lineCount": 51
+    },
+    {
+      "id": "func-buildlistactioncancel",
+      "type": "function",
+      "name": "buildListActionCancel",
+      "category": "functions",
+      "path": "functions/buildlistactioncancel.js",
+      "startLine": 36585,
+      "endLine": 36635,
+      "lineCount": 51
+    },
+    {
+      "id": "class-characterclassboxes",
+      "type": "class",
+      "name": "CharacterClassBoxes",
+      "category": "characters",
+      "path": "characters/characterclassboxes.js",
+      "startLine": 36636,
+      "endLine": 36759,
+      "lineCount": 124
+    },
+    {
+      "id": "func-initexpeditionfleettemplate",
+      "type": "function",
+      "name": "initExpeditionFleetTemplate",
+      "category": "functions",
+      "path": "functions/initexpeditionfleettemplate.js",
+      "startLine": 36761,
+      "endLine": 36767,
+      "lineCount": 7
+    },
+    {
+      "id": "func-selectshipsperfleet",
+      "type": "function",
+      "name": "selectShipsPerFleet",
+      "category": "functions",
+      "path": "functions/selectshipsperfleet.js",
+      "startLine": 36769,
+      "endLine": 36775,
+      "lineCount": 7
+    },
+    {
+      "id": "var-editingtemplate",
+      "type": "standalone",
+      "name": "var editingTemplate",
+      "category": "globals",
+      "path": "globals/globals-36777.js",
+      "startLine": 36777,
+      "endLine": 36777,
+      "lineCount": 1
+    },
+    {
+      "id": "func-saveexpeditionfleettemplate",
+      "type": "function",
+      "name": "saveExpeditionFleetTemplate",
+      "category": "functions",
+      "path": "functions/saveexpeditionfleettemplate.js",
+      "startLine": 36779,
+      "endLine": 36813,
+      "lineCount": 35
+    },
+    {
+      "id": "func-deleteexpeditionfleettemplate",
+      "type": "function",
+      "name": "deleteExpeditionFleetTemplate",
+      "category": "functions",
+      "path": "functions/deleteexpeditionfleettemplate.js",
+      "startLine": 36815,
+      "endLine": 36852,
+      "lineCount": 38
+    },
+    {
+      "id": "func-updateexpeditionfleettemplates",
+      "type": "function",
+      "name": "updateExpeditionFleetTemplates",
+      "category": "functions",
+      "path": "functions/updateexpeditionfleettemplates.js",
+      "startLine": 36854,
+      "endLine": 36867,
+      "lineCount": 14
+    },
+    {
+      "id": "func-resetexpedtionfleettemplateform",
+      "type": "function",
+      "name": "resetExpedtionFleetTemplateForm",
+      "category": "functions",
+      "path": "functions/resetexpedtionfleettemplateform.js",
+      "startLine": 36869,
+      "endLine": 36873,
+      "lineCount": 5
+    },
+    {
+      "id": "func-setexpeditionfleettemplateships",
+      "type": "function",
+      "name": "setExpeditionFleetTemplateShips",
+      "category": "functions",
+      "path": "functions/setexpeditionfleettemplateships.js",
+      "startLine": 36875,
+      "endLine": 36901,
+      "lineCount": 27
+    },
+    {
+      "id": "func-reinitializeexpeditionfleettemplateogamedropdown",
+      "type": "function",
+      "name": "reinitializeExpeditionFleetTemplateOGameDropdown",
+      "category": "functions",
+      "path": "functions/reinitializeexpeditionfleettemplateogamedropdown.js",
+      "startLine": 36903,
+      "endLine": 36907,
+      "lineCount": 5
+    },
+    {
+      "id": "var-fleet_dispatch_page1",
+      "type": "standalone",
+      "name": "var FLEET_DISPATCH_PAGE1, var FLEET_DISPATCH_PAGE2",
+      "category": "globals",
+      "path": "globals/globals-36908.js",
+      "startLine": 36908,
+      "endLine": 36909,
+      "lineCount": 2
+    },
+    {
+      "id": "func-getresourcesfromheader",
+      "type": "function",
+      "name": "getResourcesFromHeader",
+      "category": "functions",
+      "path": "functions/getresourcesfromheader.js",
+      "startLine": 36911,
+      "endLine": 36914,
+      "lineCount": 4
+    },
+    {
+      "id": "func-getkeycode",
+      "type": "function",
+      "name": "getKeyCode",
+      "category": "functions",
+      "path": "functions/getkeycode.js",
+      "startLine": 36916,
+      "endLine": 36924,
+      "lineCount": 9
+    },
+    {
+      "id": "class-fleetdispatcher",
+      "type": "class",
+      "name": "FleetDispatcher",
+      "category": "fleet",
+      "path": "fleet/fleetdispatcher.js",
+      "startLine": 36926,
+      "endLine": 39007,
+      "lineCount": 2082
+    },
+    {
+      "id": "class-fleethelper",
+      "type": "class",
+      "name": "FleetHelper",
+      "category": "fleet",
+      "path": "fleet/fleethelper.js",
+      "startLine": 39008,
+      "endLine": 39202,
+      "lineCount": 195
+    },
+    {
+      "id": "var-cancelproduction_id",
+      "type": "standalone",
+      "name": "var cancelProduction_id, var production_listid",
+      "category": "globals",
+      "path": "globals/globals-39203.js",
+      "startLine": 39203,
+      "endLine": 39204,
+      "lineCount": 2
+    },
+    {
+      "id": "func-cancelproduction",
+      "type": "function",
+      "name": "cancelProduction",
+      "category": "functions",
+      "path": "functions/cancelproduction.js",
+      "startLine": 39206,
+      "endLine": 39216,
+      "lineCount": 11
+    },
+    {
+      "id": "func-cancelproductionstart",
+      "type": "function",
+      "name": "cancelProductionStart",
+      "category": "functions",
+      "path": "functions/cancelproductionstart.js",
+      "startLine": 39218,
+      "endLine": 39220,
+      "lineCount": 3
+    },
+    {
+      "id": "func-submitonkey",
+      "type": "function",
+      "name": "submitOnKey",
+      "category": "functions",
+      "path": "functions/submitonkey.js",
+      "startLine": 39221,
+      "endLine": 39257,
+      "lineCount": 37
+    },
+    {
+      "id": "func-keyevent",
+      "type": "function",
+      "name": "keyevent",
+      "category": "functions",
+      "path": "functions/keyevent.js",
+      "startLine": 39259,
+      "endLine": 39278,
+      "lineCount": 20
+    },
+    {
+      "id": "func-launchmissiles",
+      "type": "function",
+      "name": "launchMissiles",
+      "category": "functions",
+      "path": "functions/launchmissiles.js",
+      "startLine": 39280,
+      "endLine": 39293,
+      "lineCount": 14
+    },
+    {
+      "id": "func-moveplanet",
+      "type": "function",
+      "name": "movePlanet",
+      "category": "functions",
+      "path": "functions/moveplanet.js",
+      "startLine": 39295,
+      "endLine": 39319,
+      "lineCount": 25
+    },
+    {
+      "id": "func-discoverplanet",
+      "type": "function",
+      "name": "discoverPlanet",
+      "category": "functions",
+      "path": "functions/discoverplanet.js",
+      "startLine": 39321,
+      "endLine": 39377,
+      "lineCount": 57
+    },
+    {
+      "id": "var-sendingsystemdiscoverymission",
+      "type": "standalone",
+      "name": "var sendingSystemDiscoveryMission",
+      "category": "globals",
+      "path": "globals/globals-39379.js",
+      "startLine": 39379,
+      "endLine": 39379,
+      "lineCount": 1
+    },
+    {
+      "id": "func-sendsystemdiscoverymission",
+      "type": "function",
+      "name": "sendSystemDiscoveryMission",
+      "category": "functions",
+      "path": "functions/sendsystemdiscoverymission.js",
+      "startLine": 39381,
+      "endLine": 39433,
+      "lineCount": 53
+    },
+    {
+      "id": "func-addtotable",
+      "type": "function",
+      "name": "addToTable",
+      "category": "functions",
+      "path": "functions/addtotable.js",
+      "startLine": 39435,
+      "endLine": 39462,
+      "lineCount": 28
+    },
+    {
+      "id": "func-setships",
+      "type": "function",
+      "name": "setShips",
+      "category": "functions",
+      "path": "functions/setships.js",
+      "startLine": 39464,
+      "endLine": 39470,
+      "lineCount": 7
+    },
+    {
+      "id": "func-rendercontentgalaxy",
+      "type": "function",
+      "name": "renderContentGalaxy",
+      "category": "functions",
+      "path": "functions/rendercontentgalaxy.js",
+      "startLine": 39472,
+      "endLine": 39582,
+      "lineCount": 111
+    },
+    {
+      "id": "func-renderplanet",
+      "type": "function",
+      "name": "renderPlanet",
+      "category": "functions",
+      "path": "functions/renderplanet.js",
+      "startLine": 39584,
+      "endLine": 39600,
+      "lineCount": 17
+    },
+    {
+      "id": "func-renderdebris",
+      "type": "function",
+      "name": "renderDebris",
+      "category": "functions",
+      "path": "functions/renderdebris.js",
+      "startLine": 39602,
+      "endLine": 39612,
+      "lineCount": 11
+    },
+    {
+      "id": "func-rendermoon",
+      "type": "function",
+      "name": "renderMoon",
+      "category": "functions",
+      "path": "functions/rendermoon.js",
+      "startLine": 39614,
+      "endLine": 39626,
+      "lineCount": 13
+    },
+    {
+      "id": "func-renderplayer",
+      "type": "function",
+      "name": "renderPlayer",
+      "category": "functions",
+      "path": "functions/renderplayer.js",
+      "startLine": 39628,
+      "endLine": 39636,
+      "lineCount": 9
+    },
+    {
+      "id": "func-colornumberinfrontoffriendsplanet",
+      "type": "function",
+      "name": "colorNumberInFrontOfFriendsPlanet",
+      "category": "functions",
+      "path": "functions/colornumberinfrontoffriendsplanet.js",
+      "startLine": 39638,
+      "endLine": 39644,
+      "lineCount": 7
+    },
+    {
+      "id": "func-renderemptyslot",
+      "type": "function",
+      "name": "renderEmptySlot",
+      "category": "functions",
+      "path": "functions/renderemptyslot.js",
+      "startLine": 39646,
+      "endLine": 39665,
+      "lineCount": 20
+    },
+    {
+      "id": "func-renderphalanx",
+      "type": "function",
+      "name": "renderPhalanx",
+      "category": "functions",
+      "path": "functions/renderphalanx.js",
+      "startLine": 39667,
+      "endLine": 39692,
+      "lineCount": 26
+    },
+    {
+      "id": "func-renderalliance",
+      "type": "function",
+      "name": "renderAlliance",
+      "category": "functions",
+      "path": "functions/renderalliance.js",
+      "startLine": 39694,
+      "endLine": 39706,
+      "lineCount": 13
+    },
+    {
+      "id": "func-renderactions",
+      "type": "function",
+      "name": "renderActions",
+      "category": "functions",
+      "path": "functions/renderactions.js",
+      "startLine": 39708,
+      "endLine": 39725,
+      "lineCount": 18
+    },
+    {
+      "id": "func-renderemptyslotactions",
+      "type": "function",
+      "name": "renderEmptySlotActions",
+      "category": "functions",
+      "path": "functions/renderemptyslotactions.js",
+      "startLine": 39727,
+      "endLine": 39731,
+      "lineCount": 5
+    },
+    {
+      "id": "func-getplayername",
+      "type": "function",
+      "name": "getPlayerName",
+      "category": "functions",
+      "path": "functions/getplayername.js",
+      "startLine": 39733,
+      "endLine": 39750,
+      "lineCount": 18
+    },
+    {
+      "id": "func-getplayercolorclass",
+      "type": "function",
+      "name": "getPlayerColorClass",
+      "category": "functions",
+      "path": "functions/getplayercolorclass.js",
+      "startLine": 39752,
+      "endLine": 39783,
+      "lineCount": 32
+    },
+    {
+      "id": "func-getplayerabbreviations",
+      "type": "function",
+      "name": "getPlayerAbbreviations",
+      "category": "functions",
+      "path": "functions/getplayerabbreviations.js",
+      "startLine": 39785,
+      "endLine": 39841,
+      "lineCount": 57
+    },
+    {
+      "id": "func-getplayerselectedlanguage",
+      "type": "function",
+      "name": "getPlayerSelectedLanguage",
+      "category": "functions",
+      "path": "functions/getplayerselectedlanguage.js",
+      "startLine": 39843,
+      "endLine": 39849,
+      "lineCount": 7
+    },
+    {
+      "id": "func-getactivitystar",
+      "type": "function",
+      "name": "getActivityStar",
+      "category": "functions",
+      "path": "functions/getactivitystar.js",
+      "startLine": 39851,
+      "endLine": 39866,
+      "lineCount": 16
+    },
+    {
+      "id": "func-addfleetcontainer",
+      "type": "function",
+      "name": "addFleetContainer",
+      "category": "functions",
+      "path": "functions/addfleetcontainer.js",
+      "startLine": 39868,
+      "endLine": 39873,
+      "lineCount": 6
+    },
+    {
+      "id": "func-getfleeticon",
+      "type": "function",
+      "name": "getFleetIcon",
+      "category": "functions",
+      "path": "functions/getfleeticon.js",
+      "startLine": 39875,
+      "endLine": 39885,
+      "lineCount": 11
+    },
+    {
+      "id": "func-getplanettooltip",
+      "type": "function",
+      "name": "getPlanetTooltip",
+      "category": "functions",
+      "path": "functions/getplanettooltip.js",
+      "startLine": 39887,
+      "endLine": 39902,
+      "lineCount": 16
+    },
+    {
+      "id": "func-getmoontooltip",
+      "type": "function",
+      "name": "getMoonTooltip",
+      "category": "functions",
+      "path": "functions/getmoontooltip.js",
+      "startLine": 39904,
+      "endLine": 39920,
+      "lineCount": 17
+    },
+    {
+      "id": "func-getplanetormoontooltiplinks",
+      "type": "function",
+      "name": "getPlanetOrMoonTooltipLinks",
+      "category": "functions",
+      "path": "functions/getplanetormoontooltiplinks.js",
+      "startLine": 39922,
+      "endLine": 39987,
+      "lineCount": 66
+    },
+    {
+      "id": "func-getespionagemission",
+      "type": "function",
+      "name": "getEspionageMission",
+      "category": "functions",
+      "path": "functions/getespionagemission.js",
+      "startLine": 39989,
+      "endLine": 40014,
+      "lineCount": 26
+    },
+    {
+      "id": "func-getdebristooltip",
+      "type": "function",
+      "name": "getDebrisTooltip",
+      "category": "functions",
+      "path": "functions/getdebristooltip.js",
+      "startLine": 40016,
+      "endLine": 40061,
+      "lineCount": 46
+    },
+    {
+      "id": "func-getplayertooltip",
+      "type": "function",
+      "name": "getPlayerTooltip",
+      "category": "functions",
+      "path": "functions/getplayertooltip.js",
+      "startLine": 40063,
+      "endLine": 40125,
+      "lineCount": 63
+    },
+    {
+      "id": "func-rendereventspaceobjects",
+      "type": "function",
+      "name": "renderEventSpaceObjects",
+      "category": "functions",
+      "path": "functions/rendereventspaceobjects.js",
+      "startLine": 40127,
+      "endLine": 40139,
+      "lineCount": 13
+    },
+    {
+      "id": "func-rendereventplanet",
+      "type": "function",
+      "name": "renderEventPlanet",
+      "category": "functions",
+      "path": "functions/rendereventplanet.js",
+      "startLine": 40141,
+      "endLine": 40174,
+      "lineCount": 34
+    },
+    {
+      "id": "func-rendereventdebris",
+      "type": "function",
+      "name": "renderEventDebris",
+      "category": "functions",
+      "path": "functions/rendereventdebris.js",
+      "startLine": 40176,
+      "endLine": 40216,
+      "lineCount": 41
+    },
+    {
+      "id": "func-geteventplanettooltip",
+      "type": "function",
+      "name": "getEventPlanetTooltip",
+      "category": "functions",
+      "path": "functions/geteventplanettooltip.js",
+      "startLine": 40218,
+      "endLine": 40264,
+      "lineCount": 47
+    },
+    {
+      "id": "func-geteventdebristooltip",
+      "type": "function",
+      "name": "getEventDebrisTooltip",
+      "category": "functions",
+      "path": "functions/geteventdebristooltip.js",
+      "startLine": 40266,
+      "endLine": 40301,
+      "lineCount": 36
+    },
+    {
+      "id": "func-getactions",
+      "type": "function",
+      "name": "getActions",
+      "category": "functions",
+      "path": "functions/getactions.js",
+      "startLine": 40303,
+      "endLine": 40441,
+      "lineCount": 139
+    },
+    {
+      "id": "func-getemptyslotactions",
+      "type": "function",
+      "name": "getEmptySlotActions",
+      "category": "functions",
+      "path": "functions/getemptyslotactions.js",
+      "startLine": 40443,
+      "endLine": 40488,
+      "lineCount": 46
+    },
+    {
+      "id": "func-getdiscoverylinkicon",
+      "type": "function",
+      "name": "getDiscoveryLinkIcon",
+      "category": "functions",
+      "path": "functions/getdiscoverylinkicon.js",
+      "startLine": 40490,
+      "endLine": 40525,
+      "lineCount": 36
+    },
+    {
+      "id": "func-getalliancetooltip",
+      "type": "function",
+      "name": "getAllianceTooltip",
+      "category": "functions",
+      "path": "functions/getalliancetooltip.js",
+      "startLine": 40527,
+      "endLine": 40571,
+      "lineCount": 45
+    },
+    {
+      "id": "func-getallianceselectedlanguage",
+      "type": "function",
+      "name": "getAllianceSelectedLanguage",
+      "category": "functions",
+      "path": "functions/getallianceselectedlanguage.js",
+      "startLine": 40573,
+      "endLine": 40579,
+      "lineCount": 7
+    },
+    {
+      "id": "func-getactivityelement",
+      "type": "function",
+      "name": "getActivityElement",
+      "category": "functions",
+      "path": "functions/getactivityelement.js",
+      "startLine": 40581,
+      "endLine": 40599,
+      "lineCount": 19
+    },
+    {
+      "id": "func-clearposition",
+      "type": "function",
+      "name": "clearPosition",
+      "category": "functions",
+      "path": "functions/clearposition.js",
+      "startLine": 40601,
+      "endLine": 40621,
+      "lineCount": 21
+    },
+    {
+      "id": "func-displaycontentgalaxy",
+      "type": "function",
+      "name": "displayContentGalaxy",
+      "category": "functions",
+      "path": "functions/displaycontentgalaxy.js",
+      "startLine": 40623,
+      "endLine": 40647,
+      "lineCount": 25
+    },
+    {
+      "id": "func-submitform",
+      "type": "function",
+      "name": "submitForm",
+      "category": "functions",
+      "path": "functions/submitform.js",
+      "startLine": 40649,
+      "endLine": 40666,
+      "lineCount": 18
+    },
+    {
+      "id": "func-loadcontent",
+      "type": "function",
+      "name": "loadContent",
+      "category": "functions",
+      "path": "functions/loadcontent.js",
+      "startLine": 40668,
+      "endLine": 40702,
+      "lineCount": 35
+    },
+    {
+      "id": "func-loadcontentnew",
+      "type": "function",
+      "name": "loadContentNew",
+      "category": "functions",
+      "path": "functions/loadcontentnew.js",
+      "startLine": 40704,
+      "endLine": 40746,
+      "lineCount": 43
+    },
+    {
+      "id": "func-errorboxdeuterium",
+      "type": "function",
+      "name": "errorBoxDeuterium",
+      "category": "functions",
+      "path": "functions/errorboxdeuterium.js",
+      "startLine": 40748,
+      "endLine": 40750,
+      "lineCount": 3
+    },
+    {
+      "id": "func-doscan",
+      "type": "function",
+      "name": "doScan",
+      "category": "functions",
+      "path": "functions/doscan.js",
+      "startLine": 40752,
+      "endLine": 40754,
+      "lineCount": 3
+    },
+    {
+      "id": "func-initphalanx",
+      "type": "function",
+      "name": "initPhalanx",
+      "category": "functions",
+      "path": "functions/initphalanx.js",
+      "startLine": 40756,
+      "endLine": 40782,
+      "lineCount": 27
+    },
+    {
+      "id": "func-initspysystem",
+      "type": "function",
+      "name": "initSpySystem",
+      "category": "functions",
+      "path": "functions/initspysystem.js",
+      "startLine": 40784,
+      "endLine": 40830,
+      "lineCount": 47
+    },
+    {
+      "id": "func-initexpeditionfleettemplates",
+      "type": "function",
+      "name": "initExpeditionFleetTemplates",
+      "category": "functions",
+      "path": "functions/initexpeditionfleettemplates.js",
+      "startLine": 40832,
+      "endLine": 40854,
+      "lineCount": 23
+    },
+    {
+      "id": "var-checkingtarget",
+      "type": "standalone",
+      "name": "var checkingTarget",
+      "category": "globals",
+      "path": "globals/globals-40856.js",
+      "startLine": 40856,
+      "endLine": 40856,
+      "lineCount": 1
+    },
+    {
+      "id": "func-galaxychecktarget",
+      "type": "function",
+      "name": "galaxyCheckTarget",
+      "category": "functions",
+      "path": "functions/galaxychecktarget.js",
+      "startLine": 40858,
+      "endLine": 40918,
+      "lineCount": 61
+    },
+    {
+      "id": "func-sendexpedtionfleetfromtemplate",
+      "type": "function",
+      "name": "sendExpedtionFleetFromTemplate",
+      "category": "functions",
+      "path": "functions/sendexpedtionfleetfromtemplate.js",
+      "startLine": 40920,
+      "endLine": 40944,
+      "lineCount": 25
+    },
+    {
+      "id": "func-initmissleattacklayer",
+      "type": "function",
+      "name": "initMissleAttackLayer",
+      "category": "functions",
+      "path": "functions/initmissleattacklayer.js",
+      "startLine": 40946,
+      "endLine": 40996,
+      "lineCount": 51
+    },
+    {
+      "id": "func-displayminifleetmessage",
+      "type": "function",
+      "name": "displayMiniFleetMessage",
+      "category": "functions",
+      "path": "functions/displayminifleetmessage.js",
+      "startLine": 40998,
+      "endLine": 41046,
+      "lineCount": 49
+    },
+    {
+      "id": "func-getfilterclass",
+      "type": "function",
+      "name": "getFilterClass",
+      "category": "functions",
+      "path": "functions/getfilterclass.js",
+      "startLine": 41048,
+      "endLine": 41074,
+      "lineCount": 27
+    },
+    {
+      "id": "func-filtertoggle",
+      "type": "function",
+      "name": "filterToggle",
+      "category": "functions",
+      "path": "functions/filtertoggle.js",
+      "startLine": 41076,
+      "endLine": 41096,
+      "lineCount": 21
+    },
+    {
+      "id": "func-sendfiltertoggle",
+      "type": "function",
+      "name": "sendFilterToggle",
+      "category": "functions",
+      "path": "functions/sendfiltertoggle.js",
+      "startLine": 41098,
+      "endLine": 41110,
+      "lineCount": 13
+    },
+    {
+      "id": "class-happyedit",
+      "type": "class",
+      "name": "HappyEdit",
+      "category": "chat",
+      "path": "chat/happyedit.js",
+      "startLine": 41111,
+      "endLine": 41712,
+      "lineCount": 602
+    },
+    {
+      "id": "class-lifeformresearch",
+      "type": "class",
+      "name": "LifeformResearch",
+      "category": "lifeform",
+      "path": "lifeform/lifeformresearch.js",
+      "startLine": 41713,
+      "endLine": 41911,
+      "lineCount": 199
+    },
+    {
+      "id": "class-lifeformsettings",
+      "type": "class",
+      "name": "LifeformSettings",
+      "category": "lifeform",
+      "path": "lifeform/lifeformsettings.js",
+      "startLine": 41912,
+      "endLine": 42042,
+      "lineCount": 131
+    },
+    {
+      "id": "class-ogamelinechart",
+      "type": "class",
+      "name": "OGameLineChart",
+      "category": "charts",
+      "path": "charts/ogamelinechart.js",
+      "startLine": 42043,
+      "endLine": 42075,
+      "lineCount": 33
+    },
+    {
+      "id": "stmt-42077",
+      "type": "standalone",
+      "name": "statement_42077",
+      "category": "misc",
+      "path": "misc/stmt-42077.js",
+      "startLine": 42077,
+      "endLine": 42077,
+      "lineCount": 1
+    },
+    {
+      "id": "iife-42574",
+      "type": "iife",
+      "name": "IIFE_42574",
+      "category": "iife",
+      "path": "iife/iife-42574.js",
+      "startLine": 42574,
+      "endLine": 42592,
+      "lineCount": 19
+    },
+    {
+      "id": "var-lazyloader",
+      "type": "standalone",
+      "name": "var LazyLoader",
+      "category": "globals",
+      "path": "globals/globals-42593.js",
+      "startLine": 42593,
+      "endLine": 42593,
+      "lineCount": 1
+    },
+    {
+      "id": "iife-42595",
+      "type": "iife",
+      "name": "IIFE_42595",
+      "category": "iife",
+      "path": "iife/iife-42595.js",
+      "startLine": 42595,
+      "endLine": 42724,
+      "lineCount": 130
+    },
+    {
+      "id": "class-marketplace",
+      "type": "class",
+      "name": "Marketplace",
+      "category": "marketplace",
+      "path": "marketplace/marketplace.js",
+      "startLine": 42725,
+      "endLine": 44111,
+      "lineCount": 1387
+    },
+    {
+      "id": "class-missile",
+      "type": "class",
+      "name": "Missile",
+      "category": "missile",
+      "path": "missile/missile.js",
+      "startLine": 44112,
+      "endLine": 44208,
+      "lineCount": 97
+    },
+    {
+      "id": "stmt-44209",
+      "type": "standalone",
+      "name": "statement_44209",
+      "category": "misc",
+      "path": "misc/stmt-44209.js",
+      "startLine": 44209,
+      "endLine": 44216,
+      "lineCount": 8
+    },
+    {
+      "id": "var-textdestination",
+      "type": "standalone",
+      "name": "var textDestination",
+      "category": "globals",
+      "path": "globals/globals-44217.js",
+      "startLine": 44217,
+      "endLine": 44217,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44218",
+      "type": "standalone",
+      "name": "statement_44218",
+      "category": "misc",
+      "path": "misc/stmt-44218.js",
+      "startLine": 44218,
+      "endLine": 44218,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44219",
+      "type": "standalone",
+      "name": "statement_44219",
+      "category": "misc",
+      "path": "misc/stmt-44219.js",
+      "startLine": 44219,
+      "endLine": 44219,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44220",
+      "type": "standalone",
+      "name": "statement_44220",
+      "category": "misc",
+      "path": "misc/stmt-44220.js",
+      "startLine": 44220,
+      "endLine": 44220,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44221",
+      "type": "standalone",
+      "name": "statement_44221",
+      "category": "misc",
+      "path": "misc/stmt-44221.js",
+      "startLine": 44221,
+      "endLine": 44221,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44222",
+      "type": "standalone",
+      "name": "statement_44222",
+      "category": "misc",
+      "path": "misc/stmt-44222.js",
+      "startLine": 44222,
+      "endLine": 44222,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44223",
+      "type": "standalone",
+      "name": "statement_44223",
+      "category": "misc",
+      "path": "misc/stmt-44223.js",
+      "startLine": 44223,
+      "endLine": 44223,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44224",
+      "type": "standalone",
+      "name": "statement_44224",
+      "category": "misc",
+      "path": "misc/stmt-44224.js",
+      "startLine": 44224,
+      "endLine": 44224,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44225",
+      "type": "standalone",
+      "name": "statement_44225",
+      "category": "misc",
+      "path": "misc/stmt-44225.js",
+      "startLine": 44225,
+      "endLine": 44225,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44226",
+      "type": "standalone",
+      "name": "statement_44226",
+      "category": "misc",
+      "path": "misc/stmt-44226.js",
+      "startLine": 44226,
+      "endLine": 44226,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44227",
+      "type": "standalone",
+      "name": "statement_44227",
+      "category": "misc",
+      "path": "misc/stmt-44227.js",
+      "startLine": 44227,
+      "endLine": 44227,
+      "lineCount": 1
+    },
+    {
+      "id": "func-type",
+      "type": "function",
+      "name": "type",
+      "category": "functions",
+      "path": "functions/type.js",
+      "startLine": 44229,
+      "endLine": 44265,
+      "lineCount": 37
+    },
+    {
+      "id": "func-inittype",
+      "type": "function",
+      "name": "initType",
+      "category": "functions",
+      "path": "functions/inittype.js",
+      "startLine": 44267,
+      "endLine": 44269,
+      "lineCount": 3
+    },
+    {
+      "id": "class-ogamepaginatable",
+      "type": "class",
+      "name": "OGamePaginatable",
+      "category": "ui",
+      "path": "ui/ogamepaginatable.js",
+      "startLine": 44270,
+      "endLine": 44375,
+      "lineCount": 106
+    },
+    {
+      "id": "iife-44377",
+      "type": "iife",
+      "name": "IIFE_44377",
+      "category": "iife",
+      "path": "iife/iife-44377.js",
+      "startLine": 44377,
+      "endLine": 44395,
+      "lineCount": 19
+    },
+    {
+      "id": "class-percentagebar",
+      "type": "class",
+      "name": "PercentageBar",
+      "category": "ui",
+      "path": "ui/percentagebar.js",
+      "startLine": 44396,
+      "endLine": 44564,
+      "lineCount": 169
+    },
+    {
+      "id": "func-addpercentagebarplugin",
+      "type": "function",
+      "name": "addPercentageBarPlugin",
+      "category": "functions",
+      "path": "functions/addpercentagebarplugin.js",
+      "startLine": 44566,
+      "endLine": 44573,
+      "lineCount": 8
+    },
+    {
+      "id": "stmt-44574",
+      "type": "standalone",
+      "name": "statement_44574",
+      "category": "misc",
+      "path": "misc/stmt-44574.js",
+      "startLine": 44574,
+      "endLine": 44578,
+      "lineCount": 5
+    },
+    {
+      "id": "var-percentselector",
+      "type": "standalone",
+      "name": "var PercentSelector",
+      "category": "globals",
+      "path": "globals/globals-44579.js",
+      "startLine": 44579,
+      "endLine": 44579,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44580",
+      "type": "standalone",
+      "name": "statement_44580",
+      "category": "misc",
+      "path": "misc/stmt-44580.js",
+      "startLine": 44580,
+      "endLine": 44580,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44583",
+      "type": "standalone",
+      "name": "statement_44583",
+      "category": "misc",
+      "path": "misc/stmt-44583.js",
+      "startLine": 44583,
+      "endLine": 44644,
+      "lineCount": 62
+    },
+    {
+      "id": "stmt-44646",
+      "type": "standalone",
+      "name": "statement_44646",
+      "category": "misc",
+      "path": "misc/stmt-44646.js",
+      "startLine": 44646,
+      "endLine": 44683,
+      "lineCount": 38
+    },
+    {
+      "id": "stmt-44685",
+      "type": "standalone",
+      "name": "statement_44685",
+      "category": "misc",
+      "path": "misc/stmt-44685.js",
+      "startLine": 44685,
+      "endLine": 44694,
+      "lineCount": 10
+    },
+    {
+      "id": "stmt-44696",
+      "type": "standalone",
+      "name": "statement_44696",
+      "category": "misc",
+      "path": "misc/stmt-44696.js",
+      "startLine": 44696,
+      "endLine": 44739,
+      "lineCount": 44
+    },
+    {
+      "id": "stmt-44741",
+      "type": "standalone",
+      "name": "statement_44741",
+      "category": "misc",
+      "path": "misc/stmt-44741.js",
+      "startLine": 44741,
+      "endLine": 44741,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44744",
+      "type": "standalone",
+      "name": "statement_44744",
+      "category": "misc",
+      "path": "misc/stmt-44744.js",
+      "startLine": 44744,
+      "endLine": 44744,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44746",
+      "type": "standalone",
+      "name": "statement_44746",
+      "category": "misc",
+      "path": "misc/stmt-44746.js",
+      "startLine": 44746,
+      "endLine": 44751,
+      "lineCount": 6
+    },
+    {
+      "id": "stmt-44753",
+      "type": "standalone",
+      "name": "statement_44753",
+      "category": "misc",
+      "path": "misc/stmt-44753.js",
+      "startLine": 44753,
+      "endLine": 44765,
+      "lineCount": 13
+    },
+    {
+      "id": "stmt-44767",
+      "type": "standalone",
+      "name": "statement_44767",
+      "category": "misc",
+      "path": "misc/stmt-44767.js",
+      "startLine": 44767,
+      "endLine": 44773,
+      "lineCount": 7
+    },
+    {
+      "id": "stmt-44776",
+      "type": "standalone",
+      "name": "statement_44776",
+      "category": "misc",
+      "path": "misc/stmt-44776.js",
+      "startLine": 44776,
+      "endLine": 44776,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44778",
+      "type": "standalone",
+      "name": "statement_44778",
+      "category": "misc",
+      "path": "misc/stmt-44778.js",
+      "startLine": 44778,
+      "endLine": 44780,
+      "lineCount": 3
+    },
+    {
+      "id": "stmt-44782",
+      "type": "standalone",
+      "name": "statement_44782",
+      "category": "misc",
+      "path": "misc/stmt-44782.js",
+      "startLine": 44782,
+      "endLine": 44795,
+      "lineCount": 14
+    },
+    {
+      "id": "stmt-44797",
+      "type": "standalone",
+      "name": "statement_44797",
+      "category": "misc",
+      "path": "misc/stmt-44797.js",
+      "startLine": 44797,
+      "endLine": 44811,
+      "lineCount": 15
+    },
+    {
+      "id": "stmt-44813",
+      "type": "standalone",
+      "name": "statement_44813",
+      "category": "misc",
+      "path": "misc/stmt-44813.js",
+      "startLine": 44813,
+      "endLine": 44819,
+      "lineCount": 7
+    },
+    {
+      "id": "stmt-44820",
+      "type": "standalone",
+      "name": "statement_44820",
+      "category": "misc",
+      "path": "misc/stmt-44820.js",
+      "startLine": 44820,
+      "endLine": 44837,
+      "lineCount": 18
+    },
+    {
+      "id": "var-buildurl",
+      "type": "standalone",
+      "name": "var buildUrl",
+      "category": "globals",
+      "path": "globals/globals-44838.js",
+      "startLine": 44838,
+      "endLine": 44838,
+      "lineCount": 1
+    },
+    {
+      "id": "func-sendbuildrequest",
+      "type": "function",
+      "name": "sendBuildRequest",
+      "category": "functions",
+      "path": "functions/sendbuildrequest.js",
+      "startLine": 44840,
+      "endLine": 44896,
+      "lineCount": 57
+    },
+    {
+      "id": "func-fastbuild",
+      "type": "function",
+      "name": "fastBuild",
+      "category": "functions",
+      "path": "functions/fastbuild.js",
+      "startLine": 44898,
+      "endLine": 44901,
+      "lineCount": 4
+    },
+    {
+      "id": "func-cancelresearch",
+      "type": "function",
+      "name": "cancelResearch",
+      "category": "functions",
+      "path": "functions/cancelresearch.js",
+      "startLine": 44903,
+      "endLine": 44907,
+      "lineCount": 5
+    },
+    {
+      "id": "var-metalticker",
+      "type": "standalone",
+      "name": "var metalTicker, var crystalTicker, var deuteriumTicker, var populationTicker, var foodTicker",
+      "category": "globals",
+      "path": "globals/globals-44908.js",
+      "startLine": 44908,
+      "endLine": 44912,
+      "lineCount": 5
+    },
+    {
+      "id": "class-resourceticker",
+      "type": "class",
+      "name": "ResourceTicker",
+      "category": "resources",
+      "path": "resources/resourceticker.js",
+      "startLine": 44914,
+      "endLine": 44917,
+      "lineCount": 4
+    },
+    {
+      "id": "stmt-44919",
+      "type": "standalone",
+      "name": "statement_44919",
+      "category": "misc",
+      "path": "misc/stmt-44919.js",
+      "startLine": 44919,
+      "endLine": 44919,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44920",
+      "type": "standalone",
+      "name": "statement_44920",
+      "category": "misc",
+      "path": "misc/stmt-44920.js",
+      "startLine": 44920,
+      "endLine": 44920,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44921",
+      "type": "standalone",
+      "name": "statement_44921",
+      "category": "misc",
+      "path": "misc/stmt-44921.js",
+      "startLine": 44921,
+      "endLine": 44921,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44922",
+      "type": "standalone",
+      "name": "statement_44922",
+      "category": "misc",
+      "path": "misc/stmt-44922.js",
+      "startLine": 44922,
+      "endLine": 44922,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44923",
+      "type": "standalone",
+      "name": "statement_44923",
+      "category": "misc",
+      "path": "misc/stmt-44923.js",
+      "startLine": 44923,
+      "endLine": 44923,
+      "lineCount": 1
+    },
+    {
+      "id": "stmt-44924",
+      "type": "standalone",
+      "name": "statement_44924",
+      "category": "misc",
+      "path": "misc/stmt-44924.js",
+      "startLine": 44924,
+      "endLine": 44924,
+      "lineCount": 1
+    },
+    {
+      "id": "var-resourcesbar",
+      "type": "standalone",
+      "name": "var resourcesBar",
+      "category": "globals",
+      "path": "globals/globals-45201.js",
+      "startLine": 45201,
+      "endLine": 45201,
+      "lineCount": 1
+    },
+    {
+      "id": "func-reloadresources",
+      "type": "function",
+      "name": "reloadResources",
+      "category": "functions",
+      "path": "functions/reloadresources.js",
+      "startLine": 45203,
+      "endLine": 45223,
+      "lineCount": 21
+    },
+    {
+      "id": "func-getajaxresourcebox",
+      "type": "function",
+      "name": "getAjaxResourcebox",
+      "category": "functions",
+      "path": "functions/getajaxresourcebox.js",
+      "startLine": 45225,
+      "endLine": 45230,
+      "lineCount": 6
+    },
+    {
+      "id": "stmt-45231",
+      "type": "standalone",
+      "name": "statement_45231",
+      "category": "misc",
+      "path": "misc/stmt-45231.js",
+      "startLine": 45231,
+      "endLine": 45310,
+      "lineCount": 80
+    },
+    {
+      "id": "stmt-45311",
+      "type": "standalone",
+      "name": "statement_45311",
+      "category": "misc",
+      "path": "misc/stmt-45311.js",
+      "startLine": 45311,
+      "endLine": 45331,
+      "lineCount": 21
+    },
+    {
+      "id": "stmt-45332",
+      "type": "standalone",
+      "name": "statement_45332",
+      "category": "misc",
+      "path": "misc/stmt-45332.js",
+      "startLine": 45332,
+      "endLine": 45354,
+      "lineCount": 23
+    },
+    {
+      "id": "class-rewarding",
+      "type": "class",
+      "name": "Rewarding",
+      "category": "rewarding",
+      "path": "rewarding/rewarding.js",
+      "startLine": 45355,
+      "endLine": 45577,
+      "lineCount": 223
+    },
+    {
+      "id": "class-ogamesortable",
+      "type": "class",
+      "name": "OGameSortable",
+      "category": "ui",
+      "path": "ui/ogamesortable.js",
+      "startLine": 45578,
+      "endLine": 45681,
+      "lineCount": 104
+    },
+    {
+      "id": "iife-45683",
+      "type": "iife",
+      "name": "IIFE_45683",
+      "category": "iife",
+      "path": "iife/iife-45683.js",
+      "startLine": 45683,
+      "endLine": 45701,
+      "lineCount": 19
+    },
+    {
+      "id": "func-loadfleettemplates",
+      "type": "function",
+      "name": "loadFleetTemplates",
+      "category": "functions",
+      "path": "functions/loadfleettemplates.js",
+      "startLine": 45703,
+      "endLine": 45834,
+      "lineCount": 132
+    },
+    {
+      "id": "func-deletetemplate",
+      "type": "function",
+      "name": "deleteTemplate",
+      "category": "functions",
+      "path": "functions/deletetemplate.js",
+      "startLine": 45836,
+      "endLine": 45855,
+      "lineCount": 20
+    },
+    {
+      "id": "func-initstandardfleet",
+      "type": "function",
+      "name": "initStandardFleet",
+      "category": "functions",
+      "path": "functions/initstandardfleet.js",
+      "startLine": 45857,
+      "endLine": 45987,
+      "lineCount": 131
+    },
+    {
+      "id": "var-cachedtemplates",
+      "type": "standalone",
+      "name": "var cachedTemplates",
+      "category": "globals",
+      "path": "globals/globals-45990.js",
+      "startLine": 45990,
+      "endLine": 45990,
+      "lineCount": 1
+    },
+    {
+      "id": "func-populatetemplatestable",
+      "type": "function",
+      "name": "populateTemplatesTable",
+      "category": "functions",
+      "path": "functions/populatetemplatestable.js",
+      "startLine": 45993,
+      "endLine": 46100,
+      "lineCount": 108
+    },
+    {
+      "id": "func-loadstandardfleetdropdown",
+      "type": "function",
+      "name": "loadStandardFleetDropdown",
+      "category": "functions",
+      "path": "functions/loadstandardfleetdropdown.js",
+      "startLine": 46103,
+      "endLine": 46139,
+      "lineCount": 37
+    },
+    {
+      "id": "func-setshipsfleet",
+      "type": "function",
+      "name": "setShipsFleet",
+      "category": "functions",
+      "path": "functions/setshipsfleet.js",
+      "startLine": 46141,
+      "endLine": 46148,
+      "lineCount": 8
+    },
+    {
+      "id": "stmt-46149",
+      "type": "standalone",
+      "name": "statement_46149",
+      "category": "misc",
+      "path": "misc/stmt-46149.js",
+      "startLine": 46149,
+      "endLine": 46156,
+      "lineCount": 8
+    },
+    {
+      "id": "stmt-46157",
+      "type": "standalone",
+      "name": "statement_46157",
+      "category": "misc",
+      "path": "misc/stmt-46157.js",
+      "startLine": 46157,
+      "endLine": 46275,
+      "lineCount": 119
+    },
+    {
+      "id": "class-technologydetails",
+      "type": "class",
+      "name": "TechnologyDetails",
+      "category": "technology",
+      "path": "technology/technologydetails.js",
+      "startLine": 46276,
+      "endLine": 46568,
+      "lineCount": 293
+    },
+    {
+      "id": "stmt-46575",
+      "type": "standalone",
+      "name": "statement_46575",
+      "category": "misc",
+      "path": "misc/stmt-46575.js",
+      "startLine": 46575,
+      "endLine": 46603,
+      "lineCount": 29
+    }
+  ]
+}

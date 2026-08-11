@@ -1,0 +1,1 @@
+ResourceTicker.Deuterium = "deuterium";

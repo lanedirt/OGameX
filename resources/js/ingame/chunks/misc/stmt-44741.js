@@ -1,0 +1,1 @@
+PercentSelector.handlers = {};
