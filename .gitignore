@@ -20,6 +20,7 @@ rust/*/target
 # Compiled rust apps (rust modules are recompiled during container start)
 storage/rust-libs/*.so
 
-# Generated JS chunks (reproducible via scripts/chunk-ingame.js)
-resources/js/ingame/chunks/
-storage/app/ingame-inventory.json
+# Dev tooling scripts (local use only, chunks are committed directly)
+dev-scripts/
+package.dev.json
+package.dev-lock.json
