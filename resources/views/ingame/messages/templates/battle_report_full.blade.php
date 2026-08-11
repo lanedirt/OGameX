@@ -82,10 +82,10 @@
 <div class="messageDetails">
     <div class="detailReport" data-combatreportid="8196210">
         <p class="detail_txt fleft">
-            {{ __('t_ingame.messages.battle_tactical_retreat') }}:<span class="middlemark"> 1:100</span>
+            {{ __('t_ingame.messages.battle_tactical_retreat') }}:<span class="middlemark"> 1:{{ $tactical_retreat_ratio ?? 1 }}</span>
         </p>
         <p class="fleft">
-            <span class="icon_info tooltip" style="margin: 5px" data-tooltip-title="{{ __('t_ingame.messages.battle_retreat_tooltip') }}"> {{ __('t_ingame.messages.battle_no_flee') }}</span>
+            <span class="icon_info tooltip" style="margin: 5px" data-tooltip-title="{{ __('t_ingame.messages.battle_retreat_tooltip') }}"> {{ ($tactical_retreat_defender_fled ?? false) ? __('t_ingame.messages.battle_fled') : __('t_ingame.messages.battle_no_flee') }}</span>
         </p>
         <!-- Rundenpagenator -->
         <ul class="combat_round_list">

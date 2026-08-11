@@ -269,7 +269,7 @@ abstract class GameMission
      * @return FleetMission The created fleet mission.
      * @throws Exception
      */
-    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingHours = 0, int $parentId = 0): FleetMission
+    public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingHours = 0, int $parentId = 0, bool $retreatAfterDefenderRetreat = false): FleetMission
     {
         $consumption = $this->fleetMissionService->calculateConsumption($planet, $units, $targetCoordinate, $holdingHours, $speedPercent);
         $consumption_resources = new Resources(0, 0, $consumption, 0);
@@ -374,6 +374,7 @@ abstract class GameMission
         $mission->metal = $resources->metal->getRounded();
         $mission->crystal = $resources->crystal->getRounded();
         $mission->deuterium = $resources->deuterium->getRounded();
+        $mission->retreat_after_defender_retreat = $retreatAfterDefenderRetreat;
 
         // Deduct mission resources from the planet.
         $this->deductMissionResources($planet, $deduct_resources, $units);

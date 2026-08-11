@@ -839,7 +839,8 @@ Use the Admiral to enable your fleets to retreat from forces three times bigger 
 <br />
 The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points." href="javascript:void(0);"
                                class="tooltipHTML tooltipRight help"></a>
-                            <form class="fleft" name="tacticalRetreat" method="POST" action="">
+                            <form class="fleft" name="tacticalRetreat" method="POST" action="{{ route('fleet.tacticalretreat') }}">
+                            @csrf
                             <span class="tooltipHTML tooltipRight" title="Tactical retreat|Fleets are able to automatically retreat if they are attacked by a superior force five times stronger than themselves. The crucial factor in this are the attacker&amp;#96;s fleet points in comparison to your fleet points. Defense facilities are not considered.<br />
 <br />
 Civil ships only count 25%, solar satellites and espionage probes are not considered. <br />
@@ -853,24 +854,29 @@ Use the Admiral to enable your fleets to retreat from forces three times bigger 
 The &amp;#96;tactical retreat&amp;#96; option ends with 500,000 points.">
                                 Tactical retreat:
                             </span>
-                                <input onclick="ajaxFormSubmit('tacticalRetreat', '{{ route('overview.index') }}#TODO_tacticalRetreat&amp;tacticalRetreatState=0');"
-                                       type="radio" name="tacticalRetreat" value="0">
+                                <input onclick="ajaxFormSubmit('tacticalRetreat', '{{ route('fleet.tacticalretreat') }}?tacticalRetreatState=0');"
+                                       type="radio" name="tacticalRetreat" value="0" {{ ($tacticalRetreatRatio ?? 5) === 0 ? 'checked' : '' }}>
                                 Never
-                                <input onclick="ajaxFormSubmit('tacticalRetreat', '{{ route('overview.index') }}#TODO_tacticalRetreat&amp;tacticalRetreatState=5');"
-                                       checked="&quot;checked&quot;" type="radio" name="tacticalRetreat" value="5"> 5:1
+                                <input onclick="ajaxFormSubmit('tacticalRetreat', '{{ route('fleet.tacticalretreat') }}?tacticalRetreatState=5');"
+                                       type="radio" name="tacticalRetreat" value="5" {{ ($tacticalRetreatRatio ?? 5) === 5 ? 'checked' : '' }}> 5:1
+@if ($hasAdmiral ?? false)
+                                <input onclick="ajaxFormSubmit('tacticalRetreat', '{{ route('fleet.tacticalretreat') }}?tacticalRetreatState=3');"
+                                       type="radio" name="tacticalRetreat" value="3" {{ ($tacticalRetreatRatio ?? 5) === 3 ? 'checked' : '' }}> 3:1
+@else
                                 <input type="radio" disabled="disabled" name="tacticalRetreat">
                                 <a href="{{ route('premium.index', ['openDetail' => '3']) }}"
                                    class="disabled tooltipHTML"
                                    title="Tactical retreat|Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.">
                                     3:1
                                 </a>
+@endif
                             </form>
                         </div>
                         <div class="fleft tooltip" title="Show Deuterium usage per tactical retreat">
                         <span>
                             Deuterium consumption:
                         </span>
-                            5
+                            {{ $tacticalRetreatDeuteriumCost ?? 0 }}
                         </div>
                         <br class="clearfloat">
                     </div>

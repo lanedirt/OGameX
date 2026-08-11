@@ -11,6 +11,7 @@ use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleetResult;
 use OGame\GameMissions\BattleEngine\Services\DefenseRepairService;
 use OGame\GameMissions\BattleEngine\Services\LootService;
+use OGame\GameMissions\BattleEngine\Services\TacticalRetreatService;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
@@ -40,6 +41,11 @@ abstract class BattleEngine
     private int $lootPercentage = 50;
 
     /**
+     * @var bool Whether the attacking initiator withdraws if the defender flees.
+     */
+    protected bool $retreatAfterDefenderRetreat = false;
+
+    /**
      * BattleEngine constructor.
      *
      * @param array<AttackerFleet> $attackers All attacking fleets.
@@ -59,6 +65,16 @@ abstract class BattleEngine
         // Determine loot percentage based on character class and defender status
         $characterClassService = app(CharacterClassService::class);
         $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($primaryAttacker->player->getUser()) * 100);
+    }
+
+    /**
+     * Configure whether attackers withdraw without a fight when the defender flees.
+     */
+    public function setRetreatAfterDefenderRetreat(bool $retreatAfterDefenderRetreat): self
+    {
+        $this->retreatAfterDefenderRetreat = $retreatAfterDefenderRetreat;
+
+        return $this;
     }
 
     /**
@@ -161,35 +177,66 @@ abstract class BattleEngine
 
         $result->defenderUnitsResult = clone $result->defenderUnitsStart;
 
-        // Execute the battle rounds, this will handle the actual combat logic.
-        $result->rounds = $this->fightBattleRounds($result);
+        // Evaluate tactical retreat before combat rounds (shared by PHP and Rust engines).
+        $this->applyTacticalRetreat($result);
 
-        // Sanitize the round array to make sure that the remaining attacker and defender units
-        // for every round contain the starting unit types, even if there are no units of that type left.
-        // This is important for the battle report to show all units that were part of the battle on
-        // every round.
-        $result->rounds = $this->sanitizeRoundArray($result->rounds);
-
-        // Get the result of the battle.
-        if (count($result->rounds) > 0) {
-            // Take the remaining ships in the last round as the result.
-            $round = end($result->rounds);
-            $result->attackerUnitsResult = $round->attackerShips;
-            $result->defenderUnitsResult = $round->defenderShips;
+        if ($result->tacticalRetreatAttackerAlsoRetreated) {
+            // Both sides withdraw — no rounds, no losses, no loot from combat.
+            $result->rounds = [];
+            $result->attackerUnitsResult = clone $result->attackerUnitsStart;
+            $result->defenderUnitsResult = clone $result->defenderUnitsStart;
+            foreach ($result->attackerFleetResults as $fleetResult) {
+                $fleetResult->unitsResult = clone $fleetResult->unitsStart;
+                $fleetResult->unitsLost = new UnitCollection();
+                $fleetResult->completelyDestroyed = false;
+                $fleetResult->calculateResourceLoss();
+            }
+            foreach ($result->defenderFleetResults as $fleetResult) {
+                $fleetResult->unitsResult = clone $fleetResult->unitsStart;
+                $fleetResult->unitsLost = new UnitCollection();
+                $fleetResult->completelyDestroyed = false;
+            }
         } else {
-            // If no rounds were fought, the result is the same as the start.
-            $result->attackerUnitsResult = $result->attackerUnitsStart;
-            $result->defenderUnitsResult = $result->defenderUnitsStart;
+            // Execute the battle rounds, this will handle the actual combat logic.
+            $result->rounds = $this->fightBattleRounds($result);
+
+            // Sanitize the round array to make sure that the remaining attacker and defender units
+            // for every round contain the starting unit types, even if there are no units of that type left.
+            // This is important for the battle report to show all units that were part of the battle on
+            // every round.
+            $result->rounds = $this->sanitizeRoundArray($result->rounds);
+
+            // Get the result of the battle.
+            if (count($result->rounds) > 0) {
+                // Take the remaining ships in the last round as the result.
+                $round = end($result->rounds);
+                $result->attackerUnitsResult = $round->attackerShips;
+                $result->defenderUnitsResult = $round->defenderShips;
+            } else {
+                // If no rounds were fought, the result is the same as the start.
+                $result->attackerUnitsResult = $result->attackerUnitsStart;
+                $result->defenderUnitsResult = $result->defenderUnitsStart;
+            }
         }
 
         // Calculate the resources lost by the attacker and defender.
         // Deduct defender's lost units from the defenders planet.
+        // Only subtract unit types present in the start collection — sanitizeRoundArray may
+        // add zero-amount planet ships (e.g. fleed ships still on the planet) to round results.
         $result->attackerUnitsLost = clone $result->attackerUnitsStart;
-        $result->attackerUnitsLost->subtractCollection($result->attackerUnitsResult);
+        foreach ($result->attackerUnitsResult->units as $entry) {
+            if ($result->attackerUnitsLost->hasUnit($entry->unitObject)) {
+                $result->attackerUnitsLost->removeUnit($entry->unitObject, $entry->amount);
+            }
+        }
         $result->attackerResourceLoss = $result->attackerUnitsLost->toResources();
 
         $result->defenderUnitsLost = clone $result->defenderUnitsStart;
-        $result->defenderUnitsLost->subtractCollection($result->defenderUnitsResult);
+        foreach ($result->defenderUnitsResult->units as $entry) {
+            if ($result->defenderUnitsLost->hasUnit($entry->unitObject)) {
+                $result->defenderUnitsLost->removeUnit($entry->unitObject, $entry->amount);
+            }
+        }
 
         // Add Hamill Manoeuvre Deathstar loss if it was triggered
         if ($result->hamillManoeuvreTriggered) {
@@ -242,6 +289,70 @@ abstract class BattleEngine
         }
 
         return $result;
+    }
+
+    /**
+     * Evaluate and apply tactical retreat before combat rounds.
+     * Fleeing ships are removed from combat but remain on the planet.
+     */
+    protected function applyTacticalRetreat(BattleResult $result): void
+    {
+        $service = new TacticalRetreatService();
+        $decision = $service->evaluate(
+            $this->defenderPlanet,
+            $this->attackers,
+            $this->defenders,
+            $this->retreatAfterDefenderRetreat,
+        );
+
+        $result->tacticalRetreatRatio = $decision->ratio;
+        $result->tacticalRetreatAttackerPoints = $decision->attackerPoints;
+        $result->tacticalRetreatDefenderPoints = $decision->defenderPoints;
+        $result->tacticalRetreatDeuteriumCost = $decision->deuteriumCost;
+        $result->tacticalRetreatFleeingUnits = $decision->fleeingUnits;
+        $result->tacticalRetreatDefenderFled = $decision->defenderFled;
+        $result->tacticalRetreatAttackerAlsoRetreated = $decision->attackerAlsoRetreated;
+
+        if (!$decision->defenderFled) {
+            return;
+        }
+
+        // Deduct flee deuterium before loot calculation so cargo theft uses updated stocks.
+        if ($decision->deuteriumCost > 0) {
+            $this->defenderPlanet->deductResources(new Resources(0, 0, $decision->deuteriumCost, 0));
+        }
+
+        // Strip fleeing ships from the planet-owner defender fleet (ACS defend fleets stay).
+        foreach ($this->defenders as $defenderFleet) {
+            if ($defenderFleet->fleetMissionId !== 0) {
+                continue;
+            }
+
+            foreach ($decision->fleeingUnits->units as $entry) {
+                if ($defenderFleet->units->hasUnit($entry->unitObject)) {
+                    $defenderFleet->units->removeUnit($entry->unitObject, $entry->amount, true);
+                }
+            }
+        }
+
+        // Rebuild aggregated defender start units and planet-owner fleet result start.
+        $result->defenderUnitsStart = new UnitCollection();
+        foreach ($this->defenders as $defenderFleet) {
+            $result->defenderUnitsStart->addCollection($defenderFleet->units);
+        }
+        $result->defenderUnitsResult = clone $result->defenderUnitsStart;
+
+        foreach ($result->defenderFleetResults as $fleetResult) {
+            if ($fleetResult->fleetMissionId !== 0) {
+                continue;
+            }
+            foreach ($this->defenders as $defenderFleet) {
+                if ($defenderFleet->fleetMissionId === 0) {
+                    $fleetResult->unitsStart = clone $defenderFleet->units;
+                    break;
+                }
+            }
+        }
     }
 
     /**

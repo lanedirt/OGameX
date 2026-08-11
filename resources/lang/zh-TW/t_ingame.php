@@ -558,6 +558,7 @@ return [
         'battle_hamill'          => '一架輕型戰鬥機在戰鬥開始前摧毀了一艘死星！',
         'battle_retreat_tooltip'  => '請注意，死星、間諜探測器、太陽能衛星和任何執行 ACS 防守任務的艦隊無法逃脫。戰術撤退在光榮的戰鬥中也被停用。撤退也可能被手動停用或因重氫不足而無法進行。土匪和積分超過 500,000 的玩家從不撤退。',
         'battle_no_flee'         => '防守艦隊沒有逃脫。',
+        'battle_fled'            => '防守艦隊已從戰鬥中逃脫。',
         'battle_rounds'          => '回合',
         'battle_start'           => '開始',
         'battle_player_from'     => '來自',

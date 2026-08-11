@@ -305,6 +305,8 @@ class BattleReport extends GameMessage
         $moonChance = 0;
         $moonCreated = false;
         $hamillManoeuvreTriggered = false;
+        $tacticalRetreatRatio = 1;
+        $tacticalRetreatDefenderFled = false;
 
         if (isset($battleReportModel->general['moon_existed'])) {
             $moonExisted = $battleReportModel->general['moon_existed'];
@@ -317,6 +319,12 @@ class BattleReport extends GameMessage
         }
         if (isset($battleReportModel->general['hamill_manoeuvre_triggered'])) {
             $hamillManoeuvreTriggered = $battleReportModel->general['hamill_manoeuvre_triggered'];
+        }
+        if (isset($battleReportModel->general['tactical_retreat']['ratio'])) {
+            $tacticalRetreatRatio = (int)$battleReportModel->general['tactical_retreat']['ratio'];
+        }
+        if (isset($battleReportModel->general['tactical_retreat']['defender_fled'])) {
+            $tacticalRetreatDefenderFled = (bool)$battleReportModel->general['tactical_retreat']['defender_fled'];
         }
 
         // Load attacker player
@@ -444,6 +452,8 @@ class BattleReport extends GameMessage
             'moon_chance' => $moonChance,
             'moon_created' => $moonCreated,
             'hamill_manoeuvre_triggered' => $hamillManoeuvreTriggered,
+            'tactical_retreat_ratio' => $tacticalRetreatRatio,
+            'tactical_retreat_defender_fled' => $tacticalRetreatDefenderFled,
             'attacker_weapons' => $attacker_weapons,
             'attacker_shields' => $attacker_shields,
             'attacker_armor' => $attacker_armor,
