@@ -17,6 +17,7 @@ class BuildingQueueViewModel extends QueueViewModel
      * @param bool $building
      * @param int $level_target
      * @param bool $is_downgrade
+     * @param bool $dm_halved
      */
     public function __construct(
         int $id,
@@ -25,7 +26,8 @@ class BuildingQueueViewModel extends QueueViewModel
         int $time_total,
         public bool $building,
         public int $level_target,
-        public bool $is_downgrade = false
+        public bool $is_downgrade = false,
+        public bool $dm_halved = false,
     ) {
         parent::__construct($id, $object, $time_countdown, $time_total);
     }
