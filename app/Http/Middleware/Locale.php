@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 class Locale
 {
     /** Supported application locales. */
-    public const SUPPORTED_LOCALES = ['en', 'it', 'nl', 'zh-TW'];
+    public const SUPPORTED_LOCALES = ['en', 'it', 'nl', 'fr', 'zh-TW'];
 
     /**
      * Handle an incoming request.

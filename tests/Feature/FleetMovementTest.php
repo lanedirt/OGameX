@@ -345,4 +345,25 @@ class FleetMovementTest extends FleetDispatchTestCase
         // Should show fleet slots info
         $response->assertSee('Fleets');
     }
+
+    /**
+     * Regression test for #1446: /fleet/movement must not 500 when a moon destruction fleet is active.
+     */
+    public function testFleetMovementShowsMoonDestructionMission(): void
+    {
+        $this->missionType = 9; // Moon Destruction
+
+        $this->planetAddUnit('deathstar', 1);
+        $this->playerSetResearchLevel('computer_technology', 5);
+        $this->planetAddResources(new Resources(0, 0, 100000, 0));
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('deathstar'), 1);
+        $this->sendMissionToOtherPlayerMoon($unitCollection, new Resources(0, 0, 0, 0));
+
+        $response = $this->get('/fleet/movement');
+        $response->assertStatus(200);
+        $response->assertSee('Moon Destruction');
+        $response->assertSee('hostile', false);
+    }
 }
