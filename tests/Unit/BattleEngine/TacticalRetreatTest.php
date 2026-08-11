@@ -71,7 +71,7 @@ class TacticalRetreatTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
 
-        $engine = $this->createBattleEngine($attackerFleet, $this->planetService->getPlayer(), $defenderPlanet, $settingsService);
+        $engine = $this->createBattleEngine($attackerFleet, $this->attackerPlayer(), $defenderPlanet, $settingsService);
         $result = $engine->simulateBattle();
 
         $this->assertTrue($result->tacticalRetreatDefenderFled, 'Defender should flee at 5:1+ supremacy');
@@ -104,7 +104,7 @@ class TacticalRetreatTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
 
-        $engine = $this->createBattleEngine($attackerFleet, $this->planetService->getPlayer(), $defenderPlanet, $settingsService);
+        $engine = $this->createBattleEngine($attackerFleet, $this->attackerPlayer(), $defenderPlanet, $settingsService);
         $result = $engine->simulateBattle();
 
         $this->assertFalse($result->tacticalRetreatDefenderFled, 'Flee should fail without deuterium');
@@ -128,7 +128,7 @@ class TacticalRetreatTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
 
-        $engine = $this->createBattleEngine($attackerFleet, $this->planetService->getPlayer(), $defenderPlanet, $settingsService);
+        $engine = $this->createBattleEngine($attackerFleet, $this->attackerPlayer(), $defenderPlanet, $settingsService);
         $result = $engine->simulateBattle();
 
         $this->assertFalse($result->tacticalRetreatDefenderFled, 'Flee should be disabled when preference is never');
@@ -162,7 +162,7 @@ class TacticalRetreatTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
 
-        $engine = $this->createBattleEngine($attackerFleet, $this->planetService->getPlayer(), $defenderPlanet, $settingsService);
+        $engine = $this->createBattleEngine($attackerFleet, $this->attackerPlayer(), $defenderPlanet, $settingsService);
         $result = $engine->simulateBattle();
 
         $this->assertFalse($result->tacticalRetreatDefenderFled, 'Players at 500k+ points must not flee');
@@ -174,6 +174,9 @@ class TacticalRetreatTest extends AccountTestCase
         $defenderPlanet = $this->prepareDefenderPlanet([
             'deuterium' => 100000,
         ]);
+        $defenderPlayer = $defenderPlanet->getPlayer();
+        $this->assertNotNull($defenderPlayer);
+        $attackerPlayer = $this->attackerPlayer();
 
         $acsUnits = new UnitCollection();
         $acsUnits->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
@@ -181,9 +184,9 @@ class TacticalRetreatTest extends AccountTestCase
         $defenders = [DefenderFleet::fromPlanet($defenderPlanet)];
         $acsDefend = new DefenderFleet();
         $acsDefend->units = $acsUnits;
-        $acsDefend->player = $defenderPlanet->getPlayer();
+        $acsDefend->player = $defenderPlayer;
         $acsDefend->fleetMissionId = 999;
-        $acsDefend->ownerId = $defenderPlanet->getPlayer()->getId();
+        $acsDefend->ownerId = $defenderPlayer->getId();
         $acsDefend->fleetMission = null;
         $defenders[] = $acsDefend;
 
@@ -192,9 +195,9 @@ class TacticalRetreatTest extends AccountTestCase
 
         $attacker = new AttackerFleet();
         $attacker->units = $attackerFleet;
-        $attacker->player = $this->planetService->getPlayer();
+        $attacker->player = $attackerPlayer;
         $attacker->fleetMissionId = 1;
-        $attacker->ownerId = $this->planetService->getPlayer()->getId();
+        $attacker->ownerId = $attackerPlayer->getId();
         $attacker->cargoResources = new Resources(0, 0, 0, 0);
         $attacker->isInitiator = true;
         $attacker->fleetMission = null;
@@ -218,7 +221,7 @@ class TacticalRetreatTest extends AccountTestCase
         $attackerFleet = new UnitCollection();
         $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
 
-        $engine = $this->createBattleEngine($attackerFleet, $this->planetService->getPlayer(), $defenderPlanet, $settingsService);
+        $engine = $this->createBattleEngine($attackerFleet, $this->attackerPlayer(), $defenderPlanet, $settingsService);
         $engine->setRetreatAfterDefenderRetreat(true);
         $result = $engine->simulateBattle();
 
@@ -254,6 +257,16 @@ class TacticalRetreatTest extends AccountTestCase
         }
 
         return $secondPlanet;
+    }
+
+    private function attackerPlayer(): PlayerService
+    {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Attacker planet has no player.');
+        }
+
+        return $player;
     }
 
     private function createBattleEngine(

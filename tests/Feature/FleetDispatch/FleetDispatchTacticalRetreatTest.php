@@ -61,10 +61,14 @@ class FleetDispatchTacticalRetreatTest extends FleetDispatchTestCase
 
         $report = BattleReport::query()->orderByDesc('id')->first();
         $this->assertNotNull($report, 'Expected a battle report after the attack');
-        $this->assertArrayHasKey('tactical_retreat', $report->general);
-        $this->assertTrue($report->general['tactical_retreat']['defender_fled']);
-        $this->assertGreaterThanOrEqual(5, $report->general['tactical_retreat']['ratio']);
-        $this->assertEquals('defender', $report->general['tactical_retreat']['by']);
+
+        $general = $report->general;
+        $this->assertIsArray($general);
+        $this->assertArrayHasKey('tactical_retreat', $general);
+        $this->assertIsArray($general['tactical_retreat']);
+        $this->assertTrue($general['tactical_retreat']['defender_fled']);
+        $this->assertGreaterThanOrEqual(5, $general['tactical_retreat']['ratio']);
+        $this->assertEquals('defender', $general['tactical_retreat']['by']);
 
         // Fleeing ships remain on the defender planet.
         $foreignPlanet->reloadPlanet();
