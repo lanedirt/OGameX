@@ -30,7 +30,7 @@ class LanguageController extends OGameController
      */
     public function switchLang(string $lang): RedirectResponse
     {
-        // Fallback to 'en' for any unsupported locale (e.g. /lang/fr → 'en').
+        // Fallback to 'en' for any unsupported locale (e.g. /lang/xx → 'en').
         $locale = in_array($lang, Locale::SUPPORTED_LOCALES, true) ? $lang : 'en';
 
         App::setLocale($locale);
