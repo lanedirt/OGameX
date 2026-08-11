@@ -1,34 +1,32 @@
 import { defineConfig } from 'vite'
 import laravel from 'laravel-vite-plugin'
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
-import { resolve, dirname } from 'node:path'
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { createHash } from 'node:crypto'
 
 /**
- * Reads the chunk manifest and returns the ordered list of chunk file paths
- * for use in the ingameScripts concatenation array.
- *
- * Falls back to the original single file if the manifest doesn't exist.
+ * Reads the chunk manifest and returns the ordered list of chunk file paths.
+ * Chunks are committed, so missing manifest or files is a hard error.
+ * Paths are sanitized to prevent traversal outside the chunks directory.
  */
 function getChunkPaths() {
     const manifestPath = 'resources/js/ingame/chunks/manifest.json'
-    const fallback = ['resources/js/ingame/e7c74974620fa35b197315ebdbb8c2.js']
+    const chunksDir = 'resources/js/ingame/chunks'
 
-    if (!existsSync(manifestPath)) {
-        console.warn('Chunk manifest not found, using original single file.')
-        return fallback
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+
+    if (!manifest.chunks || manifest.chunks.length === 0) {
+        throw new Error(`Chunk manifest at ${manifestPath} is empty`)
     }
 
-    try {
-        const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
-        if (!manifest.chunks || manifest.chunks.length === 0) {
-            return fallback
+    return manifest.chunks.map(c => {
+        // Reject path traversal attempts (../ or ..\)
+        if (c.path.includes('..')) {
+            throw new Error(`Unsafe chunk path: ${c.path}`)
         }
-        return manifest.chunks.map(c => `resources/js/ingame/chunks/${c.path}`)
-    } catch (err) {
-        console.warn('Failed to read chunk manifest:', err.message)
-        return fallback
-    }
+        const fullPath = `${chunksDir}/${c.path}`
+        return fullPath
+    })
 }
 
 const ingameScripts = [
@@ -43,9 +41,8 @@ const ingameScripts = [
     'resources/js/ingame/messages.js',
     'resources/js/ingame/tooltips.js',
     'resources/js/ingame/trader.js',
-    // timerhandler.js was removed: the chunks (or the original big file
-    // in fallback mode) already include TimerHandler. The separate file
-    // was a duplicate that got overwritten on load.
+    // timerhandler.js removed: already included in the chunked files
+    // (and also present in the original monolithic file it replaces).
     ...getChunkPaths(),
     'resources/js/ingame/messages-pagination.js',
     'node_modules/pusher-js/dist/web/pusher.min.js',
@@ -82,6 +79,18 @@ const outgameScripts = [
  */
 function concatLegacyBundles(bundles, outDir = 'public/build') {
     let command
+    const cache = new Map()
+
+    function readBundle(files) {
+        const key = files.join('|')
+        const cached = cache.get(key)
+        if (cached) return cached
+        const content = files
+            .map(f => readFileSync(resolve(f), 'utf-8'))
+            .join(';\n')
+        cache.set(key, content)
+        return content
+    }
 
     return {
         name: 'concat-legacy-bundles',
@@ -94,9 +103,7 @@ function concatLegacyBundles(bundles, outDir = 'public/build') {
             for (const { src, files } of bundles) {
                 server.middlewares.use((req, res, next) => {
                     if ((req.url ?? '').split('?')[0] === `/${src}`) {
-                        const content = files
-                            .map(f => readFileSync(resolve(f), 'utf-8'))
-                            .join(';\n')
+                        const content = readBundle(files)
                         res.setHeader('Content-Type', 'application/javascript')
                         res.end(content)
                     } else {
@@ -122,9 +129,7 @@ function concatLegacyBundles(bundles, outDir = 'public/build') {
                 mkdirSync(resolve(outDir, 'assets'), { recursive: true })
 
                 for (const { src, files, name } of bundles) {
-                    const content = files
-                        .map(f => readFileSync(resolve(f), 'utf-8'))
-                        .join(';\n')
+                    const content = readBundle(files)
 
                     const hash = createHash('sha256')
                         .update(content)
@@ -143,11 +148,6 @@ function concatLegacyBundles(bundles, outDir = 'public/build') {
 }
 
 export default defineConfig({
-    // lightningcss (Vite 8 default CSS minifier) rejects legacy OGame
-    // CSS hacks (*html selectors, // comments). Disable CSS minification.
-    build: {
-        cssMinify: false,
-    },
     plugins: [
         laravel({
             input: [
