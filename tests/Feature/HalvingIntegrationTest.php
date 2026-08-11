@@ -189,20 +189,15 @@ class HalvingIntegrationTest extends AccountTestCase
     }
 
     /**
-     * Test double halving completes task immediately.
+     * Buildings can only be halved once; a second halve is rejected and Complete finishes the job.
      */
-    /**
-     * Test double halving for short duration tasks completes instantly.
-     *
-     * Each halve reduces remaining time by 50% of ORIGINAL construction time,
-     * capped at max reduction (48h for building).
-     */
-    public function testDoubleHalvingCompletesTask(): void
+    public function testBuildingHalveThenCompleteFinishesTask(): void
     {
         $user = $this->findCurrentUser();
         $user->dark_matter = 200000;
         $user->save();
 
+        $levelBefore = $this->planetService->getObjectLevel('metal_mine');
         $this->addResourceBuildRequest('metal_mine');
 
         $queueItem = BuildingQueue::where('planet_id', $this->planetService->getPlanetId())
@@ -222,26 +217,38 @@ class HalvingIntegrationTest extends AccountTestCase
 
         $response1->assertStatus(200);
         $this->assertTrue($response1->json('success'), 'First halving should succeed');
+        $this->assertLessThan($originalDuration, $response1->json('remaining_time'), 'First halve should reduce remaining time');
 
-        $remainingAfterFirst = $response1->json('remaining_time');
+        $queueItem->refresh();
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set after first halve');
 
-        // If task is short enough (original <= 96h), second halve should complete it
-        if ($originalDuration <= 345600) { // 96 hours in seconds
-            // Second halve should complete the task
-            $response2 = $this->post('/ajax/facilities/halve-building', [
-                '_token' => csrf_token(),
-                'queue_item_id' => $queueItem->id,
-            ]);
+        // Second halve must be rejected — use Complete instead
+        $response2 = $this->post('/ajax/facilities/halve-building', [
+            '_token' => csrf_token(),
+            'queue_item_id' => $queueItem->id,
+        ]);
 
-            $response2->assertStatus(200);
-            $responseData = $response2->json();
+        $response2->assertStatus(200);
+        $this->assertFalse($response2->json('success'), 'Second halving should be rejected');
+        $this->assertStringContainsString('already been halved', (string)$response2->json('message'));
 
-            $this->assertTrue($responseData['success'], 'Second halving should succeed');
-            $this->assertLessThanOrEqual(1, $responseData['remaining_time'], 'Remaining time should be near zero after double halving');
-        } else {
-            // For very long tasks, just verify first halve reduced time
-            $this->assertLessThan($originalDuration, $remainingAfterFirst, 'First halve should reduce remaining time');
-        }
+        // Complete finishes the building instantly
+        $response3 = $this->post('/ajax/facilities/complete-building', [
+            '_token' => csrf_token(),
+            'queue_item_id' => $queueItem->id,
+        ]);
+
+        $response3->assertStatus(200);
+        $this->assertTrue($response3->json('success'), 'Complete should succeed after first halve');
+
+        $this->planetService->updateBuildingQueue();
+        $this->planetService->reloadPlanet();
+
+        $this->assertEquals($levelBefore + 1, $this->planetService->getObjectLevel('metal_mine'), 'Building should be completed');
+
+        $queueItem->refresh();
+        $this->assertEquals(1, (int)$queueItem->processed, 'Queue item should be processed');
+        $this->assertEquals(1, (int)$queueItem->dm_completed, 'dm_completed flag should be set');
     }
 
     /**

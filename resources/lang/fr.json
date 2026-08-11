@@ -1,0 +1,23 @@
+{
+  "Overview": "Vue générale",
+  "Resources": "Ressources",
+  "Facilities": "Installations",
+  "Research": "Recherche",
+  "Shipyard": "Chantier spatial",
+  "Defense": "Défense",
+  "Fleet": "Flotte",
+  "Galaxy": "Galaxie",
+  "Empire": "Empire",
+  "Alliance": "Alliance",
+  "Trade": "Commerce",
+  "Premium": "Premium",
+
+  "Player": "Joueur",
+  "All rights reserved.": "Tous droits réservés.",
+
+  "No fleet movement": "Aucun mouvement de flotte",
+
+  "end_of_file": "end_of_file",
+
+  "Research: do you really want to cancel :object_title level :level_target on planet :planet_name [:planet_coordinates]?": "Recherche : voulez-vous vraiment annuler :object_title niveau :level_target sur la planète :planet_name [:planet_coordinates] ?"
+}
