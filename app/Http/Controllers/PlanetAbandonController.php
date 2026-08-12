@@ -20,7 +20,7 @@ class PlanetAbandonController extends OGameController
         return view('ingame.planetabandon.overlay')->with([
             'currentPlanet' => $player->planets->current(),
             'isMoon' => $player->planets->current()->isMoon(),
-            'isCurrentPlanetHomePlanet' => $player->planets->current()->getPlanetId() === $player->planets->first()->getPlanetId(),
+            'isCurrentPlanetHomePlanet' => $player->planets->current()->getPlanetId() === $player->planets->first()?->getPlanetId(),
         ]);
     }
 

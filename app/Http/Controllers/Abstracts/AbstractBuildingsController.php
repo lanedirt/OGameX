@@ -93,7 +93,8 @@ abstract class AbstractBuildingsController extends OGameController
                 $valid_planet_type = ObjectService::objectValidPlanetType($object_machine_name, $this->planet);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet));
+                $useProductionEnergy = in_array($object_machine_name, ['terraformer', 'space_dock']);
+                $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet), $useProductionEnergy);
 
                 $view_model = new BuildingViewModel();
                 $view_model->count = $count;
@@ -106,7 +107,7 @@ abstract class AbstractBuildingsController extends OGameController
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
                 if ($view_model->currently_building && $build_active !== null) {
                     $view_model->target_level = $build_active->level_target;
-                    $view_model->is_downgrade = $build_active->is_downgrade ?? false;
+                    $view_model->is_downgrade = $build_active->is_downgrade;
                 }
                 $view_model->research_in_progress = $research_in_progress;
                 $view_model->ship_or_defense_in_progress = $ship_or_defense_in_progress;

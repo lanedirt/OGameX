@@ -8,11 +8,10 @@ on:
       - 'resources/js/**'
       - 'public/css/**'
       - 'public/js/**'
-      - 'public/mix-manifest.json'
+      - 'public/build/**'
       - 'package.json'
       - 'package-lock.json'
-      - 'yarn.lock'
-      - 'webpack.mix.js'
+      - 'vite.config.js'
   pull_request:
     branches: [ "main" ]
     paths-ignore:
@@ -20,11 +19,10 @@ on:
       - 'resources/js/**'
       - 'public/css/**'
       - 'public/js/**'
-      - 'public/mix-manifest.json'
+      - 'public/build/**'
       - 'package.json'
       - 'package-lock.json'
-      - 'yarn.lock'
-      - 'webpack.mix.js'
+      - 'vite.config.js'
 
 
 concurrency:
@@ -35,7 +33,7 @@ jobs:
   phpstan-code-analysis:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - uses: shivammathur/setup-php@v2
       with:
@@ -43,7 +41,7 @@ jobs:
         coverage: none
 
     - name: Cache Composer packages
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}

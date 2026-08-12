@@ -42,7 +42,7 @@ class BbCodeParserService
         ];
 
         foreach ($patterns as $pattern => $replacement) {
-            $html = preg_replace($pattern, $replacement, $html);
+            $html = preg_replace($pattern, $replacement, $html) ?? $html;
         }
 
         // Convert newlines to <br>.

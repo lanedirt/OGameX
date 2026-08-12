@@ -338,7 +338,7 @@ class BuddiesController extends OGameController
             ->take(20)
             ->map(function ($partnerId) use ($user) {
                 $partner = User::find($partnerId);
-                if (!$partner) {
+                if (!$partner instanceof User) {
                     return;
                 }
 

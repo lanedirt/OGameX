@@ -64,7 +64,10 @@ return [
         'under_construction'     => 'In aanbouw',
         'vacation_mode_error'    => 'Fout, speler is in vakantiemodus',
         'requirements_not_met'   => 'Vereisten zijn niet vervuld!',
-        'wrong_class'            => 'Verkeerde karakterklasse!',
+        'wrong_class'            => 'Je hebt niet de vereiste spelersklasse voor dit gebouw.',
+        'wrong_class_general'    => 'Om dit schip te kunnen bouwen, moet je de klasse Generaal hebben geselecteerd.',
+        'wrong_class_collector'  => 'Om dit schip te kunnen bouwen, moet je de klasse Verzamelaar hebben geselecteerd.',
+        'wrong_class_discoverer' => 'Om dit schip te kunnen bouwen, moet je de klasse Ontdekker hebben geselecteerd.',
         'no_moon_building'       => 'Je kunt dat gebouw niet op een maan bouwen!',
         'not_enough_resources'   => 'Niet genoeg grondstoffen!',
         'queue_full'             => 'Wachtrij is vol',
@@ -477,6 +480,7 @@ return [
         'not_enough_missiles'          => 'U heeft niet genoeg raketten',
         'launched_success'             => 'Raketten succesvol gelanceerd!',
         'launch_failed'                => 'Lancering van raketten mislukt',
+        'insufficient_range'           => 'Onvoldoende bereik (onderzoeksniveau impulsaandrijving) van uw interplanetaire raketten!',
     ],
 
     // -------------------------------------------------------------------------
@@ -597,7 +601,9 @@ return [
         'battle_defender'    => 'Verdediger',
         'battle_resources'   => 'Grondstoffen',
         'battle_loot'        => 'Buit',
-        'battle_debris_new'  => 'Puin-veld (nieuw aangemaakt)',
+        'battle_debris_new'        => 'Puin-veld (nieuw aangemaakt)',
+        'battle_wreckage_created'  => 'Wrakstukken ontstaan',
+        'battle_attacker_wreckage' => 'Aanvaller wrakstukken',
         'battle_repaired'    => 'Gerepareerd',
         'battle_moon_chance' => 'Maankans',
 
@@ -973,11 +979,11 @@ return [
         'password_strength_medium'              => 'Gemiddeld',
         'password_strength_high'                => 'Hoog',
         'password_properties_title'             => 'Het wachtwoord moet de volgende eigenschappen bevatten',
-        'password_min_max'                      => 'min. 4 tekens, max. 20 tekens',
+        'password_min_max'                      => 'min. 4 tekens, max. 128 tekens',
         'password_mixed_case'                   => 'Hoofd- en kleine letters',
         'password_special_chars'                => 'Speciale tekens (bijv. !?:_., )',
         'password_numbers'                      => 'Cijfers',
-        'password_length_hint'                  => 'Je wachtwoord moet minimaal <strong>4 tekens</strong> hebben en mag niet langer zijn dan <strong>20 tekens</strong>.',
+        'password_length_hint'                  => 'Je wachtwoord moet minimaal <strong>4 tekens</strong> hebben en mag niet langer zijn dan <strong>128 tekens</strong>.',
 
         'section_email'                         => 'E-mailadres',
         'current_email'                         => 'Huidig e-mailadres:',
@@ -1077,6 +1083,9 @@ return [
 
         // Controllerberichten
         'msg_settings_saved'                    => 'Instellingen opgeslagen',
+        'msg_password_incorrect'                => 'Het huidige wachtwoord dat je hebt ingevoerd is onjuist.',
+        'msg_password_mismatch'                 => 'De nieuwe wachtwoorden komen niet overeen.',
+        'msg_password_length_invalid'           => 'Het nieuwe wachtwoord moet tussen 4 en 128 tekens lang zijn.',
         'msg_vacation_activated'                => 'Vakantiemodus geactiveerd. Je wordt minimaal 48 uur beschermd tegen nieuwe aanvallen.',
         'msg_vacation_deactivated'              => 'Vakantiemodus gedeactiveerd.',
         'msg_vacation_min_duration'             => 'Je kunt de vakantiemodus pas deactiveren nadat de minimale duur van 48 uur is verstreken.',

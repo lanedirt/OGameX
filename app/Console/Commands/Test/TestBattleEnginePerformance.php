@@ -3,6 +3,8 @@
 namespace OGame\Console\Commands\Test;
 
 use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Support\Facades\Date;
 use InvalidArgumentException;
 use OGame\GameMissions\BattleEngine\BattleEngine;
@@ -29,13 +31,12 @@ use OGame\Services\SettingsService;
  * php artisan ogamex:test:battle-engine-performance rust --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
  * ---
  */
+#[Description('Test battle engine performance with specified fleets')]
+#[Signature('ogamex:test:battle-engine-performance
+        {engine : The battle engine to test (php/rust)}
+        {--fleet= : JSON string defining attacker and defender fleets}')]
 class TestBattleEnginePerformance extends TestCommand
 {
-    protected $signature = 'ogamex:test:battle-engine-performance
-        {engine : The battle engine to test (php/rust)}
-        {--fleet= : JSON string defining attacker and defender fleets}';
-    protected $description = 'Test battle engine performance with specified fleets';
-
     protected string $email = 'battleengineperformance@test.com';
     private float $startTime;
 
@@ -45,7 +46,8 @@ class TestBattleEnginePerformance extends TestCommand
     public function handle(): int
     {
         // Check for fleet option
-        if (!$this->option('fleet') || !$this->parseFleets($this->option('fleet'))) {
+        $fleetOption = $this->option('fleet');
+        if (!is_string($fleetOption) || !$this->parseFleets($fleetOption)) {
             $this->error('Specify valid --fleet option in JSON format like this: --fleet=\'{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}\'');
             return 1;
         }
@@ -53,7 +55,11 @@ class TestBattleEnginePerformance extends TestCommand
         // Set up the test environment
         parent::setup();
 
-        $fleets = $this->parseFleets($this->option('fleet'));
+        $fleets = $this->parseFleets($fleetOption);
+        if ($fleets === null) {
+            $this->error('Invalid fleet option provided.');
+            return 1;
+        }
         $engine = $this->argument('engine');
 
         if (!in_array($engine, ['php', 'rust'])) {

@@ -208,21 +208,29 @@ class ResearchQueueTest extends AccountTestCase
         // Assert two planets combined research lab level when second planet doesn't meet requirements.
         $this->playerSetResearchLevel('intergalactic_research_network', 2);
         $this->playerSetResearchLevel('energy_technology', 3);
-        $this->secondPlanetService->setObjectLevel(31, 5); // Research Lab
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service not initialized.');
+        }
+        $secondPlanetService->setObjectLevel(31, 5); // Research Lab
         $this->assertSame(8, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
 
         // Assert two planets combined research lab level.
-        $this->secondPlanetService->setObjectLevel(31, 10); // Research Lab
+        $secondPlanetService->setObjectLevel(31, 10); // Research Lab
         $this->assertSame(18, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
 
         // Assert three planets combined research lab level.
-        $thirdPlanetService = $this->planetService->getPlayer()->planets->all()[2];
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        $thirdPlanetService = $player->planets->all()[2];
         $thirdPlanetService->setObjectLevel(31, 6); // Research Lab
         $this->assertSame(24, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
 
         // Assert four planets combined research lab level. Forth planet is not counted in as
         // Intergalactic Research Network technology level 2 limits combined planet count to 3.
-        $forthPlanetService = $this->planetService->getPlayer()->planets->all()[3];
+        $forthPlanetService = $player->planets->all()[3];
         $forthPlanetService->setObjectLevel(31, 6); // Research Lab
         $this->assertSame(24, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
 

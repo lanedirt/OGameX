@@ -2,12 +2,14 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
 
@@ -46,23 +48,24 @@ use OGame\Models\Planet\Coordinate;
  * @method static Builder|FleetUnion whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'user_id',
+    'name',
+    'galaxy_to',
+    'system_to',
+    'position_to',
+    'planet_type_to',
+    'time_arrival',
+    'max_fleets',
+    'max_players',
+])]
 class FleetUnion extends Model
 {
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * @var array<string, string>
      */
-    protected $fillable = [
-        'user_id',
-        'name',
-        'galaxy_to',
-        'system_to',
-        'position_to',
-        'planet_type_to',
-        'time_arrival',
-        'max_fleets',
-        'max_players',
+    protected $casts = [
+        'time_arrival' => 'integer',
     ];
 
     /**
@@ -132,7 +135,7 @@ class FleetUnion extends Model
      */
     public function getRemainingTime(): int
     {
-        return max(0, $this->time_arrival - time());
+        return max(0, (int) $this->time_arrival - (int) Date::now()->timestamp);
     }
 
     /**

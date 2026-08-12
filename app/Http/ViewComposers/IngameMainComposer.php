@@ -6,6 +6,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
 use OGame\Facades\AppUtil;
 use OGame\Models\Alliance;
 use OGame\Models\AllianceMember;
@@ -118,6 +119,8 @@ class IngameMainComposer
 
         $impersonateManager = app('impersonate');
         $isImpersonating = $impersonateManager->isImpersonating();
+        $attackBlockUntil = $this->settingsService->attackBlockUntil();
+        $attackBlockActive = $this->settingsService->attackBlockActive();
 
         $view->with([
             'underAttack' => $this->fleetMissionService->currentPlayerUnderAttack(),
@@ -135,6 +138,13 @@ class IngameMainComposer
             'locale' => $locale,
             'isImpersonating' => $isImpersonating,
             'impersonateLeaveUrl' => $isImpersonating ? route('impersonate.leave') : null,
+            'attackBlockActive' => $attackBlockActive,
+            'attackBlockUntil' => $attackBlockUntil,
+            'attackBlockTooltip' => $attackBlockActive
+                ? __('The attack block is active till :until. In that time only friendly fleets can be started.', [
+                    'until' => Date::createFromTimestamp($attackBlockUntil)->format('d.m.Y H:i:s'),
+                ])
+                : '',
         ]);
     }
 

@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Models\FleetMission;
 use OGame\Services\JumpGateService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Services\SettingsService;
 use Tests\MoonTestCase;
 
 /**
@@ -27,7 +28,7 @@ class JumpGateTest extends MoonTestCase
         parent::setUp();
 
         // Set fleet war speed to 1 for predictable cooldown calculations
-        $settingsService = resolve(\OGame\Services\SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('fleet_speed_war', 1);
 
         $this->jumpGateService = resolve(JumpGateService::class);
@@ -37,8 +38,10 @@ class JumpGateTest extends MoonTestCase
         $this->moonService->setObjectLevel($jumpGateObject->id, 1, true);
 
         // Create second moon for the second planet
+        $secondPlanet = $this->secondPlanetService;
+        $this->assertNotNull($secondPlanet, 'Second planet not found');
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $this->secondMoonService = $planetServiceFactory->createMoonForPlanet($this->secondPlanetService, 100000, 20);
+        $this->secondMoonService = $planetServiceFactory->createMoonForPlanet($secondPlanet, 100000, 20);
 
         // Set up Jump Gate on second moon
         $this->secondMoonService->setObjectLevel($jumpGateObject->id, 1, true);
@@ -95,21 +98,28 @@ class JumpGateTest extends MoonTestCase
     }
 
     /**
-     * Test that solar satellites cannot be transferred.
+     * Test that non-transferable units cannot be transferred.
      */
-    public function testSolarSatellitesCannotBeTransferred(): void
+    public function testNonTransferableUnitsCannotBeTransferred(): void
     {
-        // Add solar satellites to moon
         $this->moonService->addUnit('solar_satellite', 10, true);
+        $this->moonService->addUnit('crawler', 10, true);
         $this->moonService->reloadPlanet();
 
-        $result = $this->jumpGateService->transferShips(
+        $solarSatelliteTransfer = $this->jumpGateService->transferShips(
             $this->moonService,
             $this->secondMoonService,
             ['solar_satellite' => 5]
         );
 
-        $this->assertFalse($result);
+        $crawlerTransfer = $this->jumpGateService->transferShips(
+            $this->moonService,
+            $this->secondMoonService,
+            ['crawler' => 5]
+        );
+
+        $this->assertFalse($solarSatelliteTransfer);
+        $this->assertFalse($crawlerTransfer);
     }
 
     /**
@@ -180,6 +190,7 @@ class JumpGateTest extends MoonTestCase
     public function testEligibleTargetsExcludesCurrentMoon(): void
     {
         $player = $this->moonService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
         $eligibleTargets = $this->jumpGateService->getEligibleTargets($player, $this->moonService);
 
         // Should not include the current moon
@@ -194,9 +205,10 @@ class JumpGateTest extends MoonTestCase
     public function testEligibleTargetsExcludesCooldownMoons(): void
     {
         // Set cooldown on second moon (unix timestamp)
-        $this->secondMoonService->setJumpGateCooldown((int) Carbon::now()->addHour()->timestamp);
+        $this->secondMoonService->setJumpGateCooldown((int) Date::now()->addHour()->timestamp);
 
         $player = $this->moonService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
         $eligibleTargets = $this->jumpGateService->getEligibleTargets($player, $this->moonService);
 
         // Second moon should not be in eligible targets
@@ -215,6 +227,7 @@ class JumpGateTest extends MoonTestCase
         $this->secondMoonService->setObjectLevel($jumpGateObject->id, 0, true);
 
         $player = $this->moonService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
         $eligibleTargets = $this->jumpGateService->getEligibleTargets($player, $this->moonService);
 
         // Second moon should not be in eligible targets
@@ -233,15 +246,17 @@ class JumpGateTest extends MoonTestCase
 
         // Create a foreign player's attack fleet that has arrived but not processed
         $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        $this->assertNotNull($foreignPlayer, 'Foreign player not found');
 
         // Create fleet mission directly in database
         $fleetMission = new FleetMission();
-        $fleetMission->user_id = $foreignPlanet->getPlayer()->getId();
+        $fleetMission->user_id = $foreignPlayer->getId();
         $fleetMission->planet_id_from = $foreignPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 1; // Attack
-        $fleetMission->time_departure = (int) Carbon::now()->subMinutes(10)->timestamp;
-        $fleetMission->time_arrival = (int) Carbon::now()->subMinutes(1)->timestamp; // Already arrived
+        $fleetMission->time_departure = (int) Date::now()->subMinutes(10)->timestamp;
+        $fleetMission->time_arrival = (int) Date::now()->subMinutes(1)->timestamp; // Already arrived
         $fleetMission->processed = 0; // Not yet processed
         $fleetMission->canceled = 0;
         $fleetMission->light_fighter = 5;
@@ -258,14 +273,16 @@ class JumpGateTest extends MoonTestCase
     {
         // Create a foreign player's attack fleet that has NOT arrived yet
         $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        $this->assertNotNull($foreignPlayer, 'Foreign player not found');
 
         $fleetMission = new FleetMission();
-        $fleetMission->user_id = $foreignPlanet->getPlayer()->getId();
+        $fleetMission->user_id = $foreignPlayer->getId();
         $fleetMission->planet_id_from = $foreignPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 1; // Attack
-        $fleetMission->time_departure = (int) Carbon::now()->timestamp;
-        $fleetMission->time_arrival = (int) Carbon::now()->addHour()->timestamp; // Still in transit
+        $fleetMission->time_departure = (int) Date::now()->timestamp;
+        $fleetMission->time_arrival = (int) Date::now()->addHour()->timestamp; // Still in transit
         $fleetMission->processed = 0;
         $fleetMission->canceled = 0;
         $fleetMission->light_fighter = 5;
@@ -281,13 +298,17 @@ class JumpGateTest extends MoonTestCase
     public function testOwnFleetDoesNotTriggerRaceCondition(): void
     {
         // Create own player's return fleet
+        $ownPlayer = $this->moonService->getPlayer();
+        $this->assertNotNull($ownPlayer, 'Player not found');
+        $secondPlanet = $this->secondPlanetService;
+        $this->assertNotNull($secondPlanet, 'Second planet not found');
         $fleetMission = new FleetMission();
-        $fleetMission->user_id = $this->moonService->getPlayer()->getId(); // Own player
-        $fleetMission->planet_id_from = $this->secondPlanetService->getPlanetId();
+        $fleetMission->user_id = $ownPlayer->getId(); // Own player
+        $fleetMission->planet_id_from = $secondPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 3; // Transport
-        $fleetMission->time_departure = (int) Carbon::now()->subMinutes(10)->timestamp;
-        $fleetMission->time_arrival = (int) Carbon::now()->subMinutes(1)->timestamp; // Already arrived
+        $fleetMission->time_departure = (int) Date::now()->subMinutes(10)->timestamp;
+        $fleetMission->time_arrival = (int) Date::now()->subMinutes(1)->timestamp; // Already arrived
         $fleetMission->processed = 0;
         $fleetMission->canceled = 0;
         $fleetMission->small_cargo = 5;
@@ -303,14 +324,16 @@ class JumpGateTest extends MoonTestCase
     public function testProcessedFleetDoesNotTriggerRaceCondition(): void
     {
         $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        $this->assertNotNull($foreignPlayer, 'Foreign player not found');
 
         $fleetMission = new FleetMission();
-        $fleetMission->user_id = $foreignPlanet->getPlayer()->getId();
+        $fleetMission->user_id = $foreignPlayer->getId();
         $fleetMission->planet_id_from = $foreignPlanet->getPlanetId();
         $fleetMission->planet_id_to = $this->moonService->getPlanetId();
         $fleetMission->mission_type = 1; // Attack
-        $fleetMission->time_departure = (int) Carbon::now()->subMinutes(10)->timestamp;
-        $fleetMission->time_arrival = (int) Carbon::now()->subMinutes(1)->timestamp;
+        $fleetMission->time_departure = (int) Date::now()->subMinutes(10)->timestamp;
+        $fleetMission->time_arrival = (int) Date::now()->subMinutes(1)->timestamp;
         $fleetMission->processed = 1; // Already processed
         $fleetMission->canceled = 0;
         $fleetMission->light_fighter = 5;
@@ -377,14 +400,39 @@ class JumpGateTest extends MoonTestCase
     }
 
     /**
+     * Test Jump Gate dialog does not expose crawlers as transferable ships.
+     */
+    public function testJumpGateDialogExcludesCrawlers(): void
+    {
+        $this->moonService->addUnit('crawler', 10, true);
+        $this->moonService->reloadPlanet();
+        $this->switchToMoon();
+
+        $response = $this->get('/ajax/jumpgate');
+
+        $response->assertStatus(200);
+        $response->assertViewHas('available_ships', function (array $availableShips): bool {
+            foreach ($availableShips as $ship) {
+                if (($ship['machine_name'] ?? null) === 'crawler') {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
+    /**
      * Test default target can be set and retrieved.
      */
     public function testDefaultTargetSetAndGet(): void
     {
         // Initially no default target
+        $moonPlayer = $this->moonService->getPlayer();
+        $this->assertNotNull($moonPlayer, 'Player not found');
         $defaultTarget = $this->jumpGateService->getDefaultTarget(
             $this->moonService,
-            $this->moonService->getPlayer()
+            $moonPlayer
         );
         $this->assertNull($defaultTarget);
 
@@ -397,6 +445,7 @@ class JumpGateTest extends MoonTestCase
         // Reload moon and player to get fresh data
         $this->moonService->reloadPlanet();
         $player = $this->moonService->getPlayer();
+        $this->assertNotNull($player, 'Player not found');
         $player->load($player->getId());
 
         $defaultTarget = $this->jumpGateService->getDefaultTarget(
@@ -453,11 +502,12 @@ class JumpGateTest extends MoonTestCase
     /**
      * Test getTransferableShips returns correct ship list.
      */
-    public function testGetTransferableShipsExcludesSolarSatellite(): void
+    public function testGetTransferableShipsExcludesNonTransferableUnits(): void
     {
         $ships = $this->jumpGateService->getTransferableShips();
 
         $this->assertNotContains('solar_satellite', $ships);
+        $this->assertNotContains('crawler', $ships);
         $this->assertContains('small_cargo', $ships);
         $this->assertContains('light_fighter', $ships);
         $this->assertContains('deathstar', $ships);

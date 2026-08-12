@@ -101,6 +101,9 @@ abstract class GameMessage
     public function getDateFormatted(): string
     {
         // Return in this format: 18.03.2024 14:50:38
+        if ($this->message->created_at === null) {
+            return '';
+        }
         return $this->message->created_at->format('d.m.Y H:i:s');
     }
 
@@ -304,14 +307,14 @@ abstract class GameMessage
                 // Do nothing
             }
 
-            if ($playerService->getId() > 0) {
+            if ($playerService !== null && $playerService->getId() > 0) {
                 $playerName = $playerService->getUsername();
             } else {
                 $playerName = 'Unknown Player';
             }
 
             return $playerName;
-        }, $body);
+        }, $body) ?? '';
 
         $body = preg_replace_callback('/\[planet\](\d+)\[\/planet\]/', function ($matches) {
             $planetService = null;
@@ -350,21 +353,21 @@ abstract class GameMessage
             }
 
             return $planetName;
-        }, $body);
+        }, $body) ?? '';
 
         $body = preg_replace_callback('/\[coordinates\](\d+):(\d+):(\d+)\[\/coordinates\]/', function ($matches) {
             $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
             return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
                                 <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
                             [' . $coordinates->asString() . ']</a>';
-        }, $body);
+        }, $body) ?? '';
 
         $body = preg_replace_callback('/\[debrisfield\](\d+):(\d+):(\d+)\[\/debrisfield\]/', function ($matches) {
             $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
             return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
                                 <figure class="planetIcon tf tooltip js_hideTipOnMobile" title="Planet"></figure>
                             debris field [' . $coordinates->asString() . ']</a>';
-        }, $body);
+        }, $body) ?? '';
 
         return $body;
     }

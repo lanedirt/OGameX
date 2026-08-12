@@ -8,7 +8,6 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\AllianceMember;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
-use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
@@ -138,7 +137,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
                 ->delete();
 
             // Reset current user's alliance_id
-            if (isset($this->currentUserId)) {
+            if ($this->currentUserId !== 0) {
                 DB::table('users')
                     ->where('id', $this->currentUserId)
                     ->update([
@@ -182,7 +181,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         // Also reset all vacation mode fields for the current test user
         // (testDispatchFleetFromVacationModeError sets this)
-        if (isset($this->currentUserId)) {
+        if ($this->currentUserId !== 0) {
             DB::table('users')
                 ->where('id', $this->currentUserId)
                 ->update([
@@ -211,18 +210,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Static array persists across test instances
         self::$allCreatedBuddyUserIds[] = $buddyUser->id;
 
-        // Create a planet for the buddy user at a random position to avoid conflicts
-        $buddyPlanet = Planet::factory()->create([
-            'user_id' => $buddyUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 8,
-        ]);
-
-        // Get planet service for the buddy's planet
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $buddyPlayerService = resolve(PlayerService::class, ['player_id' => $buddyUser->id]);
-        $this->buddyPlanet = $planetServiceFactory->makeForPlayer($buddyPlayerService, $buddyPlanet->id);
+        $this->buddyPlanet = $this->createPlanetAtSafeCoordinate($buddyUser->id);
 
         $buddyService = resolve(BuddyService::class);
 
@@ -238,12 +226,52 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
      */
     protected function sendMissionToBuddyPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
-        if ($this->buddyPlanet === null) {
+        $buddyPlanet = $this->buddyPlanet;
+        if ($buddyPlanet === null) {
             throw new RuntimeException('Must call createBuddyPlayer() before sendMissionToBuddyPlanet()');
         }
 
-        $this->dispatchFleet($this->buddyPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
-        return $this->buddyPlanet;
+        $this->dispatchFleet($buddyPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
+        return $buddyPlanet;
+    }
+
+    /**
+     * Get the buddy planet, failing the test if it is not set.
+     */
+    private function getBuddyPlanet(): PlanetService
+    {
+        $buddyPlanet = $this->buddyPlanet;
+        if ($buddyPlanet === null) {
+            $this->fail('Buddy planet is null.');
+        }
+
+        return $buddyPlanet;
+    }
+
+    /**
+     * Get the alliance member planet, failing the test if it is not set.
+     */
+    private function getAllianceMemberPlanet(): PlanetService
+    {
+        $allianceMemberPlanet = $this->allianceMemberPlanet;
+        if ($allianceMemberPlanet === null) {
+            $this->fail('Alliance member planet is null.');
+        }
+
+        return $allianceMemberPlanet;
+    }
+
+    /**
+     * Get the non-affiliated player planet, failing the test if it is not set.
+     */
+    private function getOtherPlanet(): PlanetService
+    {
+        $otherPlanet = $this->otherPlanet;
+        if ($otherPlanet === null) {
+            $this->fail('Other planet is null.');
+        }
+
+        return $otherPlanet;
     }
 
     /**
@@ -278,7 +306,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
-        $this->checkTargetFleet($this->buddyPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, true);
+        $this->checkTargetFleet($this->getBuddyPlanet()->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, true);
     }
 
     /**
@@ -368,6 +396,9 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Refresh planet service after mission arrival
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $foreignPlanet = $planetServiceFactory->make($foreignPlanet->getPlanetId());
+        if ($foreignPlanet === null) {
+            $this->fail('Foreign planet reload failed.');
+        }
 
         // Assert sender received message from "Fleet Command"
         $this->assertMessageReceivedAndContains('fleets', 'other', [
@@ -377,7 +408,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         ]);
 
         // Assert host received arrival message
-        $this->assertMessageReceivedAndContainsDatabase($foreignPlanet->getPlayer(), [
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet player is null.');
+        }
+        $this->assertMessageReceivedAndContainsDatabase($foreignPlayer, [
             'A fleet has arrived',
             $foreignPlanet->getPlanetName(),
         ]);
@@ -420,7 +455,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'No active fleet mission found.');
 
-        $fleetMissionId = $activeMissions->first()->id;
+        $firstMission = $activeMissions->first();
+        if ($firstMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+        $fleetMissionId = $firstMission->id;
 
         // Cancel/recall the mission.
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -447,8 +486,8 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $buddyUser = $this->createBuddyPlayer();
 
         // Get buddy's planet starting resources
-        $startingMetal = $this->buddyPlanet->metal()->get();
-        $startingCrystal = $this->buddyPlanet->crystal()->get();
+        $startingMetal = $this->getBuddyPlanet()->metal()->get();
+        $startingCrystal = $this->getBuddyPlanet()->crystal()->get();
 
         // Send fleet with resources to buddy's planet.
         $unitCollection = new UnitCollection();
@@ -465,8 +504,15 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         // Refresh planet services after mission completion
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $buddyPlanetReloaded = $planetServiceFactory->make($this->buddyPlanet->getPlanetId());
-        $this->planetService = $planetServiceFactory->make($this->planetService->getPlanetId());
+        $buddyPlanetReloaded = $planetServiceFactory->make($this->getBuddyPlanet()->getPlanetId());
+        if ($buddyPlanetReloaded === null) {
+            $this->fail('Buddy planet reload failed.');
+        }
+        $reloadedPlanet = $planetServiceFactory->make($this->planetService->getPlanetId());
+        if ($reloadedPlanet === null) {
+            $this->fail('Planet reload failed.');
+        }
+        $this->planetService = $reloadedPlanet;
 
         // Assert that buddy's planet did NOT receive the resources
         $this->assertEquals($startingMetal, $buddyPlanetReloaded->metal()->get(), 'Resources were incorrectly delivered to target planet.');
@@ -497,7 +543,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Send fleet with resources and 10 hour hold time
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 2);
-        $this->dispatchFleet($this->buddyPlanet->getPlanetCoordinates(), $unitCollection, new Resources(800, 600, 0, 0), PlanetType::Planet, 10);
+        $this->dispatchFleet($this->getBuddyPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(800, 600, 0, 0), PlanetType::Planet, 10);
 
         // Wait until fleet arrives and is holding (but not long enough to return)
         $this->travel(5)->hours();
@@ -508,7 +554,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertGreaterThan(0, $activeMissions->count(), 'No active fleet missions found');
 
-        $fleetMissionId = $activeMissions->first()->id;
+        $firstMission = $activeMissions->first();
+        if ($firstMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+        $fleetMissionId = $firstMission->id;
 
         // Recall the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -523,7 +573,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         // Reload planet and check resources
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $this->planetService = $planetServiceFactory->make($this->planetService->getPlanetId());
+        $reloadedPlanet = $planetServiceFactory->make($this->planetService->getPlanetId());
+        if ($reloadedPlanet === null) {
+            $this->fail('Planet reload failed.');
+        }
+        $this->planetService = $reloadedPlanet;
         $finalMetal = $this->planetService->metal()->get();
         $finalCrystal = $this->planetService->crystal()->get();
 
@@ -561,11 +615,16 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $attackerUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $attackerUser->id;
 
+        $buddyGalaxy  = $this->getBuddyPlanet()->getPlanetCoordinates()->galaxy;
+        $buddySystem  = $this->getBuddyPlanet()->getPlanetCoordinates()->system;
+        $attackerPosition = collect([13, 14, 15, 1, 2, 3])->first(
+            fn ($p) => !Planet::where('galaxy', $buddyGalaxy)->where('system', $buddySystem)->where('planet', $p)->exists()
+        );
         $attackerPlanet = Planet::factory()->create([
             'user_id' => $attackerUser->id,
-            'galaxy' => $this->buddyPlanet->getPlanetCoordinates()->galaxy,
-            'system' => $this->buddyPlanet->getPlanetCoordinates()->system,
-            'planet' => 10,
+            'galaxy'  => $buddyGalaxy,
+            'system'  => $buddySystem,
+            'planet'  => $attackerPosition,
         ]);
 
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
@@ -588,7 +647,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         $fleetMissionService->createNewFromPlanet(
             $attackerPlanetService,
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->getBuddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $attackUnits,
@@ -601,7 +660,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $this->get('/overview');
 
         // Reload our planet
-        $this->planetService = $planetServiceFactory->make($this->planetService->getPlanetId());
+        $reloadedPlanet = $planetServiceFactory->make($this->planetService->getPlanetId());
+        if ($reloadedPlanet === null) {
+            $this->fail('Planet reload failed.');
+        }
+        $this->planetService = $reloadedPlanet;
 
         // Check that some resources returned (proportional to surviving ships)
         $finalMetal = $this->planetService->metal()->get();
@@ -640,11 +703,16 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $attackerUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $attackerUser->id;
 
+        $buddyGalaxy  = $this->getBuddyPlanet()->getPlanetCoordinates()->galaxy;
+        $buddySystem  = $this->getBuddyPlanet()->getPlanetCoordinates()->system;
+        $attackerPosition = collect([13, 14, 15, 1, 2, 3])->first(
+            fn ($p) => !Planet::where('galaxy', $buddyGalaxy)->where('system', $buddySystem)->where('planet', $p)->exists()
+        );
         $attackerPlanet = Planet::factory()->create([
             'user_id' => $attackerUser->id,
-            'galaxy' => $this->buddyPlanet->getPlanetCoordinates()->galaxy,
-            'system' => $this->buddyPlanet->getPlanetCoordinates()->system,
-            'planet' => 11,
+            'galaxy'  => $buddyGalaxy,
+            'system'  => $buddySystem,
+            'planet'  => $attackerPosition,
         ]);
 
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
@@ -667,7 +735,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         $fleetMissionService->createNewFromPlanet(
             $attackerPlanetService,
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->getBuddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             1,
             $attackUnits,
@@ -692,10 +760,14 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $buddyUser = $this->createBuddyPlayer();
 
         // Store target coordinates
-        $buddyCoordinates = $this->buddyPlanet->getPlanetCoordinates();
+        $buddyCoordinates = $this->getBuddyPlanet()->getPlanetCoordinates();
 
         // Activate vacation mode for buddy player
-        $this->buddyPlanet->getPlayer()->activateVacationMode();
+        $buddyPlayer = $this->getBuddyPlanet()->getPlayer();
+        if ($buddyPlayer === null) {
+            $this->fail('Buddy planet player is null.');
+        }
+        $buddyPlayer->activateVacationMode();
         $this->reloadApplication();
 
         // Try to send ACS Defend fleet - should fail
@@ -714,6 +786,9 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         // Put current player in vacation mode
         $currentUser = User::find($this->currentUserId);
+        if ($currentUser === null) {
+            $this->fail('Current user not found.');
+        }
         $currentUser->vacation_mode = true;
         $currentUser->save();
 
@@ -742,7 +817,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $fleetMissionService = app(FleetMissionService::class);
         $mission = $fleetMissionService->createNewFromPlanet(
             $this->planetService,
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->getBuddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5, // ACS Defend
             $units,
@@ -805,7 +880,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $fleetMissionService = app(FleetMissionService::class);
         $mission = $fleetMissionService->createNewFromPlanet(
             $this->planetService,
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->getBuddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5, // ACS Defend
             $units,
@@ -827,7 +902,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             'Fleet is stopping',
             'Fleet Command',
         ]);
-        $this->assertMessageReceivedAndContainsDatabase($this->buddyPlanet->getPlayer(), [
+        $buddyPlayer = $this->getBuddyPlanet()->getPlayer();
+        if ($buddyPlayer === null) {
+            $this->fail('Buddy planet player is null.');
+        }
+        $this->assertMessageReceivedAndContainsDatabase($buddyPlayer, [
             'A fleet has arrived',
         ]);
 
@@ -871,7 +950,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $fleetMissionService = app(FleetMissionService::class);
         $mission = $fleetMissionService->createNewFromPlanet(
             $this->planetService,
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->getBuddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5, // ACS Defend
             $units,
@@ -901,7 +980,11 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             'Fleet is stopping',
             'Fleet Command',
         ]);
-        $this->assertMessageReceivedAndContainsDatabase($this->buddyPlanet->getPlayer(), [
+        $buddyPlayer = $this->getBuddyPlanet()->getPlayer();
+        if ($buddyPlayer === null) {
+            $this->fail('Buddy planet player is null.');
+        }
+        $this->assertMessageReceivedAndContainsDatabase($buddyPlayer, [
             'A fleet has arrived',
         ]);
     }
@@ -932,7 +1015,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $fleetMissionService = app(FleetMissionService::class);
         $mission = $fleetMissionService->createNewFromPlanet(
             $this->planetService,
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->getBuddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5, // ACS Defend
             $units,
@@ -994,7 +1077,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $fleetMissionService = app(FleetMissionService::class);
         $mission = $fleetMissionService->createNewFromPlanet(
             $this->planetService,
-            $this->buddyPlanet->getPlanetCoordinates(),
+            $this->getBuddyPlanet()->getPlanetCoordinates(),
             PlanetType::Planet,
             5, // ACS Defend
             $units,
@@ -1062,13 +1145,16 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Send ACS Defend with 1 hour hold time
         $units = new UnitCollection();
         $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 2);
-        $this->dispatchFleet($this->buddyPlanet->getPlanetCoordinates(), $units, new Resources(0, 0, 0, 0), PlanetType::Planet, 1);
+        $this->dispatchFleet($this->getBuddyPlanet()->getPlanetCoordinates(), $units, new Resources(0, 0, 0, 0), PlanetType::Planet, 1);
 
         // Get the real mission record
         $fleetMissionService = resolve(FleetMissionService::class);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'No active fleet mission found.');
         $mission = $activeMissions->first();
+        if ($mission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $realMissionId = $mission->id;
 
         // Advance time into the hold period (physical arrival + 10 seconds)
@@ -1118,7 +1204,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
-        $this->checkTargetFleet($this->allianceMemberPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, true);
+        $this->checkTargetFleet($this->getAllianceMemberPlanet()->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, true);
     }
 
     /**
@@ -1131,7 +1217,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
-        $this->checkTargetFleet($this->otherPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, false);
+        $this->checkTargetFleet($this->getOtherPlanet()->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, false);
     }
 
     /**
@@ -1149,7 +1235,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         // Send fleet to alliance member's planet.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 2);
-        $this->dispatchFleet($this->allianceMemberPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 2);
+        $this->dispatchFleet($this->getAllianceMemberPlanet()->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 2);
 
         // Verify units were deducted
         $response = $this->get('/shipyard');
@@ -1183,18 +1269,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $allianceMemberUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $allianceMemberUser->id;
 
-        // Create a planet for the alliance member
-        $allianceMemberPlanet = Planet::factory()->create([
-            'user_id' => $allianceMemberUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 6),
-            'planet' => 13,
-        ]);
-
-        // Get planet service for the alliance member's planet
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $allianceMemberPlayerService = resolve(PlayerService::class, ['player_id' => $allianceMemberUser->id]);
-        $this->allianceMemberPlanet = $planetServiceFactory->makeForPlayer($allianceMemberPlayerService, $allianceMemberPlanet->id);
+        $this->allianceMemberPlanet = $this->createPlanetAtSafeCoordinate($allianceMemberUser->id);
 
         // Add new member to alliance (bypass cooldown for testing)
         /** @phpstan-ignore assign.propertyType */
@@ -1213,6 +1288,36 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
     }
 
     /**
+     * Verify that ACS Defend dispatch is blocked when ACS is disabled by server settings.
+     */
+    public function testAcsDisabledBlocksAcsDefendDispatch(): void
+    {
+        $this->basicSetup();
+
+        $buddyUser = User::factory()->create();
+        self::$allCreatedBuddyUserIds[] = $buddyUser->id;
+
+        $acsBlockBuddyPlanet = $this->createPlanetAtSafeCoordinate($buddyUser->id);
+
+        $buddyService = resolve(BuddyService::class);
+        $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
+        $buddyService->acceptRequest($request->id, $buddyUser->id);
+
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('alliance_combat_system_on', 0);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 2);
+        $this->dispatchFleet($acsBlockBuddyPlanet->getPlanetCoordinates(), $unitCollection, new Resources(0, 0, 0, 0), PlanetType::Planet, 0, false);
+
+        $settingsService->set('alliance_combat_system_on', 1);
+
+        // Ships should still be on planet (mission was rejected)
+        $response = $this->get('/shipyard');
+        $this->assertObjectLevelOnPage($response, 'light_fighter', 5, 'Ships should not have been dispatched when ACS is disabled.');
+    }
+
+    /**
      * Create a player that is neither buddy nor alliance member.
      *
      * @return User The non-affiliated user
@@ -1223,18 +1328,7 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
         $otherUser = User::factory()->create();
         self::$allCreatedBuddyUserIds[] = $otherUser->id;
 
-        // Create a planet for the other user
-        $otherPlanet = Planet::factory()->create([
-            'user_id' => $otherUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 7),
-            'planet' => 14,
-        ]);
-
-        // Get planet service for the other user's planet
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $otherPlayerService = resolve(PlayerService::class, ['player_id' => $otherUser->id]);
-        $this->otherPlanet = $planetServiceFactory->makeForPlayer($otherPlayerService, $otherPlanet->id);
+        $this->otherPlanet = $this->createPlanetAtSafeCoordinate($otherUser->id);
 
         return $otherUser;
     }

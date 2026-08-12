@@ -70,7 +70,7 @@ class PlanetService
         // but this can be fine for unittests or when creating a new planet.
         if ($planet !== null) {
             $this->planet = $planet;
-        } elseif ($planet_id !== 0) {
+        } elseif ($planet_id !== null && $planet_id !== 0) {
             $this->loadByPlanetId($planet_id);
         }
 
@@ -246,6 +246,11 @@ class PlanetService
         // Anonymize the planet in all tables where it is referenced.
         // This is done to prevent foreign key constraints from failing.
 
+        // Moon-origin fleets must keep a valid home planet so they can still return after the moon is gone.
+        if ($this->isMoon()) {
+            $this->redirectActiveOutgoingMoonMissionsToParentPlanet();
+        }
+
         // Fleet missions
         FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
         FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
@@ -263,14 +268,39 @@ class PlanetService
         PlanetMove::where('planet_id', $this->planet->id)->delete();
 
         // Update the player's current planet if it is the planet being abandoned.
-        if ($this->getPlayer()->getCurrentPlanetId() === $this->planet->id) {
-            $this->getPlayer()->setCurrentPlanetId(0);
+        $player = $this->getPlayer();
+        if ($player !== null && $player->getCurrentPlanetId() === $this->planet->id) {
+            $player->setCurrentPlanetId(0);
         }
 
         // TODO: add feature test to check that abandoning a planet works correctly in various scenarios.
 
         // Delete the planet from the database
         $this->planet->delete();
+    }
+
+    /**
+     * Rebind active missions launched from a moon to its parent planet before the moon is deleted.
+     * This preserves the original flight while ensuring the fleet returns to the planet instead.
+     */
+    private function redirectActiveOutgoingMoonMissionsToParentPlanet(): void
+    {
+        $parentPlanet = $this->getParentPlanet();
+        if ($parentPlanet === null) {
+            return;
+        }
+
+        $parentCoordinates = $parentPlanet->getPlanetCoordinates();
+
+        FleetMission::where('planet_id_from', $this->planet->id)
+            ->where('processed', 0)
+            ->update([
+                'planet_id_from' => $parentPlanet->getPlanetId(),
+                'galaxy_from' => $parentCoordinates->galaxy,
+                'system_from' => $parentCoordinates->system,
+                'position_from' => $parentCoordinates->position,
+                'type_from' => PlanetType::Planet->value,
+            ]);
     }
 
     /**
@@ -600,7 +630,7 @@ class PlanetService
      *
      * @return bool
      */
-    public function hasResources(Resources $resources): bool
+    public function hasResources(Resources $resources, bool $useProductionEnergy = false): bool
     {
         if (!empty($resources->metal->get()) && ceil($this->metal()->get()) < $resources->metal->get()) {
             return false;
@@ -611,8 +641,13 @@ class PlanetService
         if (!empty($resources->deuterium->get()) && ceil($this->deuterium()->get()) < $resources->deuterium->get()) {
             return false;
         }
-        if (!empty($resources->energy->get()) && ceil($this->energyProduction()->get()) < $resources->energy->get()) {
-            return false;
+        if (!empty($resources->energy->get())) {
+            $energyAvailable = $useProductionEnergy
+                ? $this->energyProduction()->get()
+                : $this->energy()->get();
+            if (ceil($energyAvailable) < $resources->energy->get()) {
+                return false;
+            }
         }
 
         return true;
@@ -988,13 +1023,18 @@ class PlanetService
     {
         $research_lab_level = $this->getObjectLevel('research_lab');
 
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
         // The Intergalactic Research Network technology enables multiple research labs
         // across different planets to collaborate, significantly reducing research times.
-        $irn_level = $this->getPlayer()->getResearchLevel('intergalactic_research_network');
+        $irn_level = $player->getResearchLevel('intergalactic_research_network');
         if ($irn_level > 0) {
             // Get the research lab levels of all planets in the player's possession.
             $research_lab_levels = [];
-            foreach ($this->getPlayer()->planets->allPlanets() as $planet) {
+            foreach ($player->planets->allPlanets() as $planet) {
                 // Check if the object's requirements are met on the planet;
                 // otherwise, the planet's research lab cannot be included in the research network.
                 if (!ObjectService::objectRequirementsMet($machine_name, $planet)) {
@@ -1333,9 +1373,14 @@ class PlanetService
             return false;
         }
 
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
         // Access all players planets and see if there is a moon with the same coordinates
         // as this planet.
-        if ($this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates()) !== null) {
+        if ($player->planets->getMoonByCoordinates($this->getPlanetCoordinates()) !== null) {
             return true;
         }
 
@@ -1349,7 +1394,12 @@ class PlanetService
      */
     public function moon(): PlanetService
     {
-        $moon = $this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates());
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        $moon = $player->planets->getMoonByCoordinates($this->getPlanetCoordinates());
 
         if ($moon === null) {
             throw new RuntimeException('No moon found for this planet.');
@@ -1387,9 +1437,14 @@ class PlanetService
             return false;
         }
 
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
         // Access all players planets and see if there is a moon with the same coordinates
         // as this planet.
-        if ($this->getPlayer()->planets->getPlanetByCoordinates($this->getPlanetCoordinates()) !== null) {
+        if ($player->planets->getPlanetByCoordinates($this->getPlanetCoordinates()) !== null) {
             return true;
         }
 
@@ -1403,7 +1458,12 @@ class PlanetService
      */
     public function planet(): PlanetService
     {
-        $moon = $this->getPlayer()->planets->getPlanetByCoordinates($this->getPlanetCoordinates());
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        $moon = $player->planets->getPlanetByCoordinates($this->getPlanetCoordinates());
 
         if ($moon === null) {
             throw new RuntimeException('No planet found for this moon.');
@@ -1426,7 +1486,12 @@ class PlanetService
     public function updateBuildingQueue(bool $save_planet = true): void
     {
         // Skip building queue processing if player is in vacation mode
-        if ($this->getPlayer()->isInVacationMode()) {
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        if ($player->isInVacationMode()) {
             return;
         }
 
@@ -1529,7 +1594,12 @@ class PlanetService
     public function updateUnitQueue(bool $save_planet = true): void
     {
         // Skip unit queue processing if player is in vacation mode
-        if ($this->getPlayer()->isInVacationMode()) {
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        if ($player->isInVacationMode()) {
             return;
         }
 
@@ -1879,7 +1949,12 @@ class PlanetService
         }
 
         // Players in vacation mode have zero basic income.
-        if ($this->getPlayer()->isInVacationMode()) {
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        if ($player->isInVacationMode()) {
             return new Resources(0, 0, 0, 0);
         }
 
@@ -2239,7 +2314,7 @@ class PlanetService
         $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
 
         if ($currently_building !== null) {
-            return $currently_building->is_downgrade ?? false;
+            return $currently_building->is_downgrade;
         }
 
         return false;

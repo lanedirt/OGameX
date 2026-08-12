@@ -35,8 +35,7 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <link rel="apple-touch-icon" href="/img/outgame/20da7e6c416e6cd5f8544a73f588e5.png"/>
-    <link rel="stylesheet" href="{{ mix('css/outgame.css') }}">
-    <script type="text/javascript" src="{{ mix('js/outgame.min.js') }}"></script>
+    @vite(['resources/css/outgame.css', 'resources/js/outgame.js'])
 
     <script type="text/javascript">
         // <![CDATA[
@@ -191,7 +190,7 @@
                                onKeyDown="hideLoginErrorBox();"
                                id="passwordLogin"
                                name="password"
-                               maxlength="20"
+                               maxlength="128"
                         />
                     </div>
                 </div>
@@ -258,7 +257,7 @@
                                name="password"
                                autocomplete="new-password"
                                value="{{ old('password') }}"
-                               maxlength="20"
+                               maxlength="128"
                         />
                     </div>
 
@@ -316,7 +315,9 @@
                 @php $outgameLocale = app()->getLocale(); @endphp
                 <a href="{{ route('language.switch', ['lang' => 'en']) }}" @if($outgameLocale === 'en') style="font-weight:bold" @endif>EN</a> |
                 <a href="{{ route('language.switch', ['lang' => 'it']) }}" @if($outgameLocale === 'it') style="font-weight:bold" @endif>IT</a> |
-                <a href="{{ route('language.switch', ['lang' => 'nl']) }}" @if($outgameLocale === 'nl') style="font-weight:bold" @endif>NL</a>
+                <a href="{{ route('language.switch', ['lang' => 'nl']) }}" @if($outgameLocale === 'nl') style="font-weight:bold" @endif>NL</a> |
+                <a href="{{ route('language.switch', ['lang' => 'fr']) }}" @if($outgameLocale === 'fr') style="font-weight:bold" @endif>FR</a> |
+                <a href="{{ route('language.switch', ['lang' => 'zh-TW']) }}" @if($outgameLocale === 'zh-TW') style="font-weight:bold" @endif>繁體中文</a>
                 <br/>
                 <div class="align_center">
                     <a href="#" target="_blank">

@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,26 +43,20 @@ use Illuminate\Support\Carbon;
  * @method static Builder|AllianceHighscore whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'alliance_id',
+    'general',
+    'economy',
+    'research',
+    'military',
+    'general_rank',
+    'economy_rank',
+    'research_rank',
+    'military_rank',
+])]
 class AllianceHighscore extends Model
 {
     use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'alliance_id',
-        'general',
-        'economy',
-        'research',
-        'military',
-        'general_rank',
-        'economy_rank',
-        'research_rank',
-        'military_rank',
-    ];
 
     /**
      * Get the alliance that owns this highscore record.

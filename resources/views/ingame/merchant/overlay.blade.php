@@ -215,11 +215,23 @@
         var giveRate = baseFactor[giveResourceId];
         var receiveRate = tradeFactor[resourceId];
 
+        // Calculate how much budget is already committed by other receive resources
+        var committed = 0;
+        for (var rid in tradeFactor) {
+            var ridInt = parseInt(rid);
+            if (ridInt === giveResourceId || ridInt === parseInt(resourceId)) { continue; }
+            var otherVal = parseInt($('#' + rid + '_value').val().replace(/[,\.]/g, '')) || 0;
+            if (otherVal > 0) {
+                committed += Math.ceil(otherVal * (giveRate / tradeFactor[rid]));
+            }
+        }
+        var remainingBudget = Math.max(0, offer_amount - committed);
+
         var neededAmount = Math.ceil(value * (giveRate / receiveRate));
 
-        // Check if we have enough of the selling resource
-        if (neededAmount > offer_amount) {
-            value = Math.floor(offer_amount * (receiveRate / giveRate));
+        // Check if we have enough of the selling resource (accounting for other resources)
+        if (neededAmount > remainingBudget) {
+            value = Math.floor(remainingBudget * (receiveRate / giveRate));
             neededAmount = Math.ceil(value * (giveRate / receiveRate));
             formatNumber(input, value);
         }
@@ -256,15 +268,25 @@
         // Calculate max based on storage capacity first (ensure integer)
         var maxFromStorage = Math.floor(freeStorage[resourceId]);
 
-        // Calculate max based on available selling resource
-        // We need to ensure that Math.ceil(maxReceive * (giveRate / receiveRate)) <= offer_amount
-        // So we calculate: maxReceive = Math.floor(offer_amount * (receiveRate / giveRate))
-        // But then verify it doesn't exceed what we have when converted back
-        var maxFromAvailable = Math.floor(offer_amount * (receiveRate / giveRate));
+        // Calculate how much budget is already committed by other receive resources
+        var committed = 0;
+        for (var rid in tradeFactor) {
+            var ridInt = parseInt(rid);
+            if (ridInt === giveResourceId || ridInt === parseInt(resourceId)) { continue; }
+            var otherVal = parseInt($('#' + rid + '_value').val().replace(/[,\.]/g, '')) || 0;
+            if (otherVal > 0) {
+                committed += Math.ceil(otherVal * (giveRate / tradeFactor[rid]));
+            }
+        }
+        var remainingBudget = Math.max(0, offer_amount - committed);
+
+        // Calculate max based on remaining selling resource budget
+        // We need to ensure that Math.ceil(maxReceive * (giveRate / receiveRate)) <= remainingBudget
+        var maxFromAvailable = Math.floor(remainingBudget * (receiveRate / giveRate));
 
         // Double-check by calculating how much we'd actually need
         var wouldNeed = Math.ceil(maxFromAvailable * (giveRate / receiveRate));
-        while (wouldNeed > offer_amount && maxFromAvailable > 0) {
+        while (wouldNeed > remainingBudget && maxFromAvailable > 0) {
             maxFromAvailable--;
             wouldNeed = Math.ceil(maxFromAvailable * (giveRate / receiveRate));
         }
@@ -277,46 +299,46 @@
     }
 
     function trySubmit() {
-        var formData = {
-            _token: token,
-            give_resource: merchantType,
-            receive_resource: null,
-            give_amount: 0,
-            exchange_rate: 0
-        };
+        var giveResourceId = {{ $resources[$merchantType] }};
+        var giveRate = baseFactor[giveResourceId];
+        var receiveResources = {};
+        var totalGiveAmount = 0;
 
-        // Find which resource is being received
+        // Collect all receive resources and calculate total give cost
         @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
             @if($resourceKey !== $merchantType)
                 var value{{ $resourceId }} = parseInt($('#{{ $resourceId }}_value').val().replace(/[,\.]/g, '')) || 0;
                 if (value{{ $resourceId }} > 0) {
-                    formData.receive_resource = '{{ $resourceKey }}';
-                    var giveRate = baseFactor[{{ $resources[$merchantType] }}];
-                    var receiveRate = tradeFactor[{{ $resourceId }}];
-                    formData.give_amount = Math.ceil(value{{ $resourceId }} * (giveRate / receiveRate));
-                    formData.exchange_rate = receiveRate / giveRate;
+                    var receiveRate{{ $resourceId }} = tradeFactor[{{ $resourceId }}];
+                    receiveResources['{{ $resourceKey }}'] = value{{ $resourceId }};
+                    totalGiveAmount += Math.ceil(value{{ $resourceId }} * (giveRate / receiveRate{{ $resourceId }}));
                 }
             @endif
         @endforeach
 
-        if (!formData.receive_resource || formData.give_amount === 0) {
+        if (Object.keys(receiveResources).length === 0 || totalGiveAmount === 0) {
             errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.please_select_resource')));
             return false;
         }
 
         // Use a small tolerance (1 unit) for floating point comparison
-        if (formData.give_amount > offer_amount + 1) {
+        if (totalGiveAmount > offer_amount + 1) {
             errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.not_enough_resources')));
             return false;
         }
 
         // Ensure we don't try to give more than we have
-        if (formData.give_amount > offer_amount) {
-            formData.give_amount = offer_amount;
+        if (totalGiveAmount > offer_amount) {
+            totalGiveAmount = offer_amount;
         }
 
-        // Submit the trade
-        $.post('{{ route('merchant.trade') }}', formData, function(response) {
+        // Submit the trade with all receive resources
+        $.post('{{ route('merchant.trade') }}', {
+            _token: token,
+            give_resource: merchantType,
+            receive_resources: receiveResources,
+            give_amount: totalGiveAmount,
+        }, function(response) {
             if (response.success) {
                 fadeBox(response.message || @json(__('t_merchant.trade_completed_success')), false);
                 setTimeout(function() {

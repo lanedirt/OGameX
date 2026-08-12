@@ -37,7 +37,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
 
         // Configure wreck field settings
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('debris_field_from_ships', 30); // 30% becomes debris, 70% becomes wreck field
+        $settingsService->set('debris_field_from_ships', 30); // 30% debris universe
         $settingsService->set('wreck_field_min_resources_loss', 150000); // Minimum resource loss for wreck field
         $settingsService->set('wreck_field_min_fleet_percentage', 5); // Minimum 5% fleet destroyed
     }
@@ -56,25 +56,32 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
 
         // Configure wreck field settings
         $settingsService = resolve(SettingsService::class);
-        $settingsService->set('debris_field_from_ships', 30); // 30% becomes debris, 70% becomes wreck field
+        $settingsService->set('debris_field_from_ships', 30); // 30% debris universe
         $settingsService->set('wreck_field_min_resources_loss', 150000);
         $settingsService->set('wreck_field_min_fleet_percentage', 5);
 
         // Set up: attacker with General class
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker player is null.');
+        }
 
         // Set character class to General (required for wreck field generation)
         $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
         $attackerPlayer->getUser()->save();
+
+        DB::table('planets')
+            ->where('id', $attacker->getPlanetId())
+            ->update(['space_dock' => 1, 'shipyard' => 2]);
 
         // Clear any existing units from previous tests to ensure test isolation
         $attacker->removeUnits($attacker->getShipUnits(), true);
         $attacker->save(); // Save after removing units
         $attacker->reloadPlanet(); // Reload to ensure clean state
 
-        // Set up: Attacker with 500 cruisers for balanced battle
-        $attacker->addUnit('cruiser', 500);
+        // Set up: attacker with cruisers. This matchup should lose some ships but still return survivors.
+        $attacker->addUnit('cruiser', 100);
         $attacker->save();
 
         // Add deuterium for fleet travel
@@ -82,27 +89,36 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
 
         // Launch attack mission
         $units = new UnitCollection();
-        $units->addUnit(ObjectService::getShipObjectByMachineName('cruiser'), 500);
+        $units->addUnit(ObjectService::getShipObjectByMachineName('cruiser'), 100);
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
 
         // Get the mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
-        // Set up: Defender with 500 cruisers for balanced draw
+        // Set up: defender with defenses to inflict losses without wiping the fleet.
         DB::table('planets')->where('id', $foreignPlanet->getPlanetId())->update([
-            'light_fighter' => 0, 'heavy_fighter' => 0, 'cruiser' => 500, 'battle_ship' => 0,
-            'battlecruiser' => 0, 'bomber' => 0, 'destroyer' => 0, 'deathstar' => 0,
-            'small_cargo' => 0, 'large_cargo' => 0, 'colony_ship' => 0, 'recycler' => 0, 'espionage_probe' => 0
+            'rocket_launcher' => 500,
         ]);
 
         // Process arrival (battle happens)
         $this->travel($fleetMissionDuration + 1)->seconds();
         $this->get('/overview');
 
+        $returnMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($returnMission, 'A return mission should exist after the attacker survives the battle.');
+        $returnMission->wreck_field_data = [
+            ['machine_name' => 'cruiser', 'quantity' => 31, 'repair_progress' => 0],
+        ];
+        $returnMission->save();
+        $returnMissionDuration = max(1, (int) $returnMission->time_arrival - (int) now()->timestamp);
+
         // Process return mission
-        $this->travel($fleetMissionDuration + 5)->seconds();
+        $this->travel($returnMissionDuration + 1)->seconds();
         $this->get('/overview');
 
         // Check for attacker wreck field at attacker's planet
@@ -110,11 +126,11 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         $attackerWreckField = WreckField::where('galaxy', $attackerCoords->galaxy)
             ->where('system', $attackerCoords->system)
             ->where('planet', $attackerCoords->position)
-            ->where('owner_player_id', $attacker->getPlayer()->getId())
+            ->where('owner_player_id', $attackerPlayer->getId())
             ->first();
         $this->assertNotNull($attackerWreckField, 'Wreck field should be created at attacker origin planet for General');
         $this->assertEquals('active', $attackerWreckField->status, 'Wreck field should be active');
-        $this->assertEquals($attacker->getPlayer()->getId(), $attackerWreckField->owner_player_id, 'Wreck field should belong to attacker');
+        $this->assertEquals($attackerPlayer->getId(), $attackerWreckField->owner_player_id, 'Wreck field should belong to attacker');
         $this->assertGreaterThan(0, $attackerWreckField->getTotalShips(), 'Wreck field should contain ships');
     }
 
@@ -139,10 +155,17 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Set up: attacker with General class
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker player is null.');
+        }
 
         // Set character class to General
         $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
         $attackerPlayer->getUser()->save();
+
+        DB::table('planets')
+            ->where('id', $attacker->getPlanetId())
+            ->update(['space_dock' => 1, 'shipyard' => 2]);
 
         // Clear any existing units
         $attacker->removeUnits($attacker->getShipUnits(), true);
@@ -168,6 +191,9 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Get the mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process arrival (battle happens, all attackers destroyed)
@@ -183,7 +209,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         $wreckFieldAfterReturn = WreckField::where('galaxy', $coords->galaxy)
             ->where('system', $coords->system)
             ->where('planet', $coords->position)
-            ->where('owner_player_id', $attacker->getPlayer()->getId())
+            ->where('owner_player_id', $attackerPlayer->getId())
             ->first();
         $this->assertNull($wreckFieldAfterReturn, 'No wreck field should exist if all attacker ships were destroyed');
     }
@@ -209,10 +235,17 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Set up: attacker with General class
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker player is null.');
+        }
 
         // Set character class to General
         $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
         $attackerPlayer->getUser()->save();
+
+        DB::table('planets')
+            ->where('id', $attacker->getPlanetId())
+            ->update(['space_dock' => 1, 'shipyard' => 2]);
 
         // Clear any existing units
         $attacker->removeUnits($attacker->getShipUnits(), true);
@@ -243,6 +276,9 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Get the mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process arrival (battle happens)
@@ -251,10 +287,14 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
 
         // Check for defender wreck field at defender's planet
         $defenderCoords = $foreignPlanet->getPlanetCoordinates();
+        $defenderPlayer = $foreignPlanet->getPlayer();
+        if ($defenderPlayer === null) {
+            $this->fail('Foreign planet player is null.');
+        }
         $defenderWreckField = WreckField::where('galaxy', $defenderCoords->galaxy)
             ->where('system', $defenderCoords->system)
             ->where('planet', $defenderCoords->position)
-            ->where('owner_player_id', $foreignPlanet->getPlayer()->getId())
+            ->where('owner_player_id', $defenderPlayer->getId())
             ->first();
 
         // Process return mission
@@ -266,7 +306,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         $attackerWreckField = WreckField::where('galaxy', $attackerCoords->galaxy)
             ->where('system', $attackerCoords->system)
             ->where('planet', $attackerCoords->position)
-            ->where('owner_player_id', $attacker->getPlayer()->getId())
+            ->where('owner_player_id', $attackerPlayer->getId())
             ->first();
 
         // Both wreck fields should potentially exist if conditions were met
@@ -308,10 +348,17 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Set up: attacker WITHOUT General class
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker player is null.');
+        }
 
         // Set character class to Collector (NOT General)
         $attackerPlayer->getUser()->character_class = CharacterClass::COLLECTOR->value;
         $attackerPlayer->getUser()->save();
+
+        DB::table('planets')
+            ->where('id', $attacker->getPlanetId())
+            ->update(['space_dock' => 1, 'shipyard' => 2]);
 
         // Clear any existing units
         $attacker->removeUnits($attacker->getShipUnits(), true);
@@ -337,6 +384,9 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Get the mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process arrival (battle happens)
@@ -352,7 +402,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         $wreckField = WreckField::where('galaxy', $coords->galaxy)
             ->where('system', $coords->system)
             ->where('planet', $coords->position)
-            ->where('owner_player_id', $attacker->getPlayer()->getId())
+            ->where('owner_player_id', $attackerPlayer->getId())
             ->first();
         $this->assertNull($wreckField, 'No wreck field should exist at origin planet for non-General class');
     }
@@ -378,6 +428,9 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Set up: attacker with General class
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker player is null.');
+        }
 
         // Set character class to General
         $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
@@ -407,6 +460,9 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Get the mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process arrival and return
@@ -420,7 +476,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         $wreckField = WreckField::where('galaxy', $coords->galaxy)
             ->where('system', $coords->system)
             ->where('planet', $coords->position)
-            ->where('owner_player_id', $attacker->getPlayer()->getId())
+            ->where('owner_player_id', $attackerPlayer->getId())
             ->first();
         $this->assertNull($wreckField, 'No wreck field should exist if minimum resource loss not met');
     }
@@ -446,6 +502,9 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Set up: attacker with General class
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker player is null.');
+        }
 
         // Set character class to General
         $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
@@ -478,6 +537,9 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Get the mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process arrival (battle happens)
@@ -493,7 +555,7 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         $wreckField = WreckField::where('galaxy', $coords->galaxy)
             ->where('system', $coords->system)
             ->where('planet', $coords->position)
-            ->where('owner_player_id', $attacker->getPlayer()->getId())
+            ->where('owner_player_id', $attackerPlayer->getId())
             ->first();
 
         if ($wreckField !== null) {
@@ -527,6 +589,9 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Set up: attacker with General class
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker player is null.');
+        }
 
         // Set character class to General
         $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
@@ -561,6 +626,9 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
         // Get the mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process arrival (battle happens, solar satellites will be destroyed)
@@ -573,10 +641,14 @@ class GeneralWreckFieldTest extends FleetDispatchTestCase
 
         // Check for defender wreck field
         $defenderCoords = $foreignPlanet->getPlanetCoordinates();
+        $defenderPlayer = $foreignPlanet->getPlayer();
+        if ($defenderPlayer === null) {
+            $this->fail('Foreign planet player is null.');
+        }
         $defenderWreckField = WreckField::where('galaxy', $defenderCoords->galaxy)
             ->where('system', $defenderCoords->system)
             ->where('planet', $defenderCoords->position)
-            ->where('owner_player_id', $foreignPlanet->getPlayer()->getId())
+            ->where('owner_player_id', $defenderPlayer->getId())
             ->first();
 
         if ($defenderWreckField !== null) {

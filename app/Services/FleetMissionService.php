@@ -55,7 +55,12 @@ class FleetMissionService
     public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units, GameMission|null $mission = null, float $speed_percent = 10): int
     {
         // Get slowest unit speed.
-        $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet->getPlayer());
+        $player = $fromPlanet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
+        $slowest_speed = $units->getSlowestUnitSpeed($player);
         $distance = $this->calculateFleetMissionDistance($fromPlanet, $to);
 
         // Determine which fleet speed to use based on mission type.
@@ -169,6 +174,11 @@ class FleetMissionService
      */
     public function calculateConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $targetCoordinate, int $holdingHours, float $speedPercent)
     {
+        $player = $fromPlanet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         $consumption = 0;
         $holdingCosts = 0;
 
@@ -181,7 +191,7 @@ class FleetMissionService
             $shipAmount = $shipEntry->amount; // Amount of ships
 
             // Calculate the speed of the ship
-            $ship_speed = $ship->properties->speed->calculate($fromPlanet->getPlayer())->totalValue;
+            $ship_speed = $ship->properties->speed->calculate($player)->totalValue;
 
             if (!empty($shipAmount)) {
                 $shipSpeedValue = 35000 / $speedValue * sqrt($distance * 10 / $ship_speed);
@@ -205,7 +215,7 @@ class FleetMissionService
 
         // Apply General class deuterium consumption reduction (-50%)
         $characterClassService = app(CharacterClassService::class);
-        $consumptionMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($fromPlanet->getPlayer()->getUser());
+        $consumptionMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($player->getUser());
         $consumption = (int)($consumption * $consumptionMultiplier);
 
         return $consumption;
@@ -272,28 +282,12 @@ class FleetMissionService
             $planetIds[] = $planet->getPlanetId();
         }
 
-        $currentTime = Date::now()->timestamp;
-
         $missions = $query->where(function ($query) use ($planetIds) {
             $query->where('user_id', $this->player->getId())
                 ->orWhereIn('planet_id_to', $planetIds);
         })
             ->where('canceled', 0) // Exclude canceled missions
-            ->where(function ($query) use ($currentTime) {
-                // Include unprocessed missions
-                $query->where('processed', 0)
-                    // Also include ACS Defend outbound missions that are processed but still in hold time
-                    // (ACS Defend is marked processed=1 immediately at arrival, before hold time ends)
-                    ->orWhere(function ($query) use ($currentTime) {
-                        $query->where('mission_type', 5)
-                            ->whereNull('parent_id')
-                            ->where('processed', 1)
-                            ->where('time_arrival', '<=', $currentTime)
-                            // IMPORTANT: Holding time is always real time (not affected by fleet speed)
-                            ->whereRaw('time_arrival + time_holding > ?', [$currentTime]);
-                    });
-                // Note: Expeditions stay processed=0 during hold time, so they're already included above
-            })
+            ->where('processed', 0)
             ->get();
 
         // Order the list taking into account the time_holding. This ensures that the order of missions is correct
@@ -505,15 +499,21 @@ class FleetMissionService
     public function getFleetMissionByParentId(int $parent_id, bool $only_active = true): FleetMission
     {
         if ($only_active) {
-            return $this->model
+            $mission = $this->model
                 ->where('parent_id', $parent_id)
                 ->where('processed', 0)
                 ->first();
         } else {
-            return $this->model
+            $mission = $this->model
                 ->where('parent_id', $parent_id)
                 ->first();
         }
+
+        if ($mission === null) {
+            throw new Exception('Fleet mission not found.');
+        }
+
+        return $mission;
     }
 
     /**
@@ -614,16 +614,31 @@ class FleetMissionService
     {
         $planetServiceFactory = app(PlanetServiceFactory::class);
 
+        if ($mission->planet_id_from === null || $mission->planet_id_to === null) {
+            throw new Exception('Fleet mission is missing origin or target planet.');
+        }
+
         $origin_planet = $planetServiceFactory->make($mission->planet_id_from, true);
         $target_planet = $planetServiceFactory->make($mission->planet_id_to, true);
 
+        if ($origin_planet === null || $target_planet === null) {
+            throw new Exception('Origin or target planet not found.');
+        }
+
+        $origin_player = $origin_planet->getPlayer();
+        $target_player = $target_planet->getPlayer();
+
+        if ($origin_player === null || $target_player === null) {
+            throw new Exception('Origin or target planet has no owner.');
+        }
+
         // Send message to sender (Fleet Command)
-        $this->messageService->sendSystemMessageToPlayer($origin_planet->getPlayer(), AcsDefendArrivalSender::class, [
+        $this->messageService->sendSystemMessageToPlayer($origin_player, AcsDefendArrivalSender::class, [
             'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
         ]);
 
         // Send message to host/target (Space Monitoring)
-        $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), AcsDefendArrivalHost::class, [
+        $this->messageService->sendSystemMessageToPlayer($target_player, AcsDefendArrivalHost::class, [
             'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
         ]);
     }

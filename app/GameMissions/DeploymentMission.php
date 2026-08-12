@@ -13,6 +13,7 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\PlanetService;
+use RuntimeException;
 
 class DeploymentMission extends GameMission
 {
@@ -44,7 +45,12 @@ class DeploymentMission extends GameMission
         }
 
         // If target player is not the same as current player, this mission is not possible.
-        if (!$planet->getPlayer()->equals($targetPlanet->getPlayer())) {
+        $currentPlayer = $planet->getPlayer();
+        $targetPlayer = $targetPlanet->getPlayer();
+        if ($currentPlayer === null || $targetPlayer === null) {
+            return new MissionPossibleStatus(false);
+        }
+        if (!$currentPlayer->equals($targetPlayer)) {
             return new MissionPossibleStatus(false);
         }
 
@@ -57,7 +63,17 @@ class DeploymentMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Deployment mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Deployment mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Deployment mission target planet has no owner.');
+        }
         // Add resources to the target planet
         $resources = $this->fleetMissionService->getResources($mission);
 
@@ -68,7 +84,7 @@ class DeploymentMission extends GameMission
 
         // Send a message to the player that the mission has arrived
         if ($resources->any()) {
-            $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), FleetDeploymentWithResources::class, [
+            $this->messageService->sendSystemMessageToPlayer($targetPlayer, FleetDeploymentWithResources::class, [
                 'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
                 'metal' => (string)$mission->metal,
@@ -76,7 +92,7 @@ class DeploymentMission extends GameMission
                 'deuterium' => (string)($mission->deuterium +  ($mission->deuterium_consumption / 2)), //if mission deployment: Add half of the consumed deuterium
             ]);
         } else {
-            $this->messageService->sendSystemMessageToPlayer($target_planet->getPlayer(), FleetDeployment::class, [
+            $this->messageService->sendSystemMessageToPlayer($targetPlayer, FleetDeployment::class, [
                 'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
                 'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
             ]);
@@ -92,7 +108,17 @@ class DeploymentMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Deployment return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Deployment return mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Deployment return mission target planet has no owner.');
+        }
 
         // Transport return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -104,7 +130,7 @@ class DeploymentMission extends GameMission
         }
 
         // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;

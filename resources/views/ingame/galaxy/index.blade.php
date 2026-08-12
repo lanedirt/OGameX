@@ -140,7 +140,7 @@
             var shipsendingDone = 1;
             var premiumLink = "#?page=premium&openDetail=3";
             var sendDiscoverSystemUrl = "";
-            var missleAttackLink = "#?page=ajax&component=missileattacklayer&width=669&height=250";
+            var missleAttackLink = "{{ route('galaxy.missile-attack.overlay') }}?width=669&height=250";
             var canSwitchGalaxy = true;
             var notEnoughDeuteriumMessage = @json(__('t_ingame.galaxy.deut_needed_relocate'));
             var toGalaxyLink = "#?page=ingame&component=galaxy&galaxy=2&system=3";
@@ -619,7 +619,7 @@
                 modal_html += '<span id="phalanx-title" class="ui-dialog-title">' + dialog_title;
 
                 // Refresh button inside title
-                modal_html += '<a class="refreshPhalanxLink tooltip js_hideTipOnMobile overlay fleft" data-overlay-same="true" ';
+                modal_html += '<a class="refreshPhalanxLink tooltip js_hideTipOnMobile fleft" ';
                 modal_html += 'href="javascript:void(0)" onclick="refreshPhalanxContent(' + data.target.galaxy + ',' + data.target.system + ',' + data.target.position + ')" ';
                 modal_html += 'data-tooltip-title="{{ __('t_ingame.galaxy.refresh') }}">';
                 modal_html += '<span class="icon icon_reload"></span>';

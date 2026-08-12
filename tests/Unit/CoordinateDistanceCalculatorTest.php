@@ -35,6 +35,16 @@ class CoordinateDistanceCalculatorTest extends TestCase
     }
 
     /**
+     * Test shortest system distance accounts for donut wrap-around.
+     */
+    public function testGetSystemDistanceUsesWrapAround(): void
+    {
+        $this->assertEquals(14, $this->calculator->getSystemDistance(490, 5));
+        $this->assertEquals(3, $this->calculator->getSystemDistance(100, 103));
+        $this->assertEquals(0, $this->calculator->getSystemDistance(250, 250));
+    }
+
+    /**
      * Test that empty systems calculation returns 0 when setting is disabled.
      */
     public function testEmptySystemsDisabled(): void

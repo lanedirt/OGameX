@@ -97,6 +97,10 @@ class PlayerService
     {
         // Fetch user from model
         $user = User::with('highscore')->where('id', $id)->first();
+        if ($user === null) {
+            throw new RuntimeException('User not found.');
+        }
+
         $this->user = $user;
 
         // Fetch user tech from model
@@ -171,6 +175,16 @@ class PlayerService
     public function isAdmin(): bool
     {
         return $this->user->hasRole('admin');
+    }
+
+    /**
+     * Checks if the player is currently banned.
+     *
+     * @return bool
+     */
+    public function isBanned(): bool
+    {
+        return $this->user->isBanned();
     }
 
     /**
@@ -362,7 +376,7 @@ class PlayerService
      */
     public function validatePassword(string $password): bool
     {
-        if (Auth::Attempt((['email' => $this->getEmail(), 'password' => $password]))) {
+        if (Auth::attempt(['email' => $this->getEmail(), 'password' => $password])) {
             return true;
         }
 
@@ -471,7 +485,12 @@ class PlayerService
     {
         if (!$this->user->planet_current) {
             // If no current planet is set, return the first planet of the player.
-            return $this->planets->first()->getPlanetId();
+            $firstPlanet = $this->planets->first();
+            if ($firstPlanet === null) {
+                throw new RuntimeException('Player has no planets.');
+            }
+
+            return $firstPlanet->getPlanetId();
         }
 
         return $this->user->planet_current;

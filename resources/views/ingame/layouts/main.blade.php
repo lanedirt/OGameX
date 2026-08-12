@@ -35,7 +35,7 @@
     <meta name="ogame-donut-galaxy" content="1"/>
     <meta name="ogame-donut-system" content="1"/>
     <meta name="ogame-player-id" content="{{ $currentPlayer->getId() }}"/>
-    <meta name="ogame-player-name" content="{{ $currentPlayer->getUsername() }}"/>
+    <meta name="ogame-player-name" content="{{ $currentPlayer->getUsername(false) }}"/>
     <meta name="ogame-alliance-id" content=""/>
     <meta name="ogame-alliance-name" content=""/>
     <meta name="ogame-alliance-tag" content=""/>
@@ -47,8 +47,7 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <link rel="stylesheet" href="{{ mix('css/ingame.css') }}">
-    <script src="{{ mix('js/ingame.min.js') }}"></script>
+    @vite(['resources/css/ingame.css', 'resources/js/ingame.js'])
 
     <script type="text/javascript">
         // Define timerHandler globally to prevent simpleCountdown errors
@@ -712,6 +711,60 @@
                     </li>
                 </ul>
 
+                @if ($attackBlockActive)
+                    <style>
+                        #attackblock {
+                            clear: both;
+                            margin: 0 0 0 49px;
+                            padding-top: 8px;
+                            width: 38px;
+                        }
+                        #attackblock .attackBlockIcon {
+                            position: relative;
+                            display: block;
+                            width: 34px;
+                            height: 34px;
+                            border-radius: 4px;
+                            border: 2px solid #6e2e00;
+                            background: linear-gradient(180deg, #d88020 0%, #be5d00 46%, #8c3800 100%);
+                            box-shadow:
+                                inset 0 0 0 2px rgba(255, 185, 70, 0.45),
+                                inset 0 -4px 8px rgba(80, 25, 0, 0.42),
+                                0 0 4px rgba(220, 100, 0, 0.55);
+                        }
+                        #attackblock .attackBlockIcon::before {
+                            content: "";
+                            position: absolute;
+                            left: 3px;
+                            top: 3px;
+                            width: 28px;
+                            height: 28px;
+                            border: 4px solid #fff;
+                            border-radius: 50%;
+                            box-sizing: border-box;
+                            box-shadow: 0 0 2px rgba(255, 255, 255, 0.55);
+                        }
+                        #attackblock .attackBlockIcon::after {
+                            content: "";
+                            position: absolute;
+                            left: 6px;
+                            top: 14px;
+                            width: 22px;
+                            height: 5px;
+                            border-radius: 3px;
+                            background: #fff;
+                            transform: rotate(45deg);
+                            transform-origin: center;
+                            box-shadow: 0 0 2px rgba(255, 255, 255, 0.55);
+                        }
+                    </style>
+                    <div id="attackblock">
+                        <a href="javascript:void(0);"
+                           class="tooltipHTML js_hideTipOnMobile attackBlockIcon"
+                           title="Attack block|{{ $attackBlockTooltip }}"></a>
+                    </div>
+                @endif
+
                 <div id="toolLinksWrapper">
                     <ul id="menuTableTools" class="leftmenu"></ul>
                 </div>
@@ -742,10 +795,10 @@
                 }
 
                 var playerId = "{{ $currentPlayer->getId() }}";
-                var playerName = "{{ $currentPlayer->getUsername() }}";
+                var playerName = "{{ $currentPlayer->getUsername(false) }}";
                 var player = {
                     "playerId": {{ $currentPlayer->getId() }},
-                    "name": "{{ $currentPlayer->getUsername() }}",
+                    "name": "{{ $currentPlayer->getUsername(false) }}",
                     "hasCommander": false,
                     "hasAPassword": true
                 };
@@ -824,7 +877,7 @@
                 var userData = {
                     "id": "108130"
                 };
-                var missleAttackLink = "{{ route('overview.index') }}#TODO_page=missileattacklayer&width=669&height=250";
+                var missleAttackLink = "{{ route('galaxy.missile-attack.overlay') }}?width=669&height=250";
                 var changeNickLink = "{{ route('changenick.overlay') }}";
                 var showOutlawWarning = true;
                 var miniFleetLink = "{{ route('fleet.dispatch.sendminifleet') }}";
@@ -1789,7 +1842,7 @@ However, the Space Dock's engineers think that some of the remains can be salvag
 
                                     @if ($wreckField && in_array($wreckField->status, ['active', 'blocked']) && !$planet->isMoon())
                                         @php
-                                            $hasSpaceDock = $currentPlayer->planets->current()->getObjectLevel('space_dock') > 0;
+                                            $hasSpaceDock = $planet->getObjectLevel('space_dock') > 0;
                                             $isOwner = $wreckField->owner_player_id === $currentPlayer->getId();
                                         @endphp
                                         @if ($isOwner && $hasSpaceDock)
@@ -1854,6 +1907,8 @@ However, the Space Dock's engineers think that some of the remains can be salvag
             <a href="{{ route('language.switch', ['lang' => 'en']) }}" @if($localeActive === 'en') class="bold" @endif>EN</a>|
             <a href="{{ route('language.switch', ['lang' => 'it']) }}" @if($localeActive === 'it') class="bold" @endif>IT</a>|
             <a href="{{ route('language.switch', ['lang' => 'nl']) }}" @if($localeActive === 'nl') class="bold" @endif>NL</a>|
+            <a href="{{ route('language.switch', ['lang' => 'fr']) }}" @if($localeActive === 'fr') class="bold" @endif>FR</a>|
+            <a href="{{ route('language.switch', ['lang' => 'zh-TW']) }}" @if($localeActive === 'zh-TW') class="bold" @endif>繁體中文</a>|
             <a href="#">{{ __('t_ingame.layout.board') }}</a>|
             <a class="overlay" href="{{ route('rules.ajax') }}"
                data-overlay-title="{{ __('t_ingame.layout.rules') }}">{{ __('t_ingame.layout.rules') }}</a>|

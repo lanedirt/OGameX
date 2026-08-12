@@ -2,6 +2,8 @@
 
 namespace OGame\Console\Commands\Admin;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -13,22 +15,10 @@ use OGame\Models\User;
 use OGame\Models\UserTech;
 use OGame\Services\PlayerService;
 
+#[Description('Initialize the Legor admin account with Arakis planet at 1:1:2 (an ode to the original game)')]
+#[Signature('ogamex:admin:init-legor {--delay=90 : Delay in seconds before moon creation (default: 90)}')]
 class InitializeLegorAccount extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:admin:init-legor {--delay=90 : Delay in seconds before moon creation (default: 90)}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Initialize the Legor admin account with Arakis planet at 1:1:2 (an ode to the original game)';
-
     /**
      * Execute the console command.
      */

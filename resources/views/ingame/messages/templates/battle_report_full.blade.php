@@ -425,6 +425,44 @@
         </ul>
 @endif
 
+@if ($wreckage_count > 0 && !$viewer_is_attacker)
+        <div class="section_title">
+            <div class="c-left"></div>
+            <div class="c-right"></div>
+            <span class="title_txt">{{ __('t_ingame.messages.battle_wreckage_created') }}: {{ $wreckage_count }}</span>
+        </div>
+        <ul class="detail_list clearfix wreckageContainer">
+            @foreach ($wreckage_units->units as $unit)
+            <li class="detail_list_el">
+                <div class="wreckage_icon float_left">
+                    <img width="28" height="28" alt="{{ $unit->unitObject->title }}" src="{{ asset('img/objects/units/' . $unit->unitObject->assets->imgMicro) }}">
+                </div>
+                <span class="detail_list_txt">{{ $unit->unitObject->title }}</span>
+                <span class="fright" style="margin-right: 10px">{{ $unit->amount }}</span>
+            </li>
+            @endforeach
+        </ul>
+@endif
+
+@if ($attacker_wreckage_count > 0 && $viewer_is_attacker)
+        <div class="section_title">
+            <div class="c-left"></div>
+            <div class="c-right"></div>
+            <span class="title_txt">{{ __('t_ingame.messages.battle_attacker_wreckage') }}: {{ $attacker_wreckage_count }}</span>
+        </div>
+        <ul class="detail_list clearfix attackerWreckageContainer">
+            @foreach ($attacker_wreckage_units->units as $unit)
+            <li class="detail_list_el">
+                <div class="wreckage_icon float_left">
+                    <img width="28" height="28" alt="{{ $unit->unitObject->title }}" src="{{ asset('img/objects/units/' . $unit->unitObject->assets->imgMicro) }}">
+                </div>
+                <span class="detail_list_txt">{{ $unit->unitObject->title }}</span>
+                <span class="fright" style="margin-right: 10px">{{ $unit->amount }}</span>
+            </li>
+            @endforeach
+        </ul>
+@endif
+
         <!-- WF information -->
         <!-- attacker WF information -->
         <p class="detail_txt">

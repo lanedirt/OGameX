@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -32,19 +33,14 @@ use Illuminate\Support\Carbon;
  * @method static Builder|DebrisField whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'galaxy',
+    'system',
+    'planet',
+    'metal',
+    'crystal',
+    'deuterium',
+])]
 class DebrisField extends Model
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'galaxy',
-        'system',
-        'planet',
-        'metal',
-        'crystal',
-        'deuterium',
-    ];
 }

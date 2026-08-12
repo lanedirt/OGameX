@@ -9,7 +9,6 @@ use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\HalvingService;
-use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 use OGame\Services\WreckFieldService;
@@ -78,8 +77,11 @@ class FacilitiesController extends AbstractBuildingsController
         // Get parent parameters
         $params = parent::indexPageParams($request, $player);
 
-        // Add wreck field data
-        $wreckFieldData = $this->wreckFieldService->getWreckFieldForCurrentPlanet($this->planet);
+        // Only expose wreck field data when the player has a Space Dock (level >= 1).
+        $spaceDockLevel = $this->planet->getObjectLevel('space_dock');
+        $wreckFieldData = $spaceDockLevel >= 1
+            ? $this->wreckFieldService->getWreckFieldForCurrentPlanet($this->planet)
+            : null;
         $params['wreckField'] = $wreckFieldData;
 
         return $params;
@@ -134,6 +136,53 @@ class FacilitiesController extends AbstractBuildingsController
                 'cost' => $result['cost'],
                 'new_balance' => $result['new_balance'],
                 'remaining_time' => $result['remaining_time'],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => true,
+                'message' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
+    }
+
+    /**
+     * Complete a building queue item instantly using Dark Matter.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param HalvingService $halvingService
+     * @return JsonResponse
+     */
+    public function completeBuilding(Request $request, PlayerService $player, HalvingService $halvingService): JsonResponse
+    {
+        try {
+            $queueItemId = (int)$request->input('queue_item_id');
+
+            if ($queueItemId <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'Invalid queue item ID',
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            $result = $halvingService->completeBuilding(
+                $player->getUser(),
+                $queueItemId,
+                $player->planets->current()
+            );
+
+            session()->flash('success', __('You have successfully accelerated the order.'));
+
+            return response()->json([
+                'success' => true,
+                'error' => false,
+                'newAjaxToken' => csrf_token(),
+                'cost' => $result['cost'],
+                'new_balance' => $result['new_balance'],
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -217,125 +266,19 @@ class FacilitiesController extends AbstractBuildingsController
     {
         try {
             $planetService = $player->planets->current();
-
             $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
-            $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
-
-            if (!$wreckField) {
-                return response()->json([
-                    'success' => false,
-                    'error' => true,
-                    'message' => __('wreck_field.error_no_wreck_field'),
-                    'newAjaxToken' => csrf_token(),
-                ]);
-            }
-
-            $overallProgress = $wreckField['repair_progress'] ?? 0;
-
-            $wreckFieldModel = $wreckField['wreck_field'];
-            $repairStartedAt = $wreckFieldModel->repair_started_at ?? null;
-
-            if (!$repairStartedAt) {
-                return response()->json([
-                    'success' => false,
-                    'error' => true,
-                    'message' => __('wreck_field.repairs_not_started'),
-                    'newAjaxToken' => csrf_token(),
-                ])->setStatusCode(400)->header('Content-Type', 'application/json');
-            }
-
-            // Load the wreck field to collect completed repairs
-            $wreckFieldService->loadForCoordinates($planetService->getPlanetCoordinates());
-
-            // Get current wreck field model
-            $wreckFieldModelForUpdate = $wreckFieldService->getWreckField();
-            if (!$wreckFieldModelForUpdate) {
-                return response()->json([
-                    'success' => false,
-                    'error' => true,
-                    'message' => __('wreck_field.error_no_wreck_field'),
-                    'newAjaxToken' => csrf_token(),
-                ])->setStatusCode(400)->header('Content-Type', 'application/json');
-            }
-
-            $currentShipData = $wreckFieldModelForUpdate->ship_data ?? [];
-            $collectedShips = [];
-            $remainingShips = [];
-
-            // Check if there are any late-added ships (ships added after repairs started)
-            // These ships CANNOT be collected via the "put partially finished repair back into service" button
-            // Silently return without error - the frontend should keep buttons greyed out
-            $hasLateAddedShips = false;
-            foreach ($currentShipData as $ship) {
-                if (isset($ship['late_added']) && $ship['late_added'] === true) {
-                    $hasLateAddedShips = true;
-                    break;
-                }
-            }
-
-            // If there are late-added ships, collection is not allowed
-            // Return success without collecting anything - frontend keeps buttons disabled
-            if ($hasLateAddedShips) {
-                return response()->json([
-                    'success' => true,
-                    'error' => false,
-                    'newAjaxToken' => csrf_token(),
-                    'message' => '', // Empty message - no action taken
-                    'collected_ships' => [],
-                    'remaining_ships' => $currentShipData,
-                ])->header('Content-Type', 'application/json');
-            }
-
-            // Calculate repaired ships based on overall repair progress
-            $overallProgress = ($wreckField['repair_progress'] ?? 0) / 100;
-
-            foreach ($currentShipData as $ship) {
-                $repairedCount = (int) floor($ship['quantity'] * $overallProgress);
-                $remainingCount = $ship['quantity'] - $repairedCount;
-
-                if ($repairedCount > 0) {
-                    // Add repaired ships to collection
-                    $collectedShips[] = [
-                        'machine_name' => $ship['machine_name'],
-                        'quantity' => $repairedCount,
-                        'repair_progress' => 100
-                    ];
-
-                    // Add repaired ships to planet
-                    $unitObject = app(ObjectService::class)->getUnitObjectByMachineName($ship['machine_name']);
-                    if ($unitObject) {
-                        $planetService->addUnit($unitObject->machine_name, $repairedCount);
-                    }
-                }
-
-                if ($remainingCount > 0) {
-                    // Keep remaining ships in wreck field
-                    $remainingShips[] = [
-                        'machine_name' => $ship['machine_name'],
-                        'quantity' => $remainingCount,
-                        'repair_progress' => 0
-                    ];
-                }
-            }
-
-            // Update wreck field with remaining ships
-            if (empty($remainingShips)) {
-                // All ships collected, delete the wreck field
-                $wreckFieldService->delete();
-            } else {
-                // Update with remaining ships
-                $wreckFieldModelForUpdate->ship_data = $remainingShips;
-                $wreckFieldModelForUpdate->save();
-            }
+            $result = $wreckFieldService->collectRepairedShipsAtomic(
+                $planetService->getPlanetCoordinates(),
+                $planetService->getPlanetId()
+            );
+            // Manual recommission is treated as an invalid action when there is no collectible wreck field,
+            // so this endpoint returns 400 instead of the legacy 200 used by some other wreck field actions.
+            $statusCode = $result['success'] ? 200 : 400;
 
             return response()->json([
-                'success' => true,
-                'error' => false,
+                ...$result,
                 'newAjaxToken' => csrf_token(),
-                'message' => count($collectedShips) > 0 ? __('wreck_field.all_ships_deployed') : __('wreck_field.no_ships_ready'),
-                'collected_ships' => $collectedShips,
-                'remaining_ships' => $remainingShips,
-            ])->header('Content-Type', 'application/json');
+            ], $statusCode)->header('Content-Type', 'application/json');
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -414,7 +357,11 @@ class FacilitiesController extends AbstractBuildingsController
             $planetService = $player->planets->current();
 
             $wreckFieldService = new WreckFieldService($player, app(SettingsService::class));
-            $wreckField = $wreckFieldService->getWreckFieldForCurrentPlanet($planetService);
+
+            $spaceDockLevel = $planetService->getObjectLevel('space_dock');
+            $wreckField = $spaceDockLevel >= 1
+                ? $wreckFieldService->getWreckFieldForCurrentPlanet($planetService)
+                : null;
 
             return response()->json([
                 'success' => true,

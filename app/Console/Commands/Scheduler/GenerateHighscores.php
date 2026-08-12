@@ -2,28 +2,18 @@
 
 namespace OGame\Console\Commands\Scheduler;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Highscore;
 use OGame\Models\User;
 use OGame\Services\HighscoreService;
 
+#[Description('Generates Highscore data')]
+#[Signature('ogamex:scheduler:generate-highscores')]
 class GenerateHighscores extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:scheduler:generate-highscores';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Generates Highscore data';
-
     /**
      * Execute the console command.
      */

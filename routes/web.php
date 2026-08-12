@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use OGame\Http\Controllers\Admin\DeveloperShortcutsController;
+use OGame\Http\Controllers\Admin\FleetTimingController;
 use OGame\Http\Controllers\Admin\ModulesController as AdminModulesController;
 use OGame\Http\Controllers\Admin\RulesController as AdminRulesController;
+use OGame\Http\Controllers\Admin\ServerAdministrationController;
 use OGame\Http\Controllers\Admin\ServerSettingsController as AdminServerSettingsController;
 use OGame\Http\Controllers\AllianceController;
 use OGame\Http\Controllers\AllianceDepotController;
@@ -63,7 +65,7 @@ Route::get('/ajax/main/terms', [RulesController::class, 'ajaxTerms'])->name('ter
 Route::get('/ajax/main/contact', [RulesController::class, 'ajaxContact'])->name('contact.ajax');
 
 // Group: all logged in pages:
-Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(function () {
+Route::middleware(['auth', 'banned', 'globalgame', 'locale', 'firstlogin'])->group(function () {
     // Overview
     Route::get('/overview', [OverviewController::class, 'index'])->name('overview.index');
 
@@ -85,6 +87,7 @@ Route::middleware(['auth', 'globalgame', 'locale', 'firstlogin'])->group(functio
     Route::post('/facilities/downgrade', [FacilitiesController::class, 'downgradeBuildRequest'])->name('facilities.downgrade');
     Route::post('/facilities/cancel-buildrequest', [FacilitiesController::class, 'cancelBuildRequest'])->name('facilities.cancelbuildrequest');
     Route::post('/ajax/facilities/halve-building', [FacilitiesController::class, 'halveBuilding'])->name('facilities.halvebuilding');
+    Route::post('/ajax/facilities/complete-building', [FacilitiesController::class, 'completeBuilding'])->name('facilities.completebuilding');
     Route::post('/ajax/facilities/start-repairs', [FacilitiesController::class, 'startRepairs'])->name('facilities.startrepairs');
     Route::post('/ajax/facilities/complete-repairs', [FacilitiesController::class, 'completeRepairs'])->name('facilities.completerepairs');
     Route::post('/ajax/facilities/burn-wreck-field', [FacilitiesController::class, 'burnWreckField'])->name('facilities.burnwreckfield');
@@ -263,6 +266,24 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     // Rules
     Route::get('/admin/rules', [AdminRulesController::class, 'index'])->name('admin.rules.index');
     Route::post('/admin/rules', [AdminRulesController::class, 'update'])->name('admin.rules.update');
+
+    // Fleet Timing Control (test tool)
+    Route::get('/admin/fleet-timing', [FleetTimingController::class, 'index'])->name('admin.fleettiming.index');
+    Route::post('/admin/fleet-timing/fast-forward', [FleetTimingController::class, 'fastForward'])->name('admin.fleettiming.fast-forward');
+    Route::post('/admin/fleet-timing/fast-forward-all', [FleetTimingController::class, 'fastForwardAll'])->name('admin.fleettiming.fast-forward-all');
+    Route::post('/admin/fleet-timing/reduce', [FleetTimingController::class, 'reduceTime'])->name('admin.fleettiming.reduce');
+
+    // Server administration (multi-account detection, bans)
+    Route::get('/admin/server-administration', [ServerAdministrationController::class, 'index'])->name('admin.server-administration.index');
+    Route::post('/admin/server-administration/ban', [ServerAdministrationController::class, 'ban'])->name('admin.server-administration.ban');
+    Route::post('/admin/server-administration/unban', [ServerAdministrationController::class, 'unban'])->name('admin.server-administration.unban');
+    Route::post('/admin/server-administration/detection-settings', [ServerAdministrationController::class, 'saveDetectionSettings'])->name('admin.server-administration.detection-settings');
+    Route::post('/admin/server-administration/dismiss', [ServerAdministrationController::class, 'dismiss'])->name('admin.server-administration.dismiss');
+    Route::post('/admin/server-administration/clear-cache', [ServerAdministrationController::class, 'clearCache'])->name('admin.server-administration.clear-cache');
+    Route::post('/admin/server-administration/attack-block', [ServerAdministrationController::class, 'saveAttackBlock'])->name('admin.server-administration.attack-block');
+    Route::post('/admin/server-administration/stuck-missions/settings', [ServerAdministrationController::class, 'saveStuckMissionSettings'])->name('admin.server-administration.stuck-missions.settings');
+    Route::post('/admin/server-administration/stuck-missions/process', [ServerAdministrationController::class, 'processStuckMission'])->name('admin.server-administration.stuck-missions.process');
+    Route::post('/admin/server-administration/stuck-missions/recover-homeworld', [ServerAdministrationController::class, 'recoverStuckMissionToHomeworld'])->name('admin.server-administration.stuck-missions.recover-homeworld');
 
     // Developer shortcuts
     Route::get('/admin/developer-shortcuts', [DeveloperShortcutsController::class, 'index'])->name('admin.developershortcuts.index');

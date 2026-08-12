@@ -30,7 +30,7 @@ class LanguageController extends OGameController
      */
     public function switchLang(string $lang): RedirectResponse
     {
-        // Fallback to 'en' for any unsupported locale (e.g. /lang/fr → 'en').
+        // Fallback to 'en' for any unsupported locale (e.g. /lang/xx → 'en').
         $locale = in_array($lang, Locale::SUPPORTED_LOCALES, true) ? $lang : 'en';
 
         App::setLocale($locale);
@@ -39,9 +39,10 @@ class LanguageController extends OGameController
         session()->put('locale', $locale);
 
         // Persist to DB so the preference survives session expiry / new devices.
-        if (Auth::check()) {
-            Auth::user()->lang = $locale;
-            Auth::user()->save();
+        $user = Auth::user();
+        if ($user !== null) {
+            $user->lang = $locale;
+            $user->save();
         }
 
         // Flush session to the store immediately so the locale key is visible to

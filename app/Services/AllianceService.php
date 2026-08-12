@@ -12,7 +12,6 @@ use OGame\Models\Alliance;
 use OGame\Models\AllianceApplication;
 use OGame\Models\AllianceMember;
 use OGame\Models\AllianceRank;
-use OGame\Models\Message;
 use OGame\Models\User;
 
 /**

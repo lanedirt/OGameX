@@ -2,27 +2,17 @@
 
 namespace OGame\Console\Commands\Dev;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 
+#[Description('Delete all test users (test1-test10) and their associated data.')]
+#[Signature('ogamex:dev:delete-users
+                            {--force : Skip confirmation prompt}')]
 class PreviewDeleteUsers extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:dev:delete-users
-                            {--force : Skip confirmation prompt}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Delete all test users (test1-test10) and their associated data.';
-
     /**
      * Execute the console command.
      */

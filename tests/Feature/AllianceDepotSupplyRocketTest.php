@@ -7,11 +7,13 @@ use Exception;
 use Illuminate\Support\Facades\Date;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\AllianceMember;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
+use OGame\Services\AllianceService;
 use OGame\Services\BuddyService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
@@ -59,7 +61,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
                 ->delete();
 
             // Reset alliance_id for current user
-            if (isset($this->currentUserId)) {
+            if ($this->currentUserId !== 0) {
                 DB::table('users')
                     ->where('id', $this->currentUserId)
                     ->update([
@@ -109,14 +111,20 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         // Create a buddy and their planet with Alliance Depot
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        // Use getNearbyEmptyCoordinate with positions outside the allocator range (4-12) to
+        // guarantee no collision even when two test users share the same galaxy/system.
+        $buddyCoordinate = $this->getNearbyEmptyCoordinate(13, 15);
         $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 6,
+            'galaxy'  => $buddyCoordinate->galaxy,
+            'system'  => $buddyCoordinate->system,
+            'planet'  => $buddyCoordinate->position,
         ]);
         $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
 
         // Add buddy relationship first
         $buddyService = resolve(BuddyService::class);
@@ -172,6 +180,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Get deuterium before (from buddy's planet now, reload to get current values)
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanetService->getPlanetId(), true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
         $deuteriumBefore = $buddyPlanetService->deuterium()->get();
 
         // Buddy sends supply rocket to extend hold time by 2 hours
@@ -186,6 +197,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Assert deuterium was deducted from buddy's planet (10 light fighters * 2 deut/hour * 2 hours = 40)
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanetService->getPlanetId(), true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
         $deuteriumAfter = $buddyPlanetService->deuterium()->get();
         $this->assertEquals(40, $deuteriumBefore - $deuteriumAfter, 'Should deduct 40 deuterium from buddy planet');
 
@@ -206,14 +220,20 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         // Create a buddy and their planet with Alliance Depot but minimal deuterium
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        // Use getNearbyEmptyCoordinate with positions outside the allocator range (4-12) to
+        // guarantee no collision even when two test users share the same galaxy/system.
+        $buddyCoordinate = $this->getNearbyEmptyCoordinate(13, 15);
         $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 7,
+            'galaxy'  => $buddyCoordinate->galaxy,
+            'system'  => $buddyCoordinate->system,
+            'planet'  => $buddyCoordinate->position,
         ]);
         $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
 
         // Add buddy relationship
         $buddyService = resolve(BuddyService::class);
@@ -265,6 +285,8 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             ->whereNull('parent_id')
             ->first();
 
+        $this->assertNotNull($outboundMission, 'Outbound mission should exist');
+
         // Try to send supply rocket (5 cruisers * 30 deut/hour * 1 hour = 150 deuterium needed)
         $response = $this->post('/ajax/alliance-depot/send-supply-rocket', [
             'fleet_mission_id' => $outboundMission->id,
@@ -289,14 +311,20 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         // Create a buddy and their planet with Alliance Depot
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        // Use getNearbyEmptyCoordinate with positions outside the allocator range (4-12) to
+        // guarantee no collision even when two test users share the same galaxy/system.
+        $buddyCoordinate = $this->getNearbyEmptyCoordinate(13, 15);
         $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 5),
-            'planet' => 9,
+            'galaxy'  => $buddyCoordinate->galaxy,
+            'system'  => $buddyCoordinate->system,
+            'planet'  => $buddyCoordinate->position,
         ]);
         $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
 
         // Add buddy relationship
         $buddyService = resolve(BuddyService::class);
@@ -349,6 +377,8 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             ->where('planet_id_to', $buddyPlanetService->getPlanetId())
             ->whereNull('parent_id')
             ->first();
+
+        $this->assertNotNull($outboundMission, 'Outbound mission should exist');
 
         // Try to send supply rocket
         $response = $this->post('/ajax/alliance-depot/send-supply-rocket', [
@@ -404,14 +434,21 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         // Use a far-away location to avoid conflicts with other tests
         $buddyUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        // Use a position outside the allocator range (4-12) to avoid collisions.
+        $buddyPosition = collect([13, 14, 15])->first(
+            fn ($p) => !Planet::where('galaxy', 4)->where('system', 150)->where('planet', $p)->exists()
+        );
         $buddyPlanet = Planet::factory()->create([
             'user_id' => $buddyUser->id,
             'galaxy' => 4,  // Different galaxy to avoid conflicts
             'system' => 150,
-            'planet' => 12,
+            'planet' => $buddyPosition,
         ]);
         $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
+        if ($buddyPlanetService === null) {
+            $this->fail('Buddy planet service is null.');
+        }
 
         $buddyService = resolve(BuddyService::class);
         $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
@@ -475,7 +512,11 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         $this->assertEquals(14400 + 7200, $outboundMission->time_holding, 'Hold time should be extended to 6 hours');
 
         // Switch back to original user (fleet owner)
-        $this->be(User::find($this->currentUserId));
+        $currentUser = User::find($this->currentUserId);
+        if ($currentUser === null) {
+            $this->fail('Current user not found.');
+        }
+        $this->be($currentUser);
 
         // Try to recall the fleet (should succeed)
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -500,21 +541,27 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
     public function testSupplyRocketExtendsHoldTimeForAllianceMember(): void
     {
         // Create alliance and add both players to it
-        $allianceService = app(\OGame\Services\AllianceService::class);
+        $allianceService = app(AllianceService::class);
         $alliance = $allianceService->createAlliance($this->currentUserId, 'TAG', 'Test Alliance');
         $this->createdAllianceIds[] = $alliance->id;
 
         // Create alliance member and their planet with Alliance Depot
         $allianceMemberUser = User::factory()->create();
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        // Use getNearbyEmptyCoordinate with positions outside the allocator range (4-12) to
+        // guarantee no collision even when two test users share the same galaxy/system.
+        $allianceMemberCoordinate = $this->getNearbyEmptyCoordinate(13, 15);
         $allianceMemberPlanet = Planet::factory()->create([
             'user_id' => $allianceMemberUser->id,
-            'galaxy' => $this->planetService->getPlanetCoordinates()->galaxy,
-            'system' => min(499, $this->planetService->getPlanetCoordinates()->system + 8),
-            'planet' => 15,
+            'galaxy'  => $allianceMemberCoordinate->galaxy,
+            'system'  => $allianceMemberCoordinate->system,
+            'planet'  => $allianceMemberCoordinate->position,
         ]);
         $this->trackPlanet($allianceMemberPlanet);
         $allianceMemberPlanetService = $planetServiceFactory->make($allianceMemberPlanet->id, true);
+        if ($allianceMemberPlanetService === null) {
+            $this->fail('Alliance member planet service is null.');
+        }
 
         // Add alliance member to alliance (bypass cooldown for testing)
         /** @phpstan-ignore assign.propertyType */
@@ -522,7 +569,7 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         $allianceMemberUser->alliance_left_at = null;
         $allianceMemberUser->save();
 
-        \OGame\Models\AllianceMember::create([
+        AllianceMember::create([
             'alliance_id' => $alliance->id,
             'user_id' => $allianceMemberUser->id,
             'rank_id' => null,
@@ -578,6 +625,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Get deuterium before (from alliance member's planet now, reload to get current values)
         $allianceMemberPlanetService = $planetServiceFactory->make($allianceMemberPlanetService->getPlanetId(), true);
+        if ($allianceMemberPlanetService === null) {
+            $this->fail('Alliance member planet service is null.');
+        }
         $deuteriumBefore = $allianceMemberPlanetService->deuterium()->get();
 
         // Alliance member sends supply rocket to extend hold time by 2 hours
@@ -592,6 +642,9 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
 
         // Assert deuterium was deducted from alliance member's planet (10 light fighters * 2 deut/hour * 2 hours = 40)
         $allianceMemberPlanetService = $planetServiceFactory->make($allianceMemberPlanetService->getPlanetId(), true);
+        if ($allianceMemberPlanetService === null) {
+            $this->fail('Alliance member planet service is null.');
+        }
         $deuteriumAfter = $allianceMemberPlanetService->deuterium()->get();
         $this->assertEquals(40, $deuteriumBefore - $deuteriumAfter, 'Should deduct 40 deuterium from alliance member planet');
 

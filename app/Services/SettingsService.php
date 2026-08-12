@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
+use OGame\Factories\GameMissionFactory;
 use OGame\Models\Setting;
 
 /**
@@ -387,6 +389,39 @@ class SettingsService
     }
 
     /**
+     * Returns the configured attack block end timestamp.
+     *
+     * @return int
+     */
+    public function attackBlockUntil(): int
+    {
+        return (int)$this->get('attack_block_until', 0);
+    }
+
+    /**
+     * Returns whether the server-wide attack block is currently active.
+     *
+     * @return bool
+     */
+    public function attackBlockActive(): bool
+    {
+        $until = $this->attackBlockUntil();
+
+        return $until > Date::now()->timestamp;
+    }
+
+    /**
+     * Returns whether the given mission type is blocked by attack block.
+     *
+     * @param int $missionType
+     * @return bool
+     */
+    public function missionBlockedByAttackBlock(int $missionType): bool
+    {
+        return $this->attackBlockActive() && GameMissionFactory::getMissionById($missionType, [])->isBlockedByServerAttackBlock();
+    }
+
+    /**
      * Returns if expedition failed outcome is enabled.
      *
      * @return bool
@@ -565,7 +600,7 @@ class SettingsService
      */
     public function expeditionWeightShips(): float
     {
-        return (float)$this->get('expedition_weight_ships', '22');
+        return (float)$this->get('expedition_weight_ships', '17');
     }
 
     /**
@@ -575,7 +610,7 @@ class SettingsService
      */
     public function expeditionWeightResources(): float
     {
-        return (float)$this->get('expedition_weight_resources', '32.5');
+        return (float)$this->get('expedition_weight_resources', '35');
     }
 
     /**
@@ -585,7 +620,7 @@ class SettingsService
      */
     public function expeditionWeightDelay(): float
     {
-        return (float)$this->get('expedition_weight_delay', '7');
+        return (float)$this->get('expedition_weight_delay', '7.5');
     }
 
     /**
@@ -595,7 +630,7 @@ class SettingsService
      */
     public function expeditionWeightSpeedup(): float
     {
-        return (float)$this->get('expedition_weight_speedup', '2');
+        return (float)$this->get('expedition_weight_speedup', '2.75');
     }
 
     /**
@@ -605,7 +640,7 @@ class SettingsService
      */
     public function expeditionWeightNothing(): float
     {
-        return (float)$this->get('expedition_weight_nothing', '26.5');
+        return (float)$this->get('expedition_weight_nothing', '25');
     }
 
     /**
@@ -615,7 +650,7 @@ class SettingsService
      */
     public function expeditionWeightBlackHole(): float
     {
-        return (float)$this->get('expedition_weight_black_hole', '0.3');
+        return (float)$this->get('expedition_weight_black_hole', '0.2');
     }
 
     /**
@@ -645,7 +680,7 @@ class SettingsService
      */
     public function expeditionWeightDarkMatter(): float
     {
-        return (float)$this->get('expedition_weight_dark_matter', '9');
+        return (float)$this->get('expedition_weight_dark_matter', '7.5');
     }
 
     /**
@@ -655,7 +690,7 @@ class SettingsService
      */
     public function expeditionWeightMerchant(): float
     {
-        return (float)$this->get('expedition_weight_merchant', '0.7');
+        return (float)$this->get('expedition_weight_merchant', '0.4');
     }
 
     /**

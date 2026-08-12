@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use OGame\Http\Middleware\Admin;
+use OGame\Http\Middleware\CheckBanned;
 use OGame\Http\Middleware\CheckFirstLogin;
 use OGame\Http\Middleware\GlobalGame;
 use OGame\Http\Middleware\Locale;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'locale' => Locale::class,
             'admin' => Admin::class,
             'firstlogin' => CheckFirstLogin::class,
+            'banned' => CheckBanned::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

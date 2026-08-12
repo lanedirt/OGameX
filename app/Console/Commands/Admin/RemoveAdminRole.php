@@ -2,25 +2,15 @@
 
 namespace OGame\Console\Commands\Admin;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use OGame\Models\User;
 
+#[Description('Remove the admin role from a specified username')]
+#[Signature('ogamex:admin:remove-role {username}')]
 class RemoveAdminRole extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:admin:remove-role {username}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Remove the admin role from a specified username';
-
     /**
      * Execute the console command.
      * @return int
