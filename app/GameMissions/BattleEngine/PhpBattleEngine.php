@@ -6,6 +6,7 @@ use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameMissions\BattleEngine\Models\BattleUnit;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\GameObjects\Models\Units\UnitEntry;
 use OGame\Services\CharacterClassService;
 use OGame\Services\SettingsService;
 
@@ -20,6 +21,21 @@ use OGame\Services\SettingsService;
  */
 class PhpBattleEngine extends BattleEngine
 {
+    /**
+     * Damage absorbed by the attacker's shields in the round that is currently being fought.
+     *
+     * Shields absorb fractional amounts (they deplete in whole percentiles of the max shield),
+     * so the total is accumulated as float and truncated only once at the end of the round.
+     * The Rust engine sums the same value as f64 and truncates once, so both engines report
+     * the same absorbed damage.
+     */
+    private float $absorbedDamageAttackerRound = 0.0;
+
+    /**
+     * Damage absorbed by the defender's shields in the round that is currently being fought.
+     */
+    private float $absorbedDamageDefenderRound = 0.0;
+
     /**
      * Fight the battle in max 6 rounds.
      *
@@ -105,8 +121,8 @@ class PhpBattleEngine extends BattleEngine
             $round = new BattleResultRound();
             $round->defenderLossesInRound = new UnitCollection();
             $round->attackerLossesInRound = new UnitCollection();
-            $round->absorbedDamageAttacker = 0;
-            $round->absorbedDamageDefender = 0;
+            $this->absorbedDamageAttackerRound = 0.0;
+            $this->absorbedDamageDefenderRound = 0.0;
 
             // Initialize per-fleet tracking for this round
             $round->attackerLossesInRoundPerFleet = [];
@@ -144,6 +160,10 @@ class PhpBattleEngine extends BattleEngine
                     $rapidfire = $this->attackUnit(false, $round, $unit, $targetUnit);
                 } while ($rapidfire);
             }
+
+            // All shots have been fired: truncate the absorbed damage totals once for the report.
+            $round->absorbedDamageAttacker = (int)$this->absorbedDamageAttackerRound;
+            $round->absorbedDamageDefender = (int)$this->absorbedDamageDefenderRound;
 
             // After all units have attacked each other, clean up the round. This removes destroyed units
             // and applies shield regeneration.
@@ -222,8 +242,8 @@ class PhpBattleEngine extends BattleEngine
     /**
      * Return the unit entries of a fleet ordered by ascending unit id.
      *
-     * @param array<\OGame\GameObjects\Models\Units\UnitEntry> $units
-     * @return array<\OGame\GameObjects\Models\Units\UnitEntry>
+     * @param array<UnitEntry> $units
+     * @return array<UnitEntry>
      */
     private function sortedByUnitId(array $units): array
     {
@@ -287,7 +307,7 @@ class PhpBattleEngine extends BattleEngine
         if ($isAttacker) {
             $round->hitsAttacker += 1;
             $round->fullStrengthAttacker += $damage;
-            $round->absorbedDamageDefender += $shieldAbsorption;
+            $this->absorbedDamageDefenderRound += $shieldAbsorption;
 
             // Track per-fleet statistics for multi-attacker battles
             if (isset($round->hitsPerAttackerFleet[$attacker->fleetMissionId])) {
@@ -297,7 +317,7 @@ class PhpBattleEngine extends BattleEngine
         } else {
             $round->hitsDefender += 1;
             $round->fullStrengthDefender += $damage;
-            $round->absorbedDamageAttacker += $shieldAbsorption;
+            $this->absorbedDamageAttackerRound += $shieldAbsorption;
         }
 
         // Rapidfire: if the attacker has a rapidfire bonus against the defender, roll a dice to see if the
