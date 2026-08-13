@@ -10,6 +10,7 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .env
+.env.testing
 .phpunit.result.cache
 .phpunit.cache
 .sql
@@ -18,4 +19,5 @@ yarn-error.log
 # Rust compilation dirs
 rust/*/target
 # Compiled rust apps (rust modules are recompiled during container start)
-storage/rust-libs/*.so
+storage/rust-libs/*
+!storage/rust-libs/README.md
