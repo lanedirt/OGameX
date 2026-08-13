@@ -15,6 +15,5 @@ class PlanetColonized implements ShouldDispatchAfterCommit
     public function __construct(
         public int $planetId,
         public int $playerId,
-    ) {
-    }
+    ) {}
 }

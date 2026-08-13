@@ -18,6 +18,5 @@ class BuildingCompleted implements ShouldDispatchAfterCommit
         public string $machineName,
         public int $level,
         public bool $isDowngrade = false,
-    ) {
-    }
+    ) {}
 }

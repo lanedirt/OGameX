@@ -17,6 +17,5 @@ class FleetReturned implements ShouldDispatchAfterCommit
 
     public function __construct(
         public FleetMission $mission,
-    ) {
-    }
+    ) {}
 }

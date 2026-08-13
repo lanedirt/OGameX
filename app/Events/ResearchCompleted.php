@@ -16,6 +16,5 @@ class ResearchCompleted implements ShouldDispatchAfterCommit
         public int $playerId,
         public string $machineName,
         public int $level,
-    ) {
-    }
+    ) {}
 }

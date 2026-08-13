@@ -17,6 +17,5 @@ class MissionResolved implements ShouldDispatchAfterCommit
 
     public function __construct(
         public FleetMission $mission,
-    ) {
-    }
+    ) {}
 }
