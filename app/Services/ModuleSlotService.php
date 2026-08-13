@@ -2,17 +2,22 @@
 
 namespace OGame\Services;
 
+use InvalidArgumentException;
+
 /**
  * Service for module view slot injection.
  *
  * Core Blade views contain @moduleSlot('slot.name', $data) directives at
- * agreed extension points. Modules register renderer callables here during
- * bootModule(). Each callable receives a data array and returns an HTML string.
+ * agreed extension points. Modules register renderer callables through the
+ * Extensions facade, which delegates to this service. Each callable receives a
+ * data array and returns an HTML string.
  *
- * Usage in a module's bootModule():
+ * Usage in a module provider:
  *
- *   ModuleSlotService::register('layout.resources_bar', function (array $data): string {
- *       return view('mymodule::layout.resource-tile', $data)->render();
+ *   Extensions::module('mymodule', function (ModuleExtension $module): void {
+ *       $module->slot('layout.resources_bar', function (array $data): string {
+ *           return view('mymodule::layout.resource-tile', $data)->render();
+ *       });
  *   });
  *
  * Available slot names:
@@ -25,6 +30,19 @@ namespace OGame\Services;
  */
 class ModuleSlotService
 {
+    /**
+     * Core-owned extension points. Modules may append content only at these
+     * explicit boundaries; this keeps core views and module upgrades safe.
+     */
+    public const SLOTS = [
+        'layout.resources_bar',
+        'layout.resources_bar_js',
+        'resources.building_section',
+        'resources.production_box',
+        'overview.planet_info',
+        'admin.nav',
+    ];
+
     /** @var array<string, array<callable>> */
     private static array $slots = [];
 
@@ -36,6 +54,14 @@ class ModuleSlotService
      */
     public static function register(string $slot, callable $renderer): void
     {
+        if (!in_array($slot, self::SLOTS, true)) {
+            throw new InvalidArgumentException(sprintf(
+                'Unknown module view slot [%s]. Supported slots: %s.',
+                $slot,
+                implode(', ', self::SLOTS),
+            ));
+        }
+
         self::$slots[$slot][] = $renderer;
     }
 

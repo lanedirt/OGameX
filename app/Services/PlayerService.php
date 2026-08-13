@@ -7,6 +7,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use OGame\Events\ResearchCompleted;
+use OGame\Extensions\ExtensionRegistry;
 use OGame\GameObjects\Models\Calculations\CalculationType;
 use OGame\Models\BuildingQueue;
 use OGame\Models\FleetMission;
@@ -116,6 +118,11 @@ class PlayerService
         // Fetch all planets of user
         $planet_list_service = resolve(PlanetListService::class, ['player' => $this]);
         $this->planets = $planet_list_service;
+
+        // Extend the loaded player through registered module extensions.
+        foreach (app(ExtensionRegistry::class)->playerExtensions() as $extensionClass) {
+            resolve($extensionClass)->extendPlayer($this);
+        }
     }
 
     /**
@@ -423,6 +430,10 @@ class PlayerService
     {
         $research = ObjectService::getResearchObjectByMachineName($machine_name);
 
+        if ($this->moduleObjectStates()->manages($research)) {
+            return $this->moduleObjectStates()->playerAmount($this->user, $research);
+        }
+
         $research_level = $this->user_tech->{$research->machine_name} ?? 0;
         if ($research_level) {
             return $research_level;
@@ -442,6 +453,12 @@ class PlayerService
     public function setResearchLevel(string $machine_name, int $level, bool $save_to_db = true): void
     {
         $research = ObjectService::getResearchObjectByMachineName($machine_name);
+
+        if ($this->moduleObjectStates()->manages($research)) {
+            $this->moduleObjectStates()->setPlayerAmount($this->user, $research, $level);
+            return;
+        }
+
         $this->user_tech->{$research->machine_name} = $level;
 
         if ($save_to_db) {
@@ -679,6 +696,12 @@ class PlayerService
             $item->processed = 1;
             $item->save();
 
+            ResearchCompleted::dispatch(
+                playerId: $this->getId(),
+                machineName: $object->machine_name,
+                level: $item->object_level_target,
+            );
+
             // Build the next item in queue (if there is any)
             $queue->start($this, $item->time_end);
         }
@@ -797,12 +820,18 @@ class PlayerService
         $array = [];
         $objects = ObjectService::getResearchObjects();
         foreach ($objects as $object) {
-            if ($this->user_tech->{$object->machine_name} > 0) {
-                $array[$object->machine_name] = $this->user_tech->{$object->machine_name};
+            $level = $this->getResearchLevel($object->machine_name);
+            if ($level > 0) {
+                $array[$object->machine_name] = $level;
             }
         }
 
         return $array;
+    }
+
+    private function moduleObjectStates(): ModuleObjectStateService
+    {
+        return resolve(ModuleObjectStateService::class);
     }
 
     /**
