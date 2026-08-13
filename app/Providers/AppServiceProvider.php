@@ -8,10 +8,14 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use OGame\Exceptions\Handler;
+use OGame\Extensions\ExtensionRegistry;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 use OGame\Observers\UserObserver;
+use OGame\Services\ModuleObjectStateService;
+use OGame\Services\ModuleQueueService;
+use OGame\Services\ModuleStateService;
 use OGame\Services\SettingsService;
 
 class AppServiceProvider extends ServiceProvider
@@ -50,6 +54,14 @@ class AppServiceProvider extends ServiceProvider
      */
     final public function register(): void
     {
+        $this->app->singleton(ExtensionRegistry::class, function ($app): ExtensionRegistry {
+            return new ExtensionRegistry();
+        });
+
+        $this->app->singleton(ModuleObjectStateService::class);
+        $this->app->singleton(ModuleStateService::class);
+        $this->app->singleton(ModuleQueueService::class);
+
         $this->app->singleton(function ($app): SettingsService {
             return new SettingsService();
         });
@@ -66,14 +78,5 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ExceptionHandler::class, Handler::class);
-
-        // Register bundled modules listed in config/modules.php.
-        // Composer-installed modules are auto-discovered via their composer.json.
-        // The ModuleServiceProvider base class handles the enabled/disabled check in boot().
-        foreach (config('modules.enabled', []) as $providerClass) {
-            if (is_string($providerClass) && class_exists($providerClass)) {
-                $this->app->register($providerClass);
-            }
-        }
     }
 }
