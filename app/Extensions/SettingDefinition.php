@@ -30,9 +30,7 @@ class SettingDefinition
      */
     public array $rules = [];
 
-    public function __construct(public readonly string $key)
-    {
-    }
+    public function __construct(public readonly string $key) {}
 
     public function string(): static
     {
@@ -93,7 +91,7 @@ class SettingDefinition
     /**
      * Append additional Laravel validation rules.
      *
-     * @param array<int, string> $rules
+     * @param  array<int, string>  $rules
      */
     public function rules(array $rules): static
     {
@@ -112,11 +110,11 @@ class SettingDefinition
         $rules = [$this->type];
 
         if ($this->min !== null) {
-            $rules[] = 'min:' . $this->min;
+            $rules[] = 'min:'.$this->min;
         }
 
         if ($this->max !== null) {
-            $rules[] = 'max:' . $this->max;
+            $rules[] = 'max:'.$this->max;
         }
 
         return [...$rules, ...$this->rules];
