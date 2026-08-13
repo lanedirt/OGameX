@@ -12,6 +12,7 @@
         "laravel/reverb": "^1.7",
         "laravel/tinker": "^3.0",
         "laravel/ui": "^4.5",
+        "nwidart/laravel-modules": "^13.0",
         "spatie/laravel-discord-alerts": "^1.7",
         "spatie/laravel-permission": "^8.0"
     },
@@ -74,6 +75,11 @@
     "extra": {
         "laravel": {
             "dont-discover": []
+        },
+        "merge-plugin": {
+            "include": [
+                "Modules/*/composer.json"
+            ]
         }
     },
     "config": {
@@ -83,7 +89,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true,
-            "kylekatarnls/update-helper": true
+            "kylekatarnls/update-helper": true,
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "minimum-stability": "stable",
