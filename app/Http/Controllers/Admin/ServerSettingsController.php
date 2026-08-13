@@ -6,6 +6,7 @@ use Cache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use OGame\Enums\HighscoreTypeEnum;
+use OGame\Extensions\ExtensionRegistry;
 use OGame\Http\Controllers\OGameController;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -73,6 +74,7 @@ class ServerSettingsController extends OGameController
             'expedition_weight_items' => $settingsService->expeditionWeightItems(),
             'hamill_probability' => $settingsService->hamillManoeuvreChance(),
             'highscore_admin_visible' => $settingsService->highscoreAdminVisible(),
+            'module_settings' => $this->moduleSettingsViewData($settingsService),
         ]);
     }
 
@@ -144,10 +146,75 @@ class ServerSettingsController extends OGameController
 
         $settingsService->set('highscore_admin_visible', request('highscore_admin_visible', 0));
 
+        $this->saveModuleSettings($settingsService);
+
         // Clear highscore cache when admin visibility setting changes
         $this->clearHighscoreCache();
 
         return redirect()->route('admin.serversettings.index')->with('success', __('Changes saved!'));
+    }
+
+    /**
+     * Validate and persist every registered module setting.
+     *
+     * Module setting keys are namespaced with dots (e.g. lifeforms.tick_seconds),
+     * so they cannot be used directly as validation rule keys: Laravel would
+     * interpret the dots as nested data. Validation runs against sanitized field
+     * names and the values are mapped back to the real keys for persistence.
+     */
+    private function saveModuleSettings(SettingsService $settingsService): void
+    {
+        $definitions = app(ExtensionRegistry::class)->settings();
+
+        if ($definitions === []) {
+            return;
+        }
+
+        $rules = [];
+        foreach ($definitions as $definition) {
+            $rules[$this->moduleSettingFieldName($definition->key)] = $definition->validationRules();
+        }
+
+        $validated = request()->validate($rules);
+
+        foreach ($definitions as $definition) {
+            $fieldName = $this->moduleSettingFieldName($definition->key);
+            $settingsService->set($definition->key, $validated[$fieldName] ?? $definition->default);
+        }
+    }
+
+    /**
+     * Build view data for the registered module settings.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function moduleSettingsViewData(SettingsService $settingsService): array
+    {
+        $settings = [];
+
+        foreach (app(ExtensionRegistry::class)->settings() as $definition) {
+            $settings[] = [
+                'key' => $definition->key,
+                'field' => $this->moduleSettingFieldName($definition->key),
+                'label' => $definition->label !== '' ? $definition->label : $definition->key,
+                'description' => $definition->description,
+                'type' => $definition->type,
+                'value' => $settingsService->get($definition->key, (string) $definition->default),
+                'default' => $definition->default,
+                'min' => $definition->min,
+                'max' => $definition->max,
+            ];
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Convert a dotted setting key into a flat HTML form field name.
+     */
+    private function moduleSettingFieldName(string $key): string
+    {
+        return str_replace('.', '_', $key);
     }
 
     /**
