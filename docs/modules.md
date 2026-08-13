@@ -1,261 +1,230 @@
-# OGameX Module System
+# OGameX Modules
 
-Modules allow features that are not part of the core OGameX codebase to be distributed as standalone Composer packages and installed on demand. The core repository provides the infrastructure; all module code lives in separate repositories.
+Build an OGameX module the same way you build a Laravel feature: routes,
+controllers, migrations, models, jobs, commands, events, policies, and tests.
+OGameX adds a small, game-specific integration API through `Extensions`.
 
----
+This is the contributor guide. Read [Module foundation and planning](planning/modules.md)
+for lifecycle internals, performance notes, and future-module planning.
 
-## Enabling a Module
-
-Install the module via Composer:
+## Start here
 
 ```bash
-composer require ogamex-modules/my-module
+php artisan module:make MyFeature
+composer dump-autoload
+php artisan module:enable MyFeature
+php artisan module:list
 ```
 
-If the module's `composer.json` declares its provider under `extra.laravel.providers`, Laravel's package auto-discovery registers it automatically — no changes to `config/modules.php` are needed. The module will appear in the admin Modules page immediately after installation.
+Disable a module with `php artisan module:disable MyFeature`.
 
-For modules that do not use auto-discovery, add the provider class manually to `config/modules.php`:
+Use `Modules/HelloWorld` as the working reference. It contains a provider,
+setting, admin slot, route, view, event listener, and module-local tests.
 
-```php
-return [
-    'enabled' => [
-        OGame\Modules\MyModule\MyModuleServiceProvider::class,
-    ],
-];
+```bash
+php artisan module:enable HelloWorld
+php artisan test --testsuite=Modules --filter=HelloWorld
 ```
 
----
+## The mental model
 
-## Module Package Structure
+Every module has two types of work:
 
-```
-ogamex-modules/my-module/
+1. **Laravel work** belongs in the module: pages, APIs, models, migrations,
+   jobs, commands, schedules, policies, and tests.
+2. **Game integration** is declared in the provider with `Extensions` when the
+   feature needs an OGameX lifecycle point.
+
+An enabled module is normal Laravel application code. There is no extra module
+permission system, manifest status, or custom runtime. Modules may use public
+OGameX services and normal Laravel migrations; choose the documented OGameX
+integration point when it already expresses the behavior you need.
+
+## Structure
+
+```text
+Modules/MyFeature/
+├── app/
+│   ├── Console/              # Commands and scheduled work
+│   ├── Http/Controllers/     # Pages and APIs
+│   ├── Jobs/                 # Laravel jobs
+│   ├── Listeners/            # Event listeners
+│   ├── Models/               # Module-owned data
+│   ├── Providers/            # Module and route providers
+│   └── Services/             # Module domain logic
+├── config/
+├── database/migrations/
+├── resources/views/
+├── routes/web.php
+├── tests/Feature/
+├── tests/Unit/
 ├── composer.json
-├── module.json                         # Human-readable manifest
-├── src/
-│   ├── MyModuleServiceProvider.php     # Extends OGame\Modules\ModuleServiceProvider
-│   ├── GameObjects/                    # New GameObject definitions
-│   ├── Services/                       # Custom services (e.g. own queue service)
-│   ├── Queue/                          # ProvidesQueueProcessor implementations
-│   ├── Models/                         # Eloquent models
-│   └── Http/
-│       ├── Controllers/
-│       └── ViewComposers/
-├── database/
-│   └── migrations/
-├── resources/
-│   ├── views/
-│   └── lang/
-├── routes/
-│   └── web.php
-└── tests/
+└── module.json
 ```
 
-### `module.json`
+Keep domain logic in the module. Keep the provider small: register bindings,
+Laravel infrastructure, and game capabilities.
 
-```json
-{
-  "name": "My Module",
-  "id": "my-module",
-  "description": "Description of what this module adds.",
-  "version": "1.0.0",
-  "ogamex_core_min": "1.0.0",
-  "requires": []
-}
-```
+## Provider and alias
 
-### `composer.json`
+The main provider extends `Nwidart\Modules\Support\ModuleServiceProvider`.
+Call `parent::boot()` first; it loads the module’s configuration, views,
+migrations, commands, and schedules.
 
-```json
-{
-  "name": "ogamex-modules/my-module",
-  "require": {
-    "php": "^8.5",
-    "laravel/framework": "^12.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "OGame\\Modules\\MyModule\\": "src/"
-    }
-  }
-}
-```
-
-Do not use Laravel package auto-discovery (`extra.laravel.providers`). Modules must be explicitly enabled in `config/modules.php`.
-
----
-
-## Creating a ServiceProvider
-
-All modules extend `OGame\Modules\ModuleServiceProvider` and implement three methods:
+The lowercase alias must match across `module.json`, `$nameLower`, view/config
+namespaces, settings, and `Extensions::module()`.
 
 ```php
-namespace OGame\Modules\MyModule;
+use Nwidart\Modules\Support\ModuleServiceProvider;
+use OGame\Extensions\ModuleExtension;
+use OGame\Facades\Extensions;
 
-use OGame\Modules\ModuleServiceProvider;
-
-class MyModuleServiceProvider extends ModuleServiceProvider
+class MyFeatureServiceProvider extends ModuleServiceProvider
 {
-    public function moduleId(): string
+    protected string $name = 'MyFeature';
+    protected string $nameLower = 'myfeature';
+
+    public function boot(): void
     {
-        return 'my-module';
-    }
+        parent::boot();
 
-    protected function modulePath(string $relative): string
-    {
-        return dirname(__DIR__) . '/' . $relative;
-    }
-
-    public function bootModule(): void
-    {
-        // Register game objects, view slots, bonus modifiers, queue processors, etc.
+        Extensions::module($this->nameLower, function (ModuleExtension $module): void {
+            // Register only the OGameX capabilities this module needs.
+        });
     }
 }
 ```
 
-The base class automatically loads routes, migrations, views, and translations from the module package root when `boot()` is called.
+## Choose the right tool
 
----
+| Need | Use |
+|---|---|
+| Page, API, model, migration, command, job, policy | Normal Laravel code in the module |
+| New building, research, ship, or defence | `$module->objects([...])` |
+| Controlled change to an existing game object | `$module->extendObject(...)` |
+| Content appended to a core screen | `$module->slot(...)` |
+| Reaction to a completed game action | `$module->listen(...)` |
+| Server-wide module configuration | `$module->setting(...)` |
+| Synchronous planet production/consumption behavior | `$module->extendPlanet(...)` |
+| Player behavior after the player loads | `$module->extendPlayer(...)` |
+| Planet-bound game-timed work | `$module->queueProcessor(...)` and `ModuleQueues` |
+| Fleet mission, game message, highscore category | `$module->mission(...)`, `message(...)`, `highscoreCategory(...)` |
 
-## Registering Game Objects
+## Game objects and state
 
-To add new ships, defense, buildings, or research objects, register them with `ObjectService`:
+Module object IDs start at `10000`; lower IDs are reserved for OGameX core.
+Machine names must be globally unique lowercase `snake_case` values.
 
-```php
-use OGame\Services\ObjectService;
+Module objects work through normal OGameX object lookups, queues, battle/unit
+calculations, and views. Their levels and amounts automatically use normalized
+module storage—no new `planets` or `users_tech` column is required.
 
-public function bootModule(): void
-{
-    ObjectService::registerModuleObjects([
-        ...MyShipObjects::get(),
-        ...MyDefenseObjects::get(),
-    ]);
-}
-```
+Use the right persistence layer:
 
-New ships using `GameObjectType::Ship` and defense using `GameObjectType::Defense` automatically participate in the battle engine, debris calculation, and unit queue — no further core changes needed.
+| Data | Storage |
+|---|---|
+| Module building/research level or unit amount | Automatic normalized object state |
+| Small flag, cursor, cooldown, or JSON snapshot | `ModuleState` |
+| Server-wide configuration | Declared module setting + scoped `SettingsService` |
+| Relational, historical, query-heavy data | Module migration + Eloquent model |
 
-Planet storage uses a DB column per `machine_name` (e.g. `$planet->my_new_ship`). Provide a migration in `database/migrations/` to add these columns.
+`ModuleState` is namespaced by module alias and server/player/planet scope. It
+is useful for compact state, not as a replacement for a proper module model.
 
-Use `$subType` on `GameObject` to semantically distinguish module objects that share a core type:
+## Settings
 
-```php
-$object->type    = GameObjectType::Building;
-$object->subType = 'lifeform_building';
-```
-
----
-
-## Registering Property Bonus Modifiers
-
-To add bonuses to ship or unit properties (attack, shield, structural integrity, cargo capacity, fuel), register a callable with `ObjectPropertyService`:
-
-```php
-use OGame\GameObjects\Services\Properties\Abstracts\ObjectPropertyService;
-use OGame\GameObjects\Models\ShipObject;
-
-public function bootModule(): void
-{
-    // Add 3% attack bonus per level of my_combat_tech, ships only
-    ObjectPropertyService::registerBonusModifier('attack',
-        function (PlayerService $player, GameObject $object): int {
-            if (!($object instanceof ShipObject)) {
-                return 0;
-            }
-            return $player->getResearchLevel('my_combat_tech') * 3;
-        }
-    );
-}
-```
-
-The callable receives `(PlayerService $player, GameObject $object)` and returns an **int percentage**. The core applies it as `intdiv(base_value * percentage, 100)`, additive alongside the research bonus — matching the same pattern as character class bonuses.
-
-Available property names: `attack`, `shield`, `structural_integrity`, `capacity`, `fuel`, `fuel_capacity`.
-
----
-
-## Injecting into Core Views (`@moduleSlot`)
-
-Core Blade views contain `@moduleSlot(...)` directives at agreed extension points. Register a renderer callable to inject HTML into a slot:
+Declare an operator-facing server setting in the provider. OGameX namespaces it
+with the module alias, validates it, and shows it in **Server settings** while
+the module is enabled.
 
 ```php
-use OGame\Services\ModuleSlotService;
-
-public function bootModule(): void
-{
-    ModuleSlotService::register('layout.resources_bar', function (array $data): string {
-        return view('my-module::layout.resource-tile', $data)->render();
-    });
-}
+$module->setting('population.tick_seconds')
+    ->integer()
+    ->default(60)
+    ->min(5)
+    ->label('Population tick interval');
 ```
 
-### Available Slots
-
-| Slot name | View file | Data available |
-|-----------|-----------|----------------|
-| `layout.resources_bar` | `ingame/layouts/main.blade.php` | `currentPlanet`, `currentPlayer` |
-| `layout.resources_bar_js` | `ingame/layouts/main.blade.php` | `currentPlanet` |
-| `resources.building_section` | `ingame/resources/index.blade.php` | `planet`, `buildings` |
-| `resources.production_box` | `ingame/resources/index.blade.php` | `planet` |
-| `overview.planet_info` | `ingame/overview/index.blade.php` | _(none)_ |
-| `admin.nav` | `ingame/layouts/admin-menu.blade.php` | _(none)_ |
-
----
-
-## Bringing Your Own Queue Service
-
-For modules with complex queue behavior (custom costs, cooldowns, slot selection), bring a fully self-contained queue service rather than routing through the core queues.
-
-The core calls `processQueue()` on every page load during the normal queue processing cycle. Tag your implementation in `bootModule()`:
+Read it with the scoped service:
 
 ```php
-use OGame\Contracts\Modules\ProvidesQueueProcessor;
-
-// In bootModule():
-app()->tag(MyBuildingQueueProcessor::class, 'module.queue_processors');
+$seconds = $settings->module('lifeforms')->integer('population.tick_seconds');
 ```
 
-Implement the contract:
+## Jobs, schedules, and queues
 
-```php
-use OGame\Contracts\Modules\ProvidesQueueProcessor;
-use OGame\Services\PlanetService;
+### Laravel jobs
 
-class MyBuildingQueueProcessor implements ProvidesQueueProcessor
-{
-    public function processQueue(PlanetService $planet): void
-    {
-        // Retrieve and process finished queue items for this planet
-    }
-}
+Jobs under `app/Jobs` are ordinary Laravel queued jobs. The deployment includes
+a scheduler and queue worker, so dispatch, retries, backoff, batching, and
+queued listeners work normally.
+
+When dispatching inside a database transaction, use Laravel’s after-commit
+support. The queue connection does not enable after-commit dispatch globally;
+a worker must not observe data that later rolls back.
+
+### Scheduled commands
+
+Define commands in the module and register schedules through the provider’s
+`configureSchedules()` method. Use `withoutOverlapping()` where concurrent work
+would be unsafe. AI ticks and maintenance are good scheduled-command use cases.
+
+### Planet-bound queues
+
+Use `ModuleQueues` and a registered `ProvidesQueueProcessor` for deterministic
+work that must run in the normal planet update transaction, such as population
+growth. Keep processors synchronous, fast, idempotent, and free of remote I/O.
+Use a normal Laravel job for expensive or independent background work.
+
+## Events and pages
+
+OGameX emits typed after-commit events for building/research completion,
+colonization, fleet departure/arrival/return, and mission resolution. Use a
+synchronous listener only for tiny deterministic work; use queued listeners or
+jobs for notifications, integrations, analytics, and planning.
+
+Create pages using normal module routes, controllers, middleware, policies, and
+views. To append content to a core screen, use an additive slot:
+
+| Slot | Data |
+|---|---|
+| `layout.resources_bar` | `currentPlanet`, `currentPlayer` |
+| `layout.resources_bar_js` | `currentPlanet` |
+| `resources.building_section` | `planet`, `buildings` |
+| `resources.production_box` | `planet` |
+| `overview.planet_info` | none |
+| `admin.nav` | none |
+
+Slots append content; they do not replace arbitrary core templates.
+
+## Core access
+
+A module can use public core services and, if necessary, change core tables in
+a normal module migration. Keep such migrations narrow and reversible; the
+module owns upgrade, rollback, and conflict compatibility. Do not add a core
+column merely to store a module game object—the normalized object-state
+foundation already does that.
+
+## Testing
+
+Put module-specific tests inside the module. The `Modules` suite discovers them:
+
+```bash
+php artisan test --testsuite=Modules --filter=MyFeature
 ```
 
-For modules that only need pre-validation before an item enters a core queue (e.g. a cost check), implement `processQueue()` as a no-op and handle validation in your controller before calling the core queue service.
+Test the provider, migrations, routes, authorization, settings, listeners, jobs,
+and the domain behavior the module owns. When changing a shared extension point,
+also add focused core integration coverage.
 
----
+## Pull-request checklist
 
-## Available Hook Contracts
+- Alias, namespaces, settings, views, and routes use the same module alias.
+- Run `composer dump-autoload` after changing module Composer metadata.
+- Run the module migration and focused module tests.
+- Run focused core tests for shared extension points you changed.
+- Make jobs, event handlers, and planet queue processors idempotent.
+- Prefer module-owned state/tables before changing core schema.
 
-All contracts live under `OGame\Contracts\Modules\`.
-
-| Interface | Tag | Purpose |
-|-----------|-----|---------|
-| `ProvidesGameObjects` | _(call directly)_ | Register GameObject instances with ObjectService |
-| `ExtendsPlanetService` | `module.planet_extensions` | Planet-level production calculations |
-| `ExtendsPlayerService` | `module.player_extensions` | Player-level data injection |
-| `ProvidesQueueProcessor` | `module.queue_processors` | Own queue processing cycle |
-| `ProvidesHighscoreCategory` | `module.highscore_categories` | Add highscore categories |
-
----
-
-## Admin Panel Modules
-
-A module can provide a fully independent admin panel with its own layout, route group, and controllers. The only core integration needed is injecting nav links via the `admin.nav` slot:
-
-```php
-ModuleSlotService::register('admin.nav', function (): string {
-    return view('my-module::admin.nav-links')->render();
-});
-```
-
-Routes should be grouped under a prefix like `/admin-panel/...` and protected with admin middleware.
+For technical design, lifecycle ordering, performance limits, and Lifeforms/AI
+planning, see [Module foundation and planning](planning/modules.md).
