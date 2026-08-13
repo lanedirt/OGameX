@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use OGame\Http\Controllers\Admin\DeveloperShortcutsController;
 use OGame\Http\Controllers\Admin\FleetTimingController;
-use OGame\Http\Controllers\Admin\ModulesController as AdminModulesController;
+use OGame\Http\Controllers\Admin\ModulesController;
 use OGame\Http\Controllers\Admin\RulesController as AdminRulesController;
 use OGame\Http\Controllers\Admin\ServerAdministrationController;
 use OGame\Http\Controllers\Admin\ServerSettingsController as AdminServerSettingsController;
@@ -273,6 +273,10 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     Route::post('/admin/fleet-timing/fast-forward-all', [FleetTimingController::class, 'fastForwardAll'])->name('admin.fleettiming.fast-forward-all');
     Route::post('/admin/fleet-timing/reduce', [FleetTimingController::class, 'reduceTime'])->name('admin.fleettiming.reduce');
 
+    // Modules
+    Route::get('/admin/modules', [ModulesController::class, 'index'])->name('admin.modules.index');
+    Route::post('/admin/modules/toggle', [ModulesController::class, 'toggle'])->name('admin.modules.toggle');
+
     // Server administration (multi-account detection, bans)
     Route::get('/admin/server-administration', [ServerAdministrationController::class, 'index'])->name('admin.server-administration.index');
     Route::post('/admin/server-administration/ban', [ServerAdministrationController::class, 'ban'])->name('admin.server-administration.ban');
@@ -293,8 +297,4 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     Route::post('/admin/developershortcuts/create-at-coords', [DeveloperShortcutsController::class, 'createAtCoords'])->name('admin.developershortcuts.create-at-coords');
     Route::post('/admin/developershortcuts/create-debris', [DeveloperShortcutsController::class, 'createDebris'])->name('admin.developershortcuts.create-debris');
     Route::post('/admin/developershortcuts/update-dark-matter', [DeveloperShortcutsController::class, 'updateDarkMatter'])->name('admin.developershortcuts.update-dark-matter');
-
-    // Modules management
-    Route::get('/admin/modules', [AdminModulesController::class, 'index'])->name('admin.modules.index');
-    Route::post('/admin/modules/toggle', [AdminModulesController::class, 'toggle'])->name('admin.modules.toggle');
 });
