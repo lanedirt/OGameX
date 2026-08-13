@@ -8,8 +8,11 @@ use OGame\Services\PlanetService;
  * Contract for modules that inject planet-level calculations,
  * such as additional resource production (population, food, artifacts).
  *
- * Register implementations via app()->tag() in bootModule():
- *   app()->tag(MyPlanetExtension::class, 'module.planet_extensions');
+ * Register implementations through the Extensions facade:
+ *
+ *   Extensions::module('lifeforms', function (ModuleExtension $module): void {
+ *       $module->extendPlanet(PopulationProduction::class);
+ *   });
  */
 interface ExtendsPlanetService
 {
