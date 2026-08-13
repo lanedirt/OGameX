@@ -6,6 +6,10 @@ use Exception;
 use Illuminate\Support\Facades\Date;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
+use OGame\Events\FleetArrived;
+use OGame\Events\FleetDeparted;
+use OGame\Events\FleetReturned;
+use OGame\Events\MissionResolved;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameMessages\ReturnOfFleet;
@@ -60,16 +64,7 @@ abstract class GameMission
      */
     protected static FleetMissionStatus $friendlyStatus;
 
-    /**
-     * @param FleetMissionService $fleetMissionService
-     * @param MessageService $messageService
-     * @param PlanetServiceFactory $planetServiceFactory
-     * @param PlayerServiceFactory $playerServiceFactory
-     * @param SettingsService $settings
-     */
-    public function __construct(protected FleetMissionService $fleetMissionService, protected MessageService $messageService, protected PlanetServiceFactory $planetServiceFactory, protected PlayerServiceFactory $playerServiceFactory, protected SettingsService $settings)
-    {
-    }
+    public function __construct(protected FleetMissionService $fleetMissionService, protected MessageService $messageService, protected PlanetServiceFactory $planetServiceFactory, protected PlayerServiceFactory $playerServiceFactory, protected SettingsService $settings) {}
 
     public static function getName(): string
     {
@@ -93,8 +88,6 @@ abstract class GameMission
 
     /**
      * Get the fleet speed type for this mission.
-     *
-     * @return FleetSpeedType
      */
     public static function getFleetSpeedType(): FleetSpeedType
     {
@@ -103,8 +96,6 @@ abstract class GameMission
 
     /**
      * Get the friendly status for UI styling.
-     *
-     * @return FleetMissionStatus
      */
     public static function getFriendlyStatus(): FleetMissionStatus
     {
@@ -116,11 +107,10 @@ abstract class GameMission
      * Child classes should call parent::isMissionPossible() first and return early if not possible,
      * then add their own mission-specific checks.
      *
-     * @param PlanetService $planet The planet from which the mission is sent.
-     * @param Coordinate $targetCoordinate The target coordinate of the mission.
-     * @param PlanetType $targetType The type of the target.
-     * @param UnitCollection $units The units that are sent on the mission.
-     * @return MissionPossibleStatus
+     * @param  PlanetService  $planet  The planet from which the mission is sent.
+     * @param  Coordinate  $targetCoordinate  The target coordinate of the mission.
+     * @param  PlanetType  $targetType  The type of the target.
+     * @param  UnitCollection  $units  The units that are sent on the mission.
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
@@ -148,9 +138,6 @@ abstract class GameMission
 
     /**
      * Cancel an already started mission.
-     *
-     * @param FleetMission $mission
-     * @return void
      */
     public function cancel(FleetMission $mission): void
     {
@@ -160,7 +147,7 @@ abstract class GameMission
             $fleetUnionService->handleFleetRecall($mission);
         }
 
-        $currentTime = (int)Date::now()->timestamp;
+        $currentTime = (int) Date::now()->timestamp;
 
         // Store the original arrival time before modifying it.
         // For ACS Defend, we need physical arrival time for return trip calculation.
@@ -203,28 +190,22 @@ abstract class GameMission
     /**
      * Generic sanity checks before starting a mission to make sure all requirements are met.
      *
-     * @param PlanetService $planet
-     * @param Coordinate $targetCoordinate
-     * @param PlanetType $targetType
-     * @param UnitCollection $units
-     * @param Resources $resources
-     * @return void
      * @throws Exception
      */
     public function startMissionSanityChecks(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources): void
     {
-        if (!$planet->hasResources($resources)) {
+        if (! $planet->hasResources($resources)) {
             throw new Exception('Not enough resources on the planet to send the fleet.');
         }
 
-        if (!$planet->hasUnits($units)) {
+        if (! $planet->hasUnits($units)) {
             $unitNames = [];
             foreach ($units->units as $unit) {
                 $unitNames[] = $unit->unitObject->machine_name;
             }
 
             $unitNames = implode(', ', $unitNames);
-            throw new Exception('Not enough units on the planet to send the fleet. Units required: ' . $unitNames);
+            throw new Exception('Not enough units on the planet to send the fleet. Units required: '.$unitNames);
         }
 
         $player = $planet->getPlayer();
@@ -236,7 +217,7 @@ abstract class GameMission
         }
 
         $missionPossibleStatus = $this->isMissionPossible($planet, $targetCoordinate, $targetType, $units);
-        if (!$missionPossibleStatus->possible) {
+        if (! $missionPossibleStatus->possible) {
             throw new Exception($missionPossibleStatus->reason ?? __('This mission is not possible.'));
         }
     }
@@ -250,7 +231,7 @@ abstract class GameMission
      */
     public function deductMissionResources(PlanetService $planet, Resources $resources, UnitCollection $units): void
     {
-        if (!$planet->deductResourcesAndUnitsAtomic($resources, $units)) {
+        if (! $planet->deductResourcesAndUnitsAtomic($resources, $units)) {
             throw new Exception(__('Not enough resources or units on the planet to send the fleet.'));
         }
     }
@@ -258,15 +239,16 @@ abstract class GameMission
     /**
      * Start a new mission.
      *
-     * @param PlanetService $planet The planet where the fleet is sent from.
-     * @param Coordinate $targetCoordinate The target coordinate of the mission.
-     * @param PlanetType $targetType The type of the target.
-     * @param UnitCollection $units The units that are sent on the mission.
-     * @param Resources $resources The resources that are sent on the mission.
-     * @param float $speedPercent The speed percent of the fleet.
-     * @param int $holdingHours The holding time of the fleet. The number represents the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
-     * @param int $parentId The parent mission ID if this is a follow-up mission.
+     * @param  PlanetService  $planet  The planet where the fleet is sent from.
+     * @param  Coordinate  $targetCoordinate  The target coordinate of the mission.
+     * @param  PlanetType  $targetType  The type of the target.
+     * @param  UnitCollection  $units  The units that are sent on the mission.
+     * @param  Resources  $resources  The resources that are sent on the mission.
+     * @param  float  $speedPercent  The speed percent of the fleet.
+     * @param  int  $holdingHours  The holding time of the fleet. The number represents the amount of hours the fleet will wait at the target planet and/or how long expedition will last.
+     * @param  int  $parentId  The parent mission ID if this is a follow-up mission.
      * @return FleetMission The created fleet mission.
+     *
      * @throws Exception
      */
     public function start(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingHours = 0, int $parentId = 0): FleetMission
@@ -298,7 +280,7 @@ abstract class GameMission
         }
 
         // Time this fleet mission will depart (now).
-        $time_start = (int)Date::now()->timestamp;
+        $time_start = (int) Date::now()->timestamp;
 
         // Time fleet mission will arrive.
         // TODO: refactor calculate to gamemission base class?
@@ -308,7 +290,7 @@ abstract class GameMission
 
         // Set the parent mission if it exists. This indicates that this mission is a follow-up (return)
         // mission linked to a previous mission.
-        if (!empty($parentId)) {
+        if (! empty($parentId)) {
             $parentMission = $this->fleetMissionService->getFleetMissionById($parentId);
             if ($parentMission === null) {
                 throw new Exception('Parent mission not found.');
@@ -381,6 +363,8 @@ abstract class GameMission
         // Save the new fleet mission.
         $mission->save();
 
+        FleetDeparted::dispatch($mission);
+
         // Check if the created mission arrival time is in the past. This can happen if the planet hasn't been updated
         // for some time and missions have already played out in the meantime.
         // If the mission is in the past, process it immediately.
@@ -393,9 +377,6 @@ abstract class GameMission
 
     /**
      * Process the mission.
-     *
-     * @param FleetMission $mission
-     * @return void
      */
     public function process(FleetMission $mission): void
     {
@@ -403,21 +384,26 @@ abstract class GameMission
             // Target planet was relocated — return fleet (or cancel if no return trip).
             // Only applies to mission types that normally target an existing planet/moon.
             // Colonize (7), recycle (8), and expedition (15) legitimately have null planet_id_to.
-            if ($mission->planet_id_to === null && !in_array($mission->mission_type, [7, 8, 15], true)) {
+            if ($mission->planet_id_to === null && ! in_array($mission->mission_type, [7, 8, 15], true)) {
                 $mission->processed = 1;
                 $mission->save();
                 if (static::$hasReturnMission) {
                     $this->startReturn($mission, $this->fleetMissionService->getResources($mission), $this->fleetMissionService->getFleetUnits($mission));
                 }
+
                 return;
             }
 
             // This is an arrival mission as it has no parent mission.
             // Process arrival.
             $this->processArrival($mission);
+            FleetArrived::dispatch($mission);
+            MissionResolved::dispatch($mission);
         } else {
             // This is a return mission as it has a parent mission.
             $this->processReturn($mission);
+            FleetReturned::dispatch($mission);
+            MissionResolved::dispatch($mission);
         }
     }
 
@@ -425,58 +411,60 @@ abstract class GameMission
      * Helper method for child classes to check if target player is in vacation mode.
      * Should be called after verifying target planet exists.
      *
-     * @param PlanetService|null $targetPlanet The target planet/moon.
+     * @param  PlanetService|null  $targetPlanet  The target planet/moon.
      * @return MissionPossibleStatus|null Returns MissionPossibleStatus if vacation mode blocks mission, null otherwise.
      */
-    protected function checkTargetVacationMode(PlanetService|null $targetPlanet): MissionPossibleStatus|null
+    protected function checkTargetVacationMode(?PlanetService $targetPlanet): ?MissionPossibleStatus
     {
         if ($targetPlanet !== null && $targetPlanet->getPlayer()?->isInVacationMode()) {
             return new MissionPossibleStatus(false, __('This player is in vacation mode!'));
         }
+
         return null;
     }
 
     /**
      * Helper method to check if target belongs to a protected admin user.
      *
-     * @param PlanetService|null $targetPlanet The target planet/moon.
-     * @param string $errorMessage Custom error message if protected.
+     * @param  PlanetService|null  $targetPlanet  The target planet/moon.
+     * @param  string  $errorMessage  Custom error message if protected.
      * @return MissionPossibleStatus|null Returns MissionPossibleStatus if protected, null otherwise.
      */
-    protected function checkAdminProtection(PlanetService|null $targetPlanet, string $errorMessage): MissionPossibleStatus|null
+    protected function checkAdminProtection(?PlanetService $targetPlanet, string $errorMessage): ?MissionPossibleStatus
     {
         if ($targetPlanet !== null && $targetPlanet->getPlayer()?->getUsername(false) === 'Legor') {
             return new MissionPossibleStatus(false, $errorMessage);
         }
+
         return null;
     }
 
     /**
      * Helper method to check if target planet belongs to the same player (own planet check).
      *
-     * @param PlanetService $planet The origin planet.
-     * @param PlanetService|null $targetPlanet The target planet/moon.
+     * @param  PlanetService  $planet  The origin planet.
+     * @param  PlanetService|null  $targetPlanet  The target planet/moon.
      * @return MissionPossibleStatus|null Returns MissionPossibleStatus if same player, null otherwise.
      */
-    protected function checkOwnPlanet(PlanetService $planet, PlanetService|null $targetPlanet): MissionPossibleStatus|null
+    protected function checkOwnPlanet(PlanetService $planet, ?PlanetService $targetPlanet): ?MissionPossibleStatus
     {
         if ($targetPlanet !== null && $planet->getPlayer()?->equals($targetPlanet->getPlayer())) {
             return new MissionPossibleStatus(false);
         }
+
         return null;
     }
 
     /**
      * Start the return mission.
      *
-     * @param FleetMission $parentMission The parent mission that the return mission is linked to.
-     * @param Resources $resources The resources that are to be returned. Should include parent mission resources if they need to be preserved.
-     * @param UnitCollection $units The units that are to be returned.
-     * @param int $additionalReturnTripTime Time in seconds to add to the return trip duration (optional, used by expeditions). Can be positive or negative.
-     * @param int|null $overrideReturnDuration If set, use this duration (in seconds) for the return trip instead of calculating from parent mission times.
-     * @return void
+     * @param  FleetMission  $parentMission  The parent mission that the return mission is linked to.
+     * @param  Resources  $resources  The resources that are to be returned. Should include parent mission resources if they need to be preserved.
+     * @param  UnitCollection  $units  The units that are to be returned.
+     * @param  int  $additionalReturnTripTime  Time in seconds to add to the return trip duration (optional, used by expeditions). Can be positive or negative.
+     * @param  int|null  $overrideReturnDuration  If set, use this duration (in seconds) for the return trip instead of calculating from parent mission times.
      */
-    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0, array|null $wreckFieldData = null, int|null $overrideReturnDuration = null): void
+    protected function startReturn(FleetMission $parentMission, Resources $resources, UnitCollection $units, int $additionalReturnTripTime = 0, ?array $wreckFieldData = null, ?int $overrideReturnDuration = null): void
     {
         if ($units->getAmount() === 0) {
             // No units to return, no need to create a return mission.
@@ -561,9 +549,9 @@ abstract class GameMission
         // Set return mission resources.
         // Each mission type should explicitly add parent mission resources to the $resources parameter
         // before calling this method if they want to preserve them.
-        $mission->metal = (int)$resources->metal->get();
-        $mission->crystal = (int)$resources->crystal->get();
-        $mission->deuterium = (int)$resources->deuterium->get();
+        $mission->metal = (int) $resources->metal->get();
+        $mission->crystal = (int) $resources->crystal->get();
+        $mission->deuterium = (int) $resources->deuterium->get();
 
         // Set wreck field data if provided (for General class attacks)
         if ($wreckFieldData !== null) {
@@ -575,7 +563,7 @@ abstract class GameMission
 
         // Check if the created mission arrival time is in the past.
         // If the mission is in the past, process it immediately.
-        $currentTime = (int)Date::now()->timestamp;
+        $currentTime = (int) Date::now()->timestamp;
         if ($mission->time_arrival < $currentTime) {
             $this->process($mission);
         }
@@ -583,10 +571,6 @@ abstract class GameMission
 
     /**
      * Send a message to the player that a fleet has returned.
-     *
-     * @param FleetMission $mission
-     * @param PlayerService $targetPlayer
-     * @return void
      */
     protected function sendFleetReturnMessage(FleetMission $mission, PlayerService $targetPlayer): void
     {
@@ -598,7 +582,7 @@ abstract class GameMission
             case PlanetType::Planet->value:
             case PlanetType::Moon->value:
                 if ($mission->planet_id_from !== null) {
-                    $from = __('planet') . " [planet]{$mission->planet_id_from}[/planet]";
+                    $from = __('planet')." [planet]{$mission->planet_id_from}[/planet]";
                 }
                 break;
             case PlanetType::DebrisField->value:
@@ -606,15 +590,15 @@ abstract class GameMission
                 break;
         }
 
-        $to = __('planet') . " [planet]{$mission->planet_id_to}[/planet]";
+        $to = __('planet')." [planet]{$mission->planet_id_to}[/planet]";
 
         if ($return_resources->any()) {
             $params = [
                 'from' => $from,
                 'to' => $to,
-                'metal' => (string)$mission->metal,
-                'crystal' => (string)$mission->crystal,
-                'deuterium' => (string)$mission->deuterium,
+                'metal' => (string) $mission->metal,
+                'crystal' => (string) $mission->crystal,
+                'deuterium' => (string) $mission->deuterium,
             ];
 
             $this->messageService->sendSystemMessageToPlayer($targetPlayer, ReturnOfFleetWithResources::class, $params);
@@ -631,7 +615,7 @@ abstract class GameMission
     /**
      * Collect all defending fleets at a planet (planet owner + ACS defend fleets).
      *
-     * @param PlanetService $planet The planet being defended.
+     * @param  PlanetService  $planet  The planet being defended.
      * @return array<DefenderFleet> Array of all defending fleets.
      */
     protected function collectDefendingFleets(PlanetService $planet): array
@@ -668,7 +652,7 @@ abstract class GameMission
     /**
      * Collect all attacking fleets from a union (if the mission belongs to one).
      *
-     * @param FleetMission $mission The fleet mission to check for union participation.
+     * @param  FleetMission  $mission  The fleet mission to check for union participation.
      * @return array<AttackerFleet> Array of attacking fleets. Single fleet if no union.
      */
     protected function collectAttackingFleets(FleetMission $mission): array
@@ -676,7 +660,7 @@ abstract class GameMission
         $attackers = [];
 
         // Check if this mission is part of a union
-        if (!$mission->isInUnion()) {
+        if (! $mission->isInUnion()) {
             // Single attacker - create AttackerFleet from this mission only
             $attackers[] = AttackerFleet::fromFleetMission(
                 $mission,
@@ -684,13 +668,14 @@ abstract class GameMission
                 $this->playerServiceFactory,
                 true // isInitiator
             );
+
             return $attackers;
         }
 
         // Collect all fleets from the union
         /** @var FleetUnion $union */
         $union = $mission->union;
-        if (!$union) {
+        if (! $union) {
             // Union was deleted or doesn't exist
             $attackers[] = AttackerFleet::fromFleetMission(
                 $mission,
@@ -698,6 +683,7 @@ abstract class GameMission
                 $this->playerServiceFactory,
                 true // isInitiator
             );
+
             return $attackers;
         }
 
@@ -722,17 +708,11 @@ abstract class GameMission
 
     /**
      * Process the mission arrival (first stage, required).
-     *
-     * @param FleetMission $mission
-     * @return void
      */
     abstract protected function processArrival(FleetMission $mission): void;
 
     /**
      * Process the mission return (second stage, optional).
-     *
-     * @param FleetMission $mission
-     * @return void
      */
     abstract protected function processReturn(FleetMission $mission): void;
 }
