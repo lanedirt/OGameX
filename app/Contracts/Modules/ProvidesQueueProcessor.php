@@ -8,10 +8,12 @@ use OGame\Services\PlanetService;
  * Contract for modules that bring their own queue service (buildings, tech, etc.)
  *
  * The core calls processQueue() on every page load at the same point it processes
- * its own building, research, and unit queues. Modules must tag their implementations
- * with 'module.queue_processors' in bootModule():
+ * its own building, research, and unit queues. Register implementations through
+ * the Extensions facade:
  *
- *   app()->tag(MyQueueProcessor::class, 'module.queue_processors');
+ *   Extensions::module('lifeforms', function (ModuleExtension $module): void {
+ *       $module->queueProcessor(PopulationQueueProcessor::class);
+ *   });
  *
  * The implementation is responsible for retrieving and processing any finished
  * queue items for the given planet.

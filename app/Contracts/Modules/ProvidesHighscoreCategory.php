@@ -5,8 +5,11 @@ namespace OGame\Contracts\Modules;
 /**
  * Contract for modules that add custom highscore categories.
  *
- * Register implementations via app()->tag() in bootModule():
- *   app()->tag(MyHighscoreCategory::class, 'module.highscore_categories');
+ * Register implementations through the Extensions facade:
+ *
+ *   Extensions::module('lifeforms', function (ModuleExtension $module): void {
+ *       $module->highscoreCategory(PopulationHighscore::class);
+ *   });
  */
 interface ProvidesHighscoreCategory
 {
