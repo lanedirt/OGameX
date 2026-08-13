@@ -1,0 +1,52 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Illuminate\Console\Scheduling\Schedule;
+use Nwidart\Modules\Support\ModuleServiceProvider;
+use OGame\Extensions\ModuleExtension;
+use OGame\Facades\Extensions;
+
+class $CLASS$ extends ModuleServiceProvider
+{
+    /**
+     * The name of the module.
+     */
+    protected string $name = '$MODULE$';
+
+    /**
+     * The module.json alias used for view, config, translation, and OGameX
+     * extension namespaces.
+     */
+    protected string $nameLower = '$LOWER_NAME$';
+
+    /**
+     * Provider classes to register.
+     *
+     * @var string[]
+     */
+    protected array $providers = [
+        EventServiceProvider::class,
+        RouteServiceProvider::class,
+    ];
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        Extensions::module($this->nameLower, function (ModuleExtension $module): void {
+            // Register OGameX capabilities here. Examples:
+            // $module->objects(MyObjects::all());
+            // $module->listen(PlanetColonized::class, CreatePopulation::class);
+            // $module->setting('tick_seconds')->integer()->default(60)->min(5);
+        });
+    }
+
+    /**
+     * Define module schedules with Laravel's scheduler.
+     */
+    // protected function configureSchedules(Schedule $schedule): void
+    // {
+    //     $schedule->command('module:work')->everyMinute()->withoutOverlapping();
+    // }
+}
