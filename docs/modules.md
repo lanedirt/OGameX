@@ -1,11 +1,17 @@
 # OGameX Modules
 
-Build an OGameX module the same way you build a Laravel feature: routes,
-controllers, migrations, models, jobs, commands, events, policies, and tests.
-OGameX adds a small, game-specific integration API through `Extensions`.
+OGameX uses [nwidart/laravel-modules](https://github.com/nWidart/laravel-modules)
+to organize optional, independently shipped features. A module is an ordinary
+Laravel application packaged under `Modules/<StudlyName>`: routes, controllers,
+models, migrations, jobs, commands, events, policies, views, and tests.
 
-This is the contributor guide. Read [Module foundation and planning](planning/modules.md)
-for lifecycle internals, performance notes, and future-module planning.
+The module host only answers three questions:
+
+1. which modules exist;
+2. which modules are enabled;
+3. how a module's Laravel code is loaded.
+
+It deliberately does not know anything about OGameX gameplay systems.
 
 ## Start here
 
@@ -18,8 +24,9 @@ php artisan module:list
 
 Disable a module with `php artisan module:disable MyFeature`.
 
-Use `Modules/HelloWorld` as the working reference. It contains a provider,
-setting, admin slot, route, view, event listener, and module-local tests.
+Use `Modules/HelloWorld` as the working reference. It contains a provider, an
+admin route, a view, module configuration, an `admin.nav` view slot, and
+module-local tests.
 
 ```bash
 php artisan module:enable HelloWorld
@@ -28,17 +35,13 @@ php artisan test --testsuite=Modules --filter=HelloWorld
 
 ## The mental model
 
-Every module has two types of work:
+An **enabled** module is normal Laravel application code. When a module is
+enabled, its service provider boots and its routes, views, configuration,
+migrations, commands, and schedules are loaded. A **disabled** module registers
+nothing; it has no effect on the application.
 
-1. **Laravel work** belongs in the module: pages, APIs, models, migrations,
-   jobs, commands, schedules, policies, and tests.
-2. **Game integration** is declared in the provider with `Extensions` when the
-   feature needs an OGameX lifecycle point.
-
-An enabled module is normal Laravel application code. There is no extra module
-permission system, manifest status, or custom runtime. Modules may use public
-OGameX services and normal Laravel migrations; choose the documented OGameX
-integration point when it already expresses the behavior you need.
+Enabled state is owned by Laravel Modules and stored in `modules_statuses.json`.
+There is no second OGameX module status or permission layer.
 
 ## Structure
 
@@ -62,148 +65,96 @@ Modules/MyFeature/
 └── module.json
 ```
 
-Keep domain logic in the module. Keep the provider small: register bindings,
-Laravel infrastructure, and game capabilities.
+Keep domain logic in the module. Keep the provider small: register bindings and
+Laravel infrastructure.
 
 ## Provider and alias
 
 The main provider extends `Nwidart\Modules\Support\ModuleServiceProvider`.
-Call `parent::boot()` first; it loads the module’s configuration, views,
+Call `parent::boot()` first; it loads the module's configuration, views,
 migrations, commands, and schedules.
 
-The lowercase alias must match across `module.json`, `$nameLower`, view/config
-namespaces, settings, and `Extensions::module()`.
+The lowercase alias must match across `module.json`, `$nameLower`, and the
+module's view/config namespaces.
 
 ```php
 use Nwidart\Modules\Support\ModuleServiceProvider;
-use OGame\Extensions\ModuleExtension;
-use OGame\Facades\Extensions;
 
 class MyFeatureServiceProvider extends ModuleServiceProvider
 {
     protected string $name = 'MyFeature';
     protected string $nameLower = 'myfeature';
 
+    protected array $providers = [
+        RouteServiceProvider::class,
+    ];
+
     public function boot(): void
     {
         parent::boot();
-
-        Extensions::module($this->nameLower, function (ModuleExtension $module): void {
-            // Register only the OGameX capabilities this module needs.
-        });
     }
 }
 ```
 
-## Choose the right tool
+`module.json` provides the display name, lowercase alias, priority, and the
+provider classes to register:
 
-| Need | Use |
-|---|---|
-| Page, API, model, migration, command, job, policy | Normal Laravel code in the module |
-| New building, research, ship, or defence | `$module->objects([...])` |
-| Controlled change to an existing game object | `$module->extendObject(...)` |
-| Content appended to a core screen | `$module->slot(...)` |
-| Reaction to a completed game action | `$module->listen(...)` |
-| Server-wide module configuration | `$module->setting(...)` |
-| Synchronous planet production/consumption behavior | `$module->extendPlanet(...)` |
-| Player behavior after the player loads | `$module->extendPlayer(...)` |
-| Planet-bound game-timed work | `$module->queueProcessor(...)` and `ModuleQueues` |
-| Fleet mission, game message, highscore category | `$module->mission(...)`, `message(...)`, `highscoreCategory(...)` |
-
-## Game objects and state
-
-Module object IDs start at `10000`; lower IDs are reserved for OGameX core.
-Machine names must be globally unique lowercase `snake_case` values.
-
-Module objects work through normal OGameX object lookups, queues, battle/unit
-calculations, and views. Their levels and amounts automatically use normalized
-module storage—no new `planets` or `users_tech` column is required.
-
-Use the right persistence layer:
-
-| Data | Storage |
-|---|---|
-| Module building/research level or unit amount | Automatic normalized object state |
-| Small flag, cursor, cooldown, or JSON snapshot | `ModuleState` |
-| Server-wide configuration | Declared module setting + scoped `SettingsService` |
-| Relational, historical, query-heavy data | Module migration + Eloquent model |
-
-`ModuleState` is namespaced by module alias and server/player/planet scope. It
-is useful for compact state, not as a replacement for a proper module model.
-
-## Settings
-
-Declare an operator-facing server setting in the provider. OGameX namespaces it
-with the module alias, validates it, and shows it in **Server settings** while
-the module is enabled.
-
-```php
-$module->setting('population.tick_seconds')
-    ->integer()
-    ->default(60)
-    ->min(5)
-    ->label('Population tick interval');
+```json
+{
+    "name": "MyFeature",
+    "alias": "myfeature",
+    "description": "What the module does.",
+    "priority": 0,
+    "providers": [
+        "Modules\\MyFeature\\Providers\\MyFeatureServiceProvider"
+    ]
+}
 ```
 
-Read it with the scoped service:
+Each module declares its own PSR-4 autoloading in its `composer.json`. The root
+Composer merge plugin merges these definitions, so after changing a module's
+Composer metadata run `composer dump-autoload`.
+
+## Routes, views, and configuration
+
+Routes live in `routes/web.php` and are registered by the module's route
+provider, exactly like core routes. Views use the `myfeature::` namespace.
+Configuration is published under the `myfeature` config namespace and is read
+with `config('myfeature.key', $default)`.
+
+A module may register its own migrations under `database/migrations`; they are
+run by the normal migration commands while the module is enabled.
+
+## Admin modules page
+
+While signed in as an administrator, `/admin/modules` lists every discovered
+module with its name, alias, version, priority, and enabled state. Modules can
+be enabled and disabled from this page; the state is written to
+`modules_statuses.json` (a plain file, so it is readable before the database is
+available during boot).
+
+## View slots
+
+A core Blade view can render a named slot with `@moduleSlot('slot.name')`. A
+module provider registers a renderer for that slot, which returns a plain HTML
+string appended at the slot position.
+
+This foundation exposes a single, clearly controlled slot:
+
+| Slot | Purpose |
+|---|---|
+| `admin.nav` | After the existing items in the admin sidebar |
+
+Slots are additive: they append content at a fixed, documented position and do
+not replace core markup or inject scripts.
 
 ```php
-$seconds = $settings->module('lifeforms')->integer('population.tick_seconds');
+use OGame\Services\ModuleSlotService;
+
+ModuleSlotService::register('admin.nav', function (array $data): string {
+    return view('myfeature::partials.admin-nav')->render();
+});
 ```
-
-## Jobs, schedules, and queues
-
-### Laravel jobs
-
-Jobs under `app/Jobs` are ordinary Laravel queued jobs. The deployment includes
-a scheduler and queue worker, so dispatch, retries, backoff, batching, and
-queued listeners work normally.
-
-When dispatching inside a database transaction, use Laravel’s after-commit
-support. The queue connection does not enable after-commit dispatch globally;
-a worker must not observe data that later rolls back.
-
-### Scheduled commands
-
-Define commands in the module and register schedules through the provider’s
-`configureSchedules()` method. Use `withoutOverlapping()` where concurrent work
-would be unsafe. AI ticks and maintenance are good scheduled-command use cases.
-
-### Planet-bound queues
-
-Use `ModuleQueues` and a registered `ProvidesQueueProcessor` for deterministic
-work that must run in the normal planet update transaction, such as population
-growth. Keep processors synchronous, fast, idempotent, and free of remote I/O.
-Use a normal Laravel job for expensive or independent background work.
-
-## Events and pages
-
-OGameX emits typed after-commit events for building/research completion,
-colonization, fleet departure/arrival/return, and mission resolution. Use a
-synchronous listener only for tiny deterministic work; use queued listeners or
-jobs for notifications, integrations, analytics, and planning.
-
-Create pages using normal module routes, controllers, middleware, policies, and
-views. To append content to a core screen, use an additive slot:
-
-| Slot | Data |
-|---|---|
-| `layout.resources_bar` | `currentPlanet`, `currentPlayer` |
-| `layout.resources_bar_js` | `currentPlanet` |
-| `resources.building_section` | `planet`, `buildings` |
-| `resources.production_box` | `planet` |
-| `overview.planet_info` | none |
-| `admin.nav` | none |
-
-Slots append content; they do not replace arbitrary core templates.
-
-## Core access
-
-A module can use public core services and, if necessary, change core tables in
-a normal module migration. Keep such migrations narrow and reversible; the
-module owns upgrade, rollback, and conflict compatibility. Do not add a core
-column merely to store a module game object—the normalized object-state
-foundation already does that.
 
 ## Testing
 
@@ -213,18 +164,15 @@ Put module-specific tests inside the module. The `Modules` suite discovers them:
 php artisan test --testsuite=Modules --filter=MyFeature
 ```
 
-Test the provider, migrations, routes, authorization, settings, listeners, jobs,
-and the domain behavior the module owns. When changing a shared extension point,
-also add focused core integration coverage.
+Test the provider, migrations, routes, authorization, and the domain behavior
+the module owns. Core tests cover the module host itself: discovery,
+enable/disable, route registration, and that a disabled module has no effect.
 
 ## Pull-request checklist
 
-- Alias, namespaces, settings, views, and routes use the same module alias.
+- The alias matches across `module.json`, `$nameLower`, view/config namespaces,
+  and route names.
 - Run `composer dump-autoload` after changing module Composer metadata.
 - Run the module migration and focused module tests.
-- Run focused core tests for shared extension points you changed.
-- Make jobs, event handlers, and planet queue processors idempotent.
-- Prefer module-owned state/tables before changing core schema.
-
-For technical design, lifecycle ordering, performance limits, and Lifeforms/AI
-planning, see [Module foundation and planning](planning/modules.md).
+- A disabled module must not register routes, views, or providers.
+- Prefer module-owned tables and migrations over changing core schema.

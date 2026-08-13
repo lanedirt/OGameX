@@ -73,13 +73,9 @@ class ModuleSlotServiceTest extends TestCase
         $this->assertSame('', ModuleSlotService::render('admin.nav'));
     }
 
-    public function test_renderers_in_different_slots_do_not_interfere(): void
+    public function test_only_the_admin_nav_slot_is_supported(): void
     {
-        ModuleSlotService::register('admin.nav', fn (array $data): string => 'A');
-        ModuleSlotService::register('overview.planet_info', fn (array $data): string => 'B');
-
-        $this->assertSame('A', ModuleSlotService::render('admin.nav'));
-        $this->assertSame('B', ModuleSlotService::render('overview.planet_info'));
+        $this->assertSame(['admin.nav'], ModuleSlotService::SLOTS);
     }
 
     public function test_unknown_slot_is_rejected_with_the_supported_slots(): void

@@ -3,7 +3,6 @@
 namespace OGame\Services;
 
 use Exception;
-use OGame\Extensions\ExtensionRegistry;
 use OGame\GameObjects\BuildingObjects;
 use OGame\GameObjects\CivilShipObjects;
 use OGame\GameObjects\DefenseObjects;
@@ -34,86 +33,14 @@ use RuntimeException;
 class ObjectService
 {
     /**
-     * Get all objects, including module-registered objects, with module object
-     * extensions applied.
-     *
-     * @return array<GameObject>
-     */
-    private static function getAllObjects(): array
-    {
-        $coreObjects = [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
-            ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
-
-        $registry = app(ExtensionRegistry::class);
-        $moduleObjects = $registry->objects();
-
-        self::assertNoCoreObjectConflicts($moduleObjects, $coreObjects);
-
-        return self::applyObjectExtensions([...$coreObjects, ...$moduleObjects]);
-    }
-
-    /**
-     * Fail fast when a module object reuses a core object ID or machine name.
-     *
-     * @param array<GameObject> $moduleObjects
-     * @param array<GameObject> $coreObjects
-     */
-    private static function assertNoCoreObjectConflicts(array $moduleObjects, array $coreObjects): void
-    {
-        $coreIds = [];
-        $coreNames = [];
-
-        foreach ($coreObjects as $object) {
-            $coreIds[$object->id] = true;
-            $coreNames[$object->machine_name] = true;
-        }
-
-        foreach ($moduleObjects as $object) {
-            if (isset($coreIds[$object->id])) {
-                throw new RuntimeException(sprintf(
-                    'Module game object [%s] reuses core object ID [%d].',
-                    $object->machine_name,
-                    $object->id,
-                ));
-            }
-
-            if (isset($coreNames[$object->machine_name])) {
-                throw new RuntimeException(sprintf(
-                    'Module game object ID [%d] reuses core object machine name [%s].',
-                    $object->id,
-                    $object->machine_name,
-                ));
-            }
-        }
-    }
-
-    /**
-     * Apply registered extendObject() callbacks to the given objects.
-     *
-     * @param array<GameObject> $objects
-     * @return array<GameObject>
-     */
-    private static function applyObjectExtensions(array $objects): array
-    {
-        $extensions = app(ExtensionRegistry::class)->objectExtensions();
-
-        foreach ($objects as $object) {
-            foreach ($extensions[$object->machine_name] ?? [] as $extension) {
-                $extension($object);
-            }
-        }
-
-        return $objects;
-    }
-
-    /**
      * Get all objects.
      *
      * @return array<GameObject>
      */
     public static function getObjects(): array
     {
-        return self::getAllObjects();
+        return [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
+                ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
     }
 
     /**
@@ -123,51 +50,27 @@ class ObjectService
      */
     public static function getBuildingObjects(): array
     {
-        $buildings = [];
-
-        foreach (self::getAllObjects() as $object) {
-            if ($object instanceof BuildingObject) {
-                $buildings[] = $object;
-            }
-        }
-
-        return $buildings;
+        return BuildingObjects::get();
     }
 
     /**
-     * Get all stations.
+     * Get all buildings.
      *
      * @return array<StationObject>
      */
     public static function getStationObjects(): array
     {
-        $stations = [];
-
-        foreach (self::getAllObjects() as $object) {
-            if ($object instanceof StationObject) {
-                $stations[] = $object;
-            }
-        }
-
-        return $stations;
+        return StationObjects::get();
     }
 
     /**
-     * Get all research objects.
+     * Get all buildings.
      *
      * @return array<ResearchObject>
      */
     public static function getResearchObjects(): array
     {
-        $research = [];
-
-        foreach (self::getAllObjects() as $object) {
-            if ($object instanceof ResearchObject) {
-                $research[] = $object;
-            }
-        }
-
-        return $research;
+        return ResearchObjects::get();
     }
 
     /**
@@ -177,15 +80,7 @@ class ObjectService
      */
     public static function getUnitObjects(): array
     {
-        $units = [];
-
-        foreach (self::getAllObjects() as $object) {
-            if ($object instanceof UnitObject) {
-                $units[] = $object;
-            }
-        }
-
-        return $units;
+        return [...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
     }
 
     /**
@@ -195,15 +90,7 @@ class ObjectService
      */
     public static function getShipObjects(): array
     {
-        $ships = [];
-
-        foreach (self::getAllObjects() as $object) {
-            if ($object instanceof ShipObject) {
-                $ships[] = $object;
-            }
-        }
-
-        return $ships;
+        return [...MilitaryShipObjects::get(), ...CivilShipObjects::get()];
     }
 
     /**
@@ -213,15 +100,7 @@ class ObjectService
      */
     public static function getDefenseObjects(): array
     {
-        $defense = [];
-
-        foreach (self::getAllObjects() as $object) {
-            if ($object instanceof DefenseObject) {
-                $defense[] = $object;
-            }
-        }
-
-        return $defense;
+        return DefenseObjects::get();
     }
 
     /**
@@ -231,15 +110,7 @@ class ObjectService
      */
     public static function getMilitaryShipObjects(): array
     {
-        $ships = MilitaryShipObjects::get();
-
-        foreach (self::getAllObjects() as $object) {
-            if ($object instanceof ShipObject && $object->isMilitary) {
-                $ships[] = $object;
-            }
-        }
-
-        return $ships;
+        return MilitaryShipObjects::get();
     }
 
     /**
@@ -249,15 +120,7 @@ class ObjectService
      */
     public static function getCivilShipObjects(): array
     {
-        $ships = CivilShipObjects::get();
-
-        foreach (self::getAllObjects() as $object) {
-            if ($object instanceof ShipObject && !$object->isMilitary) {
-                $ships[] = $object;
-            }
-        }
-
-        return $ships;
+        return CivilShipObjects::get();
     }
 
     /**
@@ -268,7 +131,8 @@ class ObjectService
      */
     public static function getBuildingObjectByMachineName(string $machine_name): BuildingObject
     {
-        foreach (self::getBuildingObjects() as $building) {
+        // Loop through all buildings and return the one with the matching UID
+        foreach (BuildingObjects::get() as $building) {
             if ($building->machine_name === $machine_name) {
                 return $building;
             }
@@ -285,7 +149,9 @@ class ObjectService
      */
     public static function getShipObjectByMachineName(string $machine_name): ShipObject
     {
-        foreach (self::getShipObjects() as $ship) {
+        $shipObjects = [...MilitaryShipObjects::get(), ...CivilShipObjects::get()];
+        // Loop through all buildings and return the one with the matching UID
+        foreach ($shipObjects as $ship) {
             if ($ship->machine_name === $machine_name) {
                 return $ship;
             }
@@ -302,7 +168,11 @@ class ObjectService
      */
     public static function getObjectById(int $object_id): GameObject
     {
-        foreach (self::getAllObjects() as $object) {
+        $allObjects = [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
+                       ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
+
+        // Loop through all buildings and return the one with the matching UID
+        foreach ($allObjects as $object) {
             if ($object->id == $object_id) {
                 return $object;
             }
@@ -319,7 +189,11 @@ class ObjectService
      */
     public static function getObjectByMachineName(string $machine_name): GameObject
     {
-        foreach (self::getAllObjects() as $object) {
+        $allObjects = [...BuildingObjects::get(), ...StationObjects::get(), ...ResearchObjects::get(),
+                       ...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
+
+        // Loop through all buildings and return the one with the matching UID
+        foreach ($allObjects as $object) {
             if ($object->machine_name == $machine_name) {
                 return $object;
             }
@@ -336,7 +210,9 @@ class ObjectService
      */
     public static function getResearchObjectByMachineName(string $machine_name): ResearchObject
     {
-        foreach (self::getResearchObjects() as $object) {
+        // Loop through all buildings and return the one with the matching UID
+        $allObjects = ResearchObjects::get();
+        foreach ($allObjects as $object) {
             if ($object->machine_name === $machine_name) {
                 return $object;
             }
@@ -353,13 +229,15 @@ class ObjectService
      */
     public static function getResearchObjectById(int $object_id): ResearchObject
     {
-        foreach (self::getResearchObjects() as $object) {
+        // Loop through all buildings and return the one with the matching UID
+        $allObjects = ResearchObjects::get();
+        foreach ($allObjects as $object) {
             if ($object->id === $object_id) {
                 return $object;
             }
         }
 
-        throw new RuntimeException('Research object not found with object ID: ' . $object_id);
+        throw new RuntimeException('Unit object not found with object ID: ' . $object_id);
     }
 
     /**
@@ -370,7 +248,8 @@ class ObjectService
      */
     public static function getUnitObjectById(int $object_id): UnitObject
     {
-        foreach (self::getUnitObjects() as $object) {
+        $allObjects = [...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
+        foreach ($allObjects as $object) {
             if ($object->id === $object_id) {
                 return $object;
             }
@@ -387,7 +266,10 @@ class ObjectService
      */
     public static function getUnitObjectByMachineName(string $machine_name): UnitObject
     {
-        foreach (self::getUnitObjects() as $object) {
+        $allObjects = [...MilitaryShipObjects::get(), ...CivilShipObjects::get(), ...DefenseObjects::get()];
+
+        // Loop through all buildings and return the one with the matching UID
+        foreach ($allObjects as $object) {
             if ($object->machine_name === $machine_name) {
                 return $object;
             }
@@ -440,7 +322,7 @@ class ObjectService
     {
         $return = array();
 
-        foreach (self::getBuildingObjects() as $value) {
+        foreach (BuildingObjects::get() as $value) {
             if (!empty(($value->storage))) {
                 $return[] = $value;
             }

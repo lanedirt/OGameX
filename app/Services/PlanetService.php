@@ -7,8 +7,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use OGame\Events\BuildingCompleted;
-use OGame\Extensions\ExtensionRegistry;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Abstracts\GameObject;
@@ -737,7 +735,7 @@ class PlanetService
                 // Do not count solar satellite as ship.
                 continue;
             }
-            $totalCount += $this->storedObjectAmount($object);
+            $totalCount += $this->planet->{$object->machine_name};
         }
 
         return $totalCount;
@@ -753,9 +751,8 @@ class PlanetService
         $units = new UnitCollection();
         $objects = ObjectService::getShipObjects();
         foreach ($objects as $object) {
-            $amount = $this->storedObjectAmount($object);
-            if ($amount > 0) {
-                $units->addUnit($object, $amount);
+            if ($this->planet->{$object->machine_name} > 0) {
+                $units->addUnit($object, $this->planet->{$object->machine_name});
             }
         }
 
@@ -772,9 +769,8 @@ class PlanetService
         $units = new UnitCollection();
         $objects = ObjectService::getDefenseObjects();
         foreach ($objects as $object) {
-            $amount = $this->storedObjectAmount($object);
-            if ($amount > 0) {
-                $units->addUnit($object, $amount);
+            if ($this->planet->{$object->machine_name} > 0) {
+                $units->addUnit($object, $this->planet->{$object->machine_name});
             }
         }
 
@@ -792,9 +788,8 @@ class PlanetService
         $array = [];
         $objects = [...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects()];
         foreach ($objects as $object) {
-            $amount = $this->storedObjectAmount($object);
-            if ($amount > 0) {
-                $array[$object->machine_name] = $amount;
+            if ($this->planet->{$object->machine_name} > 0) {
+                $array[$object->machine_name] = $this->planet->{$object->machine_name};
             }
         }
 
@@ -925,7 +920,7 @@ class PlanetService
     public function getObjectLevel(string $machine_name): int
     {
         $object = ObjectService::getObjectByMachineName($machine_name);
-        $level = $this->storedObjectAmount($object);
+        $level = $this->planet->{$object->machine_name};
 
         // Required for unittests to work because db factories do not always set initial values.
         if (empty($level)) {
@@ -1077,10 +1072,8 @@ class PlanetService
     {
         $building = ObjectService::getObjectById($building_id);
 
-        $isModuleObject = $this->moduleObjectStates()->manages($building);
-
         // Sanity check: model property exists.
-        if (!$isModuleObject && !isset($this->planet->{$building->machine_name . '_percent'})) {
+        if (!isset($this->planet->{$building->machine_name . '_percent'})) {
             return false;
         }
 
@@ -1096,12 +1089,8 @@ class PlanetService
             return false;
         }
 
-        if ($isModuleObject) {
-            $this->moduleObjectStates()->setPlanetOption($this->planet, $building, 'production_percent', $percentage);
-        } else {
-            $this->planet->{$building->machine_name . '_percent'} = $percentage;
-            $this->save();
-        }
+        $this->planet->{$building->machine_name . '_percent'} = $percentage;
+        $this->save();
 
         return true;
     }
@@ -1152,20 +1141,6 @@ class PlanetService
                 // 5. Update resource storage
                 // ------
                 $this->updateResourceStorageStats(false);
-
-                // ------
-                // 6. Extend planet production through registered module extensions
-                // ------
-                foreach (app(ExtensionRegistry::class)->planetExtensions() as $extensionClass) {
-                    resolve($extensionClass)->extendResourceProduction($this);
-                }
-
-                // ------
-                // 7. Process module queue processors (e.g. lifeform building queues)
-                // ------
-                foreach (app(ExtensionRegistry::class)->queueProcessors() as $processorClass) {
-                    resolve($processorClass)->processQueue($this);
-                }
 
                 // Save the planet manually here to prevent it from happening 5+ times in the methods above.
                 $this->save();
@@ -1536,14 +1511,6 @@ class PlanetService
                 // already marked processed above, so it will not be retried on the next page load.
                 try {
                     $this->setObjectLevel($item->object_id, $item->object_level_target, $save_planet);
-
-                    BuildingCompleted::dispatch(
-                        planetId: $this->getPlanetId(),
-                        playerId: $player->getId(),
-                        machineName: ObjectService::getObjectById($item->object_id)->machine_name,
-                        level: $item->object_level_target,
-                        isDowngrade: $is_downgrade,
-                    );
                 } catch (RuntimeException $e) {
                     Log::error('Building queue item skipped due to invalid object type.', [
                         'planet_id' => $this->getPlanetId(),
@@ -1599,11 +1566,6 @@ class PlanetService
 
         if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
             throw new RuntimeException('setObjectLevel() can only be used for buildings and stations, not: ' . $object->machine_name);
-        }
-
-        if ($this->moduleObjectStates()->manages($object)) {
-            $this->moduleObjectStates()->setPlanetAmount($this->planet, $object, $level);
-            return;
         }
 
         $this->planet->{$object->machine_name} = $level;
@@ -1712,12 +1674,6 @@ class PlanetService
     public function addUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
         $object = ObjectService::getUnitObjectByMachineName($machine_name);
-
-        if ($this->moduleObjectStates()->manages($object)) {
-            $this->moduleObjectStates()->incrementPlanetAmount($this->planet, $object, $amount);
-            return;
-        }
-
         $this->planet->{$object->machine_name} += $amount;
 
         if ($save_planet) {
@@ -1756,11 +1712,6 @@ class PlanetService
     public function removeUnit(string $machine_name, int $amount, bool $save_planet = true): void
     {
         $object = ObjectService::getUnitObjectByMachineName($machine_name);
-
-        if ($this->moduleObjectStates()->manages($object)) {
-            $this->moduleObjectStates()->decrementPlanetAmount($this->planet, $object, $amount);
-            return;
-        }
 
         if ($save_planet) {
             // Use atomic update to prevent race conditions
@@ -1886,51 +1837,37 @@ class PlanetService
             return true;
         }
 
-        try {
-            return DB::transaction(function () use ($units): bool {
-                // Core units retain their one-statement update. Module units
-                // live in namespaced state rows and are decremented in this
-                // same transaction after core amounts are checked.
-                $query = Planet::where('id', $this->getPlanetId());
-                $updates = [];
-                $moduleUnits = [];
+        // Build the update query with WHERE conditions for all units
+        $query = Planet::where('id', $this->getPlanetId());
+        $updates = [];
 
-                foreach ($units->units as $unit) {
-                    if ($unit->amount < 1) {
-                        continue;
-                    }
+        foreach ($units->units as $unit) {
+            $machineName = $unit->unitObject->machine_name;
+            $amount = $unit->amount;
 
-                    if ($this->moduleObjectStates()->manages($unit->unitObject)) {
-                        $moduleUnits[] = $unit;
-                        continue;
-                    }
-
-                    $machineName = $unit->unitObject->machine_name;
-                    $query->where($machineName, '>=', $unit->amount);
-                    $updates[$machineName] = DB::raw("{$machineName} - {$unit->amount}");
-                }
-
-                if ($updates !== [] && $query->update($updates) === 0) {
-                    return false;
-                }
-
-                foreach ($moduleUnits as $unit) {
-                    $this->moduleObjectStates()->decrementPlanetAmount($this->planet, $unit->unitObject, $unit->amount);
-                }
-
-                // Module units have no planet attribute to synchronize.
-                foreach ($units->units as $unit) {
-                    if (!$this->moduleObjectStates()->manages($unit->unitObject)) {
-                        $machineName = $unit->unitObject->machine_name;
-                        $this->planet->{$machineName} -= $unit->amount;
-                    }
-                }
-
-                return true;
-            });
-        } catch (RuntimeException) {
-            return false;
+            if ($amount > 0) {
+                $query->where($machineName, '>=', $amount);
+                $updates[$machineName] = DB::raw("{$machineName} - {$amount}");
+            }
         }
+
+        if (empty($updates)) {
+            return true;
+        }
+
+        // Execute atomic update
+        $affected = $query->update($updates);
+
+        if ($affected > 0) {
+            // Sync in-memory model
+            foreach ($units->units as $unit) {
+                $machineName = $unit->unitObject->machine_name;
+                $this->planet->{$machineName} -= $unit->amount;
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -2340,10 +2277,6 @@ class PlanetService
     {
         $building = ObjectService::getObjectByMachineName($machine_name);
 
-        if ($this->moduleObjectStates()->manages($building)) {
-            return $this->moduleObjectStates()->planetOption($this->planet, $building, 'production_percent', 10);
-        }
-
         // Sanity check: model property exists.
         return $this->planet->{$building->machine_name . '_percent'} ?? 0;
     }
@@ -2413,9 +2346,8 @@ class PlanetService
         $objects = [...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects()];
         foreach ($objects as $object) {
             // Only count buildings that consume planet fields
-            $amount = $this->storedObjectAmount($object);
-            if ($object->consumesPlanetField && $amount > 0) {
-                $count += $amount;
+            if ($object->consumesPlanetField && $this->planet->{$object->machine_name} > 0) {
+                $count += $this->planet->{$object->machine_name};
             }
         }
 
@@ -2561,26 +2493,11 @@ class PlanetService
     {
         $object = ObjectService::getUnitObjectByMachineName($machine_name);
 
-        return $this->storedObjectAmount($object);
-    }
-
-    /**
-     * Read a core object's established column or a registered module object's
-     * namespaced state row. This is the single persistence boundary for planet
-     * game objects.
-     */
-    private function storedObjectAmount(GameObject $object): int
-    {
-        if ($this->moduleObjectStates()->manages($object)) {
-            return $this->moduleObjectStates()->planetAmount($this->planet, $object);
+        if (!empty($this->planet->{$object->machine_name})) {
+            return $this->planet->{$object->machine_name};
         }
 
-        return (int) ($this->planet->{$object->machine_name} ?? 0);
-    }
-
-    private function moduleObjectStates(): ModuleObjectStateService
-    {
-        return resolve(ModuleObjectStateService::class);
+        return 0;
     }
 
     /**

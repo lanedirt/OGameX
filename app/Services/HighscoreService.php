@@ -5,7 +5,6 @@ namespace OGame\Services;
 use Cache;
 use Exception;
 use OGame\Enums\HighscoreTypeEnum;
-use OGame\Extensions\ExtensionRegistry;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\CivilShipObjects;
@@ -15,7 +14,6 @@ use OGame\Models\AllianceHighscore;
 use OGame\Models\FleetMission;
 use OGame\Models\Highscore;
 use OGame\Models\Resources;
-use RuntimeException;
 
 /**
  * Class Highscore.
@@ -493,49 +491,5 @@ class HighscoreService
         return Cache::remember('highscore-alliance-count', now()->addMinutes(5), function () {
             return AllianceHighscore::query()->validRanks()->count();
         });
-    }
-
-    /**
-     * Discover module-registered highscore categories.
-     *
-     * @return array<int, array{id: string, label: string}>
-     */
-    public function getModuleHighscoreCategories(): array
-    {
-        $categories = [];
-        $seen = [];
-
-        foreach (app(ExtensionRegistry::class)->highscoreCategories() as $categoryClass) {
-            $category = resolve($categoryClass);
-            $id = $category->getCategoryId();
-
-            if (isset($seen[$id])) {
-                throw new RuntimeException(sprintf('Duplicate highscore category ID [%s] registered by a module.', $id));
-            }
-
-            $seen[$id] = true;
-            $categories[] = [
-                'id' => $id,
-                'label' => $category->getCategoryLabel(),
-            ];
-        }
-
-        return $categories;
-    }
-
-    /**
-     * Return a player's score for a module-registered highscore category.
-     */
-    public function getModuleCategoryScore(int $userId, string $categoryId): int
-    {
-        foreach (app(ExtensionRegistry::class)->highscoreCategories() as $categoryClass) {
-            $category = resolve($categoryClass);
-
-            if ($category->getCategoryId() === $categoryId) {
-                return $category->getScoreForUser($userId);
-            }
-        }
-
-        throw new RuntimeException('Highscore category not found: ' . $categoryId);
     }
 }

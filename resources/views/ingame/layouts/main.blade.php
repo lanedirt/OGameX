@@ -275,8 +275,6 @@
                     </div>
                 </div>
             </div>
-                {{-- Module extension point: additional resource tiles (e.g. population/food from Lifeforms) --}}
-                @moduleSlot('layout.resources_bar', ['currentPlanet' => $currentPlanet, 'currentPlayer' => $currentPlayer])
         </div>
         <div id="commandercomponent" class="">
             <!-- <div id="lifeform" class="fleft">
@@ -1432,8 +1430,6 @@ However, the Space Dock's engineers think that some of the remains can be salvag
                     },
                     "honorScore": 11,
                 });
-        {{-- Module extension point: additional JS after resource bar initialisation (e.g. population/food timers) --}}
-        @moduleSlot('layout.resources_bar_js', ['currentPlanet' => $currentPlanet])
 
                 function updateAjaxResourcebox(data) {
                     reloadResources(data);

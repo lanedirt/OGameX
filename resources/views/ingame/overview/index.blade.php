@@ -271,9 +271,6 @@
         <div class="c-left"></div>
         <div class="c-right"></div>
 
-    {{-- Module extension point: additional planet information (e.g. Lifeform status) --}}
-    @moduleSlot('overview.planet_info')
-
         <div id="productionboxBottom">
             <div class="productionBoxBuildings boxColumn building">
                 <div id="productionboxbuildingcomponent" class="productionboxbuilding injectedComponent parent overview">

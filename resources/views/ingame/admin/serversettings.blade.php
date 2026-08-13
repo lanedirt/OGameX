@@ -483,33 +483,6 @@
                         </div>
                     </div>
 
-                    @if (!empty($module_settings))
-                        <p class="box_highlight textCenter no_buddies">@lang('Module settings.')</p>
-
-                        <div class="group bborder" style="display: block;">
-                            @foreach ($module_settings as $setting)
-                                <div class="fieldwrapper">
-                                    <label class="styled textBeefy">{{ $setting['label'] }}</label>
-                                    <div class="thefield">
-                                        @if ($setting['type'] === 'boolean')
-                                            <square-checkbox class="square-checkbox">
-                                                <input type="checkbox" id="square-check-{{ $setting['field'] }}" name="{{ $setting['field'] }}" value="1" {{ $setting['value'] ? 'checked' : '' }}>
-                                                <label for="square-check-{{ $setting['field'] }}"></label>
-                                            </square-checkbox>
-                                        @elseif ($setting['type'] === 'integer')
-                                            <input type="text" pattern="[0-9]*" class="textInput w100 textCenter textBeefy" value="{{ $setting['value'] }}" size="10" name="{{ $setting['field'] }}">
-                                        @else
-                                            <input type="text" class="textInput w200" value="{{ $setting['value'] }}" size="30" name="{{ $setting['field'] }}">
-                                        @endif
-                                    </div>
-                                    @if ($setting['description'])
-                                        <div class="smallFont">{{ $setting['description'] }}</div>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
                     <div class="footer">
                         <div class="textCenter">
                             <input type="submit" class="btn_blue" value="@lang('Save settings')">

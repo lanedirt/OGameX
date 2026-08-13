@@ -7,26 +7,17 @@ use InvalidArgumentException;
 /**
  * Service for module view slot injection.
  *
- * Core Blade views contain @moduleSlot('slot.name', $data) directives at
- * agreed extension points. Modules register renderer callables through the
- * Extensions facade, which delegates to this service. Each callable receives a
- * data array and returns an HTML string.
+ * A core Blade view renders a named slot with @moduleSlot('slot.name'). Module
+ * providers register a renderer callable for that slot, which receives an empty
+ * data array and returns an HTML string. Core views are only ever modified at
+ * these explicit, documented boundaries.
  *
- * Usage in a module provider:
- *
- *   Extensions::module('mymodule', function (ModuleExtension $module): void {
- *       $module->slot('layout.resources_bar', function (array $data): string {
- *           return view('mymodule::layout.resource-tile', $data)->render();
- *       });
- *   });
+ * Slots are additive and renderer output is plain HTML appended at a fixed
+ * position. This foundation exposes a single, clearly controlled slot; no slot
+ * may inject JavaScript or replace arbitrary core markup.
  *
  * Available slot names:
- *   layout.resources_bar       — after darkmatter tile in main layout resource bar
- *   layout.resources_bar_js    — after resource JS vars in main layout
- *   resources.building_section — after building grid on resources page
- *   resources.production_box   — after production boxes on resources page
- *   overview.planet_info       — after planet stats on overview page
- *   admin.nav                  — after existing nav items in admin bar
+ *   admin.nav — after the existing nav items in the admin sidebar
  */
 class ModuleSlotService
 {
@@ -35,11 +26,6 @@ class ModuleSlotService
      * explicit boundaries; this keeps core views and module upgrades safe.
      */
     public const SLOTS = [
-        'layout.resources_bar',
-        'layout.resources_bar_js',
-        'resources.building_section',
-        'resources.production_box',
-        'overview.planet_info',
         'admin.nav',
     ];
 
@@ -49,7 +35,7 @@ class ModuleSlotService
     /**
      * Register a renderer callable for a named slot.
      *
-     * @param string   $slot     The slot name, e.g. 'layout.resources_bar'
+     * @param string   $slot     The slot name, e.g. 'admin.nav'
      * @param callable $renderer Receives array $data, returns HTML string
      */
     public static function register(string $slot, callable $renderer): void

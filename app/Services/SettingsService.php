@@ -68,23 +68,13 @@ class SettingsService
     }
 
     /**
-     * Return a scoped reader/writer for a module's settings.
-     *
-     * @param string $alias The module alias, e.g. 'lifeforms'.
-     */
-    public function module(string $alias): ModuleSettings
-    {
-        return new ModuleSettings($this, $alias);
-    }
-
-    /**
      * Set a setting value by key.
      *
      * @param string $key
-     * @param string|int|float|bool $value
+     * @param string|int $value
      * @return void
      */
-    public function set(string $key, string|int|float|bool $value): void
+    public function set(string $key, string|int $value): void
     {
         // When a setting is accessed, load everything from database.
         // We do it here instead of in constructor so call to database
@@ -93,8 +83,6 @@ class SettingsService
         if (empty($this->settings)) {
             $this->loadFromDatabase();
         }
-
-        $value = is_bool($value) ? ($value ? '1' : '0') : (string) $value;
 
         // Check if to be saved value is actually different from current one.
         $currentValue = $this->get($key, '');

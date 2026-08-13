@@ -2,7 +2,6 @@
 
 namespace OGame\Factories;
 
-use OGame\Extensions\ExtensionRegistry;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameMissions\AcsDefendMission;
 use OGame\GameMissions\AttackMission;
@@ -19,11 +18,9 @@ use RuntimeException;
 class GameMissionFactory
 {
     /**
-     * Core mission classes keyed by mission ID.
-     *
-     * @return array<int, class-string<GameMission>>
+     * @return array<GameMission>
      */
-    private static function coreMissionClasses(): array
+    public static function getAllMissions(): array
     {
         /*
         {
@@ -36,74 +33,44 @@ class GameMissionFactory
           "7": "Colonisation",
           "8": "Recycle Debris Field",
           "9": "Moon Destruction",
-          "10": "Missile Attack",
           "15": "Expedition"
         }
         */
         return [
-            1 => AttackMission::class,
-            2 => AttackMission::class,
-            3 => TransportMission::class,
-            4 => DeploymentMission::class,
-            5 => AcsDefendMission::class,
-            6 => EspionageMission::class,
-            7 => ColonisationMission::class,
-            8 => RecycleMission::class,
-            9 => MoonDestructionMission::class,
-            10 => MissileMission::class,
-            15 => ExpeditionMission::class,
+            1 => resolve(AttackMission::class),
+            2 => resolve(AttackMission::class),
+            3 => resolve(TransportMission::class),
+            4 => resolve(DeploymentMission::class),
+            5 => resolve(AcsDefendMission::class),
+            6 => resolve(EspionageMission::class),
+            7 => resolve(ColonisationMission::class),
+            8 => resolve(RecycleMission::class),
+            9 => resolve(MoonDestructionMission::class),
+            10 => resolve(MissileMission::class),
+            15 => resolve(ExpeditionMission::class),
         ];
     }
 
     /**
-     * @return array<int, GameMission>
-     */
-    public static function getAllMissions(): array
-    {
-        $missions = [];
-
-        foreach (self::coreMissionClasses() as $id => $class) {
-            $missions[$id] = resolve($class);
-        }
-
-        foreach (app(ExtensionRegistry::class)->missions() as $id => $class) {
-            if (isset($missions[$id])) {
-                throw new RuntimeException(sprintf(
-                    'Module mission ID [%d] conflicts with a core mission.',
-                    $id,
-                ));
-            }
-
-            $missions[$id] = resolve($class);
-        }
-
-        return $missions;
-    }
-
-    /**
-     * @param  array<string,mixed>  $dependencies
+     * @param int $missionId
+     * @param array<string,mixed> $dependencies
+     *
+     * @return GameMission
      */
     public static function getMissionById(int $missionId, array $dependencies): GameMission
     {
-        $moduleMissionClass = app(ExtensionRegistry::class)->missions()[$missionId] ?? null;
-
-        if ($moduleMissionClass !== null) {
-            if (isset(self::coreMissionClasses()[$missionId])) {
-                throw new RuntimeException(sprintf(
-                    'Module mission ID [%d] conflicts with a core mission.',
-                    $missionId,
-                ));
-            }
-
-            return resolve($moduleMissionClass, $dependencies);
-        }
-
-        $coreMissionClass = self::coreMissionClasses()[$missionId] ?? null;
-
-        if ($coreMissionClass === null) {
-            throw new RuntimeException('Mission not found: '.$missionId);
-        }
-
-        return resolve($coreMissionClass, $dependencies);
+        return match ($missionId) {
+            1, 2 => resolve(AttackMission::class, $dependencies),
+            3 => resolve(TransportMission::class, $dependencies),
+            4 => resolve(DeploymentMission::class, $dependencies),
+            5 => resolve(AcsDefendMission::class, $dependencies),
+            6 => resolve(EspionageMission::class, $dependencies),
+            7 => resolve(ColonisationMission::class, $dependencies),
+            8 => resolve(RecycleMission::class, $dependencies),
+            9 => resolve(MoonDestructionMission::class, $dependencies),
+            10 => resolve(MissileMission::class, $dependencies),
+            15 => resolve(ExpeditionMission::class, $dependencies),
+            default => throw new RuntimeException('Mission not found: ' . $missionId),
+        };
     }
 }

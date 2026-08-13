@@ -3,7 +3,6 @@
 namespace OGame\Factories;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
-use OGame\Extensions\ExtensionRegistry;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\AcsDefendArrivalHost;
 use OGame\GameMessages\AcsDefendArrivalSender;
@@ -125,61 +124,34 @@ class GameMessageFactory
     ];
 
     /**
-     * Return the merged core and module game message class map.
-     *
-     * @return array<string, class-string<GameMessage>>
-     */
-    private static function messageClassMap(): array
-    {
-        $classes = self::$gameMessageClasses;
-
-        foreach (app(ExtensionRegistry::class)->messages() as $key => $class) {
-            if (isset($classes[$key])) {
-                throw new RuntimeException(sprintf(
-                    'Module message key [%s] conflicts with a core message.',
-                    $key,
-                ));
-            }
-
-            $classes[$key] = $class;
-        }
-
-        return $classes;
-    }
-
-    /**
      * @return array<GameMessage>
      */
     public static function getAllGameMessages(): array
     {
         $gameMessages = [];
-        foreach (self::messageClassMap() as $id => $class) {
+        foreach (self::$gameMessageClasses as $id => $class) {
             try {
                 // Create a new instance of the game message class and pass a new (empty) Message object to it.
                 $gameMessages[$id] = resolve($class, ['message' => new Message()]);
             } catch (BindingResolutionException $e) {
-                throw new RuntimeException('Game message not found: '.$class);
+                throw new RuntimeException('Game message not found: ' . $class);
             }
         }
-
         return $gameMessages;
     }
 
     /**
      * Create a game message instance based on a message model.
+     *
+     * @param Message $message
+     * @return GameMessage
      */
     public static function createGameMessage(Message $message): GameMessage
     {
-        $classMap = self::messageClassMap();
-
-        if (! isset($classMap[$message->key])) {
-            throw new RuntimeException('Game message not found: '.$message->key);
-        }
-
         try {
-            return resolve($classMap[$message->key], ['message' => $message]);
+            return resolve(self::$gameMessageClasses[$message->key], ['message' => $message]);
         } catch (BindingResolutionException $e) {
-            throw new RuntimeException('Game message not found: '.$message->key);
+            throw new RuntimeException('Game message not found: ' . $message->key);
         }
     }
 
@@ -187,20 +159,22 @@ class GameMessageFactory
      * Get all class keys that have a certain tab and optionally subtab. This is for knowing which messages to display
      * in the game messages page in what tab/subtab.
      *
+     * @param string $tab
+     * @param string|null $subtab
      * @return array<int, string>
      */
-    public static function GetGameMessageKeysByTab(string $tab, ?string $subtab = null): array
+    public static function GetGameMessageKeysByTab(string $tab, string|null $subtab = null): array
     {
         $matchingKeys = [];
 
-        foreach (self::messageClassMap() as $id => $className) {
+        foreach (self::$gameMessageClasses as $id => $className) {
             try {
                 $gameMessage = resolve($className);
                 if ($gameMessage->getTab() === $tab && ($subtab === null || $gameMessage->getSubtab() === $subtab)) {
                     $matchingKeys[] = $id;
                 }
             } catch (BindingResolutionException $e) {
-                throw new RuntimeException('Game message not found: '.$className);
+                throw new RuntimeException('Game message not found: ' . $className);
             }
         }
 

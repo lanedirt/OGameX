@@ -5,7 +5,6 @@ namespace OGame\GameMissions;
 use Exception;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
-use OGame\Events\PlanetColonized;
 use OGame\GameConstants\UniverseConstants;
 use OGame\GameMessages\ColonyEstablished;
 use OGame\GameMessages\ColonyEstablishFailAstrophysics;
@@ -29,12 +28,12 @@ class ColonisationMission extends GameMission
     protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Neutral;
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
         $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
-        if (! $parentCheck->possible) {
+        if (!$parentCheck->possible) {
             return $parentCheck;
         }
 
@@ -59,7 +58,7 @@ class ColonisationMission extends GameMission
         if ($player === null) {
             return new MissionPossibleStatus(false);
         }
-        if (! $player->canColonizePosition($targetCoordinate->position)) {
+        if (!$player->canColonizePosition($targetCoordinate->position)) {
             return new MissionPossibleStatus(false, __('Your knowledge of astrophysics is not sufficient to colonize this planet position.'));
         }
 
@@ -73,8 +72,7 @@ class ColonisationMission extends GameMission
     }
 
     /**
-     * {@inheritdoc}
-     *
+     * @inheritdoc
      * @throws Exception
      */
     protected function processArrival(FleetMission $mission): void
@@ -93,7 +91,6 @@ class ColonisationMission extends GameMission
             // TODO: add unittest for this behavior.
             // Cancel the current mission.
             $this->cancel($mission);
-
             return;
         }
 
@@ -101,7 +98,6 @@ class ColonisationMission extends GameMission
         if ($mission->colony_ship < 1) {
             // Cancel the current mission.
             $this->cancel($mission);
-
             return;
         }
 
@@ -114,17 +110,11 @@ class ColonisationMission extends GameMission
             ]);
 
             $this->cancel($mission);
-
             return;
         }
 
         // Create a new planet at the target coordinates.
         $target_planet = $this->planetServiceFactory->createAdditionalPlanetForPlayer($player, $target_coordinates);
-
-        PlanetColonized::dispatch(
-            planetId: $target_planet->getPlanetId(),
-            playerId: $player->getId(),
-        );
 
         // Send success message
         $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablished::class, [
@@ -151,7 +141,7 @@ class ColonisationMission extends GameMission
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function processReturn(FleetMission $mission): void
     {
