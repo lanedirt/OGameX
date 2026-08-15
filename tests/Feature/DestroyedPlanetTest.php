@@ -485,4 +485,215 @@ class DestroyedPlanetTest extends AccountTestCase
         $this->assertNotNull($returnMission, 'Recall should create a return mission with the ships');
         $this->assertSame(3, (int) $returnMission->small_cargo);
     }
+
+    /**
+     * Moon-origin fleets must survive purge when the parent planet is also destroyed.
+     * Rebinding to the dying parent would let the parent's teleport cancel the ships.
+     */
+    public function testCleanupPreservesMoonOriginFleetWhenParentAlsoPurged(): void
+    {
+        $this->assertNotNull($this->secondPlanetService);
+
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+
+        $homePlanet = $this->planetService;
+        $abandonedPlanet = $this->secondPlanetService;
+        $homeId = $homePlanet->getPlanetId();
+        $abandonedId = $abandonedPlanet->getPlanetId();
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $moon = $planetServiceFactory->createMoonForPlanet($abandonedPlanet, 2000000, 20);
+        $this->assertNotNull($moon);
+        $moonId = $moon->getPlanetId();
+        $moonCoords = $moon->getPlanetCoordinates();
+
+        // Empty slot for a recycle-like outbound destination (coordinates only; no target body).
+        $targetCoords = $homePlanet->getPlanetCoordinates();
+
+        $outbound = new FleetMission();
+        $outbound->user_id = $player->getId();
+        $outbound->planet_id_from = $moonId;
+        $outbound->planet_id_to = null;
+        $outbound->galaxy_from = $moonCoords->galaxy;
+        $outbound->system_from = $moonCoords->system;
+        $outbound->position_from = $moonCoords->position;
+        $outbound->galaxy_to = $targetCoords->galaxy;
+        $outbound->system_to = $targetCoords->system;
+        $outbound->position_to = min(15, $targetCoords->position + 1);
+        $outbound->type_from = PlanetType::Moon->value;
+        $outbound->type_to = PlanetType::Planet->value;
+        $outbound->mission_type = 3;
+        $outbound->time_departure = (int) Date::now()->subMinutes(10)->timestamp;
+        $outbound->time_arrival = (int) Date::now()->addHour()->timestamp;
+        $outbound->processed = 0;
+        $outbound->processed_hold = 0;
+        $outbound->canceled = 0;
+        $outbound->metal = 0;
+        $outbound->crystal = 0;
+        $outbound->deuterium = 0;
+        $outbound->deuterium_consumption = 0;
+        $outbound->small_cargo = 4;
+        $outbound->save();
+
+        // Bypass abandon guards: soft-flag both bodies as already past the 24h grace window.
+        $destroyedAt = (int) Date::now()->subHours(25)->timestamp;
+        $abandonedPlanet->applyDestroyedFlag($destroyedAt);
+        $moon->applyDestroyedFlag($destroyedAt);
+
+        // @phpstan-ignore-next-line
+        $this->artisan('ogamex:scheduler:cleanup-destroyed-planets')->assertSuccessful();
+
+        $this->assertDatabaseMissing('planets', ['id' => $abandonedId]);
+        $this->assertDatabaseMissing('planets', ['id' => $moonId]);
+
+        $outbound->refresh();
+        $this->assertSame(0, (int) $outbound->canceled, 'Moon-origin fleet must not be canceled during parent+moon purge');
+        $this->assertSame(0, (int) $outbound->processed);
+        $this->assertSame($homeId, (int) $outbound->planet_id_from, 'Fleet must rebind to a living colony, not the dying parent');
+        $this->assertSame(4, (int) $outbound->small_cargo);
+    }
+
+    /**
+     * Former owner's vacation mode must not protect a destroyed planet (Deep space).
+     */
+    public function testVacationModeDoesNotProtectDestroyedPlanet(): void
+    {
+        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $coords = $foreignPlanet->getPlanetCoordinates();
+
+        $formerOwner = $foreignPlanet->getPlayer();
+        if ($formerOwner === null) {
+            $this->fail('Foreign planet owner is null.');
+        }
+        $formerOwner->activateVacationMode();
+        $this->assertTrue($formerOwner->isInVacationMode());
+
+        $foreignPlanet->applyDestroyedFlag((int) Date::now()->timestamp);
+
+        $attackMission = resolve(AttackMission::class);
+        $espionageMission = resolve(EspionageMission::class);
+        $transportMission = resolve(TransportMission::class);
+
+        $fighters = new UnitCollection();
+        $fighters->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+
+        $probes = new UnitCollection();
+        $probes->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 1);
+
+        $cargo = new UnitCollection();
+        $cargo->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+
+        $this->assertTrue(
+            $attackMission->isMissionPossible($this->planetService, $coords, PlanetType::Planet, $fighters)->possible,
+            'Attack must remain possible against destroyed planet whose former owner is in vacation'
+        );
+        $this->assertTrue(
+            $espionageMission->isMissionPossible($this->planetService, $coords, PlanetType::Planet, $probes)->possible,
+            'Espionage must remain possible against destroyed planet whose former owner is in vacation'
+        );
+        $this->assertTrue(
+            $transportMission->isMissionPossible($this->planetService, $coords, PlanetType::Planet, $cargo)->possible,
+            'Transport must remain possible against destroyed planet whose former owner is in vacation'
+        );
+    }
+
+    /**
+     * Incoming foreign fleets must not block abandon; own outbound (including moon) must.
+     */
+    public function testAbandonBlocksOnlyOwnOutboundFleets(): void
+    {
+        $this->assertNotNull($this->secondPlanetService);
+
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+
+        $abandonedPlanet = $this->secondPlanetService;
+        $abandonedId = $abandonedPlanet->getPlanetId();
+        $abandonedCoords = $abandonedPlanet->getPlanetCoordinates();
+
+        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign player is null.');
+        }
+        $foreignCoords = $foreignPlanet->getPlanetCoordinates();
+
+        // Incoming foreign attack targeting the planet about to be abandoned.
+        $incoming = new FleetMission();
+        $incoming->user_id = $foreignPlayer->getId();
+        $incoming->planet_id_from = $foreignPlanet->getPlanetId();
+        $incoming->planet_id_to = $abandonedId;
+        $incoming->galaxy_from = $foreignCoords->galaxy;
+        $incoming->system_from = $foreignCoords->system;
+        $incoming->position_from = $foreignCoords->position;
+        $incoming->galaxy_to = $abandonedCoords->galaxy;
+        $incoming->system_to = $abandonedCoords->system;
+        $incoming->position_to = $abandonedCoords->position;
+        $incoming->type_from = PlanetType::Planet->value;
+        $incoming->type_to = PlanetType::Planet->value;
+        $incoming->mission_type = 1;
+        $incoming->time_departure = (int) Date::now()->subMinutes(5)->timestamp;
+        $incoming->time_arrival = (int) Date::now()->addHour()->timestamp;
+        $incoming->processed = 0;
+        $incoming->processed_hold = 0;
+        $incoming->canceled = 0;
+        $incoming->metal = 0;
+        $incoming->crystal = 0;
+        $incoming->deuterium = 0;
+        $incoming->deuterium_consumption = 0;
+        $incoming->light_fighter = 1;
+        $incoming->save();
+
+        // Incoming alone must not block abandon.
+        $abandonedPlanet->markAsDestroyed();
+        $this->assertTrue($abandonedPlanet->isDestroyed());
+
+        // Reset for outbound / moon cases: clear destroyed flag via fresh second planet path.
+        // Use a new moon+outbound on the home planet's second body after recreating state.
+        $row = Planet::find($abandonedId);
+        $this->assertNotNull($row);
+        $row->destroyed = 0;
+        $row->save();
+        $abandonedPlanet->reloadPlanet();
+        $player->load($player->getId());
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $moon = $planetServiceFactory->createMoonForPlanet($abandonedPlanet, 2000000, 20);
+        $this->assertNotNull($moon);
+        $moonCoords = $moon->getPlanetCoordinates();
+
+        $moonOutbound = new FleetMission();
+        $moonOutbound->user_id = $player->getId();
+        $moonOutbound->planet_id_from = $moon->getPlanetId();
+        $moonOutbound->planet_id_to = $foreignPlanet->getPlanetId();
+        $moonOutbound->galaxy_from = $moonCoords->galaxy;
+        $moonOutbound->system_from = $moonCoords->system;
+        $moonOutbound->position_from = $moonCoords->position;
+        $moonOutbound->galaxy_to = $foreignCoords->galaxy;
+        $moonOutbound->system_to = $foreignCoords->system;
+        $moonOutbound->position_to = $foreignCoords->position;
+        $moonOutbound->type_from = PlanetType::Moon->value;
+        $moonOutbound->type_to = PlanetType::Planet->value;
+        $moonOutbound->mission_type = 3;
+        $moonOutbound->time_departure = (int) Date::now()->subMinutes(5)->timestamp;
+        $moonOutbound->time_arrival = (int) Date::now()->addHour()->timestamp;
+        $moonOutbound->processed = 0;
+        $moonOutbound->processed_hold = 0;
+        $moonOutbound->canceled = 0;
+        $moonOutbound->metal = 0;
+        $moonOutbound->crystal = 0;
+        $moonOutbound->deuterium = 0;
+        $moonOutbound->deuterium_consumption = 0;
+        $moonOutbound->small_cargo = 1;
+        $moonOutbound->save();
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Cannot abandon planet with active fleet missions.');
+        $abandonedPlanet->markAsDestroyed();
+    }
 }

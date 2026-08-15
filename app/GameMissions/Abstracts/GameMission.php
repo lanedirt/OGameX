@@ -430,6 +430,12 @@ abstract class GameMission
      */
     protected function checkTargetVacationMode(PlanetService|null $targetPlanet): MissionPossibleStatus|null
     {
+        // Destroyed planets are Deep space / not player-controlled; vacation of the former
+        // owner must not block attack, espionage, or transport (classic OGame).
+        if ($targetPlanet !== null && $targetPlanet->isDestroyed()) {
+            return null;
+        }
+
         if ($targetPlanet !== null && $targetPlanet->getPlayer()?->isInVacationMode()) {
             return new MissionPossibleStatus(false, __('This player is in vacation mode!'));
         }
