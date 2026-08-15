@@ -267,9 +267,9 @@
             var holdingTime = 1;
             var expeditionTime = 0;
             // var lifeformEnabled = true;
-            var metalOnPlanet = {{ $planet->metal()->getRounded() }};
-            var crystalOnPlanet = {{ $planet->crystal()->getRounded() }};
-            var deuteriumOnPlanet = {{ $planet->deuterium()->getRounded() }};
+            var metalOnPlanet = {{ (int) floor($planet->metal()->get()) }};
+            var crystalOnPlanet = {{ (int) floor($planet->crystal()->get()) }};
+            var deuteriumOnPlanet = {{ (int) floor($planet->deuterium()->get()) }};
             // var foodOnPlanet = 0;
 
             var fleetCount = {{ $fleetSlotsInUse }};
