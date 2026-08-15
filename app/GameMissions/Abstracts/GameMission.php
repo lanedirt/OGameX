@@ -28,6 +28,7 @@ use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 use OGame\Support\FleetMissionPlanetFormatter;
+use Throwable;
 
 abstract class GameMission
 {
@@ -725,6 +726,11 @@ abstract class GameMission
     abstract protected function processReturn(FleetMission $mission): void;
 
     /**
+     * Snapshot attacker origin display fields for battle reports.
+     *
+     * PlanetServiceFactory::make() throws when the body no longer exists, so this
+     * must catch failures and return an empty array rather than aborting report creation.
+     *
      * @return array{planet_coords?: string, planet_name?: string, planet_type?: string}
      */
     protected function buildAttackerPlanetSnapshot(int|null $planetId): array
@@ -733,15 +739,19 @@ abstract class GameMission
             return [];
         }
 
-        $planet = $this->planetServiceFactory->make($planetId, true);
-        if ($planet === null) {
+        try {
+            $planet = $this->planetServiceFactory->make($planetId, true);
+            if ($planet === null) {
+                return [];
+            }
+
+            return [
+                'planet_coords' => $planet->getPlanetCoordinates()->asString(),
+                'planet_name' => $planet->getPlanetName(),
+                'planet_type' => $planet->getPlanetType() === PlanetType::Moon ? 'Moon' : 'Planet',
+            ];
+        } catch (Throwable) {
             return [];
         }
-
-        return [
-            'planet_coords' => $planet->getPlanetCoordinates()->asString(),
-            'planet_name' => $planet->getPlanetName(),
-            'planet_type' => $planet->getPlanetType() === PlanetType::Moon ? 'Moon' : 'Planet',
-        ];
     }
 }

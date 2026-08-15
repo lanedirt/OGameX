@@ -34,8 +34,13 @@ final class FleetMissionPlanetFormatter
         $tag = self::tag($mission, $endpoint);
         $type = $endpoint === 'from' ? $mission->type_from : $mission->type_to;
 
-        if (in_array($type, [PlanetType::Planet->value, PlanetType::Moon->value], true)
-            && str_starts_with($tag, '[planet]')) {
+        if (!in_array($type, [PlanetType::Planet->value, PlanetType::Moon->value], true)) {
+            return $tag;
+        }
+
+        // Legacy return messages always labeled the destination as a planet. The origin
+        // only got that label when a live planet ID tag was available (coords stay bare).
+        if ($endpoint === 'to' || str_starts_with($tag, '[planet]')) {
             return __('planet') . ' ' . $tag;
         }
 

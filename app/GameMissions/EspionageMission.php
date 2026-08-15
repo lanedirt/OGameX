@@ -182,7 +182,7 @@ class EspionageMission extends GameMission
             $attackerName = $originPlayer->getUsername();
 
             $params = [
-                // IMPORTANT: pass the raw mission planet id inside [planet]...[/planet]
+                // Prefer [planet] tags; fall back to coordinates when the body was deleted.
                 'planet'        => FleetMissionPlanetFormatter::tag($mission, 'from'),
                 'defender'      => FleetMissionPlanetFormatter::tag($mission, 'to'),
                 'attacker_name' => $attackerName,
@@ -348,7 +348,7 @@ class EspionageMission extends GameMission
             'moon_created' => $battleResult->moonCreated,
         ];
 
-        $report->attacker = [
+        $report->attacker = array_merge([
             'player_id' => $attackerPlayer->getId(),
             'resource_loss' => $battleResult->attackerResourceLoss->sum(),
             'units' => $battleResult->attackerUnitsStart->toArray(),
@@ -356,7 +356,7 @@ class EspionageMission extends GameMission
             'shielding_technology' => $battleResult->attackerShieldLevel,
             'armor_technology' => $battleResult->attackerArmorLevel,
             'planet_id' => $battleResult->attackerPlanetId,
-        ];
+        ], $this->buildAttackerPlanetSnapshot($battleResult->attackerPlanetId));
 
         $report->defender = [
             'player_id' => $defenderPlayer->getId(),
