@@ -222,7 +222,7 @@ abstract class BattleEngine
         // Calculate the resources lost by the attacker and defender.
         // Deduct defender's lost units from the defenders planet.
         // Only subtract unit types present in the start collection — sanitizeRoundArray may
-        // add zero-amount planet ships (e.g. fleed ships still on the planet) to round results.
+        // still add zero-amount unit types that participated in combat but were wiped out.
         $result->attackerUnitsLost = clone $result->attackerUnitsStart;
         foreach ($result->attackerUnitsResult->units as $entry) {
             if ($result->attackerUnitsLost->hasUnit($entry->unitObject)) {
@@ -252,7 +252,10 @@ abstract class BattleEngine
         $result->repairedDefenses = $defenseRepairService->calculateRepairedDefenses($result->defenderUnitsLost);
 
         // Determine winner of battle.
-        if ($result->defenderUnitsResult->getAmount() === 0) {
+        // Attacker withdrawal after defender flee is not a combat win — never grant loot.
+        if ($result->tacticalRetreatAttackerAlsoRetreated) {
+            $result->loot = new Resources(0, 0, 0, 0);
+        } elseif ($result->defenderUnitsResult->getAmount() === 0) {
             // ---
             // [WIN] - If attacker wins:
             // ---
@@ -772,6 +775,13 @@ abstract class BattleEngine
     {
         $combinedAttackerFleet = $this->getAttackerFleet();
 
+        // Use post-retreat combat fleets so ships that fled are not padded into rounds
+        // as zero-amount "destroyed" units (they remain on the planet outside combat).
+        $combatDefenderUnits = new UnitCollection();
+        foreach ($this->defenders as $defenderFleet) {
+            $combatDefenderUnits->addCollection($defenderFleet->units);
+        }
+
         foreach ($rounds as $round) {
             // Ensure all attacker units are present in the round
             foreach ($combinedAttackerFleet->units as $unit) {
@@ -780,8 +790,8 @@ abstract class BattleEngine
                 }
             }
 
-            // Ensure all defender units are present in the round
-            foreach ($this->defenderPlanet->getShipUnits()->units as $unit) {
+            // Ensure all combat defender units are present in the round
+            foreach ($combatDefenderUnits->units as $unit) {
                 if (!$round->defenderShips->hasUnit($unit->unitObject)) {
                     $round->defenderShips->addUnit($unit->unitObject, 0);
                 }

@@ -234,6 +234,59 @@ class TacticalRetreatTest extends AccountTestCase
         $this->assertEquals(0, $result->defenderUnitsLost->getAmountByMachineName('rocket_launcher'));
     }
 
+    public function testAttackerRetreatGrantsNoLootWhenOnlyShipsFled(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $defenderPlanet = $this->prepareDefenderPlanet([
+            'light_fighter' => 5,
+            'deuterium' => 100000,
+        ]);
+        $defenderPlanet->addResources(new Resources(50000, 50000, 0, 0));
+
+        $attackerFleet = new UnitCollection();
+        $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
+
+        $engine = $this->createBattleEngine($attackerFleet, $this->attackerPlayer(), $defenderPlanet, $settingsService);
+        $engine->setRetreatAfterDefenderRetreat(true);
+        $result = $engine->simulateBattle();
+
+        $this->assertTrue($result->tacticalRetreatDefenderFled);
+        $this->assertTrue($result->tacticalRetreatAttackerAlsoRetreated);
+        $this->assertEquals(0, $result->defenderUnitsResult->getAmount());
+        $this->assertEquals(0, $result->loot->sum(), 'Mutual retreat must not award loot even with empty combat defender side');
+    }
+
+    public function testFleedShipsAreNotPaddedIntoCombatRoundsAsDestroyed(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $defenderPlanet = $this->prepareDefenderPlanet([
+            'light_fighter' => 5,
+            'rocket_launcher' => 100,
+            'deuterium' => 100000,
+        ]);
+
+        $attackerFleet = new UnitCollection();
+        $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
+
+        $engine = $this->createBattleEngine($attackerFleet, $this->attackerPlayer(), $defenderPlanet, $settingsService);
+        $result = $engine->simulateBattle();
+
+        $this->assertTrue($result->tacticalRetreatDefenderFled);
+        $this->assertNotEmpty($result->rounds);
+
+        foreach ($result->rounds as $round) {
+            $this->assertEquals(
+                0,
+                $round->defenderShips->getAmountByMachineName('light_fighter'),
+                'Fleed ships must not appear in combat rounds'
+            );
+            $this->assertFalse(
+                $round->defenderShips->hasUnit(ObjectService::getUnitObjectByMachineName('light_fighter')),
+                'Fleed ships must not be padded into round unit lists'
+            );
+        }
+    }
+
     /**
      * @param array<string, int> $attributes
      */

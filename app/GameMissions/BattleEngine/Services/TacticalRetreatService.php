@@ -7,9 +7,9 @@ use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\Models\TacticalRetreatDecision;
 use OGame\GameObjects\Models\Units\UnitCollection;
-use OGame\Models\Highscore;
 use OGame\Models\Planet\Coordinate;
 use OGame\Services\FleetMissionService;
+use OGame\Services\NPCPlayerService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
@@ -26,7 +26,7 @@ class TacticalRetreatService
      *
      * @var list<string>
      */
-    private const array EXCLUDED_FROM_POINTS = [
+    private const array NON_FLEEING_SHIPS = [
         'deathstar',
         'espionage_probe',
         'solar_satellite',
@@ -34,16 +34,25 @@ class TacticalRetreatService
     ];
 
     /**
-     * Ship types that cannot flee (even if they somehow had points).
+     * Cached military ship machine names (machine_name => true).
      *
-     * @var list<string>
+     * @var array<string, true>|null
      */
-    private const array CANNOT_FLEE = [
-        'deathstar',
-        'espionage_probe',
-        'solar_satellite',
-        'crawler',
-    ];
+    private static ?array $militaryShipNames = null;
+
+    /**
+     * Cached civil ship machine names (machine_name => true).
+     *
+     * @var array<string, true>|null
+     */
+    private static ?array $civilShipNames = null;
+
+    /**
+     * Cached all ship machine names (machine_name => true).
+     *
+     * @var array<string, true>|null
+     */
+    private static ?array $allShipNames = null;
 
     /**
      * Calculate retreat-weighted fleet points for a unit collection.
@@ -52,23 +61,15 @@ class TacticalRetreatService
     public function calculateFleetPoints(UnitCollection $units): int
     {
         $resourcesSpent = 0.0;
-
-        $militaryMachineNames = [];
-        foreach (ObjectService::getMilitaryShipObjects() as $ship) {
-            $militaryMachineNames[$ship->machine_name] = true;
-        }
-
-        $civilMachineNames = [];
-        foreach (ObjectService::getCivilShipObjects() as $ship) {
-            $civilMachineNames[$ship->machine_name] = true;
-        }
+        $militaryMachineNames = $this->militaryShipNames();
+        $civilMachineNames = $this->civilShipNames();
 
         foreach ($units->units as $entry) {
             $machineName = $entry->unitObject->machine_name;
             if ($entry->amount <= 0) {
                 continue;
             }
-            if (in_array($machineName, self::EXCLUDED_FROM_POINTS, true)) {
+            if (in_array($machineName, self::NON_FLEEING_SHIPS, true)) {
                 continue;
             }
 
@@ -91,11 +92,7 @@ class TacticalRetreatService
     public function extractFleeingUnits(UnitCollection $units): UnitCollection
     {
         $fleeing = new UnitCollection();
-
-        $shipMachineNames = [];
-        foreach (ObjectService::getShipObjects() as $ship) {
-            $shipMachineNames[$ship->machine_name] = true;
-        }
+        $shipMachineNames = $this->allShipNames();
 
         foreach ($units->units as $entry) {
             $machineName = $entry->unitObject->machine_name;
@@ -105,7 +102,7 @@ class TacticalRetreatService
             if (!isset($shipMachineNames[$machineName])) {
                 continue;
             }
-            if (in_array($machineName, self::CANNOT_FLEE, true)) {
+            if (in_array($machineName, self::NON_FLEEING_SHIPS, true)) {
                 continue;
             }
             $fleeing->addUnit($entry->unitObject, $entry->amount);
@@ -204,13 +201,19 @@ class TacticalRetreatService
             return $decision;
         }
 
+        // Expedition NPC battles reuse the battle engine; NPCs must never flee.
+        if ($defenderPlayer instanceof NPCPlayerService || $defenderPlayer->getId() <= 0) {
+            $decision->blockedReason = 'npc';
+            return $decision;
+        }
+
         $threshold = $this->resolveRetreatThreshold($defenderPlayer);
         if ($threshold === 0) {
             $decision->blockedReason = 'disabled';
             return $decision;
         }
 
-        if ($this->getGeneralPoints($defenderPlayer) >= self::POINTS_CUTOFF) {
+        if ($defenderPlayer->getCachedGeneralScore() >= self::POINTS_CUTOFF) {
             $decision->blockedReason = 'points_cutoff';
             return $decision;
         }
@@ -272,10 +275,48 @@ class TacticalRetreatService
         return 5;
     }
 
-    private function getGeneralPoints(PlayerService $player): int
+    /**
+     * @return array<string, true>
+     */
+    private function militaryShipNames(): array
     {
-        $highscore = Highscore::where('player_id', $player->getId())->first();
+        if (self::$militaryShipNames === null) {
+            self::$militaryShipNames = [];
+            foreach (ObjectService::getMilitaryShipObjects() as $ship) {
+                self::$militaryShipNames[$ship->machine_name] = true;
+            }
+        }
 
-        return (int)($highscore->general ?? 0);
+        return self::$militaryShipNames;
+    }
+
+    /**
+     * @return array<string, true>
+     */
+    private function civilShipNames(): array
+    {
+        if (self::$civilShipNames === null) {
+            self::$civilShipNames = [];
+            foreach (ObjectService::getCivilShipObjects() as $ship) {
+                self::$civilShipNames[$ship->machine_name] = true;
+            }
+        }
+
+        return self::$civilShipNames;
+    }
+
+    /**
+     * @return array<string, true>
+     */
+    private function allShipNames(): array
+    {
+        if (self::$allShipNames === null) {
+            self::$allShipNames = [];
+            foreach (ObjectService::getShipObjects() as $ship) {
+                self::$allShipNames[$ship->machine_name] = true;
+            }
+        }
+
+        return self::$allShipNames;
     }
 }
