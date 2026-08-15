@@ -4,6 +4,8 @@ namespace Tests\Unit\BattleEngine;
 
 use OGame\GameMissions\BattleEngine\BattleEngine;
 use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
+use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Models\UserTech;
@@ -49,6 +51,19 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $attacker->fleetMission = null;
 
         return $attacker;
+    }
+
+    /**
+     * Return the last round that was fought in the given battle result.
+     */
+    protected function lastRound(BattleResult $battleResult): BattleResultRound
+    {
+        $lastRound = end($battleResult->rounds);
+        if ($lastRound === false) {
+            $this->fail('The battle result does not contain any rounds.');
+        }
+
+        return $lastRound;
     }
 
     /**
@@ -266,7 +281,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertNotEmpty($battleResult->rounds);
 
         // Check last round.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound->attackerShips);
 
         $this->assertNotEquals($attackerFleet->getAmountByMachineName($smallCargo->machine_name), $lastRound->attackerShips->getAmountByMachineName($smallCargo->machine_name));
@@ -336,7 +351,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertNotEmpty($battleResult->rounds);
 
         // Get last round with result.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound->attackerShips);
         $this->assertNotEmpty($lastRound->defenderShips);
         $this->assertEquals(0, $lastRound->attackerShips->getAmountByMachineName($lightFighter->machine_name));
@@ -385,7 +400,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertNotEmpty($battleResult->rounds);
 
         // Get last round with result.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound->attackerShips);
         $this->assertNotEmpty($lastRound->defenderShips);
         $this->assertEquals(1, $lastRound->attackerShips->getAmountByMachineName($deathStar->machine_name));
@@ -452,7 +467,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertGreaterThan(30, $firstRound->hitsAttacker);
 
         // Get last round with result.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         // Expected result: attacker loses, defender rocket launchers remaining < 400. Without rapidfire the estimated
         // remaining rocket launchers would be between 450-500.
         $this->assertLessThan(400, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
@@ -482,7 +497,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertCount(6, $battleResult->rounds);
 
         // Get last round.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound);
         // Assert that attacker has all light fighters remaining.
         $this->assertEquals(5000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
@@ -522,7 +537,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertCount(1, $battleResult->rounds);
 
         // Get last round.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound);
         // Assert that attacker has all light fighters remaining.
         $this->assertEquals(5000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
@@ -555,7 +570,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
 
         // Assert the rounds are not empty and contain valid data.
         $this->assertNotEmpty($battleResult->rounds);
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
 
         // Expect attacker to have lost all ships, defender to have all heavy lasers remaining.
         $this->assertEquals(0, $lastRound->attackerShips->getAmountByMachineName($lightFighter->machine_name));
@@ -696,7 +711,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertGreaterThan(1, count($battleResult->rounds));
 
         // Get last round.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound);
         // Assert that attacker lost some light fighters.
         $this->assertLessThan($start_light_fighter, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
