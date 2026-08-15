@@ -17,6 +17,7 @@ use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use RuntimeException;
 use Tests\AccountTestCase;
 
 /**
@@ -692,7 +693,7 @@ class DestroyedPlanetTest extends AccountTestCase
         $moonOutbound->small_cargo = 1;
         $moonOutbound->save();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Cannot abandon planet with active fleet missions.');
         $abandonedPlanet->markAsDestroyed();
     }
