@@ -41,15 +41,29 @@ class TacticalRetreatTest extends AccountTestCase
         $this->assertEquals(45, $this->service->calculateFleetPoints($units));
     }
 
-    public function testExcludedShipsAndDefensesDoNotCount(): void
+    public function testZeroPointShipsAndDefensesDoNotCount(): void
     {
         $units = new UnitCollection();
-        $units->addUnit(ObjectService::getUnitObjectByMachineName('deathstar'), 1);
         $units->addUnit(ObjectService::getUnitObjectByMachineName('espionage_probe'), 100);
         $units->addUnit(ObjectService::getUnitObjectByMachineName('solar_satellite'), 50);
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('crawler'), 20);
         $units->addUnit(ObjectService::getUnitObjectByMachineName('rocket_launcher'), 200);
 
         $this->assertEquals(0, $this->service->calculateFleetPoints($units));
+    }
+
+    public function testDeathstarCountsForPointsButCannotFlee(): void
+    {
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('deathstar'), 1);
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+
+        // Deathstar is a combat ship for ratio points (10M resources → 10000 pts) but cannot flee.
+        $this->assertEquals(10000 + 20, $this->service->calculateFleetPoints($units));
+
+        $fleeing = $this->service->extractFleeingUnits($units);
+        $this->assertEquals(0, $fleeing->getAmountByMachineName('deathstar'));
+        $this->assertEquals(5, $fleeing->getAmountByMachineName('light_fighter'));
     }
 
     public function testSupremacyRatioRounding(): void
@@ -57,6 +71,83 @@ class TacticalRetreatTest extends AccountTestCase
         $this->assertEquals(5, $this->service->calculateSupremacyRatio(100, 20));
         $this->assertEquals(1, $this->service->calculateSupremacyRatio(0, 20));
         $this->assertEquals(10, $this->service->calculateSupremacyRatio(10, 0));
+    }
+
+    public function testFleeTriggersAtExactFiveToOneRatio(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        // 4 LF defender = 16 points; 20 LF attacker = 80 points → exact 5:1
+        $defenderPlanet = $this->prepareDefenderPlanet([
+            'light_fighter' => 4,
+            'deuterium' => 100000,
+        ]);
+
+        $attackerFleet = new UnitCollection();
+        $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
+
+        $engine = $this->createBattleEngine($attackerFleet, $this->attackerPlayer(), $defenderPlanet, $settingsService);
+        $result = $engine->simulateBattle();
+
+        $this->assertEquals(5, $result->tacticalRetreatRatio);
+        $this->assertTrue(
+            $result->tacticalRetreatDefenderFled,
+            'OGame flees from a 5:1 ratio (attackerPoints >= 5 * defenderPoints)'
+        );
+    }
+
+    public function testFleeDoesNotTriggerJustBelowFiveToOne(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        // 5 LF defender = 20 points; 99 LF attacker = 396 points → 19.8:1 floored display 19, but 396 < 100
+        // Use 4 LF = 16 pts; 79 LF = 316 pts → 316 < 80, ratio floor 19 but below threshold
+        $defenderPlanet = $this->prepareDefenderPlanet([
+            'light_fighter' => 4,
+            'deuterium' => 100000,
+        ]);
+
+        $attackerFleet = new UnitCollection();
+        $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 19);
+
+        $engine = $this->createBattleEngine($attackerFleet, $this->attackerPlayer(), $defenderPlanet, $settingsService);
+        $result = $engine->simulateBattle();
+
+        $this->assertEquals(76, $result->tacticalRetreatAttackerPoints);
+        $this->assertEquals(16, $result->tacticalRetreatDefenderPoints);
+        $this->assertFalse(
+            $result->tacticalRetreatDefenderFled,
+            '19 LF vs 4 LF is 76:16 which is below exact 5:1 (80 required)'
+        );
+    }
+
+    public function testFleeDeuteriumUsesNeighboringPlanetSlotNotSystem(): void
+    {
+        $defenderPlanet = $this->prepareDefenderPlanet([
+            'light_fighter' => 10,
+            'deuterium' => 100000,
+        ]);
+        $coords = $defenderPlanet->getPlanetCoordinates();
+        $neighborPosition = $coords->position + 1;
+        if ($neighborPosition > 15) {
+            $neighborPosition = $coords->position - 1;
+        }
+
+        $fleeing = new UnitCollection();
+        $fleeing->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 10);
+
+        $player = $defenderPlanet->getPlayer();
+        $this->assertNotNull($player);
+        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class, ['player' => $player]);
+
+        $neighborSlot = new \OGame\Models\Planet\Coordinate($coords->galaxy, $coords->system, $neighborPosition);
+        $neighborSystem = new \OGame\Models\Planet\Coordinate($coords->galaxy, $coords->system + 1, $coords->position);
+
+        $slotCost = (int)ceil($fleetMissionService->calculateConsumption($defenderPlanet, $fleeing, $neighborSlot, 0, 10.0) * 1.5);
+        $systemCost = (int)ceil($fleetMissionService->calculateConsumption($defenderPlanet, $fleeing, $neighborSystem, 0, 10.0) * 1.5);
+
+        $actual = $this->service->calculateFleeDeuteriumCost($defenderPlanet, $fleeing);
+
+        $this->assertEquals($slotCost, $actual, 'Flee fuel must use neighbouring planet slot');
+        $this->assertNotEquals($systemCost, $actual, 'Flee fuel must not use neighbouring system distance');
     }
 
     public function testDefenderFleetFleesWhenRatioMet(): void

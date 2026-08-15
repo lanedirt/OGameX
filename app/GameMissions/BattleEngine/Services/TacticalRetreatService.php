@@ -16,17 +16,37 @@ use OGame\Services\PlayerService;
 
 /**
  * Evaluates OGame tactical retreat (fleet flee) before combat rounds.
+ *
+ * Authentic OGame rules (Gameforge patch notes / in-game tooltips):
+ * - Flee from a power ratio of 5:1 (3:1 with Admiral), i.e. attackerPoints >= threshold * defenderPoints
+ * - Civil ships count at 25% (rounded down); defenses / probes / sats / crawlers do not count
+ * - Deathstars count for points but cannot flee (they remain in combat)
+ * - ACS defend fleets count for points but cannot flee
+ * - Deuterium cost = 1.5 × fuel for a 100% flight to a neighbouring planet position (slot)
+ * - Ends at 500,000 general points; inactive fleets do not flee; honourable fights do not flee
+ *   (honour system not yet implemented in OGameX)
  */
 class TacticalRetreatService
 {
     private const int POINTS_CUTOFF = 500000;
 
     /**
-     * Ship types that never contribute to retreat points and never flee.
+     * Ship types that contribute 0 retreat points (and also cannot flee).
      *
      * @var list<string>
      */
-    private const array NON_FLEEING_SHIPS = [
+    private const array ZERO_POINT_SHIPS = [
+        'espionage_probe',
+        'solar_satellite',
+        'crawler',
+    ];
+
+    /**
+     * Ship types that cannot flee (may still contribute retreat points).
+     *
+     * @var list<string>
+     */
+    private const array CANNOT_FLEE = [
         'deathstar',
         'espionage_probe',
         'solar_satellite',
@@ -56,7 +76,8 @@ class TacticalRetreatService
 
     /**
      * Calculate retreat-weighted fleet points for a unit collection.
-     * Combat ships: 100% of points. Civil ships: 25%. Excluded types: 0%. Defenses: 0%.
+     * Combat ships (incl. Deathstars): 100%. Civil ships: 25% (floored with total).
+     * Probes, sats, crawlers, defenses: 0%.
      */
     public function calculateFleetPoints(UnitCollection $units): int
     {
@@ -69,7 +90,7 @@ class TacticalRetreatService
             if ($entry->amount <= 0) {
                 continue;
             }
-            if (in_array($machineName, self::NON_FLEEING_SHIPS, true)) {
+            if (in_array($machineName, self::ZERO_POINT_SHIPS, true)) {
                 continue;
             }
 
@@ -78,6 +99,7 @@ class TacticalRetreatService
             if (isset($militaryMachineNames[$machineName])) {
                 $resourcesSpent += $rawPrice;
             } elseif (isset($civilMachineNames[$machineName])) {
+                // Civil ships at 25%, rounded down via final floor(/1000).
                 $resourcesSpent += $rawPrice * 0.25;
             }
             // Defenses and anything else: ignored.
@@ -102,7 +124,7 @@ class TacticalRetreatService
             if (!isset($shipMachineNames[$machineName])) {
                 continue;
             }
-            if (in_array($machineName, self::NON_FLEEING_SHIPS, true)) {
+            if (in_array($machineName, self::CANNOT_FLEE, true)) {
                 continue;
             }
             $fleeing->addUnit($entry->unitObject, $entry->amount);
@@ -127,7 +149,10 @@ class TacticalRetreatService
     }
 
     /**
-     * Deuterium cost to flee: 1.5 × fuel for a 100% flight to a neighboring system.
+     * Deuterium cost to flee: 1.5 × fuel for a 100% flight to a neighbouring planet position.
+     *
+     * Official Gameforge wording: "neighbouring position" / "neighbouring slot"
+     * (same system, adjacent planet slot) — not a neighbouring system.
      */
     public function calculateFleeDeuteriumCost(PlanetService $planet, UnitCollection $fleeingUnits): int
     {
@@ -141,12 +166,15 @@ class TacticalRetreatService
         }
 
         $coords = $planet->getPlanetCoordinates();
-        $neighborSystem = $coords->system + 1;
-        if ($neighborSystem > UniverseConstants::MAX_SYSTEM_COUNT) {
-            $neighborSystem = UniverseConstants::MIN_SYSTEM;
+        $neighborPosition = $coords->position + 1;
+        if ($neighborPosition > UniverseConstants::MAX_PLANET_POSITION) {
+            $neighborPosition = $coords->position - 1;
+        }
+        if ($neighborPosition < UniverseConstants::MIN_PLANET_POSITION) {
+            $neighborPosition = UniverseConstants::MIN_PLANET_POSITION;
         }
 
-        $neighbor = new Coordinate($coords->galaxy, $neighborSystem, $coords->position);
+        $neighbor = new Coordinate($coords->galaxy, $coords->system, $neighborPosition);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $player]);
         $baseConsumption = (int)$fleetMissionService->calculateConsumption($planet, $fleeingUnits, $neighbor, 0, 10.0);
@@ -233,7 +261,7 @@ class TacticalRetreatService
         $decision->deuteriumCost = $deuteriumCost;
         $decision->fleeingUnits = $fleeingUnits;
 
-        // Flee when attackerPoints >= threshold * defenderPoints.
+        // Gameforge: "From a ratio of 5:1" / "reaches 5:1"; community simulators use >=.
         // With 0 defender fleet points, any positive attacker force meets the threshold.
         $requiredAttackerPoints = $threshold * $defenderPoints;
         if ($attackerPoints < $requiredAttackerPoints || ($defenderPoints === 0 && $attackerPoints <= 0)) {
@@ -255,6 +283,7 @@ class TacticalRetreatService
 
     /**
      * Resolve the defender's configured retreat threshold (0, 3, or 5).
+     * OGame only offers Never / 5:1 / 3:1 (Admiral) — no other ratios.
      */
     public function resolveRetreatThreshold(PlayerService $defenderPlayer): int
     {

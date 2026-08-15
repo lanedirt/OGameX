@@ -32,10 +32,24 @@ class FleetDispatchTacticalRetreatTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $foreignPlanet = $this->getNearbyForeignPlanet();
-        $fightersBefore = $foreignPlanet->getObjectAmount('light_fighter');
+        // Isolate from leftover units on shared foreign planets across the suite.
+        foreach ($foreignPlanet->getShipUnits()->units as $entry) {
+            if ($entry->amount > 0) {
+                $foreignPlanet->removeUnit($entry->unitObject->machine_name, $entry->amount, false);
+            }
+        }
+        $foreignPlanet->save();
+
         $foreignPlanet->addUnit('light_fighter', 5);
         $foreignPlanet->addUnit('rocket_launcher', 20);
         $foreignPlanet->addResources(new Resources(0, 0, 100000, 0));
+
+        $defenderPlayer = $foreignPlanet->getPlayer();
+        $this->assertNotNull($defenderPlayer);
+        $user = $defenderPlayer->getUser();
+        $user->tactical_retreat_ratio = 5;
+        $user->time = (string) now()->timestamp;
+        $user->save();
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
@@ -72,7 +86,7 @@ class FleetDispatchTacticalRetreatTest extends FleetDispatchTestCase
 
         // Fleeing ships remain on the defender planet.
         $foreignPlanet->reloadPlanet();
-        $this->assertEquals($fightersBefore + 5, $foreignPlanet->getObjectAmount('light_fighter'));
+        $this->assertEquals(5, $foreignPlanet->getObjectAmount('light_fighter'));
     }
 
     public function testTacticalRetreatPreferenceCanBeUpdated(): void
