@@ -307,6 +307,7 @@ class BattleReport extends GameMessage
         $hamillManoeuvreTriggered = false;
         $tacticalRetreatRatio = 1;
         $tacticalRetreatDefenderFled = false;
+        $tacticalRetreatDeuteriumCost = 0;
 
         if (isset($battleReportModel->general['moon_existed'])) {
             $moonExisted = $battleReportModel->general['moon_existed'];
@@ -325,6 +326,9 @@ class BattleReport extends GameMessage
         }
         if (isset($battleReportModel->general['tactical_retreat']['defender_fled'])) {
             $tacticalRetreatDefenderFled = (bool)$battleReportModel->general['tactical_retreat']['defender_fled'];
+        }
+        if (isset($battleReportModel->general['tactical_retreat']['deuterium_cost'])) {
+            $tacticalRetreatDeuteriumCost = (int)$battleReportModel->general['tactical_retreat']['deuterium_cost'];
         }
 
         // Load attacker player
@@ -454,6 +458,8 @@ class BattleReport extends GameMessage
             'hamill_manoeuvre_triggered' => $hamillManoeuvreTriggered,
             'tactical_retreat_ratio' => $tacticalRetreatRatio,
             'tactical_retreat_defender_fled' => $tacticalRetreatDefenderFled,
+            'tactical_retreat_deuterium_cost' => $tacticalRetreatDeuteriumCost,
+            'tactical_retreat_deuterium_cost_formatted' => AppUtil::formatNumberLong($tacticalRetreatDeuteriumCost),
             'attacker_weapons' => $attacker_weapons,
             'attacker_shields' => $attacker_shields,
             'attacker_armor' => $attacker_armor,

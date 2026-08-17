@@ -661,6 +661,7 @@ return [
         'battle_retreat_tooltip'  => 'Please note that Deathstars, Espionage Probes, Solar Satellites and any fleet on a ACS Defence mission cannot flee. Tactical retreats are also deactivated in honourable battles. A retreat may also have been manually deactivated or prevented by a lack of deuterium. Bandits and players with more than 500,000 points never retreat.',
         'battle_no_flee'         => 'The defending fleet did not flee.',
         'battle_fled'            => 'The defending fleet has fled from the battle.',
+        'battle_flee_deuterium'  => 'Deuterium cost: :amount',
         'battle_rounds'          => 'Rounds',
         'battle_start'           => 'Start',
         'battle_player_from'     => 'from',

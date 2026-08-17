@@ -85,7 +85,7 @@
             {{ __('t_ingame.messages.battle_tactical_retreat') }}:<span class="middlemark"> 1:{{ $tactical_retreat_ratio ?? 1 }}</span>
         </p>
         <p class="fleft">
-            <span class="icon_info tooltip" style="margin: 5px" data-tooltip-title="{{ __('t_ingame.messages.battle_retreat_tooltip') }}"> {{ ($tactical_retreat_defender_fled ?? false) ? __('t_ingame.messages.battle_fled') : __('t_ingame.messages.battle_no_flee') }}</span>
+            <span class="icon_info tooltip" style="margin: 5px" data-tooltip-title="{{ __('t_ingame.messages.battle_retreat_tooltip') }}"> {{ ($tactical_retreat_defender_fled ?? false) ? __('t_ingame.messages.battle_fled') : __('t_ingame.messages.battle_no_flee') }}@if (($tactical_retreat_defender_fled ?? false) && ($tactical_retreat_deuterium_cost ?? 0) > 0) {{ __('t_ingame.messages.battle_flee_deuterium', ['amount' => $tactical_retreat_deuterium_cost_formatted]) }}@endif</span>
         </p>
         <!-- Rundenpagenator -->
         <ul class="combat_round_list">

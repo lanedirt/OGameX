@@ -31,15 +31,9 @@ class FleetDispatchTacticalRetreatTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        $foreignPlanet = $this->getNearbyForeignPlanet();
-        // Isolate from leftover units on shared foreign planets across the suite.
-        foreach ($foreignPlanet->getShipUnits()->units as $entry) {
-            if ($entry->amount > 0) {
-                $foreignPlanet->removeUnit($entry->unitObject->machine_name, $entry->amount, false);
-            }
-        }
-        $foreignPlanet->save();
-
+        // Use a freshly created hostile planet so leftover ships/resources from
+        // earlier suite tests cannot change the 5:1 ratio or remaining fleet.
+        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
         $foreignPlanet->addUnit('light_fighter', 5);
         $foreignPlanet->addUnit('rocket_launcher', 20);
         $foreignPlanet->addResources(new Resources(0, 0, 100000, 0));
@@ -73,7 +67,14 @@ class FleetDispatchTacticalRetreatTest extends FleetDispatchTestCase
         $this->reloadApplication();
         $this->get('/overview')->assertStatus(200);
 
-        $report = BattleReport::query()->orderByDesc('id')->first();
+        $coords = $foreignPlanet->getPlanetCoordinates();
+        $report = BattleReport::query()
+            ->where('planet_galaxy', $coords->galaxy)
+            ->where('planet_system', $coords->system)
+            ->where('planet_position', $coords->position)
+            ->where('planet_user_id', $defenderPlayer->getId())
+            ->orderByDesc('id')
+            ->first();
         $this->assertNotNull($report, 'Expected a battle report after the attack');
 
         $general = $report->general;

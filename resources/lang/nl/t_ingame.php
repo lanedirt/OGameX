@@ -640,6 +640,7 @@ return [
         'battle_retreat_tooltip'  => 'Let op: Dodestarren, Spionagesondes, Zonne-energiesatellieten en elke vloot op een ACS-verdedigingsmissie kunnen niet vluchten. Tactische terugtrekkingen zijn ook gedeactiveerd in eervolle gevechten. Een terugtrekking kan ook handmatig zijn gedeactiveerd of verhinderd door een gebrek aan deuterium. Bandieten en spelers met meer dan 500.000 punten trekken zich nooit terug.',
         'battle_no_flee'         => 'De verdedigende vloot is niet gevlucht.',
         'battle_fled'            => 'De verdedigende vloot is van het gevecht gevlucht.',
+        'battle_flee_deuterium'  => 'Deuteriumkosten: :amount',
         'battle_rounds'          => 'Rondes',
         'battle_start'           => 'Start',
         'battle_player_from'     => 'van',
