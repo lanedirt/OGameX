@@ -51,8 +51,8 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 - [5. Contributing](#contributing)
 - [6. Disclaimer](#disclaimer)
 - [7. Installation](#installation)
-  - [a) Development: Install OGameX using Docker](#development)
-  - [b) Production: Install OGameX using Docker](#production)
+  - [a) Development](#development)
+  - [b) Production](#production)
 - [8. Upgrade](#upgrade)
 - [9. Support](#support)
 - [10. Sponsorship](#sponsorship)
@@ -124,114 +124,47 @@ Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBU
 This project is a non-commercial hobby project. All rights and concepts related to OGame are owned by GameForge GmbH. We encourage supporters to try the official OGame at https://ogame.org to support its creators.
 
 ## <a name="installation"></a> 🖥️ 7. Installation
-The recommended way to install OGameX is by running the bundled Docker containers. This takes care of all the dependencies and is the easiest way to get started.
+The recommended way to install OGameX is by running the bundled Docker containers. This takes care of all the dependencies, is the easiest way to get started, and is what CI tests. Full steps — troubleshooting, post-install, credentials, SSL, admin commands — are in **[docs/install.md](docs/install.md)**.
 
 If you instead wish to install OGameX manually, note that OGameX requires PHP ^8.5. See the list of requirements for Laravel 13.x and how to deploy manually to a server here: https://laravel.com/docs/13.x/deployment.
 
-### <a name="development"></a> a) Install for local development
-For local development use the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
+First boot of `ogamex-app` can take up to ~10 minutes (Composer + Rust). `docker compose up -d` waits for that health check before bringing up the rest of the stack; that pause is expected.
 
-Please note that performance of the development mode is slow on Windows (compared to MacOS/Linux) due to overhead of running Docker on Windows. Loading pages with development mode enabled can take multiple seconds on Windows. If you want to run OGameX on Windows, I advise to use the production mode instead. One of the main differences is that the production configuration enables PHP OPcache which speeds up the application, but this also means that the PHP files are not updated (instantly) when you change them. This makes it less suitable for development.
+`.env` is gitignored. Copy the example **on the host before** `docker compose up`, so Compose can read port variables. If you skip this, the container creates `.env` on first boot — after ports 80/443 are already bound.
 
-1. Clone the repository.
-  ```
-  $ git clone https://github.com/lanedirt/OGameX.git
-  $ cd OGameX
-  ```
+### <a name="development"></a> a) Development
 
-2. Launch the project using Docker Compose:
-  ```
-  $ docker compose up -d
-  ```
-  > The default setup binds to ports 80/443. Modify `docker-compose.yml` if needed. PhpMyAdmin is also included for database management and is bound to port 8080. If you don't create a .env, the default .env.example will be copied to create it.
+```
+$ git clone https://github.com/lanedirt/OGameX.git
+$ cd OGameX
+$ cp .env.example .env
+$ docker compose up -d
+```
 
-**Important:** it can take up to 10 minutes for the `ogamex-app` container to start, this is because of composer initialization and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started.
+If ports 80/443/8080/8090/3306 are already in use, uncomment and set `HTTP_PORT`, `HTTPS_PORT`, `PHPMYADMIN_PORT`, `REVERB_SERVER_PORT`, and `DB_EXTERNAL_PORT` in that `.env` (a line that still starts with `#` is ignored — host port 80 stays bound), and set `APP_URL` to match (including the HTTP port), **before** `docker compose up`. Details: [docs/install.md](docs/install.md).
 
-After the docker containers have started, visit http://localhost to access OGameX.
+Then open http://localhost (or `http://localhost:$HTTP_PORT`). Register from the form on the login page; the first registered (non-Legor) account becomes admin and is renamed `Admin`.
 
-Create a new account to start using OGameX. The first account created will be automatically assigned the admin role.
+> Windows: development compose is slow on Docker Desktop; prefer [production compose](#production) for usable speed (`OPCACHE_ENABLE=1`, so PHP edits are not instant). Artisan: `docker compose exec -it ogamex-app bash`.
 
-> Note: if you need to run manual `php artisan` commands, you can SSH into the `ogamex-app` container with the `docker compose exec -it ogamex-app bash` command.
+### <a name="production"></a> b) Production
 
-### <a name="production"></a> b) Install for production
-For production there is a separate docker-compose file called `docker-compose.prod.yml`. This configuration contains
-several performance optimizations and security settings that are not present in the development configuration.
+***Caution:*** bundled production compose is not fully hardened (default DB password `toor`). Review settings before a public bind.
 
-***Caution:*** the production configuration is not yet fully optimized and should be used with caution. As an example, the database root user uses a default password which should be changed to something unique. You should review all settings before deploying this project to a publicly accessible server.
+```
+$ git clone https://github.com/lanedirt/OGameX.git
+$ cd OGameX
+$ cp .env.example-prod .env
+$ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
+```
 
-The instructions below are for Linux. OGameX should also work under Docker for Windows but the steps might be a little bit different.
+After the copy, set `APP_URL=https://localhost` (the example file ships `http://localhost`). If ports 80/443/8080/8090 are already in use, uncomment and set the same port variables (and `APP_URL`) in that `.env` **before** Compose starts. Production does not publish the database port.
 
-1. Clone the git repo.
-  ```
-  $ git clone https://github.com/lanedirt/OGameX.git
-  $ cd OGameX
-  ```
+Then open https://localhost (self-signed certificate). Nginx still answers HTTP 200 on port 80; production HTML points at `https://` assets, so use HTTPS in the browser.
 
-2. Copy `.env.example-prod` to `.env`.
-  ```
-  $ cp .env.example-prod .env
-  ```
+## <a name="upgrade"></a> 🖥️ 8. Upgrade
 
-3. Launch the project using Docker Compose:
-  ```
-  $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
-  ```
-
-  > The default setup binds to ports 80/443, to change it modify `docker-compose.prod.yml`. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via `./docker/phpmyadmin/.htaccess` for safety purposes.
-
-**Important:** it can take up to 10 minutes for the `ogamex-app` container to start, this is because of composer initialization and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started.
-
-After the docker containers have started, visit https://localhost to access OGameX.
-
-Create a new account to start using OGameX. The first account created will be automatically assigned the admin role.
-
-> Note: The production version runs in forced-HTTPS (redirect) mode by default using a self-signed SSL certificate. If you want to access the application via HTTP, open `.env` and change `APP_ENV` from `production` to `local`.
-
-## <a name="upgrade"></a> 🖥️ 8. Upgrade and misc instructions
-
-### Upgrade OGameX to a new version
-If you want to upgrade an existing installation of OGameX to a new version, follow these steps:
-
-1. Stop the existing containers:
-
-  **For development:**
-  ```
-  $ docker compose down
-  ```
-  **For production:**
-  ```
-  $ docker compose -f docker-compose.prod.yml down
-  ```
-  2. Pull the latest changes from the main branch or checkout the new release tag:
-  ```
-  $ git pull origin main
-  ```
-  -- or --
-  ```
-  $ git checkout 0.14.0 # replace with the latest release tag
-  ```
-  3. Rebuild and start the containers:
-
-  **For development:**
-  ```
-  $ docker compose up -d --build --force-recreate --remove-orphans
-  ```
-  **For production:**
-  ```
-  $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
-  ```
-  > When the docker containers are started, the entrypoint script in `./docker/entrypoint.sh` will automatically run the appropriate laravel install commands to upgrade the database schema and refresh the cache. Note that depending on the migrations this might take a short while. After the containers are started, you can visit the application at `https://localhost` (or http://localhost) to check if the upgrade was successful. If you run into any issues, please check the logs for more information or open an issue on GitHub.
-
-### Assigning admin role
-By default, the first registered user is assigned the admin role which can see the admin bar and is able to change server settings. You can also assign the admin role manually via the command line (run inside the `ogamex-app` container; see the development note above for `docker compose exec`):
-  ```
-  $ docker compose exec ogamex-app php artisan ogamex:admin:assign-role {username}
-  ```
-  To remove the admin role from a user, use the following command:
-  ```
-  $ docker compose exec ogamex-app php artisan ogamex:admin:remove-role {username}
-  ```
-  For production, add `-f docker-compose.prod.yml` to the `docker compose` commands above.
+Upgrade, admin role, and password reset: **[docs/install.md](docs/install.md#upgrade)**.
 
 ## <a name="support"></a> 📞 9. Support
 
