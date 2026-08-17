@@ -1525,11 +1525,11 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertGreaterThanOrEqual(1000000, $totalFound, 'Rare find (3x) should yield at least 1M total resources');
         $this->assertLessThanOrEqual(3000000, $totalFound, 'Rare find (3x) should yield at most 3M total resources');
 
-        // The reward was not cargo-constrained, so the effective tier equals the rolled rare tier.
+        // The message tier must match the rolled rare variant.
         $this->assertContains(
             $this->getLastMessageVariationId('expedition_gain_resources'),
             [3, 5, 8, 9],
-            'Uncapped rare find should use a rare-tier message variation'
+            'Rare find should use a rare-tier message variation'
         );
     }
 
@@ -1569,25 +1569,26 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertGreaterThanOrEqual(3333333, $totalFound, 'Exceptional find (10x) should yield at least ~3.33M total resources');
         $this->assertLessThanOrEqual(10000000, $totalFound, 'Exceptional find (10x) should yield at most 10M total resources');
 
-        // The reward was not cargo-constrained, so the effective tier equals the rolled exceptional tier.
+        // The message tier must match the rolled exceptional variant.
         $this->assertEquals(
             6,
             $this->getLastMessageVariationId('expedition_gain_resources'),
-            'Uncapped exceptional find should use the exceptional-tier message variation'
+            'Exceptional find should use the exceptional-tier message variation'
         );
     }
 
     /**
-     * Test that when the cargo capacity clips the reward, the message tier reflects the reward
-     * actually received instead of the rolled variant: a small fleet rolling an exceptional find
-     * gets the same payout as a normal find and must therefore get a normal-tier message.
+     * Test that when the cargo capacity clips the reward, the message tier still reflects the
+     * rolled variant, matching the original game: the message describes the size of the
+     * discovery, not the amount the fleet was able to carry home. A small fleet rolling an
+     * exceptional find gets a cargo-capped payout but keeps the exceptional-tier message.
      */
-    public function testExpeditionGainResourcesCargoLimitedGetsNormalTierMessage(): void
+    public function testExpeditionGainResourcesCargoLimitedKeepsRolledTierMessage(): void
     {
         $this->basicSetup();
         $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
 
-        // Send the expedition with only 4 large cargos: cargo capacity limits the find to 100k.
+        // Send the expedition with only 4 large cargos: cargo capacity limits the payout to 100k.
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 4);
         $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), true);
@@ -1600,7 +1601,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Force an exceptional variant (10x) with a fixed base of 1,000,000. Even the smallest
         // possible base find (deuterium: 1M / 3) far exceeds the 100k cargo capacity, so the
-        // payout is identical to a normal 1x find and the effective tier must be normal.
+        // payout is fully cargo-capped while the rolled tier remains exceptional.
         $this->bindForcedExpeditionFindVariant('exceptional', 10, 1000000);
 
         $this->travel(10)->hours();
@@ -1612,11 +1613,11 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $totalResources = $returnTripMission->metal + $returnTripMission->crystal + $returnTripMission->deuterium;
         $this->assertEquals(100000, $totalResources, 'Cargo-limited find should be capped at the cargo capacity');
 
-        // The rolled exceptional variant did not change the payout, so the message must be normal-tier.
-        $this->assertContains(
+        // The message must still be the exceptional-tier variation of the rolled variant.
+        $this->assertEquals(
+            6,
             $this->getLastMessageVariationId('expedition_gain_resources'),
-            [1, 2, 4, 7],
-            'Cargo-limited exceptional find should use a normal-tier message variation'
+            'Cargo-limited exceptional find should keep the exceptional-tier message variation'
         );
     }
 
@@ -1666,11 +1667,11 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertGreaterThanOrEqual(500000, $foundShipsValue, 'Exceptional find (10x) should yield ships worth far more than the 100k base');
         $this->assertLessThanOrEqual(1000000, $foundShipsValue, 'Found ships value should not exceed the 1M budget');
 
-        // The reward was not cargo-constrained, so the effective tier equals the rolled exceptional tier.
+        // The message tier must match the rolled exceptional variant.
         $this->assertEquals(
             8,
             $this->getLastMessageVariationId('expedition_gain_ships'),
-            'Uncapped exceptional ship find should use the exceptional-tier message variation'
+            'Exceptional ship find should use the exceptional-tier message variation'
         );
     }
 
@@ -1708,7 +1709,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertGreaterThanOrEqual(1500, $darkMatterGained, 'Exceptional find (10x) should yield at least 1500 dark matter (base 150-200)');
         $this->assertLessThanOrEqual(2000, $darkMatterGained, 'Exceptional find (10x) should yield at most 2000 dark matter (base 150-200)');
 
-        // Dark matter keeps using the rolled variant for the message tier.
+        // The message tier must match the rolled exceptional variant.
         $this->assertEquals(
             10,
             $this->getLastMessageVariationId('expedition_gain_dark_matter'),
