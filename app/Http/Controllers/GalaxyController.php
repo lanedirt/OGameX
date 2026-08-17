@@ -218,7 +218,7 @@ class GalaxyController extends OGameController
             'availableMissions' => [
                 [
                     'missionType' => 8,
-                    'name' => 'Harvest',
+                    'name' => __('t_ingame.fleet.mission_recycle'),
                 ],
             ],
             'requiredShips' => $debrisField->calculateRequiredRecyclers(),
@@ -293,7 +293,7 @@ class GalaxyController extends OGameController
         $availableMissions[] = [
             'missionType' => 3,
             'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 3]),
-            'name' => __('Transport'),
+            'name' => __('t_ingame.fleet.mission_transport'),
         ];
 
         $targetPlayer = $planet->getPlayer();
@@ -313,14 +313,14 @@ class GalaxyController extends OGameController
                     'reportId' => '',
                     'reportLink' => '',
                     'link' => route('fleet.dispatch.sendfleet', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 6, 'am210' => 1]),
-                    'name' => __('Espionage'),
+                    'name' => __('t_ingame.fleet.mission_espionage'),
                 ];
 
                 // Attack (only if foreign planet and not Legor).
                 $availableMissions[] = [
                     'missionType' => 1,
                     'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 1]),
-                    'name' => __('Attack'),
+                    'name' => __('t_ingame.fleet.mission_attack'),
                 ];
             }
 
@@ -335,7 +335,7 @@ class GalaxyController extends OGameController
                 $availableMissions[] = [
                     'missionType' => 5,
                     'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 5]),
-                    'name' => __('ACS Defend'),
+                    'name' => __('t_ingame.fleet.mission_acs_defend'),
                 ];
             }
 
@@ -344,7 +344,7 @@ class GalaxyController extends OGameController
                 $availableMissions[] = [
                     'missionType' => 10,
                     'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 10]),
-                    'name' => __('Moon destruction'),
+                    'name' => __('t_ingame.fleet.mission_destroy_moon'),
                 ];
             }
         } else {
@@ -352,7 +352,7 @@ class GalaxyController extends OGameController
             $availableMissions[] = [
                 'missionType' => 4,
                 'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 4]),
-                'name' => __('Deployment'),
+                'name' => __('t_ingame.fleet.mission_deploy'),
             ];
         }
 
@@ -406,7 +406,7 @@ class GalaxyController extends OGameController
                     if ($has_deuterium) {
                         $can_phalanx = true;
                     } else {
-                        $phalanx_inactive_reason = 'Not enough deuterium to use phalanx';
+                        $phalanx_inactive_reason = __('t_ingame.galaxy.phalanx_no_deut');
                     }
                 }
             }
@@ -452,7 +452,7 @@ class GalaxyController extends OGameController
             'phalanxInactiveReason' => $phalanx_inactive_reason,
             'canSendProbes' => $canEspionage,
             'canWrite' => false,
-            'discoveryUnlocked' => 'You haven\'t unlocked the research to discover new lifeforms yet.\n',
+            'discoveryUnlocked' => __('t_galaxy.discovery.locked'),
             'missileAttackLink' => $missileAttackLink,
         ];
     }
@@ -512,7 +512,7 @@ class GalaxyController extends OGameController
                     'highscoreLink' => route('highscore.index', ['category' => 2, 'page' => $highscorePage]),
                     'highscoreTitle' => (string)$highscoreRank,
                     'infoPageLink' => route('alliance.index'),
-                    'infoPageTitle' => __('Alliance Page'),
+                    'infoPageTitle' => __('t_ingame.galaxy.alliance_page'),
                     // Alliance class not implemented yet
                     'allianceClassName' => null,
                     'allianceClassCss' => null,
@@ -521,7 +521,7 @@ class GalaxyController extends OGameController
                         ? route('alliance.index', ['alliance_id' => $alliance->id])
                         : null,
                     'applicationTitle' => (!$this->playerService->getUser()->alliance_id && $alliance->is_open)
-                        ? __('Apply')
+                        ? __('t_ingame.galaxy.apply')
                         : null,
                 ];
             }
@@ -550,19 +550,19 @@ class GalaxyController extends OGameController
                     'available' => $isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);', // TODO: Implement proper support contact link when messaging system is ready
-                    'title' => 'Contact support',
+                    'title' => __('t_ingame.galaxy.contact_support'),
                     'playerName' => $player->getUsername(),
                 ],
                 'highscore' => [
                     'available' => $playerRank !== null,
                     'rank' => $playerRank,
-                    'title' => 'Ranking',
+                    'title' => __('t_ingame.galaxy.ranking'),
                     'link' => route('highscore.index', ['category' => 1, 'page' => $highscorePage]),
                 ],
                 'message' => [
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'disabledChatBar' => false,
-                    'title' => __('Write message'),
+                    'title' => __('t_ingame.highscore.write_message'),
                     'link' => 'javascript:void(0);',
                     'playerId' => $player->getId(),
                 ],
@@ -639,7 +639,7 @@ class GalaxyController extends OGameController
                 'moveAction' => 'prepareMove',
                 'moveLink' => route('planetMove.move'),
                 'galaxyLink' => route('galaxy.index', ['galaxy' => $galaxy, 'system' => $system]),
-                'title' => 'Relocate'
+                'title' => __('t_ingame.galaxy.relocate_title')
             ],
             [
                 'missionType' => 7,
@@ -655,10 +655,10 @@ class GalaxyController extends OGameController
             'planets' => [],
             'player' => [
                 'playerId' => 99999,
-                'playerName' => 'Deep space'
+                'playerName' => __('t_ingame.fleet.deep_space')
             ],
             'playerId' => 99999,
-            'playerName' => 'Deep space',
+            'playerName' => __('t_ingame.fleet.deep_space'),
             'position' => $position,
             'positionFilters' => 'empty_filter',
             'system' => $system
@@ -694,10 +694,10 @@ class GalaxyController extends OGameController
             'planets' => $debrisFieldObject,
             'player' => [
                 'playerId' => 99999,
-                'playerName' => 'Deep space'
+                'playerName' => __('t_ingame.fleet.deep_space')
             ],
             'playerId' => 99999,
-            'playerName' => 'Deep space',
+            'playerName' => __('t_ingame.fleet.deep_space'),
             'position' => $position,
             'positionFilters' => 'expedition_debris',
             'system' => $system
@@ -721,7 +721,7 @@ class GalaxyController extends OGameController
         if ($player->isInVacationMode()) {
             return response()->json([
                 'success' => false,
-                'error' => __('You cannot use the galaxy view whilst in vacation mode!'),
+                'error' => __('t_ingame.galaxy.vacation_error'),
             ], 403);
         }
 
