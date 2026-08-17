@@ -16,7 +16,7 @@ If you would like to contribute via pull requests, a good way to get started is 
 
 [![good first issues open](https://img.shields.io/github/issues/lanedirt/OGameX/good%20first%20issue.svg?logo=github)](https://github.com/lanedirt/OGameX/issues?q=is%3Aopen+is%3Aissue+label%3A"good+first+issue")
 
-Refer to [docs/install.md](https://github.com/lanedirt/OGameX/blob/main/docs/install.md) for how to get your local development environment setup. Docker Compose is the recommended, documented path (what CI tests).
+Refer to [docs/install.md](https://github.com/lanedirt/OGameX/blob/main/docs/install.md) for how to get your local development environment setup. Docker Compose is the recommended, documented path (what CI tests). After that install, run Composer and Artisan **inside** `ogamex-app` (`docker compose exec -it ogamex-app bash`). Run `npm run dev` / `npm run build` on the host.
 
 ### Before you open a PR
 
@@ -89,11 +89,11 @@ $ php artisan test --filter PlanetServiceTest
 ### 6. Custom race condition tests
 If you are working on a feature that might introduce race conditions, please include tests that cover these scenarios. OGameX already contains some custom tests that can be run via php artisan commands. These tests support running multiple requests in parallel and in multiple iterations in order to simulate conditions that could cause race conditions.
 
-These tests are located in the `console/Commands/Tests` directory and can be run using the following command:
+These tests are located in the `app/Console/Commands/Tests` directory and can be run using the following commands:
 
 ```bash
-$ php artisan test:race-condition-unitqueue
-$ php artisan test:race-condition-game-mission
+$ php artisan ogamex:test:race-condition-unitqueue
+$ php artisan ogamex:test:race-condition-game-mission
 ```
 
 ### 7. Run CSS and JS build

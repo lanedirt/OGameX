@@ -141,11 +141,11 @@ $ cp .env.example .env
 $ docker compose up -d
 ```
 
-If ports 80/443/8080/8090/3306 are already in use, uncomment and set `HTTP_PORT`, `HTTPS_PORT`, `PHPMYADMIN_PORT`, `REVERB_SERVER_PORT`, and `DB_EXTERNAL_PORT` in that `.env`, and set `APP_URL` to match (including the HTTP port), **before** `docker compose up`. Details: [docs/install.md](docs/install.md).
+If ports 80/443/8080/8090/3306 are already in use, uncomment and set `HTTP_PORT`, `HTTPS_PORT`, `PHPMYADMIN_PORT`, `REVERB_SERVER_PORT`, and `DB_EXTERNAL_PORT` in that `.env` (a line that still starts with `#` is ignored — host port 80 stays bound), and set `APP_URL` to match (including the HTTP port), **before** `docker compose up`. Details: [docs/install.md](docs/install.md).
 
-Then open http://localhost (or `http://localhost:$HTTP_PORT`). The first registered (non-Legor) account becomes admin.
+Then open http://localhost (or `http://localhost:$HTTP_PORT`). Register from the form on the login page; the first registered (non-Legor) account becomes admin and is renamed `Admin`.
 
-> Windows: development compose is slow; prefer [production compose](#production) for usable speed (OPcache on, so PHP edits are not live). Artisan: `docker compose exec -it ogamex-app bash`.
+> Windows: development compose is slow on Docker Desktop; prefer [production compose](#production) for usable speed (`OPCACHE_ENABLE=1`, so PHP edits are not instant). Artisan: `docker compose exec -it ogamex-app bash`.
 
 ### <a name="production"></a> b) Production
 
@@ -158,9 +158,9 @@ $ cp .env.example-prod .env
 $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
 ```
 
-If ports 80/443/8080/8090 are already in use, set the same port variables (and `APP_URL`) in that `.env` **before** Compose starts. Production does not publish the database port.
+After the copy, set `APP_URL=https://localhost` (the example file ships `http://localhost`). If ports 80/443/8080/8090 are already in use, uncomment and set the same port variables (and `APP_URL`) in that `.env` **before** Compose starts. Production does not publish the database port.
 
-Then open https://localhost (self-signed certificate; `APP_ENV=production` forces HTTPS).
+Then open https://localhost (self-signed certificate). Nginx still answers HTTP 200 on port 80; production HTML points at `https://` assets, so use HTTPS in the browser.
 
 ## <a name="upgrade"></a> 🖥️ 8. Upgrade
 

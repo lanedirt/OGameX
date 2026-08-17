@@ -36,11 +36,11 @@ Default host ports (uncomment and set these in `.env` if they are already in use
 | `REVERB_SERVER_PORT` | 8090 | Reverb (chat) |
 | `DB_EXTERNAL_PORT` | 3306 | MariaDB (**development compose only**) |
 
-In `.env.example` / `.env.example-prod`, `HTTP_PORT`, `HTTPS_PORT`, `PHPMYADMIN_PORT`, and `DB_EXTERNAL_PORT` are commented out. Commented lines are ignored by Compose (the YAML `:-` defaults apply). To change a port, uncomment the line and set a value. `REVERB_SERVER_PORT` is already set in `.env.example`. Keep `APP_URL` in sync with the URL you actually open, including scheme and port.
+In `.env.example` / `.env.example-prod`, `HTTP_PORT`, `HTTPS_PORT`, `PHPMYADMIN_PORT`, and `DB_EXTERNAL_PORT` are commented out. Compose ignores commented lines (the YAML `:-` defaults apply), so `# HTTP_PORT=8081` still binds host port 80. To change a port, the line must be uncommented — no leading `#`. `REVERB_SERVER_PORT` is already set in `.env.example`; `.env.example-prod` does not include it, so add that line if you need a non-default Reverb port. Keep `APP_URL` in sync with the URL you actually open, including scheme and port.
 
 Linux is the path these instructions assume. On Windows and macOS, run the game through Docker Desktop (Linux containers). Do not compile the Rust battle engine on the host; that happens inside `ogamex-app`.
 
-Windows note: the **development** compose file is slow because OPcache is off so PHP edits are live. For a usable frame rate on Windows, use the **production** compose file instead (OPcache on; PHP file edits are not instant).
+Windows note: the **development** compose file bind-mounts the tree and leaves PHP-FPM’s default OPcache (`enable=On`, `revalidate_freq=2`) so PHP edits show up in a couple of seconds. That combination is slow on Docker Desktop. For a usable frame rate on Windows, use the **production** compose file instead (`OPCACHE_ENABLE=1`, `revalidate_freq=60`; PHP file edits are not instant).
 
 The image already includes PHP 8.5-FPM, Composer, Rust/Cargo, and PHP FFI. Node/npm is **not** in the image. Operators use the compiled frontend assets as shipped. Contributors who change CSS/JS build on the host — see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
@@ -114,6 +114,8 @@ Use `docker-compose.yml`. Walk these steps on a **clean clone** in this order.
 
    A `200` means the web stack is up. Default URL: http://localhost (or `http://localhost:$HTTP_PORT`). Keep `APP_URL` in sync with the URL you actually use.
 
+   Registration is the form **on that login page** (it POSTs to `/register`). `GET /register` is not a standalone page and returns 500.
+
 Then create an account and see [After install](#after-install).
 
 Artisan must run **inside** the container (the host PHP is not the app runtime):
@@ -142,7 +144,9 @@ cd OGameX
 cp .env.example-prod .env
 ```
 
-If ports 80, 443, 8080, or 8090 are already in use, uncomment and set `HTTP_PORT` / `HTTPS_PORT` / `PHPMYADMIN_PORT` / `REVERB_SERVER_PORT` in that `.env`, and set `APP_URL` to match (production defaults to HTTPS, so include `https://` and the HTTPS port if it is not 443). Then:
+The copied file has `APP_URL=http://localhost`. Change it to `https://localhost` (or your real HTTPS URL, including the HTTPS port if it is not 443). Laravel generates `https://` links when `APP_ENV=production`.
+
+If ports 80, 443, 8080, or 8090 are already in use, uncomment and set `HTTP_PORT` / `HTTPS_PORT` / `PHPMYADMIN_PORT` in that `.env` (add `REVERB_SERVER_PORT=…` if you need a non-default Reverb port — that variable is not in `.env.example-prod`). Keep `APP_URL` in sync. Then:
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d --build --force-recreate
@@ -150,10 +154,11 @@ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
 
 Wait until `ogamex-app` is healthy and the scheduler and queue worker are up (`docker compose -f docker-compose.prod.yml ps`), then [verify](#verify-the-install).
 
-- `APP_ENV=production` forces HTTPS. Open **https://localhost** (browser warning is expected: bundled nginx certs are self-signed).
-- For HTTP against this compose file, set `APP_ENV=local` in `.env` and recreate the app container (production also caches config).
-- PhpMyAdmin is bound to port 8080 but IP-allowlisted via `docker/phpmyadmin/.htaccess` (default `Allow from 1.1.1.1`). You will get 403 until you add your client IP, or you can leave 8080 unpublished.
-- After first boot, production runs `config:cache` / `route:cache` / `view:cache`. Changing `.env` later requires recreating `ogamex-app` (or clearing those caches inside the container). Otherwise Laravel keeps stale config.
+- Open **https://localhost** (browser warning is expected: bundled nginx certs are self-signed). `APP_ENV=production` makes Laravel generate `https://` URLs (`URL::forceScheme('https')`). Nginx still listens on port 80 and `curl http://localhost/login` returns **200** — there is no HTTP→HTTPS redirect. A browser on HTTP then loads HTTPS assets/forms against the self-signed cert, which looks broken.
+- For generated HTTP URLs against this compose file, set `APP_ENV=local` in `.env` and recreate the app container.
+- PhpMyAdmin is bound to port 8080 but IP-allowlisted via `docker/phpmyadmin/.htaccess` (default `Allow from 1.1.1.1`). `curl http://localhost:8080/` returns **403** until you add your client IP, or you can leave 8080 unpublished.
+- Production builds with `OPCACHE_ENABLE=1`, which writes `opcache-recommended.ini` (`opcache.enable=On`, `revalidate_freq=60`). PHP file edits are not instant. Development skips that file; PHP 8.5-FPM still has OPcache on with `revalidate_freq=2`.
+- The entrypoint **attempts** `config:cache` / `route:cache` / `view:cache` as `www-data`. On a typical bind mount, `bootstrap/cache` is root-owned, so those commands fail with permission denied. The app still becomes healthy. If the cache files were never written, later `.env` edits apply without a recreate. If cache **did** succeed, recreate `ogamex-app` (or clear those caches inside the container) after changing `.env`.
 
 These instructions do not cover reverse proxies, Let’s Encrypt, or Redis. Use the compose files as shipped.
 
@@ -185,11 +190,11 @@ Production (self-signed cert):
 curl -k -s -o /dev/null -w "%{http_code}\n" https://localhost/login
 ```
 
-A `200` means the web stack is up. If you changed `HTTP_PORT` / `HTTPS_PORT`, use that port in the URL.
+A `200` means the web stack is up. If you changed `HTTP_PORT` / `HTTPS_PORT`, use that port in the URL. Production `curl http://localhost/login` also returns 200 (no redirect); still open **https://** in a browser.
 
 ## After install
 
-1. Register an account. The first **non-Legor** user is assigned the admin role and renamed `Admin`. A seeded **Legor** account (planet Arakis at 1:1:2) already exists from migrations; it does not count as that first human user. First login may ask you to pick a character class.
+1. Register an account from the **login page** form (email + password). The first **non-Legor** user is assigned the admin role and renamed `Admin`. A seeded **Legor** account (planet Arakis at 1:1:2) already exists from migrations; it does not count as that first human user. First login may ask you to pick a character class.
 2. Forgot-password email is **not** fully wired. Reset a password from the container:
 
    ```bash
@@ -197,7 +202,7 @@ A `200` means the web stack is up. If you changed `HTTP_PORT` / `HTTPS_PORT`, us
    ```
 
    Default new password is `12345678`. Pass `--random` for a generated password.
-3. PhpMyAdmin: http://localhost:8080 — server host `ogame-db` (compose network alias), user `root`, password `toor`.
+3. PhpMyAdmin: http://localhost:8080 — server host `ogame-db` (compose network alias), user `root`, password `toor`. Development returns the login page (HTTP 200). Production returns **403** until you add your client IP to `docker/phpmyadmin/.htaccess`.
 4. Admin role:
 
    ```bash
@@ -227,11 +232,11 @@ Set these in `.env` (copied from `.env.example` or `.env.example-prod` **before*
 
 | Variable | Notes |
 |----------|--------|
-| `APP_ENV` | `local` (dev) or `production` (forces HTTPS) |
+| `APP_ENV` | `local` (dev) or `production` (Laravel generates `https://` URLs; nginx does not redirect HTTP→HTTPS) |
 | `APP_KEY` | Generated on first boot if empty |
-| `APP_URL` | Must match the URL you visit, including scheme and port |
+| `APP_URL` | Must match the URL you visit, including scheme and port. After `cp .env.example-prod .env`, change the shipped `http://localhost` to `https://localhost`. |
 | `APP_DEBUG` | `true` in the dev example, `false` in prod |
-| `HTTP_PORT` / `HTTPS_PORT` / `PHPMYADMIN_PORT` / `DB_EXTERNAL_PORT` / `REVERB_SERVER_PORT` | Host port mappings. Uncomment in `.env` to override defaults. |
+| `HTTP_PORT` / `HTTPS_PORT` / `PHPMYADMIN_PORT` / `DB_EXTERNAL_PORT` / `REVERB_SERVER_PORT` | Host port mappings. Uncomment in `.env` to override defaults (`# HTTP_PORT=…` is ignored). |
 | `DB_HOST` | `ogamex-db` (service name) |
 | `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | Default `laravel` / `root` / `toor` |
 | `DISCORD_ALERT_WEBHOOK` | Optional |
@@ -306,7 +311,7 @@ Use the same compose file you originally started with.
    docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
    ```
 
-The entrypoint runs migrations (and production config/route/view cache) on start. Then [verify](#verify-the-install) again.
+The entrypoint runs migrations on start (and attempts production config/route/view cache; see [Troubleshooting](#troubleshooting) if that hits permission denied). Then [verify](#verify-the-install) again.
 
 ## Troubleshooting
 
@@ -314,12 +319,15 @@ The entrypoint runs migrations (and production config/route/view cache) on start
 |---------|------------|
 | Site not up, or `vendor/autoload.php` missing | Wait until `ogamex-app` is healthy. First boot can take ~10 minutes. Watch `docker compose logs -f ogamex-app` (Composer or Rust still running). Do **not** run `composer install` on the host. |
 | Wrong PHP version / `artisan` fails on the host | Run commands in the container: `docker compose exec -it ogamex-app bash`. The service name is `ogamex-app` (not `ogame-app`). |
-| Port already in use (host web server or database) | Copy `.env.example` (or `.env.example-prod`) to `.env` **before** `docker compose up`. Uncomment and set `HTTP_PORT` / `HTTPS_PORT` / `DB_EXTERNAL_PORT` / etc. in that file, keep `APP_URL` in sync (including the port), then start Compose. If you already started with the defaults, `docker compose down` (without `-v`), edit `.env`, and `up -d` again. Do not only edit compose YAML. |
+| Port already in use (host web server or database) | Copy `.env.example` (or `.env.example-prod`) to `.env` **before** `docker compose up`. Uncomment and set `HTTP_PORT` / `HTTPS_PORT` / `DB_EXTERNAL_PORT` / etc. in that file (no leading `#`), keep `APP_URL` in sync (including the port), then start Compose. If you already started with the defaults, `docker compose down` (without `-v`), edit `.env`, and `up -d` again. Do not only edit compose YAML. |
 | Buildings or fleets not progressing | `ogamex-scheduler` and `ogamex-queue-worker` must be up (`docker compose ps`). |
 | In-game chat not connecting | Reverb must be published on `REVERB_SERVER_PORT` (default 8090). Production example broadcasts to `log` as shipped. |
-| Windows is very slow | Use production compose (OPcache). If `ogamex-app` is unhealthy, read `docker compose logs ogamex-app`. |
-| Firefox `PR_END_OF_FILE_ERROR` / Chrome “connection closed” on production | Open **https://localhost** and accept the self-signed certificate. `APP_ENV=production` forces HTTPS. Do not run `php artisan serve`. |
-| PhpMyAdmin 403 in production | Add your client IP to `docker/phpmyadmin/.htaccess`. |
+| Windows is very slow | Use production compose (`OPCACHE_ENABLE=1`). If `ogamex-app` is unhealthy, read `docker compose logs ogamex-app`. |
+| Firefox `PR_END_OF_FILE_ERROR` / Chrome “connection closed” on production | Open **https://localhost** and accept the self-signed certificate. Nginx still serves HTTP 200 on port 80, but production HTML points at `https://` assets. Do not run `php artisan serve`. |
+| PhpMyAdmin 403 in production | Expected with the shipped `.htaccess` (`Allow from 1.1.1.1`). Add your client IP to `docker/phpmyadmin/.htaccess`. |
+| Production `config:cache` permission denied | Entrypoint runs cache commands as `www-data`. If `bootstrap/cache` is root-owned (bind mount), `config.php` cannot be written. The app still boots. Chown that directory or ignore the log line. |
+| Switched from production compose to development, PHP edits delayed ~60s | Rebuild so `OPCACHE_ENABLE=0` takes effect: `docker compose up -d --build`. Production leaves `opcache-recommended.ini` (`revalidate_freq=60`) in the image; development omits that file (`revalidate_freq=2`). |
+| `GET /register` returns 500 | Expected. Use the register form on `/login` (POST `/register`). |
 | 500 / permission denied on `storage/logs` | Entrypoint now chowns `storage` and runs migrate as `www-data`. If old root-owned files remain: `docker compose exec ogamex-app chown -R www-data:www-data storage`. |
 | Browser SSL warning | Expected with bundled certs. CI uses `curl -k`. |
 | Rust / FFI errors | Confirm `storage/rust-libs/libbattle_engine_ffi.so` **inside** `ogamex-app` after boot. Do not compile Rust on a macOS/Windows host. |
