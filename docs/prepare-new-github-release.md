@@ -8,5 +8,5 @@ Follow the steps in the checklist below to prepare a new release for the GitHub 
 - [ ] Update README current/upcoming features
 
 Optional steps:
-- [ ] Update docker instructions if any changes have been made to the docker setup
+- [ ] Update docker instructions in `docs/install.md` (and the README quick start) if any changes have been made to the docker setup
 - [ ] Update README with sponsorship info if sponsorship has been added
