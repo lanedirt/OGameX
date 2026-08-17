@@ -907,4 +907,60 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         // (everything at tech level 20) instead.
         $this->assertEquals(100 * 50 + 100 * 150, $round->fullStrengthAttacker);
     }
+
+    /**
+     * Test that the unit types within a single fleet fire in ascending unit id order.
+     *
+     * This is the within-fleet counterpart of the fleet (slot) order that
+     * testWeakShotDamagesHullInFullAfterShieldIsStrippedInSameRound covers: the firing order
+     * decides whether the weak ships of a fleet still bounce off the target's shield.
+     */
+    public function testUnitsWithinFleetFireInAscendingUnitIdOrder(): void
+    {
+        // A large shield dome has 10.000 shield points and 10.000 hull plating.
+        $this->createAndSetPlanetModel([
+            'large_shield_dome' => 1,
+        ]);
+
+        // The cruisers are added to the fleet first, but the light fighters have the lower unit
+        // id (204 against 206) and therefore fire first, before the shield is stripped:
+        //
+        // - 400 light fighters x 50 damage all bounce, as 50 is below 1% of the max shield.
+        // - 25 cruisers x 400 damage then deplete 4 shield percentiles each, which strips the
+        //   remaining 10.000 shield points exactly without any of it spilling over to the hull.
+        //
+        // The dome therefore ends every round with an untouched hull. If the units fired in
+        // insertion order instead, the cruisers would strip the shield first and the 400 light
+        // fighters would deal 20.000 hull damage against 10.000 hull plating, destroying the
+        // dome in the first round.
+        $attackerFleet = new UnitCollection();
+        $cruiser = ObjectService::getUnitObjectByMachineName('cruiser');
+        $attackerFleet->addUnit($cruiser, 25);
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($lightFighter, 400);
+
+        // Simulate battle.
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
+
+        // The dome only deals 1 damage per round, so neither side can destroy anything and the
+        // battle runs the full six rounds.
+        $this->assertCount(6, $battleResult->rounds);
+
+        foreach ($battleResult->rounds as $round) {
+            // Every ship fires exactly once, neither light fighters nor cruisers have rapidfire
+            // against a large shield dome.
+            $this->assertEquals(425, $round->hitsAttacker);
+
+            // All damage ends up in the shield: the bounced light fighter shots are absorbed
+            // without effect and the cruiser shots deplete the shield exactly.
+            $this->assertEquals(400 * 50 + 25 * 400, $round->absorbedDamageDefender);
+
+            $this->assertEquals(0, $round->defenderLossesInRound->getAmount());
+            $this->assertEquals(0, $round->attackerLossesInRound->getAmount());
+        }
+
+        $this->assertEquals(1, $battleResult->defenderUnitsResult->getAmountByMachineName('large_shield_dome'));
+        $this->assertEquals(400, $battleResult->attackerUnitsResult->getAmountByMachineName('light_fighter'));
+        $this->assertEquals(25, $battleResult->attackerUnitsResult->getAmountByMachineName('cruiser'));
+    }
 }

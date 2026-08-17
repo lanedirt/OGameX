@@ -576,3 +576,125 @@ fn update_peak_memory(current_peak: &mut u64) {
 
 #[cfg(not(feature = "memory-metrics"))]
 fn update_peak_memory(_current_peak: &mut u64) {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Build a combat unit info for a single unit type without rapidfire against the
+    /// opposing side.
+    fn info(attack_power: f32, shield_points: f32, hull_plating: f32, amount_start: u32) -> CombatUnitInfo {
+        CombatUnitInfo {
+            unit_id: 1,
+            fleet_mission_id: 0,
+            owner_id: 0,
+            amount_start,
+            attack_power,
+            shield_points,
+            hull_plating,
+            // NaN marks "no rapidfire", so every attacker fires exactly one shot.
+            rapidfire_chance: vec![f64::NAN],
+        }
+    }
+
+    /// Fire `shots` shots of `attacker_info` at a single defending unit and return the round.
+    ///
+    /// The full battle entry point cannot set up the state these tests need (a damaged hull
+    /// behind an intact shield only occurs after a shield regenerated in a later round, which
+    /// is not deterministic), so combat is driven directly for a single phase.
+    fn fire_shots(
+        shots: u32,
+        attacker_info: CombatUnitInfo,
+        defender_info: CombatUnitInfo,
+        defender: CombatUnit,
+    ) -> (BattleRound, Vec<CombatUnit>) {
+        let attackers: Vec<CombatUnit> = (0..shots)
+            .map(|_| CombatUnit { info: 0, shield: 0.0, hull: 1.0 })
+            .collect();
+        let mut defenders = vec![defender];
+        let mut round = BattleRound::new();
+
+        process_combat(
+            &attackers,
+            &mut defenders,
+            &[attacker_info],
+            &[defender_info],
+            &mut round,
+            true,
+        );
+
+        (round, defenders)
+    }
+
+    /// The unit types of a fleet must fire by ascending unit id.
+    ///
+    /// `FleetInput::units` is a HashMap, so without the sort the firing order is whatever
+    /// iteration order the process happens to produce. Eight unit types are used here so an
+    /// unsorted order only matches the expected one in 1 out of 8! runs.
+    #[test]
+    fn fleet_units_are_ordered_by_ascending_unit_id() {
+        let unit_ids: [i16; 8] = [214, 204, 206, 205, 218, 207, 213, 211];
+
+        let mut units = HashMap::new();
+        for unit_id in unit_ids {
+            units.insert(unit_id, BattleUnitInfo {
+                unit_id,
+                amount: 1,
+                attack_power: 1.0,
+                shield_points: 1.0,
+                hull_plating: 1.0,
+                rapidfire: HashMap::new(),
+            });
+        }
+
+        let fleet = FleetInput { fleet_mission_id: 0, owner_id: 0, units };
+        let sorted: Vec<i16> = sorted_fleet_units(&fleet).iter().map(|unit| unit.unit_id).collect();
+
+        assert_eq!(sorted, vec![204, 205, 206, 207, 211, 213, 214, 218]);
+    }
+
+    /// A bounced shot must never trigger the hull explosion roll of a damaged unit, otherwise
+    /// massed weak shots could explode a damaged unit straight through an intact shield.
+    #[test]
+    fn bounced_shot_never_triggers_hull_explosion_roll() {
+        // The attacker deals 50 damage, which is below 1% of the defender's 10.000 max shield
+        // points, so every shot bounces off the intact shield.
+        let attacker_info = info(50.0, 10.0, 400.0, 300);
+        let defender_info = info(1.0, 10000.0, 10000.0, 1);
+
+        // The hull is damaged to 10% of its original value: every explosion roll would succeed
+        // with a 90% chance, so 300 bounced shots would destroy the unit with certainty if
+        // bounced shots were allowed to trigger the roll.
+        let defender = CombatUnit { info: 0, shield: 10000.0, hull: 1000.0 };
+
+        let (round, defenders) = fire_shots(300, attacker_info, defender_info, defender);
+
+        // The defender is untouched: no hull damage, no depleted shield and no explosion.
+        assert_eq!(defenders[0].hull, 1000.0);
+        assert_eq!(defenders[0].shield, 10000.0);
+
+        // The bounced shots do count towards the round statistics and are fully absorbed.
+        assert_eq!(round.hits_attacker, 300);
+        assert_eq!(round.full_strength_attacker, 300.0 * 50.0);
+        assert_eq!(round.absorbed_damage_defender, 300.0 * 50.0);
+    }
+
+    /// The counterpart of the test above: the explosion roll is skipped for bounced shots only,
+    /// not for weak shots in general.
+    #[test]
+    fn shot_on_stripped_shield_still_triggers_hull_explosion_roll() {
+        let attacker_info = info(50.0, 10.0, 400.0, 10);
+        let defender_info = info(1.0, 10000.0, 10000.0, 1);
+
+        // Same damaged hull as above, but with the shield already stripped. The shots now hit
+        // the hull in full and are therefore not bounced, so they do roll for an explosion.
+        let defender = CombatUnit { info: 0, shield: 0.0, hull: 1000.0 };
+
+        let (_round, defenders) = fire_shots(10, attacker_info, defender_info, defender);
+
+        // The defender must be destroyed: 10 shots x 50 damage only remove half of the
+        // remaining 1.000 hull plating, so only a successful explosion roll (~90% chance per
+        // shot) can have destroyed it.
+        assert_eq!(defenders[0].hull, 0.0);
+    }
+}
