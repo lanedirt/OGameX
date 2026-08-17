@@ -18,6 +18,7 @@ use OGame\Models\Highscore;
 use OGame\Models\Message;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\FleetMissionService;
 use OGame\Services\MessageService;
 use OGame\Services\ObjectService;
@@ -586,22 +587,8 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         }
 
         // Pin variant to normal (1x multiplier) so the assertion tests the base highscore cap,
-        // not the tier multiplier. Binding must be registered after sendTestExpedition() because
-        // dispatchFleet() calls reloadApplication() internally, which wipes earlier bindings.
-        $this->app->bind(ExpeditionMission::class, function ($app) {
-            return new class (
-                $app->make(FleetMissionService::class),
-                $app->make(MessageService::class),
-                $app->make(PlanetServiceFactory::class),
-                $app->make(PlayerServiceFactory::class),
-                $app->make(SettingsService::class)
-            ) extends ExpeditionMission {
-                protected function selectExpeditionFindVariant(): array
-                {
-                    return ['variant' => 'normal', 'multiplier' => 1];
-                }
-            };
-        });
+        // not the tier multiplier.
+        $this->bindForcedExpeditionFindVariant('normal', 1);
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -785,6 +772,76 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1000);
         $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), $assertStatus);
+    }
+
+    /**
+     * Bind an ExpeditionMission subclass into the container that forces the expedition find
+     * variant roll to the given variant/multiplier and optionally pins the base max find amount.
+     *
+     * IMPORTANT: this must be called AFTER dispatching the expedition (sendTestExpedition() /
+     * sendMissionToPosition16()): dispatchFleet() calls reloadApplication() internally, which
+     * wipes any container bindings registered before it. The mission outcome itself is processed
+     * later (e.g. via a /overview request), which is when this binding takes effect.
+     *
+     * @param string $variant The find variant to force: 'normal', 'rare' or 'exceptional'.
+     * @param int $multiplier The reward multiplier to force.
+     * @param int|null $baseMaxFind Fixed base max find amount, or null to keep the highscore-based roll.
+     */
+    private function bindForcedExpeditionFindVariant(string $variant, int $multiplier, int|null $baseMaxFind = null): void
+    {
+        $this->app->bind(ExpeditionMission::class, function ($app) use ($variant, $multiplier, $baseMaxFind) {
+            return new class (
+                $app->make(FleetMissionService::class),
+                $app->make(MessageService::class),
+                $app->make(PlanetServiceFactory::class),
+                $app->make(PlayerServiceFactory::class),
+                $app->make(SettingsService::class),
+                $variant,
+                $multiplier,
+                $baseMaxFind
+            ) extends ExpeditionMission {
+                public function __construct(
+                    FleetMissionService $fleetMissionService,
+                    MessageService $messageService,
+                    PlanetServiceFactory $planetServiceFactory,
+                    PlayerServiceFactory $playerServiceFactory,
+                    SettingsService $settings,
+                    private readonly string $forcedVariant,
+                    private readonly int $forcedMultiplier,
+                    private readonly int|null $forcedBaseMaxFind
+                ) {
+                    parent::__construct($fleetMissionService, $messageService, $planetServiceFactory, $playerServiceFactory, $settings);
+                }
+
+                protected function selectExpeditionFindVariant(): array
+                {
+                    return ['variant' => $this->forcedVariant, 'multiplier' => $this->forcedMultiplier];
+                }
+
+                protected function getBaseMaxFindFromHighscore(): int
+                {
+                    return $this->forcedBaseMaxFind ?? parent::getBaseMaxFindFromHighscore();
+                }
+            };
+        });
+    }
+
+    /**
+     * Get the message_variation_id of the last message with the given key received by the
+     * current player, failing the test if no such message exists.
+     */
+    private function getLastMessageVariationId(string $messageKey): int
+    {
+        $message = Message::where('user_id', $this->planetPlayer()->getId())
+            ->where('key', $messageKey)
+            ->orderByDesc('id')
+            ->first();
+
+        if ($message === null) {
+            $this->fail("No message with key '{$messageKey}' received by player.");
+        }
+
+        return (int)$message->params['message_variation_id'];
     }
 
     /**
@@ -1388,49 +1445,43 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
     /**
      * Test that getRandomMessageVariationIdForVariant() returns IDs within the correct tier
-     * ranges for resources, ships, and dark matter expedition message classes.
+     * id lists for resources, ships, and dark matter expedition message classes.
      */
     public function testExpeditionFindVariantMessageVariationIds(): void
     {
         $iterations = 50;
 
-        // ExpeditionGainResources: normal 1-4, rare 5-8, exceptional 9
+        // ExpeditionGainResources: normal [1,2,4,7], rare [3,5,8,9], exceptional [6]
         for ($i = 0; $i < $iterations; $i++) {
             $id = ExpeditionGainResources::getRandomMessageVariationIdForVariant('normal');
-            $this->assertGreaterThanOrEqual(1, $id, 'Resources normal variant ID must be >= 1');
-            $this->assertLessThanOrEqual(4, $id, 'Resources normal variant ID must be <= 4');
+            $this->assertContains($id, [1, 2, 4, 7], 'Resources normal variant ID must be one of [1, 2, 4, 7]');
 
             $id = ExpeditionGainResources::getRandomMessageVariationIdForVariant('rare');
-            $this->assertGreaterThanOrEqual(5, $id, 'Resources rare variant ID must be >= 5');
-            $this->assertLessThanOrEqual(8, $id, 'Resources rare variant ID must be <= 8');
+            $this->assertContains($id, [3, 5, 8, 9], 'Resources rare variant ID must be one of [3, 5, 8, 9]');
 
             $id = ExpeditionGainResources::getRandomMessageVariationIdForVariant('exceptional');
-            $this->assertEquals(9, $id, 'Resources exceptional variant ID must be 9');
+            $this->assertEquals(6, $id, 'Resources exceptional variant ID must be 6');
         }
 
-        // ExpeditionGainShips: normal 1-5, rare 6-7, exceptional 8
+        // ExpeditionGainShips: normal [1-5], rare [6,7], exceptional [8]
         for ($i = 0; $i < $iterations; $i++) {
             $id = ExpeditionGainShips::getRandomMessageVariationIdForVariant('normal');
-            $this->assertGreaterThanOrEqual(1, $id, 'Ships normal variant ID must be >= 1');
-            $this->assertLessThanOrEqual(5, $id, 'Ships normal variant ID must be <= 5');
+            $this->assertContains($id, [1, 2, 3, 4, 5], 'Ships normal variant ID must be one of [1, 2, 3, 4, 5]');
 
             $id = ExpeditionGainShips::getRandomMessageVariationIdForVariant('rare');
-            $this->assertGreaterThanOrEqual(6, $id, 'Ships rare variant ID must be >= 6');
-            $this->assertLessThanOrEqual(7, $id, 'Ships rare variant ID must be <= 7');
+            $this->assertContains($id, [6, 7], 'Ships rare variant ID must be one of [6, 7]');
 
             $id = ExpeditionGainShips::getRandomMessageVariationIdForVariant('exceptional');
             $this->assertEquals(8, $id, 'Ships exceptional variant ID must be 8');
         }
 
-        // ExpeditionGainDarkMatter: normal 1-7, rare 8-9, exceptional 10
+        // ExpeditionGainDarkMatter: normal [1-6,8], rare [7,9], exceptional [10]
         for ($i = 0; $i < $iterations; $i++) {
             $id = ExpeditionGainDarkMatter::getRandomMessageVariationIdForVariant('normal');
-            $this->assertGreaterThanOrEqual(1, $id, 'DarkMatter normal variant ID must be >= 1');
-            $this->assertLessThanOrEqual(7, $id, 'DarkMatter normal variant ID must be <= 7');
+            $this->assertContains($id, [1, 2, 3, 4, 5, 6, 8], 'DarkMatter normal variant ID must be one of [1, 2, 3, 4, 5, 6, 8]');
 
             $id = ExpeditionGainDarkMatter::getRandomMessageVariationIdForVariant('rare');
-            $this->assertGreaterThanOrEqual(8, $id, 'DarkMatter rare variant ID must be >= 8');
-            $this->assertLessThanOrEqual(9, $id, 'DarkMatter rare variant ID must be <= 9');
+            $this->assertContains($id, [7, 9], 'DarkMatter rare variant ID must be one of [7, 9]');
 
             $id = ExpeditionGainDarkMatter::getRandomMessageVariationIdForVariant('exceptional');
             $this->assertEquals(10, $id, 'DarkMatter exceptional variant ID must be 10');
@@ -1456,28 +1507,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
             $this->fail('No active fleet mission found.');
         }
 
-        // Register the binding AFTER reloadApplication() so it survives to the /overview call.
         // Forces a rare variant with multiplier=3 and a fixed base of 1,000,000.
         // With multiplier=3: metal find=3M, crystal find=2M, deut find=1M.
-        $this->app->bind(ExpeditionMission::class, function ($app) {
-            return new class (
-                $app->make(FleetMissionService::class),
-                $app->make(MessageService::class),
-                $app->make(PlanetServiceFactory::class),
-                $app->make(PlayerServiceFactory::class),
-                $app->make(SettingsService::class)
-            ) extends ExpeditionMission {
-                protected function selectExpeditionFindVariant(): array
-                {
-                    return ['variant' => 'rare', 'multiplier' => 3];
-                }
-
-                protected function getBaseMaxFindFromHighscore(): int
-                {
-                    return 1000000;
-                }
-            };
-        });
+        $this->bindForcedExpeditionFindVariant('rare', 3, 1000000);
 
         $this->travel(10)->hours();
         $this->get('/overview');
@@ -1492,6 +1524,13 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // The minimum possible find (deut) is 1M; the maximum (metal) is 3M.
         $this->assertGreaterThanOrEqual(1000000, $totalFound, 'Rare find (3x) should yield at least 1M total resources');
         $this->assertLessThanOrEqual(3000000, $totalFound, 'Rare find (3x) should yield at most 3M total resources');
+
+        // The reward was not cargo-constrained, so the effective tier equals the rolled rare tier.
+        $this->assertContains(
+            $this->getLastMessageVariationId('expedition_gain_resources'),
+            [3, 5, 8, 9],
+            'Uncapped rare find should use a rare-tier message variation'
+        );
     }
 
     /**
@@ -1512,28 +1551,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
             $this->fail('No active fleet mission found.');
         }
 
-        // Register the binding AFTER reloadApplication() so it survives to the /overview call.
         // Forces an exceptional variant with multiplier=10 and a fixed base of 1,000,000.
         // With multiplier=10: metal find=10M, crystal find≈6.67M, deut find≈3.33M.
-        $this->app->bind(ExpeditionMission::class, function ($app) {
-            return new class (
-                $app->make(FleetMissionService::class),
-                $app->make(MessageService::class),
-                $app->make(PlanetServiceFactory::class),
-                $app->make(PlayerServiceFactory::class),
-                $app->make(SettingsService::class)
-            ) extends ExpeditionMission {
-                protected function selectExpeditionFindVariant(): array
-                {
-                    return ['variant' => 'exceptional', 'multiplier' => 10];
-                }
-
-                protected function getBaseMaxFindFromHighscore(): int
-                {
-                    return 1000000;
-                }
-            };
-        });
+        $this->bindForcedExpeditionFindVariant('exceptional', 10, 1000000);
 
         $this->travel(10)->hours();
         $this->get('/overview');
@@ -1548,6 +1568,152 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // The minimum possible find (deut) is 3,333,333; the maximum (metal) is 10,000,000.
         $this->assertGreaterThanOrEqual(3333333, $totalFound, 'Exceptional find (10x) should yield at least ~3.33M total resources');
         $this->assertLessThanOrEqual(10000000, $totalFound, 'Exceptional find (10x) should yield at most 10M total resources');
+
+        // The reward was not cargo-constrained, so the effective tier equals the rolled exceptional tier.
+        $this->assertEquals(
+            6,
+            $this->getLastMessageVariationId('expedition_gain_resources'),
+            'Uncapped exceptional find should use the exceptional-tier message variation'
+        );
+    }
+
+    /**
+     * Test that when the cargo capacity clips the reward, the message tier reflects the reward
+     * actually received instead of the rolled variant: a small fleet rolling an exceptional find
+     * gets the same payout as a normal find and must therefore get a normal-tier message.
+     */
+    public function testExpeditionGainResourcesCargoLimitedGetsNormalTierMessage(): void
+    {
+        $this->basicSetup();
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
+
+        // Send the expedition with only 4 large cargos: cargo capacity limits the find to 100k.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 4);
+        $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), true);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+
+        // Force an exceptional variant (10x) with a fixed base of 1,000,000. Even the smallest
+        // possible base find (deuterium: 1M / 3) far exceeds the 100k cargo capacity, so the
+        // payout is identical to a normal 1x find and the effective tier must be normal.
+        $this->bindForcedExpeditionFindVariant('exceptional', 10, 1000000);
+
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // The payout is capped at the cargo capacity (100k including the 2 resources in cargo).
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+        $totalResources = $returnTripMission->metal + $returnTripMission->crystal + $returnTripMission->deuterium;
+        $this->assertEquals(100000, $totalResources, 'Cargo-limited find should be capped at the cargo capacity');
+
+        // The rolled exceptional variant did not change the payout, so the message must be normal-tier.
+        $this->assertContains(
+            $this->getLastMessageVariationId('expedition_gain_resources'),
+            [1, 2, 4, 7],
+            'Cargo-limited exceptional find should use a normal-tier message variation'
+        );
+    }
+
+    /**
+     * Test that a forced exceptional variant (10x multiplier) actually multiplies the ship find
+     * budget: with a fixed base of 100k, the total value of the found ships must be close to 1M,
+     * which is impossible without the multiplier being applied.
+     */
+    public function testExpeditionGainShipsWithExceptionalVariant(): void
+    {
+        $this->basicSetup();
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainShips]);
+
+        // Send BEFORE binding (dispatchFleet calls reloadApplication which wipes bindings).
+        $this->sendTestExpedition(true);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+
+        // Forces an exceptional variant with multiplier=10 and a fixed base of 100,000,
+        // giving a ship find budget of 1,000,000 (far below the 25M cargo capacity).
+        $this->bindForcedExpeditionFindVariant('exceptional', 10, 100000);
+
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Sum the resource value of the found ships (return mission fleet minus the 1000
+        // large cargos that were sent).
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+        $returnUnits = $fleetMissionService->getFleetUnits($returnTripMission);
+        $foundShipsValue = 0;
+        foreach ($returnUnits->units as $unit) {
+            $amount = $unit->amount;
+            if ($unit->unitObject->machine_name === 'large_cargo') {
+                $amount -= 1000;
+            }
+            $foundShipsValue += $unit->unitObject->price->resources->sum() * $amount;
+        }
+
+        // The budget is fully distributed except for per-ship-type rounding losses (each less
+        // than one ship's price), so the found value must be well above the unmultiplied base
+        // of 100k and at most the full 1M budget.
+        $this->assertGreaterThanOrEqual(500000, $foundShipsValue, 'Exceptional find (10x) should yield ships worth far more than the 100k base');
+        $this->assertLessThanOrEqual(1000000, $foundShipsValue, 'Found ships value should not exceed the 1M budget');
+
+        // The reward was not cargo-constrained, so the effective tier equals the rolled exceptional tier.
+        $this->assertEquals(
+            8,
+            $this->getLastMessageVariationId('expedition_gain_ships'),
+            'Uncapped exceptional ship find should use the exceptional-tier message variation'
+        );
+    }
+
+    /**
+     * Test that a forced exceptional variant (10x multiplier) actually multiplies the dark
+     * matter reward: the base reward is 150-200, so the credited amount must be 1500-2000.
+     */
+    public function testExpeditionGainDarkMatterWithExceptionalVariant(): void
+    {
+        $this->basicSetup();
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainDarkMatter]);
+
+        $initialUser = User::find($this->planetPlayer()->getId());
+        if ($initialUser === null) {
+            $this->fail('User not found.');
+        }
+        $initialDarkMatter = $initialUser->dark_matter;
+
+        // Send BEFORE binding (dispatchFleet calls reloadApplication which wipes bindings).
+        $this->sendTestExpedition(true);
+
+        // Forces an exceptional variant with multiplier=10. Dark matter is not cargo-constrained,
+        // so the rolled variant applies directly. Base reward without pathfinder is 150-200.
+        $this->bindForcedExpeditionFindVariant('exceptional', 10);
+
+        $this->travel(10)->hours();
+        $this->get('/overview');
+
+        $user = User::find($this->planetPlayer()->getId());
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
+        $darkMatterGained = $user->dark_matter - $initialDarkMatter;
+
+        $this->assertGreaterThanOrEqual(1500, $darkMatterGained, 'Exceptional find (10x) should yield at least 1500 dark matter (base 150-200)');
+        $this->assertLessThanOrEqual(2000, $darkMatterGained, 'Exceptional find (10x) should yield at most 2000 dark matter (base 150-200)');
+
+        // Dark matter keeps using the rolled variant for the message tier.
+        $this->assertEquals(
+            10,
+            $this->getLastMessageVariationId('expedition_gain_dark_matter'),
+            'Exceptional dark matter find should use the exceptional-tier message variation'
+        );
     }
 
     /**
@@ -1555,7 +1721,10 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
      * iterations: roughly 89% normal, 10% rare, 1% exceptional.
      *
      * Uses a proxy subclass to expose the protected method. Tolerances are ±5 percentage points
-     * (500 out of 10,000) to stay far from statistical noise while still catching a broken weight table.
+     * (500 out of 10,000) — far beyond statistical noise, so the test cannot flake. Note this only
+     * guards against gross breakage (a tier that can never be rolled, swapped tiers, or wildly
+     * wrong weights); modest drift in the weight table (e.g. rare at 6% instead of 10%) would
+     * still pass.
      */
     public function testExpeditionFindVariantDistribution(): void
     {

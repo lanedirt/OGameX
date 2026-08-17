@@ -25,9 +25,20 @@ class ExpeditionGainResources extends ExpeditionGameMessage
      */
     protected static int $numberOfVariations = 9;
 
-    protected static int $normalVariations = 4;
-    protected static int $rareVariations = 4;
-    protected static int $exceptionalVariations = 1;
+    /**
+     * @var list<int>
+     */
+    protected static array $normalVariationIds = [1, 2, 4, 7];
+
+    /**
+     * @var list<int>
+     */
+    protected static array $rareVariationIds = [3, 5, 8, 9];
+
+    /**
+     * @var list<int>
+     */
+    protected static array $exceptionalVariationIds = [6];
 
     /**
      * Overides the body of the message to append the captured resource type and amount based on the params.

@@ -350,19 +350,23 @@ class ExpeditionMission extends GameMission
 
         // Determine find variant (normal/rare/exceptional) and apply its reward multiplier.
         $variantData = $this->selectExpeditionFindVariant();
-        $variant = $variantData['variant'];
 
         // Determine the max resource find and scale by the variant multiplier.
-        $maxResourceFind = (int)($this->determineMaxResourceFind($mission) * $variantData['multiplier']);
+        $baseMaxResourceFind = $this->determineMaxResourceFind($mission);
+        $maxResourceFind = (int)($baseMaxResourceFind * $variantData['multiplier']);
 
         // Determine the resource type: metal, crystal or deuterium.
+        // Track both the awarded amount and what the award would have been at the normal
+        // 1x multiplier, so the message tier can reflect the reward actually received.
         $cargoCapacityConstrainedAmount = 0;
+        $baselineAmount = 0;
         $resource_type_int = random_int(0, 2);
         switch ($resource_type_int) {
             case 0:
                 $resource_type = ResourceType::Metal;
 
                 $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $maxResourceFind);
+                $baselineAmount = min($maxCargoCapacity, $baseMaxResourceFind);
                 $resourcesFound->metal->set($cargoCapacityConstrainedAmount);
                 break;
             case 1:
@@ -370,6 +374,7 @@ class ExpeditionMission extends GameMission
 
                 $adjustedMaxResourceFind = $maxResourceFind * (2 / 3);
                 $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $adjustedMaxResourceFind);
+                $baselineAmount = min($maxCargoCapacity, $baseMaxResourceFind * (2 / 3));
                 $resourcesFound->crystal->set($cargoCapacityConstrainedAmount);
                 break;
             case 2:
@@ -377,12 +382,16 @@ class ExpeditionMission extends GameMission
 
                 $adjustedMaxResourceFind = $maxResourceFind * (1 / 3);
                 $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $adjustedMaxResourceFind);
+                $baselineAmount = min($maxCargoCapacity, $baseMaxResourceFind * (1 / 3));
                 $resourcesFound->deuterium->set($cargoCapacityConstrainedAmount);
                 break;
         }
 
         // Send a message to the player with the resources found outcome.
-        // Choose a message variation id matching the find variant (normal/rare/exceptional).
+        // Choose a message variation id matching the effective find variant: when the cargo
+        // capacity clips the reward, the rolled multiplier may not affect the payout and the
+        // message should not promise a rare/exceptional haul that was not actually received.
+        $variant = $this->determineEffectiveVariant($baselineAmount, $cargoCapacityConstrainedAmount);
         $message_variation_id = ExpeditionGainResources::getRandomMessageVariationIdForVariant($variant);
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainResources::class, ['message_variation_id' => $message_variation_id, 'resource_type' => $resource_type->value, 'resource_amount' => $cargoCapacityConstrainedAmount]);
 
@@ -498,11 +507,16 @@ class ExpeditionMission extends GameMission
 
         // Determine find variant (normal/rare/exceptional) and apply its reward multiplier.
         $variantData = $this->selectExpeditionFindVariant();
-        $variant = $variantData['variant'];
 
         // Determine the max ship find and scale by the variant multiplier.
-        $maxShipFind = (int)($this->determineMaxShipFind($mission) * $variantData['multiplier']);
+        $baseMaxShipFind = $this->determineMaxShipFind($mission);
+        $maxShipFind = (int)($baseMaxShipFind * $variantData['multiplier']);
         $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $maxShipFind);
+
+        // Choose the message tier from the ship budget actually awarded: when the cargo
+        // capacity clips the reward, the rolled multiplier may not affect the payout and the
+        // message should not promise a rare/exceptional haul that was not actually received.
+        $variant = $this->determineEffectiveVariant(min($maxCargoCapacity, $baseMaxShipFind), $cargoCapacityConstrainedAmount);
 
         // Select 1-6 random ship types from possible ships.
         $num_ship_types = min(random_int(1, 6), count($possibleShips));
@@ -932,6 +946,40 @@ class ExpeditionMission extends GameMission
         };
 
         return ['variant' => (string)$selectedVariant, 'multiplier' => $multiplier];
+    }
+
+    /**
+     * Determine the effective find variant for the outcome message based on the reward
+     * actually awarded rather than the rolled variant. When the cargo capacity clips the
+     * reward, the rolled multiplier may have little or no effect on the payout; the message
+     * tier is therefore derived from the ratio between the awarded amount and what would
+     * have been awarded at the normal 1x multiplier: >= 5x exceptional, >= 2x rare,
+     * otherwise normal. Dark matter finds are not cargo-constrained and keep using the
+     * rolled variant directly.
+     *
+     * @param float $baselineAmount The amount that would have been awarded at multiplier 1, after cargo clipping.
+     * @param float $awardedAmount The amount actually awarded, after cargo clipping.
+     * @return string 'normal', 'rare', or 'exceptional'
+     */
+    protected function determineEffectiveVariant(float $baselineAmount, float $awardedAmount): string
+    {
+        if ($baselineAmount <= 0) {
+            return 'normal';
+        }
+
+        // Round to absorb float noise so an uncapped integer multiplier (e.g. exactly 5x)
+        // cannot land just below its tier threshold.
+        $ratio = round($awardedAmount / $baselineAmount, 6);
+
+        if ($ratio >= 5) {
+            return 'exceptional';
+        }
+
+        if ($ratio >= 2) {
+            return 'rare';
+        }
+
+        return 'normal';
     }
 
     /**
