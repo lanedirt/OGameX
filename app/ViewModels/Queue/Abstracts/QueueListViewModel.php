@@ -5,15 +5,26 @@ namespace OGame\ViewModels\Queue\Abstracts;
 class QueueListViewModel
 {
     /**
+     * Default max items in the queue: 1 currently building + 4 in queue = 5.
+     * TODO: refactor into global/constant setting configurable by admin.
+     */
+    public const DEFAULT_MAX_ITEMS_IN_QUEUE = 5;
+
+    /**
      * Constructor.
      *
      * @param array<QueueViewModel> $queue
+     * @param int $maxItemsInQueue Max amount of items (including the currently building one) allowed in this queue.
      */
     public function __construct(
         /**
          * List of queue items.
          */
-        public array $queue
+        public array $queue,
+        /**
+         * Max amount of items allowed in this queue, including the currently building one.
+         */
+        public int $maxItemsInQueue = self::DEFAULT_MAX_ITEMS_IN_QUEUE
     ) {
     }
 
@@ -34,9 +45,6 @@ class QueueListViewModel
      */
     public function isQueueFull(): bool
     {
-        // Max items is 1 currently building + 4 in queue = 5.
-        // TODO: refactor into global/constant setting configurable by admin.
-        $maxItemsInQueue = 5;
-        return count($this->queue) >= $maxItemsInQueue;
+        return count($this->queue) >= $this->maxItemsInQueue;
     }
 }
