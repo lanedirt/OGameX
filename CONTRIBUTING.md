@@ -16,7 +16,7 @@ If you would like to contribute via pull requests, a good way to get started is 
 
 [![good first issues open](https://img.shields.io/github/issues/lanedirt/OGameX/good%20first%20issue.svg?logo=github)](https://github.com/lanedirt/OGameX/issues?q=is%3Aopen+is%3Aissue+label%3A"good+first+issue")
 
-Refer to [docs/install.md](https://github.com/lanedirt/OGameX/blob/main/docs/install.md) for how to get your local development environment setup (Docker Compose is the only supported path).
+Refer to [docs/install.md](https://github.com/lanedirt/OGameX/blob/main/docs/install.md) for how to get your local development environment setup. Docker Compose is the recommended, documented path (what CI tests).
 
 ### Before you open a PR
 

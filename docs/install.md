@@ -1,8 +1,8 @@
 # Install OGameX (Docker)
 
-Docker Compose is the **only supported** install path. It is what CI tests on every build. Manual / non-Docker installs are unsupported and are not documented.
+Docker Compose is the **recommended, documented** install path. It is what CI tests on every build. This file is the full walkthrough of that setup. Short quick start: [README.md](../README.md#installation).
 
-Full guide: this file. Short quick start: [README.md](../README.md#installation).
+Advanced users can deploy without Docker. OGameX requires PHP ^8.5. See the list of requirements for Laravel 13.x and how to deploy to a server here: https://laravel.com/docs/13.x/deployment. That path is not walked through in this file.
 
 ## Contents
 
@@ -24,7 +24,9 @@ Full guide: this file. Short quick start: [README.md](../README.md#installation)
 - [Docker Engine](https://docs.docker.com/engine/install/) with Compose v2 (`docker compose`, not the old `docker-compose` binary)
 - Enough RAM and disk for the **first** image build and Rust compile (small Docker Desktop memory defaults can run out of memory here)
 
-Default host ports (change these in `.env` if they are already in use — for example a host nginx/Apache or MySQL):
+`.env` is gitignored and is **not** in a fresh clone. Compose reads `.env` from the host when it starts, to interpolate host port mappings. Copy the example file **on the host before** `docker compose up`. If you wait until the container creates `.env` on first boot, ports 80/443 are already bound.
+
+Default host ports (uncomment and set these in `.env` if they are already in use — for example a host nginx/Apache or MySQL):
 
 | Variable | Default | Used by |
 |----------|---------|---------|
@@ -33,6 +35,8 @@ Default host ports (change these in `.env` if they are already in use — for ex
 | `PHPMYADMIN_PORT` | 8080 | PhpMyAdmin |
 | `REVERB_SERVER_PORT` | 8090 | Reverb (chat) |
 | `DB_EXTERNAL_PORT` | 3306 | MariaDB (**development compose only**) |
+
+In `.env.example` / `.env.example-prod`, `HTTP_PORT`, `HTTPS_PORT`, `PHPMYADMIN_PORT`, and `DB_EXTERNAL_PORT` are commented out. Commented lines are ignored by Compose (the YAML `:-` defaults apply). To change a port, uncomment the line and set a value. `REVERB_SERVER_PORT` is already set in `.env.example`. Keep `APP_URL` in sync with the URL you actually open, including scheme and port.
 
 Linux is the path these instructions assume. On Windows and macOS, run the game through Docker Desktop (Linux containers). Do not compile the Rust battle engine on the host; that happens inside `ogamex-app`.
 
@@ -56,19 +60,61 @@ First boot of `ogamex-app` can take **up to about 10 minutes** (Composer + Rust)
 
 ## Development install
 
-Use `docker-compose.yml`. For a game server you intend to keep, check out a **release tag** (`git checkout 0.14.0`, or the latest tag). Use `main` only if you want nightly builds (same split as [main.ogamex.dev](https://main.ogamex.dev) vs [release.ogamex.dev](https://release.ogamex.dev)).
+Use `docker-compose.yml`. Walk these steps on a **clean clone** in this order.
 
-```bash
-git clone https://github.com/lanedirt/OGameX.git
-cd OGameX
-docker compose up -d
-```
+1. Clone the repository:
 
-If `.env` is missing, the app container copies `.env.example` to `.env`. If a leftover `.env` already exists, it is **not** overwritten.
+   ```bash
+   git clone https://github.com/lanedirt/OGameX.git
+   cd OGameX
+   ```
 
-Default URL: http://localhost (or `http://localhost:$HTTP_PORT` if you changed the port). Keep `APP_URL` in sync with the URL you actually use.
+2. Optional: for a game server you intend to keep, check out a **release tag** (`git checkout 0.14.0`, or the latest tag). Use `main` only if you want nightly builds (same split as [main.ogamex.dev](https://main.ogamex.dev) vs [release.ogamex.dev](https://release.ogamex.dev)).
 
-Then [verify](#verify-the-install), create an account, and see [After install](#after-install).
+3. Copy the example env file **on the host** (this file is gitignored; a clone does not contain `.env`):
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   If a leftover `.env` already exists, it is **not** overwritten by the container later. Use a fresh copy when you want the example defaults.
+
+4. If ports 80, 443, 8080, 8090, or 3306 are already in use on the host, uncomment and set the port variables in that `.env`, and set `APP_URL` to match. Example:
+
+   ```bash
+   HTTP_PORT=8081
+   HTTPS_PORT=8443
+   PHPMYADMIN_PORT=8082
+   REVERB_SERVER_PORT=8091
+   DB_EXTERNAL_PORT=3307
+   APP_URL=http://localhost:8081
+   ```
+
+   Skip this step if the defaults are free.
+
+5. Start the stack:
+
+   ```bash
+   docker compose up -d
+   ```
+
+   On first boot this command does **not** return immediately. Scheduler, queue worker, webserver, and Reverb wait until `ogamex-app` is healthy (Composer + Rust + migrate), which can take several minutes. That wait is expected.
+
+6. Confirm `ogamex-app` is **healthy** and `ogamex-scheduler` plus `ogamex-queue-worker` are up:
+
+   ```bash
+   docker compose ps
+   ```
+
+7. Check the login page (use your `HTTP_PORT` if you changed it):
+
+   ```bash
+   curl -s -o /dev/null -w "%{http_code}\n" http://localhost/login
+   ```
+
+   A `200` means the web stack is up. Default URL: http://localhost (or `http://localhost:$HTTP_PORT`). Keep `APP_URL` in sync with the URL you actually use.
+
+Then create an account and see [After install](#after-install).
 
 Artisan must run **inside** the container (the host PHP is not the app runtime):
 
@@ -85,16 +131,24 @@ docker compose exec ogamex-app php artisan <command>
 
 ## Production install
 
-Use `docker-compose.prod.yml`. It enables OPcache and does not publish the database port.
+Use `docker-compose.prod.yml`. It enables OPcache and does not publish the database port. Same idea as development: copy `.env` **on the host before** Compose starts.
 
 **Caution:** the bundled production compose file is **not fully hardened**. The database root password defaults to `toor`. Review settings before binding this to a public address. See [Credentials and SSL](#credentials-and-ssl).
 
 ```bash
 git clone https://github.com/lanedirt/OGameX.git
 cd OGameX
+# optional: git checkout <release-tag>
 cp .env.example-prod .env
+```
+
+If ports 80, 443, 8080, or 8090 are already in use, uncomment and set `HTTP_PORT` / `HTTPS_PORT` / `PHPMYADMIN_PORT` / `REVERB_SERVER_PORT` in that `.env`, and set `APP_URL` to match (production defaults to HTTPS, so include `https://` and the HTTPS port if it is not 443). Then:
+
+```bash
 docker compose -f docker-compose.prod.yml up -d --build --force-recreate
 ```
+
+Wait until `ogamex-app` is healthy and the scheduler and queue worker are up (`docker compose -f docker-compose.prod.yml ps`), then [verify](#verify-the-install).
 
 - `APP_ENV=production` forces HTTPS. Open **https://localhost** (browser warning is expected: bundled nginx certs are self-signed).
 - For HTTP against this compose file, set `APP_ENV=local` in `.env` and recreate the app container (production also caches config).
@@ -169,7 +223,7 @@ A `200` means the web stack is up. If you changed `HTTP_PORT` / `HTTPS_PORT`, us
 
 ## Configuration
 
-Set these in `.env` (from `.env.example` or `.env.example-prod`). Port variables are interpolated by Compose.
+Set these in `.env` (copied from `.env.example` or `.env.example-prod` **before** the first `docker compose up`). Port variables are interpolated by Compose at start time.
 
 | Variable | Notes |
 |----------|--------|
@@ -177,7 +231,7 @@ Set these in `.env` (from `.env.example` or `.env.example-prod`). Port variables
 | `APP_KEY` | Generated on first boot if empty |
 | `APP_URL` | Must match the URL you visit, including scheme and port |
 | `APP_DEBUG` | `true` in the dev example, `false` in prod |
-| `HTTP_PORT` / `HTTPS_PORT` / `PHPMYADMIN_PORT` / `DB_EXTERNAL_PORT` / `REVERB_SERVER_PORT` | Host port mappings |
+| `HTTP_PORT` / `HTTPS_PORT` / `PHPMYADMIN_PORT` / `DB_EXTERNAL_PORT` / `REVERB_SERVER_PORT` | Host port mappings. Uncomment in `.env` to override defaults. |
 | `DB_HOST` | `ogamex-db` (service name) |
 | `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | Default `laravel` / `root` / `toor` |
 | `DISCORD_ALERT_WEBHOOK` | Optional |
@@ -260,7 +314,7 @@ The entrypoint runs migrations (and production config/route/view cache) on start
 |---------|------------|
 | Site not up, or `vendor/autoload.php` missing | Wait until `ogamex-app` is healthy. First boot can take ~10 minutes. Watch `docker compose logs -f ogamex-app` (Composer or Rust still running). Do **not** run `composer install` on the host. |
 | Wrong PHP version / `artisan` fails on the host | Run commands in the container: `docker compose exec -it ogamex-app bash`. The service name is `ogamex-app` (not `ogame-app`). |
-| Port already in use (host web server or database) | Set `HTTP_PORT` / `HTTPS_PORT` / `DB_EXTERNAL_PORT` / etc. in `.env`, keep `APP_URL` in sync (including the port), recreate, then wait for healthy. Do not only edit compose YAML. |
+| Port already in use (host web server or database) | Copy `.env.example` (or `.env.example-prod`) to `.env` **before** `docker compose up`. Uncomment and set `HTTP_PORT` / `HTTPS_PORT` / `DB_EXTERNAL_PORT` / etc. in that file, keep `APP_URL` in sync (including the port), then start Compose. If you already started with the defaults, `docker compose down` (without `-v`), edit `.env`, and `up -d` again. Do not only edit compose YAML. |
 | Buildings or fleets not progressing | `ogamex-scheduler` and `ogamex-queue-worker` must be up (`docker compose ps`). |
 | In-game chat not connecting | Reverb must be published on `REVERB_SERVER_PORT` (default 8090). Production example broadcasts to `log` as shipped. |
 | Windows is very slow | Use production compose (OPcache). If `ogamex-app` is unhealthy, read `docker compose logs ogamex-app`. |

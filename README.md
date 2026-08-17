@@ -124,20 +124,26 @@ Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBU
 This project is a non-commercial hobby project. All rights and concepts related to OGame are owned by GameForge GmbH. We encourage supporters to try the official OGame at https://ogame.org to support its creators.
 
 ## <a name="installation"></a> 🖥️ 7. Installation
+The recommended way to install OGameX is by running the bundled Docker containers. This takes care of all the dependencies, is the easiest way to get started, and is what CI tests. Full steps — troubleshooting, post-install, credentials, SSL, admin commands — are in **[docs/install.md](docs/install.md)**.
 
-Docker Compose is the **only supported** install path (this is what CI tests). Full steps — troubleshooting, post-install, credentials, SSL, admin commands — are in **[docs/install.md](docs/install.md)**.
+If you instead wish to install OGameX manually, note that OGameX requires PHP ^8.5. See the list of requirements for Laravel 13.x and how to deploy manually to a server here: https://laravel.com/docs/13.x/deployment.
 
-First boot of `ogamex-app` can take up to ~10 minutes (Composer + Rust). Wait until the container is healthy before opening the site.
+First boot of `ogamex-app` can take up to ~10 minutes (Composer + Rust). `docker compose up -d` waits for that health check before bringing up the rest of the stack; that pause is expected.
+
+`.env` is gitignored. Copy the example **on the host before** `docker compose up`, so Compose can read port variables. If you skip this, the container creates `.env` on first boot — after ports 80/443 are already bound.
 
 ### <a name="development"></a> a) Development
 
 ```
 $ git clone https://github.com/lanedirt/OGameX.git
 $ cd OGameX
+$ cp .env.example .env
 $ docker compose up -d
 ```
 
-Then open http://localhost. The first registered (non-Legor) account becomes admin.
+If ports 80/443/8080/8090/3306 are already in use, uncomment and set `HTTP_PORT`, `HTTPS_PORT`, `PHPMYADMIN_PORT`, `REVERB_SERVER_PORT`, and `DB_EXTERNAL_PORT` in that `.env`, and set `APP_URL` to match (including the HTTP port), **before** `docker compose up`. Details: [docs/install.md](docs/install.md).
+
+Then open http://localhost (or `http://localhost:$HTTP_PORT`). The first registered (non-Legor) account becomes admin.
 
 > Windows: development compose is slow; prefer [production compose](#production) for usable speed (OPcache on, so PHP edits are not live). Artisan: `docker compose exec -it ogamex-app bash`.
 
@@ -151,6 +157,8 @@ $ cd OGameX
 $ cp .env.example-prod .env
 $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
 ```
+
+If ports 80/443/8080/8090 are already in use, set the same port variables (and `APP_URL`) in that `.env` **before** Compose starts. Production does not publish the database port.
 
 Then open https://localhost (self-signed certificate; `APP_ENV=production` forces HTTPS).
 
