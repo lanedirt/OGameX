@@ -5,7 +5,8 @@ namespace OGame\ViewModels\Queue\Abstracts;
 class QueueListViewModel
 {
     /**
-     * Default max items in the queue: 1 currently building + 4 in queue = 5.
+     * Default max items in the queue: 1 currently being worked on + 4 queued = 5.
+     * The building queue overrides this, see BuildingQueueService::getMaxQueueItems().
      * TODO: refactor into global/constant setting configurable by admin.
      */
     public const DEFAULT_MAX_ITEMS_IN_QUEUE = 5;

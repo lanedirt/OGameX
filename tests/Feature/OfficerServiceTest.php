@@ -5,11 +5,12 @@ namespace Tests\Feature;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use OGame\Models\Officer;
+use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\DarkMatterService;
+use OGame\Services\ObjectService;
 use OGame\Services\OfficerService;
-use OGame\ViewModels\Queue\Abstracts\QueueListViewModel;
 use Tests\AccountTestCase;
 
 /**
@@ -23,7 +24,9 @@ use Tests\AccountTestCase;
  * - Insufficient Dark Matter is rejected
  * - Bonus helper methods return correct values
  * - Commanding Staff bonus requires all five officers active
- * - Commander extends the building queue size
+ * - Bonuses take effect at the call sites the game actually reads
+ * - The Commander is what makes the building queue possible at all
+ * - Unknown officer names never report as active
  * - getKeyFromTypeId mapping
  * - getOfficer guard for user_id = 0
  * - The purchase endpoint only accepts CSRF protected POST requests
@@ -420,17 +423,18 @@ class OfficerServiceTest extends AccountTestCase
 
     // ── COMMANDER BUILDING QUEUE BONUS ───────────────────────────────────────
 
-    public function testBuildingQueueSizeWithoutCommander(): void
+    public function testBuildingQueueHoldsOneItemWithoutCommander(): void
     {
         $queue = resolve(BuildingQueueService::class)->retrieveQueue($this->planetService);
 
         $this->assertSame(
-            QueueListViewModel::DEFAULT_MAX_ITEMS_IN_QUEUE,
-            $queue->maxItemsInQueue
+            1,
+            $queue->maxItemsInQueue,
+            'Without the Commander a planet builds one structure at a time.'
         );
     }
 
-    public function testBuildingQueueSizeIsExtendedByCommander(): void
+    public function testBuildingQueueHoldsFiveItemsWithCommander(): void
     {
         $this->addDarkMatter(20000);
         $this->officerService->purchase($this->currentUser(), 'commander', 7);
@@ -438,10 +442,123 @@ class OfficerServiceTest extends AccountTestCase
         $queue = resolve(BuildingQueueService::class)->retrieveQueue($this->planetService);
 
         $this->assertSame(
-            QueueListViewModel::DEFAULT_MAX_ITEMS_IN_QUEUE + BuildingQueueService::COMMANDER_EXTRA_QUEUE_ITEMS,
+            5,
             $queue->maxItemsInQueue,
-            'The Commander should add extra building queue slots.'
+            'The Commander allows 4 additional building contracts on top of the active one.'
         );
+    }
+
+    /**
+     * Without the Commander a second building cannot be queued at all.
+     */
+    public function testSecondBuildingIsRejectedWithoutCommander(): void
+    {
+        $this->planetAddResources(new Resources(10000, 10000, 10000, 0));
+        $queueService = resolve(BuildingQueueService::class);
+
+        $queueService->add($this->planetService, ObjectService::getObjectByMachineName('metal_mine')->id);
+
+        $this->expectException(Exception::class);
+        $queueService->add($this->planetService, ObjectService::getObjectByMachineName('crystal_mine')->id);
+    }
+
+    /**
+     * With the Commander a second building can be queued behind the active one.
+     */
+    public function testSecondBuildingIsAcceptedWithCommander(): void
+    {
+        $this->addDarkMatter(20000);
+        $this->officerService->purchase($this->currentUser(), 'commander', 7);
+
+        $this->planetAddResources(new Resources(10000, 10000, 10000, 0));
+        $queueService = resolve(BuildingQueueService::class);
+
+        $queueService->add($this->planetService, ObjectService::getObjectByMachineName('metal_mine')->id);
+        $queueService->add($this->planetService, ObjectService::getObjectByMachineName('crystal_mine')->id);
+
+        $this->assertSame(2, $queueService->retrieveQueue($this->planetService)->count());
+    }
+
+    // ── BONUSES AT THE CALL SITES ────────────────────────────────────────────
+
+    public function testAdmiralIncreasesFleetSlotsMax(): void
+    {
+        $player = $this->planetService->getPlayer();
+        assert($player !== null);
+        $before = $player->getFleetSlotsMax();
+
+        $this->addDarkMatter(10000);
+        $this->officerService->purchase($this->currentUser(), 'admiral', 7);
+
+        $this->assertSame(
+            $before + 2,
+            $player->getFleetSlotsMax(),
+            'The Admiral should add 2 fleet slots to the in-game maximum.'
+        );
+    }
+
+    public function testAdmiralIncreasesExpeditionSlotsMax(): void
+    {
+        $player = $this->planetService->getPlayer();
+        assert($player !== null);
+        $before = $player->getExpeditionSlotsMax();
+
+        $this->addDarkMatter(10000);
+        $this->officerService->purchase($this->currentUser(), 'admiral', 7);
+
+        $this->assertSame(
+            $before + 1,
+            $player->getExpeditionSlotsMax(),
+            'The Admiral should add 1 expedition slot to the in-game maximum.'
+        );
+    }
+
+    public function testCommandingStaffAddsOneMoreFleetSlot(): void
+    {
+        $player = $this->planetService->getPlayer();
+        assert($player !== null);
+        $before = $player->getFleetSlotsMax();
+
+        $this->addDarkMatter(100000);
+        $this->officerService->purchase($this->currentUser(), 'all_officers', 7);
+
+        $this->assertSame(
+            $before + 3,
+            $player->getFleetSlotsMax(),
+            'The bundle should add the Admiral 2 slots plus the Commanding Staff slot.'
+        );
+    }
+
+    public function testTechnocratReducesResearchTime(): void
+    {
+        $before = $this->planetService->getTechnologyResearchTime('energy_technology');
+
+        $this->addDarkMatter(20000);
+        $this->officerService->purchase($this->currentUser(), 'technocrat', 7);
+
+        $after = $this->planetService->getTechnologyResearchTime('energy_technology');
+
+        $this->assertSame(
+            (float)(int)($before * 0.75),
+            $after,
+            'The Technocrat should cut 25% off the actual research time.'
+        );
+    }
+
+    // ── UNKNOWN OFFICER NAMES ────────────────────────────────────────────────
+
+    /**
+     * An unknown officer name must never report as active, not even while the bundle runs.
+     */
+    public function testUnknownOfficerIsNeverActive(): void
+    {
+        $this->addDarkMatter(100000);
+        $user = $this->currentUser();
+        $this->officerService->purchase($user, 'all_officers', 7);
+
+        $this->assertTrue($this->officerService->isActive($user, 'commander'));
+        $this->assertFalse($this->officerService->isActive($user, 'not_an_officer'));
+        $this->assertFalse($this->officerService->getOfficer($user)->isOfficerActive(''));
     }
 
     // ── PURCHASE ENDPOINT ─────────────────────────────────────────────────────

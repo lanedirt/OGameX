@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Models\Officer;
 use OGame\Models\User;
@@ -154,18 +155,22 @@ class OfficerService
 
         $cost = $this->getCost($officerKey, $days);
 
-        // Debit dark matter (throws if insufficient)
-        $this->darkMatterService->debit(
-            $user,
-            $cost,
-            DarkMatterTransactionType::OFFICER_PURCHASE->value,
-            "Officer activation: {$officerKey} for {$days} days"
-        );
+        // Debiting and activating must happen together: a player must never end up charged
+        // for an officer that was not activated.
+        DB::transaction(function () use ($user, $officerKey, $days, $cost): void {
+            // Debit dark matter (throws if insufficient)
+            $this->darkMatterService->debit(
+                $user,
+                $cost,
+                DarkMatterTransactionType::OFFICER_PURCHASE->value,
+                "Officer activation: {$officerKey} for {$days} days"
+            );
 
-        // Activate/extend the officer
-        $officer = $this->getOfficer($user);
-        $officer->activate($officerKey, $days);
-        $officer->save();
+            // Activate/extend the officer
+            $officer = $this->getOfficer($user);
+            $officer->activate($officerKey, $days);
+            $officer->save();
+        });
 
         // Clear cache so subsequent reads reflect the update
         $this->clearCache($user);

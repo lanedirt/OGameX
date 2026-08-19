@@ -22,7 +22,14 @@ use RuntimeException;
 class BuildingQueueService
 {
     /**
-     * Amount of extra building queue slots granted by the Commander officer.
+     * Amount of items allowed in the building queue without the Commander officer.
+     * Without her a planet builds one structure at a time and cannot queue anything.
+     */
+    public const BASE_MAX_QUEUE_ITEMS = 1;
+
+    /**
+     * Amount of extra building queue slots granted by the Commander officer:
+     * "up to 4 additional building contracts at the same time in the building queue".
      */
     public const COMMANDER_EXTRA_QUEUE_ITEMS = 4;
 
@@ -300,15 +307,15 @@ class BuildingQueueService
     /**
      * Get the max amount of items allowed in the building queue for this planet.
      *
-     * The Commander officer allows up to 4 additional building contracts to be queued
-     * at the same time on top of the default amount.
+     * Queueing buildings is the Commander benefit: without her only the structure that is
+     * currently being built fits in the queue, with her 4 more can be lined up behind it.
      *
      * @param PlanetService $planet
      * @return int
      */
     private function getMaxQueueItems(PlanetService $planet): int
     {
-        $maxItems = BuildingQueueListViewModel::DEFAULT_MAX_ITEMS_IN_QUEUE;
+        $maxItems = self::BASE_MAX_QUEUE_ITEMS;
 
         $player = $planet->getPlayer();
         if ($player !== null && $player->hasCommander()) {

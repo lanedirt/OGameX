@@ -31,6 +31,19 @@ use Illuminate\Support\Carbon;
 ])]
 class Officer extends Model
 {
+    /**
+     * The officer types this model tracks, i.e. the valid arguments to isOfficerActive()
+     * and activate().
+     */
+    public const OFFICER_TYPES = [
+        'commander',
+        'admiral',
+        'engineer',
+        'geologist',
+        'technocrat',
+        'all_officers',
+    ];
+
     protected $casts = [
         'commander_until'    => 'datetime',
         'admiral_until'      => 'datetime',
@@ -80,6 +93,12 @@ class Officer extends Model
      */
     public function isOfficerActive(string $type): bool
     {
+        // Guard against unknown names: an undefined attribute reads as null, which would
+        // otherwise fall through and report any string as active while the bundle runs.
+        if (!in_array($type, self::OFFICER_TYPES, true)) {
+            return false;
+        }
+
         $column      = $type . '_until';
         $directActive = $this->$column !== null && $this->$column->isFuture();
 
@@ -114,7 +133,7 @@ class Officer extends Model
     public function getActiveOfficerCount(): int
     {
         $count = 0;
-        foreach (['commander', 'admiral', 'engineer', 'geologist', 'technocrat'] as $type) {
+        foreach (array_diff(self::OFFICER_TYPES, ['all_officers']) as $type) {
             if ($this->isOfficerActive($type)) {
                 $count++;
             }

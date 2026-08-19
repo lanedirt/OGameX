@@ -1352,6 +1352,7 @@ return [
         'purchase_success'           => 'The officer has been hired successfully.',
         'invalid_officer_type'       => 'Invalid officer type.',
         'invalid_duration'           => 'Invalid duration.',
+        'purchase_failed'            => 'The officer could not be hired. Please try again.',
 
         // ── Officer titles, descriptions and tooltips ──────────────────────
         'officer_commander_title'       => 'Commander',

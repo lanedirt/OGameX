@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use OGame\Services\DarkMatterService;
 use OGame\Services\OfficerService;
@@ -102,8 +103,12 @@ class PremiumController extends OGameController
         try {
             $this->officerService->purchase($user, $officerKey, $days);
         } catch (Exception $e) {
+            // The input was validated above, so anything thrown here is unexpected: log it
+            // and show the player a generic message rather than the raw exception text.
+            Log::error('Officer purchase failed', ['user_id' => $user->id, 'officer' => $officerKey, 'exception' => $e]);
+
             return redirect()->route('premium.index')
-                ->with('error', $e->getMessage());
+                ->with('error', __('t_ingame.premium.purchase_failed'));
         }
 
         return redirect()->route('premium.index')
