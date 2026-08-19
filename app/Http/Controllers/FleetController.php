@@ -24,6 +24,7 @@ use OGame\Services\CharacterClassService;
 use OGame\Services\CoordinateDistanceCalculator;
 use OGame\Services\FleetMissionService;
 use OGame\Services\FleetUnionService;
+use OGame\Services\IncomingFleetIntelService;
 use OGame\Services\MessageService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -115,8 +116,12 @@ class FleetController extends OGameController
      * @param PlanetServiceFactory $planetServiceFactory
      * @return View|RedirectResponse
      */
-    public function movement(PlayerService $player, FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory): View|RedirectResponse
-    {
+    public function movement(
+        PlayerService $player,
+        FleetMissionService $fleetMissionService,
+        PlanetServiceFactory $planetServiceFactory,
+        IncomingFleetIntelService $incomingFleetIntelService
+    ): View|RedirectResponse {
         // Get all the fleet movements for the current user.
         $friendlyMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
@@ -195,9 +200,12 @@ class FleetController extends OGameController
                 }
             }
 
-            $eventRowViewModel->fleet_unit_count = $fleetMissionService->getFleetUnitCount($row);
-            $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
-            $eventRowViewModel->resources = $fleetMissionService->getResources($row);
+            $incomingIntel = $incomingFleetIntelService->shapeIncomingFleetIntel($row, $player, $fleetMissionService);
+            $eventRowViewModel->fleet_unit_count = $incomingIntel['ship_count'];
+            $eventRowViewModel->fleet_units = $incomingIntel['units'];
+            $eventRowViewModel->resources = $incomingIntel['resources'];
+            $eventRowViewModel->fleet_intel_level = $incomingIntel['intel_level'];
+            $eventRowViewModel->show_shipment = $incomingIntel['show_shipment'];
 
             $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
 
