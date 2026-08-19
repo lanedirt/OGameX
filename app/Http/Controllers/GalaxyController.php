@@ -218,7 +218,7 @@ class GalaxyController extends OGameController
             'availableMissions' => [
                 [
                     'missionType' => 8,
-                    'name' => __('t_ingame.fleet.mission_recycle'),
+                    'name' => __('t_ingame.galaxy.mission_harvest'),
                 ],
             ],
             'requiredShips' => $debrisField->calculateRequiredRecyclers(),
@@ -639,7 +639,7 @@ class GalaxyController extends OGameController
                 'moveAction' => 'prepareMove',
                 'moveLink' => route('planetMove.move'),
                 'galaxyLink' => route('galaxy.index', ['galaxy' => $galaxy, 'system' => $system]),
-                'title' => __('t_ingame.galaxy.relocate_title')
+                'title' => __('t_ingame.galaxy.relocate_action')
             ],
             [
                 'missionType' => 7,

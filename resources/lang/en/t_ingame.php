@@ -465,6 +465,7 @@ return [
         'pathfinders_needed'           => 'Pathfinders needed',
         'recyclers_needed'             => 'Recyclers needed',
         'mine_debris'                  => 'Mine',
+        'mission_harvest'              => 'Harvest',
         'phalanx_no_deut'              => 'Not enough deuterium to deploy phalanx.',
         'use_phalanx'                  => 'Use phalanx',
         'colonize_error'               => 'It is not possible to colonize a planet without a colony ship.',
@@ -484,6 +485,7 @@ return [
         // galaxyLoca JS object
         'relocate_success'             => 'The position has been reserved for you. The colony\'s relocation has begun.',
         'relocate_title'               => 'Resettle Planet',
+        'relocate_action'              => 'Relocate',
         'relocate_question'            => 'Are you sure you want to relocate your planet to these coordinates? To finance the relocation you\'ll need :cost Dark Matter.',
         'deut_needed_relocate'         => 'You don\'t have enough Deuterium! You need 10 Units of Deuterium.',
         'fleet_attacking'              => 'Fleet is attacking!',
@@ -928,8 +930,8 @@ return [
         'msg_kick_error'                => 'Failed to kick member',
         'msg_invalid_action'            => 'Invalid action',
         'msg_error'                     => 'An error occurred',
-        'rank_founder_default'  => '\'Founder\' }}',
-        'rank_newcomer_default' => '\'Newcomer\' }}',
+        'rank_founder_default'  => 'Founder',
+        'rank_newcomer_default' => 'Newcomer',
     ],
 
     // -------------------------------------------------------------------
