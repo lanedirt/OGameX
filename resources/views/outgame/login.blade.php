@@ -5,8 +5,8 @@
 <div id="menu">
     <ul id="tabs">
         <li><a id="tab1" href="#tabContentContainer">{{ __('t_external.nav.home') }}</a></li>
-        <li><a id="tab2" href="#">{{ __('t_external.nav.about') }}</a></li>
-        <li><a id="tab3" href="#">{{ __('t_external.nav.media') }}</a></li>
+        <li><a id="tab2" href="#tabContentContainer">{{ __('t_external.nav.about') }}</a></li>
+        <li><a id="tab3" href="#tabContentContainer">{{ __('t_external.nav.media') }}</a></li>
     </ul>
     <a id="tab4" href="http://wiki.ogame.org" target="_blank">{{ __('t_external.nav.wiki') }}</a>
     <br class="clearfloat" />
