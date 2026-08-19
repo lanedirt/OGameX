@@ -30,6 +30,7 @@
                             <table class="defaultTable" style="width: 100%;">
                                 <thead>
                                 <tr>
+                                    <th>@lang('Description')</th>
                                     <th>@lang('Command')</th>
                                     <th>@lang('Schedule')</th>
                                     <th>@lang('Next Run')</th>
@@ -40,10 +41,8 @@
                                 <tbody>
                                 @foreach ($tasks as $task)
                                     <tr>
-                                        <td>
-                                            <strong>{{ $task['description'] }}</strong><br>
-                                            <span style="font-family: monospace; font-size: 11px; color: #7a8a9a;">{{ $task['command'] }}</span>
-                                        </td>
+                                        <td>{{ $task['description'] }}</td>
+                                        <td>{{ $task['command'] }}</td>
                                         <td>{{ $task['expression'] }}</td>
                                         <td>{{ $task['next_due'] }}</td>
                                         <td>{{ $task['without_overlapping'] ? __('On') : __('Off') }}</td>
