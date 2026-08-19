@@ -8,51 +8,6 @@
     @if (session('error'))
         <script>fadeBox(@json(session('error')), true);</script>
     @endif
-
-    <style>
-        .cron-task-list {
-            padding: 0 12px 20px;
-        }
-        .cron-task {
-            display: block;
-            margin: 0 0 14px;
-            padding: 12px 14px;
-            background: #121a22;
-            border: 1px solid #2a3a4a;
-        }
-        .cron-task-title {
-            color: #f1c891;
-            font-size: 13px;
-            font-weight: bold;
-            margin: 0 0 4px;
-        }
-        .cron-task-command {
-            color: #7a8a9a;
-            font-size: 11px;
-            font-family: monospace;
-            margin: 0 0 10px;
-            word-break: break-all;
-        }
-        .cron-task-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px 18px;
-            margin: 0 0 12px;
-            color: #c5d0da;
-            font-size: 11px;
-        }
-        .cron-task-meta span {
-            white-space: nowrap;
-        }
-        .cron-task-meta strong {
-            color: #8ec8f0;
-            font-weight: normal;
-        }
-        .cron-task-actions {
-            text-align: left;
-        }
-    </style>
-
     <div id="resourcesettingscomponent" class="maincontent">
         <div id="planet" class="shortHeader">
             <h2>@lang('Cron tasks')</h2>
@@ -71,30 +26,43 @@
                     @if (empty($tasks))
                         <p class="box_highlight textCenter no_buddies">@lang('No scheduled tasks found.')</p>
                     @else
-                        <div class="cron-task-list">
-                            @foreach ($tasks as $task)
-                                <div class="cron-task">
-                                    <p class="cron-task-title">{{ $task['description'] }}</p>
-                                    <p class="cron-task-command">{{ $task['command'] }}</p>
-                                    <div class="cron-task-meta">
-                                        <span>@lang('Schedule'): <strong>{{ $task['expression'] }}</strong></span>
-                                        <span>@lang('Next run'): <strong>{{ $task['next_due'] }}</strong></span>
-                                        @if ($task['without_overlapping'])
-                                            <span>@lang('Overlap protection'): <strong>@lang('On')</strong></span>
-                                        @endif
-                                    </div>
-                                    <div class="cron-task-actions">
-                                        @if ($task['runnable'] && !empty($task['command']))
-                                            <form method="post" action="{{ route('admin.crontasks.run') }}">
-                                                {{ csrf_field() }}
-                                                <input type="hidden" name="command" value="{{ $task['command'] }}">
-                                                <input type="submit" class="btn_blue" value="@lang('Run now')"
-                                                       onclick="return confirm(@json(__('Run this scheduled task now?')));">
-                                            </form>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
+                        <div class="group bborder" style="display: block; overflow-x: auto;">
+                            <table class="defaultTable" style="width: 100%;">
+                                <thead>
+                                <tr>
+                                    <th>@lang('Command')</th>
+                                    <th>@lang('Schedule')</th>
+                                    <th>@lang('Next Run')</th>
+                                    <th>@lang('Overlap Protection')</th>
+                                    <th>@lang('Actions')</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ($tasks as $task)
+                                    <tr>
+                                        <td>
+                                            <strong>{{ $task['description'] }}</strong><br>
+                                            <span style="font-family: monospace; font-size: 11px; color: #7a8a9a;">{{ $task['command'] }}</span>
+                                        </td>
+                                        <td>{{ $task['expression'] }}</td>
+                                        <td>{{ $task['next_due'] }}</td>
+                                        <td>{{ $task['without_overlapping'] ? __('On') : __('Off') }}</td>
+                                        <td>
+                                            @if ($task['runnable'] && !empty($task['command']))
+                                                <form method="post" action="{{ route('admin.crontasks.run') }}">
+                                                    {{ csrf_field() }}
+                                                    <input type="hidden" name="command" value="{{ $task['command'] }}">
+                                                    <input type="submit" class="btn_blue" value="@lang('Run now')"
+                                                           onclick="return confirm(@json(__('Run this scheduled task now?')));">
+                                                </form>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     @endif
                 </div>
