@@ -12,20 +12,29 @@ use OGame\ViewModels\FleetEventRowViewModel;
 /**
  * Redacts foreign fleet composition on event-list / movement view models
  * according to the viewing player's Espionage Technology level.
+ *
+ * Redaction only applies to hostile/enemy missions (attack, ACS attack, espionage, etc.).
+ * Friendly and neutral missions (transport, ACS defend, etc.) are always shown in full,
+ * with cargo visibility gated on whether the viewer has the Commander officer.
  */
 class IncomingFleetIntelService
 {
+    /** Mission types considered hostile/enemy (attack, ACS attack, espionage, destroy, missile). */
+    private const HOSTILE_MISSION_TYPES = [1, 2, 6, 9, 10];
+
     /**
      * Shape the visible intel for a single incoming fleet mission.
      *
-     * For own fleets every detail is returned as-is.  For foreign fleets the
-     * unit composition and carried resources are redacted according to the
-     * viewer's Espionage Technology level using the tier model.
+     * - Own fleets: always fully visible including cargo.
+     * - Foreign hostile fleets (attack, ACS attack, etc.): unit composition and cargo
+     *   are redacted according to the viewer's Espionage Technology level.
+     * - Foreign friendly/neutral fleets (transport, ACS defend, etc.): composition is
+     *   fully visible; cargo is shown only when the viewer has the Commander officer.
      *
      * Returned keys:
      *   - units       UnitCollection (possibly redacted)
      *   - ship_count  int            (total visible ship count; 0 when level hides count)
-     *   - resources   Resources      (cargo; zeroed for foreign fleets)
+     *   - resources   Resources      (cargo; shown for own/friendly-with-commander, else zeroed)
      *   - intel_level IncomingFleetIntelLevel (tier resolved from espionage research)
      *   - show_shipment bool         (whether cargo row should be rendered)
      *
@@ -71,29 +80,39 @@ class IncomingFleetIntelService
             ];
         }
 
-        // Foreign fleets: apply espionage-technology-based tier redaction.
-        $level = IncomingFleetIntelLevel::fromEspionageLevel(
-            $viewer->getResearchLevel('espionage_technology')
-        );
+        // Foreign hostile fleets: apply espionage-technology-based tier redaction.
+        if (in_array($mission->mission_type, self::HOSTILE_MISSION_TYPES, true)) {
+            $level = IncomingFleetIntelLevel::fromEspionageLevel(
+                $viewer->getResearchLevel('espionage_technology')
+            );
 
-        // Cargo is never revealed for foreign fleets.
-        $redactedResources = new Resources(0, 0, 0, 0);
+            $redactedUnits = match ($level) {
+                IncomingFleetIntelLevel::None => new UnitCollection(),
+                IncomingFleetIntelLevel::TotalCount => new UnitCollection(),
+                IncomingFleetIntelLevel::ShipTypes => $this->stripUnitAmounts($units),
+                IncomingFleetIntelLevel::Full => $units,
+            };
 
-        $redactedUnits = match ($level) {
-            IncomingFleetIntelLevel::None => new UnitCollection(),
-            IncomingFleetIntelLevel::TotalCount => new UnitCollection(),
-            IncomingFleetIntelLevel::ShipTypes => $this->stripUnitAmounts($units),
-            IncomingFleetIntelLevel::Full => $units,
-        };
+            $shipCount = $level->showsTotalCount() ? $units->getAmount() : 0;
 
-        $shipCount = $level->showsTotalCount() ? $units->getAmount() : 0;
+            return [
+                'units' => $redactedUnits,
+                'ship_count' => $shipCount,
+                'resources' => new Resources(0, 0, 0, 0),
+                'intel_level' => $level,
+                'show_shipment' => false,
+            ];
+        }
+
+        // Foreign friendly/neutral fleets: full composition is visible; cargo depends on Commander.
+        $showShipment = $viewer->hasCommander();
 
         return [
-            'units' => $redactedUnits,
-            'ship_count' => $shipCount,
-            'resources' => $redactedResources,
-            'intel_level' => $level,
-            'show_shipment' => false,
+            'units' => $units,
+            'ship_count' => $units->getAmount(),
+            'resources' => $showShipment ? $resources : new Resources(0, 0, 0, 0),
+            'intel_level' => IncomingFleetIntelLevel::Full,
+            'show_shipment' => $showShipment,
         ];
     }
 
