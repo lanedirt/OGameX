@@ -71,8 +71,9 @@ class AllianceDepotTest extends AccountTestCase
         // Assert that the response is successful
         $response->assertStatus(200);
 
-        // Assert that the dialog shows "no fleets" message
-        $response->assertSee('There are no holding fleets!');
+        // Assert that the dialog shows "no fleets" message (translated via t_ingame.alliance_depot.no_fleets)
+        $response->assertSee('supplydepotlayer');
+        $response->assertSee('No allied fleets currently in orbit.');
     }
 
     /**

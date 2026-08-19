@@ -94,6 +94,56 @@ return [
         'only_letters'              => 'Use characters only.',
     ],
 
+    // Forgot password page
+    'forgot_password' => [
+        'title'          => 'Forgot your password?',
+        'description'    => 'Enter your email address below and we will send you a link to reset your password.',
+        'email_label'    => 'Email address:',
+        'submit'         => 'Send reset link',
+        'back_to_login'  => '← Back to login',
+    ],
+
+    // Reset password page
+    'reset_password' => [
+        'title'          => 'Reset your password',
+        'email_label'    => 'Email address:',
+        'password_label' => 'New password:',
+        'confirm_label'  => 'Confirm new password:',
+        'submit'         => 'Reset password',
+    ],
+
+    // Forgot email page
+    'forgot_email' => [
+        'title'          => 'Forgot your email address?',
+        'description'    => 'Enter your commander name and we will send a hint to the registered email address.',
+        'username_label' => 'Commander name:',
+        'submit'         => 'Send hint',
+        'back_to_login'  => '← Back to login',
+        'sent'           => 'If a matching account was found, a hint has been sent to the registered email address.',
+    ],
+
+    // Outgoing email templates
+    'mail' => [
+        'reset_password' => [
+            'subject'     => 'Reset your OGameX password',
+            'heading'     => 'Password Reset',
+            'greeting'    => 'Hello :username,',
+            'body'        => 'We received a request to reset the password for your account. Click the button below to choose a new password.',
+            'cta'         => 'Reset Password',
+            'expiry'      => 'This link will expire in 60 minutes.',
+            'no_action'   => 'If you did not request a password reset, no further action is required.',
+            'url_fallback' => 'If you have trouble clicking the button, copy and paste the URL below into your browser:',
+        ],
+        'retrieve_email' => [
+            'subject'   => 'Your OGameX email address',
+            'heading'   => 'Email Address Hint',
+            'greeting'  => 'Hello :username,',
+            'body'      => 'You requested a hint for the email address associated with your account:',
+            'cta'       => 'Go to Login',
+            'no_action' => 'If you did not make this request, you can safely ignore this email.',
+        ],
+    ],
+
     // Universe selection characteristics tooltip texts
     'universe_characteristics' => [
         'fleet_speed'     => 'Fleet Speed: the higher the value, the less time you have left to react to an attack.',
