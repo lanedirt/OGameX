@@ -6,7 +6,6 @@ use OGame\Enums\IncomingFleetIntelLevel;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
-use OGame\Services\ObjectService;
 use OGame\ViewModels\FleetEventRowViewModel;
 
 /**
