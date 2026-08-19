@@ -27,6 +27,8 @@ use OGame\Services\MessageService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use OGame\Support\FleetMissionPlanetFormatter;
+use Throwable;
 
 abstract class GameMission
 {
@@ -592,21 +594,8 @@ abstract class GameMission
     {
         $return_resources = $this->fleetMissionService->getResources($mission);
 
-        // Define from string based on whether the planet is available or not.
-        $from = "[coordinates]{$mission->galaxy_from}:{$mission->system_from}:{$mission->position_from}[/coordinates]";
-        switch ($mission->type_from) {
-            case PlanetType::Planet->value:
-            case PlanetType::Moon->value:
-                if ($mission->planet_id_from !== null) {
-                    $from = __('planet') . " [planet]{$mission->planet_id_from}[/planet]";
-                }
-                break;
-            case PlanetType::DebrisField->value:
-                $from = "[debrisfield]{$mission->galaxy_from}:{$mission->system_from}:{$mission->position_from}[/debrisfield]";
-                break;
-        }
-
-        $to = __('planet') . " [planet]{$mission->planet_id_to}[/planet]";
+        $from = FleetMissionPlanetFormatter::returnEndpointLabel($mission, 'from');
+        $to = FleetMissionPlanetFormatter::returnEndpointLabel($mission, 'to');
 
         if ($return_resources->any()) {
             $params = [
@@ -735,4 +724,34 @@ abstract class GameMission
      * @return void
      */
     abstract protected function processReturn(FleetMission $mission): void;
+
+    /**
+     * Snapshot attacker origin display fields for battle reports.
+     *
+     * PlanetServiceFactory::make() throws when the body no longer exists, so this
+     * must catch failures and return an empty array rather than aborting report creation.
+     *
+     * @return array{planet_coords?: string, planet_name?: string, planet_type?: string}
+     */
+    protected function buildAttackerPlanetSnapshot(int|null $planetId): array
+    {
+        if ($planetId === null) {
+            return [];
+        }
+
+        try {
+            $planet = $this->planetServiceFactory->make($planetId, true);
+            if ($planet === null) {
+                return [];
+            }
+
+            return [
+                'planet_coords' => $planet->getPlanetCoordinates()->asString(),
+                'planet_name' => $planet->getPlanetName(),
+                'planet_type' => $planet->getPlanetType() === PlanetType::Moon ? 'Moon' : 'Planet',
+            ];
+        } catch (Throwable) {
+            return [];
+        }
+    }
 }

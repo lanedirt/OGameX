@@ -17,6 +17,7 @@ use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Support\FleetMissionPlanetFormatter;
 use RuntimeException;
 
 class RecycleMission extends GameMission
@@ -133,7 +134,7 @@ class RecycleMission extends GameMission
 
         // Send a message to the player that the mission has arrived and the resources (if any) have been collected.
         $this->messageService->sendSystemMessageToPlayer($originPlayer, DebrisFieldHarvest::class, [
-            'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
+            'from' => FleetMissionPlanetFormatter::tag($mission, 'from'),
             'to' => '[debrisfield]' . $targetCoordinate->asString(). '[/debrisfield]',
             'coordinates' => '[coordinates]' . $targetCoordinate->asString() . '[/coordinates]',
             'ship_name' => $harvesterShip->title,
