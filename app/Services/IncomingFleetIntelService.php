@@ -4,7 +4,9 @@ namespace OGame\Services;
 
 use OGame\Enums\IncomingFleetIntelLevel;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\FleetMission;
 use OGame\Models\Resources;
+use OGame\Services\ObjectService;
 use OGame\ViewModels\FleetEventRowViewModel;
 
 /**
@@ -13,6 +15,121 @@ use OGame\ViewModels\FleetEventRowViewModel;
  */
 class IncomingFleetIntelService
 {
+    /**
+     * Shape the visible intel for a single incoming fleet mission.
+     *
+     * For own fleets every detail is returned as-is.  For foreign fleets the
+     * unit composition and carried resources are redacted according to the
+     * viewer's Espionage Technology level using the tier model.
+     *
+     * Returned keys:
+     *   - units       UnitCollection (possibly redacted)
+     *   - ship_count  int            (total visible ship count; 0 when level hides count)
+     *   - resources   Resources      (cargo; zeroed for foreign fleets)
+     *   - intel_level IncomingFleetIntelLevel (tier resolved from espionage research)
+     *   - show_shipment bool         (whether cargo row should be rendered)
+     *
+     * @param FleetMission $mission
+     * @param PlayerService $viewer
+     * @param FleetMissionService|null $fleetMissionService  Required when called from controllers;
+     *   if omitted the method reads unit/resource data directly from the mission model.
+     * @return array{units: UnitCollection, ship_count: int, resources: Resources, intel_level: IncomingFleetIntelLevel, show_shipment: bool}
+     */
+    public function shapeIncomingFleetIntel(
+        FleetMission $mission,
+        PlayerService $viewer,
+        FleetMissionService|null $fleetMissionService = null
+    ): array {
+        // Build raw unit collection and resources from the mission record.
+        if ($fleetMissionService !== null) {
+            $units = $fleetMissionService->getFleetUnits($mission);
+            $resources = $fleetMissionService->getResources($mission);
+        } else {
+            $units = new UnitCollection();
+            foreach (ObjectService::getShipObjects() as $ship) {
+                $amount = $mission->{$ship->machine_name} ?? 0;
+                if ($amount > 0) {
+                    $units->addUnit($ship, $amount);
+                }
+            }
+            $resources = new Resources(
+                $mission->metal ?? 0,
+                $mission->crystal ?? 0,
+                ($mission->deuterium ?? 0) + (($mission->deuterium_consumption ?? 0) / 2),
+                0
+            );
+        }
+
+        // Own fleets are always shown in full.
+        if ($mission->user_id === $viewer->getId()) {
+            return [
+                'units' => $units,
+                'ship_count' => $units->getAmount(),
+                'resources' => $resources,
+                'intel_level' => IncomingFleetIntelLevel::Full,
+                'show_shipment' => true,
+            ];
+        }
+
+        // Foreign fleets: apply espionage-technology-based tier redaction.
+        $level = IncomingFleetIntelLevel::fromEspionageLevel(
+            $viewer->getResearchLevel('espionage_technology')
+        );
+
+        // Cargo is never revealed for foreign fleets.
+        $redactedResources = new Resources(0, 0, 0, 0);
+
+        $redactedUnits = match ($level) {
+            IncomingFleetIntelLevel::None => new UnitCollection(),
+            IncomingFleetIntelLevel::TotalCount => new UnitCollection(),
+            IncomingFleetIntelLevel::ShipTypes => $this->stripUnitAmounts($units),
+            IncomingFleetIntelLevel::Full => $units,
+        };
+
+        $shipCount = $level->showsTotalCount() ? $units->getAmount() : 0;
+
+        return [
+            'units' => $redactedUnits,
+            'ship_count' => $shipCount,
+            'resources' => $redactedResources,
+            'intel_level' => $level,
+            'show_shipment' => false,
+        ];
+    }
+
+    /**
+     * Return a copy of the unit collection with all amounts set to 0 (for ShipTypes tier).
+     */
+    private function stripUnitAmounts(UnitCollection $units): UnitCollection
+    {
+        $stripped = new UnitCollection();
+        foreach ($units->units as $entry) {
+            $stripped->addUnit($entry->unitObject, 0);
+        }
+        return $stripped;
+    }
+
+    /**
+     * Return a human-readable fleet direction label for Phalanx scan results.
+     *
+     * @param FleetMission $mission
+     * @param PlayerService $scannerPlayer
+     * @return string
+     */
+    public function getFleetDirectionLabel(FleetMission $mission, PlayerService $scannerPlayer): string
+    {
+        if ($mission->user_id === $scannerPlayer->getId()) {
+            return 'Own fleet';
+        }
+
+        // Attack (1) and ACS Attack (2) are enemy fleets.
+        if (in_array($mission->mission_type, [1, 2], true)) {
+            return 'Enemy fleet';
+        }
+
+        return 'Friendly fleet';
+    }
+
     /**
      * Resolve intel level from the viewer's espionage technology.
      */

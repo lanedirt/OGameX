@@ -204,6 +204,8 @@ class FleetController extends OGameController
             $eventRowViewModel->fleet_unit_count = $incomingIntel['ship_count'];
             $eventRowViewModel->fleet_units = $incomingIntel['units'];
             $eventRowViewModel->resources = $incomingIntel['resources'];
+            $eventRowViewModel->fleet_intel_level = $incomingIntel['intel_level'];
+            $eventRowViewModel->show_shipment = $incomingIntel['show_shipment'];
 
             $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
 

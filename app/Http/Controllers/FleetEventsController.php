@@ -269,6 +269,8 @@ class FleetEventsController extends OGameController
             $eventRowViewModel->fleet_unit_count = $incomingIntel['ship_count'];
             $eventRowViewModel->fleet_units = $incomingIntel['units'];
             $eventRowViewModel->resources = $incomingIntel['resources'];
+            $eventRowViewModel->fleet_intel_level = $incomingIntel['intel_level'];
+            $eventRowViewModel->show_shipment = $incomingIntel['show_shipment'];
 
             $eventRowViewModel->time_departure = $row->time_departure;
             $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
@@ -479,6 +481,8 @@ class FleetEventsController extends OGameController
                     $vm->fleet_unit_count = $incomingIntel['ship_count'];
                     $vm->fleet_units = $incomingIntel['units'];
                     $vm->resources = $incomingIntel['resources'];
+                    $vm->fleet_intel_level = $incomingIntel['intel_level'];
+                    $vm->show_shipment = $incomingIntel['show_shipment'];
                 }
 
                 // Resolve player name for all fleets
