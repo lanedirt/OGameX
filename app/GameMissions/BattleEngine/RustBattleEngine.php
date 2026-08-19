@@ -11,6 +11,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use OGame\Services\RustFfiLibrary;
 use OGame\Services\SettingsService;
 use RuntimeException;
 use stdClass;
@@ -45,7 +46,7 @@ class RustBattleEngine extends BattleEngine
 
         $this->ffi = FFI::cdef(
             "char* fight_battle_rounds(const char* input_json);",
-            base_path('storage/rust-libs/libbattle_engine_ffi.so')
+            RustFfiLibrary::path('battle_engine_ffi')
         );
     }
 

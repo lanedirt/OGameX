@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use FFI;
+use OGame\Services\RustFfiLibrary;
 use Tests\UnitTestCase;
 
 class RustFfiTest extends UnitTestCase
@@ -12,8 +13,8 @@ class RustFfiTest extends UnitTestCase
      */
     public function testRustFfiInterface(): void
     {
-        // Path to your .so file
-        $libPath = base_path('storage/rust-libs/libtest_ffi.so');
+        // Resolve the platform-specific shared library path.
+        $libPath = RustFfiLibrary::path('test_ffi');
 
         // Define the function signature in C syntax
         $ffi = FFI::cdef("

@@ -23,8 +23,10 @@ cd rust
 # Compile the rust packages
 cargo build --release
 # Copy the compiled rust package to the storage/rust-libs directory.
-# These .so files are called by Laravel.
-cp target/release/lib*_ffi.so ../../storage/rust-libs
+# The shared library extension differs per OS. The compile.sh script
+# (above) detects this automatically; manually, use:
+#   Linux:  cp target/release/lib*_ffi.so ../../storage/rust-libs
+#   macOS:  cp target/release/lib*_ffi.dylib ../../storage/rust-libs
 ```
 
 ## Debugging Rust code
