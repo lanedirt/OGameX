@@ -117,7 +117,7 @@ A good starting point are issues labeled as "good first issue".
 
 [![good first issues open](https://img.shields.io/github/issues/lanedirt/OGameX/good%20first%20issue.svg?logo=github)](https://github.com/lanedirt/OGameX/issues?q=is%3Aopen+is%3Aissue+label%3A"good+first+issue")
 
-Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBUTING.md) file for more information.
+Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBUTING.md) file for more information. To build an extension, start with the [OGameX module guide](docs/modules.md).
 
 ## <a name="disclaimer"></a> 📓 6. Disclaimer
 

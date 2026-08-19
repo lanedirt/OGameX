@@ -1,0 +1,10 @@
+{
+    "name": "ogamex/hello-world",
+    "description": "Disabled-by-default reference module for OGameX contributors.",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Modules\\HelloWorld\\": "app/"
+        }
+    }
+}
