@@ -32,7 +32,7 @@
 </div>
 
 
-OGameX is an open-source OGame redesign clone. This clone is built fully from scratch using the Laravel 12.x framework and uses modern PHP practices. All major functionality is covered by unit and feature tests which automatically run on every build.
+OGameX is an open-source OGame redesign clone. This clone is built fully from scratch using the latest Laravel framework version and uses modern PHP practices. All major functionality is covered by unit and feature tests which automatically run on every build.
 
 We welcome any and all contributions to this project! If you want to help out, please read the [contributing](#contributing) section. If you have any questions you can [join the OGameX discord](https://discord.com/invite/HJ4QRxxB5N) to get in touch with the maintainers and other contributors.
 
@@ -89,9 +89,13 @@ OGameX is under active development with a lot of core features already implement
 - Moon
   - Moon creation through debris field after battle
   - Moon buildings, phalanx, jump gate
+- Wreck fields / Space Dock
+- Character classes
+- In-game chat
+- Buddies / notes / fleet templates
 - Admin panel
 - Expedition mission with various outcomes
-- Basic dark matter features (non-commercial)
+- Basic dark matter features (non-commercial), including merchant and planet relocate
 - Alliances
 - ACS fleet dispatch missions
 - Multi-language
@@ -122,7 +126,7 @@ This project is a non-commercial hobby project. All rights and concepts related 
 ## <a name="installation"></a> 🖥️ 7. Installation
 The recommended way to install OGameX is by running the bundled Docker containers. This takes care of all the dependencies and is the easiest way to get started.
 
-If you instead wish to install OGameX manually, see the list of requirements for Laravel 12.x and how to deploy manually to a server here: https://laravel.com/docs/12.x/deployment.
+If you instead wish to install OGameX manually, note that OGameX requires PHP ^8.5. See the list of requirements for Laravel 13.x and how to deploy manually to a server here: https://laravel.com/docs/13.x/deployment.
 
 ### <a name="development"></a> a) Install for local development
 For local development use the default docker-compose file that is included in this repository. This configuration is optimized for development and includes several tools that are useful for debugging and testing.
@@ -173,7 +177,7 @@ The instructions below are for Linux. OGameX should also work under Docker for W
   $ docker compose -f docker-compose.prod.yml up -d --build --force-recreate
   ```
 
-  > The default setup binds to ports 80/443, to change it modify `docker-compose.yml`. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via `./docker/phpmyadmin/.htaccess` for safety purposes.
+  > The default setup binds to ports 80/443, to change it modify `docker-compose.prod.yml`. PhpMyAdmin is also included for database management and is bound to port 8080, however to access it you need to explicitly specify your IP addresses via `./docker/phpmyadmin/.htaccess` for safety purposes.
 
 **Important:** it can take up to 10 minutes for the `ogamex-app` container to start, this is because of composer initialization and Rust compiling that happens on the first run. Please be patient and wait for all containers to have fully started.
 
@@ -189,8 +193,14 @@ Create a new account to start using OGameX. The first account created will be au
 If you want to upgrade an existing installation of OGameX to a new version, follow these steps:
 
 1. Stop the existing containers:
+
+  **For development:**
   ```
   $ docker compose down
+  ```
+  **For production:**
+  ```
+  $ docker compose -f docker-compose.prod.yml down
   ```
   2. Pull the latest changes from the main branch or checkout the new release tag:
   ```
@@ -198,7 +208,7 @@ If you want to upgrade an existing installation of OGameX to a new version, foll
   ```
   -- or --
   ```
-  $ git checkout 0.13.0 # replace with the latest release tag
+  $ git checkout 0.14.0 # replace with the latest release tag
   ```
   3. Rebuild and start the containers:
 
@@ -213,14 +223,15 @@ If you want to upgrade an existing installation of OGameX to a new version, foll
   > When the docker containers are started, the entrypoint script in `./docker/entrypoint.sh` will automatically run the appropriate laravel install commands to upgrade the database schema and refresh the cache. Note that depending on the migrations this might take a short while. After the containers are started, you can visit the application at `https://localhost` (or http://localhost) to check if the upgrade was successful. If you run into any issues, please check the logs for more information or open an issue on GitHub.
 
 ### Assigning admin role
-By default, the first registered user is assigned the admin role which can see the admin bar and is able to change server settings. You can also assign the admin role manually via the command line:
+By default, the first registered user is assigned the admin role which can see the admin bar and is able to change server settings. You can also assign the admin role manually via the command line (run inside the `ogamex-app` container; see the development note above for `docker compose exec`):
   ```
-  $ php artisan ogamex:admin:assign-role {username}
+  $ docker compose exec ogamex-app php artisan ogamex:admin:assign-role {username}
   ```
   To remove the admin role from a user, use the following command:
   ```
-  $ php artisan ogamex:admin:remove-role {username}
+  $ docker compose exec ogamex-app php artisan ogamex:admin:remove-role {username}
   ```
+  For production, add `-f docker-compose.prod.yml` to the `docker compose` commands above.
 
 ### Tuning the fleet arrival queue workers
 Fleet arrivals (battles, transports, deployments, etc.) are processed in the background by the `ogamex-queue-worker` container. It runs several workers under supervisor, split into two lanes so a large battle can never hold up ordinary logistics:

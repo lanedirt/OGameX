@@ -348,6 +348,10 @@ abstract class GameMission
             // Hold time is stored as raw game time (not affected by fleet speed).
             $mission->time_arrival = $time_end + ($holdingHours * 3600);
             $mission->time_arrival_ms = $time_start_ms + (($flightDuration + ($holdingHours * 3600)) * 1000);
+            // Set processed_hold explicitly: the database default (0) is not reflected on the
+            // in-memory model after save(), and the created-observer's job sync requires
+            // processed_hold === 0 to schedule the physical-arrival (hold start) job.
+            $mission->processed_hold = 0;
         } else {
             $mission->time_arrival = $time_end;
             $mission->time_arrival_ms = $time_start_ms + ($flightDuration * 1000);

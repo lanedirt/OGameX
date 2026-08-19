@@ -16,6 +16,7 @@ use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
+use OGame\Services\BuddyService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -28,6 +29,11 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
     protected int $missionType = 3;
 
     protected string $missionName = 'Transport';
+
+    /**
+     * @var array<int> Buddy user IDs created by ACS Defend tests, cleaned up in tearDown.
+     */
+    private array $createdBuddyUserIds = [];
 
     protected function setUp(): void
     {
@@ -68,11 +74,41 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
             User::where('id', $this->currentUserId)->delete();
         }
 
+        foreach ($this->createdBuddyUserIds as $buddyUserId) {
+            DB::table('buddy_requests')
+                ->where('sender_user_id', $buddyUserId)
+                ->orWhere('receiver_user_id', $buddyUserId)
+                ->delete();
+            Message::where('user_id', $buddyUserId)->delete();
+            DB::table('users_tech')->where('user_id', $buddyUserId)->delete();
+            DB::table('users')->where('id', $buddyUserId)->update(['planet_current' => null]);
+            Planet::where('user_id', $buddyUserId)->delete();
+            User::where('id', $buddyUserId)->delete();
+        }
+        $this->createdBuddyUserIds = [];
+
         DB::table('jobs')->delete();
 
         config(['queue.default' => 'sync']);
 
         parent::tearDown();
+    }
+
+    /**
+     * Create a buddy player with a planet the current user can send ACS Defend missions to.
+     */
+    private function createBuddyTargetPlanet(): PlanetService
+    {
+        $buddyUser = User::factory()->create();
+        $this->createdBuddyUserIds[] = $buddyUser->id;
+
+        $buddyPlanet = $this->createPlanetAtSafeCoordinate($buddyUser->id);
+
+        $buddyService = resolve(BuddyService::class);
+        $request = $buddyService->sendRequest($this->currentUserId, $buddyUser->id);
+        $buddyService->acceptRequest($request->id, $buddyUser->id);
+
+        return $buddyPlanet;
     }
 
     protected function basicSetup(): void
@@ -214,8 +250,11 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $baseArrival = (int) now()->timestamp - 1;
-        $firstMission = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
+        // Create the later-ms mission FIRST so the earlier-ms mission has the HIGHER id.
+        // The processing order (time_arrival, time_arrival_ms, id) then runs counter to
+        // id order, so the id tiebreaker cannot mask a missing time_arrival_ms sort.
         $secondMission = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 900);
+        $firstMission = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
 
         // The job is dispatched for the LATER mission only. When handled it must
         // discover and process the earlier mission too, in ms order, because both
@@ -241,8 +280,10 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         $baseArrival = (int) now()->timestamp - 1;
-        $firstMission = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 101);
+        // Create the later-ms mission FIRST so the earlier-ms mission has the HIGHER id.
+        // This ensures the id tiebreaker cannot mask a missing time_arrival_ms sort.
         $secondMission = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 909);
+        $firstMission = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 101);
 
         /** @var FleetMissionService $service */
         $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($firstMission, $secondMission) {
@@ -427,6 +468,124 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
             'parent_id' => $mission->id,
             'processed' => 0,
         ]);
+    }
+
+    public function testAcsDefendSchedulesHoldJobAtPhysicalArrivalAndArrivalJobAtHoldExpiry(): void
+    {
+        $this->basicSetup();
+        $this->planetAddUnit('light_fighter', 10);
+
+        $buddyPlanet = $this->createBuddyTargetPlanet();
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+
+        $service = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $mission = $service->createNewFromPlanet(
+            $this->planetService,
+            $buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend mission type
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            2 // Hold for 2 hours
+        );
+
+        $mission->refresh();
+
+        $this->assertNotNull($mission->time_holding, 'ACS Defend mission must carry a hold time.');
+        $this->assertGreaterThan(0, $mission->time_holding, 'ACS Defend mission must carry a positive hold time.');
+        $this->assertNotNull($mission->hold_job_id, 'ACS Defend mission did not store a hold job ID.');
+        $this->assertNotNull($mission->arrival_job_id, 'ACS Defend mission did not store an arrival job ID.');
+
+        // The hold job must fire at the physical arrival time (time_arrival - time_holding),
+        // NOT at hold expiry: it triggers the hold-start event (processed_hold + arrival messages).
+        $holdAvailableAt = DB::table('jobs')->where('id', $mission->hold_job_id)->value('available_at');
+        $this->assertSame(
+            (int) ($mission->time_arrival - $mission->time_holding),
+            (int) $holdAvailableAt,
+            'Hold job must be scheduled at the physical arrival time (time_arrival - time_holding).'
+        );
+
+        // The completion job fires at time_arrival, which for ACS Defend already includes the hold.
+        $arrivalAvailableAt = DB::table('jobs')->where('id', $mission->arrival_job_id)->value('available_at');
+        $this->assertSame(
+            (int) $mission->time_arrival,
+            (int) $arrivalAvailableAt,
+            'Arrival job must be scheduled at the mission completion time (time_arrival).'
+        );
+    }
+
+    public function testSchedulerFallbackProcessesOverdueAcsDefendHoldArrival(): void
+    {
+        $this->basicSetup();
+        $this->planetAddUnit('light_fighter', 10);
+
+        // Remove pre-existing overdue missions — both overdue completions (Branch B) and
+        // overdue ACS Defend hold arrivals (Branch A) — left behind by previous runs
+        // against the shared dev database. Without this, the limit(100) catch-up batch
+        // fills up before it reaches the mission created below.
+        DB::table('fleet_missions')
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->where('time_arrival', '<=', (int) now()->timestamp)
+            ->delete();
+        DB::table('fleet_missions')
+            ->where('canceled', 0)
+            ->where('mission_type', 5)
+            ->where('processed_hold', 0)
+            ->whereNotNull('time_holding')
+            ->where('time_holding', '>', 0)
+            ->whereRaw('(time_arrival - time_holding) <= ?', [(int) now()->timestamp])
+            ->delete();
+
+        $buddyPlanet = $this->createBuddyTargetPlanet();
+        $buddyUserId = $buddyPlanet->getPlayer()?->getId();
+        $this->assertNotNull($buddyUserId, 'Buddy planet has no player.');
+
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+
+        $service = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $mission = $service->createNewFromPlanet(
+            $this->planetService,
+            $buddyPlanet->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend mission type
+            $units,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            2 // Hold for 2 hours
+        );
+
+        // Rewind the mission so its physical arrival (time_arrival - time_holding) is 60s
+        // overdue while its completion (time_arrival) is still far in the future: only the
+        // scheduler's Branch A (ACS hold arrival) matches it.
+        $holdSeconds = (int) $mission->time_holding;
+        $mission->time_arrival = (int) now()->timestamp + $holdSeconds - 60;
+        $mission->time_arrival_ms = $mission->time_arrival * 1000;
+        $mission->saveQuietly(); // Skip the observer so no delayed jobs are re-synced.
+
+        // Simulate the delayed jobs being lost (e.g. downtime or a purged queue): the
+        // scheduler fallback must fire the hold arrival on its own.
+        DB::table('jobs')->delete();
+        $mission->forceFill(['arrival_job_id' => null, 'hold_job_id' => null])->saveQuietly();
+
+        $this->artisan('ogamex:scheduler:process-fleet-arrivals');
+
+        $mission->refresh();
+        $this->assertSame(1, $mission->processed_hold, 'Scheduler fallback must process the overdue ACS Defend hold arrival.');
+        $this->assertSame(0, $mission->processed, 'Mission completion is still in the future and must not be processed.');
+
+        $this->assertTrue(
+            Message::where('user_id', $this->currentUserId)->where('key', 'acs_defend_arrival_sender')->exists(),
+            'ACS Defend arrival message must be sent to the fleet sender.'
+        );
+        $this->assertTrue(
+            Message::where('user_id', $buddyUserId)->where('key', 'acs_defend_arrival_host')->exists(),
+            'ACS Defend arrival message must be sent to the host player.'
+        );
     }
 
     private function createCargoUnits(int $amount): UnitCollection

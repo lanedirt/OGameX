@@ -38,16 +38,20 @@ class AppServiceProvider extends ServiceProvider
 
         // Fleet arrival jobs are tracked by their database jobs-table row ID (an integer).
         // Non-database drivers (e.g. Redis) return UUID string job IDs, which cannot be
-        // stored in the arrival_job_id column. In that case job tracking is silently skipped
-        // and the scheduler fallback (ProcessFleetArrivals, runs every minute) ensures
-        // overdue missions are still processed. Log a warning so operators are aware.
+        // stored in the arrival_job_id column. Delayed jobs are still dispatched and
+        // processed on those drivers, but they cannot be tracked: mission updates dispatch
+        // duplicate jobs instead of reusing the existing one, and recalls cannot delete
+        // stale jobs. This is benign — processing is idempotent under the per-destination
+        // lock — but wasteful. Log a warning so operators are aware.
         $connection = config('queue.default');
         $driver = config("queue.connections.{$connection}.driver");
         if (!in_array($driver, ['database', 'sync', 'null'], true)) {
             Log::warning(
                 "Queue driver \"{$driver}\" does not support fleet arrival job tracking. " .
-                'Fleet missions will be processed by the scheduler fallback instead of ' .
-                'precise delayed jobs. Use QUEUE_CONNECTION=database for sub-second precision.'
+                'Delayed arrival jobs are still dispatched, but mission updates cannot reuse ' .
+                'existing jobs and recalls cannot delete stale ones, so duplicate jobs may run. ' .
+                'This is harmless (processing is idempotent under the destination lock) but ' .
+                'wasteful. Use QUEUE_CONNECTION=database for tracked delayed jobs.'
             );
         }
 

@@ -931,11 +931,12 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
      * Test that an ACS Defend fleet participates in battle when its physical arrival and the
      * attack both land at the same destination in the same second.
      *
-     * This is the core ordering guarantee of the fleet queue: within a single destination-lock
-     * processing run, all hold-arrival events (ACS Defend physical arrivals) are processed before
-     * all completion events (attacks, transports, etc.). This ensures the defender is recognised
-     * by collectDefendingFleets() even when the attacker's queue job or page load triggers the
-     * destination processing run first.
+     * Defender inclusion itself is second-granularity: collectDefendingFleets() selects defenders
+     * by whole-second timestamps and does not read processed_hold, so the ACS Defend fleet is
+     * recognised regardless of which loop in processDueMissionEventsForMission() runs first.
+     * What the hold-arrivals-first loop order guarantees is message/event sequencing: the
+     * ACS Defend arrival messages are created before the battle report message. This test pins
+     * both the battle participation and that message ordering.
      *
      * Timeline:
      *   T+200ms — ACS Defend fleet physically arrives at buddy planet (hold starts)
@@ -1007,23 +1008,189 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()])
             ->processDueMissionEventsForMission($freshAttackMission);
 
-        // The hold-arrivals loop runs first: ACS Defend physical arrival fires and sets processed_hold=1.
+        // The ACS Defend physical arrival fired and set processed_hold=1.
         $acsDefendMission = FleetMission::find($acsDefendMissionId);
         $this->assertNotNull($acsDefendMission, 'ACS Defend mission must still exist after processing.');
         $this->assertSame(
             1,
             $acsDefendMission->processed_hold,
-            'ACS Defend physical-arrival must be processed before the attack resolves.'
+            'ACS Defend physical-arrival must be processed.'
         );
 
-        // The completions loop then runs the attack. collectDefendingFleets() finds the ACS Defend
-        // fleet (physical arrival done, hold not yet expired) and includes it in the battle.
+        // collectDefendingFleets() finds the ACS Defend fleet by whole-second timestamps
+        // (physical arrival done, hold not yet expired) and includes it in the battle.
         $battleReport = BattleReport::orderByDesc('id')->first();
         $this->assertNotNull($battleReport, 'A battle report must exist after the attack resolves.');
         $this->assertGreaterThan(
             0,
             array_sum($battleReport->defender['units'] ?? []),
             'ACS Defend fleet must appear in the battle report as a defending unit.'
+        );
+
+        // Pin the loop order of processDueMissionEventsForMission(): hold arrivals run before
+        // completions, so the ACS Defend arrival message to the host must have been created
+        // BEFORE the battle report message. Swapping the two loops reverses the message
+        // creation order for this same-second batch and turns this assertion red.
+        $buddyUserId = $this->buddyUser()->id;
+
+        $acsHostMessage = Message::where('user_id', $buddyUserId)
+            ->where('key', 'acs_defend_arrival_host')
+            ->orderByDesc('id')
+            ->first();
+        $this->assertNotNull($acsHostMessage, 'ACS Defend arrival message must be sent to the host player.');
+
+        $battleReportMessage = Message::where('user_id', $buddyUserId)
+            ->where('key', 'battle_report')
+            ->orderByDesc('id')
+            ->first();
+        $this->assertNotNull($battleReportMessage, 'Battle report message must be sent to the host player.');
+
+        $this->assertLessThan(
+            $battleReportMessage->id,
+            $acsHostMessage->id,
+            'ACS Defend arrival message must be created before the battle report: hold arrivals process before completions.'
+        );
+    }
+
+    /**
+     * Regression test for #1321: an ACS Defend fleet destroyed in battle must NOT re-appear
+     * in the fleet widget (getActiveFleetMissionsForCurrentPlayer) after its hold time expires.
+     *
+     * A fleet destroyed during hold is marked processed=1 while its time_arrival/time_holding
+     * are left unchanged. Before the fix, getActiveFleetMissionsForCurrentPlayer() had an extra
+     * clause that re-included processed ACS Defend outbound missions in the window
+     * [time_arrival, time_arrival + time_holding), so the destroyed mission re-surfaced in the
+     * widget for a full holding time after the hold had already ended. The fix reduces the query
+     * to "processed = 0" only, so a destroyed (processed=1) mission is never returned.
+     */
+    public function testDestroyedAcsDefendMissionNotReturnedByActiveFleetMissionsAfterHoldExpires(): void
+    {
+        $this->basicSetup();
+        $this->createBuddyPlayer();
+
+        // Create ACS defender and send a small defend fleet that will be wiped out in battle.
+        $acsDefender = $this->createAcsDefender();
+        $acsDefender['planet']->addUnit('light_fighter', 5);
+        $acsDefender['planet']->addResources(new Resources(0, 0, 1000000, 0));
+
+        $acsDefendFleet = new UnitCollection();
+        $acsDefendFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 5);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
+        $acsDefendMission = $fleetMissionService->createNewFromPlanet(
+            $acsDefender['planet'],
+            $this->buddyPlanet()->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend mission type
+            $acsDefendFleet,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            2 // Hold for 2 hours
+        );
+
+        // Advance time so the ACS defend fleet arrives and starts holding.
+        // With the current architecture time_arrival includes the hold time, so the physical
+        // arrival (start of hold) is time_arrival - time_holding.
+        $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
+        $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        // Send an overwhelming attack that destroys the defending fleet during the hold.
+        $attackFleet = new UnitCollection();
+        $attackFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 100);
+        $this->dispatchFleet(
+            $this->buddyPlanet()->getPlanetCoordinates(),
+            $attackFleet,
+            new Resources(0, 0, 0, 0),
+            PlanetType::Planet
+        );
+
+        $attackerFleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $attackMission = $attackerFleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($attackMission === null) {
+            $this->fail('No active attack mission found.');
+        }
+
+        // Advance time for the attack to arrive: the battle occurs and destroys the ACS defend fleet.
+        $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
+        $this->reloadApplication();
+        $this->playerSetAllMessagesRead();
+        $this->get('/overview');
+
+        // Sanity check: the destroyed outbound ACS defend mission is now marked processed=1
+        // (its time_arrival/time_holding are unchanged, so it sits in the old buggy window).
+        $acsDefendMissionReloaded = FleetMission::find($acsDefendMission->id);
+        if ($acsDefendMissionReloaded === null) {
+            $this->fail('Fleet mission not found.');
+        }
+        $this->assertEquals(1, $acsDefendMissionReloaded->processed, 'Destroyed ACS defend fleet should be marked as processed');
+
+        // Advance time PAST the hold end (time_arrival). This is exactly the window in which the
+        // old query re-surfaced the destroyed mission in the fleet widget.
+        $this->travelTo(Date::createFromTimestamp($acsDefendMission->time_arrival + 10));
+        $this->reloadApplication();
+
+        // The destroyed mission must NOT be returned by the fleet widget query for the defender.
+        $defenderPlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
+        $defenderFleetMissionService = resolve(FleetMissionService::class, ['player' => $defenderPlayerService]);
+        $destroyedMissionStillActive = $defenderFleetMissionService->getActiveFleetMissionsForCurrentPlayer()
+            ->contains(fn ($mission) => (int) $mission->id === (int) $acsDefendMission->id);
+
+        $this->assertFalse(
+            $destroyedMissionStillActive,
+            'A destroyed ACS Defend mission must not re-appear in the fleet widget after its hold expires.'
+        );
+    }
+
+    /**
+     * Companion regression test for #1321: a normal (non-destroyed) ACS Defend fleet must still be
+     * returned by getActiveFleetMissionsForCurrentPlayer() while it is holding at the target.
+     *
+     * The outbound mission stays processed=0 for the whole hold (processed becomes 1 only when the
+     * hold ends), so the "processed = 0" query must keep it visible during hold. This locks in both
+     * sides of the fix: destroyed (processed=1) missions disappear, normal holding ones stay.
+     */
+    public function testHoldingAcsDefendMissionReturnedByActiveFleetMissionsDuringHold(): void
+    {
+        $this->basicSetup();
+        $this->createBuddyPlayer();
+
+        // Create ACS defender and send a defend fleet; it is never attacked, so it keeps holding.
+        $acsDefender = $this->createAcsDefender();
+        $acsDefender['planet']->addUnit('light_fighter', 20);
+        $acsDefender['planet']->addResources(new Resources(0, 0, 1000000, 0));
+
+        $acsDefendFleet = new UnitCollection();
+        $acsDefendFleet->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 20);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $acsDefender['planet']->getPlayer()]);
+        $acsDefendMission = $fleetMissionService->createNewFromPlanet(
+            $acsDefender['planet'],
+            $this->buddyPlanet()->getPlanetCoordinates(),
+            PlanetType::Planet,
+            5, // ACS Defend mission type
+            $acsDefendFleet,
+            new Resources(0, 0, 0, 0),
+            10, // 100% speed
+            2 // Hold for 2 hours
+        );
+
+        // Advance time to within the hold period (fleet has arrived and is holding, not destroyed).
+        $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
+        $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
+        $this->reloadApplication();
+        $this->get('/overview');
+
+        // The holding (processed=0) outbound mission must be returned by the fleet widget query.
+        $defenderPlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
+        $defenderFleetMissionService = resolve(FleetMissionService::class, ['player' => $defenderPlayerService]);
+        $holdingMissionActive = $defenderFleetMissionService->getActiveFleetMissionsForCurrentPlayer()
+            ->contains(fn ($mission) => (int) $mission->id === (int) $acsDefendMission->id);
+
+        $this->assertTrue(
+            $holdingMissionActive,
+            'A normal ACS Defend mission must still be shown in the fleet widget while it is holding.'
         );
     }
 }

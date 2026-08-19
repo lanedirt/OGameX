@@ -11,7 +11,6 @@ use OGame\Services\FleetMissionService;
 #[Signature('ogamex:scheduler:process-fleet-arrivals {--limit=100 : Maximum number of destination backlogs to process}')]
 class ProcessFleetArrivals extends Command
 {
-
     public function handle(FleetMissionService $fleetMissionService): int
     {
         $processedDestinations = $fleetMissionService->processMissedMissionEvents((int) $this->option('limit'));
