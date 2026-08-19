@@ -116,8 +116,12 @@ class FleetController extends OGameController
      * @param PlanetServiceFactory $planetServiceFactory
      * @return View|RedirectResponse
      */
-    public function movement(PlayerService $player, FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory, IncomingFleetIntelService $incomingFleetIntelService): View|RedirectResponse
-    {
+    public function movement(
+        PlayerService $player,
+        FleetMissionService $fleetMissionService,
+        PlanetServiceFactory $planetServiceFactory,
+        IncomingFleetIntelService $incomingFleetIntelService
+    ): View|RedirectResponse {
         // Get all the fleet movements for the current user.
         $friendlyMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
@@ -125,8 +129,6 @@ class FleetController extends OGameController
         if ($friendlyMissionRows->isEmpty()) {
             return redirect()->route('fleet.index');
         }
-
-        $viewerIntelLevel = $incomingFleetIntelService->resolveLevel($player);
 
         $fleet_events = [];
         foreach ($friendlyMissionRows as $row) {
@@ -198,9 +200,10 @@ class FleetController extends OGameController
                 }
             }
 
-            $eventRowViewModel->fleet_unit_count = $fleetMissionService->getFleetUnitCount($row);
-            $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
-            $eventRowViewModel->resources = $fleetMissionService->getResources($row);
+            $incomingIntel = $incomingFleetIntelService->shapeIncomingFleetIntel($row, $player, $fleetMissionService);
+            $eventRowViewModel->fleet_unit_count = $incomingIntel['ship_count'];
+            $eventRowViewModel->fleet_units = $incomingIntel['units'];
+            $eventRowViewModel->resources = $incomingIntel['resources'];
 
             $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
 
@@ -211,14 +214,6 @@ class FleetController extends OGameController
             // Planet relocation ship transfers (deployment to self) cannot be recalled.
             $isRelocationTransfer = ($row->mission_type === 4 && $row->planet_id_from === $row->planet_id_to);
             $eventRowViewModel->is_recallable = ($row->mission_type !== 10 && !$isRelocationTransfer);
-
-            // Redact foreign incoming fleets by viewer's espionage technology.
-            // Note: friendly_status above is mission-type styling (own attacks are "hostile"),
-            // so ownership must be checked via user_id.
-            if ($row->user_id !== $player->getId()) {
-                $incomingFleetIntelService->apply($eventRowViewModel, $viewerIntelLevel);
-                $eventRowViewModel->is_recallable = false;
-            }
 
             // Track union membership for ACS Attack grouping
             $eventRowViewModel->union_id = $row->union_id;
