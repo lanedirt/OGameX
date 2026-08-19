@@ -909,6 +909,11 @@ return [
         'is_requirement_for'                    => 'è un requisito per',
         'level'                                 => 'Livello',
 
+        'category_construction' => 'Costruzione',
+        'category_research' => 'Ricerca',
+        'category_shipyard' => 'Cantiere navale',
+        'category_defense' => 'Difesa',
+
         // Colonne tabella condivise
         'col_level'                             => 'Livello',
         'col_difference'                        => 'Differenza',

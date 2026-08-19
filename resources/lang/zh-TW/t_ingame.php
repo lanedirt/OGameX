@@ -800,6 +800,11 @@ return [
         'is_requirement_for'                    => '是...的需求',
         'level'                                 => '等級',
 
+        'category_construction' => '建造',
+        'category_research' => '研究',
+        'category_shipyard' => '船塢',
+        'category_defense' => '防禦',
+
         'col_level'                             => '等級',
         'col_difference'                        => '差異',
         'col_diff_per_level'                    => '差異/等級',
