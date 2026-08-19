@@ -930,6 +930,13 @@ return [
         'is_requirement_for'                    => 'is a requirement for',
         'level'                                 => 'Level',
 
+        // Technology tab categories
+        'technology_category_construction'      => 'Construction',
+        'technology_category_research'          => 'Research',
+        'technology_category_ships'             => 'Ships',
+        'technology_category_defense'           => 'Defense',
+        'technology_category_rockets'           => 'Rockets',
+
         // Shared table columns
         'col_level'                             => 'Level',
         'col_difference'                        => 'Difference',
