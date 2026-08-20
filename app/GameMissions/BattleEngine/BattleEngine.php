@@ -201,7 +201,13 @@ abstract class BattleEngine
 
         // Calculate repaired defenses (only defense units, not ships).
         // According to game rules, approximately 70% of destroyed defenses are repaired after battle.
-        $defenseRepairService = new DefenseRepairService($this->settings->defenseRepairRate());
+        // The Engineer officer halves the remaining losses, e.g. a 70% repair rate leaves 30% losses,
+        // which are halved to 15%, resulting in an 85% repair rate.
+        $defenseRepairRate = $this->settings->defenseRepairRate();
+        if ($defenderPlayer->hasEngineer()) {
+            $defenseRepairRate = (int)round($defenseRepairRate + (100 - $defenseRepairRate) / 2);
+        }
+        $defenseRepairService = new DefenseRepairService($defenseRepairRate);
         $result->repairedDefenses = $defenseRepairService->calculateRepairedDefenses($result->defenderUnitsLost);
 
         // Determine winner of battle.

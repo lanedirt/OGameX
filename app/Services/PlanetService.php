@@ -1005,6 +1005,13 @@ class PlanetService
             $time_seconds = (int)($time_seconds * $timeMultiplier);
         }
 
+        // Apply Technocrat officer research time multiplier (-25%)
+        $officerService = app(OfficerService::class);
+        $technocratMultiplier = $officerService->getResearchTimeMultiplier($this->player->getUser());
+        if ($technocratMultiplier != 1.0) {
+            $time_seconds = (int)($time_seconds * $technocratMultiplier);
+        }
+
         // Minimum time is always 1 second for all objects/units.
         if ($time_seconds < 1) {
             $time_seconds = 1;

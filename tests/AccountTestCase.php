@@ -19,6 +19,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\ObjectService;
+use OGame\Services\OfficerService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
@@ -498,6 +499,27 @@ abstract class AccountTestCase extends TestCase
         } catch (Exception $e) {
             $this->fail('Failed to set research level for player. Error: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Activate the Commander for the current player.
+     *
+     * Queueing more than one building at a time is a Commander benefit, so tests that
+     * line up multiple build orders need her active.
+     *
+     * @param int $days
+     * @return void
+     */
+    protected function playerActivateCommander(int $days = 7): void
+    {
+        $officerService = resolve(OfficerService::class);
+        $user = User::findOrFail($this->currentUserId);
+
+        $officer = $officerService->getOfficer($user);
+        $officer->activate('commander', $days);
+        $officer->save();
+
+        $officerService->clearCache($user);
     }
 
     /**

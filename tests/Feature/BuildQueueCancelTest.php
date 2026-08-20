@@ -19,6 +19,9 @@ class BuildQueueCancelTest extends AccountTestCase
      */
     public function testBuildQueueCancelMultiple(): void
     {
+        // Queueing more than one building at a time requires the Commander.
+        $this->playerActivateCommander();
+
         // ---
         // Step 1: Issue a request to build three metal mines
         // ---
@@ -121,6 +124,9 @@ class BuildQueueCancelTest extends AccountTestCase
      */
     public function testBuildQueueCancelSecondEntry(): void
     {
+        // Queueing more than one building at a time requires the Commander.
+        $this->playerActivateCommander();
+
         // Verify that we begin the test with 500 metal and 500 crystal
         $response = $this->get('/resources');
         $response->assertStatus(200);
@@ -170,6 +176,9 @@ class BuildQueueCancelTest extends AccountTestCase
      */
     public function testCancelObjectMissingRequirements(): void
     {
+        // Queueing more than one building at a time requires the Commander.
+        $this->playerActivateCommander();
+
         // Assert that build queue is empty
         $response = $this->get('/facilities');
         $response->assertStatus(200);

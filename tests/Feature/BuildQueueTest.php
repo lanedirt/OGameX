@@ -105,6 +105,9 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testBuildQueueFacilitiesRoboticsFactoryMultiQueue(): void
     {
+        // Queueing more than one building at a time requires the Commander.
+        $this->playerActivateCommander();
+
         // Set the universe speed to 8x for this test.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
@@ -200,6 +203,9 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testBuildQueueFacilitiesShipyardQueuedRequirements(): void
     {
+        // Queueing more than one building at a time requires the Commander.
+        $this->playerActivateCommander();
+
         // Add resource to build required facilities to planet
         $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 
@@ -468,6 +474,9 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testResourceProductionWithMultipleBuildingsInQueue(): void
     {
+        // Queueing more than one building at a time requires the Commander.
+        $this->playerActivateCommander();
+
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
 
@@ -535,6 +544,9 @@ class BuildQueueTest extends AccountTestCase
      */
     public function testResourceProductionBulkProcessingMultipleBuildings(): void
     {
+        // Queueing more than one building at a time requires the Commander.
+        $this->playerActivateCommander();
+
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
 
