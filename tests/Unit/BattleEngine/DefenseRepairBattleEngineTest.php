@@ -3,6 +3,7 @@
 namespace Tests\Unit\BattleEngine;
 
 use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
@@ -42,7 +43,7 @@ class DefenseRepairBattleEngineTest extends UnitTestCase
     protected function createBattleEngine(UnitCollection $attackerFleet): PhpBattleEngine
     {
         // Create defenders array with planet's stationary forces
-        $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($this->planetService)];
+        $defenders = [DefenderFleet::fromPlanet($this->planetService)];
 
         // Convert UnitCollection to AttackerFleet for the new multi-attacker architecture
         $attacker = new AttackerFleet();
