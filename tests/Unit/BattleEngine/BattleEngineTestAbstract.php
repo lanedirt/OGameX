@@ -2,16 +2,83 @@
 
 namespace Tests\Unit\BattleEngine;
 
+use OGame\GameMissions\BattleEngine\BattleEngine;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
+use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Resources;
+use OGame\Models\UserTech;
 use OGame\Services\ObjectService;
+use OGame\Services\PlayerService;
 use Tests\UnitTestCase;
 
 abstract class BattleEngineTestAbstract extends UnitTestCase
 {
     /**
-     * Factory method that should return the battle engine instance to test.
+     * Factory method that should return the battle engine instance to test for one or
+     * more attacking fleets.
+     *
+     * @param array<AttackerFleet> $attackers
      */
-    abstract protected function createBattleEngine(UnitCollection $attackerFleet): mixed;
+    abstract protected function createBattleEngineForAttackers(array $attackers): BattleEngine;
+
+    /**
+     * Return the battle engine instance to test for a single attacking fleet of the default player.
+     */
+    protected function createBattleEngine(UnitCollection $attackerFleet): BattleEngine
+    {
+        return $this->createBattleEngineForAttackers([$this->makeAttackerFleet($attackerFleet, $this->playerService)]);
+    }
+
+    /**
+     * Create an attacking fleet for the given units and owner.
+     *
+     * @param UnitCollection $units The units in this fleet.
+     * @param PlayerService $player The owner of this fleet, whose tech levels the fleet fights with.
+     * @param int $fleetMissionId Fleet mission id, 0 for test battles without a real fleet mission.
+     * @param bool $isInitiator Whether this fleet initiated the (ACS) attack.
+     */
+    protected function makeAttackerFleet(UnitCollection $units, PlayerService $player, int $fleetMissionId = 0, bool $isInitiator = true): AttackerFleet
+    {
+        $attacker = new AttackerFleet();
+        $attacker->units = $units;
+        $attacker->player = $player;
+        $attacker->fleetMissionId = $fleetMissionId;
+        $attacker->ownerId = $player->getId();
+        $attacker->cargoResources = new Resources(0, 0, 0, 0);
+        $attacker->isInitiator = $isInitiator;
+        $attacker->fleetMission = null;
+
+        return $attacker;
+    }
+
+    /**
+     * Return the last round that was fought in the given battle result.
+     */
+    protected function lastRound(BattleResult $battleResult): BattleResultRound
+    {
+        $lastRound = end($battleResult->rounds);
+        if ($lastRound === false) {
+            $this->fail('The battle result does not contain any rounds.');
+        }
+
+        return $lastRound;
+    }
+
+    /**
+     * Create an additional player with the given research levels, used for ACS battles where
+     * every fleet fights with the tech levels of its own owner.
+     *
+     * @param array<string, int> $researchLevels
+     */
+    protected function createPlayerWithResearchLevels(array $researchLevels): PlayerService
+    {
+        $player = resolve(PlayerService::class, ['player_id' => 0]);
+        $player->setUserTech(UserTech::factory()->make($researchLevels));
+
+        return $player;
+    }
 
     /**
      * Set up common test components.
@@ -214,7 +281,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertNotEmpty($battleResult->rounds);
 
         // Check last round.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound->attackerShips);
 
         $this->assertNotEquals($attackerFleet->getAmountByMachineName($smallCargo->machine_name), $lastRound->attackerShips->getAmountByMachineName($smallCargo->machine_name));
@@ -284,7 +351,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertNotEmpty($battleResult->rounds);
 
         // Get last round with result.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound->attackerShips);
         $this->assertNotEmpty($lastRound->defenderShips);
         $this->assertEquals(0, $lastRound->attackerShips->getAmountByMachineName($lightFighter->machine_name));
@@ -333,7 +400,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertNotEmpty($battleResult->rounds);
 
         // Get last round with result.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound->attackerShips);
         $this->assertNotEmpty($lastRound->defenderShips);
         $this->assertEquals(1, $lastRound->attackerShips->getAmountByMachineName($deathStar->machine_name));
@@ -400,7 +467,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertGreaterThan(30, $firstRound->hitsAttacker);
 
         // Get last round with result.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         // Expected result: attacker loses, defender rocket launchers remaining < 400. Without rapidfire the estimated
         // remaining rocket launchers would be between 450-500.
         $this->assertLessThan(400, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
@@ -430,7 +497,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertCount(6, $battleResult->rounds);
 
         // Get last round.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound);
         // Assert that attacker has all light fighters remaining.
         $this->assertEquals(5000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
@@ -470,7 +537,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertCount(1, $battleResult->rounds);
 
         // Get last round.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound);
         // Assert that attacker has all light fighters remaining.
         $this->assertEquals(5000, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
@@ -503,7 +570,7 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
 
         // Assert the rounds are not empty and contain valid data.
         $this->assertNotEmpty($battleResult->rounds);
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
 
         // Expect attacker to have lost all ships, defender to have all heavy lasers remaining.
         $this->assertEquals(0, $lastRound->attackerShips->getAmountByMachineName($lightFighter->machine_name));
@@ -644,11 +711,256 @@ abstract class BattleEngineTestAbstract extends UnitTestCase
         $this->assertGreaterThan(1, count($battleResult->rounds));
 
         // Get last round.
-        $lastRound = end($battleResult->rounds);
+        $lastRound = $this->lastRound($battleResult);
         $this->assertNotEmpty($lastRound);
         // Assert that attacker lost some light fighters.
         $this->assertLessThan($start_light_fighter, $lastRound->attackerShips->getAmountByMachineName('light_fighter'));
         // Assert that defender has lost some rocket launchers.
         $this->assertLessThan($start_rocket_launcher, $lastRound->defenderShips->getAmountByMachineName('rocket_launcher'));
+    }
+
+    /**
+     * Test that a shot weaker than 1% of the target's max shield bounces as long as the shield is up.
+     *
+     * This is the counterpart of testWeakShotDamagesHullInFullAfterShieldIsStrippedInSameRound and
+     * additionally verifies that a bounced shot is fully absorbed by the shield and still shows up
+     * in the round statistics.
+     */
+    public function testWeakShotBouncesOffIntactShield(): void
+    {
+        // A large shield dome has 10.000 shield points and 10.000 hull plating, so a shot needs
+        // to deal at least 100 damage (1% of the max shield) to deplete anything. A light fighter
+        // only deals 50 damage, so every single shot bounces and the dome stays untouched.
+        $this->createAndSetPlanetModel([
+            'large_shield_dome' => 1,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($lightFighter, 400);
+
+        // Simulate battle.
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
+
+        // Neither side can destroy anything (the dome deals 1 damage per round against 400 hull
+        // plating), so the battle runs the full six rounds without a single loss.
+        $this->assertCount(6, $battleResult->rounds);
+
+        foreach ($battleResult->rounds as $round) {
+            // Every light fighter fires exactly once, light fighters have no rapidfire
+            // against a large shield dome.
+            $this->assertEquals(400, $round->hitsAttacker);
+            $this->assertEquals(400 * 50, $round->fullStrengthAttacker);
+
+            // All damage is absorbed by the shield: bounced shots deplete nothing at all.
+            $this->assertEquals(400 * 50, $round->absorbedDamageDefender);
+
+            $this->assertEquals(0, $round->defenderLossesInRound->getAmount());
+            $this->assertEquals(0, $round->attackerLossesInRound->getAmount());
+        }
+
+        $this->assertEquals(1, $battleResult->defenderUnitsResult->getAmountByMachineName('large_shield_dome'));
+        $this->assertEquals(400, $battleResult->attackerUnitsResult->getAmountByMachineName('light_fighter'));
+    }
+
+    /**
+     * Test that shots which would bounce off an intact shield damage the hull in full once the
+     * shield has been stripped earlier in the same round.
+     */
+    public function testWeakShotDamagesHullInFullAfterShieldIsStrippedInSameRound(): void
+    {
+        // Fleets fire in slot order, so this is the classic ACS shield stripping tactic: the
+        // first fleet breaks the shield and the weak ships of the second fleet no longer bounce.
+        $this->createAndSetPlanetModel([
+            'large_shield_dome' => 1,
+        ]);
+
+        // Fleet 1 fires first: 25 cruisers x 400 damage strip the dome's 10.000 shield exactly,
+        // without dealing any hull damage.
+        $cruiserFleet = new UnitCollection();
+        $cruiser = ObjectService::getUnitObjectByMachineName('cruiser');
+        $cruiserFleet->addUnit($cruiser, 25);
+
+        // Fleet 2 fires second: 400 light fighters x 50 damage. Each of those shots would bounce
+        // off the intact shield, but against the stripped shield they hit the hull in full:
+        // 20.000 damage against 10.000 hull plating destroys the dome in the first round.
+        $lightFighterFleet = new UnitCollection();
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
+        $lightFighterFleet->addUnit($lightFighter, 400);
+
+        // Simulate battle.
+        $battleResult = $this->createBattleEngineForAttackers([
+            $this->makeAttackerFleet($cruiserFleet, $this->playerService, 1),
+            $this->makeAttackerFleet($lightFighterFleet, $this->playerService, 2, false),
+        ])->simulateBattle();
+
+        // The defender is wiped out in the first round, so the battle stops after one round.
+        $this->assertCount(1, $battleResult->rounds);
+        $this->assertEquals(1, $battleResult->rounds[0]->defenderLossesInRound->getAmountByMachineName('large_shield_dome'));
+        $this->assertEquals(0, $battleResult->defenderUnitsResult->getAmount());
+    }
+
+    /**
+     * Test that shots fired at a unit that was already destroyed earlier in the round are wasted
+     * but still count towards the round statistics.
+     */
+    public function testShotAtDestroyedUnitIsWastedButStillCounted(): void
+    {
+        // A single rocket launcher (20 shield points, 200 hull plating) is destroyed after a
+        // handful of light fighter shots. The remaining shots of the round are wasted on the
+        // wreck: they are not retargeted at another unit, but they do count as hits.
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => 1,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($lightFighter, 100);
+
+        // Simulate battle.
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
+
+        // The defender is wiped out in the first round, so the battle stops after one round.
+        $this->assertCount(1, $battleResult->rounds);
+        $round = $battleResult->rounds[0];
+
+        // All 100 light fighters fire exactly once, including the ones shooting at the wreck.
+        // Light fighters have no rapidfire against a rocket launcher.
+        $this->assertEquals(100, $round->hitsAttacker);
+        $this->assertEquals(100 * 50, $round->fullStrengthAttacker);
+
+        // Only the single rocket launcher is lost, the wasted damage does not spill over.
+        $this->assertEquals(1, $round->defenderLossesInRound->getAmountByMachineName('rocket_launcher'));
+        $this->assertEquals(0, $battleResult->defenderUnitsResult->getAmount());
+    }
+
+    /**
+     * Test that a shot fired at an already destroyed unit still rolls for rapidfire.
+     */
+    public function testShotAtDestroyedUnitStillRollsRapidfire(): void
+    {
+        // A single cruiser shot (400 damage) already destroys a rocket launcher (20 shield
+        // points, 200 hull plating), so every following shot of the round hits the wreck.
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => 1,
+        ]);
+
+        // Create fleet of attacker player.
+        $attackerFleet = new UnitCollection();
+        $cruiser = ObjectService::getUnitObjectByMachineName('cruiser');
+        $attackerFleet->addUnit($cruiser, 20);
+
+        // Simulate battle.
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
+
+        $round = $battleResult->rounds[0];
+
+        // Cruisers have rapidfire 10 against rocket launchers, so every cruiser keeps firing
+        // with a 9/10 chance per shot: ~200 hits are expected for 20 cruisers. If rapidfire
+        // was not rolled on destroyed targets the round could never exceed 21 hits (one roll
+        // on the living target plus a single wasted shot per cruiser), so the 40 hits asserted
+        // here separate both behaviours with a vanishing chance of a false failure.
+        $this->assertGreaterThan(40, $round->hitsAttacker);
+
+        // Only the single rocket launcher is lost, the wasted damage does not spill over.
+        $this->assertEquals(1, $round->defenderLossesInRound->getAmountByMachineName('rocket_launcher'));
+    }
+
+    /**
+     * Test that two ACS fleets that share a unit type each fight with their own tech levels.
+     */
+    public function testAcsFleetsSharingUnitTypeFightWithOwnTechLevels(): void
+    {
+        // Both allied fleets bring light fighters, but the owner of the second fleet has weapon
+        // technology 20 (+200% attack). Each fleet has to fight with the tech levels of its own
+        // owner: 50 damage per shot for fleet 1 and 150 damage per shot for fleet 2.
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => 1,
+        ]);
+
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
+
+        $firstFleet = new UnitCollection();
+        $firstFleet->addUnit($lightFighter, 100);
+
+        $secondFleet = new UnitCollection();
+        $secondFleet->addUnit($lightFighter, 100);
+
+        $secondPlayer = $this->createPlayerWithResearchLevels(['weapon_technology' => 20]);
+
+        // Simulate battle.
+        $battleResult = $this->createBattleEngineForAttackers([
+            $this->makeAttackerFleet($firstFleet, $this->playerService, 1),
+            $this->makeAttackerFleet($secondFleet, $secondPlayer, 2, false),
+        ])->simulateBattle();
+
+        $round = $battleResult->rounds[0];
+
+        // Every light fighter fires exactly once, light fighters have no rapidfire against a
+        // rocket launcher.
+        $this->assertEquals(200, $round->hitsAttacker);
+
+        // 100 shots x 50 damage + 100 shots x 150 damage. If both fleets shared one set of
+        // combat values the total would be 10.000 (everything at tech level 0) or 30.000
+        // (everything at tech level 20) instead.
+        $this->assertEquals(100 * 50 + 100 * 150, $round->fullStrengthAttacker);
+    }
+
+    /**
+     * Test that the unit types within a single fleet fire in ascending unit id order.
+     *
+     * This is the within-fleet counterpart of the fleet (slot) order that
+     * testWeakShotDamagesHullInFullAfterShieldIsStrippedInSameRound covers: the firing order
+     * decides whether the weak ships of a fleet still bounce off the target's shield.
+     */
+    public function testUnitsWithinFleetFireInAscendingUnitIdOrder(): void
+    {
+        // A large shield dome has 10.000 shield points and 10.000 hull plating.
+        $this->createAndSetPlanetModel([
+            'large_shield_dome' => 1,
+        ]);
+
+        // The cruisers are added to the fleet first, but the light fighters have the lower unit
+        // id (204 against 206) and therefore fire first, before the shield is stripped:
+        //
+        // - 400 light fighters x 50 damage all bounce, as 50 is below 1% of the max shield.
+        // - 25 cruisers x 400 damage then deplete 4 shield percentiles each, which strips the
+        //   remaining 10.000 shield points exactly without any of it spilling over to the hull.
+        //
+        // The dome therefore ends every round with an untouched hull. If the units fired in
+        // insertion order instead, the cruisers would strip the shield first and the 400 light
+        // fighters would deal 20.000 hull damage against 10.000 hull plating, destroying the
+        // dome in the first round.
+        $attackerFleet = new UnitCollection();
+        $cruiser = ObjectService::getUnitObjectByMachineName('cruiser');
+        $attackerFleet->addUnit($cruiser, 25);
+        $lightFighter = ObjectService::getUnitObjectByMachineName('light_fighter');
+        $attackerFleet->addUnit($lightFighter, 400);
+
+        // Simulate battle.
+        $battleResult = $this->createBattleEngine($attackerFleet)->simulateBattle();
+
+        // The dome only deals 1 damage per round, so neither side can destroy anything and the
+        // battle runs the full six rounds.
+        $this->assertCount(6, $battleResult->rounds);
+
+        foreach ($battleResult->rounds as $round) {
+            // Every ship fires exactly once, neither light fighters nor cruisers have rapidfire
+            // against a large shield dome.
+            $this->assertEquals(425, $round->hitsAttacker);
+
+            // All damage ends up in the shield: the bounced light fighter shots are absorbed
+            // without effect and the cruiser shots deplete the shield exactly.
+            $this->assertEquals(400 * 50 + 25 * 400, $round->absorbedDamageDefender);
+
+            $this->assertEquals(0, $round->defenderLossesInRound->getAmount());
+            $this->assertEquals(0, $round->attackerLossesInRound->getAmount());
+        }
+
+        $this->assertEquals(1, $battleResult->defenderUnitsResult->getAmountByMachineName('large_shield_dome'));
+        $this->assertEquals(400, $battleResult->attackerUnitsResult->getAmountByMachineName('light_fighter'));
+        $this->assertEquals(25, $battleResult->attackerUnitsResult->getAmountByMachineName('cruiser'));
     }
 }
