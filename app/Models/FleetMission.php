@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $union_slot
  * @property int $time_departure
  * @property int $time_arrival
+ * @property int $time_arrival_ms
  * @property float $metal
  * @property float $crystal
  * @property float $deuterium
@@ -43,6 +44,8 @@ use Illuminate\Support\Carbon;
  * @property int $processed
  * @property int $processed_hold
  * @property int $canceled
+ * @property int|null $arrival_job_id
+ * @property int|null $hold_job_id
  * @property bool $retreat_after_defender_retreat
  * @property array|null $wreck_field_data
  * @property Carbon|null $created_at
@@ -82,6 +85,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|FleetMission whereSmallCargo($value)
  * @method static Builder|FleetMission whereSystemTo($value)
  * @method static Builder|FleetMission whereTimeArrival($value)
+ * @method static Builder|FleetMission whereTimeArrivalMs($value)
  * @method static Builder|FleetMission whereTimeDeparture($value)
  * @method static Builder|FleetMission whereUpdatedAt($value)
  * @property int|null $parent_id
@@ -99,6 +103,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder|FleetMission whereTypeFrom($value)
  * @method static Builder|FleetMission whereTypeTo($value)
  * @method static Builder<static>|FleetMission whereDeuteriumConsumption($value)
+ * @method static Builder<static>|FleetMission whereArrivalJobId($value)
+ * @method static Builder<static>|FleetMission whereHoldJobId($value)
  * @property int|null $time_holding
  * @method static Builder<static>|FleetMission whereTimeHolding($value)
  * @mixin \Eloquent
@@ -112,6 +118,9 @@ class FleetMission extends Model
      */
     protected $casts = [
         'wreck_field_data' => 'array',
+        'time_arrival_ms' => 'integer',
+        'arrival_job_id' => 'integer',
+        'hold_job_id' => 'integer',
         'retreat_after_defender_retreat' => 'boolean',
     ];
 
