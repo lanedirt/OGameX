@@ -445,6 +445,18 @@ class MoonDestructionMission extends GameMission
             'moon_existed' => true,
             'moon_chance' => 0,
             'moon_created' => false,
+            'tactical_retreat' => [
+                'ratio' => $battleResult->tacticalRetreatRatio,
+                'attacker_points' => $battleResult->tacticalRetreatAttackerPoints,
+                'defender_points' => $battleResult->tacticalRetreatDefenderPoints,
+                'defender_fled' => $battleResult->tacticalRetreatDefenderFled,
+                'attacker_also_retreated' => $battleResult->tacticalRetreatAttackerAlsoRetreated,
+                'deuterium_cost' => $battleResult->tacticalRetreatDeuteriumCost,
+                'by' => $battleResult->tacticalRetreatDefenderFled
+                    ? ($battleResult->tacticalRetreatAttackerAlsoRetreated ? 'both' : 'defender')
+                    : 'none',
+                'supremacy' => $battleResult->tacticalRetreatAttackerPoints,
+            ],
         ];
 
         $report->attacker = [

@@ -11,6 +11,7 @@ use OGame\Factories\GameMissionFactory;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameConstants\UniverseConstants;
 use OGame\GameMessages\FleetUnionInvite as FleetUnionInviteMessage;
+use OGame\GameMissions\BattleEngine\Services\TacticalRetreatService;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
@@ -86,6 +87,14 @@ class FleetController extends OGameController
         // Get active fleet unions this player can join (buddy/ally of creator, not full, not expired)
         $availableUnions = $this->getAvailableUnionsForPlayer($player, $fleetUnionService);
 
+        $tacticalRetreatService = new TacticalRetreatService();
+        $fleeableUnits = $tacticalRetreatService->extractFleeingUnits($planet->getShipUnits());
+        $tacticalRetreatDeuteriumCost = $tacticalRetreatService->calculateFleeDeuteriumCost($planet, $fleeableUnits);
+        $tacticalRetreatRatio = (int)($player->getUser()->tactical_retreat_ratio ?? 5);
+        if ($tacticalRetreatRatio === 3 && !$player->hasAdmiral()) {
+            $tacticalRetreatRatio = 5;
+        }
+
         return view('ingame.fleet.index')->with([
             'player' => $player,
             'planet' => $planet,
@@ -104,6 +113,9 @@ class FleetController extends OGameController
             'expeditionSlotsMax' => $player->getExpeditionSlotsMax(),
             'fleetSpeedIncrement' => $fleetSpeedIncrement,
             'availableUnions' => $availableUnions,
+            'tacticalRetreatRatio' => $tacticalRetreatRatio,
+            'tacticalRetreatDeuteriumCost' => $tacticalRetreatDeuteriumCost,
+            'hasAdmiral' => $player->hasAdmiral(),
         ]);
     }
 
@@ -582,7 +594,19 @@ class FleetController extends OGameController
         }
 
         try {
-            $fleetMission = $fleetMissionService->createNewFromPlanet($planet, $target_coordinate, $planetType, $mission_type, $units, $resources, $speed_percent, $holding_hours);
+            $retreatAfterDefenderRetreat = (bool)request()->input('retreatAfterDefenderRetreat');
+            $fleetMission = $fleetMissionService->createNewFromPlanet(
+                $planet,
+                $target_coordinate,
+                $planetType,
+                $mission_type,
+                $units,
+                $resources,
+                $speed_percent,
+                $holding_hours,
+                0,
+                $retreatAfterDefenderRetreat
+            );
 
             // Join the fleet union if requested
             if ($union !== null) {
@@ -1388,6 +1412,38 @@ class FleetController extends OGameController
         return response()->json([
             'success' => true,
             'message' => 'Template deleted successfully.',
+        ]);
+    }
+
+    /**
+     * Persist the player's tactical retreat preference (Never / 5:1 / 3:1).
+     */
+    public function updateTacticalRetreat(Request $request, PlayerService $player): JsonResponse
+    {
+        $ratio = (int)$request->input('tacticalRetreatState', $request->input('tacticalRetreat', 5));
+
+        if (!in_array($ratio, [0, 3, 5], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid tactical retreat setting.',
+            ], 422);
+        }
+
+        if ($ratio === 3 && !$player->hasAdmiral()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Admiral is required for the 3:1 tactical retreat setting.',
+            ], 422);
+        }
+
+        $user = $player->getUser();
+        $user->tactical_retreat_ratio = $ratio;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'tacticalRetreatRatio' => $ratio,
+            'newAjaxToken' => csrf_token(),
         ]);
     }
 }

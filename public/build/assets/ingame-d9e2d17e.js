@@ -66574,7 +66574,7 @@ FleetDispatcher.prototype.selectMaxCrystal = function () {
 };
 
 FleetDispatcher.prototype.getDeuteriumOnPlanetWithoutConsumption = function () {
-  return Math.max(0, this.deuteriumOnPlanet - this.getConsumption());
+  return Math.max(0, Math.floor(this.deuteriumOnPlanet) - Math.ceil(this.getConsumption()));
 };
 
 FleetDispatcher.prototype.selectMinCrystal = function () {

@@ -83,6 +83,14 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $units->addUnit(ObjectService::getShipObjectByMachineName('reaper'), 10);
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
 
+        // Disable tactical retreat so defender ships stay and create debris.
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $foreignPlayer->getUser()->tactical_retreat_ratio = 0;
+        $foreignPlayer->getUser()->save();
+
         // Clear foreign planet units from previous tests to ensure isolation
         $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
         $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
@@ -201,6 +209,14 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $units->addUnit(ObjectService::getShipObjectByMachineName('reaper'), 10);
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
 
+        // Disable tactical retreat so defender ships stay and create debris.
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $foreignPlayer->getUser()->tactical_retreat_ratio = 0;
+        $foreignPlayer->getUser()->save();
+
         // Clear foreign planet units from previous tests to ensure isolation
         $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
         $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
@@ -279,6 +295,14 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $units = new UnitCollection();
         $units->addUnit(ObjectService::getShipObjectByMachineName('light_fighter'), 200);
         $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
+
+        // Disable tactical retreat so defender ships stay in combat.
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $foreignPlayer->getUser()->tactical_retreat_ratio = 0;
+        $foreignPlayer->getUser()->save();
 
         // Clear foreign planet units from previous tests to ensure isolation
         $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);

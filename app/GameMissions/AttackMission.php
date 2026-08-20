@@ -126,6 +126,7 @@ class AttackMission extends GameMission
                 break;
         }
 
+        $battleEngine->setRetreatAfterDefenderRetreat((bool)$mission->retreat_after_defender_retreat);
         $battleResult = $battleEngine->simulateBattle();
 
         // Set the attacker's origin planet ID on the battle result for the battle report.
@@ -679,6 +680,18 @@ class AttackMission extends GameMission
             'moon_chance' => $battleResult->moonChance,
             'moon_created' => $battleResult->moonCreated,
             'hamill_manoeuvre_triggered' => $battleResult->hamillManoeuvreTriggered,
+            'tactical_retreat' => [
+                'ratio' => $battleResult->tacticalRetreatRatio,
+                'attacker_points' => $battleResult->tacticalRetreatAttackerPoints,
+                'defender_points' => $battleResult->tacticalRetreatDefenderPoints,
+                'defender_fled' => $battleResult->tacticalRetreatDefenderFled,
+                'attacker_also_retreated' => $battleResult->tacticalRetreatAttackerAlsoRetreated,
+                'deuterium_cost' => $battleResult->tacticalRetreatDeuteriumCost,
+                'by' => $battleResult->tacticalRetreatDefenderFled
+                    ? ($battleResult->tacticalRetreatAttackerAlsoRetreated ? 'both' : 'defender')
+                    : 'none',
+                'supremacy' => $battleResult->tacticalRetreatAttackerPoints,
+            ],
         ];
 
         $characterClassService = app(CharacterClassService::class);

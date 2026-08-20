@@ -43,6 +43,7 @@ use Illuminate\Support\Carbon;
  * @property int $processed
  * @property int $processed_hold
  * @property int $canceled
+ * @property bool $retreat_after_defender_retreat
  * @property array|null $wreck_field_data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -111,6 +112,7 @@ class FleetMission extends Model
      */
     protected $casts = [
         'wreck_field_data' => 'array',
+        'retreat_after_defender_retreat' => 'boolean',
     ];
 
     /**

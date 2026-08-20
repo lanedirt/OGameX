@@ -89,11 +89,11 @@ $ php artisan test --filter PlanetServiceTest
 ### 6. Custom race condition tests
 If you are working on a feature that might introduce race conditions, please include tests that cover these scenarios. OGameX already contains some custom tests that can be run via php artisan commands. These tests support running multiple requests in parallel and in multiple iterations in order to simulate conditions that could cause race conditions.
 
-These tests are located in the `console/Commands/Tests` directory and can be run using the following command:
+These tests are located in the `app/Console/Commands/Test/` directory and can be run using the following command:
 
 ```bash
-$ php artisan test:race-condition-unitqueue
-$ php artisan test:race-condition-game-mission
+$ php artisan ogamex:test:race-condition-unitqueue
+$ php artisan ogamex:test:race-condition-game-mission
 ```
 
 ### 7. Run CSS and JS build
