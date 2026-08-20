@@ -273,14 +273,14 @@
                     <label id="agbLabel">
                         <span>{!! __('t_external.register.terms_html') !!}</span>
                     </label>
-                    @if ($errors->has('email'))
-                        <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
+                    @if ($errors->register->has('email'))
+                        <span class="help-block" style="color: #e74c3c;">
+                                        <strong>{{ $errors->register->first('email') }}</strong>
                                     </span>
                     @endif
-                    @if ($errors->has('password'))
-                        <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
+                    @if ($errors->register->has('password'))
+                        <span class="help-block" style="color: #e74c3c;">
+                                        <strong>{{ $errors->register->first('password') }}</strong>
                                     </span>
                     @endif
                     <div>
