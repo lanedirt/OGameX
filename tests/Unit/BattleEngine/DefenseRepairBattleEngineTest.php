@@ -26,6 +26,16 @@ class DefenseRepairBattleEngineTest extends UnitTestCase
         $this->createAndSetUserTechModel([]);
     }
 
+    protected function tearDown(): void
+    {
+        $this->settingsService->set('debris_field_from_ships', 30);
+        $this->settingsService->set('debris_field_from_defense', 0);
+        $this->settingsService->set('debris_field_deuterium_on', 0);
+        $this->settingsService->set('defense_repair_rate', 70);
+
+        parent::tearDown();
+    }
+
     /**
      * Create a battle engine instance for testing.
      */
