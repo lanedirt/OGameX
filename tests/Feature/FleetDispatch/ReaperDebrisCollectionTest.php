@@ -47,9 +47,7 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
      */
     public function testReaperCollectsDebris(): void
     {
-        // Clear all battle reports to ensure test isolation
-        Message::where('battle_report_id', '!=', null)->delete();
-        BattleReport::query()->delete();
+        $this->basicSetup();
 
         // Set up: attacker with any class (Reaper collection works for all classes)
         $attacker = $this->planetService;
@@ -174,9 +172,7 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
      */
     public function testReaperCollectsDebrisWithNonGeneralClass(): void
     {
-        // Clear all battle reports to ensure test isolation
-        Message::where('battle_report_id', '!=', null)->delete();
-        BattleReport::query()->delete();
+        $this->basicSetup();
 
         // Set up: attacker is NOT General class (using Collector to prove it works for all classes)
         $attacker = $this->planetService;
@@ -272,9 +268,7 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
      */
     public function testNoDebrisCollectionWithoutReapers(): void
     {
-        // Clear all battle reports to ensure test isolation
-        Message::where('battle_report_id', '!=', null)->delete();
-        BattleReport::query()->delete();
+        $this->basicSetup();
 
         // Set up: attacker has no Reapers (only other ships)
         $attacker = $this->planetService;
