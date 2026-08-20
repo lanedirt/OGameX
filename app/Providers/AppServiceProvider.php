@@ -3,6 +3,8 @@
 namespace OGame\Providers;
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
@@ -58,6 +60,23 @@ class AppServiceProvider extends ServiceProvider
         // Register model observers
         FleetMission::observe(FleetMissionObserver::class);
         User::observe(UserObserver::class);
+
+        // Queue workers are long-lived processes that keep container singletons across
+        // jobs. The service factories and settings service cache database state in
+        // memory, so without a reset a worker would battle players with stale tech
+        // levels, retreat preferences, or server settings cached by an earlier job.
+        // Forget the singleton instances before each job so it starts with fresh state.
+        // The sync driver is excluded: it runs inline in a web request (or test), where
+        // flushing mid-request would detach instances the caller still holds.
+        Event::listen(JobProcessing::class, function (JobProcessing $event): void {
+            if ($event->connectionName === 'sync') {
+                return;
+            }
+
+            $this->app->forgetInstance(SettingsService::class);
+            $this->app->forgetInstance(PlayerServiceFactory::class);
+            $this->app->forgetInstance(PlanetServiceFactory::class);
+        });
     }
 
     /**
