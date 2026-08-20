@@ -125,6 +125,7 @@ Route::middleware(['auth', 'banned', 'globalgame', 'locale', 'firstlogin'])->gro
     Route::post('/ajax/fleet/dispatch/send-fleet', [FleetController::class, 'dispatchSendFleet'])->name('fleet.dispatch.sendfleet');
     Route::post('/ajax/fleet/dispatch/send-mini-fleet', [FleetController::class, 'dispatchSendMiniFleet'])->name('fleet.dispatch.sendminifleet');
     Route::post('/ajax/fleet/dispatch/recall-fleet', [FleetController::class, 'dispatchRecallFleet'])->name('fleet.dispatch.recallfleet');
+    Route::post('/ajax/fleet/tactical-retreat', [FleetController::class, 'updateTacticalRetreat'])->name('fleet.tacticalretreat');
 
     // ACS Fleet Unions
     Route::post('/ajax/fleet/union/create', [FleetController::class, 'createUnion'])->name('fleet.union.create');
