@@ -89,6 +89,11 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $foreignPlayer->getUser()->tactical_retreat_ratio = 0;
         $foreignPlayer->getUser()->save();
 
+        // Refresh the application: the fleet event requests during dispatch cached a
+        // PlayerService for the defender with the pre-write retreat ratio, and battle
+        // processing would reuse that stale instance instead of reading the ratio above.
+        $this->reloadApplication();
+
         // Clear foreign planet units from previous tests to ensure isolation
         $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
         $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
@@ -213,6 +218,11 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $foreignPlayer->getUser()->tactical_retreat_ratio = 0;
         $foreignPlayer->getUser()->save();
 
+        // Refresh the application: the fleet event requests during dispatch cached a
+        // PlayerService for the defender with the pre-write retreat ratio, and battle
+        // processing would reuse that stale instance instead of reading the ratio above.
+        $this->reloadApplication();
+
         // Clear foreign planet units from previous tests to ensure isolation
         $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
         $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
@@ -297,6 +307,11 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         }
         $foreignPlayer->getUser()->tactical_retreat_ratio = 0;
         $foreignPlayer->getUser()->save();
+
+        // Refresh the application: the fleet event requests during dispatch cached a
+        // PlayerService for the defender with the pre-write retreat ratio, and battle
+        // processing would reuse that stale instance instead of reading the ratio above.
+        $this->reloadApplication();
 
         // Clear foreign planet units from previous tests to ensure isolation
         $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
