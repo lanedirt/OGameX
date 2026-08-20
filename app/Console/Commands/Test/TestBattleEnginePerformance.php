@@ -88,6 +88,12 @@ class TestBattleEnginePerformance extends TestCommand
         $this->playerService->setResearchLevel('shielding_technology', 10);
         $this->playerService->setResearchLevel('armor_technology', 10);
 
+        // simulateBattle() evaluates tactical retreat and may deduct deuterium / strip
+        // defending ships. Disable flee so the benchmark measures combat, not retreat.
+        $benchmarkUser = $this->playerService->getUser();
+        $benchmarkUser->tactical_retreat_ratio = 0;
+        $benchmarkUser->save();
+
         // Set up defender planet with provided units
         foreach ($fleets['defender']->units as $unit) {
             $this->currentPlanetService->addUnit($unit->unitObject->machine_name, $unit->amount);

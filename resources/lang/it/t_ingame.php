@@ -639,6 +639,8 @@ return [
         'battle_hamill'          => 'Un Caccia Leggero ha distrutto un Incrociatore Stellare prima dell\'inizio della battaglia!',
         'battle_retreat_tooltip'  => 'Le Stelle della Morte, le sonde spia, i satelliti solari e qualsiasi flotta in missione di difesa ACS non possono fuggire. Le ritirate tattiche sono disattivate anche nei combattimenti onorevoli. Una ritirata può anche essere stata disattivata manualmente o impedita dalla mancanza di deuterio. I banditi e i giocatori con più di 500.000 punti non si ritirano mai.',
         'battle_no_flee'         => 'La flotta in difesa non è fuggita.',
+        'battle_fled'            => 'La flotta in difesa è fuggita dal combattimento.',
+        'battle_flee_deuterium'  => 'Costo in deuterio: :amount',
         'battle_rounds'          => 'Round',
         'battle_start'           => 'Inizio',
         'battle_player_from'     => 'da',

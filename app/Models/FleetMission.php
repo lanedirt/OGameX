@@ -46,6 +46,7 @@ use Illuminate\Support\Carbon;
  * @property int $canceled
  * @property int|null $arrival_job_id
  * @property int|null $hold_job_id
+ * @property bool $retreat_after_defender_retreat
  * @property array|null $wreck_field_data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -120,6 +121,7 @@ class FleetMission extends Model
         'time_arrival_ms' => 'integer',
         'arrival_job_id' => 'integer',
         'hold_job_id' => 'integer',
+        'retreat_after_defender_retreat' => 'boolean',
     ];
 
     /**

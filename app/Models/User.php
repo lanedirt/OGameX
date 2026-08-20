@@ -41,6 +41,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $updated_at
  * @property int|null $planet_current
  * @property int $dark_matter
+ * @property int $tactical_retreat_ratio
  * @property Carbon|null $dark_matter_last_regen
  * @property bool $vacation_mode
  * @property Carbon|null $vacation_mode_activated_at
