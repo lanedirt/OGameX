@@ -300,8 +300,9 @@ class FleetController extends OGameController
     {
         $currentPlanet = $currentPlayer->planets->current();
 
-        // Pre-multiply fuel by character class modifier so JS and PHP use the same values.
-        $fuelMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($currentPlayer->getUser());
+        // Pre-multiply fuel by character class + universe modifiers so JS and PHP use the same values.
+        $fuelMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($currentPlayer->getUser())
+            * $settingsService->deuteriumConsumption();
 
         // Return ships data for this planet taking into account the current planet's properties and research levels.
         $shipsData = [];
@@ -323,7 +324,7 @@ class FleetController extends OGameController
         $targetType = (int)request()->input('type');
 
         // Validate coordinates against universe bounds
-        $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies());
+        $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies(), $settingsService->numberOfSystems());
         if ($coordinateError !== null) {
             return response()->json([
                 'status' => 'failure',
@@ -529,7 +530,7 @@ class FleetController extends OGameController
             return $this->validationErrorResponse(__('Fleet speed must be between 10% and 100% in 5% increments.'));
         }
 
-        $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies());
+        $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies(), $settingsService->numberOfSystems());
         if ($coordinateError !== null) {
             return $this->validationErrorResponse($coordinateError);
         }
@@ -700,7 +701,7 @@ class FleetController extends OGameController
         }
 
         // Validate coordinates against universe bounds
-        $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies());
+        $coordinateError = $this->validateCoordinates($galaxy, $system, $position, $settingsService->numberOfGalaxies(), $settingsService->numberOfSystems());
         if ($coordinateError !== null) {
             return response()->json([
                 'response' => [
@@ -1093,9 +1094,10 @@ class FleetController extends OGameController
      */
     public function getAvailableUnions(PlayerService $player, FleetUnionService $fleetUnionService): JsonResponse
     {
+        $settingsService = resolve(SettingsService::class);
         $validated = request()->validate([
-            'galaxy' => 'required|integer|min:1|max:9',
-            'system' => 'required|integer|min:1|max:499',
+            'galaxy' => 'required|integer|min:1|max:' . $settingsService->numberOfGalaxies(),
+            'system' => 'required|integer|min:1|max:' . $settingsService->numberOfSystems(),
             'position' => 'required|integer|min:1|max:15',
             'planet_type' => 'required|integer|in:1,2',
         ]);
@@ -1231,9 +1233,10 @@ class FleetController extends OGameController
      * @param int $system
      * @param int $position
      * @param int $maxGalaxies
+     * @param int $maxSystems
      * @return string|null Error message if invalid, null if valid
      */
-    private function validateCoordinates(int $galaxy, int $system, int $position, int $maxGalaxies): string|null
+    private function validateCoordinates(int $galaxy, int $system, int $position, int $maxGalaxies, int $maxSystems): string|null
     {
         if ($galaxy < UniverseConstants::MIN_GALAXY || $galaxy > $maxGalaxies) {
             return __('Invalid galaxy coordinate. Must be between :min and :max.', [
@@ -1242,10 +1245,10 @@ class FleetController extends OGameController
             ]);
         }
 
-        if ($system < UniverseConstants::MIN_SYSTEM || $system > UniverseConstants::MAX_SYSTEM_COUNT) {
+        if ($system < UniverseConstants::MIN_SYSTEM || $system > $maxSystems) {
             return __('Invalid system coordinate. Must be between :min and :max.', [
                 'min' => UniverseConstants::MIN_SYSTEM,
-                'max' => UniverseConstants::MAX_SYSTEM_COUNT,
+                'max' => $maxSystems,
             ]);
         }
 

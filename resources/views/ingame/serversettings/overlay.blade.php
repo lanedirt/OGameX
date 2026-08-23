@@ -28,7 +28,12 @@
 </div>
 <div class="technology-fullrow" style="z-index: 2 !important;">
     <server-settings-icon sq28 bordered class="deuterium_save"></server-settings-icon>
-    <span>@lang('Fleet Deuterium consumption reduction:') 30%</span>
+    <span>@lang('Fleet Deuterium consumption:') x{{ $deuterium_consumption }}</span>
+</div>
+<div class="technology-fullrow" style="z-index: 2 !important;">
+    <server-settings-icon sq28 bordered class="debris_fleet"></server-settings-icon>
+    <span>@lang('Espionage probe capacity')</span>
+    <div class="emoji {{ $espionage_probe_capacity_on ? 'activated' : 'deactivated' }}"></div>
 </div>
 <div class="technology-fullrow" style="z-index: 2 !important;">
     <server-settings-icon sq28 bordered class="fleetspeed_war"></server-settings-icon>
@@ -55,6 +60,10 @@
 <div class="technology-fullrow" style="z-index: 2 !important;">
     <server-settings-icon sq28 bordered class="number_galaxies"></server-settings-icon>
     <span>@lang('Number of galaxies:') {{ $number_of_galaxies }}</span>
+</div>
+<div class="technology-fullrow" style="z-index: 2 !important;">
+    <server-settings-icon sq28 bordered class="number_galaxies"></server-settings-icon>
+    <span>@lang('Number of systems:') {{ $number_of_systems }}</span>
 </div>
 <div class="technology-fullrow" style="z-index: 2 !important;">
     <server-settings-icon sq28 bordered class="planetfield_bonus"></server-settings-icon>

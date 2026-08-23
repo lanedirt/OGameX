@@ -16,6 +16,8 @@ class AdminTest extends AccountTestCase
         '/admin/server-settings',
         '/admin/developer-shortcuts',
         '/admin/server-administration',
+        '/admin/activity-logs',
+        '/admin/cron-tasks',
     ];
 
     /**

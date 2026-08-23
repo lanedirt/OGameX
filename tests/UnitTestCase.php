@@ -4,6 +4,7 @@ namespace Tests;
 
 use Exception;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\GameConstants\UniverseConstants;
 use OGame\Models\Planet;
 use OGame\Models\UserTech;
 use OGame\Services\PlanetService;
@@ -105,8 +106,12 @@ abstract class UnitTestCase extends TestCase
      */
     protected function setUpSettingsService(): void
     {
-        // Initialize the planet service with factory.
-        $settingsService =  resolve(SettingsService::class);
+        // Initialize settings and restore defaults mutated by other tests
+        // (settings persist in the shared test DB across test classes).
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('espionage_probe_capacity_on', 0);
+        $settingsService->set('deuterium_consumption', '1.0');
+        $settingsService->set('number_of_systems', UniverseConstants::MAX_SYSTEM_COUNT);
         $this->settingsService = $settingsService;
     }
 }

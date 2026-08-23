@@ -386,19 +386,24 @@ class PlanetMoveService
 
     /**
      * Calculate a simple distance between two coordinates for ship transfer duration.
+     * Uses donut wrapping against configured universe size via CoordinateDistanceCalculator.
      */
     private function calculateCoordinateDistance(Coordinate $from, Coordinate $to): int
     {
+        /** @var CoordinateDistanceCalculator $calculator */
+        $calculator = resolve(CoordinateDistanceCalculator::class);
+
         $diffGalaxy = abs($from->galaxy - $to->galaxy);
         $diffSystem = abs($from->system - $to->system);
         $diffPlanet = abs($from->position - $to->position);
 
         if ($diffGalaxy != 0) {
-            return $diffGalaxy * 20000;
+            return $calculator->getGalaxyDistance($from->galaxy, $to->galaxy) * 20000;
         }
 
         if ($diffSystem != 0) {
-            return $diffSystem * 5 * 19 + 2700;
+            $deltaSystem = max($calculator->getSystemDistance($from->system, $to->system), 1);
+            return $deltaSystem * 5 * 19 + 2700;
         }
 
         if ($diffPlanet != 0) {

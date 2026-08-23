@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Exception;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Services\ObjectService;
+use OGame\Services\SettingsService;
 use Tests\UnitTestCase;
 
 /**
@@ -22,6 +23,9 @@ class UnitCollectionTest extends UnitTestCase
     {
         parent::setUp();
         $this->setUpPlanetService();
+
+        // Default universe setting: probes have no cargo capacity.
+        app(SettingsService::class)->set('espionage_probe_capacity_on', 0);
     }
 
     /**
@@ -219,11 +223,15 @@ class UnitCollectionTest extends UnitTestCase
         $unitCollection->addUnit(ObjectService::getShipObjectByMachineName('small_cargo'), 10);
         $unitCollection->addUnit(ObjectService::getShipObjectByMachineName('espionage_probe'), 5);
 
-        // Cargo: 10*5000 + 5*0 = 50,000
+        // Cargo: 10*5000 + 5*0 = 50,000 (probe capacity off)
         $this->assertEquals(50000, $unitCollection->getTotalCargoCapacity($this->playerService));
 
         // Fuel: 10*5000 + 5*5 = 50,025
         $this->assertEquals(50025, $unitCollection->getTotalFuelCapacity($this->playerService));
+
+        // When probe capacity is enabled, each probe adds 5 cargo.
+        app(SettingsService::class)->set('espionage_probe_capacity_on', 1);
+        $this->assertEquals(50025, $unitCollection->getTotalCargoCapacity($this->playerService));
     }
 
     /**
