@@ -2,19 +2,16 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that planet field restrictions work correctly for buildings.
  */
-class PlanetFieldRestrictionTest extends AccountTestCase
+class PlanetFieldRestrictionTest extends IsolatedAccountTestCase
 {
-    use DatabaseTransactions;
-
     /**
      * Test that a building cannot be built when planet fields are full.
      *
