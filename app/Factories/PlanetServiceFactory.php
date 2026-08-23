@@ -368,7 +368,18 @@ class PlanetServiceFactory
         $lock = Cache::lock($lockKey, 10);
 
         // Try to acquire the lock, waiting for up to 10 seconds.
-        if ($lock->block(10)) {
+        // We intentionally use a real wall-clock deadline (microtime) instead of
+        // Lock::block(): block() derives its timeout from Carbon::now(), which tests
+        // freeze via travelTo(). Under frozen time the deadline can never arrive,
+        // so the wait would never time out (and could hang forever with a stale lock).
+        $deadline = microtime(true) + 10;
+        $acquired = $lock->get();
+        while (!$acquired && microtime(true) < $deadline) {
+            usleep(100_000);
+            $acquired = $lock->get();
+        }
+
+        if ($acquired) {
             try {
                 $new_position = $this->determineNewPlanetPosition();
                 if (empty($new_position->galaxy) || empty($new_position->system) || empty($new_position->position)) {

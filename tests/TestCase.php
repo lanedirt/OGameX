@@ -26,6 +26,21 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * Set up the test environment.
+     *
+     * @return void
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Remove any stale cache locks left behind by abnormally terminated test
+        // runs (e.g. SIGKILL mid-lock). A leftover lock could otherwise make a
+        // test hang or fail; cache_locks holds only transient lock state.
+        DB::table('cache_locks')->delete();
+    }
+
+    /**
      * Find an empty coordinate near the given anchor using the shared collision-safe test logic.
      */
     protected function getSafeEmptyCoordinate(
