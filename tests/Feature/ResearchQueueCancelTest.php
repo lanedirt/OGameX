@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use Exception;
 use Illuminate\Testing\TestResponse;
 use OGame\Models\Resources;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test AJAX calls to make sure they work as expected.
  */
-class ResearchQueueCancelTest extends AccountTestCase
+class ResearchQueueCancelTest extends IsolatedAccountTestCase
 {
     protected int $defaultComputerTechnologyLevel = 0;
 

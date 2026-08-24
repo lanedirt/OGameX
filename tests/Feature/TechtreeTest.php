@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use OGame\Enums\CharacterClass;
 use OGame\Services\ObjectService;
 use PHPUnit\Framework\AssertionFailedError;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that the tech tree works as expected.
  */
-class TechtreeTest extends AccountTestCase
+class TechtreeTest extends IsolatedAccountTestCase
 {
     /**
      * Verify that techtree techinfo popups for all objects return HTTP 200.
