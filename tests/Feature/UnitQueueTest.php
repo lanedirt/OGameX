@@ -7,12 +7,12 @@ use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that the unit queue works as expected.
  */
-class UnitQueueTest extends AccountTestCase
+class UnitQueueTest extends IsolatedAccountTestCase
 {
     /**
      * Prepare the planet for the test, so it has the required buildings and research.
