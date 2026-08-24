@@ -3,12 +3,12 @@
 namespace Tests\Feature;
 
 use OGame\Services\ObjectService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that level-0 mines show required energy in the building overlay (#1320).
  */
-class MineEnergyAtLevelZeroTest extends AccountTestCase
+class MineEnergyAtLevelZeroTest extends IsolatedAccountTestCase
 {
     /**
      * Rendering the resources overlay for a level-0 metal mine must report energy needed.
