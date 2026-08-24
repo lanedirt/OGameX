@@ -3,11 +3,10 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Str;
-use OGame\Actions\Fortify\CreateNewUser;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
+use OGame\Models\UserTech;
 use OGame\Services\SettingsService;
 
 /**
@@ -16,11 +15,10 @@ use OGame\Services\SettingsService;
  * Differences from AccountTestCase:
  *  - Wraps each test in a database transaction (DatabaseTransactions) so no rows leak
  *    between tests and tests no longer depend on execution order.
- *  - Creates the user via the production CreateNewUser action + actingAs(), instead of a
- *    real HTTP /register + /login round-trip.
+ *  - Creates the user via the standard Eloquent factories (User::factory()) + actingAs(),
+ *    instead of a real HTTP /register + /login round-trip.
  *  - Starts the session up-front so csrf_token() returns a real token, avoiding a
  *    session-initializing GET request; CSRF stays fully enforced.
- *  - Neutralizes the "first user becomes admin" side effect (see createUser()).
  *  - Resets the stateful singleton services (SettingsService + service factories) on
  *    teardown, because their in-memory caches are NOT rolled back by DatabaseTransactions.
  *
@@ -96,26 +94,31 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     }
 
     /**
-     * Create a normal (non-admin) user through the production code path.
+     * Create a normal (non-admin) user using the standard Eloquent factories.
      *
-     * Each isolated test runs in its own transaction, so CreateNewUser treats this user as
-     * the "first" registered user and promotes it to admin (username "Admin"). Tests need a
-     * normal user, so we revert that first-user side effect here.
+     * Creates the user via User::factory() plus the game data a registered account has
+     * (UserTech record + initial planets via the PlanetServiceFactory), without HTTP and
+     * without the CreateNewUser action's first-user/admin side effects.
      *
      * @return User
      */
     protected function createUser(): User
     {
-        $creator = resolve(CreateNewUser::class);
-        $user = $creator->create([
-            'email' => Str::random(10) . '@example.com',
-            'password' => 'password',
-        ]);
+        // Create the user through the standard Eloquent factory.
+        $user = User::factory()->create();
 
-        if ($user->hasRole('admin')) {
-            $user->removeRole('admin');
-            $user->username = Str::random(10);
-            $user->save();
+        // Create the initial tech record a registered account has.
+        UserTech::factory()->create(['user_id' => $user->id]);
+
+        // Create the initial planet(s) via the production planet factory.
+        $playerServiceFactory = resolve(PlayerServiceFactory::class);
+        $playerService = $playerServiceFactory->make($user->id);
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $planetNames = ['Homeworld', 'Colony'];
+        $registrationPlanetAmount = resolve(SettingsService::class)->registrationPlanetAmount();
+        for ($i = 0; $i < $registrationPlanetAmount; $i++) {
+            $planetServiceFactory->createInitialPlanetForPlayer($playerService, $planetNames[$i === 0 ? 0 : 1]);
         }
 
         return $user;
