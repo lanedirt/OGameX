@@ -154,7 +154,7 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
-        ])->validate();
+        ])->validateWithBag('register');
 
         // Add try/catch to retry creating user 5 times because exception could be triggered
         // if the username is already taken.
