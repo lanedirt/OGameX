@@ -77,6 +77,10 @@ abstract class AccountTestCase extends TestCase
         // Set default server settings for all tests.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
+        // Establish a full speed baseline so settings mutated by earlier tests can't leak
+        // into this one. Without this, e.g. ResearchQueueTest sets research_speed=2 which
+        // then changes timing in unrelated tests like VacationModeTest (see #1021).
+        $settingsService->set('research_speed', 1);
 
         // Set amount of planets to be created for the user because planet switching
         // is a part of the test suite.
