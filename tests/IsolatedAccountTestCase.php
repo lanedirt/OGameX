@@ -3,10 +3,12 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
+use LogicException;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
-use OGame\Models\UserTech;
+use OGame\Services\InitialUserDataService;
 use OGame\Services\SettingsService;
 
 /**
@@ -60,11 +62,20 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     }
 
     /**
+     * Refreshing the application creates a connection outside this test's transaction,
+     * making its fixtures unavailable. Remove the underlying cache dependency before
+     * converting a test that needs this behavior.
+     */
+    final public function reloadApplication(): void
+    {
+        throw new LogicException('reloadApplication() is incompatible with IsolatedAccountTestCase.');
+    }
+
+    /**
      * Create a user and authenticate without HTTP round-trips.
      *
-     * Reuses the production CreateNewUser action (creates User + UserTech + initial planets
-     * + welcome message), then authenticates via actingAs() and wires up the planet services
-     * from the real factories — mirroring retrieveMetaFields() without the HTML parsing.
+        * Authenticates via actingAs() and wires up the planet services from the real factories,
+        * mirroring retrieveMetaFields() without the HTML parsing.
      *
      * @return void
      */
@@ -96,30 +107,16 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     /**
      * Create a normal (non-admin) user using the standard Eloquent factories.
      *
-     * Creates the user via User::factory() plus the game data a registered account has
-     * (UserTech record + initial planets via the PlanetServiceFactory), without HTTP and
-     * without the CreateNewUser action's first-user/admin side effects.
+        * Creates a normal user with a collision-safe username, then delegates initial game data
+        * setup to the production service used during registration.
      *
      * @return User
      */
     protected function createUser(): User
     {
-        // Create the user through the standard Eloquent factory.
-        $user = User::factory()->create();
+        $user = User::factory()->create(['username' => 'test_' . Str::random(16)]);
 
-        // Create the initial tech record a registered account has.
-        UserTech::factory()->create(['user_id' => $user->id]);
-
-        // Create the initial planet(s) via the production planet factory.
-        $playerServiceFactory = resolve(PlayerServiceFactory::class);
-        $playerService = $playerServiceFactory->make($user->id);
-
-        $planetServiceFactory = resolve(PlanetServiceFactory::class);
-        $planetNames = ['Homeworld', 'Colony'];
-        $registrationPlanetAmount = resolve(SettingsService::class)->registrationPlanetAmount();
-        for ($i = 0; $i < $registrationPlanetAmount; $i++) {
-            $planetServiceFactory->createInitialPlanetForPlayer($playerService, $planetNames[$i === 0 ? 0 : 1]);
-        }
+        resolve(InitialUserDataService::class)->createFor($user);
 
         return $user;
     }
