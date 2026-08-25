@@ -150,4 +150,7 @@ return [
         'merchant_called' => 'Merchant called successfully.',
         'trade_completed' => 'Trade completed successfully.',
     ],
+    'no_defensive_structures' => 'No defensive structures available',
+    'objects_to_be_scrapped'  => 'Objects to be scrapped',
+    'reset_choice'            => 'Reset choice',
 ];
