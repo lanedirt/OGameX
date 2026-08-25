@@ -92,11 +92,23 @@ class PlanetServiceFactory
     public function make(int $planetId, bool $reloadCache = false): PlanetService|null
     {
         if ($reloadCache || !isset($this->instancesById[$planetId])) {
+            $player = null;
+            $planet = null;
+
+            if ($reloadCache) {
+                $planet = Planet::find($planetId);
+                if ($planet === null) {
+                    throw new RuntimeException('Planet not found.');
+                }
+
+                $player = $this->playerServiceFactory->make($planet->user_id, true);
+            }
+
             /** @var PlanetService */
             $planetService = resolve(PlanetService::class, [
-                'player' => null,
-                'planet_id' => $planetId,
-                'planet' => null,
+                'player' => $player,
+                'planet_id' => $planet === null ? $planetId : null,
+                'planet' => $planet,
             ]);
 
             // Verify planet type is valid
