@@ -160,6 +160,21 @@ class PlayerService
     }
 
     /**
+     * Reload the user model from the database.
+     *
+     * @return void
+     */
+    public function refreshUser(): void
+    {
+        $user = User::where('id', $this->user->id)->first();
+        if ($user === null) {
+            throw new RuntimeException('User not found.');
+        }
+
+        $this->user = $user;
+    }
+
+    /**
      * Saves current player object to DB.
      */
     public function save(): void
