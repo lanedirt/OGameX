@@ -525,11 +525,29 @@ class PreviewSeedUsers extends Command
             ],
             [
                 'key' => 'debris_field_harvest',
-                'params' => fn () => [
-                    'coordinates' => '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]',
-                    'metal' => rand(10000, 500000),
-                    'crystal' => rand(5000, 250000),
-                ],
+                'params' => function () {
+                    $coordinate = '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]';
+                    $metal = rand(10000, 500000);
+                    $crystal = rand(5000, 250000);
+                    $deuterium = rand(0, 100000);
+                    $harvestedMetal = rand(0, $metal);
+                    $harvestedCrystal = rand(0, $crystal);
+                    $harvestedDeuterium = rand(0, $deuterium);
+
+                    return [
+                        'to' => str_replace(['[coordinates]', '[/coordinates]'], ['[debrisfield]', '[/debrisfield]'], $coordinate),
+                        'coordinates' => $coordinate,
+                        'ship_name' => 'Recycler',
+                        'ship_amount' => rand(1, 20),
+                        'storage_capacity' => rand(5000, 50000),
+                        'metal' => $metal,
+                        'crystal' => $crystal,
+                        'deuterium' => $deuterium,
+                        'harvested_metal' => $harvestedMetal,
+                        'harvested_crystal' => $harvestedCrystal,
+                        'harvested_deuterium' => $harvestedDeuterium,
+                    ];
+                },
             ],
         ];
 
