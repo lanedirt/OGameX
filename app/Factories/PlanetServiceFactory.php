@@ -119,7 +119,8 @@ class PlanetServiceFactory
                     throw new RuntimeException('Planet not found.');
                 }
 
-                $player = $this->playerServiceFactory->make($planet->user_id, true);
+                $player = $this->playerServiceFactory->make($planet->user_id);
+                $player->refreshUser();
             }
 
             /** @var PlanetService */

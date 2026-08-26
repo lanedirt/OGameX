@@ -116,6 +116,14 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     {
         $user = User::factory()->create(['username' => 'test_' . Str::random(16)]);
 
+        // User::factory() skips CreateNewUser, but the User model's `created` hook still
+        // promotes each transaction's first user to admin. Revert that for a normal player.
+        if ($user->hasRole('admin')) {
+            $user->removeRole('admin');
+            $user->username = 'test_' . Str::random(16);
+            $user->save();
+        }
+
         resolve(InitialUserDataService::class)->createFor($user);
 
         return $user;
