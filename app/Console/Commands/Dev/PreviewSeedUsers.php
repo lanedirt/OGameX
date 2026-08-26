@@ -533,13 +533,16 @@ class PreviewSeedUsers extends Command
                     $harvestedMetal = rand(0, $metal);
                     $harvestedCrystal = rand(0, $crystal);
                     $harvestedDeuterium = rand(0, $deuterium);
+                    $shipName = rand(0, 1) === 0 ? 'Recycler' : 'Reaper';
+                    $shipCapacity = $shipName === 'Recycler' ? 20000 : 10000;
+                    $shipAmount = rand(1, 20);
 
                     return [
                         'to' => str_replace(['[coordinates]', '[/coordinates]'], ['[debrisfield]', '[/debrisfield]'], $coordinate),
                         'coordinates' => $coordinate,
-                        'ship_name' => 'Recycler',
-                        'ship_amount' => rand(1, 20),
-                        'storage_capacity' => rand(5000, 50000),
+                        'ship_name' => $shipName,
+                        'ship_amount' => $shipAmount,
+                        'storage_capacity' => $shipAmount * $shipCapacity,
                         'metal' => $metal,
                         'crystal' => $crystal,
                         'deuterium' => $deuterium,
