@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Testing\PendingCommand;
 use OGame\Factories\GameMessageFactory;
 use OGame\Models\Message;
 use OGame\Models\User;
@@ -25,7 +26,9 @@ class PreviewSeedUsersCommandTest extends TestCase
 
     public function test_seed_users_creates_valid_debris_field_harvest_messages(): void
     {
-        $this->artisan('ogamex:dev:seed-users')->assertExitCode(0);
+        $command = $this->artisan('ogamex:dev:seed-users');
+        $this->assertInstanceOf(PendingCommand::class, $command);
+        $command->assertSuccessful();
 
         $userIds = User::where('email', 'like', '%@ogamex.dev')->pluck('id');
         $this->assertNotEmpty($userIds, 'Seed command should have created preview test users.');
