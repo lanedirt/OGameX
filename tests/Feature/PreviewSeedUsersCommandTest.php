@@ -36,8 +36,9 @@ class PreviewSeedUsersCommandTest extends TestCase
 
     /**
      * Directly exercises the debris_field_harvest fixture generator without running
-     * the full ogamex:dev:seed-users command (which also creates users/planets and
-     * is slow). This keeps the test focused on the fixture's own correctness.
+     * the full ogamex:dev:seed-users command, which also creates 10 users, planets,
+     * and unrelated message templates. This keeps the test focused on the fixture's
+     * own correctness instead of depending on unrelated seeding to succeed.
      */
     public function test_debris_field_harvest_fixture_produces_valid_messages(): void
     {
