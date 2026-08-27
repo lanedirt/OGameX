@@ -523,10 +523,7 @@ class PreviewSeedUsers extends Command
                     'deuterium' => rand(1000, 100000),
                 ],
             ],
-            [
-                'key' => 'debris_field_harvest',
-                'params' => fn () => $this->generateDebrisFieldHarvestParams(),
-            ],
+            $this->getDebrisFieldHarvestTemplate(),
         ];
 
         $this->createMessages($user, $fleetTemplates, 60);
@@ -552,7 +549,7 @@ class PreviewSeedUsers extends Command
      * @param array<int, array{key: string, params: callable}> $templates
      * @param int $count
      */
-    private function createMessages(User $user, array $templates, int $count): void
+    public function createMessages(User $user, array $templates, int $count): void
     {
         for ($i = 0; $i < $count; $i++) {
             $template = $templates[array_rand($templates)];
@@ -566,6 +563,20 @@ class PreviewSeedUsers extends Command
             $message->created_at = now()->subMinutes(rand(1, 43200));
             $message->save();
         }
+    }
+
+    /**
+     * The debris_field_harvest message template entry used by seedMessages(), exposed so
+     * tests can exercise the exact same template wiring the seed command uses.
+     *
+     * @return array{key: string, params: callable}
+     */
+    public function getDebrisFieldHarvestTemplate(): array
+    {
+        return [
+            'key' => 'debris_field_harvest',
+            'params' => fn () => $this->generateDebrisFieldHarvestParams(),
+        ];
     }
 
     /**

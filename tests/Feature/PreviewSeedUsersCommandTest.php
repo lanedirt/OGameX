@@ -2,14 +2,38 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use OGame\Console\Commands\Dev\PreviewSeedUsers;
 use OGame\Factories\GameMessageFactory;
 use OGame\Models\Message;
+use OGame\Models\User;
 use OGame\Services\ObjectService;
 use Tests\TestCase;
 
 class PreviewSeedUsersCommandTest extends TestCase
 {
+    use DatabaseTransactions;
+
+    /**
+     * Exercises the same template wiring seedMessages() uses (a {key, params} entry fed
+     * through createMessages()), so the debris_field_harvest fixture is verified as an
+     * actually-persisted, actually-rendered message, not just as a standalone array.
+     */
+    public function test_debris_field_harvest_template_is_wired_and_renders(): void
+    {
+        $command = new PreviewSeedUsers();
+        $user = User::factory()->create();
+
+        $command->createMessages($user, [$command->getDebrisFieldHarvestTemplate()], 1);
+
+        $message = Message::where('user_id', $user->id)->where('key', 'debris_field_harvest')->first();
+        $this->assertNotNull($message, 'createMessages() should have persisted a debris_field_harvest message.');
+
+        $gameMessage = GameMessageFactory::createGameMessage($message);
+        $this->assertStringNotContainsString('?undefined?', $gameMessage->getSubject());
+        $this->assertStringNotContainsString('?undefined?', $gameMessage->getBody());
+    }
+
     /**
      * Directly exercises the debris_field_harvest fixture generator without running
      * the full ogamex:dev:seed-users command (which also creates users/planets and
