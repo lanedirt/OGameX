@@ -6,6 +6,7 @@ use OGame\GameMessages\ExpeditionMerchantFound;
 use OGame\Models\Resources;
 use OGame\Services\MerchantService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlayerService;
 use Tests\AccountTestCase;
 
 /**
@@ -14,6 +15,19 @@ use Tests\AccountTestCase;
  */
 class MerchantTest extends AccountTestCase
 {
+    /**
+     * Get the current player, failing the test if it is null.
+     */
+    private function player(): PlayerService
+    {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player is null.');
+        }
+
+        return $player;
+    }
+
     /**
      * Test that merchant index page loads successfully.
      */
@@ -58,7 +72,7 @@ class MerchantTest extends AccountTestCase
     public function testCallMerchantWithSufficientDarkMatter(): void
     {
         // Give player dark matter
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
         $player->getUser()->dark_matter = 10000;
         $player->save();
 
@@ -88,8 +102,8 @@ class MerchantTest extends AccountTestCase
     public function testCallMerchantWithoutSufficientDarkMatter(): void
     {
         // Set dark matter to less than cost
-        $this->planetService->getPlayer()->getUser()->dark_matter = 1000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 1000;
+        $this->player()->save();
 
         $response = $this->post('/merchant/call', [
             'type' => 'crystal',
@@ -100,8 +114,8 @@ class MerchantTest extends AccountTestCase
         $response->assertJson(['success' => false]);
 
         // Verify dark matter was NOT deducted
-        $this->planetService->getPlayer()->getUser()->refresh();
-        $this->assertEquals(1000, $this->planetService->getPlayer()->getUser()->dark_matter);
+        $this->player()->getUser()->refresh();
+        $this->assertEquals(1000, $this->player()->getUser()->dark_matter);
     }
 
     /**
@@ -109,7 +123,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testCallMerchantWithInvalidType(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
         $player->getUser()->dark_matter = 10000;
         $player->save();
 
@@ -129,16 +143,13 @@ class MerchantTest extends AccountTestCase
     public function testExecuteTradeWithSufficientResources(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $callResponse = $this->post('/merchant/call', [
             'type' => 'metal',
             '_token' => csrf_token(),
         ]);
-
-        $tradeRates = $callResponse->json()['tradeRates'];
-        $exchangeRate = $tradeRates['receive']['crystal']['rate'];
 
         // Give planet resources
         $this->planetService->addResources(new Resources(100000, 0, 0, 0));
@@ -154,7 +165,6 @@ class MerchantTest extends AccountTestCase
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
             'give_amount' => $giveAmount,
-            'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 
@@ -173,16 +183,8 @@ class MerchantTest extends AccountTestCase
     public function testExecuteTradeWithoutSufficientResources(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
-
-        $callResponse = $this->post('/merchant/call', [
-            'type' => 'deuterium',
-            '_token' => csrf_token(),
-        ]);
-
-        $tradeRates = $callResponse->json()['tradeRates'];
-        $exchangeRate = $tradeRates['receive']['metal']['rate'];
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         // Give planet minimal resources
         $this->planetService->addResources(new Resources(0, 0, 100, 0));
@@ -193,7 +195,6 @@ class MerchantTest extends AccountTestCase
             'give_resource' => 'deuterium',
             'receive_resource' => 'metal',
             'give_amount' => 10000,
-            'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 
@@ -202,14 +203,14 @@ class MerchantTest extends AccountTestCase
     }
 
     /**
-     * Test that trade respects storage capacity limits.
-     * This is critical - players should NEVER exceed storage capacity.
+     * Test that trade respects storage capacity limits by auto-capping.
+     * Trades are automatically reduced to fit exactly at 100% storage capacity.
      */
     public function testTradeRespectsStorageCapacity(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $callResponse = $this->post('/merchant/call', [
             'type' => 'metal',
@@ -221,25 +222,261 @@ class MerchantTest extends AccountTestCase
 
         // Fill crystal storage almost to capacity
         $crystalStorageCapacity = $this->planetService->crystalStorage()->get();
-        $this->planetService->addResources(new Resources(100000, $crystalStorageCapacity - 1000, 0, 0));
+        $currentCrystal = $this->planetService->crystal()->get();
+        $this->planetService->addResources(new Resources(100000, $crystalStorageCapacity - 1000 - $currentCrystal, 0, 0));
         $this->planetService->save();
 
-        // Try to trade for more crystal than storage can hold
+        // Reload to ensure we have updated resources
+        $this->planetService->reloadPlanet();
+        $crystalBeforeTrade = $this->planetService->crystal()->get();
+
+        // Try to trade for way more crystal than storage allows
+        $requestedGiveAmount = 50000;
         $response = $this->post('/merchant/trade', [
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
-            'give_amount' => 50000,
-            'exchange_rate' => $exchangeRate,
+            'give_amount' => $requestedGiveAmount,
+            '_token' => csrf_token(),
+        ]);
+
+        // Trade should succeed but be capped
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify we received LESS than what full trade would have given
+        $actualReceived = $response->json('received.crystal');
+        $fullTradeWouldGive = (int)floor($requestedGiveAmount * $exchangeRate);
+        $this->assertLessThan($fullTradeWouldGive, $actualReceived);
+
+        // Verify crystal increased from before trade
+        $this->planetService->reloadPlanet();
+        $finalCrystal = $this->planetService->crystal()->get();
+        $this->assertGreaterThan($crystalBeforeTrade, $finalCrystal);
+
+        // Verify the trade was actually capped (gave less metal than requested)
+        $actualGiven = $response->json('given');
+        $this->assertLessThan($requestedGiveAmount, $actualGiven);
+    }
+
+    /**
+     * Test that trades are automatically capped to exact storage capacity.
+     *
+     * This tests the fix for the bug where "gain max resources" button fails because
+     * resource production continues between UI calculation and server-side validation.
+     *
+     * Instead of failing or using a buffer, the server now automatically caps the trade
+     * to exactly fill storage to 100% capacity, executing a proportionally reduced trade.
+     */
+    public function testTradeAutomaticallyCapsToStorageCapacity(): void
+    {
+        // Call merchant first
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
+
+        $this->post('/merchant/call', [
+            'type' => 'metal',
+            '_token' => csrf_token(),
+        ]);
+
+        // Reload planet to ensure we have latest data
+        $this->planetService->reloadPlanet();
+
+        // Get storage capacity
+        $crystalStorageCapacity = $this->planetService->crystalStorage()->get();
+
+        // Simulate the bug scenario:
+        // UI calculated max when player had (capacity - 100) crystal
+        // By the time server processes it, production added 75 crystal
+        // So now player has (capacity - 25) crystal and tries to receive 50
+        $currentCrystal = $this->planetService->crystal()->get();
+
+        // Set crystal to capacity - 25 (simulating production filled most of the space)
+        $crystalToAdd = ($crystalStorageCapacity - 25) - $currentCrystal;
+        $this->planetService->addResources(new Resources(100000, $crystalToAdd, 0, 0));
+        $this->planetService->save();
+
+        // Reload to get accurate counts after adding resources
+        $this->planetService->reloadPlanet();
+        $metalBeforeTrade = $this->planetService->metal()->get();
+        $crystalBeforeTrade = $this->planetService->crystal()->get();
+
+        // Verify starting crystal is capacity - 25
+        $this->assertEquals($crystalStorageCapacity - 25, $crystalBeforeTrade);
+
+        // Trade should SUCCEED but be automatically capped to available storage (25)
+        $requestedMetal = 1000;
+        $response = $this->post('/merchant/trade', [
+            'give_resource' => 'metal',
+            'receive_resource' => 'crystal',
+            'give_amount' => $requestedMetal,
             '_token' => csrf_token(),
         ]);
 
         $response->assertStatus(200);
-        $response->assertJson(['success' => false]);
-        $this->assertStringContainsString('Not enough storage capacity', $response->json('message'));
+        $response->assertJson(['success' => true]);
 
-        // Verify crystal didn't exceed capacity
+        // Verify trade was executed but capped
         $this->planetService->reloadPlanet();
-        $this->assertLessThanOrEqual($crystalStorageCapacity, $this->planetService->crystal()->get());
+        $finalCrystal = $this->planetService->crystal()->get();
+
+        // Crystal should be exactly at storage capacity (not over, not under)
+        $this->assertEquals($crystalStorageCapacity, $finalCrystal);
+
+        // Verify metal was deducted (but proportionally less than requested)
+        $finalMetal = $this->planetService->metal()->get();
+        $actualMetalGiven = $metalBeforeTrade - $finalMetal;
+        $this->assertGreaterThan(0, $actualMetalGiven);
+        $this->assertLessThan($requestedMetal, $actualMetalGiven); // Less than requested
+    }
+
+    /**
+     * Test that trades are capped when storage is nearly full.
+     * When storage is at capacity, trades may succeed if production consumed resources,
+     * but the amount received will be minimal (capped to available space).
+     */
+    public function testTradeCappedWhenStorageNearlyFull(): void
+    {
+        // Call merchant first
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
+
+        $callResponse = $this->post('/merchant/call', [
+            'type' => 'metal',
+            '_token' => csrf_token(),
+        ]);
+
+        $tradeRates = $callResponse->json()['tradeRates'];
+        $exchangeRate = $tradeRates['receive']['crystal']['rate'];
+
+        // Get storage capacity and fill it to 99.9%
+        $crystalStorageCapacity = $this->planetService->crystalStorage()->get();
+        $currentCrystal = $this->planetService->crystal()->get();
+        $targetCrystal = (int)floor($crystalStorageCapacity * 0.999);
+        $this->planetService->addResources(new Resources(100000, $targetCrystal - $currentCrystal, 0, 0));
+        $this->planetService->save();
+
+        // Reload to ensure we have updated resources
+        $this->planetService->reloadPlanet();
+        $crystalBefore = $this->planetService->crystal()->get();
+
+        // Try to trade for a significant amount
+        $requestedMetal = 10000;
+        $expectedCrystalFromFullTrade = (int)floor($requestedMetal * $exchangeRate);
+
+        $response = $this->post('/merchant/trade', [
+            'give_resource' => 'metal',
+            'receive_resource' => 'crystal',
+            'give_amount' => $requestedMetal,
+            '_token' => csrf_token(),
+        ]);
+
+        // Trade should succeed
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // But received amount should be much less than requested (capped by storage)
+        $actualReceived = $response->json('received.crystal');
+        $this->assertLessThan($expectedCrystalFromFullTrade, $actualReceived);
+
+        // Verify the trade was capped (gave much less metal than requested)
+        $actualGiven = $response->json('given');
+        $this->assertLessThan($requestedMetal, $actualGiven);
+
+        // Verify crystal increased but not by the full trade amount
+        $this->planetService->reloadPlanet();
+        $finalCrystal = $this->planetService->crystal()->get();
+        $this->assertGreaterThan($crystalBefore, $finalCrystal);
+    }
+
+    /**
+     * Test executing a trade that receives multiple resources in a single transaction.
+     */
+    public function testExecuteTradeWithMultipleReceiveResources(): void
+    {
+        // Call merchant first
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
+
+        $callResponse = $this->post('/merchant/call', [
+            'type' => 'metal',
+            '_token' => csrf_token(),
+        ]);
+
+        $tradeRates = $callResponse->json()['tradeRates'];
+
+        // Give planet plenty of metal to trade
+        $this->planetService->addResources(new Resources(100000, 0, 0, 0));
+        $this->planetService->save();
+        $this->planetService->reloadPlanet();
+        $metalBefore = $this->planetService->metal()->get();
+        $crystalBefore = $this->planetService->crystal()->get();
+        $deuteriumBefore = $this->planetService->deuterium()->get();
+
+        // Trade metal for both crystal and deuterium simultaneously
+        $response = $this->post('/merchant/trade', [
+            'give_resource' => 'metal',
+            'receive_resources' => [
+                'crystal' => 1000,
+                'deuterium' => 500,
+            ],
+            'give_amount' => 50000,
+            '_token' => csrf_token(),
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify both resources were received
+        $received = $response->json('received');
+        $this->assertArrayHasKey('crystal', $received);
+        $this->assertArrayHasKey('deuterium', $received);
+        $this->assertGreaterThan(0, $received['crystal']);
+        $this->assertGreaterThan(0, $received['deuterium']);
+
+        // Verify metal was deducted
+        $this->planetService->reloadPlanet();
+        $this->assertLessThan($metalBefore, $this->planetService->metal()->get());
+        $this->assertGreaterThan($crystalBefore, $this->planetService->crystal()->get());
+        $this->assertGreaterThan($deuteriumBefore, $this->planetService->deuterium()->get());
+    }
+
+    /**
+     * Test that a multi-resource trade is proportionally reduced when budget is insufficient.
+     */
+    public function testMultiResourceTradeScalesDownWhenBudgetExceeded(): void
+    {
+        // Call merchant first
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
+
+        $this->post('/merchant/call', [
+            'type' => 'metal',
+            '_token' => csrf_token(),
+        ]);
+
+        // Give planet a limited amount of metal
+        $this->planetService->addResources(new Resources(5000, 0, 0, 0));
+        $this->planetService->save();
+        $this->planetService->reloadPlanet();
+
+        // Request more than we can afford: large receive amounts with small give_amount
+        $response = $this->post('/merchant/trade', [
+            'give_resource' => 'metal',
+            'receive_resources' => [
+                'crystal' => 5000,
+                'deuterium' => 5000,
+            ],
+            'give_amount' => 5000,
+            '_token' => csrf_token(),
+        ]);
+
+        // Trade should succeed with proportionally reduced amounts
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify the actual give amount did not exceed the budget
+        $actualGiven = $response->json('given');
+        $this->assertLessThanOrEqual(5000, $actualGiven);
     }
 
     /**
@@ -248,8 +485,8 @@ class MerchantTest extends AccountTestCase
     public function testDismissMerchant(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $this->post('/merchant/call', [
             'type' => 'metal',
@@ -381,8 +618,8 @@ class MerchantTest extends AccountTestCase
     public function testScrapMerchantBargain(): void
     {
         // Give player dark matter
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         // Bargain (first bargain costs 2000 DM)
         $response = $this->post('/merchant/scrap/bargain', [
@@ -393,8 +630,8 @@ class MerchantTest extends AccountTestCase
         $response->assertJson(['success' => true]);
 
         // Verify dark matter was deducted (10000 - 2000 = 8000)
-        $this->planetService->getPlayer()->getUser()->refresh();
-        $this->assertEquals(8000, $this->planetService->getPlayer()->getUser()->dark_matter);
+        $this->player()->getUser()->refresh();
+        $this->assertEquals(8000, $this->player()->getUser()->dark_matter);
 
         // Verify offer increased
         $data = $response->json();
@@ -408,8 +645,8 @@ class MerchantTest extends AccountTestCase
     public function testScrapMerchantBargainWithoutSufficientDarkMatter(): void
     {
         // Give player insufficient dark matter
-        $this->planetService->getPlayer()->getUser()->dark_matter = 1000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 1000;
+        $this->player()->save();
 
         $response = $this->post('/merchant/scrap/bargain', [
             '_token' => csrf_token(),
@@ -425,8 +662,8 @@ class MerchantTest extends AccountTestCase
     public function testScrapMerchantBargainCostIncrease(): void
     {
         // Give player plenty of dark matter
-        $this->planetService->getPlayer()->getUser()->dark_matter = 50000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 50000;
+        $this->player()->save();
 
         // First bargain - 2000 DM
         $response1 = $this->post('/merchant/scrap/bargain', ['_token' => csrf_token()]);
@@ -439,8 +676,8 @@ class MerchantTest extends AccountTestCase
         $this->assertEquals(6000, $response2->json()['newCost']); // Next cost is 6000
 
         // Verify total DM spent: 2000 + 4000 = 6000
-        $this->planetService->getPlayer()->getUser()->refresh();
-        $this->assertEquals(44000, $this->planetService->getPlayer()->getUser()->dark_matter);
+        $this->player()->getUser()->refresh();
+        $this->assertEquals(44000, $this->player()->getUser()->dark_matter);
     }
 
     /**
@@ -449,8 +686,8 @@ class MerchantTest extends AccountTestCase
     public function testScrapMerchantBargainCapsAt75Percent(): void
     {
         // Give player lots of dark matter
-        $this->planetService->getPlayer()->getUser()->dark_matter = 200000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 200000;
+        $this->player()->save();
 
         // Bargain multiple times to reach cap
         $maxAttempts = 20;
@@ -617,7 +854,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testAddExpeditionMerchantCallsResourceTrader(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
 
         // No active merchant initially
         $this->assertNull(cache()->get('active_merchant_' . $player->getId()));
@@ -642,7 +879,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testExpeditionMerchantNeverCallsScrapMerchant(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
 
         // Call expedition merchant multiple times to verify it's always a resource trader
         for ($i = 0; $i < 10; $i++) {
@@ -685,7 +922,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testExpeditionMerchantImprovesExistingMerchantRates(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
 
         // Call a merchant first
         $player->getUser()->dark_matter = 10000;
@@ -734,7 +971,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testExpeditionMerchantWithNoActiveMerchantCallsNew(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
 
         // No active merchant
         $this->assertNull(cache()->get('active_merchant_' . $player->getId()));
@@ -761,7 +998,7 @@ class MerchantTest extends AccountTestCase
      */
     public function testCallingMerchantWithDarkMatterReplacesExisting(): void
     {
-        $player = $this->planetService->getPlayer();
+        $player = $this->player();
         $player->getUser()->dark_matter = 20000;
         $player->save();
 
@@ -793,8 +1030,8 @@ class MerchantTest extends AccountTestCase
     public function testResourceMarketHandlesCommaSeparatedInput(): void
     {
         // Call merchant first
-        $this->planetService->getPlayer()->getUser()->dark_matter = 10000;
-        $this->planetService->getPlayer()->save();
+        $this->player()->getUser()->dark_matter = 10000;
+        $this->player()->save();
 
         $callResponse = $this->post('/merchant/call', [
             'type' => 'metal',
@@ -816,7 +1053,6 @@ class MerchantTest extends AccountTestCase
             'give_resource' => 'metal',
             'receive_resource' => 'crystal',
             'give_amount' => '2,000',  // Comma-separated input
-            'exchange_rate' => $exchangeRate,
             '_token' => csrf_token(),
         ]);
 
@@ -828,8 +1064,12 @@ class MerchantTest extends AccountTestCase
         $finalMetal = $this->planetService->metal()->get();
         $metalDeducted = $initialMetal - $finalMetal;
 
-        // Should have deducted 2,000, not 2
-        $this->assertEquals(2000, $metalDeducted, 'Should deduct 2,000 metal, not 2');
+        // The backward-compat shim converts the legacy single-resource format by computing
+        // receiveAmount = floor(give * rate) then giveCost = ceil(receive / rate). This ceil/floor
+        // round-trip can land 1 unit below the original give_amount, so an exact assertEquals(2000)
+        // is no longer reliable.
+        $this->assertGreaterThan(1990, $metalDeducted, 'Should deduct ~2,000 metal, not just 2');
+        $this->assertLessThanOrEqual(2000, $metalDeducted, 'Should not exceed declared give_amount cap');
         $this->assertGreaterThan(0, $this->planetService->crystal()->get(), 'Should have received crystal');
     }
 

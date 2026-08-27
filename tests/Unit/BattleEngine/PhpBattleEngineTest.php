@@ -3,8 +3,10 @@
 namespace Tests\Unit\BattleEngine;
 
 use OGame\GameMissions\BattleEngine\BattleEngine;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Resources;
 
 /**
  * Test class for the PHP BattleEngine. The actual tests that create the simulated battles
@@ -24,15 +26,21 @@ class PhpBattleEngineTest extends BattleEngineTestAbstract
         // Create defenders array with planet's stationary forces
         $defenders = [\OGame\GameMissions\BattleEngine\Models\DefenderFleet::fromPlanet($this->planetService)];
 
-        // For test battles, use fleetMissionId = 0 and current player's ID
+        // Convert UnitCollection to AttackerFleet for the new multi-attacker architecture
+        $attacker = new AttackerFleet();
+        $attacker->units = $attackerFleet;
+        $attacker->player = $this->playerService;
+        $attacker->fleetMissionId = 0; // 0 for test battles without a real fleet mission
+        $attacker->ownerId = $this->playerService->getId();
+        $attacker->cargoResources = new Resources(0, 0, 0, 0);
+        $attacker->isInitiator = true;
+        $attacker->fleetMission = null;
+
         return new PhpBattleEngine(
-            $attackerFleet,
-            $this->playerService,
+            [$attacker],
             $this->planetService,
             $defenders,
-            $this->settingsService,
-            0,
-            $this->playerService->getId()
+            $this->settingsService
         );
     }
 }

@@ -1,6 +1,6 @@
 <div id="payment">
     <div class="ajaxContent" style="height:620px; width:800px;">
-        <p class="textCenter">Feature coming soon.</p>
+        <p class="textCenter">{{ __('t_ingame.shop.feature_coming_soon') }}</p>
     </div>
     <!--
     <IFRAME id="iframe" allowtransparency="true" src="{{ route('payment.iframesrc') }}" frameborder="0"
@@ -12,7 +12,7 @@
     var $overlay = $('#payment').parent();
     $overlay.addClass('payment');
     $overlay.dialog('option', {
-        title: 'Purchase Dark Matter',
+        title: {!! json_encode(__('t_ingame.shop.btn_purchase_dark_matter')) !!},
         modal: true,
         resizable: false,
         draggable: false,

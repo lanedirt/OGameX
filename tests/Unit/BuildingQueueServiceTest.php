@@ -3,7 +3,9 @@
 namespace Tests\Unit;
 
 use Exception;
-use OGame\Models\Resources;
+use Illuminate\Support\Facades\DB;
+use OGame\Models\Planet;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\User;
 use OGame\Services\BuildingQueueService;
 use OGame\Services\ObjectService;
@@ -17,6 +19,13 @@ class BuildingQueueServiceTest extends UnitTestCase
     {
         parent::setUp();
         $this->buildingQueueService = resolve(BuildingQueueService::class);
+        DB::beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        DB::rollBack();
+        parent::tearDown();
     }
 
     /**
@@ -27,12 +36,13 @@ class BuildingQueueServiceTest extends UnitTestCase
         // Create user in database for foreign key constraints
         $user = User::factory()->create();
 
-        // Create planet in database for foreign key constraints (use random coordinates to avoid conflicts)
-        $planet = \OGame\Models\Planet::factory()->create([
+        // Create planet in database for foreign key constraints (use DB lookup to avoid coordinate conflicts)
+        $coords = $this->getSafeEmptyCoordinate(new Coordinate(1, 1, 1));
+        $planet = Planet::factory()->create([
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
             'metal_mine' => 5,
             'metal' => 1000000,
             'crystal' => 1000000,
@@ -57,6 +67,9 @@ class BuildingQueueServiceTest extends UnitTestCase
         $this->assertCount(1, $queue_items);
 
         $queue_item = $queue_items->first();
+        if ($queue_item === null) {
+            $this->fail('Queue item not found.');
+        }
         $this->assertEquals($building->id, $queue_item->object_id);
         $this->assertEquals($initial_level - 1, $queue_item->object_level_target);
         $this->assertTrue((bool)($queue_item->is_downgrade ?? false), 'is_downgrade should be true');
@@ -87,12 +100,13 @@ class BuildingQueueServiceTest extends UnitTestCase
         // Create user in database for foreign key constraints
         $user = User::factory()->create();
 
-        // Create planet in database for foreign key constraints (use random coordinates to avoid conflicts)
-        $planet = \OGame\Models\Planet::factory()->create([
+        // Create planet in database for foreign key constraints (use DB lookup to avoid coordinate conflicts)
+        $coords = $this->getSafeEmptyCoordinate(new Coordinate(1, 1, 1));
+        $planet = Planet::factory()->create([
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
             'metal_mine' => 5,
             'metal' => 1000000,
             'crystal' => 1000000,
@@ -157,11 +171,12 @@ class BuildingQueueServiceTest extends UnitTestCase
     {
         // Create user and planet
         $user = User::factory()->create();
-        $planet = \OGame\Models\Planet::factory()->create([
+        $coords = $this->getSafeEmptyCoordinate(new Coordinate(1, 1, 1));
+        $planet = Planet::factory()->create([
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
             'metal_mine' => 4,
             'metal' => 1000000,
             'crystal' => 1000000,
@@ -240,11 +255,12 @@ class BuildingQueueServiceTest extends UnitTestCase
     {
         // Create user and planet
         $user = User::factory()->create();
-        $planet = \OGame\Models\Planet::factory()->create([
+        $coords = $this->getSafeEmptyCoordinate(new Coordinate(1, 1, 1));
+        $planet = Planet::factory()->create([
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
             'metal_mine' => 3,
             'metal' => 1000000,
             'crystal' => 1000000,
@@ -298,11 +314,12 @@ class BuildingQueueServiceTest extends UnitTestCase
     {
         // Create user and planet
         $user = User::factory()->create();
-        $planet = \OGame\Models\Planet::factory()->create([
+        $coords = $this->getSafeEmptyCoordinate(new Coordinate(1, 1, 1));
+        $planet = Planet::factory()->create([
             'user_id' => $user->id,
-            'galaxy' => rand(1, 9),
-            'system' => rand(1, 499),
-            'planet' => rand(1, 15),
+            'galaxy' => $coords->galaxy,
+            'system' => $coords->system,
+            'planet' => $coords->position,
             'metal_mine' => 5,
             'metal' => 1000000,
             'crystal' => 1000000,

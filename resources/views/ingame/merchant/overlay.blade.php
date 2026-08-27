@@ -7,8 +7,8 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td class="freeStorage">@lang('Free storage capacity')</td>
-                    <td class="tradingRate">@lang('Exchange rate')</td>
+                    <td class="freeStorage">{{ __('t_merchant.free_storage_capacity') }}</td>
+                    <td class="tradingRate">{{ __('t_merchant.exchange_rate') }}</td>
                 </tr>
 
                 @php
@@ -43,14 +43,14 @@
                         <td class="resIcon noCenter">
                             <div class="resourceIcon {{ $resourceKey }}"></div>
                         </td>
-                        <td class="noCenter">@lang($resourceNames[$resourceKey])</td>
+                        <td class="noCenter">{{ __('t_merchant.' . $resourceKey) }}</td>
 
                         @if($isSelling)
                             <td id="toSell">
                                 <span id="{{ $resourceId }}_value_label">{{ number_format($currentAmount, 0, '.', ',') }}</span>
                             </td>
                             <td>&nbsp;</td>
-                            <td>@lang('Being sold')</td>
+                            <td>{{ __('t_merchant.being_sold') }}</td>
                             <td class="rate">
                                 @php
                                     // Base trade rates: metal=3.00, crystal=2.00, deuterium=1.00
@@ -62,7 +62,7 @@
                                         default => 1.00
                                     };
                                 @endphp
-                                <span class="tooltipHTML tooltipRight" data-tooltip-title="@lang('Get new exchange rate!')">
+                                <span class="tooltipHTML tooltipRight" data-tooltip-title="{{ __('t_merchant.get_new_exchange_rate') }}">
                                     {{ number_format($baseRate, 2, '.', '') }}
                                 </span>
                             </td>
@@ -75,11 +75,11 @@
                             </td>
                             <td>
                                 <a href="javascript:void(0);" onclick="setMaxValue({{ $resourceId }}); return false;"
-                                   class="tooltip js_hideTipOnMobile setMaxValue" data-tooltip-title="@lang('Exchange maximum amount')">
+                                   class="tooltip js_hideTipOnMobile setMaxValue" data-tooltip-title="{{ __('t_merchant.exchange_maximum_amount') }}">
                                 </a>
                             </td>
                             <td><span id="{{ $resourceId }}_storage">{{ number_format($freeStorageAmount, 0, '.', ',') }}</span></td>
-                            <td class="rate tooltipHTML tooltipRight" data-tooltip-title="@lang('Get new exchange rate!')">
+                            <td class="rate tooltipHTML tooltipRight" data-tooltip-title="{{ __('t_merchant.get_new_exchange_rate') }}">
                                 <span class="undermark">{{ number_format($activeMerchant['trade_rates']['receive'][$resourceKey]['rate'], 2, '.', '') }}</span>
                             </td>
                         @endif
@@ -88,22 +88,22 @@
 
                 <tr>
                     <td colspan="6" style="padding:10px">
-                        <span>@lang('A trader only delivers as much resources as there is free storage capacity.')</span>
+                        <span>{{ __('t_merchant.trader_delivery_notice') }}</span>
                     </td>
                 </tr>
 
                 <tr>
                     <td colspan="3" rowspan="2">
                         <input type="button" tabindex="3" name="tradebutton" class="btn_blue"
-                               value="@lang('Trade resources!')" onclick="trySubmit();">
+                               value="{{ __('t_merchant.trade_resources') }}" onclick="trySubmit();">
                     </td>
                     <td colspan="3" class="newRate">
                         <a href="javascript:void(0);" tabindex="4" name="tradebuttonRate"
                            class="buttonTraderNewRate" data-merchant-type="{{ $merchantType }}">
-                            @lang('New exchange rate')
+                            {{ __('t_merchant.new_exchange_rate') }}
                         </a>
-                        @lang('Costs:')
-                        3,500 @lang('Dark Matter')
+                        {{ __('t_merchant.costs') }}
+                        3,500 {{ __('t_merchant.dark_matter') }}
                     </td>
                 </tr>
             </table>
@@ -133,7 +133,13 @@
         @endforeach
     };
 
-    var factor = {
+    var baseFactor = {
+        1: 3.00, // Metal
+        2: 2.00, // Crystal
+        3: 1.00 // Deuterium
+    };
+
+    var tradeFactor = {
         @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
             @if($resourceKey === $merchantType)
                 "{{ $resourceId }}": 1.0,
@@ -164,7 +170,7 @@
         initTooltips();
 
         // Set dialog title
-        var merchantTitle = '@lang("There is a trader here buying")' + ' ' + '{{ ucfirst($merchantType) }}' + '.';
+        var merchantTitle = @json(__('t_merchant.trader_buying') . ' ' . ucfirst($merchantType) . '.');
         if (typeof $('.overlayDiv.traderlayer').dialog === 'function') {
             $('.overlayDiv.traderlayer').dialog('option', 'title', merchantTitle);
         }
@@ -206,14 +212,26 @@
 
         // Calculate how much of the selling resource is needed
         var giveResourceId = {{ $resources[$merchantType] }};
-        var giveRate = factor[giveResourceId];
-        var receiveRate = factor[resourceId];
+        var giveRate = baseFactor[giveResourceId];
+        var receiveRate = tradeFactor[resourceId];
+
+        // Calculate how much budget is already committed by other receive resources
+        var committed = 0;
+        for (var rid in tradeFactor) {
+            var ridInt = parseInt(rid);
+            if (ridInt === giveResourceId || ridInt === parseInt(resourceId)) { continue; }
+            var otherVal = parseInt($('#' + rid + '_value').val().replace(/[,\.]/g, '')) || 0;
+            if (otherVal > 0) {
+                committed += Math.ceil(otherVal * (giveRate / tradeFactor[rid]));
+            }
+        }
+        var remainingBudget = Math.max(0, offer_amount - committed);
 
         var neededAmount = Math.ceil(value * (giveRate / receiveRate));
 
-        // Check if we have enough of the selling resource
-        if (neededAmount > offer_amount) {
-            value = Math.floor(offer_amount * (receiveRate / giveRate));
+        // Check if we have enough of the selling resource (accounting for other resources)
+        if (neededAmount > remainingBudget) {
+            value = Math.floor(remainingBudget * (receiveRate / giveRate));
             neededAmount = Math.ceil(value * (giveRate / receiveRate));
             formatNumber(input, value);
         }
@@ -232,7 +250,7 @@
             @if($resourceKey !== $merchantType)
                 var val{{ $resourceId }} = parseInt($('#{{ $resourceId }}_value').val().replace(/[,\.]/g, '')) || 0;
                 if (val{{ $resourceId }} > 0) {
-                    var rate{{ $resourceId }} = factor[{{ $resourceId }}];
+                    var rate{{ $resourceId }} = tradeFactor[{{ $resourceId }}];
                     totalNeeded += Math.ceil(val{{ $resourceId }} * (giveRate / rate{{ $resourceId }}));
                 }
             @endif
@@ -244,21 +262,31 @@
 
     function setMaxValue(resourceId) {
         var giveResourceId = {{ $resources[$merchantType] }};
-        var giveRate = factor[giveResourceId];
-        var receiveRate = factor[resourceId];
+        var giveRate = baseFactor[giveResourceId];
+        var receiveRate = tradeFactor[resourceId];
 
         // Calculate max based on storage capacity first (ensure integer)
         var maxFromStorage = Math.floor(freeStorage[resourceId]);
 
-        // Calculate max based on available selling resource
-        // We need to ensure that Math.ceil(maxReceive * (giveRate / receiveRate)) <= offer_amount
-        // So we calculate: maxReceive = Math.floor(offer_amount * (receiveRate / giveRate))
-        // But then verify it doesn't exceed what we have when converted back
-        var maxFromAvailable = Math.floor(offer_amount * (receiveRate / giveRate));
+        // Calculate how much budget is already committed by other receive resources
+        var committed = 0;
+        for (var rid in tradeFactor) {
+            var ridInt = parseInt(rid);
+            if (ridInt === giveResourceId || ridInt === parseInt(resourceId)) { continue; }
+            var otherVal = parseInt($('#' + rid + '_value').val().replace(/[,\.]/g, '')) || 0;
+            if (otherVal > 0) {
+                committed += Math.ceil(otherVal * (giveRate / tradeFactor[rid]));
+            }
+        }
+        var remainingBudget = Math.max(0, offer_amount - committed);
+
+        // Calculate max based on remaining selling resource budget
+        // We need to ensure that Math.ceil(maxReceive * (giveRate / receiveRate)) <= remainingBudget
+        var maxFromAvailable = Math.floor(remainingBudget * (receiveRate / giveRate));
 
         // Double-check by calculating how much we'd actually need
         var wouldNeed = Math.ceil(maxFromAvailable * (giveRate / receiveRate));
-        while (wouldNeed > offer_amount && maxFromAvailable > 0) {
+        while (wouldNeed > remainingBudget && maxFromAvailable > 0) {
             maxFromAvailable--;
             wouldNeed = Math.ceil(maxFromAvailable * (giveRate / receiveRate));
         }
@@ -266,91 +294,69 @@
         // Use the smaller of the two (both are integers now)
         var maxValue = Math.floor(Math.min(maxFromAvailable, maxFromStorage));
 
-        // Subtract a small buffer to account for ongoing resource production
-        // Resources increase over time, so free storage decreases
-        // This prevents the "storage full" error when there's a delay between clicking max and submitting
-        var safetyBuffer = 100;
-        maxValue = Math.max(0, maxValue - safetyBuffer);
-
-        // Also verify that this value will actually fit in storage given current production
-        // Double-check: ensure we're not trying to receive more than storage allows
-        console.log('Max value calculation:', {
-            maxFromAvailable: maxFromAvailable,
-            maxFromStorage: maxFromStorage,
-            maxValue: maxValue,
-            safetyBuffer: safetyBuffer,
-            giveRate: giveRate,
-            receiveRate: receiveRate
-        });
-
         $('#' + resourceId + '_value').val(maxValue);
         checkValue(resourceId);
     }
 
     function trySubmit() {
-        var formData = {
-            _token: token,
-            give_resource: merchantType,
-            receive_resource: null,
-            give_amount: 0,
-            exchange_rate: 0
-        };
+        var giveResourceId = {{ $resources[$merchantType] }};
+        var giveRate = baseFactor[giveResourceId];
+        var receiveResources = {};
+        var totalGiveAmount = 0;
 
-        // Find which resource is being received
+        // Collect all receive resources and calculate total give cost
         @foreach(['metal' => 1, 'crystal' => 2, 'deuterium' => 3] as $resourceKey => $resourceId)
             @if($resourceKey !== $merchantType)
                 var value{{ $resourceId }} = parseInt($('#{{ $resourceId }}_value').val().replace(/[,\.]/g, '')) || 0;
                 if (value{{ $resourceId }} > 0) {
-                    formData.receive_resource = '{{ $resourceKey }}';
-                    var giveRate = factor[{{ $resources[$merchantType] }}];
-                    var receiveRate = factor[{{ $resourceId }}];
-                    formData.give_amount = Math.ceil(value{{ $resourceId }} * (giveRate / receiveRate));
-                    formData.exchange_rate = receiveRate / giveRate;
+                    var receiveRate{{ $resourceId }} = tradeFactor[{{ $resourceId }}];
+                    receiveResources['{{ $resourceKey }}'] = value{{ $resourceId }};
+                    totalGiveAmount += Math.ceil(value{{ $resourceId }} * (giveRate / receiveRate{{ $resourceId }}));
                 }
             @endif
         @endforeach
 
-        if (!formData.receive_resource || formData.give_amount === 0) {
-            errorBoxNotify(LocalizationStrings.error, '@lang("Please select a resource to receive.")');
+        if (Object.keys(receiveResources).length === 0 || totalGiveAmount === 0) {
+            errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.please_select_resource')));
             return false;
         }
 
-        // Debug logging
-        console.log('Give amount calculated:', formData.give_amount);
-        console.log('Offer amount available:', offer_amount);
-        console.log('Difference:', formData.give_amount - offer_amount);
-
         // Use a small tolerance (1 unit) for floating point comparison
-        if (formData.give_amount > offer_amount + 1) {
-            errorBoxNotify(LocalizationStrings.error, '@lang("You don\'t have enough resources to trade.")');
+        if (totalGiveAmount > offer_amount + 1) {
+            errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.not_enough_resources')));
             return false;
         }
 
         // Ensure we don't try to give more than we have
-        if (formData.give_amount > offer_amount) {
-            formData.give_amount = offer_amount;
+        if (totalGiveAmount > offer_amount) {
+            totalGiveAmount = offer_amount;
         }
 
-        // Submit the trade
-        $.post('{{ route('merchant.trade') }}', formData, function(response) {
+        // Submit the trade with all receive resources
+        $.post('{{ route('merchant.trade') }}', {
+            _token: token,
+            give_resource: merchantType,
+            receive_resources: receiveResources,
+            give_amount: totalGiveAmount,
+        }, function(response) {
             if (response.success) {
-                fadeBox(response.message || '@lang("Trade completed successfully!")', false);
+                fadeBox(response.message || @json(__('t_merchant.trade_completed_success')), false);
                 setTimeout(function() {
                     location.reload();
                 }, 1000);
             } else {
-                errorBoxNotify(LocalizationStrings.error, response.message || '@lang("Trade failed.")');
+                errorBoxNotify(LocalizationStrings.error, response.message || @json(__('t_merchant.trade_failed')));
             }
         }).fail(function(xhr) {
             var response = xhr.responseJSON;
-            errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred. Please try again.")');
+            errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_retry')));
         });
     }
 
     function callTrader() {
         errorBoxDecision(
-            '@lang("Caution")',
-            '@lang("Do you want to get a new exchange rate for 3,500 Dark Matter? This will replace your current merchant.")',
+            @json(__('t_ingame.shared.caution')),
+            @json(__('t_merchant.new_rate_confirmation')),
             LocalizationStrings.yes,
             LocalizationStrings.no,
             function() {
@@ -359,16 +365,16 @@
                     type: merchantType
                 }, function(response) {
                     if (response.success) {
-                        fadeBox('@lang("New merchant called successfully!")', false);
+                        fadeBox(@json(__('t_merchant.merchant_called_success')), false);
                         setTimeout(function() {
                             location.reload();
                         }, 1000);
                     } else {
-                        errorBoxNotify(LocalizationStrings.error, response.message || '@lang("Failed to call merchant.")');
+                        errorBoxNotify(LocalizationStrings.error, response.message || @json(__('t_merchant.failed_to_call')));
                     }
                 }).fail(function(xhr) {
                     var response = xhr.responseJSON;
-                    errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred. Please try again.")');
+                    errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_retry')));
                 });
             }
         );

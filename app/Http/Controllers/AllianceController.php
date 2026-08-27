@@ -28,7 +28,7 @@ class AllianceController extends OGameController
         $this->setBodyId('alliance');
 
         $userId = $player->getId();
-        $userAllianceId = auth()->user()->alliance_id;
+        $userAllianceId = $player->getUser()->alliance_id;
 
         $alliance = null;
         $member = null;
@@ -79,18 +79,18 @@ class AllianceController extends OGameController
 
         // User must not already be in an alliance
         if ($player->getUser()->alliance_id) {
-            return redirect()->route('alliance.index')->with('error', __('You are already in an alliance'));
+            return redirect()->route('alliance.index')->with('error', __('t_ingame.alliance.msg_already_in'));
         }
 
         // Get the alliance
         $alliance = $allianceService->getAllianceById($alliance_id);
         if (!$alliance) {
-            return redirect()->route('alliance.index')->with('error', __('Alliance not found'));
+            return redirect()->route('alliance.index')->with('error', __('t_ingame.alliance.msg_not_found'));
         }
 
         // Check if alliance is open for applications
         if (!$alliance->is_open) {
-            return redirect()->route('alliance.index')->with('error', __('This alliance is closed for applications'));
+            return redirect()->route('alliance.index')->with('error', __('t_ingame.alliance.msg_closed'));
         }
 
         return view('ingame.alliance.apply')->with([
@@ -145,12 +145,12 @@ class AllianceController extends OGameController
     public function ajaxOverview(AllianceService $allianceService, PlayerService $player): JsonResponse
     {
         $userId = $player->getId();
-        $userAllianceId = auth()->user()->alliance_id;
+        $userAllianceId = $player->getUser()->alliance_id;
 
         if (!$userAllianceId) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'You are not in an alliance',
+                'message' => __('t_ingame.alliance.msg_not_in_alliance'),
                 'newAjaxToken' => csrf_token(),
             ], 400);
         }
@@ -197,12 +197,12 @@ class AllianceController extends OGameController
     public function ajaxManagement(AllianceService $allianceService, PlayerService $player): JsonResponse
     {
         $userId = $player->getId();
-        $userAllianceId = auth()->user()->alliance_id;
+        $userAllianceId = $player->getUser()->alliance_id;
 
         if (!$userAllianceId) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'You are not in an alliance',
+                'message' => __('t_ingame.alliance.msg_not_in_alliance'),
                 'newAjaxToken' => csrf_token(),
             ], 400);
         }
@@ -254,12 +254,12 @@ class AllianceController extends OGameController
     {
         try {
             $userId = $player->getId();
-            $userAllianceId = auth()->user()->alliance_id;
+            $userAllianceId = $player->getUser()->alliance_id;
 
             if (!$userAllianceId) {
                 return response()->json([
                     'status' => 'failure',
-                    'message' => 'You are not in an alliance',
+                    'message' => __('t_ingame.alliance.msg_not_in_alliance'),
                     'newAjaxToken' => csrf_token(),
                 ], 400);
             }
@@ -312,12 +312,12 @@ class AllianceController extends OGameController
     public function ajaxApplications(AllianceService $allianceService, PlayerService $player): JsonResponse
     {
         $userId = $player->getId();
-        $userAllianceId = auth()->user()->alliance_id;
+        $userAllianceId = $player->getUser()->alliance_id;
 
         if (!$userAllianceId) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'You are not in an alliance',
+                'message' => __('t_ingame.alliance.msg_not_in_alliance'),
                 'newAjaxToken' => csrf_token(),
             ], 400);
         }
@@ -367,12 +367,12 @@ class AllianceController extends OGameController
     public function ajaxClasses(AllianceService $allianceService, PlayerService $player): JsonResponse
     {
         $userId = $player->getId();
-        $userAllianceId = auth()->user()->alliance_id;
+        $userAllianceId = $player->getUser()->alliance_id;
 
         if (!$userAllianceId) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'You are not in an alliance',
+                'message' => __('t_ingame.alliance.msg_not_in_alliance'),
                 'newAjaxToken' => csrf_token(),
             ], 400);
         }
@@ -413,13 +413,13 @@ class AllianceController extends OGameController
     public function ajaxNewApplication(Request $request, AllianceService $allianceService, PlayerService $player): JsonResponse
     {
         $allianceId = $request->input('appliedAllyId');
-        $userAllianceId = auth()->user()->alliance_id;
+        $userAllianceId = $player->getUser()->alliance_id;
 
         // User must not already be in an alliance
         if ($userAllianceId) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'You are already in an alliance',
+                'message' => __('t_ingame.alliance.msg_already_in'),
                 'newAjaxToken' => csrf_token(),
             ], 400);
         }
@@ -428,7 +428,7 @@ class AllianceController extends OGameController
         if (!$allianceId) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'Alliance ID is required',
+                'message' => __('t_ingame.alliance.msg_id_required'),
                 'newAjaxToken' => csrf_token(),
             ], 400);
         }
@@ -437,7 +437,7 @@ class AllianceController extends OGameController
         if (!$alliance) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'Alliance not found',
+                'message' => __('t_ingame.alliance.msg_not_found'),
                 'newAjaxToken' => csrf_token(),
             ], 404);
         }
@@ -446,7 +446,7 @@ class AllianceController extends OGameController
         if (!$alliance->is_open) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'This alliance is closed for applications',
+                'message' => __('t_ingame.alliance.msg_closed'),
                 'newAjaxToken' => csrf_token(),
             ], 400);
         }
@@ -484,13 +484,13 @@ class AllianceController extends OGameController
      */
     public function ajaxHandleApplication(int $alliance_id, AllianceService $allianceService, PlayerService $player): JsonResponse
     {
-        $userAllianceId = auth()->user()->alliance_id;
+        $userAllianceId = $player->getUser()->alliance_id;
 
         // User must not already be in an alliance
         if ($userAllianceId) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'You are already in an alliance',
+                'message' => __('t_ingame.alliance.msg_already_in'),
                 'newAjaxToken' => csrf_token(),
             ], 400);
         }
@@ -499,7 +499,7 @@ class AllianceController extends OGameController
         if (!$alliance) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'Alliance not found',
+                'message' => __('t_ingame.alliance.msg_not_found'),
                 'newAjaxToken' => csrf_token(),
             ], 404);
         }
@@ -508,7 +508,7 @@ class AllianceController extends OGameController
         if (!$alliance->is_open) {
             return response()->json([
                 'status' => 'failure',
-                'message' => 'This alliance is closed for applications',
+                'message' => __('t_ingame.alliance.msg_closed'),
                 'newAjaxToken' => csrf_token(),
             ], 400);
         }
@@ -558,7 +558,7 @@ class AllianceController extends OGameController
                 $validated['name']
             );
 
-            $message = __('Alliance created successfully');
+            $message = __('t_ingame.alliance.msg_created');
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -606,7 +606,7 @@ class AllianceController extends OGameController
                 $validated['message'] ?? null
             );
 
-            $message = __('Application submitted successfully');
+            $message = __('t_ingame.alliance.msg_applied');
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -658,38 +658,47 @@ class AllianceController extends OGameController
                 case 'accept_application':
                     $applicationId = $request->input('application_id');
                     $allianceService->acceptApplication($applicationId, $userId);
-                    $message = __('Application accepted');
+                    $message = __('t_ingame.alliance.msg_accepted');
                     break;
 
                 case 'denyApplication':
                 case 'reject_application':
                     $applicationId = $request->input('application_id');
                     $allianceService->rejectApplication($applicationId, $userId);
-                    $message = __('Application rejected');
+                    $message = __('t_ingame.alliance.msg_rejected');
                     break;
 
                 case 'kick_member':
                     $memberUserId = $request->input('member_user_id');
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
                     $allianceService->kickMember($allianceId, $memberUserId, $userId);
-                    $message = __('Member kicked from alliance');
+                    $message = __('t_ingame.alliance.msg_kicked');
                     break;
 
                 case 'leave_alliance':
                     $allianceService->leaveAlliance($userId);
-                    $message = __('You have left the alliance');
+                    $message = __('t_ingame.alliance.msg_left');
                     break;
 
                 case 'assign_rank':
                     $memberUserId = $request->input('member_user_id');
                     $rankId = $request->input('rank_id');
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
                     $allianceService->assignRank($allianceId, $memberUserId, $rankId, $userId);
-                    $message = __('Rank assigned');
+                    $message = __('t_ingame.alliance.msg_rank_assigned');
                     break;
 
                 case 'update_rank':
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
                     // Extract rank permissions from request
                     // JavaScript sends params like: rankId_36: 123, rankId_37: 456
                     $rankPermissions = [];
@@ -700,11 +709,14 @@ class AllianceController extends OGameController
                         }
                     }
                     $allianceService->updateRankPermissions($allianceId, $rankPermissions, $userId);
-                    $message = __('Rank permissions updated');
+                    $message = __('t_ingame.alliance.msg_rank_perms_updated');
                     break;
 
                 case 'update_texts':
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
                     $allianceService->updateTexts(
                         $allianceId,
                         $userId,
@@ -712,11 +724,14 @@ class AllianceController extends OGameController
                         $request->input('external_text'),
                         $request->input('application_text')
                     );
-                    $message = __('Alliance texts updated');
+                    $message = __('t_ingame.alliance.msg_texts_updated');
                     break;
 
                 case 'update_settings':
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
                     $allianceService->updateSettings(
                         $allianceId,
                         $userId,
@@ -729,31 +744,40 @@ class AllianceController extends OGameController
                             'language' => $request->input('language'),
                         ]
                     );
-                    $message = __('Alliance settings updated');
+                    $message = __('t_ingame.alliance.msg_settings_updated');
                     break;
 
                 case 'update_tag':
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
                     $allianceService->updateTag(
                         $allianceId,
                         $userId,
                         $request->input('newTag')
                     );
-                    $message = __('Alliance tag updated');
+                    $message = __('t_ingame.alliance.msg_tag_updated');
                     break;
 
                 case 'update_name':
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
                     $allianceService->updateName(
                         $allianceId,
                         $userId,
                         $request->input('newName')
                     );
-                    $message = __('Alliance name updated');
+                    $message = __('t_ingame.alliance.msg_name_updated');
                     break;
 
                 case 'update_tag_name':
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
                     $allianceService->updateTag(
                         $allianceId,
                         $userId,
@@ -764,13 +788,16 @@ class AllianceController extends OGameController
                         $userId,
                         $request->input('newName')
                     );
-                    $message = __('Alliance tag and name updated');
+                    $message = __('t_ingame.alliance.msg_tag_name_updated');
                     break;
 
                 case 'disband_alliance':
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
                     $allianceService->disbandAlliance($allianceId, $userId);
-                    $message = __('Alliance disbanded');
+                    $message = __('t_ingame.alliance.msg_disbanded');
                     $redirectUrl = route('alliance.index');
                     break;
 
@@ -780,7 +807,10 @@ class AllianceController extends OGameController
                         'request_id' => $request->header('X-Request-ID', uniqid()),
                     ]);
 
-                    $allianceId = auth()->user()->alliance_id;
+                    $allianceId = $player->getUser()->alliance_id;
+                    if ($allianceId === null) {
+                        throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+                    }
 
                     // Support both old (rankIds/broadcastText) and new (recipients/text) parameter names
                     $text = $request->input('text') ?: $request->input('broadcastText');
@@ -805,11 +835,11 @@ class AllianceController extends OGameController
 
                     Log::info('sendBroadcastMessage completed');
 
-                    $message = __('Broadcast message sent successfully');
+                    $message = __('t_ingame.alliance.msg_broadcast_sent');
                     break;
 
                 default:
-                    throw new Exception('Invalid action');
+                    throw new Exception(__('t_ingame.alliance.msg_invalid_action'));
             }
 
             if ($request->expectsJson()) {
@@ -856,7 +886,10 @@ class AllianceController extends OGameController
         ]);
 
         try {
-            $allianceId = auth()->user()->alliance_id;
+            $allianceId = $player->getUser()->alliance_id;
+            if ($allianceId === null) {
+                throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+            }
             $allianceService->createRank(
                 $allianceId,
                 $validated['rankName'],
@@ -864,7 +897,7 @@ class AllianceController extends OGameController
                 $player->getId()
             );
 
-            $message = __('Rank created successfully');
+            $message = __('t_ingame.alliance.msg_rank_created');
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -904,17 +937,17 @@ class AllianceController extends OGameController
 
         try {
             $userId = $player->getId();
-            $userAllianceId = auth()->user()->alliance_id;
+            $userAllianceId = $player->getUser()->alliance_id;
 
             if (!$userAllianceId) {
-                throw new Exception('You are not in an alliance');
+                throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
             }
 
             $allianceService->kickMember($userAllianceId, $validated['user_id'], $userId);
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Member kicked successfully',
+                'message' => __('t_ingame.alliance.msg_kicked_success'),
                 'newAjaxToken' => csrf_token(),
             ]);
         } catch (Exception $e) {
@@ -943,10 +976,10 @@ class AllianceController extends OGameController
 
         try {
             $userId = $player->getId();
-            $userAllianceId = auth()->user()->alliance_id;
+            $userAllianceId = $player->getUser()->alliance_id;
 
             if (!$userAllianceId) {
-                throw new Exception('You are not in an alliance');
+                throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
             }
 
             $allianceService->assignRank(
@@ -957,13 +990,16 @@ class AllianceController extends OGameController
             );
 
             $alliance = $allianceService->getAllianceById($userAllianceId);
+            if ($alliance === null) {
+                throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+            }
             $rankName = $validated['rank_id']
-                ? $alliance->ranks->firstWhere('id', $validated['rank_id'])->rank_name
+                ? $alliance->ranks->firstWhere('id', $validated['rank_id'])?->rank_name
                 : $alliance->newcomer_rank_name;
 
             return response()->json([
                 'status' => 'success',
-                'message' => "Rank assigned successfully to {$rankName}",
+                'message' => __('t_ingame.alliance.msg_rank_assigned_to', ['name' => $rankName]),
                 'newAjaxToken' => csrf_token(),
             ]);
         } catch (Exception $e) {
@@ -987,10 +1023,10 @@ class AllianceController extends OGameController
     {
         try {
             $userId = $player->getId();
-            $userAllianceId = auth()->user()->alliance_id;
+            $userAllianceId = $player->getUser()->alliance_id;
 
             if (!$userAllianceId) {
-                throw new Exception('You are not in an alliance');
+                throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
             }
 
             $validated = $request->validate([
@@ -1003,6 +1039,9 @@ class AllianceController extends OGameController
 
             // Get current alliance to preserve other texts
             $alliance = $allianceService->getAllianceById($userAllianceId);
+            if ($alliance === null) {
+                throw new Exception(__('t_ingame.alliance.msg_not_in_alliance'));
+            }
 
             // Update only the specified text type
             $internalText = $alliance->internal_text;
@@ -1031,7 +1070,7 @@ class AllianceController extends OGameController
 
             return response()->json([
                 'status' => 'success',
-                'message' => __('Alliance text updated'),
+                'message' => __('t_ingame.alliance.msg_text_updated'),
                 'newAjaxToken' => csrf_token(),
             ]);
         } catch (Exception $e) {

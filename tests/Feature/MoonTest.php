@@ -46,4 +46,32 @@ class MoonTest extends MoonTestCase
         $response = $this->get('/resources');
         $this->assertObjectLevelOnPage($response, 'metal_mine', 0, 'Metal mine is built on moon while it can only be built on a planet.');
     }
+
+    /**
+     * Check that the crawler is not shown on the moon resources page (it is a planet-only unit).
+     */
+    public function testCrawlerNotShownOnMoonResources(): void
+    {
+        $response = $this->get('/resources');
+        $response->assertStatus(200);
+
+        $content = $response->getContent() ?: '';
+        $this->assertStringNotContainsString('data-technology="217"', $content, 'Crawler should not be shown on moon resources page');
+    }
+
+    /**
+     * Check that the crawler is shown on the planet resources page (for comparison).
+     */
+    public function testCrawlerShownOnPlanetResources(): void
+    {
+        // Switch back to the planet
+        $response = $this->get('/overview?cp=' . $this->planetService->getPlanetId());
+        $response->assertStatus(200);
+
+        $response = $this->get('/resources');
+        $response->assertStatus(200);
+
+        $content = $response->getContent() ?: '';
+        $this->assertStringContainsString('data-technology="217"', $content, 'Crawler should be shown on planet resources page');
+    }
 }

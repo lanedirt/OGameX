@@ -8,6 +8,11 @@
 //! This battle engine is functionally equivalent to the OGameX PHP battle engine but is optimized
 //! for performance and memory usage. It is up to 200x faster than the equivalent PHP implementation
 //! and uses up to 10x less memory.
+//!
+//! # Multi-Attacker Support
+//! This engine supports multiple attacker fleets (ACS Attack) and multiple defender fleets (ACS Defend).
+//! Each fleet's units are tracked with their fleet_mission_id and owner_id, allowing for accurate
+//! per-fleet result reporting.
 use serde::{Deserialize, Serialize};
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
@@ -18,8 +23,24 @@ use memory_stats::memory_stats;
 /// Battle input which is provided by the PHP client.
 #[derive(Serialize, Deserialize)]
 pub struct BattleInput {
-    attacker_units: HashMap<i16, BattleUnitInfo>,
-    defender_units: HashMap<i16, BattleUnitInfo>,
+    attacker_fleets: Vec<AttackerFleetInput>,
+    defender_fleets: Vec<DefenderFleetInput>,
+}
+
+/// Input structure for a single attacker fleet.
+#[derive(Serialize, Deserialize, Clone)]
+struct AttackerFleetInput {
+    fleet_mission_id: u32,
+    owner_id: u32,
+    units: HashMap<i16, BattleUnitInfo>,
+}
+
+/// Input structure for a single defender fleet.
+#[derive(Serialize, Deserialize, Clone)]
+struct DefenderFleetInput {
+    fleet_mission_id: u32,
+    owner_id: u32,
+    units: HashMap<i16, BattleUnitInfo>,
 }
 
 /// Battle unit info which is provided by the PHP client.
@@ -42,10 +63,12 @@ struct BattleUnitCount {
     amount: u32,
 }
 
-/// Battle unit instance which is used to keep track of indidivual units and their current health during battle.
+/// Battle unit instance which is used to keep track of individual units and their current health during battle.
 #[derive(Serialize, Deserialize, Clone)]
 struct BattleUnitInstance {
     unit_id: i16,
+    fleet_mission_id: u32,
+    owner_id: u32,
     current_shield_points: f32,
     current_hull_plating: f32,
 }
@@ -77,6 +100,30 @@ struct BattleRound {
     hits_attacker: u32,
     /// Total amount of hits the defender made this round.
     hits_defender: u32,
+    /// Per-fleet attacker results keyed by fleet_mission_id.
+    attacker_fleet_results: HashMap<u32, AttackerFleetResult>,
+    /// Per-fleet defender results keyed by fleet_mission_id.
+    defender_fleet_results: HashMap<u32, DefenderFleetResult>,
+}
+
+/// Result for a single attacker fleet.
+#[derive(Serialize, Deserialize, Clone)]
+struct AttackerFleetResult {
+    fleet_mission_id: u32,
+    owner_id: u32,
+    units_start: HashMap<i16, BattleUnitCount>,
+    units_result: HashMap<i16, BattleUnitCount>,
+    units_lost: HashMap<i16, BattleUnitCount>,
+}
+
+/// Result for a single defender fleet.
+#[derive(Serialize, Deserialize, Clone)]
+struct DefenderFleetResult {
+    fleet_mission_id: u32,
+    owner_id: u32,
+    units_start: HashMap<i16, BattleUnitCount>,
+    units_result: HashMap<i16, BattleUnitCount>,
+    units_lost: HashMap<i16, BattleUnitCount>,
 }
 
 /// Memory metrics which is used to keep track of the peak memory usage during the battle.
@@ -115,9 +162,24 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
     let mut peak_memory = 0;
     let mut rounds = Vec::new();
 
+    // Build fleet metadata maps for ownership tracking
+    let mut attacker_fleet_metadata: HashMap<u32, HashMap<i16, BattleUnitInfo>> = HashMap::new();
+    let mut attacker_fleet_owners: HashMap<u32, u32> = HashMap::new();
+    for fleet in &input.attacker_fleets {
+        attacker_fleet_metadata.insert(fleet.fleet_mission_id, fleet.units.clone());
+        attacker_fleet_owners.insert(fleet.fleet_mission_id, fleet.owner_id);
+    }
+
+    let mut defender_fleet_metadata: HashMap<u32, HashMap<i16, BattleUnitInfo>> = HashMap::new();
+    let mut defender_fleet_owners: HashMap<u32, u32> = HashMap::new();
+    for fleet in &input.defender_fleets {
+        defender_fleet_metadata.insert(fleet.fleet_mission_id, fleet.units.clone());
+        defender_fleet_owners.insert(fleet.fleet_mission_id, fleet.owner_id);
+    }
+
     // Create individual ships from provided battle unit info which contains the amount
-    let mut attacker_units = expand_units(&input.attacker_units);
-    let mut defender_units = expand_units(&input.defender_units);
+    let mut attacker_units = expand_fleets(&input.attacker_fleets);
+    let mut defender_units = expand_fleets(&input.defender_fleets);
 
     // Track peak memory usage for debugging purposes
     update_peak_memory(&mut peak_memory);
@@ -141,21 +203,41 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
             full_strength_defender: 0.0,
             hits_attacker: 0,
             hits_defender: 0,
+            attacker_fleet_results: HashMap::new(),
+            defender_fleet_results: HashMap::new(),
         };
 
+        // Merge all fleet units for the metadata lookup (needed for combat calculations)
+        let mut attacker_units_metadata: HashMap<i16, BattleUnitInfo> = HashMap::new();
+        for fleet_units in attacker_fleet_metadata.values() {
+            for (unit_id, unit_info) in fleet_units {
+                attacker_units_metadata.insert(*unit_id, unit_info.clone());
+            }
+        }
+
+        let mut defender_units_metadata: HashMap<i16, BattleUnitInfo> = HashMap::new();
+        for fleet_units in defender_fleet_metadata.values() {
+            for (unit_id, unit_info) in fleet_units {
+                defender_units_metadata.insert(*unit_id, unit_info.clone());
+            }
+        }
+
         // Process combat
-        process_combat(&mut attacker_units, &mut defender_units, &mut round, &input.attacker_units, &input.defender_units, true);
-        process_combat(&mut defender_units, &mut attacker_units, &mut round, &input.defender_units, &input.attacker_units, false);
+        process_combat(&mut attacker_units, &mut defender_units, &mut round, &attacker_units_metadata, &defender_units_metadata, true);
+        process_combat(&mut defender_units, &mut attacker_units, &mut round, &defender_units_metadata, &attacker_units_metadata, false);
 
         // Cleanup round
-        cleanup_round(&mut round, &mut attacker_units, &mut defender_units, &input.attacker_units, &input.defender_units);
+        cleanup_round(&mut round, &mut attacker_units, &mut defender_units, &attacker_units_metadata, &defender_units_metadata);
 
         // Update round statistics
         round.attacker_ships = compress_units(&attacker_units);
         round.defender_ships = compress_units(&defender_units);
 
         // Calculate accumulated losses
-        calculate_losses(&mut round, &input.attacker_units, &input.defender_units);
+        calculate_losses(&mut round, &attacker_units_metadata, &defender_units_metadata);
+
+        // Calculate per-fleet results
+        calculate_fleet_results(&mut round, &attacker_units, &defender_units, &attacker_fleet_metadata, &defender_fleet_metadata, &attacker_fleet_owners, &defender_fleet_owners);
 
         rounds.push(round);
 
@@ -171,21 +253,58 @@ fn process_battle_rounds(input: BattleInput) -> BattleOutput {
     }
 }
 
-/// Expands unit information into individual unit objects, allowing the engine to track the state
-/// of each unit (e.g., shields and hull points) independently during combat.
-fn expand_units(units: &HashMap<i16, BattleUnitInfo>) -> Vec<BattleUnitInstance> {
+/// Expand fleet inputs into individual unit instances with ownership tracking.
+fn expand_fleets(fleets: &Vec<impl FleetInput>) -> Vec<BattleUnitInstance> {
     let mut expanded = Vec::new();
-    for (_, unit) in units {
-        for _ in 0..unit.amount {
-            expanded.push(BattleUnitInstance {
-                unit_id: unit.unit_id.clone(),
-                current_shield_points: unit.shield_points,
-                current_hull_plating: unit.hull_plating
-            });
+    for fleet in fleets {
+        for (_, unit) in fleet.get_units() {
+            for _ in 0..unit.amount {
+                expanded.push(BattleUnitInstance {
+                    unit_id: unit.unit_id.clone(),
+                    fleet_mission_id: fleet.get_fleet_mission_id(),
+                    owner_id: fleet.get_owner_id(),
+                    current_shield_points: unit.shield_points,
+                    current_hull_plating: unit.hull_plating
+                });
+            }
         }
     }
-
     expanded
+}
+
+/// Trait for fleet input structures.
+trait FleetInput {
+    fn get_fleet_mission_id(&self) -> u32;
+    fn get_owner_id(&self) -> u32;
+    fn get_units(&self) -> &HashMap<i16, BattleUnitInfo>;
+}
+
+impl FleetInput for AttackerFleetInput {
+    fn get_fleet_mission_id(&self) -> u32 {
+        self.fleet_mission_id
+    }
+
+    fn get_owner_id(&self) -> u32 {
+        self.owner_id
+    }
+
+    fn get_units(&self) -> &HashMap<i16, BattleUnitInfo> {
+        &self.units
+    }
+}
+
+impl FleetInput for DefenderFleetInput {
+    fn get_fleet_mission_id(&self) -> u32 {
+        self.fleet_mission_id
+    }
+
+    fn get_owner_id(&self) -> u32 {
+        self.owner_id
+    }
+
+    fn get_units(&self) -> &HashMap<i16, BattleUnitInfo> {
+        &self.units
+    }
 }
 
 /// Compress individual unit instances into a single unit metadata object which stores the amount of units
@@ -208,6 +327,43 @@ fn compress_units(units: &Vec<BattleUnitInstance>) -> HashMap<i16, BattleUnitCou
             })
         })
         .collect()
+}
+
+/// Compress individual unit instances into per-fleet results.
+fn compress_fleet_results(units: &Vec<BattleUnitInstance>, fleet_mission_id: u32, _owner_id: u32, initial_units: &HashMap<i16, BattleUnitInfo>) -> (HashMap<i16, BattleUnitCount>, HashMap<i16, BattleUnitCount>, HashMap<i16, BattleUnitCount>) {
+    // Filter units by fleet
+    let fleet_units: Vec<&BattleUnitInstance> = units.iter()
+        .filter(|u| u.fleet_mission_id == fleet_mission_id)
+        .collect();
+
+    // Count survivors by unit type
+    let mut units_result: HashMap<i16, BattleUnitCount> = HashMap::new();
+    for unit in &fleet_units {
+        increment_battle_unit_count_amount(&mut units_result, unit.unit_id, 1);
+    }
+
+    // Build units_start from initial metadata
+    let mut units_start: HashMap<i16, BattleUnitCount> = HashMap::new();
+    for (unit_id, unit_info) in initial_units {
+        units_start.insert(*unit_id, BattleUnitCount {
+            unit_id: *unit_id,
+            amount: unit_info.amount,
+        });
+    }
+
+    // Calculate losses
+    let mut units_lost: HashMap<i16, BattleUnitCount> = HashMap::new();
+    for (unit_id, start_unit) in &units_start {
+        let result_amount = units_result.get(unit_id).map(|u| u.amount).unwrap_or(0);
+        if start_unit.amount > result_amount {
+            units_lost.insert(*unit_id, BattleUnitCount {
+                unit_id: *unit_id,
+                amount: start_unit.amount - result_amount,
+            });
+        }
+    }
+
+    (units_start, units_result, units_lost)
 }
 
 /// Simulates combat for a single round between two groups of units.
@@ -400,6 +556,49 @@ fn calculate_losses(
             let loss_amount = initial_count - current_count;
             increment_battle_unit_count_amount(&mut round.defender_losses, unit.unit_id, loss_amount);
         }
+    }
+}
+
+/// Calculate per-fleet results for attackers and defenders.
+fn calculate_fleet_results(
+    round: &mut BattleRound,
+    attacker_units: &Vec<BattleUnitInstance>,
+    defender_units: &Vec<BattleUnitInstance>,
+    attacker_fleets: &HashMap<u32, HashMap<i16, BattleUnitInfo>>,
+    defender_fleets: &HashMap<u32, HashMap<i16, BattleUnitInfo>>,
+    attacker_fleet_owners: &HashMap<u32, u32>,
+    defender_fleet_owners: &HashMap<u32, u32>,
+) {
+    // Calculate attacker fleet results
+    for (&fleet_mission_id, initial_units) in attacker_fleets {
+        let owner_id = *attacker_fleet_owners.get(&fleet_mission_id).unwrap_or(&0);
+
+        let (units_start, units_result, units_lost) =
+            compress_fleet_results(attacker_units, fleet_mission_id, owner_id, initial_units);
+
+        round.attacker_fleet_results.insert(fleet_mission_id, AttackerFleetResult {
+            fleet_mission_id,
+            owner_id,
+            units_start,
+            units_result,
+            units_lost,
+        });
+    }
+
+    // Calculate defender fleet results
+    for (&fleet_mission_id, initial_units) in defender_fleets {
+        let owner_id = *defender_fleet_owners.get(&fleet_mission_id).unwrap_or(&0);
+
+        let (units_start, units_result, units_lost) =
+            compress_fleet_results(defender_units, fleet_mission_id, owner_id, initial_units);
+
+        round.defender_fleet_results.insert(fleet_mission_id, DefenderFleetResult {
+            fleet_mission_id,
+            owner_id,
+            units_start,
+            units_result,
+            units_lost,
+        });
     }
 }
 

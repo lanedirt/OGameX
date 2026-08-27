@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,19 +20,14 @@ use Illuminate\Support\Carbon;
  * @property-read User $user
  * @mixin \Eloquent
  */
+#[Fillable([
+    'user_id',
+    'name',
+    'ships',
+])]
 class FleetTemplate extends Model
 {
     use HasFactory;
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'user_id',
-        'name',
-        'ships',
-    ];
 
     /**
      * Get the attributes that should be cast.

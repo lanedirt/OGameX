@@ -39,12 +39,17 @@ class ShipyardController extends AbstractUnitsController
         // Prepare custom properties
         $this->objects = [
             0 => ['light_fighter', 'heavy_fighter', 'cruiser', 'battle_ship', 'battlecruiser', 'bomber', 'destroyer', 'deathstar', 'reaper', 'pathfinder'],
-            1 => ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe', 'solar_satellite', 'crawler'],
+            1 => $player->planets->current()->isMoon()
+                ? ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe', 'solar_satellite']
+                : ['small_cargo', 'large_cargo', 'colony_ship', 'recycler', 'espionage_probe', 'solar_satellite', 'crawler'],
         ];
 
         return view(view: 'ingame.shipyard.index')->with(
             array_merge(
-                ['shipyard_upgrading' => $player->planets->current()->isBuildingObject('shipyard')],
+                [
+                    'shipyard_upgrading' => $player->planets->current()->isBuildingObject('shipyard'),
+                    'nanite_upgrading' => $player->planets->current()->isBuildingObject('nano_factory')
+                ],
                 parent::indexPage($request, $player)
             )
         );
@@ -120,6 +125,8 @@ class ShipyardController extends AbstractUnitsController
                 $player->planets->current()
             );
 
+            session()->flash('success', __('You have successfully accelerated the order.'));
+
             return response()->json([
                 'success' => true,
                 'error' => false,
@@ -128,6 +135,53 @@ class ShipyardController extends AbstractUnitsController
                 'cost' => $result['cost'],
                 'new_balance' => $result['new_balance'],
                 'remaining_time' => $result['remaining_time'],
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => true,
+                'message' => $e->getMessage(),
+                'newAjaxToken' => csrf_token(),
+            ]);
+        }
+    }
+
+    /**
+     * Complete a unit queue item instantly using Dark Matter.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param HalvingService $halvingService
+     * @return JsonResponse
+     */
+    public function completeUnit(Request $request, PlayerService $player, HalvingService $halvingService): JsonResponse
+    {
+        try {
+            $queueItemId = (int)$request->input('queue_item_id');
+
+            if ($queueItemId <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'error' => true,
+                    'message' => 'Invalid queue item ID',
+                    'newAjaxToken' => csrf_token(),
+                ]);
+            }
+
+            $result = $halvingService->completeUnit(
+                $player->getUser(),
+                $queueItemId,
+                $player->planets->current()
+            );
+
+            session()->flash('success', __('You have successfully accelerated the order.'));
+
+            return response()->json([
+                'success' => true,
+                'error' => false,
+                'newAjaxToken' => csrf_token(),
+                'cost' => $result['cost'],
+                'new_balance' => $result['new_balance'],
             ]);
         } catch (Exception $e) {
             return response()->json([

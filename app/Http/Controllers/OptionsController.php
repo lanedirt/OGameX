@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use OGame\Services\PlayerService;
 
@@ -57,7 +58,7 @@ class OptionsController extends OGameController
             $player->setUsername($name);
             $player->save();
 
-            return array('success' => __('Settings saved'));
+            return array('success' => __('t_ingame.options.msg_settings_saved'));
         }
 
         return array();
@@ -81,9 +82,9 @@ class OptionsController extends OGameController
             if (!$vacationModeChecked) {
                 if ($player->canDeactivateVacationMode()) {
                     $player->deactivateVacationMode();
-                    return array('success' => __('Vacation mode has been deactivated.'));
+                    return array('success' => __('t_ingame.options.msg_vacation_deactivated'));
                 } else {
-                    return array('error' => __('You can only deactivate vacation mode after the minimum duration of 48 hours has passed.'));
+                    return array('error' => __('t_ingame.options.msg_vacation_min_duration'));
                 }
             }
             // If checkbox is still checked while in vacation mode, do nothing
@@ -93,14 +94,51 @@ class OptionsController extends OGameController
             if ($vacationModeChecked) {
                 if ($player->canActivateVacationMode()) {
                     $player->activateVacationMode();
-                    return array('success' => __('Vacation mode has been activated. It will protect you from new attacks for a minimum of 48 hours.'));
+                    return array('success' => __('t_ingame.options.msg_vacation_activated'));
                 } else {
-                    return array('error' => __('You cannot activate vacation mode while you have fleets in transit.'));
+                    return array('error' => __('t_ingame.options.msg_vacation_fleets_in_transit'));
                 }
             }
         }
 
         return array();
+    }
+
+    /**
+     * Process password change request.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @return array<string,string>|null
+     */
+    public function processChangePassword(Request $request, PlayerService $player): array|null
+    {
+        $currentPassword = $request->input('db_password');
+
+        // Only process if the password section was submitted
+        if (empty($currentPassword)) {
+            return null;
+        }
+
+        $newPassword = $request->input('newpass1');
+        $confirmPassword = $request->input('newpass2');
+
+        if (!Hash::check($currentPassword, $player->getUser()->password)) {
+            return ['error' => __('t_ingame.options.msg_password_incorrect')];
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            return ['error' => __('t_ingame.options.msg_password_mismatch')];
+        }
+
+        $length = strlen($newPassword);
+        if ($length < 4 || $length > 128) {
+            return ['error' => __('t_ingame.options.msg_password_length_invalid')];
+        }
+
+        $player->getUser()->forceFill(['password' => Hash::make($newPassword)])->save();
+
+        return ['success' => __('t_ingame.options.msg_settings_saved')];
     }
 
     /**
@@ -123,19 +161,19 @@ class OptionsController extends OGameController
         if ($amount === '' || $amount === null) {
             $player->setEspionageProbesAmount(null);
             $player->save();
-            return array('success' => __('Settings saved'));
+            return array('success' => __('t_ingame.options.msg_settings_saved'));
         }
 
         // Validate that it's a positive integer
         $amount = (int) $amount;
         if ($amount < 1) {
-            return array('error' => __('Espionage probes amount must be at least 1'));
+            return array('error' => __('t_ingame.options.msg_probes_min_one'));
         }
 
         $player->setEspionageProbesAmount($amount);
         $player->save();
 
-        return array('success' => __('Settings saved'));
+        return array('success' => __('t_ingame.options.msg_settings_saved'));
     }
 
     /**
@@ -150,6 +188,7 @@ class OptionsController extends OGameController
         // Define change handlers.
         $change_handlers = [
             'processChangeUsername',
+            'processChangePassword',
             'processVacationMode',
             'processEspionageProbesAmount'
         ];

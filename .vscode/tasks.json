@@ -4,7 +4,7 @@
         {
             "label": "Start Docker Containers",
             "type": "shell",
-            "command": "docker-compose up -d",
+            "command": "docker compose up -d",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -17,7 +17,7 @@
         {
             "label": "Stop Docker Containers",
             "type": "shell",
-            "command": "docker-compose down",
+            "command": "docker compose down",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -30,7 +30,7 @@
         {
             "label": "Run Laravel Pint (Code Style)",
             "type": "shell",
-            "command": "docker exec ogamex-app composer run cs -- --test",
+            "command": "docker compose exec ogamex-app composer run cs -- --test",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -43,7 +43,7 @@
         {
             "label": "Run Laravel Pint (Code Style) and auto fix",
             "type": "shell",
-            "command": "docker exec ogamex-app composer run cs",
+            "command": "docker compose exec ogamex-app composer run cs",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -56,7 +56,7 @@
         {
             "label": "Run PHPStan Analysis",
             "type": "shell",
-            "command": "docker exec ogamex-app composer run stan",
+            "command": "docker compose exec ogamex-app composer run stan",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -69,7 +69,7 @@
         {
             "label": "Run Laravel Tests",
             "type": "shell",
-            "command": "docker exec ogamex-app php artisan test",
+            "command": "docker compose exec ogamex-app php artisan test",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -82,7 +82,7 @@
         {
             "label": "Run Race Condition Tests",
             "type": "shell",
-            "command": "docker exec ogamex-app php artisan test:race-condition-unitqueue && docker exec ogamex-app php artisan test:race-condition-game-mission",
+            "command": "docker compose exec ogamex-app php artisan test:race-condition-unitqueue && docker compose exec ogamex-app php artisan test:race-condition-game-mission",
             "group": {
                 "kind": "build",
                 "isDefault": true

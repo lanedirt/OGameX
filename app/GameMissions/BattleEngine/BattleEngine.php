@@ -2,12 +2,16 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use InvalidArgumentException;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleetResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleetResult;
 use OGame\GameMissions\BattleEngine\Services\DefenseRepairService;
 use OGame\GameMissions\BattleEngine\Services\LootService;
+use OGame\GameMissions\BattleEngine\Services\TacticalRetreatService;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
@@ -16,6 +20,8 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use OGame\Services\WreckFieldService;
+use RuntimeException;
 
 /**
  * Abstract class BattleEngine.
@@ -29,34 +35,70 @@ use OGame\Services\SettingsService;
 abstract class BattleEngine
 {
     /**
-     * @var LootService The service used to calculate the loot gained from a battle.
-     */
-    private LootService $lootService;
-
-    /**
      * @var int The percentage of loot that is gained from a battle.
      * Base is 50%, but Discoverer class gets 75% from inactive players.
      */
     private int $lootPercentage = 50;
 
     /**
+     * @var bool Whether the attacking initiator withdraws if the defender flees.
+     */
+    protected bool $retreatAfterDefenderRetreat = false;
+
+    /**
      * BattleEngine constructor.
      *
-     * @param UnitCollection $attackerFleet The fleet of the attacker player.
-     * @param PlayerService $attackerPlayer The attacker player.
+     * @param array<AttackerFleet> $attackers All attacking fleets.
      * @param PlanetService $defenderPlanet The planet of the defender player (used for loot, moon calculation).
      * @param array<DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
      * @param SettingsService $settings The settings service.
-     * @param int $attackerFleetMissionId The fleet mission ID of the attacking fleet.
-     * @param int $attackerOwnerId The ID of the player who owns the attacking fleet.
      */
-    public function __construct(private UnitCollection $attackerFleet, protected PlayerService $attackerPlayer, protected PlanetService $defenderPlanet, protected array $defenders, private SettingsService $settings, protected int $attackerFleetMissionId, protected int $attackerOwnerId)
+    public function __construct(protected array $attackers, protected PlanetService $defenderPlanet, protected array $defenders, private SettingsService $settings)
     {
+        // For backward compatibility, use the first attacker as the primary attacker
+        // For multi-attacker battles, we'll use combined fleet data for loot calculation
+        $primaryAttacker = $this->attackers[0] ?? null;
+        if ($primaryAttacker === null) {
+            throw new InvalidArgumentException('At least one attacker fleet is required');
+        }
+
         // Determine loot percentage based on character class and defender status
         $characterClassService = app(CharacterClassService::class);
-        $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($this->attackerPlayer->getUser()) * 100);
+        $this->lootPercentage = (int)($characterClassService->getInactiveLootPercentage($primaryAttacker->player->getUser()) * 100);
+    }
 
-        $this->lootService = new LootService($this->attackerFleet, $this->attackerPlayer, $this->defenderPlanet, $this->lootPercentage);
+    /**
+     * Configure whether attackers withdraw without a fight when the defender flees.
+     */
+    public function setRetreatAfterDefenderRetreat(bool $retreatAfterDefenderRetreat): self
+    {
+        $this->retreatAfterDefenderRetreat = $retreatAfterDefenderRetreat;
+
+        return $this;
+    }
+
+    /**
+     * Get the primary attacker player (for backward compatibility).
+     *
+     * @return PlayerService
+     */
+    protected function getAttackerPlayer(): PlayerService
+    {
+        return $this->attackers[0]->player;
+    }
+
+    /**
+     * Get the combined attacker fleet (for backward compatibility).
+     *
+     * @return UnitCollection
+     */
+    protected function getAttackerFleet(): UnitCollection
+    {
+        $combined = new UnitCollection();
+        foreach ($this->attackers as $attacker) {
+            $combined->addCollection($attacker->units);
+        }
+        return $combined;
     }
 
     /**
@@ -71,19 +113,27 @@ abstract class BattleEngine
         // Initialize the battle result object with the attacker and defender information.
         $result->lootPercentage = $this->lootPercentage;
 
-        // Get base research levels
-        $attackerWeaponBase = $this->attackerPlayer->getResearchLevel('weapon_technology');
-        $attackerShieldBase = $this->attackerPlayer->getResearchLevel('shielding_technology');
-        $attackerArmorBase = $this->attackerPlayer->getResearchLevel('armor_technology');
+        // Use primary attacker for tech levels (first attacker in array)
+        $primaryAttacker = $this->attackers[0];
+        $attackerPlayer = $primaryAttacker->player;
 
-        $defenderWeaponBase = $this->defenderPlanet->getPlayer()->getResearchLevel('weapon_technology');
-        $defenderShieldBase = $this->defenderPlanet->getPlayer()->getResearchLevel('shielding_technology');
-        $defenderArmorBase = $this->defenderPlanet->getPlayer()->getResearchLevel('armor_technology');
+        // Get base research levels
+        $attackerWeaponBase = $attackerPlayer->getResearchLevel('weapon_technology');
+        $attackerShieldBase = $attackerPlayer->getResearchLevel('shielding_technology');
+        $attackerArmorBase = $attackerPlayer->getResearchLevel('armor_technology');
+
+        $defenderPlayer = $this->defenderPlanet->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Battle defender planet has no owner.');
+        }
+        $defenderWeaponBase = $defenderPlayer->getResearchLevel('weapon_technology');
+        $defenderShieldBase = $defenderPlayer->getResearchLevel('shielding_technology');
+        $defenderArmorBase = $defenderPlayer->getResearchLevel('armor_technology');
 
         // Apply General class combat research bonus (+2 levels)
         $characterClassService = app(CharacterClassService::class);
-        $attackerCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($this->attackerPlayer->getUser());
-        $defenderCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($this->defenderPlanet->getPlayer()->getUser());
+        $attackerCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($attackerPlayer->getUser());
+        $defenderCombatBonus = $characterClassService->getAdditionalCombatResearchLevels($defenderPlayer->getUser());
 
         $result->attackerWeaponLevel = $attackerWeaponBase + $attackerCombatBonus;
         $result->attackerShieldLevel = $attackerShieldBase + $attackerCombatBonus;
@@ -93,8 +143,23 @@ abstract class BattleEngine
         $result->defenderShieldLevel = $defenderShieldBase + $defenderCombatBonus;
         $result->defenderArmorLevel = $defenderArmorBase + $defenderCombatBonus;
 
-        $result->attackerUnitsStart = clone $this->attackerFleet;
-        $result->attackerUnitsResult = clone $this->attackerFleet;
+        // Combine all attacker fleets for backward-compatible units tracking
+        $result->attackerUnitsStart = new UnitCollection();
+        foreach ($this->attackers as $attacker) {
+            $result->attackerUnitsStart->addCollection($attacker->units);
+        }
+        $result->attackerUnitsResult = clone $result->attackerUnitsStart;
+
+        // Initialize per-attacker fleet results
+        foreach ($this->attackers as $attacker) {
+            $fleetResult = new AttackerFleetResult(
+                $attacker->fleetMissionId,
+                $attacker->ownerId,
+                $attacker->units
+            );
+            $result->attackerFleetResults[] = $fleetResult;
+        }
+
         $result->defenderUnitsStart = new UnitCollection();
 
         // Collect units from all defending fleets and initialize per-fleet results
@@ -112,35 +177,66 @@ abstract class BattleEngine
 
         $result->defenderUnitsResult = clone $result->defenderUnitsStart;
 
-        // Execute the battle rounds, this will handle the actual combat logic.
-        $result->rounds = $this->fightBattleRounds($result);
+        // Evaluate tactical retreat before combat rounds (shared by PHP and Rust engines).
+        $this->applyTacticalRetreat($result);
 
-        // Sanitize the round array to make sure that the remaining attacker and defender units
-        // for every round contain the starting unit types, even if there are no units of that type left.
-        // This is important for the battle report to show all units that were part of the battle on
-        // every round.
-        $result->rounds = $this->sanitizeRoundArray($result->rounds);
-
-        // Get the result of the battle.
-        if (count($result->rounds) > 0) {
-            // Take the remaining ships in the last round as the result.
-            $round = end($result->rounds);
-            $result->attackerUnitsResult = $round->attackerShips;
-            $result->defenderUnitsResult = $round->defenderShips;
+        if ($result->tacticalRetreatAttackerAlsoRetreated) {
+            // Both sides withdraw — no rounds, no losses, no loot from combat.
+            $result->rounds = [];
+            $result->attackerUnitsResult = clone $result->attackerUnitsStart;
+            $result->defenderUnitsResult = clone $result->defenderUnitsStart;
+            foreach ($result->attackerFleetResults as $fleetResult) {
+                $fleetResult->unitsResult = clone $fleetResult->unitsStart;
+                $fleetResult->unitsLost = new UnitCollection();
+                $fleetResult->completelyDestroyed = false;
+                $fleetResult->calculateResourceLoss();
+            }
+            foreach ($result->defenderFleetResults as $fleetResult) {
+                $fleetResult->unitsResult = clone $fleetResult->unitsStart;
+                $fleetResult->unitsLost = new UnitCollection();
+                $fleetResult->completelyDestroyed = false;
+            }
         } else {
-            // If no rounds were fought, the result is the same as the start.
-            $result->attackerUnitsResult = $result->attackerUnitsStart;
-            $result->defenderUnitsResult = $result->defenderUnitsStart;
+            // Execute the battle rounds, this will handle the actual combat logic.
+            $result->rounds = $this->fightBattleRounds($result);
+
+            // Sanitize the round array to make sure that the remaining attacker and defender units
+            // for every round contain the starting unit types, even if there are no units of that type left.
+            // This is important for the battle report to show all units that were part of the battle on
+            // every round.
+            $result->rounds = $this->sanitizeRoundArray($result->rounds);
+
+            // Get the result of the battle.
+            if (count($result->rounds) > 0) {
+                // Take the remaining ships in the last round as the result.
+                $round = end($result->rounds);
+                $result->attackerUnitsResult = $round->attackerShips;
+                $result->defenderUnitsResult = $round->defenderShips;
+            } else {
+                // If no rounds were fought, the result is the same as the start.
+                $result->attackerUnitsResult = $result->attackerUnitsStart;
+                $result->defenderUnitsResult = $result->defenderUnitsStart;
+            }
         }
 
         // Calculate the resources lost by the attacker and defender.
         // Deduct defender's lost units from the defenders planet.
+        // Only subtract unit types present in the start collection — sanitizeRoundArray may
+        // still add zero-amount unit types that participated in combat but were wiped out.
         $result->attackerUnitsLost = clone $result->attackerUnitsStart;
-        $result->attackerUnitsLost->subtractCollection($result->attackerUnitsResult);
+        foreach ($result->attackerUnitsResult->units as $entry) {
+            if ($result->attackerUnitsLost->hasUnit($entry->unitObject)) {
+                $result->attackerUnitsLost->removeUnit($entry->unitObject, $entry->amount);
+            }
+        }
         $result->attackerResourceLoss = $result->attackerUnitsLost->toResources();
 
         $result->defenderUnitsLost = clone $result->defenderUnitsStart;
-        $result->defenderUnitsLost->subtractCollection($result->defenderUnitsResult);
+        foreach ($result->defenderUnitsResult->units as $entry) {
+            if ($result->defenderUnitsLost->hasUnit($entry->unitObject)) {
+                $result->defenderUnitsLost->removeUnit($entry->unitObject, $entry->amount);
+            }
+        }
 
         // Add Hamill Manoeuvre Deathstar loss if it was triggered
         if ($result->hamillManoeuvreTriggered) {
@@ -156,16 +252,22 @@ abstract class BattleEngine
         $result->repairedDefenses = $defenseRepairService->calculateRepairedDefenses($result->defenderUnitsLost);
 
         // Determine winner of battle.
-        if ($result->defenderUnitsResult->getAmount() === 0) {
+        // Attacker withdrawal after defender flee is not a combat win — never grant loot.
+        if ($result->tacticalRetreatAttackerAlsoRetreated) {
+            $result->loot = new Resources(0, 0, 0, 0);
+        } elseif ($result->defenderUnitsResult->getAmount() === 0) {
             // ---
             // [WIN] - If attacker wins:
             // ---
             // Check if the attacker has enough cargo capacity to carry the loot.
             // If not, reduce the loot to the cargo capacity.
-            $result->loot = $this->lootService->calculateLootCapacityConstrained();
+            $result->loot = $this->calculateLootCapacityConstrained();
         } else {
             $result->loot = new Resources(0, 0, 0, 0);
         }
+
+        // Distribute loot and surviving cargo proportionally among each attacker fleet.
+        $this->distributeResources($result);
 
         // Calculate debris.
         // Only permanently lost defenses contribute to debris (destroyed - repaired).
@@ -193,12 +295,371 @@ abstract class BattleEngine
     }
 
     /**
+     * Evaluate and apply tactical retreat before combat rounds.
+     * Fleeing ships are removed from combat but remain on the planet.
+     */
+    protected function applyTacticalRetreat(BattleResult $result): void
+    {
+        $service = new TacticalRetreatService();
+        $decision = $service->evaluate(
+            $this->defenderPlanet,
+            $this->attackers,
+            $this->defenders,
+            $this->retreatAfterDefenderRetreat,
+        );
+
+        $result->tacticalRetreatRatio = $decision->ratio;
+        $result->tacticalRetreatAttackerPoints = $decision->attackerPoints;
+        $result->tacticalRetreatDefenderPoints = $decision->defenderPoints;
+        $result->tacticalRetreatDeuteriumCost = $decision->deuteriumCost;
+        $result->tacticalRetreatFleeingUnits = $decision->fleeingUnits;
+        $result->tacticalRetreatDefenderFled = $decision->defenderFled;
+        $result->tacticalRetreatAttackerAlsoRetreated = $decision->attackerAlsoRetreated;
+
+        if (!$decision->defenderFled) {
+            return;
+        }
+
+        // Deduct flee deuterium before loot calculation so cargo theft uses updated stocks.
+        if ($decision->deuteriumCost > 0) {
+            $this->defenderPlanet->deductResources(new Resources(0, 0, $decision->deuteriumCost, 0));
+        }
+
+        // Strip fleeing ships from the planet-owner defender fleet (ACS defend fleets stay).
+        foreach ($this->defenders as $defenderFleet) {
+            if ($defenderFleet->fleetMissionId !== 0) {
+                continue;
+            }
+
+            foreach ($decision->fleeingUnits->units as $entry) {
+                if ($defenderFleet->units->hasUnit($entry->unitObject)) {
+                    $defenderFleet->units->removeUnit($entry->unitObject, $entry->amount, true);
+                }
+            }
+        }
+
+        // Rebuild aggregated defender start units and planet-owner fleet result start.
+        $result->defenderUnitsStart = new UnitCollection();
+        foreach ($this->defenders as $defenderFleet) {
+            $result->defenderUnitsStart->addCollection($defenderFleet->units);
+        }
+        $result->defenderUnitsResult = clone $result->defenderUnitsStart;
+
+        foreach ($result->defenderFleetResults as $fleetResult) {
+            if ($fleetResult->fleetMissionId !== 0) {
+                continue;
+            }
+            foreach ($this->defenders as $defenderFleet) {
+                if ($defenderFleet->fleetMissionId === 0) {
+                    $fleetResult->unitsStart = clone $defenderFleet->units;
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
      * Fight the battle rounds according to the specific battle engine implementation.
      *
      * @param BattleResult $result
      * @return array<BattleResultRound>
      */
     abstract protected function fightBattleRounds(BattleResult $result): array;
+
+    /**
+     * Calculate the battle loot constrained by the total cargo capacity of all attackers.
+     *
+     * For ACS battles, cargo capacity must be summed using each fleet owner's own research
+     * and class modifiers instead of evaluating a combined fleet against the initiator only.
+     *
+     * @return Resources
+     */
+    private function calculateLootCapacityConstrained(): Resources
+    {
+        $resources = $this->defenderPlanet->getResources();
+        $loot = new Resources(
+            max(0, $resources->metal->get()) * ($this->lootPercentage / 100),
+            max(0, $resources->crystal->get()) * ($this->lootPercentage / 100),
+            max(0, $resources->deuterium->get()) * ($this->lootPercentage / 100),
+            0
+        );
+
+        return LootService::distributeLoot($loot, $this->getTotalAttackerCargoCapacity());
+    }
+
+    /**
+     * Sum the cargo capacity of all attacking fleets using each fleet owner's modifiers.
+     *
+     * @return int
+     */
+    private function getTotalAttackerCargoCapacity(): int
+    {
+        $totalCapacity = 0;
+        foreach ($this->attackers as $attacker) {
+            $totalCapacity += $attacker->units->getTotalCargoCapacity($attacker->player);
+        }
+
+        return $totalCapacity;
+    }
+
+    /**
+     * Populate survivingCargo and lootShare for each attacker fleet result.
+     *
+     * For multi-attacker battles, loot is allocated proportionally to each fleet's
+     * surviving cargo capacity. Carried resources survive at the same rate as cargo
+     * capacity (proportional to the fraction of ships that survived). Each fleet's
+     * loot share is further capped by the space remaining after surviving cargo is
+     * accounted for.
+     *
+     * @param BattleResult $result
+     * @return void
+     */
+    protected function distributeResources(BattleResult $result): void
+    {
+        // Index attacker fleets by fleet mission ID for efficient lookup.
+        $attackersByMissionId = [];
+        foreach ($this->attackers as $attacker) {
+            $attackersByMissionId[$attacker->fleetMissionId] = $attacker;
+        }
+
+        // Step 1: Compute per-fleet surviving cargo capacity and surviving carried resources.
+        $survivingCapacityByFleet = []; // fleetMissionId => int
+        $totalSurvivingCapacity = 0;
+
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            $attacker = $attackersByMissionId[$fleetResult->fleetMissionId] ?? null;
+            if ($attacker === null || $fleetResult->completelyDestroyed) {
+                $survivingCapacityByFleet[$fleetResult->fleetMissionId] = 0;
+                $fleetResult->survivingCargo = new Resources(0, 0, 0, 0);
+                continue;
+            }
+
+            $originalCapacity = $attacker->getSurvivingCargoCapacity($attacker->units);
+            $survivingCapacity = $attacker->getSurvivingCargoCapacity($fleetResult->unitsResult);
+
+            $survivingCapacityByFleet[$fleetResult->fleetMissionId] = $survivingCapacity;
+            $totalSurvivingCapacity += $survivingCapacity;
+
+            // Carried resources survive at the same rate as cargo capacity.
+            $survivalRate = $originalCapacity > 0 ? $survivingCapacity / $originalCapacity : 0.0;
+            $fleetResult->survivingCargo = new Resources(
+                max(0, (int)($attacker->cargoResources->metal->get() * $survivalRate)),
+                max(0, (int)($attacker->cargoResources->crystal->get() * $survivalRate)),
+                max(0, (int)($attacker->cargoResources->deuterium->get() * $survivalRate)),
+                0
+            );
+
+            $fleetResult->lootShare = new Resources(0, 0, 0, 0);
+        }
+
+        // Step 2: Distribute loot proportionally by surviving cargo capacity.
+        if ($totalSurvivingCapacity <= 0 || $result->loot->sum() <= 0) {
+            $result->loot = $this->sumLootShares($result);
+            return;
+        }
+
+        $remainingLootCapacityByFleet = [];
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            $survivingCapacity = $survivingCapacityByFleet[$fleetResult->fleetMissionId] ?? 0;
+            $remainingLootCapacityByFleet[$fleetResult->fleetMissionId] = max(
+                0,
+                (int)($survivingCapacity - $fleetResult->survivingCargo->sum())
+            );
+        }
+
+        foreach (['metal', 'crystal', 'deuterium'] as $resourceName) {
+            $this->distributeLootResource(
+                (int)$result->loot->{$resourceName}->get(),
+                $resourceName,
+                $result,
+                $survivingCapacityByFleet,
+                $remainingLootCapacityByFleet
+            );
+        }
+
+        // Normalize the battle loot to what was actually assigned to surviving fleets so any
+        // excess that did not fit remains on the defender planet instead of disappearing.
+        $result->loot = $this->sumLootShares($result);
+    }
+
+    /**
+     * Distribute one resource type across attacker fleets proportionally by surviving capacity.
+     *
+     * The allocation is performed in weighted passes so that:
+     * - integer rounding does not silently drop resources;
+     * - fleets never exceed their remaining cargo space;
+     * - leftover resources from capped fleets are redistributed to other eligible fleets.
+     *
+     * @param int $resourceAmount
+     * @param string $resourceName
+     * @param BattleResult $result
+     * @param array<int, int> $survivingCapacityByFleet
+     * @param array<int, int> $remainingLootCapacityByFleet
+     * @return void
+     */
+    private function distributeLootResource(
+        int $resourceAmount,
+        string $resourceName,
+        BattleResult $result,
+        array $survivingCapacityByFleet,
+        array &$remainingLootCapacityByFleet
+    ): void {
+        if ($resourceAmount <= 0) {
+            return;
+        }
+
+        $remainingAmount = $resourceAmount;
+        $initiatorFleetMissionId = $this->getInitiatorFleetMissionId();
+
+        while ($remainingAmount > 0) {
+            $eligibleFleetIds = [];
+            $totalWeight = 0;
+
+            foreach ($result->attackerFleetResults as $fleetResult) {
+                $fleetMissionId = $fleetResult->fleetMissionId;
+                $survivingCapacity = $survivingCapacityByFleet[$fleetMissionId] ?? 0;
+                $remainingCapacity = $remainingLootCapacityByFleet[$fleetMissionId] ?? 0;
+
+                if ($survivingCapacity <= 0 || $remainingCapacity <= 0) {
+                    continue;
+                }
+
+                $eligibleFleetIds[] = $fleetMissionId;
+                $totalWeight += $survivingCapacity;
+            }
+
+            if ($totalWeight <= 0 || count($eligibleFleetIds) === 0) {
+                return;
+            }
+
+            $exactShares = [];
+            $baseShares = [];
+            $allocatedThisPass = 0;
+
+            foreach ($eligibleFleetIds as $fleetMissionId) {
+                $exactShare = ($remainingAmount * $survivingCapacityByFleet[$fleetMissionId]) / $totalWeight;
+                $baseShare = (int) floor($exactShare);
+                $assignedShare = min($baseShare, $remainingLootCapacityByFleet[$fleetMissionId]);
+
+                $exactShares[$fleetMissionId] = $exactShare;
+                $baseShares[$fleetMissionId] = $baseShare;
+
+                if ($assignedShare > 0) {
+                    $this->addLootShareToFleet($result, $fleetMissionId, $resourceName, $assignedShare);
+                    $remainingLootCapacityByFleet[$fleetMissionId] -= $assignedShare;
+                    $allocatedThisPass += $assignedShare;
+                }
+            }
+
+            $remainingAmount -= $allocatedThisPass;
+            if ($remainingAmount <= 0) {
+                return;
+            }
+
+            $rankedFleetIds = $eligibleFleetIds;
+            usort($rankedFleetIds, function (int $left, int $right) use ($exactShares, $baseShares, $survivingCapacityByFleet, $initiatorFleetMissionId): int {
+                $leftIsInitiator = $left === $initiatorFleetMissionId;
+                $rightIsInitiator = $right === $initiatorFleetMissionId;
+                if ($leftIsInitiator !== $rightIsInitiator) {
+                    return $rightIsInitiator <=> $leftIsInitiator;
+                }
+
+                $leftRemainder = $exactShares[$left] - $baseShares[$left];
+                $rightRemainder = $exactShares[$right] - $baseShares[$right];
+
+                if ($leftRemainder !== $rightRemainder) {
+                    return $rightRemainder <=> $leftRemainder;
+                }
+
+                if ($survivingCapacityByFleet[$left] !== $survivingCapacityByFleet[$right]) {
+                    return $survivingCapacityByFleet[$right] <=> $survivingCapacityByFleet[$left];
+                }
+
+                return $left <=> $right;
+            });
+
+            $allocatedExtra = 0;
+            foreach ($rankedFleetIds as $fleetMissionId) {
+                if ($remainingAmount <= 0) {
+                    break;
+                }
+
+                if (($remainingLootCapacityByFleet[$fleetMissionId] ?? 0) <= 0) {
+                    continue;
+                }
+
+                $this->addLootShareToFleet($result, $fleetMissionId, $resourceName, 1);
+                $remainingLootCapacityByFleet[$fleetMissionId] -= 1;
+                $remainingAmount -= 1;
+                $allocatedExtra += 1;
+            }
+
+            if ($allocatedThisPass === 0 && $allocatedExtra === 0) {
+                return;
+            }
+        }
+    }
+
+    /**
+     * Get the fleet mission ID of the ACS initiator.
+     *
+     * @return int
+     */
+    private function getInitiatorFleetMissionId(): int
+    {
+        foreach ($this->attackers as $attacker) {
+            if ($attacker->isInitiator) {
+                return $attacker->fleetMissionId;
+            }
+        }
+
+        return $this->attackers[0]->fleetMissionId;
+    }
+
+    /**
+     * Add an allocated loot amount to the matching fleet result.
+     *
+     * @param BattleResult $result
+     * @param int $fleetMissionId
+     * @param string $resourceName
+     * @param int $amount
+     * @return void
+     */
+    private function addLootShareToFleet(BattleResult $result, int $fleetMissionId, string $resourceName, int $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            if ($fleetResult->fleetMissionId !== $fleetMissionId) {
+                continue;
+            }
+
+            $fleetResult->lootShare->{$resourceName}->set(
+                $fleetResult->lootShare->{$resourceName}->get() + $amount
+            );
+
+            return;
+        }
+    }
+
+    /**
+     * Sum the loot actually assigned across all attacker fleets.
+     *
+     * @param BattleResult $result
+     * @return Resources
+     */
+    private function sumLootShares(BattleResult $result): Resources
+    {
+        $totalLoot = new Resources(0, 0, 0, 0);
+
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            $totalLoot->add($fleetResult->lootShare);
+        }
+
+        return $totalLoot;
+    }
 
     /**
      * Calculate the debris field based on the units lost in the battle.
@@ -257,22 +718,15 @@ abstract class BattleEngine
      */
     protected function calculateWreckField(UnitCollection $defenderUnitsLost, UnitCollection $defenderUnitsStart): array
     {
-        $wreckFieldData = [];
-        $wreckFieldPercentage = (100.0 - $this->settings->debrisFieldFromShips()) / 100;
-
-        // Only ships (not defenses) can go into wreck fields
-        foreach ($defenderUnitsLost->units as $unit) {
-            if ($unit->amount > 0 && $unit->unitObject->type === GameObjectType::Ship) {
-                $wreckFieldCount = (int) floor($unit->amount * $wreckFieldPercentage);
-                if ($wreckFieldCount > 0) {
-                    $wreckFieldData[] = [
-                        'machine_name' => $unit->unitObject->machine_name,
-                        'quantity' => $wreckFieldCount,
-                        'original_quantity' => $unit->amount,
-                    ];
-                }
-            }
+        $spaceDockPlanet = $this->defenderPlanet->isMoon() ? $this->defenderPlanet->planet() : $this->defenderPlanet;
+        $spaceDockLevel = max(1, $spaceDockPlanet->getObjectLevel('space_dock'));
+        $spaceDockPlayer = $spaceDockPlanet->getPlayer();
+        if ($spaceDockPlayer === null) {
+            throw new RuntimeException('Wreck field calculation planet has no owner.');
         }
+        $wreckFieldService = new WreckFieldService($spaceDockPlayer, $this->settings);
+        $wreckFieldPercentage = $wreckFieldService->getRecoverableWreckFieldPercentage($spaceDockLevel) / 100;
+        $wreckFieldData = $wreckFieldService->calculateShipsForWreckField($defenderUnitsLost, $spaceDockLevel);
 
         // Check if wreck field conditions are met
         $totalLostValue = $defenderUnitsLost->toResources()->metal->get() +
@@ -319,16 +773,25 @@ abstract class BattleEngine
      */
     protected function sanitizeRoundArray(array $rounds): array
     {
+        $combinedAttackerFleet = $this->getAttackerFleet();
+
+        // Use post-retreat combat fleets so ships that fled are not padded into rounds
+        // as zero-amount "destroyed" units (they remain on the planet outside combat).
+        $combatDefenderUnits = new UnitCollection();
+        foreach ($this->defenders as $defenderFleet) {
+            $combatDefenderUnits->addCollection($defenderFleet->units);
+        }
+
         foreach ($rounds as $round) {
             // Ensure all attacker units are present in the round
-            foreach ($this->attackerFleet->units as $unit) {
+            foreach ($combinedAttackerFleet->units as $unit) {
                 if (!$round->attackerShips->hasUnit($unit->unitObject)) {
                     $round->attackerShips->addUnit($unit->unitObject, 0);
                 }
             }
 
-            // Ensure all defender units are present in the round
-            foreach ($this->defenderPlanet->getShipUnits()->units as $unit) {
+            // Ensure all combat defender units are present in the round
+            foreach ($combatDefenderUnits->units as $unit) {
                 if (!$round->defenderShips->hasUnit($unit->unitObject)) {
                     $round->defenderShips->addUnit($unit->unitObject, 0);
                 }

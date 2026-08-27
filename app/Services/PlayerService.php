@@ -97,6 +97,10 @@ class PlayerService
     {
         // Fetch user from model
         $user = User::with('highscore')->where('id', $id)->first();
+        if ($user === null) {
+            throw new RuntimeException('User not found.');
+        }
+
         $this->user = $user;
 
         // Fetch user tech from model
@@ -171,6 +175,16 @@ class PlayerService
     public function isAdmin(): bool
     {
         return $this->user->hasRole('admin');
+    }
+
+    /**
+     * Checks if the player is currently banned.
+     *
+     * @return bool
+     */
+    public function isBanned(): bool
+    {
+        return $this->user->isBanned();
     }
 
     /**
@@ -362,7 +376,7 @@ class PlayerService
      */
     public function validatePassword(string $password): bool
     {
-        if (Auth::Attempt((['email' => $this->getEmail(), 'password' => $password]))) {
+        if (Auth::attempt(['email' => $this->getEmail(), 'password' => $password])) {
             return true;
         }
 
@@ -471,7 +485,12 @@ class PlayerService
     {
         if (!$this->user->planet_current) {
             // If no current planet is set, return the first planet of the player.
-            return $this->planets->first()->getPlanetId();
+            $firstPlanet = $this->planets->first();
+            if ($firstPlanet === null) {
+                throw new RuntimeException('Player has no planets.');
+            }
+
+            return $firstPlanet->getPlanetId();
         }
 
         return $this->user->planet_current;
@@ -509,8 +528,14 @@ class PlayerService
         $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
 
         // Exclude missile attacks (type 10) as they don't use fleet slots
+        // All other missions use fleet slots for their entire duration (travel + hold + return)
         $fleetMissions = $activeMissions->filter(function ($mission) {
-            return $mission->mission_type !== 10;
+            // Exclude missile attacks
+            if ($mission->mission_type === 10) {
+                return false;
+            }
+
+            return true;
         });
 
         return $fleetMissions->count();
@@ -691,7 +716,11 @@ class PlayerService
                             ->first();
 
                         if ($fleetMissionLock) {
-                            $fleetMissionService->updateMission($mission);
+                            try {
+                                $fleetMissionService->updateMission($mission);
+                            } catch (Exception $e) {
+                                throw new Exception('Could not update fleet mission with ID ' . $mission->id . ': ' . $e->getMessage());
+                            }
                         } else {
                             throw new Exception('Could not acquire update fleet mission update lock.');
                         }

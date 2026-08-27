@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,16 +32,15 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Note whereUserId($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'user_id',
+    'priority',
+    'subject',
+    'content',
+])]
 class Note extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        'user_id',
-        'priority',
-        'subject',
-        'content',
-    ];
 
     /**
      * Get the user that owns the note record.

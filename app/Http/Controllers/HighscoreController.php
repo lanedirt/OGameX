@@ -214,7 +214,7 @@ class HighscoreController extends OGameController
             $currentAllianceRank = 0;
             $currentAlliancePage = 1;
 
-            $userAllianceId = auth()->user()->alliance_id;
+            $userAllianceId = $player->getUser()->alliance_id;
             if ($userAllianceId) {
                 $currentAllianceRank = $highscoreService->getHighscoreAllianceRank($userAllianceId);
                 if ($currentAllianceRank > 0) {
@@ -236,7 +236,7 @@ class HighscoreController extends OGameController
         $currentAllianceRank = 0;
         $currentAlliancePage = 1;
 
-        $userAllianceId = auth()->user()->alliance_id;
+        $userAllianceId = $player->getUser()->alliance_id;
         if ($userAllianceId) {
             $currentAllianceRank = $highscoreService->getHighscoreAllianceRank($userAllianceId);
             if ($currentAllianceRank > 0) {

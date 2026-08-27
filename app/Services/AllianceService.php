@@ -12,7 +12,6 @@ use OGame\Models\Alliance;
 use OGame\Models\AllianceApplication;
 use OGame\Models\AllianceMember;
 use OGame\Models\AllianceRank;
-use OGame\Models\Message;
 use OGame\Models\User;
 
 /**
@@ -794,6 +793,27 @@ class AllianceService
             'alliance_id' => $allianceId,
             'sender_id' => $sendingUserId,
         ]);
+    }
+
+    /**
+     * Check if two users are in the same alliance.
+     *
+     * @param int $userId1
+     * @param int $userId2
+     * @return bool
+     */
+    public function arePlayersInSameAlliance(int $userId1, int $userId2): bool
+    {
+        $user1 = User::find($userId1);
+        $user2 = User::find($userId2);
+
+        // Both users must exist
+        if (!$user1 || !$user2) {
+            return false;
+        }
+
+        // Both users must be in the same alliance (not null)
+        return $user1->alliance_id !== null && $user1->alliance_id === $user2->alliance_id;
     }
 
     /**

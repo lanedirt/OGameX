@@ -16,32 +16,32 @@
                         <img src="/img/icons/4161a64a933a5345d00cb9fdaa25c7.gif" alt="load...">
                     </div>
                     <div id="header_text" style="display: block;">
-                        <h2>@lang('Resource Market')</h2>
-                        <a class="back_to_overview js_backToOverview tooltip js_hideTipOnMobile right" href="{{ route('merchant.index') }}" data-tooltip-title="@lang('Back')" style="display: inline;"></a>
-                        <a class="small_back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('merchant.index') }}" data-tooltip-title="@lang('Back')"></a>
+                        <h2>{{ __('t_merchant.resource_market') }}</h2>
+                        <a class="back_to_overview js_backToOverview tooltip js_hideTipOnMobile right" href="{{ route('merchant.index') }}" data-tooltip-title="{{ __('t_merchant.back') }}" style="display: inline;"></a>
+                        <a class="small_back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('merchant.index') }}" data-tooltip-title="{{ __('t_merchant.back') }}"></a>
                     </div>
                     @if($activeMerchant)
                         <div id="slot01" class="slot">
                             <a href="{{ route('merchant.market', ['type' => $activeMerchant['type']]) }}?overlay=1"
                                class="overlay tooltipHTML js_hideTipOnMobile"
                                data-overlay-class="traderlayer"
-                               data-tooltip-title="@lang('Trade|Trade your resources at the agreed price')">
-                                @lang('trade')
+                               data-tooltip-title="{{ __('t_merchant.trade_tooltip') }}">
+                                {{ __('t_merchant.trade') }}
                             </a>
                         </div>
                     @endif
-                    <div id="js_traderResources" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderResources" data-tooltip-title="@lang('You can exchange resources for other resources here.')" style="display: none;">
-                        <h2>@lang('Resource Market')</h2>
+                    <div id="js_traderResources" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderResources" data-tooltip-title="{{ __('t_merchant.exchange_resources_desc') }}" style="display: none;">
+                        <h2>{{ __('t_merchant.resource_market') }}</h2>
                     </div>
-                    <div id="js_traderAuctioneer" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderAuctioneer" data-tooltip-title="@lang('Items are offered here daily and can be purchased using resources.')" style="display: none;">
-                        <h2>@lang('Auctioneer')</h2>
+                    <div id="js_traderAuctioneer" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderAuctioneer" data-tooltip-title="{{ __('t_merchant.auctioneer_desc') }}" style="display: none;">
+                        <h2>{{ __('t_merchant.auctioneer') }}</h2>
                     </div>
                     <br>
-                    <div id="js_traderScrap" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderScrap" data-tooltip-title="@lang('The scrap merchant accepts used ships and defence systems.')" style="display: none;">
-                        <h2>@lang('Scrap Merchant')</h2>
+                    <div id="js_traderScrap" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderScrap" data-tooltip-title="{{ __('t_merchant.scrap_merchant_desc') }}" style="display: none;">
+                        <h2>{{ __('t_merchant.scrap_merchant') }}</h2>
                     </div>
-                    <div id="js_traderImportExport" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderImportExport" data-tooltip-title="@lang('Containers with unknown contents are sold here for resources every day.')" style="display: none;">
-                        <h2>@lang('Import / Export')</h2>
+                    <div id="js_traderImportExport" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderImportExport" data-tooltip-title="{{ __('t_merchant.import_export_desc') }}" style="display: none;">
+                        <h2>{{ __('t_merchant.import_export') }}</h2>
                     </div>
                 </div>
                 <div class="c-left c-small" style=""></div>
@@ -51,7 +51,7 @@
                 <div id="div_traderResources" class="div_trader" style="">
 
                     <div id="boxHeader" class="header">
-                        <h2>@lang('Resource Market')</h2>
+                        <h2>{{ __('t_merchant.resource_market') }}</h2>
                     </div>
 
                     <div class="big_tabs content ui-tabs ui-corner-all ui-widget ui-widget-content">
@@ -66,7 +66,7 @@
                             --}}
                             <li class="big_tab ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active ui-state-active" role="tab" tabindex="0" aria-controls="tabs-changeResource" aria-labelledby="ui-id-8" aria-selected="true" aria-expanded="true">
                                 <a href="#tabs-changeResource" class="ipiHintable ui-tabs-anchor" data-ipi-hint="ipiTraderResourcesExchange" role="presentation" tabindex="-1" id="ui-id-8">
-                                    @lang('Exchange resources')
+                                    {{ __('t_merchant.exchange_resources') }}
                                 </a>
                             </li>
                         </ul>
@@ -118,50 +118,50 @@
                         <div id="tabs-changeResource" class="big_tab_content ui-tabs-panel ui-corner-bottom ui-widget-content" aria-labelledby="ui-id-8" role="tabpanel" aria-hidden="false" style="">
 
                             <div class="teaser_txt">
-                                <h2>@lang('Exchange your resources.')</h2>
+                                <h2>{{ __('t_merchant.exchange_your_resources') }}</h2>
                             </div>
 
                             <div class="clearfix content_inner">
                                 <div class="call_trader_step1">
-                                    <p class="step_info">@lang('1. Exchange your resources.')</p>
+                                    <p class="step_info">{{ __('t_merchant.step_one_exchange') }}</p>
                                     <ul class="resource_list">
                                         <li class="resource_elem">
-                                            <a role="button" class="tooltipHTML resource_link metal_img js_selectResource {!! $activeMerchant && $activeMerchant['type'] === 'metal' ? 'active oldTraderActive' : '' !!}" data-resource-id="1" data-resource-type="metal" data-tooltip-title="@lang('Metal|Sell your Metal and get Crystal or Deuterium.<p>Costs: 3,500 Dark Matter</p>.')">
+                                            <a role="button" class="tooltipHTML resource_link metal_img js_selectResource {!! $activeMerchant && $activeMerchant['type'] === 'metal' ? 'active oldTraderActive' : '' !!}" data-resource-id="1" data-resource-type="metal" data-tooltip-title="{{ __('t_merchant.sell_metal_tooltip') }}">
                                                 <div class="selected_premium"></div>
-                                                <p class="res_txt">@lang('Metal')</p>
+                                                <p class="res_txt">{{ __('t_merchant.metal') }}</p>
                                             </a>
                                         </li>
                                         <li class="resource_elem">
-                                            <a role="button" class="tooltipHTML resource_link crystal_img js_selectResource {!! $activeMerchant && $activeMerchant['type'] === 'crystal' ? 'active oldTraderActive' : '' !!}" data-resource-id="2" data-resource-type="crystal" data-tooltip-title="@lang('Crystal|Sell your Crystal and get Metal or Deuterium.<p>Costs: 3,500 Dark Matter</p>.')">
+                                            <a role="button" class="tooltipHTML resource_link crystal_img js_selectResource {!! $activeMerchant && $activeMerchant['type'] === 'crystal' ? 'active oldTraderActive' : '' !!}" data-resource-id="2" data-resource-type="crystal" data-tooltip-title="{{ __('t_merchant.sell_crystal_tooltip') }}">
                                                 <div class="selected_premium"></div>
-                                                <p class="res_txt">@lang('Crystal')</p>
+                                                <p class="res_txt">{{ __('t_merchant.crystal') }}</p>
                                             </a>
                                         </li>
                                         <li class="resource_elem">
-                                            <a role="button" class="tooltipHTML resource_link deuterium_img js_selectResource {!! $activeMerchant && $activeMerchant['type'] === 'deuterium' ? 'active oldTraderActive' : '' !!}" data-resource-id="3" data-resource-type="deuterium" data-tooltip-title="@lang('Deuterium|Sell your Deuterium and get Metal or Crystal.<p>Costs: 3,500 Dark Matter</p>.')">
+                                            <a role="button" class="tooltipHTML resource_link deuterium_img js_selectResource {!! $activeMerchant && $activeMerchant['type'] === 'deuterium' ? 'active oldTraderActive' : '' !!}" data-resource-id="3" data-resource-type="deuterium" data-tooltip-title="{{ __('t_merchant.sell_deuterium_tooltip') }}">
                                                 <div class="selected_premium"></div>
-                                                <p class="res_txt">@lang('Deuterium')</p>
+                                                <p class="res_txt">{{ __('t_merchant.deuterium') }}</p>
                                             </a>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="call_trader_step2">
-                                    <p class="step_info">@lang('2. Call merchant')</p>
+                                    <p class="step_info">{{ __('t_merchant.step_two_call') }}</p>
                                     <div class="step_arrow"></div>
                                     <div class="call_trader_box ipiHintable" data-ipi-hint="ipiTraderResourcesCall">
                                         <div id="js_alreadyPaidSection" class="{{ $activeMerchant ? '' : 'hidden' }}">
-                                            <p class="cost_txt"><b>@lang('Costs:')</b> @lang('Already paid')</p>
+                                            <p class="cost_txt"><b>{{ __('t_merchant.costs') }}</b> {{ __('t_merchant.already_paid') }}</p>
                                             <a id="js_tradeBtn" class="overlay tooltipHTML js_hideTipOnMobile btn btn_confirm"
                                                data-overlay-class="traderlayer"
                                                href="{{ $activeMerchant ? route('merchant.market', ['type' => $activeMerchant['type']]) . '?overlay=1' : '#' }}"
-                                               data-tooltip-title="@lang('Trade|Trade your resources at the agreed price')">
-                                                @lang('trade')
+                                               data-tooltip-title="{{ __('t_merchant.trade_tooltip') }}">
+                                                {{ __('t_merchant.trade') }}
                                             </a>
                                         </div>
                                         <div id="js_callMerchantSection" class="getNewTraderDiv {{ $activeMerchant ? 'hidden' : '' }}">
-                                            <p class="cost_txt">@lang('Costs:') <span class="premium_txt">{{ number_format($merchantCost) }}</span> @lang('Dark Matter') (@lang('per call'))</p>
+                                            <p class="cost_txt">{{ __('t_merchant.costs') }} <span class="premium_txt">{{ number_format($merchantCost) }}</span> {{ __('t_merchant.dark_matter') }} ({{ __('t_merchant.per_call') }})</p>
                                             <div class="btn_calltrader_wrap">
-                                                <a class="btn_premium btn_calltrader" id="js_callMerchantBtn" disabled="disabled">@lang('Call merchant')</a>
+                                                <a class="btn_premium btn_calltrader" id="js_callMerchantBtn" disabled="disabled">{{ __('t_merchant.call_merchant') }}</a>
                                             </div>
                                         </div>
                                     </div>
@@ -284,13 +284,13 @@
                 }
 
                 @if($darkMatter < $merchantCost)
-                    errorBoxNotify(LocalizationStrings.error, '@lang("Insufficient dark matter. You need :cost dark matter to call a merchant.", ["cost" => number_format($merchantCost)])');
+                    errorBoxNotify(LocalizationStrings.error, @json(__('t_merchant.insufficient_dm_call', ['cost' => number_format($merchantCost)])));
                     return false;
                 @endif
 
                 var button = $(this);
                 var originalText = button.text();
-                button.attr('disabled', 'disabled').text('@lang("Calling merchant...")');
+                button.attr('disabled', 'disabled').text(@json(__('t_merchant.calling_merchant')));
 
                 // Call the merchant via AJAX
                 $.ajax({
@@ -324,7 +324,7 @@
 
                             // Update the trade link in the planet div
                             if ($('#slot01').length === 0) {
-                                var headerTradeLink = '<div id="slot01" class="slot"><a href="' + tradeUrl + '" class="overlay tooltipHTML js_hideTipOnMobile" data-overlay-class="traderlayer" data-tooltip-title="@lang('Trade|Trade your resources at the agreed price')">@lang('trade')</a></div>';
+                                var headerTradeLink = '<div id="slot01" class="slot"><a href="' + tradeUrl + '" class="overlay tooltipHTML js_hideTipOnMobile" data-overlay-class="traderlayer" data-tooltip-title="{{ __('t_merchant.trade_tooltip') }}">{{ __('t_merchant.trade') }}</a></div>';
                                 $('#planet').append(headerTradeLink);
                             } else {
                                 // Update existing trade link
@@ -346,13 +346,13 @@
                                 $('.js_selectResource[data-resource-type="' + selectedResource + '"]').addClass('oldTraderActive');
                             }, 50);
                         } else {
-                            errorBoxNotify(LocalizationStrings.error, response.message || '@lang("Failed to call merchant.")');
+                            errorBoxNotify(LocalizationStrings.error, response.message || @json(__('t_merchant.failed_to_call')));
                             button.removeAttr('disabled').text(originalText);
                         }
                     },
                     error: function(xhr) {
                         var response = xhr.responseJSON;
-                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : '@lang("An error occurred. Please try again.")');
+                        errorBoxNotify(LocalizationStrings.error, response && response.message ? response.message : @json(__('t_merchant.error_retry')));
                         button.removeAttr('disabled').text(originalText);
                     }
                 });

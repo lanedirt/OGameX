@@ -3,6 +3,8 @@
 namespace OGame\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,6 +16,7 @@ use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Lab404\Impersonate\Models\Impersonate;
 use OGame\Enums\CharacterClass;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -38,6 +41,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $updated_at
  * @property int|null $planet_current
  * @property int $dark_matter
+ * @property int $tactical_retreat_ratio
  * @property Carbon|null $dark_matter_last_regen
  * @property bool $vacation_mode
  * @property Carbon|null $vacation_mode_activated_at
@@ -81,11 +85,18 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static Builder|User whereUsernameUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'username', 'email', 'password', 'lang', 'espionage_probes_amount',
+])]
+#[Hidden([
+    'password',
+])]
 class User extends Authenticatable
 {
-    use Notifiable;
     use HasFactory;
     use HasRoles;
+    use Impersonate;
+    use Notifiable;
 
     /**
      * Disable use of default "remember_token" laravel behavior.
@@ -118,24 +129,6 @@ class User extends Authenticatable
             }
         });
     }
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'username', 'email', 'password', 'lang', 'espionage_probes_amount',
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-    ];
 
     /**
      * The attributes that should be cast.
@@ -264,5 +257,65 @@ class User extends Authenticatable
     public function hasCharacterClass(): bool
     {
         return $this->character_class !== null;
+    }
+
+    /**
+     * All ban records for this user.
+     *
+     * @return HasMany
+     */
+    public function bans(): HasMany
+    {
+        return $this->hasMany(Ban::class);
+    }
+
+    /**
+     * Returns the current active ban, or null if the user is not banned.
+     *
+     * @return Ban|null
+     */
+    public function currentBan(): Ban|null
+    {
+        /** @var Ban|null $ban */
+        $ban = $this->bans()
+            ->where('canceled', false)
+            ->where(function ($q) {
+                $q->whereNull('banned_until')
+                    ->orWhere('banned_until', '>', now());
+            })
+            ->latest()
+            ->first();
+
+        return $ban;
+    }
+
+    /**
+     * Check if the user is currently banned.
+     */
+    public function isBanned(): bool
+    {
+        return $this->bans()
+            ->where('canceled', false)
+            ->where(function ($q) {
+                $q->whereNull('banned_until')
+                    ->orWhere('banned_until', '>', now());
+            })
+            ->exists();
+    }
+
+    /**
+     * Only admins can impersonate other users.
+     */
+    public function canImpersonate(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Users can be impersonated except when they are the same as the impersonator (enforced in UI).
+     */
+    public function canBeImpersonated(): bool
+    {
+        return true;
     }
 }

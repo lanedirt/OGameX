@@ -2,9 +2,11 @@
 
 namespace Tests\Console;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Message;
 use OGame\Models\Planet;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\User;
 use OGame\Models\WreckField;
 use OGame\Services\ObjectService;
@@ -12,8 +14,6 @@ use Tests\TestCase;
 
 class CleanupWreckFieldsCommandTest extends TestCase
 {
-    use RefreshDatabase;
-
     private User $user;
     private Planet $planet;
     private PlanetServiceFactory $planetServiceFactory;
@@ -25,14 +25,34 @@ class CleanupWreckFieldsCommandTest extends TestCase
         $this->planetServiceFactory = resolve(PlanetServiceFactory::class);
         $this->user = User::factory()->create();
 
+        $anchor = new Coordinate(
+            1 + ($this->user->id % 9),
+            1 + ($this->user->id % 499),
+            1 + ($this->user->id % 15)
+        );
+        $coordinate = $this->getSafeEmptyCoordinate($anchor, 1, 15);
+
         // Create a test planet with space dock
         $this->planet = Planet::factory()->create([
             'user_id' => $this->user->id,
-            'galaxy' => 1,
-            'system' => 1,
-            'planet' => 1,
-            'space_dock' => 5, // Level 5 space dock (35.7% cap)
+            'galaxy' => $coordinate->galaxy,
+            'system' => $coordinate->system,
+            'planet' => $coordinate->position,
+            'space_dock' => 5,
         ]);
+    }
+
+    protected function tearDown(): void
+    {
+        if (isset($this->user)) {
+            Message::where('user_id', $this->user->id)->delete();
+            WreckField::where('owner_player_id', $this->user->id)->delete();
+            Planet::where('user_id', $this->user->id)->delete();
+            DB::table('users_tech')->where('user_id', $this->user->id)->delete();
+            User::where('id', $this->user->id)->delete();
+        }
+
+        parent::tearDown();
     }
 
     /**
@@ -65,7 +85,7 @@ class CleanupWreckFieldsCommandTest extends TestCase
         $wreckField->save();
 
         // Run the command
-        $this->artisan('ogame:wreck-fields:cleanup');
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
 
         // Verify the wreck field was deleted
         $wreckFieldAfter = WreckField::where('galaxy', $this->planet->galaxy)
@@ -99,7 +119,7 @@ class CleanupWreckFieldsCommandTest extends TestCase
         $initialShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
 
         // Run the command
-        $this->artisan('ogame:wreck-fields:cleanup');
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
 
         // Refresh the planet from the database
         $this->planet->refresh();
@@ -107,14 +127,11 @@ class CleanupWreckFieldsCommandTest extends TestCase
         // Get final ship count on planet
         $finalShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
 
-        // Level 5 = 35.7% cap, so 35 or 36 ships should be added
-        $expectedShips = (int) floor(100 * 0.357);
-        $this->assertEquals($initialShips + $expectedShips, $finalShips);
+        $this->assertEquals($initialShips + 100, $finalShips);
     }
 
-    public function test_auto_deployment_respects_space_dock_level_cap(): void
+    public function test_auto_deployment_returns_all_stored_wreckage_ships(): void
     {
-        // Create wreck field with level 1 space dock (31.5% cap)
         $wreckField = new WreckField();
         $wreckField->galaxy = $this->planet->galaxy;
         $wreckField->system = $this->planet->system;
@@ -134,15 +151,13 @@ class CleanupWreckFieldsCommandTest extends TestCase
         $initialShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
 
         // Run the command
-        $this->artisan('ogame:wreck-fields:cleanup');
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
 
         $this->planet->refresh();
 
         $finalShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
 
-        // Level 1 = 31.5% cap
-        $expectedShips = (int) floor(1000 * 0.315);
-        $this->assertEquals($initialShips + $expectedShips, $finalShips);
+        $this->assertEquals($initialShips + 1000, $finalShips);
     }
 
     public function test_auto_deployment_does_not_affect_recent_repairs(): void
@@ -167,7 +182,7 @@ class CleanupWreckFieldsCommandTest extends TestCase
         $initialShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
 
         // Run the command
-        $this->artisan('ogame:wreck-fields:cleanup');
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
 
         // Verify wreck field still exists
         $wreckFieldAfter = WreckField::where('galaxy', $this->planet->galaxy)
@@ -212,7 +227,7 @@ class CleanupWreckFieldsCommandTest extends TestCase
         $initialCruisers = $this->getPlanetUnitAmount($this->planet, 'cruiser');
 
         // Run the command
-        $this->artisan('ogame:wreck-fields:cleanup');
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
 
         // Get final ship counts
         $this->planet->refresh();
@@ -220,11 +235,9 @@ class CleanupWreckFieldsCommandTest extends TestCase
         $finalHeavyFighters = $this->getPlanetUnitAmount($this->planet, 'heavy_fighter');
         $finalCruisers = $this->getPlanetUnitAmount($this->planet, 'cruiser');
 
-        // Level 10 = 37.8% cap
-        $percentage = 0.378;
-        $this->assertEquals($initialLightFighters + (int) floor(100 * $percentage), $finalLightFighters);
-        $this->assertEquals($initialHeavyFighters + (int) floor(50 * $percentage), $finalHeavyFighters);
-        $this->assertEquals($initialCruisers + (int) floor(20 * $percentage), $finalCruisers);
+        $this->assertEquals($initialLightFighters + 100, $finalLightFighters);
+        $this->assertEquals($initialHeavyFighters + 50, $finalHeavyFighters);
+        $this->assertEquals($initialCruisers + 20, $finalCruisers);
     }
 
     public function test_cleanup_expired_wreck_fields(): void
@@ -258,7 +271,7 @@ class CleanupWreckFieldsCommandTest extends TestCase
         $wreckField2->save();
 
         // Run the command
-        $this->artisan('ogame:wreck-fields:cleanup');
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
 
         // Verify expired wreck field was deleted
         $wreckField1After = WreckField::where('galaxy', 1)
@@ -295,7 +308,7 @@ class CleanupWreckFieldsCommandTest extends TestCase
         $wreckField->save();
 
         // Run the command
-        $this->artisan('ogame:wreck-fields:cleanup');
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
 
         // Verify the wreck field still exists
         $wreckFieldAfter = WreckField::where('galaxy', $this->planet->galaxy)
@@ -305,5 +318,188 @@ class CleanupWreckFieldsCommandTest extends TestCase
 
         $this->assertNotNull($wreckFieldAfter, 'Repairing wreck field should not be deleted if less than 72 hours');
         $this->assertEquals('repairing', $wreckFieldAfter->status);
+    }
+
+    public function test_auto_return_repairing_wreck_field_deploys_repaired_ships_after_lifetime_window(): void
+    {
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $this->planet->galaxy;
+        $wreckField->system = $this->planet->system;
+        $wreckField->planet = $this->planet->planet;
+        $wreckField->owner_player_id = $this->user->id;
+        $wreckField->status = 'repairing';
+        $wreckField->created_at = now()->subHours(80);
+        $wreckField->expires_at = now()->subMinute();
+        $wreckField->repair_started_at = now()->subHours(73);
+        $wreckField->repair_completed_at = now()->subHours(61);
+        $wreckField->space_dock_level = 5;
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 100, 'repair_progress' => 0],
+        ];
+        $wreckField->save();
+
+        $initialShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
+
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
+
+        $this->planet->refresh();
+        $finalShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
+
+        $this->assertEquals($initialShips + 100, $finalShips);
+        $this->assertNull(WreckField::find($wreckField->id));
+    }
+
+    public function test_auto_return_completed_wreck_field_deploys_ready_ships_after_lifetime_window(): void
+    {
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $this->planet->galaxy;
+        $wreckField->system = $this->planet->system;
+        $wreckField->planet = $this->planet->planet;
+        $wreckField->owner_player_id = $this->user->id;
+        $wreckField->status = 'completed';
+        $wreckField->created_at = now()->subHours(80);
+        $wreckField->expires_at = now()->subMinute();
+        $wreckField->repair_started_at = now()->subHours(73);
+        $wreckField->repair_completed_at = now()->subHours(72);
+        $wreckField->space_dock_level = 5;
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 100, 'repair_progress' => 100],
+        ];
+        $wreckField->save();
+
+        $initialShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
+
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
+
+        $this->planet->refresh();
+        $finalShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
+
+        $this->assertEquals($initialShips + 100, $finalShips);
+        $this->assertNull(WreckField::find($wreckField->id));
+    }
+
+    public function test_cleanup_expired_repairing_wreck_field_does_not_delete_before_auto_return_window(): void
+    {
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $this->planet->galaxy;
+        $wreckField->system = $this->planet->system;
+        $wreckField->planet = $this->planet->planet;
+        $wreckField->owner_player_id = $this->user->id;
+        $wreckField->status = 'repairing';
+        $wreckField->created_at = now()->subHours(80);
+        $wreckField->expires_at = now()->subMinute();
+        $wreckField->repair_started_at = now()->subHours(10);
+        $wreckField->repair_completed_at = now()->addHours(2);
+        $wreckField->space_dock_level = 5;
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 100, 'repair_progress' => 0],
+        ];
+        $wreckField->save();
+
+        $initialShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
+
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
+
+        $this->planet->refresh();
+        $this->assertEquals($initialShips, $this->getPlanetUnitAmount($this->planet, 'light_fighter'));
+
+        $wreckFieldAfter = WreckField::find($wreckField->id);
+        $this->assertNotNull($wreckFieldAfter);
+        $this->assertEquals('repairing', $wreckFieldAfter->status);
+    }
+
+    public function test_cleanup_expired_completed_wreck_field_does_not_delete_before_auto_return_window(): void
+    {
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $this->planet->galaxy;
+        $wreckField->system = $this->planet->system;
+        $wreckField->planet = $this->planet->planet;
+        $wreckField->owner_player_id = $this->user->id;
+        $wreckField->status = 'completed';
+        $wreckField->created_at = now()->subHours(80);
+        $wreckField->expires_at = now()->subMinute();
+        $wreckField->repair_started_at = now()->subHours(10);
+        $wreckField->repair_completed_at = now()->subHours(9);
+        $wreckField->space_dock_level = 5;
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 100, 'repair_progress' => 100],
+        ];
+        $wreckField->save();
+
+        $initialShips = $this->getPlanetUnitAmount($this->planet, 'light_fighter');
+
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
+
+        $this->planet->refresh();
+        $this->assertEquals($initialShips, $this->getPlanetUnitAmount($this->planet, 'light_fighter'));
+
+        $wreckFieldAfter = WreckField::find($wreckField->id);
+        $this->assertNotNull($wreckFieldAfter);
+        $this->assertEquals('completed', $wreckFieldAfter->status);
+    }
+
+    public function test_auto_deployment_sends_message_to_player(): void
+    {
+        // Create a wreck field that started repairs more than 72 hours ago
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $this->planet->galaxy;
+        $wreckField->system = $this->planet->system;
+        $wreckField->planet = $this->planet->planet;
+        $wreckField->owner_player_id = $this->user->id;
+        $wreckField->status = 'repairing';
+        $wreckField->created_at = now()->subHours(80);
+        $wreckField->expires_at = now()->addHours(10);
+        $wreckField->repair_started_at = now()->subHours(73); // More than 72 hours ago
+        $wreckField->repair_completed_at = now()->subHours(73)->addMinutes(30); // 30 min repair time
+        $wreckField->space_dock_level = 5;
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 100, 'repair_progress' => 0]
+        ];
+        $wreckField->save();
+
+        // Run the command
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
+
+        // Verify the message was sent to the player
+        $message = Message::where('user_id', $this->user->id)
+            ->where('key', 'wreck_field_repair_completed')
+            ->first();
+
+        $this->assertNotNull($message, 'Message should be sent to player when ships are auto-deployed');
+        $this->assertEquals('wreck_field_repair_completed', $message->key);
+        $this->assertArrayHasKey('planet', $message->params);
+        $this->assertArrayHasKey('ship_count', $message->params);
+
+        $this->assertEquals('100', $message->params['ship_count']);
+    }
+
+    public function test_auto_deployment_does_not_send_message_for_recent_repairs(): void
+    {
+        // Create a wreck field that started repairs less than 72 hours ago
+        $wreckField = new WreckField();
+        $wreckField->galaxy = $this->planet->galaxy;
+        $wreckField->system = $this->planet->system;
+        $wreckField->planet = $this->planet->planet;
+        $wreckField->owner_player_id = $this->user->id;
+        $wreckField->status = 'repairing';
+        $wreckField->created_at = now()->subHours(10);
+        $wreckField->expires_at = now()->addHours(62);
+        $wreckField->repair_started_at = now()->subHours(10); // Only 10 hours ago
+        $wreckField->repair_completed_at = now()->subHours(9)->addMinutes(30);
+        $wreckField->space_dock_level = 5;
+        $wreckField->ship_data = [
+            ['machine_name' => 'light_fighter', 'quantity' => 100, 'repair_progress' => 0]
+        ];
+        $wreckField->save();
+
+        // Run the command
+        $this->artisan('ogamex:scheduler:cleanup-wreckfields');
+
+        // Verify no message was sent
+        $message = Message::where('user_id', $this->user->id)
+            ->where('key', 'wreck_field_repair_completed')
+            ->first();
+
+        $this->assertNull($message, 'No message should be sent for repairs that started less than 72 hours ago');
     }
 }

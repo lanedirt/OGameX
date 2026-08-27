@@ -3,6 +3,8 @@
 namespace OGame\Console\Commands\Dev;
 
 use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use OGame\Enums\CharacterClass;
@@ -16,24 +18,13 @@ use OGame\Models\UserTech;
 use OGame\Models\WreckField;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use RuntimeException;
 
+#[Description('Seed the database with test users. Recreates users on each run.')]
+#[Signature('ogamex:dev:seed-users
+                            {--password=test : Password for all test accounts}')]
 class PreviewSeedUsers extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:dev:seed-users
-                            {--password=test : Password for all test accounts}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Seed the database with test users. Recreates users on each run.';
-
     /**
      * The email domain for the preview users.
      *
@@ -176,6 +167,9 @@ class PreviewSeedUsers extends Command
     public function handle(): int
     {
         $password = $this->option('password');
+        if (!is_string($password)) {
+            throw new RuntimeException('Password option must be a string.');
+        }
 
         $this->info('Seeding preview environment test users...');
         $this->newLine();
@@ -348,6 +342,9 @@ class PreviewSeedUsers extends Command
         // Apply custom config values (resources, buildings, ships, defense)
         // Get planet model directly from DB since PlanetService has it as private
         $planet = Planet::find($planetService->getPlanetId());
+        if ($planet === null) {
+            throw new RuntimeException('Planet not found.');
+        }
 
         // Only set custom name if provided
         if ($planetName !== null) {

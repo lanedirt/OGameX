@@ -38,6 +38,7 @@ class GameMissionFactory
         */
         return [
             1 => resolve(AttackMission::class),
+            2 => resolve(AttackMission::class),
             3 => resolve(TransportMission::class),
             4 => resolve(DeploymentMission::class),
             5 => resolve(AcsDefendMission::class),
@@ -59,7 +60,7 @@ class GameMissionFactory
     public static function getMissionById(int $missionId, array $dependencies): GameMission
     {
         return match ($missionId) {
-            1 => resolve(AttackMission::class, $dependencies),
+            1, 2 => resolve(AttackMission::class, $dependencies),
             3 => resolve(TransportMission::class, $dependencies),
             4 => resolve(DeploymentMission::class, $dependencies),
             5 => resolve(AcsDefendMission::class, $dependencies),

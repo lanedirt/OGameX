@@ -5,6 +5,7 @@ namespace Tests;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -13,6 +14,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Message;
+use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
@@ -31,6 +33,14 @@ abstract class AccountTestCase extends TestCase
     protected int $userPlanetAmount = 2;
 
     protected int $currentPlanetId = 0;
+
+    /**
+     * Default computer technology level for newly created users.
+     * Tests that require a different level can override this property.
+     *
+     * @var int
+     */
+    protected int $defaultComputerTechnologyLevel = 5;
 
     /**
      * Test user main planet.
@@ -62,11 +72,15 @@ abstract class AccountTestCase extends TestCase
         parent::setUp();
 
         // Set default test time to 2024-01-01 00:00:00 to ensure all tests have the same starting point.
-        $this->travelTo(Carbon::create(2024, 1, 1, 0, 0, 0));
+        $this->travelTo(Date::create(2024, 1, 1, 0, 0, 0));
 
         // Set default server settings for all tests.
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
+        // Establish a full speed baseline so settings mutated by earlier tests can't leak
+        // into this one. Without this, e.g. ResearchQueueTest sets research_speed=2 which
+        // then changes timing in unrelated tests like VacationModeTest (see #1021).
+        $settingsService->set('research_speed', 1);
 
         // Set amount of planets to be created for the user because planet switching
         // is a part of the test suite.
@@ -84,9 +98,6 @@ abstract class AccountTestCase extends TestCase
 
         // Create a new user and login so we can access ingame features.
         $this->createAndLoginUser();
-
-        // We should now automatically be logged in. Retrieve meta fields to verify.
-        $this->retrieveMetaFields();
     }
 
     /**
@@ -99,7 +110,11 @@ abstract class AccountTestCase extends TestCase
     public function reloadApplication(): void
     {
         $this->refreshApplication();
-        $this->be(User::find($this->currentUserId));
+        $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('Current user not found.');
+        }
+        $this->be($user);
     }
 
     /**
@@ -142,6 +157,28 @@ abstract class AccountTestCase extends TestCase
 
         // Check if we are authenticated after registration.
         $this->assertAuthenticated();
+
+        // Update currentUserId and planetService to reflect the new user.
+        $this->retrieveMetaFields();
+
+        // Set default computer technology level for newly created users.
+        $this->setDefaultComputerTechnology();
+    }
+
+    /**
+     * Set default computer technology level for newly created users.
+     * Tests that require a different level can override $defaultComputerTechnologyLevel.
+     *
+     * @return void
+     */
+    protected function setDefaultComputerTechnology(): void
+    {
+        if ($this->defaultComputerTechnologyLevel === 0) {
+            // Skip setting if level is 0 (default game behavior).
+            return;
+        }
+
+        $this->playerSetResearchLevel('computer_technology', $this->defaultComputerTechnologyLevel);
     }
 
     /**
@@ -178,12 +215,12 @@ abstract class AccountTestCase extends TestCase
         $this->assertNotEmpty($planetId);
 
         $this->currentUserId = (int)$playerId;
-        $this->currentUsername = $playerName;
+        $this->currentUsername = (string)$playerName;
         $this->currentPlanetId = (int)$planetId;
 
         // Initialize the player service with factory.
         $playerServiceFactory = resolve(PlayerServiceFactory::class);
-        $playerService = $playerServiceFactory->make($this->currentUserId);
+        $playerService = $playerServiceFactory->make($this->currentUserId, true);
         $this->planetService = $playerService->planets->current();
 
         // Set second planet service if it exists
@@ -272,7 +309,11 @@ abstract class AccountTestCase extends TestCase
             // Create and return a new PlanetService instance for the found planet.
             try {
                 $planetServiceFactory =  resolve(PlanetServiceFactory::class);
-                return $planetServiceFactory->make($planet_id[0]);
+                $foundPlanet = $planetServiceFactory->make($planet_id[0]);
+                if ($foundPlanet === null) {
+                    $this->fail('Failed to create planet service for planet id: ' . $planet_id[0]);
+                }
+                return $foundPlanet;
             } catch (Exception $e) {
                 $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
             }
@@ -290,6 +331,9 @@ abstract class AccountTestCase extends TestCase
         // First get a nearby foreign planet to obtain its player
         $foreignPlanet = $this->getNearbyForeignPlanet();
         $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet has no owner.');
+        }
 
         // Get a random empty coordinate near the current planet
         $coordinate = $this->getNearbyEmptyCoordinate();
@@ -359,7 +403,11 @@ abstract class AccountTestCase extends TestCase
             // Create and return a new PlanetService instance for the found planet.
             try {
                 $planetServiceFactory =  resolve(PlanetServiceFactory::class);
-                return $planetServiceFactory->make($planet_id[0]);
+                $foundPlanet = $planetServiceFactory->make($planet_id[0]);
+                if ($foundPlanet === null) {
+                    $this->fail('Failed to create planet service for planet id: ' . $planet_id[0]);
+                }
+                return $foundPlanet;
             } catch (Exception $e) {
                 $this->fail('Failed to create planet service for planet id: ' . $planet_id[0] . '. Error: ' . $e->getMessage());
             }
@@ -373,34 +421,14 @@ abstract class AccountTestCase extends TestCase
      * @param int $max_position
      * @return Coordinate
      */
-    protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12): Coordinate
+    protected function getNearbyEmptyCoordinate(int $min_position = 4, int $max_position = 12, int $min_system_distance = 0): Coordinate
     {
-        // Get the max galaxies setting to ensure we only create coordinates within valid galaxy bounds.
-        $settingsService = resolve(SettingsService::class);
-        $maxGalaxies = $settingsService->numberOfGalaxies();
-
-        // Ensure the current planet's galaxy is within valid bounds, otherwise use galaxy 1.
-        $currentGalaxy = $this->planetService->getPlanetCoordinates()->galaxy;
-        $galaxy = $currentGalaxy <= $maxGalaxies ? $currentGalaxy : 1;
-
-        // Find a position that has no planet in the same galaxy and up to 10 systems away between position 4-13.
-        $coordinate = new Coordinate($galaxy, 0, 0);
-        $tryCount = 0;
-        while ($tryCount < 100) {
-            $tryCount++;
-            $coordinate->system = max(1, min(499, $this->planetService->getPlanetCoordinates()->system + rand(-10, 10)));
-            $coordinate->position = rand($min_position, $max_position);
-            $planetCount = DB::table('planets')
-                ->where('galaxy', $coordinate->galaxy)
-                ->where('system', $coordinate->system)
-                ->where('planet', $coordinate->position)
-                ->count();
-            if ($planetCount == 0) {
-                return $coordinate;
-            }
-        }
-
-        $this->fail('Failed to find an empty coordinate for testing.');
+        return $this->getSafeEmptyCoordinate(
+            $this->planetService->getPlanetCoordinates(),
+            $min_position,
+            $max_position,
+            $min_system_distance
+        );
     }
 
     /**
@@ -466,7 +494,11 @@ abstract class AccountTestCase extends TestCase
     {
         // Update current users planet buildings to allow for research by mutating database.
         try {
-            $this->planetService->getPlayer()->setResearchLevel($machine_name, $object_level);
+            $player = $this->planetService->getPlayer();
+            if ($player === null) {
+                $this->fail('Current planet has no owner.');
+            }
+            $player->setResearchLevel($machine_name, $object_level);
         } catch (Exception $e) {
             $this->fail('Failed to set research level for player. Error: ' . $e->getMessage());
         }
@@ -930,8 +962,46 @@ abstract class AccountTestCase extends TestCase
      */
     protected function switchToSecondPlanet(): void
     {
-        $response = $this->get('/overview?cp=' . $this->secondPlanetService->getPlanetId());
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $response = $this->get('/overview?cp=' . $secondPlanetService->getPlanetId());
         $response->assertStatus(200);
+    }
+
+    /**
+     * Creates a planet for the given user at a collision-safe coordinate.
+     *
+     * Uses a DB-existence check and defaults to positions 13-15 (outside the allocator's
+     * assigned range of 4-12) so that this planet never collides with a home planet placed
+     * by the allocator during registration — even when two test users land in the same system.
+     *
+     * Prefer this over calling Planet::factory()->create() with hardcoded coordinates in
+     * feature tests, because hardcoded positions inside the allocator range (4-12) will
+     * eventually match an allocator-assigned planet as more tests are added.
+     *
+     * @param int $userId The user_id to assign the new planet to.
+     * @param int $minPosition Lower bound for position search (default 13).
+     * @param int $maxPosition Upper bound for position search (default 15).
+     * @param int $minSystemDistance Minimum system offset from the current player's planet (default 0 = any system).
+     * @return PlanetService
+     */
+    protected function createPlanetAtSafeCoordinate(int $userId, int $minPosition = 13, int $maxPosition = 15, int $minSystemDistance = 0): PlanetService
+    {
+        $coordinate = $this->getNearbyEmptyCoordinate($minPosition, $maxPosition, $minSystemDistance);
+
+        $planet = Planet::factory()->create([
+            'user_id' => $userId,
+            'galaxy'  => $coordinate->galaxy,
+            'system'  => $coordinate->system,
+            'planet'  => $coordinate->position,
+        ]);
+
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $playerService = resolve(PlayerService::class, ['player_id' => $userId]);
+
+        return $planetServiceFactory->makeForPlayer($playerService, $planet->id);
     }
 
     /**
@@ -940,6 +1010,6 @@ abstract class AccountTestCase extends TestCase
      */
     protected function resetTestTime(): void
     {
-        Carbon::setTestNow($this->defaultTestTime);
+        $this->travelTo($this->defaultTestTime);
     }
 }

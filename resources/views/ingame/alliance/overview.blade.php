@@ -3,7 +3,7 @@
 <div class="section">
     <h3>
         <a id="link11" class="closed" onclick="manageTabs('link11');" href="javascript:void(0);" rel="allyData">
-            <span>Your alliance</span>
+            <span>{{ __('t_ingame.alliance.your_alliance') }}</span>
         </a>
     </h3>
 </div>
@@ -12,23 +12,23 @@
         <table class="members bborder">
             <tbody>
             <tr class="alt">
-                <td class="desc">Name:</td>
+                <td class="desc">{{ __('t_ingame.alliance.name') }}:</td>
                 <td class="value"><span>{{ $alliance->alliance_name }}</span></td>
             </tr>
             <tr>
-                <td class="desc">Tag:</td>
+                <td class="desc">{{ __('t_ingame.alliance.tag') }}:</td>
                 <td class="value"><span>{{ $alliance->alliance_tag }}</span></td>
             </tr>
             <tr class="alt">
-                <td class="desc">Created:</td>
+                <td class="desc">{{ __('t_ingame.alliance.created') }}:</td>
                 <td class="value"><span>{{ $alliance->created_at->format('d.m.Y') }}</span></td>
             </tr>
             <tr>
-                <td class="desc">Member:</td>
+                <td class="desc">{{ __('t_ingame.alliance.member') }}:</td>
                 <td class="value"><span>{{ $members->count() }}</span></td>
             </tr>
             <tr class="alt">
-                <td class="desc">Your Rank:</td>
+                <td class="desc">{{ __('t_ingame.alliance.your_rank') }}:</td>
                 <td class="value">
                     <span>
                         @if($member->rank)
@@ -43,7 +43,7 @@
             </tr>
             @if($alliance->homepage_url)
             <tr>
-                <td class="desc">Homepage:</td>
+                <td class="desc">{{ __('t_ingame.alliance.homepage') }}:</td>
                 <td class="value">
                     <span>
                         <a href="{{ $alliance->homepage_url }}" target="_blank" rel="noopener noreferrer">{{ $alliance->homepage_url }}</a>
@@ -55,8 +55,8 @@
         </table>
         @if($member && !$member->isFounder())
             <div class="h10"></div>
-            <p style="padding: 0 10px; font-size: 11px; color: #999;">If you leave the alliance, you will need to wait 3 days before joining or creating another alliance.</p>
-            <a class="leaveAllianceOverview action btn_blue" style="margin: 10px;" href="javascript:void(0);">Leave alliance</a>
+            <p style="padding: 0 10px; font-size: 11px; color: #999;">{{ __('t_ingame.alliance.leave_wait_warning') }}</p>
+            <a class="leaveAllianceOverview action btn_blue" style="margin: 10px;" href="javascript:void(0);">{{ __('t_ingame.alliance.leave_btn') }}</a>
         @endif
         <div class="h10"></div>
     </div>
@@ -65,7 +65,7 @@
 
 <div class="section">
     <h3>
-        <a id="link12" class="opened" onclick="manageTabs('link12');" rel="allyMemberlist" href="javascript:void(0);"><span>Member List</span></a>
+        <a id="link12" class="opened" onclick="manageTabs('link12');" rel="allyMemberlist" href="javascript:void(0);"><span>{{ __('t_ingame.alliance.member_list') }}</span></a>
     </h3>
 </div>
 <div class="sectioncontent" id="allyMemberlist" style="">
@@ -74,27 +74,27 @@
             <thead>
                 <tr>
                     <th class="header">
-                        <a href="javascript:void(0);">Name</a>
+                        <a href="javascript:void(0);">{{ __('t_ingame.alliance.col_name') }}</a>
                     </th>
                     <th></th>
                     <th class="header">
-                        <a href="javascript:void(0);">Rank</a>
+                        <a href="javascript:void(0);">{{ __('t_ingame.alliance.col_rank') }}</a>
                     </th>
                     <th class="header">
-                        <a href="javascript:void(0);">Rank</a>
+                        <a href="javascript:void(0);">{{ __('t_ingame.alliance.col_rank') }}</a>
                     </th>
                     <th class="header">
-                        <a href="javascript:void(0);">Coords</a>
+                        <a href="javascript:void(0);">{{ __('t_ingame.alliance.col_coords') }}</a>
                     </th>
                     <th class="header">
-                        <a href="javascript:void(0);">Joined</a>
+                        <a href="javascript:void(0);">{{ __('t_ingame.alliance.col_joined') }}</a>
                     </th>
                     @if($member->hasPermission(\OGame\Models\AllianceRank::PERMISSION_SEE_MEMBER_ONLINE_STATUS))
                     <th class="header">
-                        <a href="javascript:void(0);">Online</a>
+                        <a href="javascript:void(0);">{{ __('t_ingame.alliance.col_online') }}</a>
                     </th>
                     @endif
-                    <th>Function</th>
+                    <th>{{ __('t_ingame.alliance.col_function') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -152,11 +152,11 @@
                     <td>
                         @if($alliance->founder_user_id !== $allianceMember->user_id)
                             @if($member->hasPermission(\OGame\Models\AllianceRank::PERMISSION_KICK_USER))
-                                <a href="#" class="kick-member icon_link tooltip" data-user-id="{{ $allianceMember->user_id }}" data-username="{{ $allianceMember->user->username }}" title="Kick alliance member">
+                                <a href="#" class="kick-member icon_link tooltip" data-user-id="{{ $allianceMember->user_id }}" data-username="{{ $allianceMember->user->username }}" title="{{ __('t_ingame.alliance.kick_tooltip') }}">
                                     <span class="icon icon_against"></span>
                                 </a>
                             @endif
-                            <a href="{{ route('messages.index', ['category' => 1, 'user_id' => $allianceMember->user_id]) }}" class="sendMail tooltip" title="Write message">
+                            <a href="{{ route('messages.index', ['category' => 1, 'user_id' => $allianceMember->user_id]) }}" class="sendMail tooltip" title="{{ __('t_ingame.alliance.write_msg_tooltip') }}">
                                 <span class="icon icon_chat"></span>
                             </a>
                         @endif
@@ -164,7 +164,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" style="text-align: center;">No members found</td>
+                    <td colspan="8" style="text-align: center;">{{ __('t_ingame.alliance.no_members') }}</td>
                 </tr>
             @endforelse
             </tbody>
@@ -172,7 +172,7 @@
             <tfoot>
                 <tr>
                     <td colspan="8" align="right">
-                        <a class="assignRank action btn_blue float_right">Assign rank</a>
+                        <a class="assignRank action btn_blue float_right">{{ __('t_ingame.alliance.assign_rank_btn') }}</a>
                     </td>
                 </tr>
             </tfoot>
@@ -186,7 +186,7 @@
 <div class="section">
     <h3>
         <a id="link13" class="closed" onclick="manageTabs('link13');" rel="allyInternText" href="javascript:void(0);">
-            <span>Internal Area</span>
+            <span>{{ __('t_ingame.alliance.internal_area') }}</span>
         </a>
     </h3>
 </div>
@@ -203,7 +203,7 @@
 <div class="section">
     <h3>
         <a id="link14" class="closed" onclick="manageTabs('link14');" rel="allyExternText" href="javascript:void(0);">
-            <span>External Area</span>
+            <span>{{ __('t_ingame.alliance.external_area') }}</span>
         </a>
     </h3>
 </div>
@@ -218,6 +218,8 @@
 </div>
 
 <script type="text/javascript">
+    var kickConfirmTemplate = @json(__('t_ingame.alliance.confirm_kick'));
+
     $(document).ready(function() {
         // Initialize dropdowns for rank selection
         $('select').ogameDropDown(undefined, true);
@@ -236,14 +238,14 @@
             })
             .done(function(response) {
                 if (response.status === 'success') {
-                    fadeBox(response.message || 'Ranks assigned successfully', false);
+                    fadeBox(response.message || @json(__('t_ingame.alliance.msg_ranks_assigned')), false);
                 } else {
-                    fadeBox(response.message || 'Failed to assign ranks', true);
+                    fadeBox(response.message || @json(__('t_ingame.alliance.msg_assign_error')), true);
                 }
             })
             .fail(function(xhr) {
                 var response = xhr.responseJSON || {};
-                fadeBox(response.message || 'An error occurred', true);
+                fadeBox(response.message || @json(__('t_ingame.alliance.msg_error')), true);
             });
         });
 
@@ -253,7 +255,7 @@
             var userId = $(this).data('user-id');
             var username = $(this).data('username');
 
-            if (confirm('Are you sure you want to kick ' + username + ' from the alliance?')) {
+            if (confirm(kickConfirmTemplate.replace(':username', username))) {
                 $.post('{{ route('alliance.members.kick') }}', {
                     user_id: userId,
                     _token: alliance.token
@@ -265,12 +267,12 @@
                             $(this).remove();
                         });
                     } else {
-                        fadeBox(response.message || 'Failed to kick member', true);
+                        fadeBox(response.message || @json(__('t_ingame.alliance.msg_kick_error')), true);
                     }
                 })
                 .fail(function(xhr) {
                     var response = xhr.responseJSON || {};
-                    fadeBox(response.message || 'An error occurred', true);
+                    fadeBox(response.message || @json(__('t_ingame.alliance.msg_error')), true);
                 });
             }
         });
@@ -312,10 +314,10 @@
             e.preventDefault();
 
             errorBoxDecision(
-                "{{ __('Caution') }}",
-                "{{ __('Are you sure you want to leave the alliance?') }}",
-                "{{ __('yes') }}",
-                "{{ __('No') }}",
+                "{{ __('t_ingame.shared.caution') }}",
+                "{{ __('t_ingame.alliance.confirm_leave') }}",
+                "{{ __('t_ingame.shared.yes') }}",
+                "{{ __('t_ingame.shared.no') }}",
                 function() {
                     alliance.loadingIndicator.show();
                     $.ajax({
@@ -334,7 +336,7 @@
                                     window.location.reload();
                                 }, 1500);
                             } else {
-                                fadeBox(response.message || "{{ __('Failed to leave alliance') }}", true);
+                                fadeBox(response.message || @json(__('t_ingame.alliance.msg_leave_error')), true);
                             }
                             if (response.newAjaxToken) {
                                 alliance.updateToken(response.newAjaxToken);
@@ -342,7 +344,7 @@
                         },
                         error: function(xhr) {
                             alliance.loadingIndicator.hide();
-                            var errorMessage = "{{ __('Failed to leave alliance') }}";
+                            var errorMessage = @json(__('t_ingame.alliance.msg_leave_error'));
                             if (xhr.responseJSON && xhr.responseJSON.message) {
                                 errorMessage = xhr.responseJSON.message;
                             }

@@ -8,14 +8,14 @@
                             <table cellpadding="0" cellspacing="0" class="searchall">
                                 <tbody><tr>
                                     <td class="textCenter" style="padding-bottom:10px;">
-                                        Put in player, alliance or planet name
+                                        {{ __('t_ingame.search.input_hint') }}
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="ptb10 textCenter">
                                         <form id="searchForm" name="search" action="javascript:void(0);" onsubmit="return false;" method="POST">
                                             <input type="search" id="searchText" name="searchtext" class="textInput" value="">
-                                            <input type="submit" value="Search" name="search" class="btn_blue buttonSave"><p>
+                                            <input type="submit" value="{{ __('t_ingame.search.search_btn') }}" name="search" class="btn_blue buttonSave"><p>
                                             </p></form>
                                     </td>
                                 </tr>
@@ -25,21 +25,21 @@
                                     <li class="{{ request('category') == 2 || !request('category') ? 'ui-tabs-active' : '' }}">
                                         <a href="#one" class="tab" data-category="2">
                                             <span>
-                                               Player names
+                                               {{ __('t_ingame.search.tab_players') }}
                                             </span>
                                         </a>
                                     </li>
                                     <li class="{{ request('category') == 4 ? 'ui-tabs-active' : '' }}">
                                         <a href="#two" class="tab" data-category="4">
                                             <span>
-                                               Alliances/Tags
+                                               {{ __('t_ingame.search.tab_alliances') }}
                                             </span>
                                         </a>
                                     </li>
                                     <li class="{{ request('category') == 3 ? 'ui-tabs-active' : '' }}">
                                         <a href="#three" class="tab" data-category="3">
                                             <span>
-                                               Planet names
+                                               {{ __('t_ingame.search.tab_planets') }}
                                             </span>
                                         </a>
                                     </li>
@@ -47,7 +47,7 @@
 
                                 <div class="ajaxContent">
                                     <br>
-                                    <p class="textCenter">No search term entered</p>
+                                    <p class="textCenter">{{ __('t_ingame.search.no_search_term') }}</p>
                                 </div>
 
                             </div>
@@ -61,6 +61,22 @@
 
 <script type="text/javascript">
 (function($) {
+    var locaSearch = {
+        noSearchTerm: {!! json_encode(__('t_ingame.search.no_search_term')) !!},
+        searching: {!! json_encode(__('t_ingame.search.searching')) !!},
+        searchFailed: {!! json_encode(__('t_ingame.search.search_failed')) !!},
+        noResults: {!! json_encode(__('t_ingame.search.no_results')) !!},
+        playerName: {!! json_encode(__('t_ingame.search.player_name')) !!},
+        planetName: {!! json_encode(__('t_ingame.search.planet_name')) !!},
+        coordinates: {!! json_encode(__('t_ingame.search.coordinates')) !!},
+        tag: {!! json_encode(__('t_ingame.search.tag')) !!},
+        allianceName: {!! json_encode(__('t_ingame.search.alliance_name')) !!},
+        member: {!! json_encode(__('t_ingame.search.member')) !!},
+        points: {!! json_encode(__('t_ingame.search.points')) !!},
+        action: {!! json_encode(__('t_ingame.search.action')) !!},
+        applyForAlliance: {!! json_encode(__('t_ingame.search.apply_for_alliance')) !!}
+    };
+
     let currentCategory = {{ request('category', 2) }};
 
     // Tab switching
@@ -74,7 +90,7 @@
 
         // Clear results if search text is empty
         if ($('#searchText').val().trim() === '') {
-            $('.ajaxContent').html('<br><p class="textCenter">No search term entered</p>');
+            $('.ajaxContent').html('<br><p class="textCenter">' + locaSearch.noSearchTerm + '</p>');
         } else {
             // Re-run search with new category
             performSearch();
@@ -91,12 +107,12 @@
         const searchText = $('#searchText').val().trim();
 
         if (searchText === '') {
-            $('.ajaxContent').html('<br><p class="textCenter">No search term entered</p>');
+            $('.ajaxContent').html('<br><p class="textCenter">' + locaSearch.noSearchTerm + '</p>');
             return;
         }
 
         // Show loading indicator
-        $('.ajaxContent').html('<br><p class="textCenter">Searching...</p>');
+        $('.ajaxContent').html('<br><p class="textCenter">' + locaSearch.searching + '</p>');
 
         $.ajax({
             url: '{{ route('search.ajax') }}',
@@ -115,14 +131,14 @@
                 displayResults(response.results, response.category);
             },
             error: function() {
-                $('.ajaxContent').html('<br><p class="textCenter">Search failed. Please try again.</p>');
+                $('.ajaxContent').html('<br><p class="textCenter">' + locaSearch.searchFailed + '</p>');
             }
         });
     }
 
     function displayResults(results, category) {
         if (results.length === 0) {
-            $('.ajaxContent').html('<br><p class="textCenter">No results found</p>');
+            $('.ajaxContent').html('<br><p class="textCenter">' + locaSearch.noResults + '</p>');
             return;
         }
 
@@ -131,7 +147,7 @@
         if (category === 2) {
             // Player results
             html += '<table class="searchresults" cellpadding="0" cellspacing="0">';
-            html += '<tbody><tr><th>Player Name</th></tr>';
+            html += '<tbody><tr><th>' + locaSearch.playerName + '</th></tr>';
             results.forEach(function(result) {
                 html += '<tr><td>' + escapeHtml(result.name) + '</td></tr>';
             });
@@ -139,7 +155,7 @@
         } else if (category === 3) {
             // Planet results
             html += '<table class="searchresults" cellpadding="0" cellspacing="0">';
-            html += '<tbody><tr><th>Planet Name</th><th>Coordinates</th></tr>';
+            html += '<tbody><tr><th>' + locaSearch.planetName + '</th><th>' + locaSearch.coordinates + '</th></tr>';
             results.forEach(function(result) {
                 html += '<tr><td>' + escapeHtml(result.name) + '</td><td>' + escapeHtml(result.coordinates) + '</td></tr>';
             });
@@ -148,11 +164,11 @@
             // Alliance results
             html += '<table cellpadding="0" cellspacing="0" class="searchresults">';
             html += '<tbody><tr>';
-            html += '<th class="allyTag">{{ __('Tag') }}</th>';
-            html += '<th class="allyName">{{ __('Alliance name') }}</th>';
-            html += '<th class="allyMembers">{{ __('Member') }}</th>';
-            html += '<th class="allyPoints">{{ __('Points') }}</th>';
-            html += '<th class="action">{{ __('Action') }}</th>';
+            html += '<th class="allyTag">' + locaSearch.tag + '</th>';
+            html += '<th class="allyName">' + locaSearch.allianceName + '</th>';
+            html += '<th class="allyMembers">' + locaSearch.member + '</th>';
+            html += '<th class="allyPoints">' + locaSearch.points + '</th>';
+            html += '<th class="action">' + locaSearch.action + '</th>';
             html += '</tr>';
 
             let rowClass = 'alt';
@@ -180,7 +196,7 @@
                 // Only show apply link if user is not in an alliance AND alliance is open
                 @if(!auth()->user()->alliance_id)
                 if (result.is_open) {
-                    html += '<a title="{{ __('Apply for this alliance') }}" class="tooltip js_hideTipOnMobile icon" href="' + applyUrl + '">';
+                    html += '<a title="' + locaSearch.applyForAlliance + '" class="tooltip js_hideTipOnMobile icon" href="' + applyUrl + '">';
                     html += '<span class="icon icon_mail"></span>';
                     html += '</a>';
                 }

@@ -2,12 +2,12 @@
 
 namespace OGame\GameMissions;
 
-use OGame\Services\MilitaryStatisticsService;
 use Exception;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\Enums\HighscoreTypeEnum;
+use OGame\Facades\AppUtil;
 use OGame\GameMessages\ExpeditionBattleAliens;
 use OGame\GameMessages\ExpeditionBattlePirates;
 use OGame\GameMessages\ExpeditionFailed;
@@ -20,6 +20,7 @@ use OGame\GameMessages\ExpeditionGainShips;
 use OGame\GameMessages\ExpeditionLossOfFleet;
 use OGame\GameMessages\ExpeditionMerchantFound;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
@@ -37,7 +38,9 @@ use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\CharacterClassService;
 use OGame\Services\DarkMatterService;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\MerchantService;
+use OGame\Services\MilitaryStatisticsService;
 use OGame\Services\NPCFleetGeneratorService;
 use OGame\Services\NPCPlanetService;
 use OGame\Services\NPCPlayerService;
@@ -45,6 +48,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use RuntimeException;
 
 class ExpeditionMission extends GameMission
 {
@@ -58,13 +62,14 @@ class ExpeditionMission extends GameMission
      * Get configurable outcome weights based on community research.
      * Each outcome has a weight (representing relative probability).
      * Weights are loaded from database settings to allow dynamic event configuration.
+     * @param FleetMission $mission The fleet mission to get outcome weights for
      * @return array<string, float>
      */
-    protected function getOutcomeWeights(): array
+    protected function getOutcomeWeights(FleetMission $mission): array
     {
         $settingsService = app(SettingsService::class);
 
-        return [
+        $weights = [
             'dark_matter' => $settingsService->expeditionWeightDarkMatter(),
             'ships' => $settingsService->expeditionWeightShips(),
             'resources' => $settingsService->expeditionWeightResources(),
@@ -76,6 +81,18 @@ class ExpeditionMission extends GameMission
             'aliens' => $settingsService->expeditionWeightAliens(),
             'merchant' => $settingsService->expeditionWeightMerchant(),
         ];
+
+        // Apply Discoverer class bonus: 50% reduced chance of combat encounters
+        $player = $this->playerServiceFactory->make($mission->user_id, true);
+        $characterClassService = app(CharacterClassService::class);
+        $combatMultiplier = $characterClassService->getExpeditionEnemyChanceMultiplier($player->getUser());
+
+        if ($combatMultiplier < 1.0) {
+            $weights['pirates'] *= $combatMultiplier;
+            $weights['aliens'] *= $combatMultiplier;
+        }
+
+        return $weights;
     }
 
     /**
@@ -85,7 +102,11 @@ class ExpeditionMission extends GameMission
     {
         parent::startMissionSanityChecks($planet, $targetCoordinate, $targetType, $units, $resources);
         // Check if there are enough expedition slots available.
-        if ($planet->getPlayer()->getExpeditionSlotsInUse() >= $planet->getPlayer()->getExpeditionSlotsMax()) {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Expedition mission origin planet has no owner.');
+        }
+        if ($player->getExpeditionSlotsInUse() >= $player->getExpeditionSlotsMax()) {
             throw new Exception('You are conducting too many expeditions at the same time.');
         }
 
@@ -105,13 +126,21 @@ class ExpeditionMission extends GameMission
             return $parentCheck;
         }
 
+        if ($targetType === PlanetType::DebrisField) {
+            return new MissionPossibleStatus(false);
+        }
+
         // Expedition mission is only possible for position 16.
         if ($targetCoordinate->position !== 16) {
             return new MissionPossibleStatus(false);
         }
 
         // Only possible if player has astrophysics research level 1 or higher.
-        if ($planet->getPlayer()->getResearchLevel('astrophysics') <= 0) {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            return new MissionPossibleStatus(false);
+        }
+        if ($player->getResearchLevel('astrophysics') <= 0) {
             return new MissionPossibleStatus(false, __('Fleets cannot be sent to this target. You have to research Astrophysics first.'));
         }
 
@@ -136,7 +165,7 @@ class ExpeditionMission extends GameMission
 
         // If the mission is not processed yet, we need to process the outcome.
         // Select a random outcome based on configuration and weights
-        $outcome = $this->selectRandomOutcome();
+        $outcome = $this->selectRandomOutcome($mission);
 
         switch ($outcome) {
             case ExpeditionOutcomeType::Failed:
@@ -200,7 +229,17 @@ class ExpeditionMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Expedition return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Expedition return mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Expedition return mission target planet has no owner.');
+        }
 
         // Expedition mission: add back the units to the source planet.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -212,7 +251,7 @@ class ExpeditionMission extends GameMission
         }
 
         // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;
@@ -244,28 +283,8 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
-        // Define weighted delay factors 2,3,5 probability of 89%, 10%, 1%
-        $delayFactors = [
-            2 => 89,
-            3 => 10,
-            5 => 1
-        ];
-
-        // Calculate total weight and generate random number
-        $totalWeight = array_sum($delayFactors);
-        $rand = mt_rand(1, $totalWeight);
-
-        // Select multiplier based on cumulative weight
-        $cumulativeWeight = 0;
-        $selectedMultiplier = 2; // fallback default
-
-        foreach ($delayFactors as $factor => $weight) {
-            $cumulativeWeight += $weight;
-            if ($rand <= $cumulativeWeight) {
-                $selectedMultiplier = $factor;
-                break;
-            }
-        }
+        // Select delay factor (2x/3x/5x holding time) with weights 89%/10%/1%.
+        $selectedMultiplier = (int)AppUtil::selectWeightedRandom([2 => 89, 3 => 10, 5 => 1]);
 
         // Calculate base additional return trip time based on holding time
         // Formula: Base Delay = Delay factor × Holding time
@@ -330,8 +349,12 @@ class ExpeditionMission extends GameMission
         $resourcesInCargo = $mission->metal + $mission->crystal + $mission->deuterium;
         $maxCargoCapacity = $totalCargoCapacity - $resourcesInCargo;
 
-        // Determine the max resource find.
-        $maxResourceFind = $this->determineMaxResourceFind($mission);
+        // Determine find variant (normal/rare/exceptional) and apply its reward multiplier.
+        $variantData = $this->selectExpeditionFindVariant();
+        $variant = $variantData['variant'];
+
+        // Determine the max resource find and scale by the variant multiplier.
+        $maxResourceFind = (int)($this->determineMaxResourceFind($mission) * $variantData['multiplier']);
 
         // Determine the resource type: metal, crystal or deuterium.
         $cargoCapacityConstrainedAmount = 0;
@@ -360,8 +383,10 @@ class ExpeditionMission extends GameMission
         }
 
         // Send a message to the player with the resources found outcome.
-        // Choose a random message variation id based on the number of available outcomes.
-        $message_variation_id = ExpeditionGainResources::getRandomMessageVariationId();
+        // The message tier matches the rolled variant even when the cargo capacity caps the
+        // payout: as in the original game, the message describes the size of the discovery,
+        // not the amount the fleet was able to carry home.
+        $message_variation_id = ExpeditionGainResources::getRandomMessageVariationIdForVariant($variant);
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainResources::class, ['message_variation_id' => $message_variation_id, 'resource_type' => $resource_type->value, 'resource_amount' => $cargoCapacityConstrainedAmount]);
 
         return $resourcesFound;
@@ -474,8 +499,15 @@ class ExpeditionMission extends GameMission
         $resourcesInCargo = $mission->metal + $mission->crystal + $mission->deuterium;
         $maxCargoCapacity = $totalCargoCapacity - $resourcesInCargo;
 
-        // Determine the max ship find (uses ships multiplier).
-        $maxShipFind = $this->determineMaxShipFind($mission);
+        // Determine find variant (normal/rare/exceptional) and apply its reward multiplier.
+        // The message tier matches the rolled variant even when the cargo capacity caps the
+        // payout: as in the original game, the message describes the size of the discovery,
+        // not the amount the fleet was able to carry home.
+        $variantData = $this->selectExpeditionFindVariant();
+        $variant = $variantData['variant'];
+
+        // Determine the max ship find and scale by the variant multiplier.
+        $maxShipFind = (int)($this->determineMaxShipFind($mission) * $variantData['multiplier']);
         $cargoCapacityConstrainedAmount = min($maxCargoCapacity, $maxShipFind);
 
         // Select 1-6 random ship types from possible ships.
@@ -542,8 +574,8 @@ class ExpeditionMission extends GameMission
         }
 
         // Send a message to the player with the units found outcome.
-        // Choose a random message variation id based on the number of available outcomes.
-        $message_variation_id = ExpeditionGainShips::getRandomMessageVariationId();
+        // Choose a message variation id matching the find variant (normal/rare/exceptional).
+        $message_variation_id = ExpeditionGainShips::getRandomMessageVariationIdForVariant($variant);
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainShips::class, ['message_variation_id' => $message_variation_id] + $message_params);
 
         return $units;
@@ -566,11 +598,15 @@ class ExpeditionMission extends GameMission
         // $hasPathfinder = $fleetUnits->hasUnit($objectService->getShipObjectByMachineName('pathfinder'));
         $hasPathfinder = false;
 
-        // Calculate Dark Matter reward
-        $darkMatterService = app(DarkMatterService::class);
-        $darkMatterAmount = $darkMatterService->calculateExpeditionReward($hasPathfinder);
+        // Determine find variant (normal/rare/exceptional) and apply its reward multiplier.
+        $variantData = $this->selectExpeditionFindVariant();
+        $variant = $variantData['variant'];
 
-        // Apply dark matter rewards multiplier
+        // Calculate Dark Matter reward and scale by the variant multiplier.
+        $darkMatterService = app(DarkMatterService::class);
+        $darkMatterAmount = (int)($darkMatterService->calculateExpeditionReward($hasPathfinder) * $variantData['multiplier']);
+
+        // Apply dark matter rewards multiplier from settings.
         $settingsService = app(SettingsService::class);
         $darkMatterMultiplier = $settingsService->expeditionRewardMultiplierDarkMatter();
         $darkMatterAmount = (int)($darkMatterAmount * $darkMatterMultiplier);
@@ -589,7 +625,7 @@ class ExpeditionMission extends GameMission
             'Dark Matter found during expedition'
         );
 
-        $message_variation_id = ExpeditionGainDarkMatter::getRandomMessageVariationId();
+        $message_variation_id = ExpeditionGainDarkMatter::getRandomMessageVariationIdForVariant($variant);
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionGainDarkMatter::class, [
             'message_variation_id' => $message_variation_id,
             'dark_matter_amount' => $darkMatterAmount
@@ -685,7 +721,13 @@ class ExpeditionMission extends GameMission
         $npcPlayer = $npcData['player'];
 
         // Get origin planet for battle context
+        if ($mission->planet_id_from === null) {
+            throw new RuntimeException('Expedition mission has no origin planet.');
+        }
         $originPlanet = $this->planetServiceFactory->make($mission->planet_id_from, true);
+        if ($originPlanet === null) {
+            throw new RuntimeException('Expedition mission origin planet does not exist.');
+        }
 
         // Create NPC planet service for the battle
         $npcPlanetService = new NPCPlanetService(
@@ -700,14 +742,21 @@ class ExpeditionMission extends GameMission
         // NPC battles don't have ACS defend fleets, just the NPC's forces
         $defenders = [DefenderFleet::fromPlanet($npcPlanetService)];
 
+        // Create AttackerFleet for the player's expedition fleet
+        $attackerFleet = new AttackerFleet();
+        $attackerFleet->units = $playerFleet;
+        $attackerFleet->player = $player;
+        $attackerFleet->fleetMissionId = $mission->id;
+        $attackerFleet->ownerId = $mission->user_id;
+        $attackerFleet->cargoResources = new Resources(0, 0, 0, 0);
+        $attackerFleet->isInitiator = true;
+        $attackerFleet->fleetMission = $mission;
+
         $battleEngine = new RustBattleEngine(
-            $playerFleet,
-            $player,
+            [$attackerFleet],
             $npcPlanetService,
             $defenders,
-            $this->settings,
-            $mission->id,
-            $mission->user_id
+            $this->settings
         );
 
         $battleResult = $battleEngine->simulateBattle();
@@ -725,27 +774,50 @@ class ExpeditionMission extends GameMission
         // Note: Battle report uses origin planet coordinates, not deep space position 16
         $reportId = $this->createExpeditionBattleReport($player, $npcPlayer, $originPlanet, $battleResult);
 
-        // TODO: Debris field creation for expedition battles
-        // Currently, expedition battles do NOT create debris fields at position 16.
-        // This will change when player classes are introduced - the Discoverer class
-        // will be able to collect debris from expedition battles at position 16.
-        // When implementing player classes, add debris field creation here:
-        //
-        // Important notes:
-        // 1. Debris field should be created at position 16 (deep space), NOT at the origin planet.
-        //    The battle report uses the origin planet coordinates, but debris is at position 16.
-        // 2. Expedition battles only create 10% debris (not the standard 30%).
-        //    Recalculate debris from battle losses: (attacker + defender losses) × 10% × debris field percentage.
-        // 3. Only Pathfinders (with Discoverer class) can collect expedition debris, not Recyclers.
-        //
-        // $expeditionCoords = new \OGame\Models\Planet\Coordinate($mission->galaxy_to, $mission->system_to, 16);
-        // $debrisFieldService = resolve(DebrisFieldService::class);
-        // $debrisFieldService->loadOrCreateForCoordinates($expeditionCoords);
-        // // Calculate 10% debris instead of using $battleResult->debris (which uses 30%)
-        // $totalLosses = $battleResult->attackerResourceLoss->add($battleResult->defenderResourceLoss);
-        // $expeditionDebris = $totalLosses->multiply(0.10); // 10% for expeditions
-        // $debrisFieldService->appendResources($expeditionDebris);
-        // $debrisFieldService->save();
+        // Create debris field for expedition battles at position 16 (deep space)
+        // Expedition battles create debris fields that can only be collected by Pathfinders (Discoverer class)
+        if ($mission->galaxy_to === null || $mission->system_to === null) {
+            throw new RuntimeException('Expedition mission has no target coordinate.');
+        }
+        $expeditionCoords = new Coordinate($mission->galaxy_to, $mission->system_to, 16);
+        $debrisFieldService = resolve(DebrisFieldService::class);
+        $debrisFieldService->loadOrCreateForCoordinates($expeditionCoords);
+
+        // Calculate expedition debris: 10% of battle losses (not the standard 30%)
+        // Use the same logic as normal battles but with 10% rate instead of settings percentage
+        $expeditionDebrisRate = 0.10; // 10% for expeditions
+        $deuteriumOn = $this->settings->debrisFieldDeuteriumOn();
+
+        // Calculate debris from all units lost in battle (attacker + defender)
+        $allUnitsLost = clone $battleResult->attackerUnitsLost;
+        foreach ($battleResult->defenderUnitsLost->units as $unit) {
+            $allUnitsLost->addUnit($unit->unitObject, $unit->amount);
+        }
+
+        $metal = 0;
+        $crystal = 0;
+        $deuterium = 0;
+
+        foreach ($allUnitsLost->units as $unit) {
+            $unitMetal = $unit->unitObject->price->resources->metal->get() * $unit->amount;
+            $unitCrystal = $unit->unitObject->price->resources->crystal->get() * $unit->amount;
+            $unitDeuterium = $unit->unitObject->price->resources->deuterium->get() * $unit->amount;
+
+            $metal += floor($unitMetal * $expeditionDebrisRate);
+            $crystal += floor($unitCrystal * $expeditionDebrisRate);
+
+            if ($deuteriumOn) {
+                $deuterium += floor($unitDeuterium * $expeditionDebrisRate);
+            }
+        }
+
+        $expeditionDebris = new Resources($metal, $crystal, $deuterium, 0);
+
+        // Only create debris field if there's actually debris to add
+        if ($expeditionDebris->sum() > 0) {
+            $debrisFieldService->appendResources($expeditionDebris);
+            $debrisFieldService->save();
+        }
 
         // Process battle result
         $survivingUnits = $battleResult->attackerUnitsResult;
@@ -864,13 +936,38 @@ class ExpeditionMission extends GameMission
     }
 
     /**
+     * Select a random find variant (normal, rare, or exceptional) using weighted probabilities.
+     * Normal: 89%, Rare: 10%, Exceptional: 1%.
+     *
+     * Returns the selected variant name and a corresponding reward multiplier:
+     * - normal: 1x
+     * - rare: 2–3x (random)
+     * - exceptional: 5–10x (random)
+     *
+     * @return array{variant: string, multiplier: int}
+     */
+    protected function selectExpeditionFindVariant(): array
+    {
+        $selectedVariant = AppUtil::selectWeightedRandom(['normal' => 89, 'rare' => 10, 'exceptional' => 1]);
+
+        $multiplier = match($selectedVariant) {
+            'rare' => random_int(2, 3),
+            'exceptional' => random_int(5, 10),
+            default => 1,
+        };
+
+        return ['variant' => (string)$selectedVariant, 'multiplier' => $multiplier];
+    }
+
+    /**
      * Select a random expedition outcome based on configured weights. Higher weight
      * for a particular outcome means more chance of that outcome being selected
      * relative to the other outcomes.
      *
+     * @param FleetMission $mission The fleet mission to select an outcome for
      * @return ExpeditionOutcomeType
      */
-    private function selectRandomOutcome(): ExpeditionOutcomeType
+    private function selectRandomOutcome(FleetMission $mission): ExpeditionOutcomeType
     {
         // Map outcome types to their weights
         $outcomeMapping = [
@@ -890,7 +987,7 @@ class ExpeditionMission extends GameMission
         $weightedOutcomes = [];
         $totalWeight = 0;
 
-        foreach ($this->getOutcomeWeights() as $key => $weight) {
+        foreach ($this->getOutcomeWeights($mission) as $key => $weight) {
             if (!isset($outcomeMapping[$key])) {
                 continue;
             }
@@ -914,13 +1011,17 @@ class ExpeditionMission extends GameMission
             return ExpeditionOutcomeType::Failed;
         }
 
-        // Pick a random number between 1 and total weight
-        $random = random_int(1, (int)$totalWeight);
+        // Scale weights to integers (multiply by 10) to avoid precision loss
+        // from casting float totals to int for random_int(). Without this,
+        // outcomes with small fractional weights (e.g. merchant 0.4, black_hole 0.2)
+        // can fall into sub-integer gaps in the cumulative range and become unreachable.
+        $scaledTotal = (int)round($totalWeight * 10);
+        $random = random_int(1, $scaledTotal);
 
         // Find which outcome was selected
         $currentWeight = 0;
         foreach ($weightedOutcomes as $weighted) {
-            $currentWeight += $weighted['weight'];
+            $currentWeight += (int)round($weighted['weight'] * 10);
             if ($random <= $currentWeight) {
                 return $weighted['outcome'];
             }
@@ -936,7 +1037,7 @@ class ExpeditionMission extends GameMission
      *
      * @return int
      */
-    private function getBaseMaxFindFromHighscore(): int
+    protected function getBaseMaxFindFromHighscore(): int
     {
         // Max resources found is according to these params:
         // Number 1 player highscore "general" points determines the max resources found:
@@ -949,7 +1050,8 @@ class ExpeditionMission extends GameMission
         // < 75.000.000 points: 3.600.000 metal
         // < 100.000.000 points: 4.200.000 metal
         // > 100.000.000 points: 5.000.000 metal
-        $rank_1_highscore_points = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first()->general;
+        $rank_1_highscore = Highscore::orderByDesc(HighscoreTypeEnum::general->name)->first();
+        $rank_1_highscore_points = $rank_1_highscore === null ? 0 : $rank_1_highscore->general;
 
         if ($rank_1_highscore_points < 10000) {
             $max = 40000;

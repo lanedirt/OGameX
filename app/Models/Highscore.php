@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -50,25 +51,24 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|Highscore whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'player_id',
+    'general',
+    'economy',
+    'research',
+    'military_built',
+    'military_destroyed',
+    'military_lost',
+    'general_rank',
+    'economy_rank',
+    'research_rank',
+    'military_built_rank',
+    'military_destroyed_rank',
+    'military_lost_rank',
+])]
 class Highscore extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        'player_id',
-        'general',
-        'economy',
-        'research',
-        'military_built',
-        'military_destroyed',
-        'military_lost',
-        'general_rank',
-        'economy_rank',
-        'research_rank',
-        'military_built_rank',
-        'military_destroyed_rank',
-        'military_lost_rank',
-    ];
 
     /**
      * Get the user that owns the note record.

@@ -28,8 +28,10 @@ class PhalanxService
     /**
      * PhalanxService constructor.
      */
-    public function __construct(private PlayerServiceFactory $playerServiceFactory)
-    {
+    public function __construct(
+        private PlayerServiceFactory $playerServiceFactory,
+        private CoordinateDistanceCalculator $coordinateDistanceCalculator,
+    ) {
     }
 
     /**
@@ -87,8 +89,11 @@ class PhalanxService
             return false;
         }
 
-        // Calculate system distance
-        $system_distance = abs($moon_system - $target_coordinate->system);
+        // Calculate shortest system distance (donut galaxy wrap-around)
+        $system_distance = $this->coordinateDistanceCalculator->getSystemDistance(
+            $moon_system,
+            $target_coordinate->system,
+        );
 
         return $system_distance <= $max_range;
     }
@@ -139,6 +144,10 @@ class PhalanxService
         ->orderBy('time_arrival', 'asc')
         ->get();
 
+        // Preload planet names to avoid N+1 queries
+        $planet_ids = $fleet_missions->flatMap(fn ($m) => [$m->planet_id_from, $m->planet_id_to])->filter()->unique();
+        $planet_names = Planet::whereIn('id', $planet_ids)->pluck('name', 'id');
+
         $scan_results = [];
 
         foreach ($fleet_missions as $mission) {
@@ -156,9 +165,15 @@ class PhalanxService
                     if ($mission->planet_id_from === $target_planet_id) {
                         // Yes! This fleet left from the scanned planet and will return to it
                         // Add the predicted return trip
-                        $return_time_arrival = $mission->time_arrival +
-                                             ($mission->time_arrival - $mission->time_departure) +
-                                             ($mission->time_holding ?? 0);
+                        // For ACS Defend (type 5), time_arrival already includes hold time
+                        if ($mission->mission_type === 5) {
+                            $return_time_arrival = $mission->time_arrival +
+                                                 ($mission->time_arrival - $mission->time_departure - ($mission->time_holding ?? 0));
+                        } else {
+                            $return_time_arrival = $mission->time_arrival +
+                                                 ($mission->time_arrival - $mission->time_departure) +
+                                                 ($mission->time_holding ?? 0);
+                        }
 
                         $ships = $this->getFleetShips($mission);
                         $fleet_speed = $this->getFleetSpeed($mission);
@@ -174,17 +189,20 @@ class PhalanxService
                             'time_departure' => $mission->time_arrival,
                             'time_arrival' => $return_time_arrival,
                             'fleet_direction' => $fleet_direction,
+                            'fleet_owner_id' => $mission->user_id,
                             'fleet_icon' => '014a5d88b102d4b47ab5146d4807c6.gif',
                             'display_time' => $return_time_arrival,
                             'origin' => [
                                 'galaxy' => $mission->galaxy_to,
                                 'system' => $mission->system_to,
                                 'position' => $mission->position_to,
+                                'planet_name' => $planet_names[$mission->planet_id_to] ?? '',
                             ],
                             'destination' => [
                                 'galaxy' => $mission->galaxy_from,
                                 'system' => $mission->system_from,
                                 'position' => $mission->position_from,
+                                'planet_name' => $planet_names[$mission->planet_id_from] ?? '',
                             ],
                             'ships' => $ships,
                             'ship_count' => array_sum($ships),
@@ -220,10 +238,16 @@ class PhalanxService
                 $parent_mission = FleetMission::find($mission->parent_id);
                 if ($parent_mission) {
                     // Calculate return arrival time same way as FleetEventsController does
-                    // Return arrival = parent arrival + travel duration + holding time
-                    $display_time_arrival = $parent_mission->time_arrival +
-                                          ($parent_mission->time_arrival - $parent_mission->time_departure) +
-                                          ($parent_mission->time_holding ?? 0);
+                    // For ACS Defend (type 5), time_arrival already includes hold time
+                    if ($parent_mission->mission_type === 5) {
+                        $one_way_duration = ($parent_mission->time_arrival - ($parent_mission->time_holding ?? 0)) - $parent_mission->time_departure;
+                        $display_time_arrival = $parent_mission->time_arrival + $one_way_duration;
+                    } else {
+                        // For other missions: Return arrival = parent arrival + travel duration + holding time
+                        $display_time_arrival = $parent_mission->time_arrival +
+                                              ($parent_mission->time_arrival - $parent_mission->time_departure) +
+                                              ($parent_mission->time_holding ?? 0);
+                    }
                 }
             }
 
@@ -241,17 +265,20 @@ class PhalanxService
                 'time_departure' => $mission->time_departure,
                 'time_arrival' => $display_time_arrival,
                 'fleet_direction' => $fleet_direction,
+                'fleet_owner_id' => $mission->user_id,
                 'fleet_icon' => $fleet_icon,
                 'display_time' => $display_time_arrival,
                 'origin' => [
                     'galaxy' => $mission->galaxy_from,
                     'system' => $mission->system_from,
                     'position' => $mission->position_from,
+                    'planet_name' => $planet_names[$mission->planet_id_from] ?? '',
                 ],
                 'destination' => [
                     'galaxy' => $mission->galaxy_to,
                     'system' => $mission->system_to,
                     'position' => $mission->position_to,
+                    'planet_name' => $planet_names[$mission->planet_id_to] ?? '',
                 ],
                 'ships' => $ships,
                 'ship_count' => array_sum($ships),
@@ -290,10 +317,12 @@ class PhalanxService
     {
         // If scanner owns the fleet
         if ($fleet_owner_id === $scanner_player_id) {
-            return 'Your fleet';
+            return 'Own fleet';
         }
 
-        // If attack mission (type 1 = Attack)
+        // If attack mission (type 1 = Attack) or ACS Attack (type 2)
+        // TODO: ACS Attack (type 2) fleets are not yet shown in Phalanx scan results.
+        // Each union member fleet needs to be displayed individually, matching OGame behaviour.
         if ($mission_type === 1) {
             return 'Enemy fleet';
         }

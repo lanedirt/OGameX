@@ -23,21 +23,21 @@
                     </div>
                     <div id="header_text">
                         <h2></h2>
-                        <a class="back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('overview.index') }}" title="@lang('Back')"></a>
-                        <a class="small_back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('overview.index') }}" title="@lang('Back')"></a>
+                        <a class="back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('overview.index') }}" title="{{ __('t_merchant.back') }}"></a>
+                        <a class="small_back_to_overview js_backToOverview tooltip js_hideTipOnMobile" href="{{ route('overview.index') }}" title="{{ __('t_merchant.back') }}"></a>
                     </div>
-                    <a href="{{ route('merchant.resource-market') }}" id="js_traderResources" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderResources" data-tooltip-title="@lang('You can exchange resources for other resources here.')">
-                        <h2>@lang('Resource Market')</h2>
+                    <a href="{{ route('merchant.resource-market') }}" id="js_traderResources" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderResources" data-tooltip-title="{{ __('t_merchant.exchange_resources_desc') }}">
+                        <h2>{{ __('t_merchant.resource_market') }}</h2>
                     </a>
-                    <a href="#" id="js_traderAuctioneer" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderAuctioneer" data-tooltip-title="@lang('Items are offered here daily and can be purchased using resources.')">
-                        <h2>@lang('Auctioneer')</h2>
+                    <a href="#" id="js_traderAuctioneer" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderAuctioneer" data-tooltip-title="{{ __('t_merchant.auctioneer_desc') }}">
+                        <h2>{{ __('t_merchant.auctioneer') }}</h2>
                     </a>
                     <br>
-                    <a href="{{ route('merchant.scrap') }}" id="js_traderScrap" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderScrap" data-tooltip-title="@lang('The scrap merchant accepts used ships and defence systems.')">
-                        <h2>@lang('Scrap Merchant')</h2>
+                    <a href="{{ route('merchant.scrap') }}" id="js_traderScrap" class="js_trader trader_link tooltipLeft js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderScrap" data-tooltip-title="{{ __('t_merchant.scrap_merchant_desc') }}">
+                        <h2>{{ __('t_merchant.scrap_merchant') }}</h2>
                     </a>
-                    <a href="#" id="js_traderImportExport" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderImportExport" data-tooltip-title="@lang('Containers with unknown contents are sold here for resources every day.')">
-                        <h2>@lang('Import / Export')</h2>
+                    <a href="#" id="js_traderImportExport" class="js_trader trader_link tooltipRight js_hideTipOnMobile ipiHintable" data-ipi-hint="ipiTraderImportExport" data-tooltip-title="{{ __('t_merchant.import_export_desc') }}">
+                        <h2>{{ __('t_merchant.import_export') }}</h2>
                     </a>
                 </div>
                 <div class="c-left"></div>

@@ -3,12 +3,26 @@
 namespace Tests\Feature\FleetDispatch;
 
 use Exception;
+use Illuminate\Support\Facades\Date;
+use OGame\Factories\PlanetServiceFactory;
+use OGame\Factories\PlayerServiceFactory;
+use OGame\GameMessages\ExpeditionGainDarkMatter;
+use OGame\GameMessages\ExpeditionGainResources;
+use OGame\GameMessages\ExpeditionGainShips;
+use OGame\GameMissions\ExpeditionMission;
 use OGame\GameMissions\Models\ExpeditionOutcomeType;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\BattleReport;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Highscore;
+use OGame\Models\Message;
+use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\FleetMissionService;
+use OGame\Services\MessageService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
@@ -49,6 +63,19 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $settingsService->set('fleet_speed_holding', 1);
         $settingsService->set('fleet_speed_peaceful', 1);
         $this->planetAddResources(new Resources(0, 0, 100000, 0));
+    }
+
+    /**
+     * Get the current planet's player, failing the test if it is null.
+     */
+    private function planetPlayer(): PlayerService
+    {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Planet has no player.');
+        }
+
+        return $player;
     }
 
     protected function messageCheckMissionArrival(): void
@@ -117,6 +144,20 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
+     * Assert that expedition cannot target debris fields.
+     */
+    public function testFleetCheckToPosition16DebrisFieldFails(): void
+    {
+        $this->basicSetup();
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 1);
+
+        $currentPlanetCoords = $this->planetService->getPlanetCoordinates();
+        $coordinates = new Coordinate($currentPlanetCoords->galaxy, $currentPlanetCoords->system, 16);
+        $this->checkTargetFleet($coordinates, $unitCollection, PlanetType::DebrisField, false);
+    }
+
+    /**
      * Test that max expedition slots restriction works correctly based on astrophysics level.
      */
     public function testMaxExpeditionSlotsRestriction(): void
@@ -128,18 +169,18 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // First expedition should succeed
         $this->sendTestExpedition();
-        $this->assertEquals(1, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 1 after first expedition');
+        $this->assertEquals(1, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 1 after first expedition');
 
         // Second expedition should fail due to max expedition slots restriction
         $this->sendTestExpedition(false);
-        $this->assertEquals(1, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition mission has been created but should have been rejected due to max expedition slots restriction (astrophysics level 1)');
+        $this->assertEquals(1, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition mission has been created but should have been rejected due to max expedition slots restriction (astrophysics level 1)');
 
         // Upgrade astrophysics to level 4 to allow 2 expedition slots
         $this->playerSetResearchLevel('astrophysics', 4);
 
         // Now second expedition should succeed
         $this->sendTestExpedition();
-        $this->assertEquals(2, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 2 after second expedition');
+        $this->assertEquals(2, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 2 after second expedition');
     }
 
     /**
@@ -154,15 +195,15 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Send first expedition
         $this->sendTestExpedition();
-        $this->assertEquals(1, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 1 after first expedition');
+        $this->assertEquals(1, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 1 after first expedition');
 
         // Send second expedition
         $this->sendTestExpedition();
-        $this->assertEquals(2, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 2 after second expedition');
+        $this->assertEquals(2, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 2 after second expedition');
 
         // Send third expedition
         $this->sendTestExpedition();
-        $this->assertEquals(3, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 3 after third expedition');
+        $this->assertEquals(3, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 3 after third expedition');
 
         // Increase time by 10 hours to ensure all expeditions are done
         $this->travel(10)->hours();
@@ -172,7 +213,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Ensure that the expedition slots in use are updated correctly
-        $this->assertEquals(0, $this->planetService->getPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 0 after all expeditions are done');
+        $this->assertEquals(0, $this->planetPlayer()->getExpeditionSlotsInUse(), 'Expedition slots in use should be 0 after all expeditions are done');
     }
 
     /**
@@ -207,6 +248,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Cancel the fleet mission, so it doesn't interfere with other tests.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionService->cancelMission($fleetMission);
     }
 
@@ -227,6 +271,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the fleet mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $parentMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($parentMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Record when the mission departed
         $departureTime = (int)$parentMission->time_departure;
@@ -240,7 +287,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->travel(5)->seconds();
 
         // Recall the fleet after 5 seconds
-        $currentTime = (int)\Illuminate\Support\Carbon::now()->timestamp;
+        $currentTime = (int)Date::now()->timestamp;
         $fleetMissionService->cancelMission($parentMission);
 
         // Reload the fleet mission service
@@ -345,6 +392,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the parent mission.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $parentMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($parentMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Verify the parent mission has holding time set (expeditions should have at least 1 hour).
         $this->assertGreaterThan(0, $parentMission->time_holding, 'Expedition mission should have holding time set');
@@ -409,7 +459,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Create a highscore record with 100.000.000 points to test max resource find.
         $highscore = Highscore::create([
-            'player_id' => $this->planetService->getPlayer()->getId(),
+            'player_id' => $this->planetPlayer()->getId(),
             'general' => 100000000,
         ]);
         $highscore->save();
@@ -420,6 +470,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -463,7 +516,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Create a highscore record with 100.000.000 points.
         $highscore = Highscore::create([
-            'player_id' => $this->planetService->getPlayer()->getId(),
+            'player_id' => $this->planetPlayer()->getId(),
             'general' => 100000000,
         ]);
         $highscore->save();
@@ -476,6 +529,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -515,7 +571,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Create a highscore record with only 1 point.
         $highscore = Highscore::create([
-            'player_id' => $this->planetService->getPlayer()->getId(),
+            'player_id' => $this->planetPlayer()->getId(),
             'general' => 1,
         ]);
         $highscore->save();
@@ -526,6 +582,13 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+
+        // Pin variant to normal (1x multiplier) so the assertion tests the base highscore cap,
+        // not the tier multiplier.
+        $this->bindForcedExpeditionFindVariant('normal', 1);
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -635,6 +698,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -672,6 +738,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
 
         // Wait for the mission to complete.
         $this->travel(10)->hours();
@@ -706,6 +775,76 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
     }
 
     /**
+     * Bind an ExpeditionMission subclass into the container that forces the expedition find
+     * variant roll to the given variant/multiplier and optionally pins the base max find amount.
+     *
+     * IMPORTANT: this must be called AFTER dispatching the expedition (sendTestExpedition() /
+     * sendMissionToPosition16()): dispatchFleet() calls reloadApplication() internally, which
+     * wipes any container bindings registered before it. The mission outcome itself is processed
+     * later (e.g. via a /overview request), which is when this binding takes effect.
+     *
+     * @param string $variant The find variant to force: 'normal', 'rare' or 'exceptional'.
+     * @param int $multiplier The reward multiplier to force.
+     * @param int|null $baseMaxFind Fixed base max find amount, or null to keep the highscore-based roll.
+     */
+    private function bindForcedExpeditionFindVariant(string $variant, int $multiplier, int|null $baseMaxFind = null): void
+    {
+        $this->app->bind(ExpeditionMission::class, function ($app) use ($variant, $multiplier, $baseMaxFind) {
+            return new class (
+                $app->make(FleetMissionService::class),
+                $app->make(MessageService::class),
+                $app->make(PlanetServiceFactory::class),
+                $app->make(PlayerServiceFactory::class),
+                $app->make(SettingsService::class),
+                $variant,
+                $multiplier,
+                $baseMaxFind
+            ) extends ExpeditionMission {
+                public function __construct(
+                    FleetMissionService $fleetMissionService,
+                    MessageService $messageService,
+                    PlanetServiceFactory $planetServiceFactory,
+                    PlayerServiceFactory $playerServiceFactory,
+                    SettingsService $settings,
+                    private readonly string $forcedVariant,
+                    private readonly int $forcedMultiplier,
+                    private readonly int|null $forcedBaseMaxFind
+                ) {
+                    parent::__construct($fleetMissionService, $messageService, $planetServiceFactory, $playerServiceFactory, $settings);
+                }
+
+                protected function selectExpeditionFindVariant(): array
+                {
+                    return ['variant' => $this->forcedVariant, 'multiplier' => $this->forcedMultiplier];
+                }
+
+                protected function getBaseMaxFindFromHighscore(): int
+                {
+                    return $this->forcedBaseMaxFind ?? parent::getBaseMaxFindFromHighscore();
+                }
+            };
+        });
+    }
+
+    /**
+     * Get the message_variation_id of the last message with the given key received by the
+     * current player, failing the test if no such message exists.
+     */
+    private function getLastMessageVariationId(string $messageKey): int
+    {
+        $message = Message::where('user_id', $this->planetPlayer()->getId())
+            ->where('key', $messageKey)
+            ->orderByDesc('id')
+            ->first();
+
+        if ($message === null) {
+            $this->fail("No message with key '{$messageKey}' received by player.");
+        }
+
+        return (int)$message->params['message_variation_id'];
+    }
+
+    /**
      * Test that resources sent with expedition are preserved when nothing is found.
      */
     public function testExpeditionPreservesOriginalResources(): void
@@ -736,7 +875,11 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Expedition mission not created');
-        $fleetMissionId = $activeMissions->first()->id;
+        $firstMission = $activeMissions->first();
+        if ($firstMission === null) {
+            $this->fail('Expedition mission not created.');
+        }
+        $fleetMissionId = $firstMission->id;
 
         // Verify resources were deducted from planet (including fuel)
         $this->get('/overview');
@@ -751,6 +894,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Advance time to expedition arrival (1 hour holding time + travel time)
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
         $holdingTime = $fleetMission->time_holding ?? 0;
         $this->travel($travelTime + $holdingTime + 1)->seconds();
@@ -762,6 +908,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Return mission should be created');
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('Return mission should be created.');
+        }
 
         // Verify return mission has original resources
         $this->assertEquals(100000, $returnMission->metal);
@@ -819,10 +968,17 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         // Get the mission ID
         $fleetMissionService = resolve(FleetMissionService::class);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
-        $fleetMissionId = $activeMissions->first()->id;
+        $firstMission = $activeMissions->first();
+        if ($firstMission === null) {
+            $this->fail('Expedition mission not created.');
+        }
+        $fleetMissionId = $firstMission->id;
 
         // Advance time to expedition arrival
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $travelTime = $fleetMission->time_arrival - $fleetMission->time_departure;
         $holdingTime = $fleetMission->time_holding ?? 0;
         $this->travel($travelTime + $holdingTime + 1)->seconds();
@@ -834,6 +990,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Return mission should be created');
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('Return mission should be created.');
+        }
 
         // Verify return mission has at least original resources (should have more from found resources)
         $this->assertGreaterThanOrEqual(50000, $returnMission->metal);
@@ -867,6 +1026,9 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Verify no merchant is active initially
         $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Planet has no player.');
+        }
         $this->assertNull(cache()->get('active_merchant_' . $player->getId()));
 
         // Send the expedition mission
@@ -896,7 +1058,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Assert that the expedition message was sent
         // Check that we have at least one expedition merchant message
-        $messages = \OGame\Models\Message::where('user_id', $player->getId())
+        $messages = Message::where('user_id', $player->getId())
             ->where('key', 'expedition_merchant_found')
             ->get();
 
@@ -957,16 +1119,16 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
 
         // Ensure all weights are initialized with their defaults if not already set
         $defaultWeights = [
-            'expedition_weight_ships' => '22',
-            'expedition_weight_resources' => '32.5',
-            'expedition_weight_delay' => '7',
-            'expedition_weight_speedup' => '2',
-            'expedition_weight_nothing' => '26.5',
-            'expedition_weight_black_hole' => '0.3',
-            'expedition_weight_dark_matter' => '9',
-            'expedition_weight_merchant' => '0.7',
-            'expedition_weight_pirates' => '0',
-            'expedition_weight_aliens' => '0',
+            'expedition_weight_ships' => '17',
+            'expedition_weight_resources' => '35',
+            'expedition_weight_delay' => '7.5',
+            'expedition_weight_speedup' => '2.75',
+            'expedition_weight_nothing' => '25',
+            'expedition_weight_black_hole' => '0.2',
+            'expedition_weight_dark_matter' => '7.5',
+            'expedition_weight_merchant' => '0.4',
+            'expedition_weight_pirates' => '3',
+            'expedition_weight_aliens' => '1.5',
         ];
 
         foreach ($defaultWeights as $key => $defaultValue) {
@@ -1028,7 +1190,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         ]);
 
         // Check that a battle report was created
-        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $battleReports = BattleReport::where('planet_user_id', $this->planetPlayer()->getId())->get();
         $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
 
         // Verify the battle report has expedition battle markers
@@ -1037,15 +1199,15 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertEquals('pirate', $report->general['npc_type'] ?? '', 'NPC type should be pirate');
 
         // Verify NPC appears as attacker with correct ID
-        $this->assertEquals(-1, $report->attacker['player_id'], 'Pirate player ID should be -1');
+        $this->assertEquals(-1, ($report->attacker['player_id'] ?? null), 'Pirate player ID should be -1');
 
         // Verify player appears as defender
-        $this->assertEquals($this->planetService->getPlayer()->getId(), $report->defender['player_id']);
+        $this->assertEquals($this->planetPlayer()->getId(), ($report->defender['player_id'] ?? null));
 
         // Verify NPC has lower tech (player tech - 3)
-        $this->assertEquals(7, $report->attacker['weapon_technology'], 'Pirates should have player tech - 3');
-        $this->assertEquals(7, $report->attacker['shielding_technology'], 'Pirates should have player tech - 3');
-        $this->assertEquals(7, $report->attacker['armor_technology'], 'Pirates should have player tech - 3');
+        $this->assertEquals(7, ($report->attacker['weapon_technology'] ?? null), 'Pirates should have player tech - 3');
+        $this->assertEquals(7, ($report->attacker['shielding_technology'] ?? null), 'Pirates should have player tech - 3');
+        $this->assertEquals(7, ($report->attacker['armor_technology'] ?? null), 'Pirates should have player tech - 3');
     }
 
     /**
@@ -1088,7 +1250,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         ]);
 
         // Check that a battle report was created
-        $battleReports = \OGame\Models\BattleReport::where('planet_user_id', $this->planetService->getPlayer()->getId())->get();
+        $battleReports = BattleReport::where('planet_user_id', $this->planetPlayer()->getId())->get();
         $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
 
         // Verify the battle report has expedition battle markers
@@ -1097,15 +1259,15 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->assertEquals('alien', $report->general['npc_type'] ?? '', 'NPC type should be alien');
 
         // Verify NPC appears as attacker with correct ID
-        $this->assertEquals(-2, $report->attacker['player_id'], 'Alien player ID should be -2');
+        $this->assertEquals(-2, ($report->attacker['player_id'] ?? null), 'Alien player ID should be -2');
 
         // Verify player appears as defender
-        $this->assertEquals($this->planetService->getPlayer()->getId(), $report->defender['player_id']);
+        $this->assertEquals($this->planetPlayer()->getId(), ($report->defender['player_id'] ?? null));
 
         // Verify NPC has higher tech (player tech + 3)
-        $this->assertEquals(13, $report->attacker['weapon_technology'], 'Aliens should have player tech + 3');
-        $this->assertEquals(13, $report->attacker['shielding_technology'], 'Aliens should have player tech + 3');
-        $this->assertEquals(13, $report->attacker['armor_technology'], 'Aliens should have player tech + 3');
+        $this->assertEquals(13, ($report->attacker['weapon_technology'] ?? null), 'Aliens should have player tech + 3');
+        $this->assertEquals(13, ($report->attacker['shielding_technology'] ?? null), 'Aliens should have player tech + 3');
+        $this->assertEquals(13, ($report->attacker['armor_technology'] ?? null), 'Aliens should have player tech + 3');
     }
 
     /**
@@ -1246,5 +1408,459 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
             $user->refresh();
             $this->assertGreaterThanOrEqual($initialLostPoints, $user->military_units_lost_points);
         }
+    }
+
+    /**
+     * Test that player's planet defense units are NOT included in the NPC fleet during expedition battles.
+     *
+     * Regression test for bug where NPCPlanetService did not override getObjectAmount(), causing the
+     * player's own defense structures to be incorrectly added to the NPC defending fleet.
+     *
+     * @return void
+     */
+    public function testExpeditionBattleNPCFleetExcludesPlayerDefenses(): void
+    {
+        $this->basicSetup();
+
+        // Add defense units to the player's planet - these should NOT appear in the NPC fleet.
+        // Defense unit IDs: 401=rocket_launcher, 402=light_laser, 403=heavy_laser,
+        //                   404=gauss_cannon, 405=ion_cannon, 406=plasma_turret,
+        //                   407=small_shield_dome, 408=large_shield_dome
+        $this->planetAddUnit('rocket_launcher', 500);
+        $this->planetAddUnit('light_laser', 200);
+        $this->planetAddUnit('gauss_cannon', 50);
+
+        // Add combat ships for the expedition
+        $this->planetAddUnit('battlecruiser', 100);
+        $this->playerSetResearchLevel('weapon_technology', 10);
+        $this->playerSetResearchLevel('shielding_technology', 10);
+        $this->playerSetResearchLevel('armor_technology', 10);
+
+        // Enable only pirate battles
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::BattlePirates]);
+
+        // Send the expedition mission
+        $this->sendTestExpedition(true);
+
+        // Wait for the mission to complete
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Get the battle report
+        $battleReports = BattleReport::where('planet_user_id', $this->planetPlayer()->getId())->get();
+        $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
+
+        $report = $battleReports->first();
+
+        // The NPC fleet is shown as the attacker in expedition reports.
+        // attacker['units'] is stored as ['machine_name' => amount, ...] via UnitCollection::toArray().
+        // Verify no defense unit machine names appear in the NPC fleet.
+        $defenseUnitNames = [
+            'rocket_launcher', 'light_laser', 'heavy_laser',
+            'gauss_cannon', 'ion_cannon', 'plasma_turret',
+            'small_shield_dome', 'large_shield_dome',
+        ];
+        $npcUnits = $report->attacker['units'] ?? [];
+
+        foreach ($defenseUnitNames as $machineName) {
+            $this->assertArrayNotHasKey(
+                $machineName,
+                $npcUnits,
+                "Defense unit '{$machineName}' should NOT be in the NPC fleet (player's own defenses must not be added to NPC)"
+            );
+        }
+    }
+
+    /**
+     * Test that expedition battles produce sensible hit counts for various fleet compositions.
+     *
+     * Regression test for a bug where certain fleet combinations caused the NPC to report an
+     * impossible number of shots (e.g. 547,575) while the player fired only 1 shot.
+     *
+     * @return void
+     */
+    public function testExpeditionBattleHitCountsSensible(): void
+    {
+        $this->basicSetup();
+
+        // Ensure we have enough deuterium for the large fleet
+        $this->planetAddResources(new Resources(0, 0, 10000000, 0));
+
+        // Fleet composition that originally triggered the bug: Reaper + many LC + Pathfinder
+        $this->planetAddUnit('reaper', 1);
+        $this->planetAddUnit('large_cargo', 12870);
+        $this->planetAddUnit('pathfinder', 1);
+
+        // Also add defense units to the planet to verify they are not included in NPC fleet
+        $this->planetAddUnit('rocket_launcher', 1000);
+        $this->planetAddUnit('large_shield_dome', 1);
+
+        $this->playerSetResearchLevel('weapon_technology', 5);
+        $this->playerSetResearchLevel('shielding_technology', 5);
+        $this->playerSetResearchLevel('armor_technology', 5);
+
+        // Enable only pirate battles
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::BattlePirates]);
+
+        // Send the expedition with the specific fleet (override sendTestExpedition)
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('reaper'), 1);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 12870);
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('pathfinder'), 1);
+        $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), true);
+
+        // Wait for the mission to complete
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Get the battle report
+        $battleReports = BattleReport::where('planet_user_id', $this->planetPlayer()->getId())->get();
+        $this->assertGreaterThan(0, $battleReports->count(), 'Battle report should be created');
+
+        $report = $battleReports->first();
+        $this->assertTrue($report->general['expedition_battle'] ?? false, 'Should be an expedition battle report');
+
+        // Verify that hit counts in each round are within reasonable bounds.
+        // The NPC fleet is at most a few thousand ships, so it cannot fire hundreds of thousands of shots.
+        // A ship with RF=5 fires on average 5 shots, so: max_shots ≈ fleet_size * max_rf_value
+        // NPC fleet is at most ~20,000 ships. With max RF of 5: expected max ≈ 100,000.
+        // The original bug reported 547,575 NPC shots from a ~3,704 ship fleet (impossible: 3704 * 5 = 18,520 max).
+        $maxReasonableHitsPerRound = 500000; // Very generous upper bound to catch the original bug
+
+        // The NPC is the "attacker" in expedition reports (roles are swapped)
+        foreach (($report->rounds ?? []) as $i => $round) {
+            $npcHits = $round['hits_attacker'] ?? 0; // NPC shots (attacker in swapped report)
+            $playerHits = $round['hits_defender'] ?? 0; // Player shots (defender in swapped report)
+
+            $this->assertLessThan(
+                $maxReasonableHitsPerRound,
+                $npcHits,
+                "Round " . ($i + 1) . ": NPC hits ({$npcHits}) exceeded reasonable maximum. Possible defense unit contamination in NPC fleet."
+            );
+
+            // Player fired at least 1 shot if they had any ships (basic sanity check)
+            // (Only check if there were ships alive at start of round)
+        }
+    }
+
+    /**
+     * Test that getRandomMessageVariationIdForVariant() returns IDs within the correct tier
+     * id lists for resources, ships, and dark matter expedition message classes.
+     */
+    public function testExpeditionFindVariantMessageVariationIds(): void
+    {
+        $iterations = 50;
+
+        // ExpeditionGainResources: normal [1,2,4,7], rare [3,5,8,9], exceptional [6]
+        for ($i = 0; $i < $iterations; $i++) {
+            $id = ExpeditionGainResources::getRandomMessageVariationIdForVariant('normal');
+            $this->assertContains($id, [1, 2, 4, 7], 'Resources normal variant ID must be one of [1, 2, 4, 7]');
+
+            $id = ExpeditionGainResources::getRandomMessageVariationIdForVariant('rare');
+            $this->assertContains($id, [3, 5, 8, 9], 'Resources rare variant ID must be one of [3, 5, 8, 9]');
+
+            $id = ExpeditionGainResources::getRandomMessageVariationIdForVariant('exceptional');
+            $this->assertEquals(6, $id, 'Resources exceptional variant ID must be 6');
+        }
+
+        // ExpeditionGainShips: normal [1-5], rare [6,7], exceptional [8]
+        for ($i = 0; $i < $iterations; $i++) {
+            $id = ExpeditionGainShips::getRandomMessageVariationIdForVariant('normal');
+            $this->assertContains($id, [1, 2, 3, 4, 5], 'Ships normal variant ID must be one of [1, 2, 3, 4, 5]');
+
+            $id = ExpeditionGainShips::getRandomMessageVariationIdForVariant('rare');
+            $this->assertContains($id, [6, 7], 'Ships rare variant ID must be one of [6, 7]');
+
+            $id = ExpeditionGainShips::getRandomMessageVariationIdForVariant('exceptional');
+            $this->assertEquals(8, $id, 'Ships exceptional variant ID must be 8');
+        }
+
+        // ExpeditionGainDarkMatter: normal [1-6,8], rare [7,9], exceptional [10]
+        for ($i = 0; $i < $iterations; $i++) {
+            $id = ExpeditionGainDarkMatter::getRandomMessageVariationIdForVariant('normal');
+            $this->assertContains($id, [1, 2, 3, 4, 5, 6, 8], 'DarkMatter normal variant ID must be one of [1, 2, 3, 4, 5, 6, 8]');
+
+            $id = ExpeditionGainDarkMatter::getRandomMessageVariationIdForVariant('rare');
+            $this->assertContains($id, [7, 9], 'DarkMatter rare variant ID must be one of [7, 9]');
+
+            $id = ExpeditionGainDarkMatter::getRandomMessageVariationIdForVariant('exceptional');
+            $this->assertEquals(10, $id, 'DarkMatter exceptional variant ID must be 10');
+        }
+    }
+
+    /**
+     * Test that a forced rare variant (2-3x multiplier) produces resources within the expected
+     * multiplied range compared to a fixed base amount.
+     */
+    public function testExpeditionGainResourcesWithRareVariant(): void
+    {
+        $this->basicSetup();
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
+
+        // Send the expedition BEFORE binding: dispatchFleet() calls reloadApplication() which would
+        // wipe any binding registered before it. The mission itself is processed later via /overview.
+        $this->sendTestExpedition(true);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+
+        // Forces a rare variant with multiplier=3 and a fixed base of 1,000,000.
+        // With multiplier=3: metal find=3M, crystal find=2M, deut find=1M.
+        $this->bindForcedExpeditionFindVariant('rare', 3, 1000000);
+
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+
+        // Original cargo was 1 metal + 1 crystal. Subtract to isolate found resources.
+        $totalFound = $returnTripMission->metal + $returnTripMission->crystal + $returnTripMission->deuterium - 2;
+
+        // With base=1M and rare multiplier=3: metal=3M, crystal=2M, deut=1M.
+        // The minimum possible find (deut) is 1M; the maximum (metal) is 3M.
+        $this->assertGreaterThanOrEqual(1000000, $totalFound, 'Rare find (3x) should yield at least 1M total resources');
+        $this->assertLessThanOrEqual(3000000, $totalFound, 'Rare find (3x) should yield at most 3M total resources');
+
+        // The message tier must match the rolled rare variant.
+        $this->assertContains(
+            $this->getLastMessageVariationId('expedition_gain_resources'),
+            [3, 5, 8, 9],
+            'Rare find should use a rare-tier message variation'
+        );
+    }
+
+    /**
+     * Test that a forced exceptional variant (5-10x multiplier) produces resources within the
+     * expected multiplied range compared to a fixed base amount.
+     */
+    public function testExpeditionGainResourcesWithExceptionalVariant(): void
+    {
+        $this->basicSetup();
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
+
+        // Send BEFORE binding (dispatchFleet calls reloadApplication which wipes bindings).
+        $this->sendTestExpedition(true);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+
+        // Forces an exceptional variant with multiplier=10 and a fixed base of 1,000,000.
+        // With multiplier=10: metal find=10M, crystal find≈6.67M, deut find≈3.33M.
+        $this->bindForcedExpeditionFindVariant('exceptional', 10, 1000000);
+
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+
+        // Original cargo was 1 metal + 1 crystal. Subtract to isolate found resources.
+        $totalFound = $returnTripMission->metal + $returnTripMission->crystal + $returnTripMission->deuterium - 2;
+
+        // With base=1M and exceptional multiplier=10: metal=10M, crystal≈6.67M, deut≈3.33M.
+        // The minimum possible find (deut) is 3,333,333; the maximum (metal) is 10,000,000.
+        $this->assertGreaterThanOrEqual(3333333, $totalFound, 'Exceptional find (10x) should yield at least ~3.33M total resources');
+        $this->assertLessThanOrEqual(10000000, $totalFound, 'Exceptional find (10x) should yield at most 10M total resources');
+
+        // The message tier must match the rolled exceptional variant.
+        $this->assertEquals(
+            6,
+            $this->getLastMessageVariationId('expedition_gain_resources'),
+            'Exceptional find should use the exceptional-tier message variation'
+        );
+    }
+
+    /**
+     * Test that when the cargo capacity clips the reward, the message tier still reflects the
+     * rolled variant, matching the original game: the message describes the size of the
+     * discovery, not the amount the fleet was able to carry home. A small fleet rolling an
+     * exceptional find gets a cargo-capped payout but keeps the exceptional-tier message.
+     */
+    public function testExpeditionGainResourcesCargoLimitedKeepsRolledTierMessage(): void
+    {
+        $this->basicSetup();
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
+
+        // Send the expedition with only 4 large cargos: cargo capacity limits the payout to 100k.
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('large_cargo'), 4);
+        $this->sendMissionToPosition16($unitCollection, new Resources(1, 1, 0, 0), true);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+
+        // Force an exceptional variant (10x) with a fixed base of 1,000,000. Even the smallest
+        // possible base find (deuterium: 1M / 3) far exceeds the 100k cargo capacity, so the
+        // payout is fully cargo-capped while the rolled tier remains exceptional.
+        $this->bindForcedExpeditionFindVariant('exceptional', 10, 1000000);
+
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // The payout is capped at the cargo capacity (100k including the 2 resources in cargo).
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+        $totalResources = $returnTripMission->metal + $returnTripMission->crystal + $returnTripMission->deuterium;
+        $this->assertEquals(100000, $totalResources, 'Cargo-limited find should be capped at the cargo capacity');
+
+        // The message must still be the exceptional-tier variation of the rolled variant.
+        $this->assertEquals(
+            6,
+            $this->getLastMessageVariationId('expedition_gain_resources'),
+            'Cargo-limited exceptional find should keep the exceptional-tier message variation'
+        );
+    }
+
+    /**
+     * Test that a forced exceptional variant (10x multiplier) actually multiplies the ship find
+     * budget: with a fixed base of 100k, the total value of the found ships must be close to 1M,
+     * which is impossible without the multiplier being applied.
+     */
+    public function testExpeditionGainShipsWithExceptionalVariant(): void
+    {
+        $this->basicSetup();
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainShips]);
+
+        // Send BEFORE binding (dispatchFleet calls reloadApplication which wipes bindings).
+        $this->sendTestExpedition(true);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $originalMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($originalMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
+
+        // Forces an exceptional variant with multiplier=10 and a fixed base of 100,000,
+        // giving a ship find budget of 1,000,000 (far below the 25M cargo capacity).
+        $this->bindForcedExpeditionFindVariant('exceptional', 10, 100000);
+
+        $this->travel(10)->hours();
+        $this->get('/overview');
+        $this->planetService->reloadPlanet();
+
+        // Sum the resource value of the found ships (return mission fleet minus the 1000
+        // large cargos that were sent).
+        $returnTripMission = $fleetMissionService->getFleetMissionByParentId($originalMission->id, false);
+        $returnUnits = $fleetMissionService->getFleetUnits($returnTripMission);
+        $foundShipsValue = 0;
+        foreach ($returnUnits->units as $unit) {
+            $amount = $unit->amount;
+            if ($unit->unitObject->machine_name === 'large_cargo') {
+                $amount -= 1000;
+            }
+            $foundShipsValue += $unit->unitObject->price->resources->sum() * $amount;
+        }
+
+        // The budget is fully distributed except for per-ship-type rounding losses (each less
+        // than one ship's price), so the found value must be well above the unmultiplied base
+        // of 100k and at most the full 1M budget.
+        $this->assertGreaterThanOrEqual(500000, $foundShipsValue, 'Exceptional find (10x) should yield ships worth far more than the 100k base');
+        $this->assertLessThanOrEqual(1000000, $foundShipsValue, 'Found ships value should not exceed the 1M budget');
+
+        // The message tier must match the rolled exceptional variant.
+        $this->assertEquals(
+            8,
+            $this->getLastMessageVariationId('expedition_gain_ships'),
+            'Exceptional ship find should use the exceptional-tier message variation'
+        );
+    }
+
+    /**
+     * Test that a forced exceptional variant (10x multiplier) actually multiplies the dark
+     * matter reward: the base reward is 150-200, so the credited amount must be 1500-2000.
+     */
+    public function testExpeditionGainDarkMatterWithExceptionalVariant(): void
+    {
+        $this->basicSetup();
+        $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainDarkMatter]);
+
+        $initialUser = User::find($this->planetPlayer()->getId());
+        if ($initialUser === null) {
+            $this->fail('User not found.');
+        }
+        $initialDarkMatter = $initialUser->dark_matter;
+
+        // Send BEFORE binding (dispatchFleet calls reloadApplication which wipes bindings).
+        $this->sendTestExpedition(true);
+
+        // Forces an exceptional variant with multiplier=10. Dark matter is not cargo-constrained,
+        // so the rolled variant applies directly. Base reward without pathfinder is 150-200.
+        $this->bindForcedExpeditionFindVariant('exceptional', 10);
+
+        $this->travel(10)->hours();
+        $this->get('/overview');
+
+        $user = User::find($this->planetPlayer()->getId());
+        if ($user === null) {
+            $this->fail('User not found.');
+        }
+        $darkMatterGained = $user->dark_matter - $initialDarkMatter;
+
+        $this->assertGreaterThanOrEqual(1500, $darkMatterGained, 'Exceptional find (10x) should yield at least 1500 dark matter (base 150-200)');
+        $this->assertLessThanOrEqual(2000, $darkMatterGained, 'Exceptional find (10x) should yield at most 2000 dark matter (base 150-200)');
+
+        // The message tier must match the rolled exceptional variant.
+        $this->assertEquals(
+            10,
+            $this->getLastMessageVariationId('expedition_gain_dark_matter'),
+            'Exceptional dark matter find should use the exceptional-tier message variation'
+        );
+    }
+
+    /**
+     * Test that selectExpeditionFindVariant() produces the correct tier distribution over many
+     * iterations: roughly 89% normal, 10% rare, 1% exceptional.
+     *
+     * Uses a proxy subclass to expose the protected method. Tolerances are ±5 percentage points
+     * (500 out of 10,000) — far beyond statistical noise, so the test cannot flake. Note this only
+     * guards against gross breakage (a tier that can never be rolled, swapped tiers, or wildly
+     * wrong weights); modest drift in the weight table (e.g. rare at 6% instead of 10%) would
+     * still pass.
+     */
+    public function testExpeditionFindVariantDistribution(): void
+    {
+        $mission = new class (
+            $this->app->make(FleetMissionService::class),
+            $this->app->make(MessageService::class),
+            $this->app->make(PlanetServiceFactory::class),
+            $this->app->make(PlayerServiceFactory::class),
+            $this->app->make(SettingsService::class)
+        ) extends ExpeditionMission {
+            public function callSelectVariant(): array
+            {
+                return $this->selectExpeditionFindVariant();
+            }
+        };
+
+        $n = 10000;
+        $counts = ['normal' => 0, 'rare' => 0, 'exceptional' => 0];
+
+        for ($i = 0; $i < $n; $i++) {
+            $result = $mission->callSelectVariant();
+            $counts[$result['variant']]++;
+        }
+
+        // Expected: normal=8900 (89%), rare=1000 (10%), exceptional=100 (1%).
+        // Tolerance: ±500 (±5 pp) — well beyond 3 standard deviations for N=10000.
+        $this->assertGreaterThanOrEqual(8400, $counts['normal'], 'Normal tier should be roughly 89%');
+        $this->assertLessThanOrEqual(9400, $counts['normal'], 'Normal tier should be roughly 89%');
+
+        $this->assertGreaterThanOrEqual(500, $counts['rare'], 'Rare tier should be roughly 10%');
+        $this->assertLessThanOrEqual(1500, $counts['rare'], 'Rare tier should be roughly 10%');
+
+        $this->assertGreaterThanOrEqual(30, $counts['exceptional'], 'Exceptional tier should be roughly 1%');
+        $this->assertLessThanOrEqual(170, $counts['exceptional'], 'Exceptional tier should be roughly 1%');
     }
 }

@@ -17,6 +17,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use RuntimeException;
 
 class ColonisationMission extends GameMission
 {
@@ -54,6 +55,9 @@ class ColonisationMission extends GameMission
 
         // Check if the player's Astrophysics level is high enough for this position.
         $player = $planet->getPlayer();
+        if ($player === null) {
+            return new MissionPossibleStatus(false);
+        }
         if (!$player->canColonizePosition($targetCoordinate->position)) {
             return new MissionPossibleStatus(false, __('Your knowledge of astrophysics is not sufficient to colonize this planet position.'));
         }
@@ -74,6 +78,9 @@ class ColonisationMission extends GameMission
     protected function processArrival(FleetMission $mission): void
     {
         // Sanity check: make sure the target coordinates are valid and the planet is (still) empty.
+        if ($mission->galaxy_to === null || $mission->system_to === null || $mission->position_to === null) {
+            throw new RuntimeException('Colonisation mission has no target coordinate.');
+        }
         $target_coordinates = new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to);
         $target_planet = $this->planetServiceFactory->makeForCoordinate($target_coordinates);
 
@@ -107,7 +114,7 @@ class ColonisationMission extends GameMission
         }
 
         // Create a new planet at the target coordinates.
-        $target_planet = $this->planetServiceFactory->createAdditionalPlanetForPlayer($player, new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to));
+        $target_planet = $this->planetServiceFactory->createAdditionalPlanetForPlayer($player, $target_coordinates);
 
         // Send success message
         $this->messageService->sendSystemMessageToPlayer($player, ColonyEstablished::class, [
@@ -138,7 +145,17 @@ class ColonisationMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Colonisation return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Colonisation return mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Colonisation return mission target planet has no owner.');
+        }
 
         // Transport return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -150,7 +167,7 @@ class ColonisationMission extends GameMission
         }
 
         // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;

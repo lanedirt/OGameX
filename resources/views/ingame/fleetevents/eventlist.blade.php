@@ -8,7 +8,11 @@
         <tbody>
         {{-- Parse the fleet events as separate rows --}}
         @foreach ($fleet_events as $fleet_event)
-            @include ('ingame.fleetevents.eventrow', ['fleet_event_row' => $fleet_event])
+            @if ($fleet_event->is_union_summary)
+                @include ('ingame.fleetevents.eventrow-union', ['fleet_event_row' => $fleet_event])
+            @else
+                @include ('ingame.fleetevents.eventrow', ['fleet_event_row' => $fleet_event])
+            @endif
         @endforeach
         </tbody>
     </table>

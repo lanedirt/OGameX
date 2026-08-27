@@ -2,7 +2,6 @@
 
 namespace OGame\Http\Controllers;
 
-use OGame\Services\MilitaryStatisticsService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,6 +9,7 @@ use Illuminate\View\View;
 use OGame\Models\Resources;
 use OGame\Services\DarkMatterService;
 use OGame\Services\MerchantService;
+use OGame\Services\MilitaryStatisticsService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
 
@@ -141,48 +141,51 @@ class MerchantController extends OGameController
     public function executeTrade(Request $request, PlayerService $player): JsonResponse
     {
         $giveResource = $request->input('give_resource');
-        $receiveResource = $request->input('receive_resource');
+        $receiveResources = $request->input('receive_resources', []);
         // Remove commas and spaces from input before converting to int
         $giveAmount = (int)str_replace([',', ' '], '', $request->input('give_amount'));
-        $exchangeRate = (float)$request->input('exchange_rate');
+
+        // Sanitize receive_resources: ensure all amounts are positive integers
+        if (!is_array($receiveResources)) {
+            $receiveResources = [];
+        }
+        $sanitizedReceiveResources = [];
+        foreach ($receiveResources as $resource => $amount) {
+            $sanitizedAmount = (int)str_replace([',', ' '], '', (string)$amount);
+            if ($sanitizedAmount > 0) {
+                $sanitizedReceiveResources[(string)$resource] = $sanitizedAmount;
+            }
+        }
+
+        // Backward compatibility: convert legacy single receive_resource + give_amount format
+        // Old format: receive_resource='crystal', give_amount=3000  → get floor(3000 * rate) crystal
+        if (empty($sanitizedReceiveResources) && $request->has('receive_resource')) {
+            $singleResource = (string)$request->input('receive_resource');
+            $validLegacyResources = ['metal', 'crystal', 'deuterium'];
+            if (in_array($singleResource, $validLegacyResources)) {
+                $activeMerchant = cache()->get('active_merchant_' . $player->getId());
+                if ($activeMerchant && isset($activeMerchant['trade_rates']['receive'][$singleResource])) {
+                    $receiveRate = (float)$activeMerchant['trade_rates']['receive'][$singleResource]['rate'];
+                    $giveRate = MerchantService::getBaseRate((string)$giveResource);
+                    $receiveAmount = (int)floor($giveAmount * ($receiveRate / $giveRate));
+                    if ($receiveAmount > 0) {
+                        $sanitizedReceiveResources[$singleResource] = $receiveAmount;
+                    }
+                }
+            }
+        }
 
         try {
             // Get current planet (resources will be deducted from current planet)
             $planet = $player->planets->current();
 
-            // Verify there's an active merchant for this user (planet-agnostic, check cache for persistence)
-            $activeMerchant = cache()->get('active_merchant_' . $player->getId());
-            if (!$activeMerchant) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('t_merchant.error.trade.no_active_merchant'),
-                ], 400);
-            }
-
-            // Verify the merchant type matches
-            if ($activeMerchant['type'] !== $giveResource) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('t_merchant.error.trade.merchant_type_mismatch'),
-                ], 400);
-            }
-
-            // Verify the exchange rate matches the active merchant's rates
-            if (!isset($activeMerchant['trade_rates']['receive'][$receiveResource]) ||
-                abs($activeMerchant['trade_rates']['receive'][$receiveResource]['rate'] - $exchangeRate) > 0.0001) {
-                return response()->json([
-                    'success' => false,
-                    'message' => __('t_merchant.error.trade.invalid_exchange_rate'),
-                ], 400);
-            }
-
-            // Execute the trade using current planet's resources
+            // Execute the trade
             $result = MerchantService::executeTrade(
+                $player,
                 $planet,
                 $giveResource,
-                $receiveResource,
-                $giveAmount,
-                $exchangeRate
+                $sanitizedReceiveResources,
+                $giveAmount
             );
 
             if ($result['success']) {
@@ -258,6 +261,16 @@ class MerchantController extends OGameController
                 ],
             ];
         }
+
+        // Sort ships to match the scrapyard display order (military first, then civil, with Reaper after Solar Satellite)
+        $scrapShipOrder = [204, 205, 206, 207, 215, 211, 213, 214, 202, 203, 208, 209, 210, 212, 218, 217, 219];
+        uksort($ships, function ($a, $b) use ($scrapShipOrder) {
+            $posA = array_search($a, $scrapShipOrder);
+            $posB = array_search($b, $scrapShipOrder);
+            $posA = $posA !== false ? $posA : 999;
+            $posB = $posB !== false ? $posB : 999;
+            return $posA - $posB;
+        });
 
         // Build defense array
         $defense = [];

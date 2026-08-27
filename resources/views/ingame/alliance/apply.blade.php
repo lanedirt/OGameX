@@ -21,7 +21,7 @@
             <div id="alliance">
                 <div id="inhalt">
                     <div id="planet" class="planet-header">
-                        <h2>{{ __('Apply to Alliance') }}</h2>
+                        <h2>{{ __('t_ingame.alliance.apply_title') }}</h2>
                         <a class="toggleHeader" href="javascript:void(0);" data-name="alliance">
                             <img alt="" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22">
                         </a>
@@ -32,7 +32,7 @@
                     <div class="alliance_wrapper">
                         <div class="allianceContent">
                             <div id="sendApplication" class="contentbox2">
-                                <h3 class="header">{{ __('Application to') }} [{{ $alliance->alliance_tag }}] {{ $alliance->alliance_name }}</h3>
+                                <h3 class="header">{{ __('t_ingame.alliance.apply_heading') }} [{{ $alliance->alliance_tag }}] {{ $alliance->alliance_name }}</h3>
 
                                 <div class="content">
                                     <form id="applicationForm" method="POST" action="{{ route('alliance.apply') }}">
@@ -48,11 +48,11 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="transparent textBeefy" style="width: 120px">
-                                                        <span id="c_characters">2000</span> {{ __('Characters remaining') }}
+                                                        <span id="c_characters">2000</span> {{ __('t_ingame.alliance.chars_remaining') }}
                                                     </td>
                                                     <td class="transparent textRight">
                                                         <button type="submit" class="btn_blue float_right" id="submitApplication">
-                                                            {{ __('Send application') }}
+                                                            {{ __('t_ingame.alliance.send_application_btn') }}
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -102,7 +102,7 @@
                 "playerPlaceHolder": "{{ __('Player ID or name') }}",
                 "itemPlaceHolder": "{{ __('Item ID') }}",
                 "coordinatePlaceHolder": "{{ __('Galaxy:system:position') }}",
-                "charsLeft": "{{ __('Characters remaining') }}",
+                "charsLeft": "{{ __('t_ingame.alliance.chars_remaining') }}",
                 "colorPicker": {
                     "ok": "{{ __('Ok') }}",
                     "cancel": "{{ __('Cancel') }}",
@@ -134,7 +134,7 @@
 
                     if (message.length > 2000) {
                         e.preventDefault();
-                        alert('{{ __("Message is too long (max 2000 characters)") }}');
+                        alert(@json(__('t_ingame.alliance.msg_too_long')));
                         return false;
                     }
                 });

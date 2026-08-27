@@ -30,18 +30,22 @@ class PhpBattleEngine extends BattleEngine
     {
         $rounds = [];
 
-        // Convert attacker and defender units to BattleUnit objects to keep track of hull plating and shields.
+        // Convert attacker units to BattleUnit objects to keep track of hull plating and shields.
+        // Each attacker fleet uses its own player's tech levels.
         $attackerUnits = [];
-        foreach ($result->attackerUnitsStart->units as $unit) {
-            // Create new object for each unique unit in the fleet.
-            $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue;
-            $shieldPoints = $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue;
-            $attackPower = $unit->unitObject->properties->attack->calculate($this->attackerPlayer)->totalValue;
-            $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower, $this->attackerFleetMissionId, $this->attackerOwnerId);
+        foreach ($this->attackers as $attackerFleet) {
+            foreach ($attackerFleet->units->units as $unit) {
+                // Create new object for each unique unit in this fleet.
+                // Use THIS fleet owner's tech levels for calculations
+                $structuralIntegrity = $unit->unitObject->properties->structural_integrity->calculate($attackerFleet->player)->totalValue;
+                $shieldPoints = $unit->unitObject->properties->shield->calculate($attackerFleet->player)->totalValue;
+                $attackPower = $unit->unitObject->properties->attack->calculate($attackerFleet->player)->totalValue;
+                $unitObject = new BattleUnit($unit->unitObject, $structuralIntegrity, $shieldPoints, $attackPower, $attackerFleet->fleetMissionId, $attackerFleet->ownerId);
 
-            for ($i = 0; $i < $unit->amount; $i++) {
-                // Clone the unit object for each individual entry of this ship add it to the array.
-                $attackerUnits[] = clone $unitObject;
+                for ($i = 0; $i < $unit->amount; $i++) {
+                    // Clone the unit object for each individual entry of this ship add it to the array.
+                    $attackerUnits[] = clone $unitObject;
+                }
             }
         }
 
@@ -79,6 +83,19 @@ class PhpBattleEngine extends BattleEngine
         $defenderRemainingShips = clone $result->defenderUnitsStart;
         $attackerLosses = new UnitCollection();
         $defenderLosses = new UnitCollection();
+
+        // Initialize per-fleet tracking for multi-attacker battles
+        $attackerLossesPerFleet = [];
+        $attackerShipsPerFleet = [];
+        $hitsPerAttackerFleet = [];
+        $damagePerAttackerFleet = [];
+        foreach ($this->attackers as $attackerFleet) {
+            $attackerLossesPerFleet[$attackerFleet->fleetMissionId] = new UnitCollection();
+            $attackerShipsPerFleet[$attackerFleet->fleetMissionId] = clone $attackerFleet->units;
+            $hitsPerAttackerFleet[$attackerFleet->fleetMissionId] = 0;
+            $damagePerAttackerFleet[$attackerFleet->fleetMissionId] = 0;
+        }
+
         while ($roundNumber < 6  && count($attackerUnits) > 0 && count($defenderUnits) > 0) {
             $roundNumber++;
             $round = new BattleResultRound();
@@ -86,6 +103,18 @@ class PhpBattleEngine extends BattleEngine
             $round->attackerLossesInRound = new UnitCollection();
             $round->absorbedDamageAttacker = 0;
             $round->absorbedDamageDefender = 0;
+
+            // Initialize per-fleet tracking for this round
+            $round->attackerLossesInRoundPerFleet = [];
+            $round->attackerShipsPerFleet = [];
+            $round->hitsPerAttackerFleet = [];
+            $round->damagePerAttackerFleet = [];
+            foreach ($this->attackers as $attackerFleet) {
+                $round->attackerLossesInRoundPerFleet[$attackerFleet->fleetMissionId] = new UnitCollection();
+                $round->attackerShipsPerFleet[$attackerFleet->fleetMissionId] = new UnitCollection();
+                $round->hitsPerAttackerFleet[$attackerFleet->fleetMissionId] = 0;
+                $round->damagePerAttackerFleet[$attackerFleet->fleetMissionId] = 0;
+            }
 
             // Let the attacker attack the defender.
             foreach ($attackerUnits as $unit) {
@@ -120,6 +149,16 @@ class PhpBattleEngine extends BattleEngine
             $attackerRemainingShips->subtractCollection($round->attackerLossesInRound);
             $defenderRemainingShips->subtractCollection($round->defenderLossesInRound);
 
+            // Update per-fleet tracking
+            foreach ($this->attackers as $attackerFleet) {
+                $fleetId = $attackerFleet->fleetMissionId;
+                $attackerShipsPerFleet[$fleetId]->subtractCollection($round->attackerLossesInRoundPerFleet[$fleetId]);
+                $attackerLossesPerFleet[$fleetId]->addCollection($round->attackerLossesInRoundPerFleet[$fleetId]);
+
+                $round->attackerShipsPerFleet[$fleetId] = clone $attackerShipsPerFleet[$fleetId];
+                $round->attackerLossesPerFleet[$fleetId] = clone $attackerLossesPerFleet[$fleetId];
+            }
+
             // Update the total losses for the attacker and defender.
             $attackerLosses->addCollection($round->attackerLossesInRound);
             $defenderLosses->addCollection($round->defenderLossesInRound);
@@ -134,6 +173,26 @@ class PhpBattleEngine extends BattleEngine
 
             // Add the round to the list of rounds.
             $rounds[] = $round;
+        }
+
+        // Populate per-fleet attacker results by scanning surviving units
+        foreach ($result->attackerFleetResults as $fleetResult) {
+            // Count surviving units for this fleet
+            foreach ($attackerUnits as $battleUnit) {
+                if ($battleUnit->fleetMissionId === $fleetResult->fleetMissionId) {
+                    $fleetResult->unitsResult->addUnit($battleUnit->unitObject, 1);
+                }
+            }
+
+            // Calculate losses for this fleet
+            $fleetResult->unitsLost = clone $fleetResult->unitsStart;
+            $fleetResult->unitsLost->subtractCollection($fleetResult->unitsResult);
+
+            // Calculate resource loss
+            $fleetResult->calculateResourceLoss();
+
+            // Check if completely destroyed
+            $fleetResult->completelyDestroyed = $fleetResult->unitsResult->getAmount() === 0;
         }
 
         // Populate per-fleet defender results by scanning surviving units
@@ -203,6 +262,12 @@ class PhpBattleEngine extends BattleEngine
             $round->hitsAttacker += 1;
             $round->fullStrengthAttacker += $damage;
             $round->absorbedDamageDefender += $shieldAbsorption;
+
+            // Track per-fleet statistics for multi-attacker battles
+            if (isset($round->hitsPerAttackerFleet[$attacker->fleetMissionId])) {
+                $round->hitsPerAttackerFleet[$attacker->fleetMissionId] += 1;
+                $round->damagePerAttackerFleet[$attacker->fleetMissionId] += $damage;
+            }
         } else {
             $round->hitsDefender += 1;
             $round->fullStrengthDefender += $damage;
@@ -240,6 +305,12 @@ class PhpBattleEngine extends BattleEngine
             if ($unit->currentHullPlating <= 0) {
                 // Remove destroyed units from the array.
                 $round->attackerLossesInRound->addUnit($unit->unitObject, 1);
+
+                // Track per-fleet losses for multi-attacker battles
+                if (isset($round->attackerLossesInRoundPerFleet[$unit->fleetMissionId])) {
+                    $round->attackerLossesInRoundPerFleet[$unit->fleetMissionId]->addUnit($unit->unitObject, 1);
+                }
+
                 unset($attackerUnits[$key]);
             } else {
                 // Apply shield regeneration.
@@ -272,8 +343,9 @@ class PhpBattleEngine extends BattleEngine
     private function checkHamillManoeuvre(BattleResult $result, array &$attackerUnits, array &$defenderUnits): void
     {
         // Check if attacker is General class
+        $attackerPlayer = $this->getAttackerPlayer();
         $characterClassService = app(CharacterClassService::class);
-        if (!$characterClassService->isGeneral($this->attackerPlayer->getUser())) {
+        if (!$characterClassService->isGeneral($attackerPlayer->getUser())) {
             return;
         }
 

@@ -7,7 +7,7 @@
                 <tbody>
                     <tr>
                         <td colspan="2">
-                            <span class="content"><h2>{{ __('Application text') }}</h2></span>
+                            <span class="content"><h2>{{ __('t_ingame.alliance.application_text') }}</h2></span>
                             <div class="h10"></div>
                             <div class="bborder"></div>
                             <div class="h10"></div>
@@ -20,7 +20,7 @@
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <input class="sendNewApplication btn_blue float_right" value="{{ __('Send') }}" name="submitMail" data-allianceid="{{ $allianceId }}" id="submitMail" type="button">
+                            <input class="sendNewApplication btn_blue float_right" value="{{ __('t_ingame.alliance.send_btn') }}" name="submitMail" data-allianceid="{{ $allianceId }}" id="submitMail" type="button">
                         </td>
                     </tr>
                 </tbody>
@@ -68,7 +68,7 @@
                 "playerPlaceHolder": "{{ __('Player ID or name') }}",
                 "itemPlaceHolder": "{{ __('Item ID') }}",
                 "coordinatePlaceHolder": "{{ __('Galaxy:system:position') }}",
-                "charsLeft": "{{ __('Characters remaining') }}",
+                "charsLeft": "{{ __('t_ingame.alliance.chars_remaining') }}",
                 "colorPicker": {
                     "ok": "{{ __('Ok') }}",
                     "cancel": "{{ __('Cancel') }}",
@@ -96,7 +96,7 @@
             var message = $('.alliancetexts').val();
 
             if (message.length > 2000) {
-                fadeBox('{{ __("Message is too long (max 2000 characters)") }}', true);
+                fadeBox(@json(__('t_ingame.alliance.msg_too_long')), true);
                 return false;
             }
 
@@ -111,18 +111,18 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
-                        fadeBox(response.message || '{{ __("Application submitted successfully") }}', false);
+                        fadeBox(response.message || @json(__('t_ingame.alliance.msg_apply_success')), false);
 
                         // Reload alliance page after short delay
                         setTimeout(function() {
                             window.location.href = '{{ route('alliance.index') }}';
                         }, 2000);
                     } else {
-                        fadeBox(response.message || '{{ __("Failed to submit application") }}', true);
+                        fadeBox(response.message || @json(__('t_ingame.alliance.msg_apply_error')), true);
                     }
                 },
                 error: function(xhr) {
-                    var errorMessage = '{{ __("An error occurred") }}';
+                    var errorMessage = @json(__('t_ingame.alliance.msg_error'));
 
                     if (xhr.responseJSON) {
                         if (xhr.responseJSON.message) {

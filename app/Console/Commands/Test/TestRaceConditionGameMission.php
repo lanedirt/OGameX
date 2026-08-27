@@ -4,10 +4,13 @@ namespace OGame\Console\Commands\Test;
 
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Validation\ValidationException;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
+use RuntimeException;
 
 /**
  * Class TestRaceConditionGameMission.
@@ -19,11 +22,10 @@ use OGame\Services\ObjectService;
  * mission that was dispatched in the previous request. The test will assert that only 1 returning mission is created
  * for 1 transport mission.
  */
+#[Description('Issue parallel requests to test race conditions for game mission processing.')]
+#[Signature('ogamex:test:race-condition-game-mission')]
 class TestRaceConditionGameMission extends TestCommand
 {
-    protected $signature = 'ogamex:test:race-condition-game-mission';
-    protected $description = 'Issue parallel requests to test race conditions for game mission processing.';
-
     /**
      * @var string The email of the test user.
      */
@@ -106,7 +108,11 @@ class TestRaceConditionGameMission extends TestCommand
     {
         $missionTypeTransport = 3;
         $secondPlanet = $this->playerService->planets->all()[1];
-        $this->playerService->planets->first()->addResources(new Resources(0, 0, 1000000, 0));
+        $firstPlanet = $this->playerService->planets->first();
+        if ($firstPlanet === null) {
+            throw new RuntimeException('Player has no planets.');
+        }
+        $firstPlanet->addResources(new Resources(0, 0, 1000000, 0));
         $secondPlanetCoordinates = $secondPlanet->getPlanetCoordinates();
 
         $csrfToken = $this->getCsrfToken();

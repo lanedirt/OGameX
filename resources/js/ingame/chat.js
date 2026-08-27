@@ -1,9 +1,6 @@
 ogame.chat = {
-    socket: null,
     connected: false,
     connecting: false,
-    timeout: null,
-    retryInterval: 5000,
     playerId: null,
     associationId: null,
     data: {association: {}},
@@ -12,39 +9,40 @@ ogame.chat = {
     isLoadingPlayerList: false,
     playerListSelector: new Array,
     initConnection: function () {
-        console.log('ogame.chat init');
         var c = ogame.chat;
         if (c.connecting || c.connected || c.isMobile) {
-            c.socket.disconnect()
+            return;
         }
         c.connecting = true;
         try {
-            c.socket = io.connect("/chat", nodeParams);
-            c.socket.on("connect", function () {
-                clearTimeout(this.timeout);
-                c.socket.emit("authorize", session, function (a) {
-                    c.connecting = false;
-                    if (a) {
-                        c.connected = true
-                    } else {
-                        c.socket.disconnect()
-                    }
-                })
-            });
-            c.socket.on("chat", function (a) {
-                c.messageReceived(a)
-            });
-            c.socket.on("disconnect", function () {
-                c.connected = false;
-                c.connecting = false
-            })
+            if (typeof window.Echo === 'undefined' || typeof window.Echo.private !== 'function') {
+                c.connecting = false;
+                return;
+            }
+
+            // Subscribe to user's private channel for direct messages
+            window.Echo.private('chat.user.' + c.playerId)
+                .listen('ChatMessageSent', function (e) {
+                    c.messageReceived(e);
+                });
+
+            // If user has alliance, subscribe to alliance channel
+            if (c.associationId) {
+                window.Echo.private('chat.alliance.' + c.associationId)
+                    .listen('ChatMessageSent', function (e) {
+                        c.messageReceived(e);
+                    });
+            }
+
+            c.connecting = false;
+            c.connected = true;
         } catch (d) {
-            c.connecting = false
+            c.connecting = false;
         }
     },
     initialize: function () {
         var b = ogame.chat;
-        loadScript(nodeUrl, b.initConnection);
+        b.initConnection();
         $(".new_msg_count[data-playerid]").each(function () {
             b.saveMessageCounter($(this).data("new-messages"), $(this).data("playerid"))
         });
@@ -266,9 +264,8 @@ ogame.chat = {
                     ajax: 1,
                     updateUnread: 1
                 };
-                console.log('chatUrl()');
                 $.ajax({
-                    url: chatUrl,
+                    url: chatHistoryUrl,
                     type: "POST",
                     data: f,
                     success: function (a) {
@@ -352,10 +349,8 @@ ogame.chat = {
         if (typeof n == "number") {
             k.msg2reply = n
         }
-        console.log('chatUrl POST()');
         $.ajax({
-            url: chatUrl, type: "POST", data: k, success: function (a) {
-                a = JSON.parse(a);
+            url: chatHistoryUrl, type: "POST", dataType: "json", data: k, success: function (a) {
                 m.data[a.playerId] = {
                     playerstatus: a.playerstatus,
                     playerName: a.playerName,
@@ -393,10 +388,8 @@ ogame.chat = {
         if (typeof n == "number") {
             k.msg2reply = n
         }
-        console.log('chaturl POST()');
         $.ajax({
-            url: chatUrl, type: "POST", data: k, success: function (a) {
-                a = JSON.parse(a);
+            url: chatHistoryUrl, type: "POST", dataType: "json", data: k, success: function (a) {
                 m.data.association[a.associationId] = {
                     playerstatus: a.playerstatus,
                     associationName: a.associationName,
@@ -419,9 +412,10 @@ ogame.chat = {
             }
         })
     },
-    initChat: function (c, d) {
+    initChat: function (c, d, associationId) {
         ogame.chat.playerId = c;
         ogame.chat.isMobile = d;
+        ogame.chat.associationId = associationId || null;
         ogame.chat.initPlayerlist();
         ogame.chat.initialize();
         ogame.chat.toggleVisibility();
@@ -532,9 +526,11 @@ ogame.chat = {
         }
         var h = g.data.association[f];
         g.data.associationId = f;
-        var e = $('<li class="chat_bar_list_item open" data-associationId="' + f + '"></li>');
+        var e = $('<li class="chat_bar_list_item open" data-associationid="' + f + '"></li>');
         e.append('<span class="playerstatus ' + h.playerstatus + '"></span>');
-        e.append('<span class="cb_playername">' + h.associationName + "</span>");
+        e.append('<span class="chatstatus cs_new fleft"></span>');
+        e.append('<span class="cb_playername" data-associationid="' + f + '">Alliance Chat</span>');
+        e.append('<span class="new_msg_count noMessage" data-associationid="' + f + '" data-new-messages="0">0</span>');
         e.append('<span class="icon icon_close fright"></span>');
         e.prepend(g.createChatBoxForAssociations(f));
         return e
@@ -639,7 +635,7 @@ ogame.chat = {
                 console.log('toggleVisibilityChat()');
                 $.ajax({
                     type: "POST",
-                    url: "/game/index.php?page=ajaxChatToggleVisibility",
+                    url: "/chat/visibility",
                     data: {from: playerId, to: e, showState: 0},
                     success: function (a) {
                     },
@@ -654,7 +650,7 @@ ogame.chat = {
                 console.log('cb_playerlist_box()');
                 $.ajax({
                     type: "POST",
-                    url: "/game/index.php?page=ajaxChatToggleVisibility",
+                    url: "/chat/visibility",
                     data: {from: playerId, to: b, showState: 1},
                     success: function (a) {
                     },
@@ -715,13 +711,13 @@ ogame.chat = {
         var k = $('<div class="chat_box_title"></div>');
         k.append('<span class="icon icon_close fright"></span>');
         k.append('<span class="icon icon_maximize fright"></span>');
-        var m = $('<div class="chat_box_ctn"><ul class="chat clearfix"></ul></div>');
+        var m = $('<div class="chat_box_ctn"><ul class="chat clearfix" data-foreign-association-id="' + r + '"></ul></div>');
         var l = {};
         for (var q = 0; q < p.chatItemsByDateAsc.length; q++) {
             l = p.chatItems[p.chatItemsByDateAsc[q]];
             m.find(".chat").append(n.createChatItem(l))
         }
-        var o = $('<div class="chat_box" data-associationId="' + r + '"></div>');
+        var o = $('<div class="chat_box" data-associationid="' + r + '"></div>');
         o.append(k);
         o.append(m);
         o.append('<textarea name="text" class="chat_box_textarea"></textarea>');
@@ -811,14 +807,12 @@ ogame.chat = {
                     c.saveMessageCounterAssociation(0, $(this).data("associationid"))
                 }
             }
-            console.log('chatUrl POST chatBarListRead()');
             $.ajax({
-                url: chatUrl,
+                url: "/chat/read",
                 type: "POST",
                 dataType: "json",
                 data: {
-                    playerId: $(this).data("playerid"),
-                    action: "chatBarListRead"
+                    playerId: $(this).data("playerid")
                 },
                 success: function (b) {
                 },
@@ -1077,35 +1071,97 @@ ogame.chat = {
                 type: "GET",
                 dataType: "json",
                 success: function (response) {
+                    function playerItem(player, index, filterChatActive, filterOnline, isStranger) {
+                        var statusClass, statusTitle;
+                        if (isStranger) {
+                            statusClass = 'disallowed';
+                            statusTitle = 'Status not visible';
+                        } else {
+                            statusClass = player.isOnline ? 'online' : 'offline';
+                            statusTitle = player.isOnline ? 'online' : 'offline';
+                        }
+                        var li = '<li class="playerlist_item ' + (index % 2 !== 0 ? 'odd' : '') + '" data-playerid="' + player.id + '" data-filterchatactive="' + filterChatActive + '" data-filteronline="' + filterOnline + '">';
+                        li += '<p class="playername">';
+                        li += '<span class="playerstatus tooltip ' + statusClass + '" data-tooltip-title="' + statusTitle + '"></span>';
+                        li += player.username + '</p>';
+                        li += '<span class="new_msg_count noMessage" data-playerid="' + player.id + '" data-new-messages="0">0</span>';
+                        li += '<span class="chatstatus cs_active fright"></span>';
+                        li += '</li>';
+                        return li;
+                    }
+
                     // Build the HTML for the player list matching original game structure
                     var html = '<div class="js_playerlist pl_container contentbox fleft">';
                     html += '<h2 class="header"><span class="c-right"></span><span class="c-left"></span>Player list</h2>';
                     html += '<div class="content">';
 
+                    // Filter checkboxes
+                    html += '<form id="playerlistFilters">';
+                    html += '<p class="overlay pl_filter_title">Filter by:</p>';
+                    html += '<fieldset class="pl_filter_set">';
+                    html += '<input id="filteronline" class="fleft" type="checkbox"><label for="filteronline" class="pl_filter">Online chats </label>';
+                    html += '</fieldset>';
+                    html += '<fieldset class="pl_filter_set">';
+                    html += '<input id="filterchatactive" class="fleft" type="checkbox"><label for="filterchatactive" class="pl_filter">Active chats </label>';
+                    html += '</fieldset>';
+                    html += '</form>';
+
                     // Buddies section
-                    html += '<div class="playerlist_box js_accordion ui-accordion ui-widget ui-helper-reset" role="tablist">';
-                    html += '<h3 class="ui-accordion-header ui-corner-top ui-state-default ui-accordion-header-active ui-state-active ui-accordion-icons" role="tab">';
-                    html += '<span class="ui-accordion-header-icon ui-icon ui-icon-triangle-1-s"></span>Buddies</h3>';
-                    html += '<div class="ui-accordion-content ui-corner-bottom ui-helper-reset ui-widget-content ui-accordion-content-active" role="tabpanel">';
+                    html += '<div class="playerlist_box js_accordion" style="overflow: hidden;">';
+                    html += '<h3>Buddies</h3>';
+                    html += '<div>';
                     html += '<div class="playerlist_top_box"></div>';
                     html += '<div class="scrollContainer"><ul class="playerlist">';
 
                     if (response.success && response.buddies && response.buddies.length > 0) {
                         response.buddies.forEach(function(buddy, index) {
-                            // TODO: Clicking on a buddy should open a chat window with that player
-                            html += '<li class="playerlist_item ' + (index % 2 === 0 ? '' : 'odd') + '" data-playerid="' + buddy.id + '">';
-                            html += '<p class="playername">';
-                            html += '<span class="playerstatus tooltip online" data-tooltip-title="online"></span>';
-                            html += buddy.username + '</p>';
-                            html += '<span class="new_msg_count noMessage" data-playerid="' + buddy.id + '" data-new-messages="0">0</span>';
-                            html += '<span class="chatstatus cs_active fright"></span>';
-                            html += '</li>';
+                            html += playerItem(buddy, index, buddy.hasActiveChat ? 'on' : 'off', buddy.isOnline ? 'on' : 'off');
                         });
                     } else {
-                        html += '<li class="no_buddies">No buddies online</li>';
+                        html += '<li class="no_buddies">No buddies</li>';
                     }
 
                     html += '</ul></div></div></div>';
+
+                    // Alliance section
+                    if (response.alliance) {
+                        html += '<div class="playerlist_box js_accordion" style="overflow: hidden;">';
+                        html += '<h3>Alliance</h3>';
+                        html += '<div>';
+                        html += '<div class="playerlist_top_box">';
+                        html += '<div class="playerlist openAssociationChat" data-associationid="' + response.alliance.id + '">';
+                        html += '<span title="" class="playerstatus tooltip blank"></span>';
+                        html += '<span style="color: orange">Alliance Chat</span>';
+                        html += '<span class="new_msg_count noMessage" data-new-messages="0" data-associationid="' + response.alliance.id + '">0</span>';
+                        html += '<span class="chatstatus cs_active fright"></span>';
+                        html += '</div>';
+                        html += '</div>';
+                        html += '<div class="scrollContainer"><ul class="playerlist">';
+
+                        if (response.allianceMembers && response.allianceMembers.length > 0) {
+                            response.allianceMembers.forEach(function(member, index) {
+                                html += playerItem(member, index, member.hasActiveChat ? 'on' : 'off', member.isOnline ? 'on' : 'off');
+                            });
+                        }
+
+                        html += '</ul></div></div></div>';
+                    }
+
+                    // Strangers section
+                    if (response.recentPartners && response.recentPartners.length > 0) {
+                        html += '<div class="playerlist_box js_accordion" style="overflow: hidden;">';
+                        html += '<h3>Strangers</h3>';
+                        html += '<div>';
+                        html += '<div class="playerlist_top_box"></div>';
+                        html += '<div class="scrollContainer"><ul class="playerlist">';
+
+                        response.recentPartners.forEach(function(partner, index) {
+                            html += playerItem(partner, index, 'on', 'off', true);
+                        });
+
+                        html += '</ul></div></div></div>';
+                    }
+
                     html += '</div>';
                     html += '<div class="footer"><div class="c-right"></div><div class="c-left"></div></div>';
                     html += '</div>';

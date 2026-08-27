@@ -21,13 +21,13 @@
                             <td class="action">
                                 @if($member && $member->hasPermission(\OGame\Models\AllianceRank::PERMISSION_EDIT_APPLICATIONS))
                                     <a class="accept_application" data-application-id="{{ $application->id }}" href="javascript:void(0);">
-                                        {{ __('accept') }}
+                                        {{ __('t_ingame.alliance.accept_btn') }}
                                     </a>
                                     <a class="reject_application" data-application-id="{{ $application->id }}" href="javascript:void(0);">
-                                        {{ __('Deny applicant') }}
+                                        {{ __('t_ingame.alliance.deny_btn') }}
                                     </a>
                                     <a class="report_application" data-application-id="{{ $application->id }}" data-user-id="{{ $application->user_id }}" href="javascript:void(0);">
-                                        {{ __('Report application') }}
+                                        {{ __('t_ingame.alliance.report_btn') }}
                                     </a>
                                 @endif
                             </td>
@@ -39,7 +39,7 @@
             <table class="members">
                 <tbody>
                     <tr>
-                        <td class="nr" style="text-align: center;">{{ __('No applications found') }}</td>
+                        <td class="nr" style="text-align: center;">{{ __('t_ingame.alliance.no_applications') }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -69,7 +69,7 @@
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        fadeBox(response.message || '{{ __("Application accepted") }}', false);
+                        fadeBox(response.message || @json(__('t_ingame.alliance.msg_accepted')), false);
 
                         // Remove the row from the DOM
                         $row.fadeOut(400, function() {
@@ -92,7 +92,7 @@
                     }
                 },
                 error: function(xhr) {
-                    fadeBox(xhr.responseJSON?.message || '{{ __("An error occurred") }}', true);
+                    fadeBox(xhr.responseJSON?.message || @json(__('t_ingame.alliance.msg_error')), true);
                 }
             });
         });
@@ -103,10 +103,10 @@
             var $row = $('#application_' + applicationId);
 
             errorBoxDecision(
-                '{{ __("Deny application") }}',
-                '{{ __("Are you sure you want to deny this application?") }}',
-                '{{ __("Yes") }}',
-                '{{ __("No") }}',
+                @json(__('t_ingame.alliance.confirm_deny_title')),
+                @json(__('t_ingame.alliance.confirm_deny')),
+                @json(__('t_ingame.shared.yes')),
+                @json(__('t_ingame.shared.no')),
                 function() {
                     $.ajax({
                         url: urlDeny,
@@ -117,7 +117,7 @@
                         },
                         success: function(response) {
                             if (response.status === 'success') {
-                                fadeBox(response.message || '{{ __("Application rejected") }}', false);
+                                fadeBox(response.message || @json(__('t_ingame.alliance.msg_rejected')), false);
 
                                 // Remove the row from the DOM
                                 $row.fadeOut(400, function() {
@@ -140,7 +140,7 @@
                             }
                         },
                         error: function(xhr) {
-                            fadeBox(xhr.responseJSON?.message || '{{ __("An error occurred") }}', true);
+                            fadeBox(xhr.responseJSON?.message || @json(__('t_ingame.alliance.msg_error')), true);
                         }
                     });
                 },
@@ -164,11 +164,11 @@
                 },
                 success: function(response) {
                     if (response.status === 'success') {
-                        fadeBox(response.message || '{{ __("Application reported") }}', false);
+                        fadeBox(response.message || @json(__('t_ingame.alliance.report_btn')), false);
                     }
                 },
                 error: function(xhr) {
-                    fadeBox(xhr.responseJSON?.message || '{{ __("An error occurred") }}', true);
+                    fadeBox(xhr.responseJSON?.message || @json(__('t_ingame.alliance.msg_error')), true);
                 }
             });
         });
@@ -177,7 +177,7 @@
         function updateApplicationCount(count) {
             var $applicationTab = $('#applicationTab');
             if ($applicationTab.length) {
-                $applicationTab.html('Applications (' + count + ')<span class="newApplications undermark" style="display: ' + (count > 0 ? 'inline' : 'none') + '"></span>');
+                $applicationTab.html(@json(__('t_ingame.alliance.tab_applications')) + ' (' + count + ')<span class="newApplications undermark" style="display: ' + (count > 0 ? 'inline' : 'none') + '"></span>');
             }
         }
     });

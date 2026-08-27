@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Date;
 use OGame\Models\BuildingQueue;
 use OGame\Models\DarkMatterTransaction;
 use OGame\Models\ResearchQueue;
+use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Models\User;
+use OGame\Services\HalvingService;
 use Tests\AccountTestCase;
 
 /**
@@ -15,14 +17,25 @@ use Tests\AccountTestCase;
  */
 class HalvingIntegrationTest extends AccountTestCase
 {
-    use RefreshDatabase;
+    /**
+     * Get the current user model, failing the test if it cannot be found.
+     */
+    private function findCurrentUser(): User
+    {
+        $user = User::find($this->currentUserId);
+        if ($user === null) {
+            $this->fail('Current user not found.');
+        }
+
+        return $user;
+    }
 
     /**
      * Test building halving end-to-end workflow.
      */
     public function testBuildingHalvingEndToEnd(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -70,12 +83,12 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testResearchHalvingEndToEnd(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
         $this->planetSetObjectLevel('research_lab', 1);
-        $this->planetAddResources(new \OGame\Models\Resources(10000, 10000, 10000, 0));
+        $this->planetAddResources(new Resources(10000, 10000, 10000, 0));
         $this->addResearchBuildRequest('energy_technology');
 
         $queueItem = ResearchQueue::query()
@@ -105,23 +118,30 @@ class HalvingIntegrationTest extends AccountTestCase
         $this->assertLessThan($initialBalance, $user->dark_matter, 'Dark Matter should be deducted');
 
         $queueItem = ResearchQueue::find($queueItem->id);
+        if ($queueItem === null) {
+            $this->fail('Queue item should exist');
+        }
         $this->assertLessThan($initialTimeEnd, $queueItem->time_end, 'time_end should be reduced');
     }
 
     /**
      * Test unit halving end-to-end workflow.
+     *
+     * Halving removes 50% of original duration from remaining time and instantly
+     * awards the corresponding units. object_amount is preserved; progress and
+     * dm_halved flag are updated. Time per unit rate stays the same.
      */
     public function testUnitHalvingEndToEnd(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
         $this->planetSetObjectLevel('robot_factory', 2);
         $this->planetSetObjectLevel('shipyard', 2);
         $this->playerSetResearchLevel('combustion_drive', 1);
-        $this->planetAddResources(new \OGame\Models\Resources(50000, 50000, 50000, 0));
-        $this->addShipyardBuildRequest('light_fighter', 5);
+        $this->planetAddResources(new Resources(50000, 50000, 50000, 0));
+        $this->addShipyardBuildRequest('light_fighter', 10);
 
         $queueItem = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
             ->where('processed', 0)
@@ -130,7 +150,12 @@ class HalvingIntegrationTest extends AccountTestCase
         $this->assertNotNull($queueItem, 'Queue item should exist');
 
         $initialBalance = $user->dark_matter;
-        $initialTimeEnd = $queueItem->time_end;
+        $initialObjectAmount = (int)$queueItem->object_amount;
+        $initialTimePerUnit = ((int)$queueItem->time_end - (int)$queueItem->time_start) / $initialObjectAmount;
+
+        // Count light fighters on planet before halving
+        $this->planetService->reloadPlanet();
+        $fightersBefore = $this->planetService->getObjectAmount('light_fighter');
 
         $response = $this->post('/ajax/shipyard/halve-unit', [
             '_token' => csrf_token(),
@@ -145,25 +170,34 @@ class HalvingIntegrationTest extends AccountTestCase
         $user->refresh();
         $this->assertLessThan($initialBalance, $user->dark_matter, 'Dark Matter should be deducted');
 
+        // Verify queue state: object_amount unchanged, progress updated, dm_halved set
         $queueItem->refresh();
-        $this->assertLessThan($initialTimeEnd, $queueItem->time_end, 'time_end should be reduced');
+        $expectedAwarded = 5; // floor(50% of 10-unit duration / time_per_unit) = 5
+
+        $this->assertEquals($initialObjectAmount, (int)$queueItem->object_amount, 'object_amount should remain unchanged');
+        $this->assertEquals($expectedAwarded, (int)$queueItem->object_amount_progress, 'Progress should reflect instantly awarded units');
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set');
+
+        // Verify time per unit is preserved (both time_start and time_end shifted equally)
+        $newTimePerUnit = ((int)$queueItem->time_end - (int)$queueItem->time_start) / (int)$queueItem->object_amount;
+        $this->assertEqualsWithDelta($initialTimePerUnit, $newTimePerUnit, 1, 'Time per unit should remain the same');
+
+        // Verify units were awarded to the planet
+        $this->planetService->reloadPlanet();
+        $fightersAfter = $this->planetService->getObjectAmount('light_fighter');
+        $this->assertEquals($fightersBefore + $expectedAwarded, $fightersAfter, 'Half the units should be awarded instantly');
     }
 
     /**
-     * Test double halving completes task immediately.
+     * Buildings can only be halved once; a second halve is rejected and Complete finishes the job.
      */
-    /**
-     * Test double halving for short duration tasks completes instantly.
-     *
-     * Each halve reduces remaining time by 50% of ORIGINAL construction time,
-     * capped at max reduction (48h for building).
-     */
-    public function testDoubleHalvingCompletesTask(): void
+    public function testBuildingHalveThenCompleteFinishesTask(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 200000;
         $user->save();
 
+        $levelBefore = $this->planetService->getObjectLevel('metal_mine');
         $this->addResourceBuildRequest('metal_mine');
 
         $queueItem = BuildingQueue::where('planet_id', $this->planetService->getPlanetId())
@@ -183,26 +217,38 @@ class HalvingIntegrationTest extends AccountTestCase
 
         $response1->assertStatus(200);
         $this->assertTrue($response1->json('success'), 'First halving should succeed');
+        $this->assertLessThan($originalDuration, $response1->json('remaining_time'), 'First halve should reduce remaining time');
 
-        $remainingAfterFirst = $response1->json('remaining_time');
+        $queueItem->refresh();
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set after first halve');
 
-        // If task is short enough (original <= 96h), second halve should complete it
-        if ($originalDuration <= 345600) { // 96 hours in seconds
-            // Second halve should complete the task
-            $response2 = $this->post('/ajax/facilities/halve-building', [
-                '_token' => csrf_token(),
-                'queue_item_id' => $queueItem->id,
-            ]);
+        // Second halve must be rejected — use Complete instead
+        $response2 = $this->post('/ajax/facilities/halve-building', [
+            '_token' => csrf_token(),
+            'queue_item_id' => $queueItem->id,
+        ]);
 
-            $response2->assertStatus(200);
-            $responseData = $response2->json();
+        $response2->assertStatus(200);
+        $this->assertFalse($response2->json('success'), 'Second halving should be rejected');
+        $this->assertStringContainsString('already been halved', (string)$response2->json('message'));
 
-            $this->assertTrue($responseData['success'], 'Second halving should succeed');
-            $this->assertLessThanOrEqual(1, $responseData['remaining_time'], 'Remaining time should be near zero after double halving');
-        } else {
-            // For very long tasks, just verify first halve reduced time
-            $this->assertLessThan($originalDuration, $remainingAfterFirst, 'First halve should reduce remaining time');
-        }
+        // Complete finishes the building instantly
+        $response3 = $this->post('/ajax/facilities/complete-building', [
+            '_token' => csrf_token(),
+            'queue_item_id' => $queueItem->id,
+        ]);
+
+        $response3->assertStatus(200);
+        $this->assertTrue($response3->json('success'), 'Complete should succeed after first halve');
+
+        $this->planetService->updateBuildingQueue();
+        $this->planetService->reloadPlanet();
+
+        $this->assertEquals($levelBefore + 1, $this->planetService->getObjectLevel('metal_mine'), 'Building should be completed');
+
+        $queueItem->refresh();
+        $this->assertEquals(1, (int)$queueItem->processed, 'Queue item should be processed');
+        $this->assertEquals(1, (int)$queueItem->dm_completed, 'dm_completed flag should be set');
     }
 
     /**
@@ -210,7 +256,7 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testHalvingWithInsufficientDarkMatter(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100;
         $user->save();
 
@@ -240,7 +286,7 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testHalvingWithInvalidQueueItemId(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -261,7 +307,7 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testHalvingWithVeryShortRemainingTime(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -274,7 +320,7 @@ class HalvingIntegrationTest extends AccountTestCase
 
         $this->assertNotNull($queueItem, 'Queue item should exist');
 
-        $queueItem->time_end = (int)\Carbon\Carbon::now()->timestamp + 2;
+        $queueItem->time_end = (int)Date::now()->timestamp + 2;
         $queueItem->save();
 
         $response = $this->post('/ajax/facilities/halve-building', [
@@ -303,10 +349,10 @@ class HalvingIntegrationTest extends AccountTestCase
 
         $this->assertNotNull($queueItem, 'Queue item should exist');
 
-        $halvingService = app(\OGame\Services\HalvingService::class);
+        $halvingService = app(HalvingService::class);
         $cost = $halvingService->calculateHalvingCost($queueItem->time_duration, 'building');
 
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = $cost;
         $user->save();
 
@@ -327,7 +373,7 @@ class HalvingIntegrationTest extends AccountTestCase
      */
     public function testHalvingInvalidQueueItems(): void
     {
-        $user = User::find($this->currentUserId);
+        $user = $this->findCurrentUser();
         $user->dark_matter = 100000;
         $user->save();
 
@@ -351,6 +397,10 @@ class HalvingIntegrationTest extends AccountTestCase
             ->where('building', 1)
             ->where('processed', 0)
             ->first();
+
+        if ($queueItem === null) {
+            $this->fail('Queue item should exist');
+        }
 
         $queueItem->processed = 1;
         $queueItem->save();

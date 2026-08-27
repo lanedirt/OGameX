@@ -32,13 +32,22 @@ use OGame\GameMessages\ExpeditionMerchantFound;
 use OGame\GameMessages\FleetDeployment;
 use OGame\GameMessages\FleetDeploymentWithResources;
 use OGame\GameMessages\FleetLostContact;
+use OGame\GameMessages\FleetUnionInvite;
 use OGame\GameMessages\MissileAttackReport;
 use OGame\GameMessages\MissileDefenseReport;
+use OGame\GameMessages\MoonDestroyed;
+use OGame\GameMessages\MoonDestructionCatastrophic;
+use OGame\GameMessages\MoonDestructionFailure;
+use OGame\GameMessages\MoonDestructionMissionFailed;
+use OGame\GameMessages\MoonDestructionRepelled;
+use OGame\GameMessages\MoonDestructionSuccess;
+use OGame\GameMessages\PlanetRelocationSuccess;
 use OGame\GameMessages\ReturnOfFleet;
 use OGame\GameMessages\ReturnOfFleetWithResources;
 use OGame\GameMessages\TransportArrived;
 use OGame\GameMessages\TransportReceived;
 use OGame\GameMessages\WelcomeMessage;
+use OGame\GameMessages\WreckFieldRepairCompleted;
 use OGame\Models\Message;
 use RuntimeException;
 
@@ -95,7 +104,24 @@ class GameMessageFactory
         // Alliance messages
         'alliance_broadcast' => AllianceBroadcast::class,
         'alliance_application_received' => AllianceApplicationReceived::class,
-        ];
+
+        // Fleet union messages
+        'fleet_union_invite' => FleetUnionInvite::class,
+
+        // Planet relocation messages
+        'planet_relocation_success' => PlanetRelocationSuccess::class,
+
+        // Moon destruction messages
+        'moon_destruction_success' => MoonDestructionSuccess::class,
+        'moon_destruction_failure' => MoonDestructionFailure::class,
+        'moon_destruction_catastrophic' => MoonDestructionCatastrophic::class,
+        'moon_destroyed' => MoonDestroyed::class,
+        'moon_destruction_mission_failed' => MoonDestructionMissionFailed::class,
+        'moon_destruction_repelled' => MoonDestructionRepelled::class,
+
+        // Wreck field messages
+        'wreck_field_repair_completed' => WreckFieldRepairCompleted::class,
+    ];
 
     /**
      * @return array<GameMessage>

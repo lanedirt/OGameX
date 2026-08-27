@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Abstracts\GameObject;
@@ -17,6 +18,7 @@ use OGame\Models\Enums\ResourceType;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\PlanetMove;
 use OGame\Models\ProductionIndex;
 use OGame\Models\ResearchQueue;
 use OGame\Models\Resource;
@@ -68,7 +70,7 @@ class PlanetService
         // but this can be fine for unittests or when creating a new planet.
         if ($planet !== null) {
             $this->planet = $planet;
-        } elseif ($planet_id !== 0) {
+        } elseif ($planet_id !== null && $planet_id !== 0) {
             $this->loadByPlanetId($planet_id);
         }
 
@@ -225,10 +227,15 @@ class PlanetService
         }
 
         // Sanity check: disallow abandoning a planet with active fleet missions.
-        $fleetMissionService = resolve(FleetMissionService::class);
-        $activeMissions = $fleetMissionService->getActiveMissionsByPlanetIds([$this->planet->id]);
-        if ($activeMissions->count() > 0) {
-            throw new RuntimeException('Cannot abandon planet with active fleet missions.');
+        // Moons are exempt: moon destruction redirects incoming fleets and nulls out planet
+        // references for any remaining missions, so active missions are handled gracefully.
+        if ($this->isPlanet()) {
+            $fleetMissionService = resolve(FleetMissionService::class);
+            $activeMissions = $fleetMissionService->getActiveMissionsByPlanetIds([$this->planet->id]);
+
+            if ($activeMissions->count() > 0) {
+                throw new RuntimeException('Cannot abandon planet with active fleet missions.');
+            }
         }
 
         // If this is a planet and has a moon, delete the moon first
@@ -238,6 +245,11 @@ class PlanetService
 
         // Anonymize the planet in all tables where it is referenced.
         // This is done to prevent foreign key constraints from failing.
+
+        // Moon-origin fleets must keep a valid home planet so they can still return after the moon is gone.
+        if ($this->isMoon()) {
+            $this->redirectActiveOutgoingMoonMissionsToParentPlanet();
+        }
 
         // Fleet missions
         FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
@@ -252,15 +264,43 @@ class PlanetService
         // Unit queues
         UnitQueue::where('planet_id', $this->planet->id)->delete();
 
+        // Planet moves
+        PlanetMove::where('planet_id', $this->planet->id)->delete();
+
         // Update the player's current planet if it is the planet being abandoned.
-        if ($this->getPlayer()->getCurrentPlanetId() === $this->planet->id) {
-            $this->getPlayer()->setCurrentPlanetId(0);
+        $player = $this->getPlayer();
+        if ($player !== null && $player->getCurrentPlanetId() === $this->planet->id) {
+            $player->setCurrentPlanetId(0);
         }
 
         // TODO: add feature test to check that abandoning a planet works correctly in various scenarios.
 
         // Delete the planet from the database
         $this->planet->delete();
+    }
+
+    /**
+     * Rebind active missions launched from a moon to its parent planet before the moon is deleted.
+     * This preserves the original flight while ensuring the fleet returns to the planet instead.
+     */
+    private function redirectActiveOutgoingMoonMissionsToParentPlanet(): void
+    {
+        $parentPlanet = $this->getParentPlanet();
+        if ($parentPlanet === null) {
+            return;
+        }
+
+        $parentCoordinates = $parentPlanet->getPlanetCoordinates();
+
+        FleetMission::where('planet_id_from', $this->planet->id)
+            ->where('processed', 0)
+            ->update([
+                'planet_id_from' => $parentPlanet->getPlanetId(),
+                'galaxy_from' => $parentCoordinates->galaxy,
+                'system_from' => $parentCoordinates->system,
+                'position_from' => $parentCoordinates->position,
+                'type_from' => PlanetType::Planet->value,
+            ]);
     }
 
     /**
@@ -590,7 +630,7 @@ class PlanetService
      *
      * @return bool
      */
-    public function hasResources(Resources $resources): bool
+    public function hasResources(Resources $resources, bool $useProductionEnergy = false): bool
     {
         if (!empty($resources->metal->get()) && ceil($this->metal()->get()) < $resources->metal->get()) {
             return false;
@@ -601,8 +641,13 @@ class PlanetService
         if (!empty($resources->deuterium->get()) && ceil($this->deuterium()->get()) < $resources->deuterium->get()) {
             return false;
         }
-        if (!empty($resources->energy->get()) && ceil($this->energyProduction()->get()) < $resources->energy->get()) {
-            return false;
+        if (!empty($resources->energy->get())) {
+            $energyAvailable = $useProductionEnergy
+                ? $this->energyProduction()->get()
+                : $this->energy()->get();
+            if (ceil($energyAvailable) < $resources->energy->get()) {
+                return false;
+            }
         }
 
         return true;
@@ -978,13 +1023,18 @@ class PlanetService
     {
         $research_lab_level = $this->getObjectLevel('research_lab');
 
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
         // The Intergalactic Research Network technology enables multiple research labs
         // across different planets to collaborate, significantly reducing research times.
-        $irn_level = $this->getPlayer()->getResearchLevel('intergalactic_research_network');
+        $irn_level = $player->getResearchLevel('intergalactic_research_network');
         if ($irn_level > 0) {
             // Get the research lab levels of all planets in the player's possession.
             $research_lab_levels = [];
-            foreach ($this->getPlayer()->planets->allPlanets() as $planet) {
+            foreach ($player->planets->allPlanets() as $planet) {
                 // Check if the object's requirements are met on the planet;
                 // otherwise, the planet's research lab cannot be included in the research network.
                 if (!ObjectService::objectRequirementsMet($machine_name, $planet)) {
@@ -1316,9 +1366,14 @@ class PlanetService
             return false;
         }
 
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
         // Access all players planets and see if there is a moon with the same coordinates
         // as this planet.
-        if ($this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates()) !== null) {
+        if ($player->planets->getMoonByCoordinates($this->getPlanetCoordinates()) !== null) {
             return true;
         }
 
@@ -1332,7 +1387,12 @@ class PlanetService
      */
     public function moon(): PlanetService
     {
-        $moon = $this->getPlayer()->planets->getMoonByCoordinates($this->getPlanetCoordinates());
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        $moon = $player->planets->getMoonByCoordinates($this->getPlanetCoordinates());
 
         if ($moon === null) {
             throw new RuntimeException('No moon found for this planet.');
@@ -1370,9 +1430,14 @@ class PlanetService
             return false;
         }
 
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
         // Access all players planets and see if there is a moon with the same coordinates
         // as this planet.
-        if ($this->getPlayer()->planets->getPlanetByCoordinates($this->getPlanetCoordinates()) !== null) {
+        if ($player->planets->getPlanetByCoordinates($this->getPlanetCoordinates()) !== null) {
             return true;
         }
 
@@ -1386,7 +1451,12 @@ class PlanetService
      */
     public function planet(): PlanetService
     {
-        $moon = $this->getPlayer()->planets->getPlanetByCoordinates($this->getPlanetCoordinates());
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        $moon = $player->planets->getPlanetByCoordinates($this->getPlanetCoordinates());
 
         if ($moon === null) {
             throw new RuntimeException('No planet found for this moon.');
@@ -1409,7 +1479,12 @@ class PlanetService
     public function updateBuildingQueue(bool $save_planet = true): void
     {
         // Skip building queue processing if player is in vacation mode
-        if ($this->getPlayer()->isInVacationMode()) {
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        if ($player->isInVacationMode()) {
             return;
         }
 
@@ -1431,8 +1506,19 @@ class PlanetService
                 // Check if this is a downgrade
                 $is_downgrade = $item->is_downgrade ?? false;
 
-                // Update building level
-                $this->setObjectLevel($item->object_id, $item->object_level_target, $save_planet);
+                // Update building level. If the object type is invalid (e.g. a research object somehow
+                // ended up in the building queue due to a prior bug), skip it gracefully. The item is
+                // already marked processed above, so it will not be retried on the next page load.
+                try {
+                    $this->setObjectLevel($item->object_id, $item->object_level_target, $save_planet);
+                } catch (RuntimeException $e) {
+                    Log::error('Building queue item skipped due to invalid object type.', [
+                        'planet_id' => $this->getPlanetId(),
+                        'object_id' => $item->object_id,
+                        'object_level_target' => $item->object_level_target,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
 
                 // Update production/storage stats for subsequent resource calculations
                 $this->updateResourceProductionStats(false);
@@ -1477,6 +1563,11 @@ class PlanetService
     public function setObjectLevel(int $object_id, int $level, bool $save_planet = true): void
     {
         $object = ObjectService::getObjectById($object_id);
+
+        if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
+            throw new RuntimeException('setObjectLevel() can only be used for buildings and stations, not: ' . $object->machine_name);
+        }
+
         $this->planet->{$object->machine_name} = $level;
         if ($save_planet) {
             $this->save();
@@ -1496,7 +1587,12 @@ class PlanetService
     public function updateUnitQueue(bool $save_planet = true): void
     {
         // Skip unit queue processing if player is in vacation mode
-        if ($this->getPlayer()->isInVacationMode()) {
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        if ($player->isInVacationMode()) {
             return;
         }
 
@@ -1507,6 +1603,23 @@ class PlanetService
         foreach ($unit_queue as $item) {
             // Get object information.
             $object = ObjectService::getUnitObjectById($item->object_id);
+
+            $now = (int)Date::now()->timestamp;
+
+            // If time_end has fully elapsed, award all remaining units at once.
+            // This handles cases where time was reduced (e.g. via DM halving/complete).
+            if ($now >= $item->time_end) {
+                $remaining = $item->object_amount - $item->object_amount_progress;
+                if ($remaining > 0) {
+                    $item->time_progress = $item->time_end;
+                    $item->object_amount_progress = $item->object_amount;
+                    $item->processed = 1;
+                    $item->save();
+
+                    $this->addUnit($object->machine_name, $remaining, $save_planet);
+                }
+                continue;
+            }
 
             // Calculate if we can partially (or fully) complete this order
             // yet based on time per unit and amount of ordered units.
@@ -1519,7 +1632,7 @@ class PlanetService
             if ($last_update < $item->time_start) {
                 $last_update = $item->time_start;
             }
-            $last_update_diff = (int)Date::now()->timestamp - $last_update;
+            $last_update_diff = $now - $last_update;
 
             // If difference between last update and now is equal to or bigger
             // than the time per unit, give the unit and record progress.
@@ -1829,7 +1942,12 @@ class PlanetService
         }
 
         // Players in vacation mode have zero basic income.
-        if ($this->getPlayer()->isInVacationMode()) {
+        $player = $this->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        if ($player->isInVacationMode()) {
             return new Resources(0, 0, 0, 0);
         }
 
@@ -1940,6 +2058,16 @@ class PlanetService
 
             // Combine values to one array, so we have the total production.
             $building_production_total->add($production);
+        }
+
+        // Add crawler energy consumption (only once, not per mine)
+        // Crawlers are special: their production bonus is calculated per mine,
+        // but their energy consumption should only be counted once per planet
+        $crawlerEnergy = $this->getCrawlerEnergyConsumption();
+        if ($crawlerEnergy < 0) {
+            $crawler_energy_consumption = abs($crawlerEnergy);
+            $building_production_total->energy->add(new Resource($crawler_energy_consumption));
+            $energy_consumption_total += $crawler_energy_consumption;
         }
 
         // After all production values are calculated, we need to calculate the actual fusion plant energy production.
@@ -2058,6 +2186,26 @@ class PlanetService
     }
 
     /**
+     * Get crawler energy consumption for this planet.
+     * This is separate from building production to avoid counting crawler energy multiple times.
+     *
+     * @return int Negative value representing energy consumption
+     */
+    private function getCrawlerEnergyConsumption(): int
+    {
+        // Get metal mine object (we only need one to access the production calculator)
+        $metalMine = ObjectService::getGameObjectsWithProductionByMachineName('metal_mine');
+
+        // Set up the production calculator with planet context
+        $metalMine->production->planetService = $this;
+        $metalMine->production->playerService = $this->player;
+        $metalMine->production->characterClassService = app(CharacterClassService::class);
+        $metalMine->production->universe_speed = $this->settingsService->economySpeed();
+
+        return $metalMine->production->getCrawlerEnergyConsumption();
+    }
+
+    /**
      * Returns the resource production factor percentage.
      *
      * This percentage indicates how efficient the resource buildings (mines)
@@ -2159,7 +2307,7 @@ class PlanetService
         $currently_building = $build_queue->getCurrentlyBuildingFromQueue();
 
         if ($currently_building !== null) {
-            return $currently_building->is_downgrade ?? false;
+            return $currently_building->is_downgrade;
         }
 
         return false;

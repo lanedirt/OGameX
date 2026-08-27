@@ -14746,7 +14746,7 @@ function initBBCodeEditor(locaKeys, itemArray, imagesAllowed, selector, maxChars
     },
     markupSet: [markupSetBasic, markupSetAdvanced],
     resizeHandle: false,
-    previewParserPath: bbcodePreviewUrl + "&imgAllowed=" + (imagesAllowed ? 1 : 0),
+    previewParserPath: bbcodePreviewUrl ? (bbcodePreviewUrl + "&imgAllowed=" + (imagesAllowed ? 1 : 0)) : '',
     previewAutoRefresh: true,
     previewParserVar: 'text',
     previewInElement: $('<div class="miu_preview_container"></div>'),
@@ -15299,7 +15299,8 @@ function updateBuyTextAndActivatePackage($buttonElem, $package) {
   $package.addClass('premium');
 }
 /**/
-ogame.chat = {
+// ogame.chat implementation has been moved to resources/js/ingame/chat.js
+var _ogame_chat_removed = {
   socket: null,
   connected: false,
   connecting: false,
@@ -21665,7 +21666,7 @@ function doUpgrade(technologyId, planetId, mode, listId, showSlotWarning) {
     warning = LocalizationStrings.lastSlotWarningPlanet;
   }
 
-  if (showSlotWarning) {
+  if (showSlotWarning && lastBuildingSlot.shouldWarnForTechnologyId(technologyId)) {
     errorBoxDecision(LocalizationStrings.attention, warning, LocalizationStrings.yes, LocalizationStrings.no, function () {
       executeBuildAction(technologyId, planetId, mode, listId);
     });
@@ -21930,7 +21931,7 @@ function outlawWarning(order, galaxy, system, planet, planettype, shipCount, cal
   }
 
   function openMissleLaunchBox() {
-    openOverlay(missleAttackLink + '&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '&planetType=' + planettype, {
+    openOverlay(missleAttackLink + '&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '&type=' + planettype, {
       modal: true,
       title: loca.LOCA_FLEET_MISSILEATTACK || 'Missile Attack'
     });
@@ -33410,6 +33411,12 @@ FleetDispatcher.prototype.refreshFleetTimes = function () {
       let durationAKS = parseInt(union.time - serverTime.getTime() / 1000);
       let unionArrivalTime = formatTime(durationAKS);
       $('#durationAKS').html(unionArrivalTime);
+      // TODO: Show the player the actual synchronized arrival time they will be locked to.
+      // If this fleet arrives earlier than the union, it will be delayed to union.time.
+      // If this fleet arrives later (within the 30% delay window), all union members
+      // will be pushed to this fleet's arrival time. The live #arrivalTime display above
+      // should reflect the post-sync arrival time so the player knows exactly when their
+      // fleet will land before confirming dispatch.
     }
   }
 };
@@ -33538,7 +33545,6 @@ FleetDispatcher.prototype.selectCombatUnion = function (elem) {
     this.setTargetType(parseInt(parts[3]), true);
     this.union = parseInt(parts[5]);
   } else {
-    this.mission = this.fleetHelper.MISSION_NONE;
     this.union = 0;
   }
 };
@@ -34203,7 +34209,7 @@ FleetDispatcher.prototype.selectMaxCrystal = function () {
 };
 
 FleetDispatcher.prototype.getDeuteriumOnPlanetWithoutConsumption = function () {
-  return Math.max(0, this.deuteriumOnPlanet - this.getConsumption());
+  return Math.max(0, Math.floor(this.deuteriumOnPlanet) - Math.ceil(this.getConsumption()));
 };
 
 FleetDispatcher.prototype.selectMinCrystal = function () {
@@ -35244,7 +35250,7 @@ function getPlanetOrMoonTooltipLinks(planet, galaxyContentObject, systemData) {
       }
     });
 
-    if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin) {
+    if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin && systemData.availableMissiles > 0) {
       let holdMissionAvailable = planet.availableMissions.find(availMission => availMission.missionType === 5);
 
       if (systemData.showOutlawWarning && !systemData.isOutlaw && player.isStrong && !holdMissionAvailable) {
@@ -35677,7 +35683,7 @@ function getActions(galaxyContentObject, systemData) {
 
   let missileLink = "";
 
-  if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin && galaxy && system && position) {
+  if (galaxyContentObject.actions.canMissileAttack && !player.isAdmin && galaxy && system && position && systemData.availableMissiles > 0) {
     if (systemData.showOutlawWarning && !systemData.isOutlaw && player.isStrong && !holdMissionAvailable) {
       missileLink = `
                 <a class="tooltip js_hideTipOnMobile missleattack"
@@ -39972,7 +39978,7 @@ function sendBuildRequest(url, ev, showSlotWarning) {
     errorBoxDecision(LOCA_ALL_NETWORK_ATTENTION, LOCA_PLANETMOVE_BREAKUP_WARNING, LOCA_ALL_YES, LOCA_ALL_NO, fallBackFunc);
   } else {
     if (showSlotWarning) {
-      if (lastBuildingSlot['showWarning']) {
+      if (lastBuildingSlot['showWarning'] && lastBuildingSlot['shouldWarnForTechnologyId'](typeof techID !== 'undefined' ? techID : null)) {
         errorBoxDecision(LOCA_ALL_NETWORK_ATTENTION, lastBuildingSlot['slotWarning'], LOCA_ALL_YES, LOCA_ALL_NO, build);
       } else {
         build();
@@ -41123,7 +41129,7 @@ $(function () {
       });
     }
 
-    if (lastBuildingSlot.showWarning && !isSpaceProvider) {
+    if (lastBuildingSlot.shouldWarnForTechnologyId(technologyId) && !isSpaceProvider) {
       return errorBoxDecision(LocalizationStrings.notice, lastBuildingSlot.slotWarning, LocalizationStrings.yes, LocalizationStrings.no, function () {
         buildListActionBuild(technologyId);
       });
@@ -41150,7 +41156,7 @@ $(function () {
       });
     }
 
-    if (lastBuildingSlot.showWarning && !isSpaceProvider) {
+    if (lastBuildingSlot.shouldWarnForTechnologyId(technologyId) && !isSpaceProvider) {
       return errorBoxDecision(LocalizationStrings.notice, lastBuildingSlot.slotWarning, LocalizationStrings.yes, LocalizationStrings.no, function () {
         buildListActionBuild(technologyId, 1, 4);
       });
@@ -41243,7 +41249,7 @@ TechnologyDetails.prototype.onClickUpgrade = function (e) {
     });
   }
 
-  if (lastBuildingSlot.showWarning == true) {
+  if (lastBuildingSlot.shouldWarnForTechnologyId(technologyId)) {
     return errorBoxDecision(LocalizationStrings.notice, lastBuildingSlot.slotWarning, LocalizationStrings.yes, LocalizationStrings.no, function () {
       buildListActionBuild(technologyId, amount);
     });

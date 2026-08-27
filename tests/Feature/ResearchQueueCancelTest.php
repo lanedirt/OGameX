@@ -12,6 +12,8 @@ use Tests\AccountTestCase;
  */
 class ResearchQueueCancelTest extends AccountTestCase
 {
+    protected int $defaultComputerTechnologyLevel = 0;
+
     /**
      * Verify that when adding more than one of the same technology to the research queue, that cancellation
      * of the first research in the queue will cancel all research of that type in the queue.

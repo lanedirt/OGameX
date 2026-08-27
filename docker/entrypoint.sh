@@ -23,11 +23,13 @@ git config --global --add safe.directory /var/www
 
 if [ "$role" = "scheduler" ]; then
     while true; do
-        php /var/www/html/artisan schedule:run --verbose --no-interaction
+        php /var/www/artisan schedule:run --verbose --no-interaction
         sleep 60
     done
 elif [ "$role" = "queue" ]; then
-      php /var/www/html/artisan queue:work --verbose --no-interaction
+      php /var/www/artisan queue:work --verbose --no-interaction
+elif [ "$role" = "reverb" ]; then
+    php /var/www/artisan reverb:start --host="${REVERB_SERVER_HOST:-0.0.0.0}" --port="${REVERB_SERVER_PORT:-8090}"
 elif [ "$role" = "app" ]; then
     # Check APP_ENV and run appropriate composer install
     if [ "$is_production" = true ]; then

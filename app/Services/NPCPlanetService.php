@@ -4,7 +4,6 @@ namespace OGame\Services;
 
 use OGame\Factories\PlayerServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
-use OGame\Models\Planet;
 
 /**
  * NPCPlanetService - A specialized PlanetService for NPC expedition battles.
@@ -64,5 +63,18 @@ class NPCPlanetService extends PlanetService
     public function getDefenseUnits(): UnitCollection
     {
         return new UnitCollection();
+    }
+
+    /**
+     * Override to return 0 for all unit amounts (NPC planets have no buildings, ships on planet, or defenses).
+     * Without this override, the parent method reads from the real planet DB which would incorrectly
+     * include the player's own defense units in the NPC defending fleet.
+     *
+     * @param string $machine_name
+     * @return int
+     */
+    public function getObjectAmount(string $machine_name): int
+    {
+        return 0;
     }
 }

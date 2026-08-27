@@ -23,6 +23,8 @@ use Illuminate\Support\Carbon;
  * @property float $crystal
  * @property float $deuterium
  * @property int $processed
+ * @property int $dm_halved
+ * @property int $dm_completed
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Planet $planet

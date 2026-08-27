@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ __('Alliance Information') }}</title>
+    <title>{{ __('t_ingame.alliance.info_title') }}</title>
     <link rel="stylesheet" href="{{ asset('css/ingame.css') }}">
     <style>
         body {
@@ -73,36 +73,36 @@
                 <tbody>
                     <tr>
                         <td style="background-color:#13181D; font-weight:bold;" colspan="2">
-                            {{ __('Alliance Information') }}
+                            {{ __('t_ingame.alliance.info_title') }}
                         </td>
                     </tr>
                     @if($alliance->logo_url)
                         <tr>
                             <td colspan="2">
-                                <img src="{{ $alliance->logo_url }}" class="allylogo" alt="{{ __('Alliance logo') }}" style="image-orientation: from-image;">
+                                <img src="{{ $alliance->logo_url }}" class="allylogo" alt="{{ __('t_ingame.alliance.logo') }}" style="image-orientation: from-image;">
                             </td>
                         </tr>
                     @endif
                     <tr>
-                        <td>{{ __('Tag') }}</td>
+                        <td>{{ __('t_ingame.alliance.tag') }}</td>
                         <td>
                             {{ $alliance->alliance_tag }}
                         </td>
                     </tr>
                     <tr>
-                        <td>{{ __('Name') }}</td>
+                        <td>{{ __('t_ingame.alliance.name') }}</td>
                         <td>
                             {{ $alliance->alliance_name }}
                         </td>
                     </tr>
                     <tr>
-                        <td>{{ __('Member') }}</td>
+                        <td>{{ __('t_ingame.alliance.member') }}</td>
                         <td>
                             {{ $memberCount }}
                         </td>
                     </tr>
                     <tr>
-                        <td>{{ __('Alliance highscore') }}</td>
+                        <td>{{ __('t_ingame.alliance.highscore') }}</td>
                         <td>
                             {{ $allianceRank ?? '-' }}
                         </td>
@@ -116,7 +116,7 @@
                     @endif
                     @if($alliance->homepage_url)
                         <tr>
-                            <td>{{ __('Homepage') }}</td>
+                            <td>{{ __('t_ingame.alliance.homepage') }}</td>
                             <td>
                                 <a href="javascript:void(0);" data-homepage-link="">{{ $alliance->homepage_url }}</a>
                             </td>
@@ -128,7 +128,7 @@
             @if($canApply)
                 <center style="margin-top: 20px;">
                     <button class="btn_blue" id="applyToAllianceBtn" style="padding: 5px 20px;">
-                        {{ __('Apply to Alliance') }}
+                        {{ __('t_ingame.alliance.apply_title') }}
                     </button>
                 </center>
             @endif
@@ -182,11 +182,11 @@
         isMobile = false;
         isMobileApp = false;
         LocalizationStrings = {!! json_encode([
-            'attention' => __('Caution'),
-            'yes' => __('yes'),
-            'no' => __('No'),
-            'ok' => __('Ok'),
-            'redirectMessage' => __('By following this link, you will leave OGame. Do you wish to continue?'),
+            'attention'       => __('t_ingame.shared.caution'),
+            'yes'             => __('t_ingame.shared.yes'),
+            'no'              => __('t_ingame.shared.no'),
+            'ok'              => 'Ok',
+            'redirectMessage' => __('t_ingame.alliance.redirect_confirm'),
         ]) !!};
         var allyHome = '{{ $alliance->homepage_url ?? '' }}';
 
@@ -207,7 +207,7 @@
             $('#applyToAllianceBtn').on('click', function() {
                 errorBoxDecision(
                     LocalizationStrings.attention,
-                    '{{ __('Do you want to apply to this alliance?') }}',
+                    @json(__('t_ingame.alliance.apply_confirm')),
                     LocalizationStrings.yes,
                     LocalizationStrings.no,
                     function() {
@@ -221,16 +221,16 @@
                             },
                             success: function(response) {
                                 if (response.success) {
-                                    fadeBox(response.message || '{{ __('Application submitted successfully') }}', false);
+                                    fadeBox(response.message || @json(__('t_ingame.alliance.msg_apply_success')), false);
                                     setTimeout(function() {
                                         window.close();
                                     }, 2000);
                                 } else {
-                                    fadeBox(response.message || '{{ __('Failed to submit application') }}', true);
+                                    fadeBox(response.message || @json(__('t_ingame.alliance.msg_apply_error')), true);
                                 }
                             },
                             error: function(xhr) {
-                                var errorMessage = '{{ __('Failed to submit application') }}';
+                                var errorMessage = @json(__('t_ingame.alliance.msg_apply_error'));
                                 if (xhr.responseJSON && xhr.responseJSON.message) {
                                     errorMessage = xhr.responseJSON.message;
                                 }

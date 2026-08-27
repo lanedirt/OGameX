@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -54,28 +55,22 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Alliance whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'alliance_tag',
+    'alliance_name',
+    'founder_user_id',
+    'internal_text',
+    'external_text',
+    'application_text',
+    'logo_url',
+    'homepage_url',
+    'is_open',
+    'founder_rank_name',
+    'newcomer_rank_name',
+])]
 class Alliance extends Model
 {
     use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'alliance_tag',
-        'alliance_name',
-        'founder_user_id',
-        'internal_text',
-        'external_text',
-        'application_text',
-        'logo_url',
-        'homepage_url',
-        'is_open',
-        'founder_rank_name',
-        'newcomer_rank_name',
-    ];
 
     /**
      * The attributes that should be cast.

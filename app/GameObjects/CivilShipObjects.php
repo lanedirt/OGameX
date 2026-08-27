@@ -10,6 +10,7 @@ use OGame\GameObjects\Models\Fields\GameObjectRapidfire;
 use OGame\GameObjects\Models\Fields\GameObjectRequirement;
 use OGame\GameObjects\Models\Fields\GameObjectSpeedUpgrade;
 use OGame\GameObjects\Models\ShipObject;
+use OGame\Models\Enums\PlanetType;
 
 class CivilShipObjects
 {
@@ -25,13 +26,11 @@ class CivilShipObjects
         // --- Small Cargo ---
         $smallCargo = new ShipObject();
         $smallCargo->id = 202;
-        $smallCargo->title = 'Small Cargo';
+        $smallCargo->title = __('t_resources.small_cargo.title');
         $smallCargo->machine_name = 'small_cargo';
         $smallCargo->class_name = 'transporterSmall';
-        $smallCargo->description = 'The small cargo is an agile ship which can quickly transport resources to other planets.';
-        $smallCargo->description_long = 'Transporters are about as large as fighters, yet they forego high-performance drives and on-board weaponry for gains in their freighting capacity. As a result, a transporter should only be sent into battles when it is accompanied by combat-ready ships.
-        
-        As soon as the Impulse Drive reaches research level 5, the small transporter travels with increased base speed and is geared with an Impulse Drive.';
+        $smallCargo->description = __('t_resources.small_cargo.description');
+        $smallCargo->description_long = __('t_resources.small_cargo.description_long');
         $smallCargo->requirements = [
             new GameObjectRequirement('shipyard', 2),
             new GameObjectRequirement('combustion_drive', 2),
@@ -40,11 +39,12 @@ class CivilShipObjects
         $smallCargo->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $smallCargo->properties = new GameObjectProperties($smallCargo, 4000, 10, 5, 5000, 5000, 10);
         // Switch to Impulse at 5 and bump base speed to 10,000
         $smallCargo->properties->speed_upgrade = [
-            new GameObjectSpeedUpgrade('impulse_drive', 5),
+            new GameObjectSpeedUpgrade('impulse_drive', 5, 10000),
         ];
         $smallCargo->assets = new GameObjectAssets();
         $smallCargo->assets->imgSmall = 'small_cargo_small.jpg';
@@ -54,14 +54,11 @@ class CivilShipObjects
         // --- Large Cargo ---
         $largeCargo = new ShipObject();
         $largeCargo->id = 203;
-        $largeCargo->title = 'Large Cargo';
+        $largeCargo->title = __('t_resources.large_cargo.title');
         $largeCargo->machine_name = 'large_cargo';
         $largeCargo->class_name = 'transporterLarge';
-        $largeCargo->description = 'This cargo ship has a much larger cargo capacity than the small cargo, and is generally faster thanks to an improved drive.';
-        $largeCargo->description_long = 'As time evolved, the raids on colonies resulted in larger and larger amounts of resources being captured. As a result, Small Cargos were being sent out in mass numbers to compensate for the larger captures. It was quickly learned that a new class of ship was needed to maximize resources captured in raids, yet also be cost
-effective. After much development, the Large Cargo was born.
-
-To maximize the resources that can be stored in the holds, this ship has little in the way of weapons or armor. Thanks to the highly developed combustion engine installed, it serves as the most economical resource supplier between planets, and most effective in raids on hostile worlds.';
+        $largeCargo->description = __('t_resources.large_cargo.description');
+        $largeCargo->description_long = __('t_resources.large_cargo.description_long');
         $largeCargo->requirements = [
             new GameObjectRequirement('shipyard', 4),
             new GameObjectRequirement('combustion_drive', 6),
@@ -70,6 +67,7 @@ To maximize the resources that can be stored in the holds, this ship has little 
         $largeCargo->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $largeCargo->properties = new GameObjectProperties($largeCargo, 12000, 25, 5, 7500, 25000, 50);
 
@@ -81,13 +79,11 @@ To maximize the resources that can be stored in the holds, this ship has little 
         // --- Colony Ship ---
         $colonyShip = new ShipObject();
         $colonyShip->id = 208;
-        $colonyShip->title = 'Colony Ship';
+        $colonyShip->title = __('t_resources.colony_ship.title');
         $colonyShip->machine_name = 'colony_ship';
         $colonyShip->class_name = 'colonyShip';
-        $colonyShip->description = 'Vacant planets can be colonised with this ship.';
-        $colonyShip->description_long = 'In the 20th Century, Man decided to go for the stars. First, it was landing on the Moon. After that, a space station was built. Mars was colonized soon afterwards. It was soon determined that our growth depended on colonizing other worlds. Scientists and engineers all over the world gathered together to develop mans greatest achievement ever. The Colony Ship is born.
-
-This ship is used to prepare a newly discovered planet for colonization. Once it arrives at the destination, the ship is instantly transformed into habitual living space to assist in populating and mining the new world. The maximum number of planets is thereby determined by the progress in astrophysics research.Two new levels of Astrotechnology allow for the colonization of one additional planet.';
+        $colonyShip->description = __('t_resources.colony_ship.description');
+        $colonyShip->description_long = __('t_resources.colony_ship.description_long');
         $colonyShip->requirements = [
             new GameObjectRequirement('shipyard', 4),
             new GameObjectRequirement('impulse_drive', 3),
@@ -96,6 +92,7 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
         $colonyShip->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $colonyShip->properties = new GameObjectProperties($colonyShip, 30000, 100, 50, 2500, 7500, 100);
 
@@ -107,14 +104,11 @@ This ship is used to prepare a newly discovered planet for colonization. Once it
         // --- Recycler ---
         $recycler = new ShipObject();
         $recycler->id = 209;
-        $recycler->title = 'Recycler';
+        $recycler->title = __('t_resources.recycler.title');
         $recycler->machine_name = 'recycler';
         $recycler->class_name = 'recycler';
-        $recycler->description = 'Recyclers are the only ships able to harvest debris fields floating in a planet`s orbit after combat.';
-        $recycler->description_long = 'Combat in space took on ever larger scales. Thousands of ships were destroyed and the resources of their remains seemed to be lost to the debris fields forever. Normal cargo ships couldn`t get close enough to these fields without risking substantial damage.
-A recent development in shield technologies efficiently bypassed this issue. A new class of ships were created that were similar to the Transporters: the Recyclers. Their efforts helped to gather the thought-lost resources and then salvage them. The debris no longer posed any real danger thanks to the new shields.
-
-As soon as Impulse Drive research has reached level 17, Recyclers are refitted with Impulse Drives. As soon as Hyperspace Drive research has reached level 15, Recyclers are refitted with Hyperspace Drives.';
+        $recycler->description = __('t_resources.recycler.description');
+        $recycler->description_long = __('t_resources.recycler.description_long');
         $recycler->requirements = [
             new GameObjectRequirement('shipyard', 4),
             new GameObjectRequirement('combustion_drive', 6),
@@ -124,12 +118,13 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         $recycler->rapidfire = [
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $recycler->properties = new GameObjectProperties($recycler, 16000, 10, 1, 2000, 20000, 300);
         // Switch to Impulse at 17 (base 4,000), then Hyperspace at 15 (base 6,000)
         $recycler->properties->speed_upgrade = [
-            new GameObjectSpeedUpgrade('impulse_drive', 17),
-            new GameObjectSpeedUpgrade('hyperspace_drive', 15),
+            new GameObjectSpeedUpgrade('impulse_drive', 17, 4000),
+            new GameObjectSpeedUpgrade('hyperspace_drive', 15, 6000),
         ];
         $recycler->assets = new GameObjectAssets();
         $recycler->assets->imgSmall = 'recycler_small.jpg';
@@ -139,11 +134,11 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         // --- Espionage Probe ---
         $espionageProbe = new ShipObject();
         $espionageProbe->id = 210;
-        $espionageProbe->title = 'Espionage Probe';
+        $espionageProbe->title = __('t_resources.espionage_probe.title');
         $espionageProbe->machine_name = 'espionage_probe';
         $espionageProbe->class_name = 'espionageProbe';
-        $espionageProbe->description = 'Espionage probes are small, agile drones that provide data on fleets and planets over great distances.';
-        $espionageProbe->description_long = 'Espionage probes are small, agile drones that provide data on fleets and planets. Fitted with specially designed engines, it allows them to cover vast distances in only a few minutes. Once in orbit around the target planet, they quickly collect data and transmit the report back via your Deep Space Network for evaluation. But there is a risk to the intelligent gathering aspect. During the time the report is transmitted back to your network, the signal can be detected by the target and the probes can be destroyed.';
+        $espionageProbe->description = __('t_resources.espionage_probe.description');
+        $espionageProbe->description_long = __('t_resources.espionage_probe.description_long');
         $espionageProbe->requirements = [
             new GameObjectRequirement('shipyard', 3),
             new GameObjectRequirement('combustion_drive', 3),
@@ -160,13 +155,11 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         // --- Solar Satellite ---
         $solarSatellite = new ShipObject();
         $solarSatellite->id = 212;
-        $solarSatellite->title = 'Solar Satellite';
+        $solarSatellite->title = __('t_resources.solar_satellite.title');
         $solarSatellite->machine_name = 'solar_satellite';
         $solarSatellite->class_name = 'solarSatellite';
-        $solarSatellite->description = 'Solar satellites are simple platforms of solar cells, located in a high, stationary orbit. They gather sunlight and transmit it to the ground station via laser.';
-
-        $solarSatellite->description_long = 'Scientists discovered a method of transmitting electrical energy to the colony using specially designed satellites in a geosynchronous orbit. Solar Satellites gather solar energy and transmit it to a ground station using advanced laser technology. The efficiency of a solar satellite depends on the strength of the solar radiation it receives. In principle, energy production in orbits closer to the sun is greater than for planets in orbits distant from the sun.
-        Due to their good cost/performance ratio solar satellites can solve a lot of energy problems. But beware: Solar satellites can be easily destroyed in battle.';
+        $solarSatellite->description = __('t_resources.solar_satellite.description');
+        $solarSatellite->description_long = __('t_resources.solar_satellite.description_long');
         $solarSatellite->requirements = [
             new GameObjectRequirement('shipyard', 1),
         ];
@@ -187,11 +180,11 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         // --- Crawler ---
         $crawler = new ShipObject();
         $crawler->id = 217;
-        $crawler->title = 'Crawler';
+        $crawler->title = __('t_resources.crawler.title');
         $crawler->machine_name = 'crawler';
         $crawler->class_name = 'resbuggy'; // CSS uses 'resbuggy' for Crawler sprite
-        $crawler->description = 'Crawlers are resource drones that support the mines and increase production.';
-        $crawler->description_long = 'Crawlers are state-of-the-art mining machines which can considerably increase the production of raw materials in the mines. However, they can only be built by members of the Collector class. Crawlers move across the planet`s surface and enter the shafts where they help to increase the mine`s production. The maximum number of Crawlers that can be used is limited by the level of the planet`s mines. The maximum overcharge is 100%. Collectors will be able to upgrade their Crawlers to an overcharge of 150%.';
+        $crawler->description = __('t_resources.crawler.description');
+        $crawler->description_long = __('t_resources.crawler.description_long');
         $crawler->requirements = [
             new GameObjectRequirement('shipyard', 4),
             new GameObjectRequirement('combustion_drive', 4),
@@ -199,10 +192,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
             new GameObjectRequirement('laser_technology', 4),
         ];
         $crawler->price = new GameObjectPrice(2000, 2000, 1000, 0);
-        $crawler->rapidfire = [
-            new GameObjectRapidfire('espionage_probe', 5),
-            new GameObjectRapidfire('solar_satellite', 5),
-        ];
+        $crawler->valid_planet_types = [PlanetType::Planet];
         $crawler->properties = new GameObjectProperties($crawler, 4000, 1, 1, 0, 0, 0);
 
         $crawler->assets = new GameObjectAssets();
@@ -213,11 +203,11 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
         // --- Pathfinder ---
         $pathfinder = new ShipObject();
         $pathfinder->id = 219;
-        $pathfinder->title = 'Pathfinder';
+        $pathfinder->title = __('t_resources.pathfinder.title');
         $pathfinder->machine_name = 'pathfinder';
         $pathfinder->class_name = 'explorer'; // CSS uses 'explorer' for Pathfinder sprite
-        $pathfinder->description = 'The Pathfinder is a quick and agile ship, purpose-built for expeditions into unknown sectors of space.';
-        $pathfinder->description_long = 'The Pathfinder is the latest development in exploration technology. This ship was specially designed for members of the Discoverer class to maximize their potential. Equipped with advanced scanning systems and a large cargo hold for salvaging resources, the Pathfinder excels at expeditions. Its sophisticated sensors can detect valuable resources and anomalies that would go unnoticed by other ships. The ship combines a high speed with good cargo capacity, making it perfect for quick exploration missions and resource gathering from distant sectors.';
+        $pathfinder->description = __('t_resources.pathfinder.description');
+        $pathfinder->description_long = __('t_resources.pathfinder.description_long');
         $pathfinder->requirements = [
             new GameObjectRequirement('shipyard', 5),
             new GameObjectRequirement('combustion_drive', 6),
@@ -229,6 +219,7 @@ As soon as Impulse Drive research has reached level 17, Recyclers are refitted w
             new GameObjectRapidfire('espionage_probe', 5),
             new GameObjectRapidfire('solar_satellite', 5),
             new GameObjectRapidfire('small_cargo', 3),
+            new GameObjectRapidfire('crawler', 5),
         ];
         $pathfinder->properties = new GameObjectProperties($pathfinder, 23000, 100, 200, 12000, 10000, 300);
         // Switch to Impulse at 3, then Hyperspace at 3

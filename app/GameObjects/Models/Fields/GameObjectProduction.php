@@ -125,7 +125,7 @@ class GameObjectProduction
         $this->calculateEngineer($productionIndex);
         $this->calculateGeologist($productionIndex);
         $this->calculateCharacterClass($productionIndex);
-        $this->calculateCrawler($productionIndex);
+        $this->calculateCrawlerProduction($productionIndex);
         $this->calculateCommandingStaff($productionIndex);
         $this->calculateItems($productionIndex);
         $this->calculateTotal($productionIndex);
@@ -354,17 +354,20 @@ class GameObjectProduction
     }
 
     /**
-     * Calculates Crawler bonus
+     * Calculates Crawler production bonus (resources only, not energy consumption)
      * Crawlers provide production bonus based on:
      * - Number of crawlers on planet
      * - Mine levels (determines max usable crawlers)
      * - Each crawler provides 0.02% bonus per resource type
      * - Collector class gets +50% crawler bonus
      *
+     * Note: Energy consumption is calculated separately in getCrawlerEnergyConsumption()
+     * to avoid counting it multiple times when this is called for each mine.
+     *
      * @param ProductionIndex $productionIndex
      * @return void
      */
-    private function calculateCrawler(ProductionIndex $productionIndex): void
+    private function calculateCrawlerProduction(ProductionIndex $productionIndex): void
     {
         // Get number of crawlers on planet
         $crawlerCount = $this->planetService->getObjectAmount('crawler');
@@ -423,6 +426,36 @@ class GameObjectProduction
                 )
             );
         }
+    }
+
+    /**
+     * Calculate crawler energy consumption
+     * This is separate from production bonus to avoid counting energy multiple times.
+     * Energy consumption: 50 energy per crawler at 100%, 100 energy at 150%
+     *
+     * @return int Negative value representing energy consumption
+     */
+    public function getCrawlerEnergyConsumption(): int
+    {
+        // Get number of crawlers on planet
+        $crawlerCount = $this->planetService->getObjectAmount('crawler');
+
+        if ($crawlerCount <= 0) {
+            return 0;
+        }
+
+        // Get crawler percentage setting (0-10, where 10 = 100%)
+        $crawlerPercentage = $this->planetService->getBuildingPercent('crawler') / 10;
+
+        // Calculate maximum usable crawlers based on mine levels
+        $maxCrawlers = $this->getMaxUsableCrawlers();
+
+        // Use the lesser of actual crawlers or max usable crawlers
+        $effectiveCrawlers = min($crawlerCount, $maxCrawlers);
+
+        if ($effectiveCrawlers <= 0) {
+            return 0;
+        }
 
         // Crawlers consume energy: 50 energy per crawler at 100%
         // At overload (>100%), energy consumption scales: at 150% = 100 energy per crawler
@@ -435,7 +468,7 @@ class GameObjectProduction
             $energyConsumption += $baseEnergy * ($crawlerPercentage - 1.0);
         }
 
-        $productionIndex->crawler->energy->set(-floor($effectiveCrawlers * $energyConsumption));
+        return -((int)floor($effectiveCrawlers * $energyConsumption));
     }
 
     /**

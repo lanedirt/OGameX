@@ -6,8 +6,13 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
 use OGame\Facades\AppUtil;
+use OGame\Models\Alliance;
+use OGame\Models\AllianceMember;
+use OGame\Models\User;
 use OGame\Services\BuddyService;
+use OGame\Services\ChatService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\HighscoreService;
 use OGame\Services\MessageService;
@@ -37,7 +42,7 @@ class IngameMainComposer
      * @param HighscoreService $highscoreService
      * @param BuddyService $buddyService
      */
-    public function __construct(private Request $request, private PlayerService $player, private MessageService $messageService, private SettingsService $settingsService, private FleetMissionService $fleetMissionService, private HighscoreService $highscoreService, private BuddyService $buddyService)
+    public function __construct(private Request $request, private PlayerService $player, private MessageService $messageService, private SettingsService $settingsService, private FleetMissionService $fleetMissionService, private HighscoreService $highscoreService, private BuddyService $buddyService, private ChatService $chatService)
     {
     }
 
@@ -112,11 +117,17 @@ class IngameMainComposer
             });
         }
 
+        $impersonateManager = app('impersonate');
+        $isImpersonating = $impersonateManager->isImpersonating();
+        $attackBlockUntil = $this->settingsService->attackBlockUntil();
+        $attackBlockActive = $this->settingsService->attackBlockActive();
+
         $view->with([
             'underAttack' => $this->fleetMissionService->currentPlayerUnderAttack(),
             'unreadMessagesCount' => $this->messageService->getUnreadMessagesCount(),
             'buddyRequestCount' => $this->buddyService->getUnreadRequestsCount((int) auth()->id()),
-            'onlineBuddiesCount' => $this->buddyService->getOnlineBuddiesCount((int) auth()->id()),
+            'onlineBuddiesCount' => $this->getOnlineContactsCount(),
+            'unreadChatCount' => $this->chatService->getTotalUnreadMessageCount((int) auth()->id()),
             'resources' => $resources,
             'currentPlayer' => $this->player,
             'currentPlanet' => $this->player->planets->current(),
@@ -125,6 +136,50 @@ class IngameMainComposer
             'settings' => $this->settingsService,
             'body_id' => $body_id,
             'locale' => $locale,
+            'isImpersonating' => $isImpersonating,
+            'impersonateLeaveUrl' => $isImpersonating ? route('impersonate.leave') : null,
+            'attackBlockActive' => $attackBlockActive,
+            'attackBlockUntil' => $attackBlockUntil,
+            'attackBlockTooltip' => $attackBlockActive
+                ? __('The attack block is active till :until. In that time only friendly fleets can be started.', [
+                    'until' => Date::createFromTimestamp($attackBlockUntil)->format('d.m.Y H:i:s'),
+                ])
+                : '',
         ]);
+    }
+
+    /**
+     * Get the total number of online contacts (buddies + alliance members).
+     */
+    private function getOnlineContactsCount(): int
+    {
+        $userId = (int) auth()->id();
+
+        // Count online buddies
+        $onlineBuddies = $this->buddyService->getOnlineBuddiesCount($userId);
+
+        // Count online alliance members (excluding self and buddies)
+        $onlineAllianceMembers = 0;
+        $user = User::find($userId);
+        if ($user && $user->alliance_id && $user->alliance) {
+            /** @var Alliance $alliance */
+            $alliance = $user->alliance;
+            $buddyUserIds = $this->buddyService->getBuddies($userId)->map(function ($req) use ($userId) {
+                return $req->sender_user_id === $userId ? $req->receiver_user_id : $req->sender_user_id;
+            })->toArray();
+
+            $onlineAllianceMembers = $alliance->members()
+                ->where('user_id', '!=', $userId)
+                ->whereNotIn('user_id', $buddyUserIds)
+                ->with('user')
+                ->get()
+                ->filter(function ($member) {
+                    /** @var AllianceMember $member */
+                    return $member->user && $member->user->isOnline();
+                })
+                ->count();
+        }
+
+        return $onlineBuddies + $onlineAllianceMembers;
     }
 }

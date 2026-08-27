@@ -4,6 +4,8 @@ namespace OGame\Console\Commands\Test;
 
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Validation\ValidationException;
@@ -18,11 +20,10 @@ use OGame\Services\UnitQueueService;
  * bug report that the unit queue has race conditions. This test is just an example of how to run
  * tests that cover cases using parallel requests.
  */
+#[Description('Issue parallel requests to test race conditions for unit queue planet updates.')]
+#[Signature('ogamex:test:race-condition-unitqueue')]
 class TestRaceConditionUnitQueue extends TestCommand
 {
-    protected $signature = 'ogamex:test:race-condition-unitqueue';
-    protected $description = 'Issue parallel requests to test race conditions for unit queue planet updates.';
-
     /**
      * @var string The email of the test user.
      */

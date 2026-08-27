@@ -2,6 +2,7 @@
 
 use OGame\Console\Commands\Scheduler\CleanupWreckFields;
 use OGame\Console\Commands\Scheduler\DarkMatterRegenerateCommand;
+use OGame\Console\Commands\Scheduler\DeleteOldMessages;
 use OGame\Console\Commands\Scheduler\GenerateAllianceHighscores;
 use OGame\Console\Commands\Scheduler\GenerateHighscoreRanks;
 use OGame\Console\Commands\Scheduler\GenerateHighscores;
@@ -29,6 +30,9 @@ Schedule::command(ResetDebrisFields::class)->weeklyOn(1, '1:00');
 
 // Clean up wreck fields hourly
 Schedule::command(CleanupWreckFields::class)->hourly()->withoutOverlapping();
+
+// Delete messages once they have aged out of the seven-day retention window
+Schedule::command(DeleteOldMessages::class)->hourly()->withoutOverlapping();
 
 // Process Dark Matter regeneration every 5 minutes
 Schedule::command(DarkMatterRegenerateCommand::class)->everyFiveMinutes()->withoutOverlapping();

@@ -2,16 +2,18 @@
 
 namespace OGame\GameMissions;
 
-use OGame\Services\MilitaryStatisticsService;
 use Illuminate\Support\Facades\DB;
+use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
 use OGame\GameMessages\FleetLostContact;
 use OGame\GameMessages\MoonDestroyed;
 use OGame\GameMessages\MoonDestructionCatastrophic;
 use OGame\GameMessages\MoonDestructionFailure;
 use OGame\GameMessages\MoonDestructionMissionFailed;
+use OGame\GameMessages\MoonDestructionRepelled;
 use OGame\GameMessages\MoonDestructionSuccess;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
@@ -23,15 +25,19 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\MilitaryStatisticsService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use RuntimeException;
 
 class MoonDestructionMission extends GameMission
 {
-    protected static string $name = 'Destroy';
+    protected static string $name = 'Moon Destruction';
     protected static int $typeId = 9;
     protected static bool $hasReturnMission = true;
+    protected static bool $blockedByServerAttackBlock = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
+    protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Hostile;
 
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
@@ -42,7 +48,7 @@ class MoonDestructionMission extends GameMission
 
         // Moon destruction mission is only possible for moons
         if ($targetType !== PlanetType::Moon) {
-            return new MissionPossibleStatus(false, __('Destroy mission can only target moons.'));
+            return new MissionPossibleStatus(false, __('Moon Destruction can only target moons.'));
         }
 
         // Check if target moon exists
@@ -66,7 +72,7 @@ class MoonDestructionMission extends GameMission
         }
 
         if ($deathstarCount === 0) {
-            return new MissionPossibleStatus(false, __('Destroy mission requires at least one Deathstar.'));
+            return new MissionPossibleStatus(false, __('Moon Destruction requires at least one Deathstar.'));
         }
 
         // If target player is in vacation mode, the mission is not possible.
@@ -96,6 +102,11 @@ class MoonDestructionMission extends GameMission
     protected function processArrival(FleetMission $mission): void
     {
         // Check if target moon still exists
+        if ($mission->planet_id_to === null) {
+            // Moon doesn't exist - redirect to planet or cancel
+            $this->handleMissingMoon($mission);
+            return;
+        }
         $targetMoon = $this->planetServiceFactory->make($mission->planet_id_to, true);
         if ($targetMoon === null || !$targetMoon->isMoon()) {
             // Moon doesn't exist - redirect to planet or cancel
@@ -103,13 +114,29 @@ class MoonDestructionMission extends GameMission
             return;
         }
 
+        if ($mission->planet_id_from === null) {
+            throw new RuntimeException('Moon Destruction mission has no origin planet.');
+        }
         $originPlanet = $this->planetServiceFactory->make($mission->planet_id_from, true);
+        if ($originPlanet === null) {
+            throw new RuntimeException('Moon Destruction mission origin planet does not exist.');
+        }
 
         // Trigger defender moon update to make sure the battle uses up-to-date info
         $targetMoon->update();
 
         $attackerPlayer = $originPlanet->getPlayer();
+        if ($attackerPlayer === null) {
+            throw new RuntimeException('Moon Destruction mission origin planet has no owner.');
+        }
+        $targetMoonPlayer = $targetMoon->getPlayer();
+        if ($targetMoonPlayer === null) {
+            throw new RuntimeException('Moon Destruction mission target moon has no owner.');
+        }
         $attackerUnits = $this->fleetMissionService->getFleetUnits($mission);
+
+        // Create AttackerFleet for the mission
+        $attackerFleet = AttackerFleet::fromFleetMission($mission, $this->fleetMissionService, $this->playerServiceFactory, true);
 
         // Collect all defending fleets (planet owner + ACS defend fleets)
         $defenders = $this->collectDefendingFleets($targetMoon);
@@ -117,11 +144,11 @@ class MoonDestructionMission extends GameMission
         // Execute the battle logic using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $defenders, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new PhpBattleEngine([$attackerFleet], $targetMoon, $defenders, $this->settings);
                 break;
             case 'rust':
             default:
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetMoon, $defenders, $this->settings, $mission->id, $mission->user_id);
+                $battleEngine = new RustBattleEngine([$attackerFleet], $targetMoon, $defenders, $this->settings);
                 break;
         }
 
@@ -173,24 +200,37 @@ class MoonDestructionMission extends GameMission
         // Create battle report
         $reportId = $this->createBattleReport($attackerPlayer, $targetMoon, $battleResult);
 
-        // Check if attacker won the battle
-        if ($battleResult->attackerUnitsResult->getAmount() === 0) {
-            // Attacker lost - send battle report and end mission
+        // Only proceed with a moon destruction attempt when the attacker actually wins the
+        // preceding battle. Draws still leave attacker ships alive, but must not trigger MD.
+        if (!$this->didAttackerWinBattle($battleResult)) {
+            // Attacker did not win - send battle report and end mission
             $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
-            $this->messageService->sendBattleReportMessageToPlayer($targetMoon->getPlayer(), $reportId);
+            $this->messageService->sendBattleReportMessageToPlayer($targetMoonPlayer, $reportId);
 
-            // Mark mission as processed - no return mission
+            // Mark mission as processed; a return mission is created below if ships survived.
             $mission->processed = 1;
             $mission->save();
+
+            // If attacker ships survived (draw rather than total loss), send them home.
+            if ($battleResult->attackerUnitsResult->getAmount() > 0) {
+                $totalResources = new Resources($mission->metal, $mission->crystal, $mission->deuterium, 0);
+                $this->startReturn($mission, $totalResources, $battleResult->attackerUnitsResult);
+            }
             return;
         }
 
         // Attacker won - send battle reports
         $this->messageService->sendBattleReportMessageToPlayer($attackerPlayer, $reportId);
-        $this->messageService->sendBattleReportMessageToPlayer($targetMoon->getPlayer(), $reportId);
+        $this->messageService->sendBattleReportMessageToPlayer($targetMoonPlayer, $reportId);
 
         // Proceed to destruction attempt
         $this->executeDestructionAttempt($mission, $targetMoon, $battleResult->attackerUnitsResult);
+    }
+
+    private function didAttackerWinBattle(BattleResult $battleResult): bool
+    {
+        return $battleResult->attackerUnitsResult->getAmount() > 0
+            && $battleResult->defenderUnitsResult->getAmount() === 0;
     }
 
     private function handleMissingMoon(FleetMission $mission): void
@@ -273,6 +313,9 @@ class MoonDestructionMission extends GameMission
     {
         $attackerPlayer = $this->playerServiceFactory->make($mission->user_id, true);
         $defenderPlayer = $targetMoon->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Moon Destruction target moon has no owner.');
+        }
         $moonName = $targetMoon->getPlanetName();
         $moonCoords = $targetMoon->getPlanetCoordinates()->asString();
 
@@ -284,6 +327,10 @@ class MoonDestructionMission extends GameMission
             // Delete the moon (this will cascade to buildings, units, queues)
             $targetMoon->abandonPlanet();
         });
+
+        // Refresh the mission so planet_id_to reflects the null value written by abandonPlanet.
+        // Without this, startReturn would use the stale moon ID and violate the FK constraint.
+        $mission->refresh();
 
         // Send success message to attacker
         $this->messageService->sendSystemMessageToPlayer($attackerPlayer, MoonDestructionSuccess::class, [
@@ -336,6 +383,10 @@ class MoonDestructionMission extends GameMission
     private function handleMoonDestructionFailure(FleetMission $mission, PlanetService $targetMoon, UnitCollection $survivingUnits, float $destructionChance, float $lossChance): void
     {
         $attackerPlayer = $this->playerServiceFactory->make($mission->user_id, true);
+        $defenderPlayer = $targetMoon->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Moon Destruction target moon has no owner.');
+        }
         $moonName = $targetMoon->getPlanetName();
         $moonCoords = $targetMoon->getPlanetCoordinates()->asString();
 
@@ -343,6 +394,15 @@ class MoonDestructionMission extends GameMission
         $this->messageService->sendSystemMessageToPlayer($attackerPlayer, MoonDestructionFailure::class, [
             'moon_name' => $moonName,
             'moon_coords' => '[coordinates]' . $moonCoords . '[/coordinates]',
+            'destruction_chance' => number_format($destructionChance, 2) . '%',
+            'loss_chance' => number_format($lossChance, 2) . '%',
+        ]);
+
+        // Send repelled notification to defender
+        $this->messageService->sendSystemMessageToPlayer($defenderPlayer, MoonDestructionRepelled::class, [
+            'moon_name' => $moonName,
+            'moon_coords' => '[coordinates]' . $moonCoords . '[/coordinates]',
+            'attacker_name' => $attackerPlayer->getUsername(),
             'destruction_chance' => number_format($destructionChance, 2) . '%',
             'loss_chance' => number_format($lossChance, 2) . '%',
         ]);
@@ -355,6 +415,10 @@ class MoonDestructionMission extends GameMission
     private function handleCatastrophicFailure(FleetMission $mission, PlanetService $targetMoon, float $destructionChance, float $lossChance): void
     {
         $attackerPlayer = $this->playerServiceFactory->make($mission->user_id, true);
+        $defenderPlayer = $targetMoon->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Moon Destruction target moon has no owner.');
+        }
         $moonName = $targetMoon->getPlanetName();
         $moonCoords = $targetMoon->getPlanetCoordinates()->asString();
 
@@ -364,21 +428,47 @@ class MoonDestructionMission extends GameMission
             'destruction_chance' => number_format($destructionChance, 2) . '%',
             'loss_chance' => number_format($lossChance, 2) . '%',
         ]);
+
+        // Send repelled notification to defender
+        $this->messageService->sendSystemMessageToPlayer($defenderPlayer, MoonDestructionRepelled::class, [
+            'moon_name' => $moonName,
+            'moon_coords' => '[coordinates]' . $moonCoords . '[/coordinates]',
+            'attacker_name' => $attackerPlayer->getUsername(),
+            'destruction_chance' => number_format($destructionChance, 2) . '%',
+            'loss_chance' => number_format($lossChance, 2) . '%',
+        ]);
     }
 
     private function createBattleReport(PlayerService $attackPlayer, PlanetService $defenderMoon, BattleResult $battleResult): int
     {
+        $defenderPlayer = $defenderMoon->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Moon Destruction battle report defender moon has no owner.');
+        }
+
         $report = new BattleReport();
         $report->planet_galaxy = $defenderMoon->getPlanetCoordinates()->galaxy;
         $report->planet_system = $defenderMoon->getPlanetCoordinates()->system;
         $report->planet_position = $defenderMoon->getPlanetCoordinates()->position;
         $report->planet_type = $defenderMoon->getPlanetType()->value;
-        $report->planet_user_id = $defenderMoon->getPlayer()->getId();
+        $report->planet_user_id = $defenderPlayer->getId();
 
         $report->general = [
             'moon_existed' => true,
             'moon_chance' => 0,
             'moon_created' => false,
+            'tactical_retreat' => [
+                'ratio' => $battleResult->tacticalRetreatRatio,
+                'attacker_points' => $battleResult->tacticalRetreatAttackerPoints,
+                'defender_points' => $battleResult->tacticalRetreatDefenderPoints,
+                'defender_fled' => $battleResult->tacticalRetreatDefenderFled,
+                'attacker_also_retreated' => $battleResult->tacticalRetreatAttackerAlsoRetreated,
+                'deuterium_cost' => $battleResult->tacticalRetreatDeuteriumCost,
+                'by' => $battleResult->tacticalRetreatDefenderFled
+                    ? ($battleResult->tacticalRetreatAttackerAlsoRetreated ? 'both' : 'defender')
+                    : 'none',
+                'supremacy' => $battleResult->tacticalRetreatAttackerPoints,
+            ],
         ];
 
         $report->attacker = [
@@ -392,7 +482,7 @@ class MoonDestructionMission extends GameMission
         ];
 
         $report->defender = [
-            'player_id' => $defenderMoon->getPlayer()->getId(),
+            'player_id' => $defenderPlayer->getId(),
             'resource_loss' => $battleResult->defenderResourceLoss->sum(),
             'units' => $battleResult->defenderUnitsStart->toArray(),
             'weapon_technology' => $battleResult->defenderWeaponLevel,
@@ -442,7 +532,17 @@ class MoonDestructionMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Moon Destruction return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Moon Destruction return mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Moon Destruction return mission target planet has no owner.');
+        }
 
         // Add back the units to the source planet
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -454,7 +554,7 @@ class MoonDestructionMission extends GameMission
         }
 
         // Send message to player that the return mission has arrived
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;

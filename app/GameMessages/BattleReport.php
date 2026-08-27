@@ -29,15 +29,15 @@ class BattleReport extends GameMessage
     }
 
     /**
-     * Load battle report model from database. If already loaded, do nothing.
+     * Load battle report model from database. If already loaded, return the cached model.
      *
-     * @return void
+     * @return \OGame\Models\BattleReport
      */
-    private function loadBattleReportModel(): void
+    private function loadBattleReportModel(): \OGame\Models\BattleReport
     {
         if ($this->battleReportModel !== null) {
             // Already loaded.
-            return;
+            return $this->battleReportModel;
         }
 
         // Load battle report model from database associated with the message.
@@ -48,6 +48,8 @@ class BattleReport extends GameMessage
         } else {
             $this->battleReportModel = $battleReport;
         }
+
+        return $this->battleReportModel;
     }
 
     /**
@@ -55,11 +57,11 @@ class BattleReport extends GameMessage
      */
     public function getSubject(): string
     {
-        $this->loadBattleReportModel();
+        $battleReportModel = $this->loadBattleReportModel();
 
         // Load the planet name from the references table and return the subject filled with the planet name.
-        $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
+        $coordinate = new Coordinate($battleReportModel->planet_galaxy, $battleReportModel->planet_system, $battleReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($battleReportModel->planet_type));
         if ($planet) {
             $subject = __('Combat report :planet', ['planet' => '[planet]' . $planet->getPlanetId() . '[/planet]']);
         } else {
@@ -76,14 +78,6 @@ class BattleReport extends GameMessage
     {
         $this->loadBattleReportModel();
 
-        // Load planet by coordinate.
-        $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
-
-        if ($planet === null) {
-            return __('Planet has been deleted and battle report is no longer available.');
-        }
-
         $params = $this->getBattleReportParams();
         return view('ingame.messages.templates.battle_report', $params)->render();
     }
@@ -94,17 +88,6 @@ class BattleReport extends GameMessage
     public function getBodyFull(): string
     {
         $this->loadBattleReportModel();
-
-        // Load planet by coordinate.
-        $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
-
-        if ($planet === null) {
-            // TODO: add feature test for this behavior to make sure deleting a planet
-            // properly handles any existing battle reports by either deleting them or making
-            // them unavailable. This also affects other messages that use the planet name.
-            return __('Planet has been deleted and battle report is no longer available.');
-        }
 
         $params = $this->getBattleReportParams();
         return view('ingame.messages.templates.battle_report_full', $params)->render();
@@ -131,33 +114,39 @@ class BattleReport extends GameMessage
     private function getBattleReportParams(): array
     {
         // Sanity check to make sure the battle report model is loaded.
-        $this->loadBattleReportModel();
+        $battleReportModel = $this->loadBattleReportModel();
 
         // TODO: add feature test for code below and check edgecases, such as when the planet has been deleted and
         // does not exist anymore. What should we show in that case?
 
-        // Load planet by coordinate.
-        $coordinate = new Coordinate($this->battleReportModel->planet_galaxy, $this->battleReportModel->planet_system, $this->battleReportModel->planet_position);
-        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($this->battleReportModel->planet_type));
+        // Load planet by coordinate. Planet may be null if it was destroyed (e.g. after a
+        // successful moon destruction). In that case we fall back to the coordinates and
+        // player ID stored in the battle report model so the report remains readable.
+        $coordinate = new Coordinate($battleReportModel->planet_galaxy, $battleReportModel->planet_system, $battleReportModel->planet_position);
+        $planet = $this->planetServiceFactory->makeForCoordinate($coordinate, true, PlanetType::from($battleReportModel->planet_type));
+
+        // Resolve defender planet display values, using stored data when planet no longer exists.
+        $defenderPlanetName   = $planet?->getPlanetName()                      ?? $coordinate->asString();
+        $defenderPlanetCoords = $planet?->getPlanetCoordinates()->asString()   ?? $coordinate->asString();
+        $defenderPlanetGalaxy = $planet?->getPlanetCoordinates()->galaxy       ?? $battleReportModel->planet_galaxy;
+        $defenderPlanetSystem = $planet?->getPlanetCoordinates()->system       ?? $battleReportModel->planet_system;
+        $defenderPlanetPos    = $planet?->getPlanetCoordinates()->position     ?? $battleReportModel->planet_position;
 
         // Handle defender
-        if ($this->battleReportModel->planet_user_id === null) {
+        if ($battleReportModel->planet_user_id === null) {
             $defender_name = __('Unknown');
             $defender = null;
         } else {
-            // If planet owner is the same as the player, we load the player by planet owner which is already loaded.
-            if ($this->battleReportModel->planet_user_id === $planet->getPlayer()->getId()) {
-                $defender = $this->playerServiceFactory->make($planet->getPlayer()->getId());
-            } else {
-                // Load player by user_id from the battle report
-                $defender = $this->playerServiceFactory->make($this->battleReportModel->planet_user_id);
-            }
+            $defender = $this->playerServiceFactory->make($battleReportModel->planet_user_id);
             $defender_name = $defender->getUsername(false);
         }
 
         // Handle attacker
-        $attackerPlayerId = $this->battleReportModel->attacker['player_id'];
-        $attackerPlanetId = $this->battleReportModel->attacker['planet_id'] ?? null;
+        // TODO: ACS Attack sends multiple attacking fleets (one per union member). The battle report
+        // currently only renders a single attacker entry. Per-player ship counts, losses, and the
+        // round-start fleet breakdown need to be extended to show all participating attackers.
+        $attackerPlayerId = $battleReportModel->attacker['player_id'] ?? 0;
+        $attackerPlanetId = $battleReportModel->attacker['planet_id'] ?? null;
 
         // NPC attacker - translate name based on player ID
         if ($attackerPlayerId < 0) {
@@ -183,7 +172,7 @@ class BattleReport extends GameMessage
         // For NPCs (planet_id is null), translate "Deep space" dynamically
         if ($attackerPlayerId < 0 && $attackerPlanetId === null) {
             $attacker_planet_name = __('Deep space');
-            $attacker_planet_coords = $this->battleReportModel->attacker['planet_coords'] ?? '';
+            $attacker_planet_coords = $battleReportModel->attacker['planet_coords'] ?? '';
             $attacker_planet_type = '';
         } elseif ($attackerPlanetId !== null) {
             // Try to load from database for real players
@@ -211,41 +200,41 @@ class BattleReport extends GameMessage
             $attacker_planet_type = '';
         }
 
-        $defender_weapons = $this->battleReportModel->defender['weapon_technology'] * 10;
-        $defender_shields = $this->battleReportModel->defender['shielding_technology'] * 10;
-        $defender_armor = $this->battleReportModel->defender['armor_technology'] * 10;
+        $defender_weapons = ($battleReportModel->defender['weapon_technology'] ?? 0) * 10;
+        $defender_shields = ($battleReportModel->defender['shielding_technology'] ?? 0) * 10;
+        $defender_armor = ($battleReportModel->defender['armor_technology'] ?? 0) * 10;
 
         // Extract params from the battle report model.
-        $attackerLosses = $this->battleReportModel->attacker['resource_loss'];
-        $defenderLosses = $this->battleReportModel->defender['resource_loss'];
+        $attackerLosses = $battleReportModel->attacker['resource_loss'] ?? 0;
+        $defenderLosses = $battleReportModel->defender['resource_loss'] ?? 0;
 
-        $lootPercentage = $this->battleReportModel->loot['percentage'];
-        $lootMetal = $this->battleReportModel->loot['metal'];
-        $lootCrystal = $this->battleReportModel->loot['crystal'];
-        $lootDeuterium = $this->battleReportModel->loot['deuterium'];
+        $lootPercentage = $battleReportModel->loot['percentage'] ?? 0;
+        $lootMetal = $battleReportModel->loot['metal'] ?? 0;
+        $lootCrystal = $battleReportModel->loot['crystal'] ?? 0;
+        $lootDeuterium = $battleReportModel->loot['deuterium'] ?? 0;
         $lootResources = new Resources($lootMetal, $lootCrystal, $lootDeuterium, 0);
 
-        $debrisMetal = $this->battleReportModel->debris['metal'] ?? 0;
-        $debrisCrystal = $this->battleReportModel->debris['crystal'] ?? 0;
-        $debrisDeuterium = $this->battleReportModel->debris['deuterium'] ?? 0;
+        $debrisMetal = $battleReportModel->debris['metal'] ?? 0;
+        $debrisCrystal = $battleReportModel->debris['crystal'] ?? 0;
+        $debrisDeuterium = $battleReportModel->debris['deuterium'] ?? 0;
         $debrisResources = new Resources($debrisMetal, $debrisCrystal, $debrisDeuterium, 0);
 
         // Extract collected debris (Reaper auto-collection)
-        $collectedDebrisMetal = $this->battleReportModel->debris['collected_metal'] ?? 0;
-        $collectedDebrisCrystal = $this->battleReportModel->debris['collected_crystal'] ?? 0;
-        $collectedDebrisDeuterium = $this->battleReportModel->debris['collected_deuterium'] ?? 0;
+        $collectedDebrisMetal = $battleReportModel->debris['collected_metal'] ?? 0;
+        $collectedDebrisCrystal = $battleReportModel->debris['collected_crystal'] ?? 0;
+        $collectedDebrisDeuterium = $battleReportModel->debris['collected_deuterium'] ?? 0;
         $collectedDebrisResources = new Resources($collectedDebrisMetal, $collectedDebrisCrystal, $collectedDebrisDeuterium, 0);
 
         // Extract attacker collected debris
-        $attackerCollectedMetal = $this->battleReportModel->debris['attacker_collected_metal'] ?? 0;
-        $attackerCollectedCrystal = $this->battleReportModel->debris['attacker_collected_crystal'] ?? 0;
-        $attackerCollectedDeuterium = $this->battleReportModel->debris['attacker_collected_deuterium'] ?? 0;
+        $attackerCollectedMetal = $battleReportModel->debris['attacker_collected_metal'] ?? 0;
+        $attackerCollectedCrystal = $battleReportModel->debris['attacker_collected_crystal'] ?? 0;
+        $attackerCollectedDeuterium = $battleReportModel->debris['attacker_collected_deuterium'] ?? 0;
         $attackerCollectedDebrisResources = new Resources($attackerCollectedMetal, $attackerCollectedCrystal, $attackerCollectedDeuterium, 0);
 
         // Extract defender collected debris
-        $defenderCollectedMetal = $this->battleReportModel->debris['defender_collected_metal'] ?? 0;
-        $defenderCollectedCrystal = $this->battleReportModel->debris['defender_collected_crystal'] ?? 0;
-        $defenderCollectedDeuterium = $this->battleReportModel->debris['defender_collected_deuterium'] ?? 0;
+        $defenderCollectedMetal = $battleReportModel->debris['defender_collected_metal'] ?? 0;
+        $defenderCollectedCrystal = $battleReportModel->debris['defender_collected_crystal'] ?? 0;
+        $defenderCollectedDeuterium = $battleReportModel->debris['defender_collected_deuterium'] ?? 0;
         $defenderCollectedDebrisResources = new Resources($defenderCollectedMetal, $defenderCollectedCrystal, $defenderCollectedDeuterium, 0);
 
         // Calculate remaining debris (debris created - collected by Reapers)
@@ -258,7 +247,7 @@ class BattleReport extends GameMessage
         // For expedition battles (when player classes are implemented with Discoverer class),
         // the debris field will be at position 16 and can only be collected by Pathfinders,
         // not Recyclers. Update this section to:
-        // 1. Check if this is an expedition battle (check $this->battleReportModel->general['expedition_battle'])
+        // 1. Check if this is an expedition battle (check $battleReportModel->general['expedition_battle'])
         // 2. If yes, calculate and display Pathfinders needed instead of Recyclers
         // 3. If no, continue showing Recyclers as normal
         //
@@ -279,13 +268,35 @@ class BattleReport extends GameMessage
         $defenderReapersUsed = $reaperCargoCapacity > 0 ? (int)ceil($defenderCollectedDebrisResources->sum() / $reaperCargoCapacity) : 0;
         $totalReapersUsed = $attackerReapersUsed + $defenderReapersUsed;
 
+        $wreckageCount = 0;
+        $wreckageUnits = new UnitCollection();
+        if (!empty($battleReportModel->wreckage)) {
+            foreach ($battleReportModel->wreckage as $machine_name => $count) {
+                $wreckageCount += $count;
+                if ($count > 0) {
+                    $wreckageUnits->addUnit(ObjectService::getUnitObjectByMachineName($machine_name), $count);
+                }
+            }
+        }
+
         $repairedDefensesCount = 0;
         $repairedDefenses = new UnitCollection();
-        if (!empty($this->battleReportModel->repaired_defenses)) {
-            foreach ($this->battleReportModel->repaired_defenses as $defense_key => $defense_count) {
+        if (!empty($battleReportModel->repaired_defenses)) {
+            foreach ($battleReportModel->repaired_defenses as $defense_key => $defense_count) {
                 $repairedDefensesCount += $defense_count;
                 if ($defense_count > 0) {
                     $repairedDefenses->addUnit(ObjectService::getUnitObjectByMachineName($defense_key), $defense_count);
+                }
+            }
+        }
+
+        $attackerWreckageCount = 0;
+        $attackerWreckageUnits = new UnitCollection();
+        if (!empty($battleReportModel->general['attacker_wreckage'])) {
+            foreach ($battleReportModel->general['attacker_wreckage'] as $machine_name => $count) {
+                $attackerWreckageCount += $count;
+                if ($count > 0) {
+                    $attackerWreckageUnits->addUnit(ObjectService::getUnitObjectByMachineName($machine_name), $count);
                 }
             }
         }
@@ -294,40 +305,52 @@ class BattleReport extends GameMessage
         $moonChance = 0;
         $moonCreated = false;
         $hamillManoeuvreTriggered = false;
+        $tacticalRetreatRatio = 1;
+        $tacticalRetreatDefenderFled = false;
+        $tacticalRetreatDeuteriumCost = 0;
 
-        if (isset($this->battleReportModel->general['moon_existed'])) {
-            $moonExisted = $this->battleReportModel->general['moon_existed'];
+        if (isset($battleReportModel->general['moon_existed'])) {
+            $moonExisted = $battleReportModel->general['moon_existed'];
         }
-        if (isset($this->battleReportModel->general['moon_chance'])) {
-            $moonChance = $this->battleReportModel->general['moon_chance'];
+        if (isset($battleReportModel->general['moon_chance'])) {
+            $moonChance = $battleReportModel->general['moon_chance'];
         }
-        if (isset($this->battleReportModel->general['moon_created'])) {
-            $moonCreated = $this->battleReportModel->general['moon_created'];
+        if (isset($battleReportModel->general['moon_created'])) {
+            $moonCreated = $battleReportModel->general['moon_created'];
         }
-        if (isset($this->battleReportModel->general['hamill_manoeuvre_triggered'])) {
-            $hamillManoeuvreTriggered = $this->battleReportModel->general['hamill_manoeuvre_triggered'];
+        if (isset($battleReportModel->general['hamill_manoeuvre_triggered'])) {
+            $hamillManoeuvreTriggered = $battleReportModel->general['hamill_manoeuvre_triggered'];
+        }
+        if (isset($battleReportModel->general['tactical_retreat']['ratio'])) {
+            $tacticalRetreatRatio = (int)$battleReportModel->general['tactical_retreat']['ratio'];
+        }
+        if (isset($battleReportModel->general['tactical_retreat']['defender_fled'])) {
+            $tacticalRetreatDefenderFled = (bool)$battleReportModel->general['tactical_retreat']['defender_fled'];
+        }
+        if (isset($battleReportModel->general['tactical_retreat']['deuterium_cost'])) {
+            $tacticalRetreatDeuteriumCost = (int)$battleReportModel->general['tactical_retreat']['deuterium_cost'];
         }
 
         // Load attacker player
         // TODO: add unit test for attacker/defender research levels.
-        $attacker_weapons = $this->battleReportModel->attacker['weapon_technology'] * 10;
-        $attacker_shields = $this->battleReportModel->attacker['shielding_technology'] * 10;
-        $attacker_armor = $this->battleReportModel->attacker['armor_technology'] * 10;
+        $attacker_weapons = ($battleReportModel->attacker['weapon_technology'] ?? 0) * 10;
+        $attacker_shields = ($battleReportModel->attacker['shielding_technology'] ?? 0) * 10;
+        $attacker_armor = ($battleReportModel->attacker['armor_technology'] ?? 0) * 10;
 
         $attacker_units = new UnitCollection();
-        foreach ($this->battleReportModel->attacker['units'] as $machine_name => $amount) {
+        foreach ($battleReportModel->attacker['units'] ?? [] as $machine_name => $amount) {
             $attacker_units->addUnit(ObjectService::getUnitObjectByMachineName($machine_name), $amount);
         }
 
         $defender_units = new UnitCollection();
-        foreach ($this->battleReportModel->defender['units'] as $machine_name => $amount) {
+        foreach ($battleReportModel->defender['units'] ?? [] as $machine_name => $amount) {
             $defender_units->addUnit(ObjectService::getUnitObjectByMachineName($machine_name), $amount);
         }
 
         // Load rounds and cast to battle result round object.
         $rounds = [];
-        if ($this->battleReportModel->rounds !== null) {
-            foreach ($this->battleReportModel->rounds as $round) {
+        if ($battleReportModel->rounds !== null) {
+            foreach ($battleReportModel->rounds as $round) {
                 $obj = new BattleResultRound();
                 $obj->fullStrengthAttacker = $round['full_strength_attacker'];
                 $obj->fullStrengthDefender = $round['full_strength_defender'];
@@ -388,9 +411,14 @@ class BattleReport extends GameMessage
             }
         }
 
+        // Determine if the message recipient is the attacker or the defender.
+        // This is used to show only the relevant wreckage section to each player.
+        $viewerIsAttacker = (int)$this->message->user_id === (int)($battleReportModel->attacker['player_id'] ?? 0);
+
         return [
             'subject' => $this->getSubject(),
             'from' => $this->getFrom(),
+            'viewer_is_attacker' => $viewerIsAttacker,
             'report_datetime' => $this->getDateFormatted(),
             'attacker_name' => $attacker_name,
             'attacker_planet_name' => $attacker_planet_name,
@@ -399,9 +427,11 @@ class BattleReport extends GameMessage
             'defender_name' => $defender_name,
             'attacker_class' => ($winner === 'attacker') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
             'defender_class' => ($winner === 'defender') ? 'undermark' : (($winner === 'draw') ? 'middlemark' : 'overmark'),
-            'defender_planet_name' => $planet->getPlanetName(),
-            'defender_planet_coords' => $planet->getPlanetCoordinates()->asString(),
-            'defender_planet_link' => route('galaxy.index', ['galaxy' => $planet->getPlanetCoordinates()->galaxy, 'system' => $planet->getPlanetCoordinates()->system, 'position' => $planet->getPlanetCoordinates()->position]),
+            'attacker_character_class' => isset($battleReportModel->attacker['character_class']) ? $battleReportModel->attacker['character_class'] : null,
+            'defender_character_class' => isset($battleReportModel->defender['character_class']) ? $battleReportModel->defender['character_class'] : null,
+            'defender_planet_name' => $defenderPlanetName,
+            'defender_planet_coords' => $defenderPlanetCoords,
+            'defender_planet_link' => route('galaxy.index', ['galaxy' => $defenderPlanetGalaxy, 'system' => $defenderPlanetSystem, 'position' => $defenderPlanetPos]),
             'attacker_losses' => AppUtil::formatNumberLong($attackerLosses),
             'defender_losses' => AppUtil::formatNumberLong($defenderLosses),
             'loot' => AppUtil::formatNumberShort($lootResources->sum()),
@@ -416,12 +446,20 @@ class BattleReport extends GameMessage
             'remaining_debris_resources' => $remainingDebrisResources,
             'remaining_debris_recyclers_needed' => $remainingDebrisRecyclersNeeded,
             'total_reapers_used' => $totalReapersUsed,
+            'wreckage_count' => $wreckageCount,
+            'wreckage_units' => $wreckageUnits,
             'repaired_defenses_count' => $repairedDefensesCount,
             'repaired_defenses' => $repairedDefenses,
+            'attacker_wreckage_count' => $attackerWreckageCount,
+            'attacker_wreckage_units' => $attackerWreckageUnits,
             'moon_existed' => $moonExisted,
             'moon_chance' => $moonChance,
             'moon_created' => $moonCreated,
             'hamill_manoeuvre_triggered' => $hamillManoeuvreTriggered,
+            'tactical_retreat_ratio' => $tacticalRetreatRatio,
+            'tactical_retreat_defender_fled' => $tacticalRetreatDefenderFled,
+            'tactical_retreat_deuterium_cost' => $tacticalRetreatDeuteriumCost,
+            'tactical_retreat_deuterium_cost_formatted' => AppUtil::formatNumberLong($tacticalRetreatDeuteriumCost),
             'attacker_weapons' => $attacker_weapons,
             'attacker_shields' => $attacker_shields,
             'attacker_armor' => $attacker_armor,

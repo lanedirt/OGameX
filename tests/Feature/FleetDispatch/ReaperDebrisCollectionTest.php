@@ -4,6 +4,14 @@ namespace Tests\Feature\FleetDispatch;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Enums\CharacterClass;
+use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\BattleReport;
+use OGame\Models\Message;
+use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
+use OGame\Services\FleetMissionService;
+use OGame\Services\ObjectService;
+use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
 /**
@@ -23,11 +31,11 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
     {
         // Clear any existing battle reports to ensure test isolation
         // First delete messages that reference battle reports (foreign key constraint)
-        \OGame\Models\Message::where('battle_report_id', '!=', null)->delete();
-        \OGame\Models\BattleReport::query()->delete();
+        Message::where('battle_report_id', '!=', null)->delete();
+        BattleReport::query()->delete();
 
         // Enable debris field creation (30% of destroyed ships become debris)
-        $settingsService = resolve(\OGame\Services\SettingsService::class);
+        $settingsService = resolve(SettingsService::class);
         $settingsService->set('debris_field_from_ships', 30);
         $settingsService->set('debris_field_from_defense', 0); // Defenses don't create debris by default
     }
@@ -39,16 +47,18 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
      */
     public function testReaperCollectsDebris(): void
     {
-        // Clear all battle reports to ensure test isolation
-        \OGame\Models\Message::where('battle_report_id', '!=', null)->delete();
-        \OGame\Models\BattleReport::query()->delete();
+        $this->basicSetup();
 
         // Set up: attacker with any class (Reaper collection works for all classes)
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
 
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker player is null.');
+        }
+
         // Set character class to General (required for Reaper ships)
-        $attackerPlayer->getUser()->character_class = \OGame\Enums\CharacterClass::GENERAL->value;
+        $attackerPlayer->getUser()->character_class = CharacterClass::GENERAL->value;
         $attackerPlayer->getUser()->save();
 
         // Clear any existing units from previous tests to ensure test isolation
@@ -64,27 +74,49 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $this->assertEquals(10, $attacker->getObjectAmount('reaper'), 'Reapers should be added to planet');
 
         // Add deuterium for fleet travel
-        $this->planetAddResources(new \OGame\Models\Resources(0, 0, 50000, 0));
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
 
         // Launch attack mission to foreign planet
-        $units = new \OGame\GameObjects\Models\Units\UnitCollection();
-        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('reaper'), 10);
-        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new \OGame\Models\Resources(0, 0, 0, 0));
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getShipObjectByMachineName('reaper'), 10);
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
+
+        // Disable tactical retreat so defender ships stay and create debris.
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $foreignPlayer->getUser()->tactical_retreat_ratio = 0;
+        $foreignPlayer->getUser()->save();
+
+        // Refresh the application: the fleet event requests during dispatch cached a
+        // PlayerService for the defender with the pre-write retreat ratio, and battle
+        // processing would reuse that stale instance instead of reading the ratio above.
+        $this->reloadApplication();
+
+        // Clear foreign planet units from previous tests to ensure isolation
+        $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
+        $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
+        $foreignPlanet->save();
+        $foreignPlanet->reloadPlanet();
 
         // Set up: Defender with ships (not defenses) to create debris when destroyed
         // Using cruisers to create battle - but not too many to exceed Reaper cargo capacity
         $foreignPlanet->addUnit('cruiser', 5);
 
         // Get debris field before processing mission
-        $debrisFieldService = resolve(\OGame\Services\DebrisFieldService::class);
+        $debrisFieldService = resolve(DebrisFieldService::class);
         $debrisFieldBefore = 0;
         if ($debrisFieldService->loadForCoordinates($foreignPlanet->getPlanetCoordinates())) {
             $debrisFieldBefore = $debrisFieldService->getResources()->sum();
         }
 
         // Get the mission to calculate travel time
-        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class, ['player' => $attacker->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process arrival (battle happens)
@@ -92,11 +124,18 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $this->get('/overview'); // Trigger mission processing
 
         // Get battle report to check debris amounts
-        $battleReport = \OGame\Models\BattleReport::latest()->first();
+        // Filter by target planet coordinates to ensure we get the correct report
+        $coords = $foreignPlanet->getPlanetCoordinates();
+        $battleReport = BattleReport::query()
+            ->where('planet_galaxy', $coords->galaxy)
+            ->where('planet_system', $coords->system)
+            ->where('planet_position', $coords->position)
+            ->latest()
+            ->first();
         $this->assertNotNull($battleReport, 'Battle report should be created');
 
-        $totalDebris = (int)$battleReport->debris['metal'] + (int)$battleReport->debris['crystal'] + (int)$battleReport->debris['deuterium'];
-        $collectedDebris = (int)$battleReport->debris['collected_metal'] + (int)$battleReport->debris['collected_crystal'] + (int)$battleReport->debris['collected_deuterium'];
+        $totalDebris = (int)($battleReport->debris['metal'] ?? 0) + (int)($battleReport->debris['crystal'] ?? 0) + (int)($battleReport->debris['deuterium'] ?? 0);
+        $collectedDebris = (int)($battleReport->debris['collected_metal'] ?? 0) + (int)($battleReport->debris['collected_crystal'] ?? 0) + (int)($battleReport->debris['collected_deuterium'] ?? 0);
 
         // Check if any debris was created from battle
         $this->assertGreaterThan(0, $totalDebris, 'Battle should create debris from destroyed units');
@@ -110,7 +149,7 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $this->assertLessThanOrEqual($expectedCollected * 1.3, $collectedDebris, 'Reapers should not collect more than expected');
 
         // Check debris field: should contain remaining debris (100% - collected%)
-        $debrisFieldService = resolve(\OGame\Services\DebrisFieldService::class);
+        $debrisFieldService = resolve(DebrisFieldService::class);
         if ($debrisFieldService->loadForCoordinates($foreignPlanet->getPlanetCoordinates())) {
             $debrisFieldAfter = $debrisFieldService->getResources()->sum();
             $debrisInField = $debrisFieldAfter - $debrisFieldBefore;
@@ -138,13 +177,15 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
      */
     public function testReaperCollectsDebrisWithNonGeneralClass(): void
     {
-        // Clear all battle reports to ensure test isolation
-        \OGame\Models\Message::where('battle_report_id', '!=', null)->delete();
-        \OGame\Models\BattleReport::query()->delete();
+        $this->basicSetup();
 
         // Set up: attacker is NOT General class (using Collector to prove it works for all classes)
         $attacker = $this->planetService;
         $attackerPlayer = $attacker->getPlayer();
+
+        if ($attackerPlayer === null) {
+            $this->fail('Attacker player is null.');
+        }
 
         // Set character class to Collector (not General - to prove Reapers work for all classes)
         $attackerPlayer->getUser()->character_class = CharacterClass::COLLECTOR->value;
@@ -162,20 +203,42 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $this->assertEquals(10, $attacker->getObjectAmount('reaper'), 'Reapers should be added to planet');
 
         // Add deuterium for fleet travel
-        $this->planetAddResources(new \OGame\Models\Resources(0, 0, 50000, 0));
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
 
         // Launch attack mission to foreign planet
-        $units = new \OGame\GameObjects\Models\Units\UnitCollection();
-        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('reaper'), 10);
-        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new \OGame\Models\Resources(0, 0, 0, 0));
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getShipObjectByMachineName('reaper'), 10);
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
+
+        // Disable tactical retreat so defender ships stay and create debris.
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $foreignPlayer->getUser()->tactical_retreat_ratio = 0;
+        $foreignPlayer->getUser()->save();
+
+        // Refresh the application: the fleet event requests during dispatch cached a
+        // PlayerService for the defender with the pre-write retreat ratio, and battle
+        // processing would reuse that stale instance instead of reading the ratio above.
+        $this->reloadApplication();
+
+        // Clear foreign planet units from previous tests to ensure isolation
+        $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
+        $foreignPlanet->removeUnits($foreignPlanet->getDefenseUnits(), true);
+        $foreignPlanet->save();
+        $foreignPlanet->reloadPlanet();
 
         // Set up: Defender with ships (not defenses) to create debris when destroyed
         // Using cruisers to create battle - but not too many to exceed Reaper cargo capacity
         $foreignPlanet->addUnit('cruiser', 5);
 
         // Get the mission to calculate travel time
-        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class, ['player' => $attacker->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process arrival (battle happens)
@@ -183,11 +246,18 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $this->get('/overview'); // Trigger mission processing
 
         // Get battle report to check debris amounts
-        $battleReport = \OGame\Models\BattleReport::latest()->first();
+        // Filter by target planet coordinates to ensure we get the correct report
+        $coords = $foreignPlanet->getPlanetCoordinates();
+        $battleReport = BattleReport::query()
+            ->where('planet_galaxy', $coords->galaxy)
+            ->where('planet_system', $coords->system)
+            ->where('planet_position', $coords->position)
+            ->latest()
+            ->first();
         $this->assertNotNull($battleReport, 'Battle report should be created');
 
-        $totalDebris = (int)$battleReport->debris['metal'] + (int)$battleReport->debris['crystal'] + (int)$battleReport->debris['deuterium'];
-        $collectedDebris = (int)$battleReport->debris['collected_metal'] + (int)$battleReport->debris['collected_crystal'] + (int)$battleReport->debris['collected_deuterium'];
+        $totalDebris = (int)($battleReport->debris['metal'] ?? 0) + (int)($battleReport->debris['crystal'] ?? 0) + (int)($battleReport->debris['deuterium'] ?? 0);
+        $collectedDebris = (int)($battleReport->debris['collected_metal'] ?? 0) + (int)($battleReport->debris['collected_crystal'] ?? 0) + (int)($battleReport->debris['collected_deuterium'] ?? 0);
 
         // Check if any debris was created from battle
         $this->assertGreaterThan(0, $totalDebris, 'Battle should create debris from destroyed units');
@@ -208,9 +278,7 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
      */
     public function testNoDebrisCollectionWithoutReapers(): void
     {
-        // Clear all battle reports to ensure test isolation
-        \OGame\Models\Message::where('battle_report_id', '!=', null)->delete();
-        \OGame\Models\BattleReport::query()->delete();
+        $this->basicSetup();
 
         // Set up: attacker has no Reapers (only other ships)
         $attacker = $this->planetService;
@@ -225,12 +293,25 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $attacker->save();
 
         // Add deuterium for fleet travel
-        $this->planetAddResources(new \OGame\Models\Resources(0, 0, 50000, 0));
+        $this->planetAddResources(new Resources(0, 0, 50000, 0));
 
         // Launch attack mission to foreign planet
-        $units = new \OGame\GameObjects\Models\Units\UnitCollection();
-        $units->addUnit(\OGame\Services\ObjectService::getShipObjectByMachineName('light_fighter'), 200);
-        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new \OGame\Models\Resources(0, 0, 0, 0));
+        $units = new UnitCollection();
+        $units->addUnit(ObjectService::getShipObjectByMachineName('light_fighter'), 200);
+        $foreignPlanet = $this->sendMissionToOtherPlayerPlanet($units, new Resources(0, 0, 0, 0));
+
+        // Disable tactical retreat so defender ships stay in combat.
+        $foreignPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $foreignPlayer->getUser()->tactical_retreat_ratio = 0;
+        $foreignPlayer->getUser()->save();
+
+        // Refresh the application: the fleet event requests during dispatch cached a
+        // PlayerService for the defender with the pre-write retreat ratio, and battle
+        // processing would reuse that stale instance instead of reading the ratio above.
+        $this->reloadApplication();
 
         // Clear foreign planet units from previous tests to ensure isolation
         $foreignPlanet->removeUnits($foreignPlanet->getShipUnits(), true);
@@ -243,8 +324,11 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $foreignPlanet->save(); // Save defender units
 
         // Get the mission to calculate travel time
-        $fleetMissionService = resolve(\OGame\Services\FleetMissionService::class, ['player' => $attacker->getPlayer()]);
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $attacker->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMission->time_arrival - $fleetMission->time_departure;
 
         // Process arrival (battle happens)
@@ -252,7 +336,7 @@ class ReaperDebrisCollectionTest extends FleetDispatchTestCase
         $this->get('/overview'); // Trigger mission processing
 
         // Get battle report to check debris amounts
-        $battleReport = \OGame\Models\BattleReport::latest()->first();
+        $battleReport = BattleReport::latest()->first();
         $this->assertNotNull($battleReport, 'Battle report should be created');
 
         // Check attacker collected debris (should be 0 since attacker has no Reapers)

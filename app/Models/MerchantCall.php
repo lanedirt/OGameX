@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -21,21 +22,15 @@ use Illuminate\Support\Carbon;
  * @property-read Planet $planet
  * @mixin \Eloquent
  */
+#[Fillable([
+    'user_id',
+    'merchant_type',
+    'planet_id',
+    'called_at',
+    'week_identifier',
+])]
 class MerchantCall extends Model
 {
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'user_id',
-        'merchant_type',
-        'planet_id',
-        'called_at',
-        'week_identifier',
-    ];
-
     /**
      * The attributes that should be cast.
      *

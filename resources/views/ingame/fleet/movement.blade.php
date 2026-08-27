@@ -16,7 +16,7 @@
         <div id="movement">
             <div id="inhalt">
                 <header id="planet" class="planet-header">
-                    <h2>@lang('Fleet movement') - {{ $planet->getPlanetName() }}</h2>
+                    <h2>{{ __('t_ingame.fleet.movement_title') }} - {{ $planet->getPlanetName() }}</h2>
                     <a class="toggleHeader" data-name="movement">
                         <img alt="" src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22">
                     </a>
@@ -27,14 +27,14 @@
                     <span class="reload">
                         <a class="dark_highlight_tablet" href="javascript:void(0);" onclick="reloadPage();">
                             <span class="icon icon_reload"></span>
-                            <span>@lang('Reload')</span>
+                            <span>{{ __('t_ingame.fleet.reload') }}</span>
                         </a>
                     </span>
                     <span class="fleetSlots">
-                        @lang('Fleets'): <span class="current">{{ $fleetSlotsInUse }}</span> / <span class="all">{{ $fleetSlotsMax }}</span>
+                        {{ __('t_ingame.fleet.fleets') }}: <span class="current">{{ $fleetSlotsInUse }}</span> / <span class="all">{{ $fleetSlotsMax }}</span>
                     </span>
                     <span class="expSlots">
-                        @lang('Expeditions'): <span class="current">{{ $expeditionSlotsInUse }}</span> / <span class="all">{{ $expeditionSlotsMax }}</span>
+                        {{ __('t_ingame.fleet.expeditions') }}: <span class="current">{{ $expeditionSlotsInUse }}</span> / <span class="all">{{ $expeditionSlotsMax }}</span>
                     </span>
                     <span class="closeAll">
                         <a href="javascript:void(0);" class="all_open">
@@ -56,7 +56,7 @@
                 var data = $.parseJSON(response);
                 errorBoxAsArray(data["errorbox"]);
                 token = data.token;
-                $("#federation_" + data["fleetID"]).children().attr("href", "#federationlayer&ajax=1&union=" + data["unionID"] + "&fleet=" + data["fleetID"] + "&target=" + data["targetID"]);
+                $("#federation_" + data["fleetID"]).children().attr("href", "{{ route('fleet.federation.overlay') }}?fleet=" + data["fleetID"] + "&union=" + data["unionID"]);
                 $("#FederationLayer").parent('.overlayDiv').dialog('close');
                 $("#FederationLayer").remove();
             }
@@ -113,6 +113,7 @@
                             {{ $fleet_event->return_remaining_time }}
                         );
                     @endif
+
                 @endforeach
 
                 initMovement();
@@ -130,6 +131,18 @@
                     });
                     return false;
                 });
+
+                // Federation (fleet union) overlay handler
+                $("#movement a.openOverlay[data-overlay-class='federation-layer']").off('click').on('click', function (e) {
+                    e.preventDefault();
+                    var overlayUrl = $(this).attr("href");
+                    openOverlay(overlayUrl, {
+                        'class': 'federation-layer',
+                        title: '{{ __('t_ingame.fleet.fleet_union') }}'
+                    });
+                    return false;
+                });
+
             });
         </script>
     </div>

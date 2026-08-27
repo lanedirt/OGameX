@@ -3,9 +3,12 @@
 namespace OGame\Console\Commands\Test;
 
 use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Support\Facades\Date;
 use InvalidArgumentException;
 use OGame\GameMissions\BattleEngine\BattleEngine;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
@@ -28,13 +31,12 @@ use OGame\Services\SettingsService;
  * php artisan ogamex:test:battle-engine-performance rust --fleet='{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}'
  * ---
  */
+#[Description('Test battle engine performance with specified fleets')]
+#[Signature('ogamex:test:battle-engine-performance
+        {engine : The battle engine to test (php/rust)}
+        {--fleet= : JSON string defining attacker and defender fleets}')]
 class TestBattleEnginePerformance extends TestCommand
 {
-    protected $signature = 'ogamex:test:battle-engine-performance
-        {engine : The battle engine to test (php/rust)}
-        {--fleet= : JSON string defining attacker and defender fleets}';
-    protected $description = 'Test battle engine performance with specified fleets';
-
     protected string $email = 'battleengineperformance@test.com';
     private float $startTime;
 
@@ -44,7 +46,8 @@ class TestBattleEnginePerformance extends TestCommand
     public function handle(): int
     {
         // Check for fleet option
-        if (!$this->option('fleet') || !$this->parseFleets($this->option('fleet'))) {
+        $fleetOption = $this->option('fleet');
+        if (!is_string($fleetOption) || !$this->parseFleets($fleetOption)) {
             $this->error('Specify valid --fleet option in JSON format like this: --fleet=\'{"attacker": {"light_fighter": 1667}, "defender": {"rocket_launcher": 1667}}\'');
             return 1;
         }
@@ -52,7 +55,11 @@ class TestBattleEnginePerformance extends TestCommand
         // Set up the test environment
         parent::setup();
 
-        $fleets = $this->parseFleets($this->option('fleet'));
+        $fleets = $this->parseFleets($fleetOption);
+        if ($fleets === null) {
+            $this->error('Invalid fleet option provided.');
+            return 1;
+        }
         $engine = $this->argument('engine');
 
         if (!in_array($engine, ['php', 'rust'])) {
@@ -80,6 +87,12 @@ class TestBattleEnginePerformance extends TestCommand
         $this->playerService->setResearchLevel('weapon_technology', 10);
         $this->playerService->setResearchLevel('shielding_technology', 10);
         $this->playerService->setResearchLevel('armor_technology', 10);
+
+        // simulateBattle() evaluates tactical retreat and may deduct deuterium / strip
+        // defending ships. Disable flee so the benchmark measures combat, not retreat.
+        $benchmarkUser = $this->playerService->getUser();
+        $benchmarkUser->tactical_retreat_ratio = 0;
+        $benchmarkUser->save();
 
         // Set up defender planet with provided units
         foreach ($fleets['defender']->units as $unit) {
@@ -124,13 +137,19 @@ class TestBattleEnginePerformance extends TestCommand
         // Create defenders array with planet's stationary forces
         $defenders = [DefenderFleet::fromPlanet($this->currentPlanetService)];
 
-        // For test battles, use fleetMissionId = 0 and current player's ID
-        $fleetMissionId = 0;
-        $ownerId = $this->playerService->getId();
+        // Convert UnitCollection to AttackerFleet for the new multi-attacker architecture
+        $attacker = new AttackerFleet();
+        $attacker->units = $attackerFleet;
+        $attacker->player = $this->playerService;
+        $attacker->fleetMissionId = 0; // 0 for test battles without a real fleet mission
+        $attacker->ownerId = $this->playerService->getId();
+        $attacker->cargoResources = new Resources(0, 0, 0, 0);
+        $attacker->isInitiator = true;
+        $attacker->fleetMission = null;
 
         return $engine === 'php'
-            ? new PhpBattleEngine($attackerFleet, $this->playerService, $this->currentPlanetService, $defenders, $settingsService, $fleetMissionId, $ownerId)
-            : new RustBattleEngine($attackerFleet, $this->playerService, $this->currentPlanetService, $defenders, $settingsService, $fleetMissionId, $ownerId);
+            ? new PhpBattleEngine([$attacker], $this->currentPlanetService, $defenders, $settingsService)
+            : new RustBattleEngine([$attacker], $this->currentPlanetService, $defenders, $settingsService);
     }
 
     /**

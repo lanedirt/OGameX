@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Date;
 use OGame\Enums\FleetSpeedType;
 use OGame\Factories\GameMissionFactory;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\GameConstants\UniverseConstants;
+use OGame\GameMessages\AcsDefendArrivalHost;
+use OGame\GameMessages\AcsDefendArrivalSender;
 use OGame\GameMissions\Abstracts\GameMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
@@ -52,7 +55,12 @@ class FleetMissionService
     public function calculateFleetMissionDuration(PlanetService $fromPlanet, Coordinate $to, UnitCollection $units, GameMission|null $mission = null, float $speed_percent = 10): int
     {
         // Get slowest unit speed.
-        $slowest_speed = $units->getSlowestUnitSpeed($fromPlanet->getPlayer());
+        $player = $fromPlanet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
+        $slowest_speed = $units->getSlowestUnitSpeed($player);
         $distance = $this->calculateFleetMissionDistance($fromPlanet, $to);
 
         // Determine which fleet speed to use based on mission type.
@@ -166,6 +174,11 @@ class FleetMissionService
      */
     public function calculateConsumption(PlanetService $fromPlanet, UnitCollection $ships, Coordinate $targetCoordinate, int $holdingHours, float $speedPercent)
     {
+        $player = $fromPlanet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         $consumption = 0;
         $holdingCosts = 0;
 
@@ -178,7 +191,7 @@ class FleetMissionService
             $shipAmount = $shipEntry->amount; // Amount of ships
 
             // Calculate the speed of the ship
-            $ship_speed = $ship->properties->speed->calculate($fromPlanet->getPlayer())->totalValue;
+            $ship_speed = $ship->properties->speed->calculate($player)->totalValue;
 
             if (!empty($shipAmount)) {
                 $shipSpeedValue = 35000 / $speedValue * sqrt($distance * 10 / $ship_speed);
@@ -202,7 +215,7 @@ class FleetMissionService
 
         // Apply General class deuterium consumption reduction (-50%)
         $characterClassService = app(CharacterClassService::class);
-        $consumptionMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($fromPlanet->getPlayer()->getUser());
+        $consumptionMultiplier = $characterClassService->getDeuteriumConsumptionMultiplier($player->getUser());
         $consumption = (int)($consumption * $consumptionMultiplier);
 
         return $consumption;
@@ -216,6 +229,11 @@ class FleetMissionService
      */
     public function missionTypeToLabel(int $missionType): string
     {
+        // ACS Attack (type 2) uses the same class as Attack (type 1) and displays as "Attack"
+        if ($missionType === 2) {
+            return 'Attack';
+        }
+
         return GameMissionFactory::getMissionById($missionType, [])->getName();
     }
 
@@ -239,7 +257,9 @@ class FleetMissionService
     {
         // Note: this only includes missions that the current player has sent themselves
         // so it does not include any incoming missions by other players (e.g. hostile attacks, espionage, transports etc.)
-        $query = $this->model->where('user_id', $this->player->getId())->where('processed', 0);
+        // Canceled missions are automatically excluded because they have processed = 1
+        $query = $this->model->where('user_id', $this->player->getId())
+            ->where('processed', 0);
         return $query->orderBy('time_arrival')->get();
     }
 
@@ -266,6 +286,7 @@ class FleetMissionService
             $query->where('user_id', $this->player->getId())
                 ->orWhereIn('planet_id_to', $planetIds);
         })
+            ->where('canceled', 0) // Exclude canceled missions
             ->where('processed', 0)
             ->get();
 
@@ -277,8 +298,11 @@ class FleetMissionService
                 return $mission->time_arrival;
             }
 
-            // If the mission has arrived AND has a waiting time, return the time_arrival + time_holding.
-            return $mission->time_arrival + ($mission->time_holding ?? 0);
+            // If the mission has arrived AND has a waiting time, return the time_arrival + holding time.
+            // IMPORTANT: Holding time is always real time (not affected by fleet speed)
+            $actualHoldingTime = $mission->time_holding ?? 0;
+
+            return $mission->time_arrival + $actualHoldingTime;
         });
 
         return $missions;
@@ -386,16 +410,44 @@ class FleetMissionService
      */
     public function getArrivedMissionsByPlanetIds(array $planetIds): Collection
     {
-        return $this->model
+        $currentTime = Date::now()->timestamp;
+
+        // Get unprocessed missions that have arrived.
+        // For ACS Defend (type 5), time_arrival = physical_arrival + time_holding, so we also
+        // include missions where the physical arrival time has passed (to send arrival messages on time).
+        $missions = $this->model
             ->where(function ($query) use ($planetIds) {
                 $query->whereIn('planet_id_from', $planetIds)
                     ->orWhereIn('planet_id_to', $planetIds);
             })
-            ->where(function ($query) {
-                $query->whereRaw('time_arrival + COALESCE(time_holding, 0) <= ?', [Date::now()->timestamp]);
-            })
             ->where('processed', 0)
+            ->where(function ($query) use ($currentTime) {
+                $query->where('time_arrival', '<=', $currentTime)
+                    // ACS Defend: also include missions that have physically arrived but are still holding
+                    ->orWhere(function ($query) use ($currentTime) {
+                        $query->where('mission_type', 5)
+                            ->whereNull('parent_id')
+                            ->whereNotNull('time_holding')
+                            ->whereRaw('(time_arrival - time_holding) <= ?', [$currentTime]);
+                    });
+            })
             ->get();
+
+        // Filter based on mission type and hold time
+        return $missions->filter(function ($mission) use ($currentTime) {
+            // ACS Defend outbound: time_arrival includes hold time, process immediately when arrived
+            $isAcsDefendOutbound = ($mission->mission_type === 5 && $mission->parent_id === null);
+            if ($isAcsDefendOutbound) {
+                return true;
+            }
+
+            // Holding time is always real time (not affected by fleet speed modifier)
+            if ($mission->time_holding !== null) {
+                return ($mission->time_arrival + $mission->time_holding) <= $currentTime;
+            }
+
+            return true;
+        });
     }
 
     /**
@@ -421,9 +473,9 @@ class FleetMissionService
      *
      * @param int $id
      * @param bool $only_active
-     * @return FleetMission
+     * @return FleetMission|null
      */
-    public function getFleetMissionById(int $id, bool $only_active = true): FleetMission
+    public function getFleetMissionById(int $id, bool $only_active = true): FleetMission|null
     {
         if ($only_active) {
             return $this->model
@@ -447,15 +499,21 @@ class FleetMissionService
     public function getFleetMissionByParentId(int $parent_id, bool $only_active = true): FleetMission
     {
         if ($only_active) {
-            return $this->model
+            $mission = $this->model
                 ->where('parent_id', $parent_id)
                 ->where('processed', 0)
                 ->first();
         } else {
-            return $this->model
+            $mission = $this->model
                 ->where('parent_id', $parent_id)
                 ->first();
         }
+
+        if ($mission === null) {
+            throw new Exception('Fleet mission not found.');
+        }
+
+        return $mission;
     }
 
     /**
@@ -473,13 +531,13 @@ class FleetMissionService
      * @return FleetMission
      * @throws Exception
      */
-    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingHours = 0, int $parent_id = 0): FleetMission
+    public function createNewFromPlanet(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, int $missionType, UnitCollection $units, Resources $resources, float $speedPercent, int $holdingHours = 0, int $parent_id = 0, bool $retreatAfterDefenderRetreat = false): FleetMission
     {
         $missionObject = $this->gameMissionFactory->getMissionById($missionType, [
             'fleetMissionService' => $this,
             'messageService' => $this->messageService,
         ]);
-        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $speedPercent, $holdingHours, $parent_id);
+        return $missionObject->start($planet, $targetCoordinate, $targetType, $units, $resources, $speedPercent, $holdingHours, $parent_id, $retreatAfterDefenderRetreat);
     }
 
     /**
@@ -492,9 +550,43 @@ class FleetMissionService
     {
         // Load the mission object again from database to ensure we have the latest data.
         $mission = $this->getFleetMissionById($mission->id, false);
+        if ($mission === null) {
+            return;
+        }
 
         // Sanity check: only process missions that have arrived AND potential waiting time has passed.
-        $arrivalTimeWithWaitingTime = $mission->time_arrival + ($mission->time_holding ?? 0);
+        // Different mission types handle hold time differently:
+        // - ACS Defend outbound (type 5, no parent): Send arrival messages at physical arrival, create return mission after hold
+        // - ACS Defend return (type 5, with parent): Normal processing, no hold time
+        // - Expedition (type 15): Process after hold time (exploration period)
+        // - Other missions: No hold time
+        // IMPORTANT: Holding time is always real time for ALL missions (not affected by fleet speed)
+        $holdTime = 0;
+        $isAcsDefendOutbound = ($mission->mission_type === 5 && $mission->parent_id === null);
+
+        if ($mission->time_holding !== null && !$isAcsDefendOutbound) {
+            $holdTime = $mission->time_holding;
+        }
+
+        // Special handling for ACS Defend outbound: send arrival messages at physical arrival time
+        // This must happen BEFORE the time check so messages are sent even if time has passed
+        // For ACS Defend, time_arrival = physical_arrival + time_holding (game time)
+        // So physical_arrival = time_arrival - time_holding
+        if ($isAcsDefendOutbound && $mission->time_holding !== null && $mission->processed_hold == 0) {
+            $physicalArrivalTime = $mission->time_arrival - $mission->time_holding;
+
+            // If we've reached physical arrival and haven't sent hold-processed messages yet
+            if ($physicalArrivalTime <= Date::now()->timestamp) {
+                // Mark as processed_hold to avoid sending messages multiple times
+                $mission->processed_hold = 1;
+                $mission->save();
+
+                // Send arrival messages to sender and host
+                $this->sendAcsDefendArrivalMessages($mission);
+            }
+        }
+
+        $arrivalTimeWithWaitingTime = $mission->time_arrival + $holdTime;
         if ($arrivalTimeWithWaitingTime > Date::now()->timestamp) {
             return;
         }
@@ -512,6 +604,46 @@ class FleetMissionService
     }
 
     /**
+     * Send arrival messages for ACS Defend missions.
+     * Called when the fleet physically arrives at the destination (start of hold time).
+     *
+     * @param FleetMission $mission
+     * @return void
+     */
+    private function sendAcsDefendArrivalMessages(FleetMission $mission): void
+    {
+        $planetServiceFactory = app(PlanetServiceFactory::class);
+
+        if ($mission->planet_id_from === null || $mission->planet_id_to === null) {
+            throw new Exception('Fleet mission is missing origin or target planet.');
+        }
+
+        $origin_planet = $planetServiceFactory->make($mission->planet_id_from, true);
+        $target_planet = $planetServiceFactory->make($mission->planet_id_to, true);
+
+        if ($origin_planet === null || $target_planet === null) {
+            throw new Exception('Origin or target planet not found.');
+        }
+
+        $origin_player = $origin_planet->getPlayer();
+        $target_player = $target_planet->getPlayer();
+
+        if ($origin_player === null || $target_player === null) {
+            throw new Exception('Origin or target planet has no owner.');
+        }
+
+        // Send message to sender (Fleet Command)
+        $this->messageService->sendSystemMessageToPlayer($origin_player, AcsDefendArrivalSender::class, [
+            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+        ]);
+
+        // Send message to host/target (Space Monitoring)
+        $this->messageService->sendSystemMessageToPlayer($target_player, AcsDefendArrivalHost::class, [
+            'to' => '[planet]' . $mission->planet_id_to . '[/planet]',
+        ]);
+    }
+
+    /**
      * Cancel a fleet mission.
      *
      * @param FleetMission $mission
@@ -519,17 +651,47 @@ class FleetMissionService
      */
     public function cancelMission(FleetMission $mission): void
     {
+        // Planet relocation ship transfers (deployment to self) cannot be recalled.
+        if ($mission->mission_type === 4 && $mission->planet_id_from === $mission->planet_id_to) {
+            return;
+        }
+
         // Sanity check: only allow cancelling missions that have not yet arrived.
-        // This applies to especially missions that have a time_holding (e.g. expeditions) where the main mission arrives first
-        // but the mission itself is not processed before the time_holding has passed as well. However after the main mission
-        // has arrived (even though it's not processed yet), canceling should no longer be allowed.
+        // For ACS Defend (type 5), time_arrival already includes the hold time, so when
+        // time_arrival < now the hold period has also expired and recall is no longer allowed.
+        // For other missions with hold time (e.g. expeditions), canceling is not allowed after arrival.
         if ($mission->time_arrival < Date::now()->timestamp) {
             return;
         }
 
+        // Determine if this is an ACS Defend mission currently within its hold period.
+        // For ACS Defend: time_arrival = physical_arrival + time_holding
+        // The fleet is in hold when: (time_arrival - time_holding) <= now < time_arrival
+        // The processed flag may be set to 1 by AttackMission when the fleet is attacked during hold time,
+        // so we must allow recall in that case too.
+        $isAcsDefendInHoldTime = (
+            $mission->mission_type === 5
+            && $mission->time_holding !== null
+            && $mission->time_holding > 0
+            && ($mission->time_arrival - $mission->time_holding) <= Date::now()->timestamp
+        );
+
         // Sanity check: only allow canceling missions that have not been processed yet.
-        if ($mission->processed) {
+        // Exception: ACS Defend missions can be recalled during hold time even if processed.
+        if ($mission->processed && !$isAcsDefendInHoldTime) {
             return;
+        }
+
+        // If an ACS Defend fleet is recalled during hold time and the arrival messages have not
+        // been sent yet (processed_hold == 0), send them now. The fleet did physically arrive
+        // at the destination even though it is being recalled, so both sender and host must be
+        // informed. Without this, a recall before the first page load since physical arrival
+        // would skip the messages entirely because cancel() sets processed=1, causing the
+        // query in getArrivedMissionsByPlanetIds() to exclude this mission permanently.
+        if ($isAcsDefendInHoldTime && $mission->processed_hold == 0) {
+            $this->sendAcsDefendArrivalMessages($mission);
+            $mission->processed_hold = 1;
+            $mission->save();
         }
 
         $missionObject = $this->gameMissionFactory->getMissionById($mission->mission_type, [

@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use OGame\Models\Resources;
 use RuntimeException;
 
@@ -174,6 +175,23 @@ class MerchantService
     }
 
     /**
+     * Get the base rate for a resource type.
+     * Base rates represent relative resource values: Metal=3, Crystal=2, Deuterium=1
+     *
+     * @param string $resourceType
+     * @return float
+     */
+    public static function getBaseRate(string $resourceType): float
+    {
+        return match ($resourceType) {
+            'metal' => 3.00,
+            'crystal' => 2.00,
+            'deuterium' => 1.00,
+            default => 1.00,
+        };
+    }
+
+    /**
      * Format a trade rate for display (e.g., "1,000 deuterium = 2,400 metal").
      *
      * @param string $giveType
@@ -184,7 +202,8 @@ class MerchantService
     private static function formatTradeRate(string $giveType, string $receiveType, float $rate): string
     {
         $baseAmount = 1000;
-        $receiveAmount = (int)round($baseAmount * $rate);
+        $giveRate = self::getBaseRate($giveType);
+        $receiveAmount = (int)round($baseAmount * $rate / $giveRate);
 
         return number_format($baseAmount) . ' ' . ucfirst($giveType) .
                ' = ' .
@@ -194,98 +213,212 @@ class MerchantService
     /**
      * Execute a resource trade with the merchant.
      *
+     * Exchange rate is fetched from the server-side cache to prevent frontend spoofing.
+     * Supports trading into multiple receive resources in a single transaction.
+     *
+     * @param PlayerService $player
      * @param PlanetService $planet
      * @param string $giveResource
-     * @param string $receiveResource
-     * @param int $giveAmount
-     * @param float $exchangeRate
-     * @return array{success: bool, message: string, given?: int, received?: int}
+     * @param array<string, int> $receiveResources Map of resource name => desired amount to receive
+     * @param int $giveAmount Maximum amount of give_resource the player is willing to spend
+     * @return array{success: bool, message: string, given?: int, received?: array<string, int>}
      */
     public static function executeTrade(
+        PlayerService $player,
         PlanetService $planet,
         string $giveResource,
-        string $receiveResource,
-        int $giveAmount,
-        float $exchangeRate
+        array $receiveResources,
+        int $giveAmount
     ): array {
-        // Validate resource types
         $validResources = ['metal', 'crystal', 'deuterium'];
-        if (!in_array($giveResource, $validResources) || !in_array($receiveResource, $validResources)) {
+
+        if (!in_array($giveResource, $validResources)) {
             return [
                 'success' => false,
                 'message' => __('t_merchant.error.trade.invalid_resource_type'),
             ];
         }
 
-        // Check if player has enough of the give resource
+        if (empty($receiveResources)) {
+            return [
+                'success' => false,
+                'message' => __('t_merchant.error.trade.invalid_resource_type'),
+            ];
+        }
+
+        // Verify there's an active merchant for this user
+        $activeMerchant = cache()->get('active_merchant_' . $player->getId());
+        if (!$activeMerchant) {
+            return [
+                'success' => false,
+                'message' => __('t_merchant.error.trade.no_active_merchant'),
+            ];
+        }
+
+        // Verify the merchant type matches the give resource
+        if ($activeMerchant['type'] !== $giveResource) {
+            return [
+                'success' => false,
+                'message' => __('t_merchant.error.trade.merchant_type_mismatch'),
+            ];
+        }
+
+        $giveRate = self::getBaseRate($giveResource);
         $currentResources = $planet->getResources();
-        $currentAmount = $currentResources->{$giveResource}->get();
 
-        if ($currentAmount < $giveAmount) {
+        // Build per-resource trade plan: calculate give cost and cap to available storage
+        $tradePlan = [];
+        foreach ($receiveResources as $receiveResource => $desiredAmount) {
+            if (!in_array($receiveResource, $validResources)) {
+                return [
+                    'success' => false,
+                    'message' => __('t_merchant.error.trade.invalid_resource_type'),
+                ];
+            }
+
+            if (!isset($activeMerchant['trade_rates']['receive'][$receiveResource])) {
+                return [
+                    'success' => false,
+                    'message' => __('t_merchant.error.trade.invalid_resource_type'),
+                ];
+            }
+
+            $receiveRate = $activeMerchant['trade_rates']['receive'][$receiveResource]['rate'];
+            $exchangeRate = $receiveRate / $giveRate;
+
+            // Cap receive amount to available storage (partial fill: skip this resource if storage is full)
+            $storageCapacity = $planet->{$receiveResource . 'Storage'}()->get();
+            $currentReceiveAmount = $currentResources->{$receiveResource}->get();
+            $availableStorage = max(0, (int)floor($storageCapacity - $currentReceiveAmount));
+            $receiveAmount = min((int)$desiredAmount, $availableStorage);
+
+            if ($receiveAmount <= 0) {
+                // Storage full for this resource: skip it and continue with remaining resources
+                continue;
+            }
+
+            $giveCost = (int)ceil($receiveAmount / $exchangeRate);
+            $tradePlan[$receiveResource] = [
+                'receive' => $receiveAmount,
+                'give_cost' => $giveCost,
+            ];
+        }
+
+        // All storages were full: nothing to trade
+        if (empty($tradePlan)) {
             return [
                 'success' => false,
-                'message' => __('t_merchant.error.trade.not_enough_resource', [
-                    'resource' => $giveResource,
-                    'have' => number_format($currentAmount),
-                    'need' => number_format($giveAmount)
+                'message' => __('t_merchant.error.trade.storage_full', [
+                    'resource' => implode(', ', array_keys($receiveResources)),
                 ]),
             ];
         }
 
-        // Calculate how much the player receives
-        $receiveAmount = (int)floor($giveAmount * $exchangeRate);
+        // Sum total give cost across all receive resources
+        $totalGiveCost = array_sum(array_column($tradePlan, 'give_cost'));
 
-        // Check storage capacity for the receive resource
-        $storageMethod = $receiveResource . 'Storage';
-        $storageCapacity = $planet->{$storageMethod}()->get();
-        $currentReceiveAmount = $currentResources->{$receiveResource}->get();
+        // Cap to the budget the player declared willing to spend
+        $effectiveBudget = min($giveAmount, (int)floor($currentResources->{$giveResource}->get()));
 
-        if ($currentReceiveAmount + $receiveAmount > $storageCapacity) {
-            return [
-                'success' => false,
-                'message' => __('t_merchant.error.trade.not_enough_storage', [
-                    'resource' => $receiveResource,
-                    'need' => number_format($currentReceiveAmount + $receiveAmount),
-                    'have' => number_format($storageCapacity)
-                ]),
-            ];
+        // If total cost exceeds budget, scale down all receive amounts proportionally
+        // (mirrors the old single-resource behaviour of silently reducing the trade)
+        if ($totalGiveCost > $effectiveBudget) {
+            if ($effectiveBudget <= 0) {
+                return [
+                    'success' => false,
+                    'message' => __('t_merchant.error.trade.not_enough_resource', [
+                        'resource' => $giveResource,
+                        'have' => number_format((int)floor($currentResources->{$giveResource}->get())),
+                        'need' => number_format($totalGiveCost),
+                    ]),
+                ];
+            }
+
+            $scaleFactor = $effectiveBudget / $totalGiveCost;
+            $newTotalCost = 0;
+            foreach ($tradePlan as $res => &$data) {
+                $data['receive'] = max(1, (int)floor($data['receive'] * $scaleFactor));
+                $exchangeRate = $activeMerchant['trade_rates']['receive'][$res]['rate'] / $giveRate;
+                $data['give_cost'] = (int)ceil($data['receive'] / $exchangeRate);
+                $newTotalCost += $data['give_cost'];
+            }
+            unset($data);
+
+            // After rounding, the total cost could still slightly exceed the budget.
+            // Trim the last resource's receive amount until it fits.
+            while ($newTotalCost > $effectiveBudget && !empty($tradePlan)) {
+                $lastRes = array_key_last($tradePlan);
+                $exchangeRate = $activeMerchant['trade_rates']['receive'][$lastRes]['rate'] / $giveRate;
+                $tradePlan[$lastRes]['receive']--;
+                if ($tradePlan[$lastRes]['receive'] <= 0) {
+                    $newTotalCost -= $tradePlan[$lastRes]['give_cost'];
+                    unset($tradePlan[$lastRes]);
+                    continue;
+                }
+                $oldCost = $tradePlan[$lastRes]['give_cost'];
+                $tradePlan[$lastRes]['give_cost'] = (int)ceil($tradePlan[$lastRes]['receive'] / $exchangeRate);
+                $newTotalCost -= ($oldCost - $tradePlan[$lastRes]['give_cost']);
+            }
+
+            if (empty($tradePlan)) {
+                return [
+                    'success' => false,
+                    'message' => __('t_merchant.error.trade.not_enough_resource', [
+                        'resource' => $giveResource,
+                        'have' => number_format($effectiveBudget),
+                        'need' => number_format($totalGiveCost),
+                    ]),
+                ];
+            }
+
+            $totalGiveCost = $newTotalCost;
         }
 
-        // Execute the trade using atomic deduction to prevent race conditions
+        // Execute the trade inside a DB transaction to guarantee atomicity:
+        // if crediting any receive resource fails, the give deduction is rolled back.
         try {
-            // Deduct the resource being given atomically
-            $deductResources = new Resources(
-                $giveResource === 'metal' ? $giveAmount : 0,
-                $giveResource === 'crystal' ? $giveAmount : 0,
-                $giveResource === 'deuterium' ? $giveAmount : 0
-            );
+            $receivedAmounts = DB::transaction(function () use (
+                $planet,
+                $giveResource,
+                $totalGiveCost,
+                $tradePlan
+            ): array {
+                // Deduct total give resource in one operation
+                $deductResources = new Resources(
+                    $giveResource === 'metal' ? $totalGiveCost : 0,
+                    $giveResource === 'crystal' ? $totalGiveCost : 0,
+                    $giveResource === 'deuterium' ? $totalGiveCost : 0
+                );
+                $planet->deductResources($deductResources, true);
 
-            // Use atomic deduction (save_planet = true) to prevent race conditions
-            $planet->deductResources($deductResources, true);
+                // Credit each receive resource
+                $receivedAmounts = [];
+                foreach ($tradePlan as $receiveResource => $data) {
+                    $addResources = new Resources(
+                        $receiveResource === 'metal' ? $data['receive'] : 0,
+                        $receiveResource === 'crystal' ? $data['receive'] : 0,
+                        $receiveResource === 'deuterium' ? $data['receive'] : 0
+                    );
+                    $planet->addResources($addResources, true);
+                    $receivedAmounts[$receiveResource] = $data['receive'];
+                }
 
-            // Add the resource being received
-            $addResources = new Resources(
-                $receiveResource === 'metal' ? $receiveAmount : 0,
-                $receiveResource === 'crystal' ? $receiveAmount : 0,
-                $receiveResource === 'deuterium' ? $receiveAmount : 0
-            );
-
-            $planet->addResources($addResources, true);
+                return $receivedAmounts;
+            });
 
             return [
                 'success' => true,
                 'message' => __('t_merchant.success.trade_completed'),
-                'given' => $giveAmount,
-                'received' => $receiveAmount,
+                'given' => $totalGiveCost,
+                'received' => $receivedAmounts,
             ];
         } catch (RuntimeException $e) {
-            // Atomic deduction failed - not enough resources
             return [
                 'success' => false,
                 'message' => __('t_merchant.error.trade.not_enough_resource', [
                     'resource' => $giveResource,
                     'have' => '0',
-                    'need' => number_format($giveAmount)
+                    'need' => number_format($totalGiveCost),
                 ]),
             ];
         } catch (Exception $e) {

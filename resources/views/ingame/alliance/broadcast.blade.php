@@ -9,12 +9,12 @@
                 <table id="broadcastTable">
                     <tbody>
                         <tr>
-                            <td class="desc textBeefy">{{ __('To') }}</td>
+                            <td class="desc textBeefy">{{ __('t_ingame.alliance.addressee') }}</td>
                             <td>
                                 <select class="dropdownInitialized" name="empfaenger[]" multiple id="selectNew" style="width: 310px;">
-                                    <option value="-1" id="-1" selected>{{ __('all players') }}</option>
+                                    <option value="-1" id="-1" selected>{{ __('t_ingame.alliance.all_players') }}</option>
                                     @foreach($ranks as $rank)
-                                        <option value="{{ $rank->id }}" id="{{ $rank->id }}">{{ __('only rank:') }} {{ $rank->rank_name }}</option>
+                                        <option value="{{ $rank->id }}" id="{{ $rank->id }}">{{ __('t_ingame.alliance.only_rank') }} {{ $rank->rank_name }}</option>
                                     @endforeach
                                 </select>
                                 <script language="javascript">
@@ -31,7 +31,7 @@
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <input class="btn_blue float_right" value="{{ __('Send') }}" name="submitMail" id="submitMail" type="button">
+                                <input class="btn_blue float_right" value="{{ __('t_ingame.alliance.send_btn') }}" name="submitMail" id="submitMail" type="button">
                             </td>
                         </tr>
                     </tbody>
@@ -76,7 +76,7 @@
                 "playerPlaceHolder": "{{ __('Player ID or name') }}",
                 "itemPlaceHolder": "{{ __('Item ID') }}",
                 "coordinatePlaceHolder": "{{ __('Galaxy:system:position') }}",
-                "charsLeft": "{{ __('Characters remaining') }}",
+                "charsLeft": "{{ __('t_ingame.alliance.chars_remaining') }}",
                 "colorPicker": {
                     "ok": "{{ __('Ok') }}",
                     "cancel": "{{ __('Cancel') }}",

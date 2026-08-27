@@ -77,12 +77,14 @@ trait ObjectAjaxTrait
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
 
                 $shipyard_upgrading = $player->planets->current()->isBuildingObject('shipyard');
+                $nanite_upgrading = $player->planets->current()->isBuildingObject('nano_factory');
                 break;
             case GameObjectType::Defense:
                 $production_time = AppUtil::formatTimeDuration($planet->getUnitConstructionTime($object->machine_name));
                 $production_datetime = AppUtil::formatDateTimeDuration($planet->getUnitConstructionTime($object->machine_name));
 
                 $shipyard_upgrading = $player->planets->current()->isBuildingObject('shipyard');
+                $nanite_upgrading = $player->planets->current()->isBuildingObject('nano_factory');
                 break;
             case GameObjectType::Research:
                 $production_time = AppUtil::formatTimeDuration($planet->getTechnologyResearchTime($object->machine_name));
@@ -108,12 +110,24 @@ trait ObjectAjaxTrait
             $production_current = $planet->getObjectProduction($object->machine_name);
             $production_next = $planet->getObjectProduction($object->machine_name, $next_level);
 
-            if (!empty($production_current->energy->get())) {
-                $energy_difference = ($production_next->energy->get() - $production_current->energy->get()) * -1;
+            $energy_difference = ($production_next->energy->get() - $production_current->energy->get()) * -1;
+        } elseif ($object->machine_name === 'crawler') {
+            // Special handling for Crawlers: they consume energy but don't have production property
+            // Each crawler consumes 50 energy at 100%, with additional cost for overcharge
+            $crawlerPercentage = $planet->getBuildingPercent('crawler') / 10; // Convert to decimal (0-1.5)
+            $baseEnergy = 50;
+            $energyConsumption = $baseEnergy * $crawlerPercentage;
+
+            // Add extra energy cost for overload (>100%)
+            if ($crawlerPercentage > 1.0) {
+                $energyConsumption += $baseEnergy * ($crawlerPercentage - 1.0);
             }
+
+            $energy_difference = floor($energyConsumption);
         }
 
-        $enough_resources = $planet->hasResources($price);
+        $useProductionEnergy = in_array($object->machine_name, ['terraformer', 'space_dock']);
+        $enough_resources = $planet->hasResources($price, $useProductionEnergy);
 
         // Storage capacity bar
         // TODO: implement storage in new structure.
@@ -162,6 +176,37 @@ trait ObjectAjaxTrait
         $build_queue_max = false;
         if ($build_queue->isQueueFull()) {
             $build_queue_max = true;
+        }
+
+        // Check if planet has enough fields for this building (only for buildings that consume fields)
+        // Ships, defense units, and certain other objects don't consume planet fields
+        $fields_exceeded = false;
+        if (($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) && $object->consumesPlanetField) {
+            $currentBuildingCount = $planet->getBuildingCount();
+            $maxFields = $planet->getPlanetFieldMax();
+
+            // Calculate the projected building count after all queued items complete
+            // Only apply this for building queues (BuildingQueueViewModel with level_target property)
+            $queuedFieldChange = 0;
+            $build_active = $build_queue->getCurrentlyBuildingFromQueue();
+            $build_queued = $build_queue->getQueuedFromQueue();
+            $all_queued = $build_active !== null ? [$build_active] : [];
+            $all_queued = array_merge($all_queued, $build_queued);
+
+            foreach ($all_queued as $queueItem) {
+                // Only process queue items that have level_target (BuildingQueueViewModel)
+                // UnitQueueViewModel doesn't have this property, so we skip it
+                if (property_exists($queueItem, 'level_target') && $queueItem->object->consumesPlanetField) {
+                    $current_item_level = $planet->getObjectLevel($queueItem->object->machine_name);
+                    $queuedFieldChange += ($queueItem->level_target - $current_item_level);
+                }
+            }
+
+            // The projected building count after all queued items complete
+            $projectedBuildingCount = $currentBuildingCount + $queuedFieldChange;
+
+            // If projected building count >= max fields, fields are exceeded (after queue completes)
+            $fields_exceeded = $projectedBuildingCount >= $maxFields;
         }
 
         // Calculate downgrade information for buildings and stations
@@ -254,6 +299,7 @@ trait ObjectAjaxTrait
             'research_lab_upgrading' => $research_lab_upgrading ?? false,
             'research_in_progress' => $research_in_progress ?? false,
             'shipyard_upgrading' => $shipyard_upgrading ?? false,
+            'nanite_upgrading' => $nanite_upgrading ?? false,
             'ship_or_defense_in_progress' => $ship_or_defense_in_progress ?? false,
             'downgrade_price' => $downgrade_price,
             'downgrade_duration' => $downgrade_duration,
@@ -265,6 +311,8 @@ trait ObjectAjaxTrait
             'is_missile_silo' => $is_missile_silo,
             'current_missiles' => $current_missiles,
             'max_missiles' => $max_missiles,
+            'fields_exceeded' => $fields_exceeded,
+            'use_production_energy' => $useProductionEnergy,
         ]);
 
         return response()->json([
@@ -315,7 +363,8 @@ trait ObjectAjaxTrait
         // Special handling for Interplanetary Missiles to show range based on impulse drive level
         if ($object->machine_name === 'interplanetary_missile') {
             // Use getMissileRange() for consistent formula: (level × 5) - 1
-            $missile_range = $planet->getPlayer()->getMissileRange();
+            $planetPlayer = $planet->getPlayer();
+            $missile_range = $planetPlayer !== null ? $planetPlayer->getMissileRange() : 0;
 
             // Append the specific range value to the description
             $description .= " Your interplanetary missiles have got a coverage of {$missile_range} systems.";
