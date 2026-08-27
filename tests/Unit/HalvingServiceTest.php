@@ -15,9 +15,9 @@ use OGame\Services\DarkMatterTransactionService;
 use OGame\Services\HalvingService;
 use OGame\Services\ObjectService;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class HalvingServiceTest extends AccountTestCase
+class HalvingServiceTest extends IsolatedAccountTestCase
 {
     private HalvingService $halvingService;
 

@@ -21,7 +21,7 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Tests for tactical retreat point weighting, gates, and battle integration.
@@ -30,7 +30,7 @@ use Tests\AccountTestCase;
  * matching BattleEngineTestAbstract. Service-level tests live here too so
  * blockedReason gates are asserted against the shared evaluator.
  */
-abstract class TacticalRetreatTestAbstract extends AccountTestCase
+abstract class TacticalRetreatTestAbstract extends IsolatedAccountTestCase
 {
     protected int $userPlanetAmount = 2;
 

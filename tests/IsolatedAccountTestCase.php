@@ -38,10 +38,7 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     {
         parent::setUp();
 
-        // Start the session so csrf_token() returns a real token. Controllers verify the
-        // token themselves (e.g. AbstractUnitsController::addBuildRequest compares
-        // session()->token() to the posted _token), so this avoids needing a
-        // session-initializing GET request while keeping CSRF fully enforced.
+        // Start the session up-front so csrf_token() returns a real token.
         $this->app['session']->driver()->start();
     }
 
@@ -74,9 +71,6 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     /**
      * Create a user and authenticate without HTTP round-trips.
      *
-        * Authenticates via actingAs() and wires up the planet services from the real factories,
-        * mirroring retrieveMetaFields() without the HTML parsing.
-     *
      * @return void
      */
     protected function createAndLoginUser(): void
@@ -107,14 +101,15 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     /**
      * Create a normal (non-admin) user using the standard Eloquent factories.
      *
-        * Creates a normal user with a collision-safe username, then delegates initial game data
-        * setup to the production service used during registration.
-     *
      * @return User
      */
     protected function createUser(): User
     {
-        $user = User::factory()->create(['username' => 'test_' . Str::random(16)]);
+        $user = User::factory()->create([
+            'username' => 'test_' . Str::random(16),
+            // Stamp last activity so isInactive() doesn't mark the user inactive.
+            'time' => (string) now()->timestamp,
+        ]);
 
         // User::factory() skips CreateNewUser, but the User model's `created` hook still
         // promotes each transaction's first user to admin. Revert that for a normal player.

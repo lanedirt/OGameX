@@ -13,12 +13,12 @@ use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that the Hamill Manoeuvre (Light Fighter vs Deathstar) works correctly.
  */
-class HamillManoeuvreTest extends AccountTestCase
+class HamillManoeuvreTest extends IsolatedAccountTestCase
 {
     protected int $userPlanetAmount = 2;
 
