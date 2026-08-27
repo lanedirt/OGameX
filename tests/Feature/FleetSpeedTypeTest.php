@@ -8,9 +8,9 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class FleetSpeedTypeTest extends AccountTestCase
+class FleetSpeedTypeTest extends IsolatedAccountTestCase
 {
     /**
      * Test exact duration with war fleet speed.

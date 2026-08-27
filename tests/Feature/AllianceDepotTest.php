@@ -4,12 +4,12 @@ namespace Tests\Feature;
 
 use Exception;
 use OGame\Factories\PlanetServiceFactory;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that Alliance Depot functionality works as expected.
  */
-class AllianceDepotTest extends AccountTestCase
+class AllianceDepotTest extends IsolatedAccountTestCase
 {
     /**
      * Test that Alliance Depot dialog can be accessed when building is built.

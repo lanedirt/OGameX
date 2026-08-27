@@ -9,12 +9,12 @@ use OGame\Models\AllianceMember;
 use OGame\Models\AllianceRank;
 use OGame\Models\User;
 use OGame\Services\AllianceService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test alliance system functionality.
  */
-class AllianceTest extends AccountTestCase
+class AllianceTest extends IsolatedAccountTestCase
 {
     /**
      * Generate a unique alliance tag for testing.

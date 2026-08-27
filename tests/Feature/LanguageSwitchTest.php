@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use Illuminate\Support\Facades\App;
 use OGame\Http\Middleware\Locale;
 use OGame\Models\User;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Verify language switching supports French and persists the selection.
  */
-class LanguageSwitchTest extends AccountTestCase
+class LanguageSwitchTest extends IsolatedAccountTestCase
 {
     /**
      * French must be registered as a supported application locale.

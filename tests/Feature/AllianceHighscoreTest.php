@@ -8,12 +8,12 @@ use OGame\Models\AllianceHighscore;
 use OGame\Models\Highscore;
 use OGame\Models\User;
 use OGame\Services\AllianceService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test alliance highscore functionality.
  */
-class AllianceHighscoreTest extends AccountTestCase
+class AllianceHighscoreTest extends IsolatedAccountTestCase
 {
     /**
      * Generate a unique alliance tag for testing.
