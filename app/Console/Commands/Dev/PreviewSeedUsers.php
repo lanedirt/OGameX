@@ -525,35 +525,7 @@ class PreviewSeedUsers extends Command
             ],
             [
                 'key' => 'debris_field_harvest',
-                'params' => function () {
-                    $coordinate = '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]';
-                    $metal = rand(10000, 500000);
-                    $crystal = rand(5000, 250000);
-                    $deuterium = rand(0, 100000);
-
-                    $machineNames = ['recycler', 'reaper', 'pathfinder'];
-                    $ship = ObjectService::getShipObjectByMachineName($machineNames[array_rand($machineNames)]);
-                    $shipAmount = rand(1, 20);
-                    $storageCapacity = $shipAmount * $ship->properties->capacity->rawValue;
-
-                    $harvestedMetal = min($metal, rand(0, $storageCapacity));
-                    $harvestedCrystal = min($crystal, rand(0, max(0, $storageCapacity - $harvestedMetal)));
-                    $harvestedDeuterium = min($deuterium, rand(0, max(0, $storageCapacity - $harvestedMetal - $harvestedCrystal)));
-
-                    return [
-                        'to' => str_replace(['[coordinates]', '[/coordinates]'], ['[debrisfield]', '[/debrisfield]'], $coordinate),
-                        'coordinates' => $coordinate,
-                        'ship_name' => $ship->title,
-                        'ship_amount' => $shipAmount,
-                        'storage_capacity' => $storageCapacity,
-                        'metal' => $metal,
-                        'crystal' => $crystal,
-                        'deuterium' => $deuterium,
-                        'harvested_metal' => $harvestedMetal,
-                        'harvested_crystal' => $harvestedCrystal,
-                        'harvested_deuterium' => $harvestedDeuterium,
-                    ];
-                },
+                'params' => fn () => $this->generateDebrisFieldHarvestParams(),
             ],
         ];
 
@@ -594,6 +566,44 @@ class PreviewSeedUsers extends Command
             $message->created_at = now()->subMinutes(rand(1, 43200));
             $message->save();
         }
+    }
+
+    /**
+     * Generate randomized params for a debris_field_harvest message, using a real
+     * ship object so ship_name, storage_capacity, and harvested amounts stay consistent
+     * with what RecycleMission/AttackMission would actually produce.
+     *
+     * @return array<string, mixed>
+     */
+    public function generateDebrisFieldHarvestParams(): array
+    {
+        $coordinate = '[coordinates]' . rand(1, 5) . ':' . rand(1, 499) . ':' . rand(1, 15) . '[/coordinates]';
+        $metal = rand(10000, 500000);
+        $crystal = rand(5000, 250000);
+        $deuterium = rand(0, 100000);
+
+        $machineNames = ['recycler', 'reaper', 'pathfinder'];
+        $ship = ObjectService::getShipObjectByMachineName($machineNames[array_rand($machineNames)]);
+        $shipAmount = rand(1, 20);
+        $storageCapacity = $shipAmount * $ship->properties->capacity->rawValue;
+
+        $harvestedMetal = min($metal, rand(0, $storageCapacity));
+        $harvestedCrystal = min($crystal, rand(0, max(0, $storageCapacity - $harvestedMetal)));
+        $harvestedDeuterium = min($deuterium, rand(0, max(0, $storageCapacity - $harvestedMetal - $harvestedCrystal)));
+
+        return [
+            'to' => str_replace(['[coordinates]', '[/coordinates]'], ['[debrisfield]', '[/debrisfield]'], $coordinate),
+            'coordinates' => $coordinate,
+            'ship_name' => $ship->title,
+            'ship_amount' => $shipAmount,
+            'storage_capacity' => $storageCapacity,
+            'metal' => $metal,
+            'crystal' => $crystal,
+            'deuterium' => $deuterium,
+            'harvested_metal' => $harvestedMetal,
+            'harvested_crystal' => $harvestedCrystal,
+            'harvested_deuterium' => $harvestedDeuterium,
+        ];
     }
 
     /**

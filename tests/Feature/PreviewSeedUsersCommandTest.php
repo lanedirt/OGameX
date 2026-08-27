@@ -2,35 +2,25 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Testing\PendingCommand;
+use OGame\Console\Commands\Dev\PreviewSeedUsers;
 use OGame\Factories\GameMessageFactory;
 use OGame\Models\Message;
-use OGame\Models\User;
 use OGame\Services\ObjectService;
 use Tests\TestCase;
 
 class PreviewSeedUsersCommandTest extends TestCase
 {
-    use DatabaseTransactions;
-
-    public function test_seed_users_creates_valid_debris_field_harvest_messages(): void
+    /**
+     * Directly exercises the debris_field_harvest fixture generator without running
+     * the full ogamex:dev:seed-users command (which also creates users/planets and
+     * is slow). This keeps the test focused on the fixture's own correctness.
+     */
+    public function test_debris_field_harvest_fixture_produces_valid_messages(): void
     {
-        $command = $this->artisan('ogamex:dev:seed-users');
-        $this->assertInstanceOf(PendingCommand::class, $command);
-        $command->assertSuccessful();
+        $command = new PreviewSeedUsers();
 
-        $userIds = User::where('email', 'like', '%@ogamex.dev')->pluck('id');
-        $this->assertNotEmpty($userIds, 'Seed command should have created preview test users.');
-
-        $messages = Message::whereIn('user_id', $userIds)
-            ->where('key', 'debris_field_harvest')
-            ->get();
-
-        $this->assertNotEmpty($messages, 'Seed command should have created at least one debris_field_harvest message.');
-
-        foreach ($messages as $message) {
-            $params = $message->params;
+        for ($i = 0; $i < 50; $i++) {
+            $params = $command->generateDebrisFieldHarvestParams();
 
             // All params required by the DebrisFieldHarvest message must be present.
             foreach (['to', 'coordinates', 'ship_name', 'ship_amount', 'storage_capacity', 'metal', 'crystal', 'deuterium', 'harvested_metal', 'harvested_crystal', 'harvested_deuterium'] as $param) {
@@ -69,6 +59,9 @@ class PreviewSeedUsersCommandTest extends TestCase
             $this->assertEquals($expectedCapacity, (int) $params['storage_capacity']);
 
             // Rendering the message must not leak any unresolved param placeholders.
+            $message = new Message();
+            $message->key = 'debris_field_harvest';
+            $message->params = $params;
             $gameMessage = GameMessageFactory::createGameMessage($message);
             $this->assertStringNotContainsString('?undefined?', $gameMessage->getSubject());
             $this->assertStringNotContainsString('?undefined?', $gameMessage->getBody());
