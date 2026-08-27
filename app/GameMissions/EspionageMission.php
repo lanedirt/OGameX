@@ -24,6 +24,7 @@ use OGame\Services\CounterEspionageService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
+use OGame\Support\FleetMissionPlanetFormatter;
 use RuntimeException;
 use Throwable;
 
@@ -181,9 +182,9 @@ class EspionageMission extends GameMission
             $attackerName = $originPlayer->getUsername();
 
             $params = [
-                // IMPORTANT: pass the raw mission planet id inside [planet]...[/planet]
-                'planet'        => '[planet]' . $mission->planet_id_from . '[/planet]',
-                'defender'      => '[planet]' . $mission->planet_id_to . '[/planet]',   // defender planet
+                // Prefer [planet] tags; fall back to coordinates when the body was deleted.
+                'planet'        => FleetMissionPlanetFormatter::tag($mission, 'from'),
+                'defender'      => FleetMissionPlanetFormatter::tag($mission, 'to'),
                 'attacker_name' => $attackerName,
                 'chance'        => $counterEspionageChance,
             ];
@@ -347,7 +348,7 @@ class EspionageMission extends GameMission
             'moon_created' => $battleResult->moonCreated,
         ];
 
-        $report->attacker = [
+        $report->attacker = array_merge([
             'player_id' => $attackerPlayer->getId(),
             'resource_loss' => $battleResult->attackerResourceLoss->sum(),
             'units' => $battleResult->attackerUnitsStart->toArray(),
@@ -355,7 +356,7 @@ class EspionageMission extends GameMission
             'shielding_technology' => $battleResult->attackerShieldLevel,
             'armor_technology' => $battleResult->attackerArmorLevel,
             'planet_id' => $battleResult->attackerPlanetId,
-        ];
+        ], $this->buildAttackerPlanetSnapshot($battleResult->attackerPlanetId));
 
         $report->defender = [
             'player_id' => $defenderPlayer->getId(),
