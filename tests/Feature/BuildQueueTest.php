@@ -7,12 +7,12 @@ use OGame\Models\BuildingQueue;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test AJAX calls to make sure they work as expected.
  */
-class BuildQueueTest extends AccountTestCase
+class BuildQueueTest extends IsolatedAccountTestCase
 {
     /**
      * Verify that building a metal mine works as expected.
@@ -373,7 +373,7 @@ class BuildQueueTest extends AccountTestCase
         // ---
         // Step 2: Verify resources were deducted immediately after request
         // ---
-        $this->reloadApplication();
+        $this->refreshServiceCaches();
         // Resources should be deducted when the downgrade starts
         $this->planetService->reloadPlanet();
         $actual_metal = $this->planetService->metal()->get();
@@ -492,7 +492,7 @@ class BuildQueueTest extends AccountTestCase
 
         // Travel past level 6 completion
         $this->travel($build_time_level_6 + 1)->seconds();
-        $this->reloadApplication();
+        $this->refreshServiceCaches();
         $response = $this->get('/resources');
         $this->assertObjectLevelOnPage($response, 'metal_mine', 6);
 
@@ -503,7 +503,7 @@ class BuildQueueTest extends AccountTestCase
         // Travel past level 7 completion
         $build_time_level_7 = $this->planetService->getBuildingConstructionTime('metal_mine');
         $this->travel($build_time_level_7 + 1)->seconds();
-        $this->reloadApplication();
+        $this->refreshServiceCaches();
         $response = $this->get('/resources');
         $this->assertObjectLevelOnPage($response, 'metal_mine', 7);
 
@@ -560,7 +560,7 @@ class BuildQueueTest extends AccountTestCase
 
         // Simulate long offline period - both buildings should complete
         $this->travel(2)->hours();
-        $this->reloadApplication();
+        $this->refreshServiceCaches();
         $response = $this->get('/resources');
         $this->assertObjectLevelOnPage($response, 'metal_mine', 5);
 
@@ -614,7 +614,7 @@ class BuildQueueTest extends AccountTestCase
         $extra_production_time = 3600; // 1 hour extra
         $this->travel($build_time + $extra_production_time)->seconds();
 
-        $this->reloadApplication();
+        $this->refreshServiceCaches();
         $response = $this->get('/resources');
         $this->assertObjectLevelOnPage($response, 'solar_plant', 2);
 

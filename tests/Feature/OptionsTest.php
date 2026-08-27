@@ -3,12 +3,12 @@
 namespace Tests\Feature;
 
 use OGame\Services\PlayerService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test options page functionality.
  */
-class OptionsTest extends AccountTestCase
+class OptionsTest extends IsolatedAccountTestCase
 {
     /**
      * Test that options page loads successfully.
@@ -39,8 +39,8 @@ class OptionsTest extends AccountTestCase
         $response->assertRedirect('/options');
         $response->assertSessionHas('success');
 
-        // Reload application to ensure fresh data
-        $this->reloadApplication();
+        // Drop the request-bound PlayerService so the next resolve reloads from the DB.
+        $this->app->forgetInstance(PlayerService::class);
 
         // Reload player service to get fresh data
         $playerService = resolve(PlayerService::class, ['player_id' => $this->currentUserId]);
@@ -71,8 +71,8 @@ class OptionsTest extends AccountTestCase
 
         $response->assertRedirect('/options');
 
-        // Reload application to ensure fresh data
-        $this->reloadApplication();
+        // Drop the request-bound PlayerService so the next resolve reloads from the DB.
+        $this->app->forgetInstance(PlayerService::class);
 
         // Reload player service to get fresh data
         $playerService = resolve(PlayerService::class, ['player_id' => $this->currentUserId]);
@@ -116,8 +116,8 @@ class OptionsTest extends AccountTestCase
         $response->assertRedirect('/options');
         $response->assertSessionHas('error');
 
-        // Reload application to ensure fresh data
-        $this->reloadApplication();
+        // Drop the request-bound PlayerService so the next resolve reloads from the DB.
+        $this->app->forgetInstance(PlayerService::class);
 
         // Verify the value was not saved
         $playerService = resolve(PlayerService::class, ['player_id' => $this->currentUserId]);

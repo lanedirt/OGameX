@@ -9,6 +9,7 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 use OGame\Services\InitialUserDataService;
+use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 
 /**
@@ -66,6 +67,18 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     final public function reloadApplication(): void
     {
         throw new LogicException('reloadApplication() is incompatible with IsolatedAccountTestCase.');
+    }
+
+    /**
+     * Drop the request-bound and factory-cached services so the next request or
+     * resolve reads fresh from the DB. Replaces AccountTestCase::reloadApplication()
+     * without rebuilding the container (which would break DatabaseTransactions).
+     */
+    protected function refreshServiceCaches(): void
+    {
+        $this->app->forgetInstance(PlayerService::class);
+        $this->app->forgetInstance(PlayerServiceFactory::class);
+        $this->app->forgetInstance(PlanetServiceFactory::class);
     }
 
     /**
