@@ -7,22 +7,12 @@ use Illuminate\Testing\PendingCommand;
 use OGame\Factories\GameMessageFactory;
 use OGame\Models\Message;
 use OGame\Models\User;
+use OGame\Services\ObjectService;
 use Tests\TestCase;
 
 class PreviewSeedUsersCommandTest extends TestCase
 {
     use DatabaseTransactions;
-
-    /**
-     * Per-ship debris field harvest storage capacity, mirrored from the real ship
-     * object definitions (recycler / reaper) that the fixture is meant to represent.
-     *
-     * @var array<string, int>
-     */
-    private const SHIP_CAPACITY = [
-        'Recycler' => 20000,
-        'Reaper' => 10000,
-    ];
 
     public function test_seed_users_creates_valid_debris_field_harvest_messages(): void
     {
@@ -52,6 +42,10 @@ class PreviewSeedUsersCommandTest extends TestCase
             $this->assertLessThanOrEqual((int) $params['crystal'], (int) $params['harvested_crystal']);
             $this->assertLessThanOrEqual((int) $params['deuterium'], (int) $params['harvested_deuterium']);
 
+            // Harvested amounts can never exceed what the ships have room to carry.
+            $harvestedTotal = (int) $params['harvested_metal'] + (int) $params['harvested_crystal'] + (int) $params['harvested_deuterium'];
+            $this->assertLessThanOrEqual((int) $params['storage_capacity'], $harvestedTotal);
+
             // "to" is wrapped in [debrisfield], "coordinates" keeps [coordinates], matching
             // what RecycleMission/AttackMission send in production.
             $this->assertStringContainsString('[debrisfield]', $params['to']);
@@ -59,8 +53,19 @@ class PreviewSeedUsersCommandTest extends TestCase
 
             // ship_name must be a known harvesting ship, and storage_capacity must scale
             // with ship_amount using that ship's real cargo capacity.
-            $this->assertArrayHasKey($params['ship_name'], self::SHIP_CAPACITY, "Unexpected ship_name '{$params['ship_name']}'.");
-            $expectedCapacity = (int) $params['ship_amount'] * self::SHIP_CAPACITY[$params['ship_name']];
+            $machineNames = ['recycler', 'reaper', 'pathfinder'];
+            $matchedShip = null;
+            foreach ($machineNames as $machineName) {
+                $ship = ObjectService::getShipObjectByMachineName($machineName);
+                if ($ship->title === $params['ship_name']) {
+                    $matchedShip = $ship;
+                    break;
+                }
+            }
+            if ($matchedShip === null) {
+                $this->fail("Unexpected ship_name '{$params['ship_name']}'.");
+            }
+            $expectedCapacity = (int) $params['ship_amount'] * $matchedShip->properties->capacity->rawValue;
             $this->assertEquals($expectedCapacity, (int) $params['storage_capacity']);
 
             // Rendering the message must not leak any unresolved param placeholders.

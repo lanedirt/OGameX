@@ -530,19 +530,22 @@ class PreviewSeedUsers extends Command
                     $metal = rand(10000, 500000);
                     $crystal = rand(5000, 250000);
                     $deuterium = rand(0, 100000);
-                    $harvestedMetal = rand(0, $metal);
-                    $harvestedCrystal = rand(0, $crystal);
-                    $harvestedDeuterium = rand(0, $deuterium);
-                    $shipName = rand(0, 1) === 0 ? 'Recycler' : 'Reaper';
-                    $shipCapacity = $shipName === 'Recycler' ? 20000 : 10000;
+
+                    $machineNames = ['recycler', 'reaper', 'pathfinder'];
+                    $ship = ObjectService::getShipObjectByMachineName($machineNames[array_rand($machineNames)]);
                     $shipAmount = rand(1, 20);
+                    $storageCapacity = $shipAmount * $ship->properties->capacity->rawValue;
+
+                    $harvestedMetal = min($metal, rand(0, $storageCapacity));
+                    $harvestedCrystal = min($crystal, rand(0, max(0, $storageCapacity - $harvestedMetal)));
+                    $harvestedDeuterium = min($deuterium, rand(0, max(0, $storageCapacity - $harvestedMetal - $harvestedCrystal)));
 
                     return [
                         'to' => str_replace(['[coordinates]', '[/coordinates]'], ['[debrisfield]', '[/debrisfield]'], $coordinate),
                         'coordinates' => $coordinate,
-                        'ship_name' => $shipName,
+                        'ship_name' => $ship->title,
                         'ship_amount' => $shipAmount,
-                        'storage_capacity' => $shipAmount * $shipCapacity,
+                        'storage_capacity' => $storageCapacity,
                         'metal' => $metal,
                         'crystal' => $crystal,
                         'deuterium' => $deuterium,
