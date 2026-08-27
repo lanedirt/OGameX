@@ -1322,7 +1322,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->planetAddUnit('small_cargo', 50);     // Civil ship (50%)
 
         // Get user and record initial lost points
-        $user = $this->planetService->getPlayer()->getUser();
+        $user = $this->planetPlayer()->getUser();
         $initialLostPoints = $user->military_units_lost_points;
 
         // Enable only the "loss of fleet" expedition outcome
@@ -1379,7 +1379,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->playerSetResearchLevel('armor_technology', 5);
 
         // Get user and record initial lost points
-        $user = $this->planetService->getPlayer()->getUser();
+        $user = $this->planetPlayer()->getUser();
         $initialLostPoints = $user->military_units_lost_points;
         $initialShipCount = $this->planetService->getShipUnits()->getAmount();
 

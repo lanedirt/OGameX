@@ -3,28 +3,18 @@
 namespace OGame\Console\Commands\Migration;
 
 use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Models\BattleReport;
 use OGame\Models\User;
 use OGame\Services\ObjectService;
 
+#[Description('Migrates military statistics from existing battle reports (one-time migration)')]
+#[Signature('ogamex:migrate:military-statistics {--dry-run : Run without saving changes}')]
 class MigrateMilitaryStatistics extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'ogamex:migrate:military-statistics {--dry-run : Run without saving changes}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Migrates military statistics from existing battle reports (one-time migration)';
-
     /**
      * Execute the console command.
      */

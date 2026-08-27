@@ -190,7 +190,7 @@ class HighscoreController extends OGameController
                 'highscoreCurrentAlliancePage' => 1,
                 'highscoreCurrentPage' => 1,
                 'highscoreCurrentType' => 7,
-                'currentUserAllianceId' => auth()->user()->alliance_id,
+                'currentUserAllianceId' => $player->getUser()->alliance_id,
                 'player' => $player,
             ]);
         }

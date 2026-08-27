@@ -1126,8 +1126,7 @@ class MerchantTest extends AccountTestCase
         $this->planetSetObjectLevel('metal_store', 5);
         $this->planetSetObjectLevel('crystal_store', 5);
 
-        $player = $this->planetService->getPlayer();
-        $user = $player->getUser();
+        $user = $this->player()->getUser();
 
         // Record initial lost points
         $initialLostPoints = $user->military_units_lost_points;

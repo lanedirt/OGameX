@@ -137,7 +137,7 @@ class AttackMission extends GameMission
         $battleResult->attackerPlanetId = $mission->planet_id_from;
 
         // Update military statistics for both players
-        $this->updateMilitaryStatistics($attackerPlayer, $defenderPlanet->getPlayer(), $battleResult);
+        $this->updateMilitaryStatistics($attackerPlayer, $defenderPlayer, $battleResult);
 
         // Deduct loot from the target planet.
         $defenderPlanet->deductResources($battleResult->loot);
