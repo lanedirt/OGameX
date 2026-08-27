@@ -6,13 +6,13 @@ use DOMDocument;
 use DOMXPath;
 use Illuminate\Support\Facades\DB;
 use OGame\Models\WreckField;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Sidebar wreck field icon must key off each listed planet's Space Dock,
  * not the currently selected planet. Single-planet coverage cannot catch this.
  */
-class SidebarWreckFieldIconTest extends AccountTestCase
+class SidebarWreckFieldIconTest extends IsolatedAccountTestCase
 {
     protected function tearDown(): void
     {
