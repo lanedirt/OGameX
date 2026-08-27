@@ -14,13 +14,13 @@
                             <th></th>
                         </tr>
                         <tr>
-                            <td>{{ __('t_resources.anti_ballistic_missiles.title') }}</td>
+                            <td>{{ __('t_resources.anti_ballistic_missile.title') }}</td>
                             <td class="textCenter">{{ $abm_count }}</td>
                             <td class="textCenter"><input type="text" pattern="[0-9]*" value="" class="txt" size="4" maxlength="4" name="destroy_502" id="destroy_502"></td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>{{ __('t_resources.interplanetary_missiles.title') }}</td>
+                            <td>{{ __('t_resources.interplanetary_missile.title') }}</td>
                             <td class="textCenter">{{ $ipm_count }}</td>
                             <td class="textCenter"><input type="text" pattern="[0-9]*" value="" class="txt" size="4" maxlength="4" name="destroy_503" id="destroy_503"></td>
                             <td></td>

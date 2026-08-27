@@ -19,6 +19,7 @@ Before submitting this pull request, ensure all following requirements as outlin
 - [ ] **Testing:**
     - Relevant unit and feature tests are included or updated.
     - Tests successfully run locally.
+- [ ] **Manual Testing:** Change has been verified in the running application (describe briefly in the Additional Information section).
 - [ ] **CSS & JS Build:** CSS and JS assets are compiled using Vite (`npm run build`) if any changes are made to JS/CSS files.
 - [ ] **Documentation:** Documentation has been updated to reflect any changes made.
 
