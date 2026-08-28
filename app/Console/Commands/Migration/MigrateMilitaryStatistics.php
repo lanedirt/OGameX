@@ -2,14 +2,11 @@
 
 namespace OGame\Console\Commands\Migration;
 
-use Exception;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Models\BattleReport;
 use OGame\Models\User;
-use OGame\Services\ObjectService;
 
 #[Description('Migrates military statistics from existing battle reports (one-time migration)')]
 #[Signature('ogamex:migrate:military-statistics {--dry-run : Run without saving changes}')]
@@ -54,15 +51,24 @@ class MigrateMilitaryStatistics extends Command
 
         $userStats = [];
         $processedReports = 0;
+        $reportsWithoutLossData = 0;
 
         foreach ($battleReports as $report) {
+            $attackerLoss = $report->attacker['resource_loss'] ?? null;
+            $defenderLoss = $report->defender['resource_loss'] ?? null;
+
+            if ($attackerLoss === null && $defenderLoss === null) {
+                // Report predates resource loss tracking, so there is nothing to derive.
+                $reportsWithoutLossData++;
+            }
+
             // Calculate attacker losses
             $attackerPlayerId = $report->attacker['player_id'] ?? null;
-            $attackerLostPoints = $this->calculatePointsFromUnits($report->attacker['units'] ?? []);
+            $attackerLostPoints = $this->calculatePointsFromResourceLoss($attackerLoss);
 
             // Calculate defender losses
             $defenderPlayerId = $report->defender['player_id'] ?? null;
-            $defenderLostPoints = $this->calculatePointsFromUnits($report->defender['units'] ?? []);
+            $defenderLostPoints = $this->calculatePointsFromResourceLoss($defenderLoss);
 
             // Accumulate statistics
             if ($attackerPlayerId) {
@@ -112,9 +118,14 @@ class MigrateMilitaryStatistics extends Command
             ['Metric', 'Value'],
             [
                 ['Battle reports processed', number_format($processedReports)],
+                ['Reports without loss data', number_format($reportsWithoutLossData)],
                 ['Players with statistics', number_format(count($userStats))],
             ]
         );
+
+        if ($reportsWithoutLossData > 0) {
+            $this->warn("{$reportsWithoutLossData} battle reports have no resource loss data and were counted as zero.");
+        }
 
         if ($dryRun) {
             $this->warn('DRY RUN complete - no changes were saved');
@@ -128,57 +139,32 @@ class MigrateMilitaryStatistics extends Command
     }
 
     /**
-     * Calculate military points from unit array in battle report.
-     * Battle reports store starting units, so we calculate based on resource loss.
+     * Calculate military points from the resource loss recorded on a battle report.
      *
-     * @param array<string, int> $units Array of unit machine names to amounts
+     * Battle reports store the fleet as it stood at the start of the battle, so the unit
+     * lists cannot be used to derive losses. The 'resource_loss' value is the summed
+     * resource value of the units that actually died, which is what we credit here.
+     *
+     * Note this weighs every lost unit at 100%, whereas live tracking counts civil ships
+     * at 50%. Reports do not record which units were lost, so a one-time backfill cannot
+     * reproduce that split; going forward the live tracking applies the correct weighting.
+     *
+     * @param mixed $resourceLoss The 'resource_loss' value from the report, if present
      * @return int The military points value
      */
-    private function calculatePointsFromUnits(array $units): int
+    private function calculatePointsFromResourceLoss(mixed $resourceLoss): int
     {
-        $points = 0;
+        if (!is_numeric($resourceLoss)) {
+            return 0;
+        }
 
-        foreach ($units as $machineName => $amount) {
-            if ($amount <= 0) {
-                continue;
-            }
+        $resourceLoss = (float)$resourceLoss;
 
-            try {
-                // Get the unit object (works for both ships and defenses)
-                $unitObject = ObjectService::getUnitObjectByMachineName($machineName);
-
-                $unitValue = $unitObject->price->resources->sum();
-
-                // Apply appropriate multiplier based on unit type
-                if ($unitObject->type === GameObjectType::Ship) {
-                    // Check if it's a military or civil ship
-                    $militaryShips = ObjectService::getMilitaryShipObjects();
-                    $isMilitaryShip = false;
-                    foreach ($militaryShips as $militaryShip) {
-                        if ($militaryShip->machine_name === $unitObject->machine_name) {
-                            $isMilitaryShip = true;
-                            break;
-                        }
-                    }
-
-                    if ($isMilitaryShip) {
-                        // Military ships: 100%
-                        $points += ($unitValue * $amount);
-                    } else {
-                        // Civil ships: 50%
-                        $points += ($unitValue * $amount * 0.5);
-                    }
-                } elseif ($unitObject->type === GameObjectType::Defense) {
-                    // Defense units: 100%
-                    $points += ($unitValue * $amount);
-                }
-            } catch (Exception $e) {
-                // Skip units we can't process
-                continue;
-            }
+        if ($resourceLoss <= 0) {
+            return 0;
         }
 
         // Convert to points (divide by 1000, same as regular highscore calculation)
-        return (int)floor($points / 1000);
+        return (int)floor($resourceLoss / 1000);
     }
 }
