@@ -292,8 +292,6 @@ class FleetDispatchColoniseTest extends FleetDispatchTestCase
         // Increase time by 10 hours to ensure the arrival and return missions are done.
         $this->travel(10)->hours();
 
-        // Reload the application to ensure all caches are cleared and changed units are reflected.
-        $this->reloadApplication();
         $this->planetService->reloadPlanet();
 
         // Do a request to trigger the update logic.

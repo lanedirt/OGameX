@@ -9,7 +9,7 @@ use OGame\Services\PlanetService;
 /**
  * Base class for tests that expect the current user to have a moon.
  */
-abstract class MoonTestCase extends AccountTestCase
+abstract class MoonTestCase extends IsolatedAccountTestCase
 {
     /**
      * Test user moon that is associated with the main planet.

@@ -161,7 +161,7 @@ class DestroyedPlanetTest extends AccountTestCase
      */
     public function testAttackEspionageAndTransportAllowedOnDestroyedPlanet(): void
     {
-        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addResources(new Resources(1000, 1000, 1000, 0));
         $coords = $foreignPlanet->getPlanetCoordinates();
 
@@ -197,7 +197,7 @@ class DestroyedPlanetTest extends AccountTestCase
      */
     public function testAttackFightsDefenseOnDestroyedPlanet(): void
     {
-        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('rocket_launcher', 50);
         $foreignPlanet->addResources(new Resources(10000, 10000, 10000, 0));
         $this->assertSame(50, $foreignPlanet->getObjectAmount('rocket_launcher'));
@@ -235,7 +235,6 @@ class DestroyedPlanetTest extends AccountTestCase
             resolve(AttackMission::class)
         );
         $this->travel($duration + 1)->seconds();
-        $this->reloadApplication();
 
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -562,7 +561,7 @@ class DestroyedPlanetTest extends AccountTestCase
      */
     public function testVacationModeDoesNotProtectDestroyedPlanet(): void
     {
-        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $coords = $foreignPlanet->getPlanetCoordinates();
 
         $formerOwner = $foreignPlanet->getPlayer();
@@ -617,7 +616,7 @@ class DestroyedPlanetTest extends AccountTestCase
         $abandonedId = $abandonedPlanet->getPlanetId();
         $abandonedCoords = $abandonedPlanet->getPlanetCoordinates();
 
-        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlayer = $foreignPlanet->getPlayer();
         if ($foreignPlayer === null) {
             $this->fail('Foreign player is null.');

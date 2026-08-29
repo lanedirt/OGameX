@@ -248,7 +248,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // With the new architecture, time_arrival includes hold time, so calculate physical arrival
         $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
         $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
-        $this->reloadApplication();
 
         // Now send attack fleet - it should arrive while defend fleet is still holding
         $attackFleet = new UnitCollection();
@@ -268,7 +267,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time for attack to arrive (defend fleet should still be holding)
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
-        $this->reloadApplication();
         $this->playerSetAllMessagesRead();
         $this->get('/overview');
 
@@ -318,7 +316,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // With the new architecture, time_arrival includes hold time, so calculate physical arrival
         $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
         $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Send overwhelming attack to destroy everything
@@ -339,7 +336,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time for attack to arrive
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
-        $this->reloadApplication();
         $this->playerSetAllMessagesRead();
         $this->get('/overview');
 
@@ -359,7 +355,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time significantly to ensure no return mission would complete
         $this->travel(48)->hours();
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Reload planet and check units are still 0
@@ -415,7 +410,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // With the new architecture, time_arrival includes hold time, so calculate physical arrival
         $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
         $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Send weak attack that will be defeated
@@ -436,7 +430,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time for attack to arrive - battle occurs, outbound mission unit counts updated
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
-        $this->reloadApplication();
         $this->playerSetAllMessagesRead();
         $this->get('/overview');
 
@@ -446,7 +439,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time past hold expiry - now AcsDefendMission::processArrival() creates the return mission
         $this->travelTo(Date::createFromTimestamp($acsDefendMission->time_arrival + 10));
-        $this->reloadApplication();
         $acsDefenderPlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
         $acsDefenderPlayerService->updateFleetMissions();
 
@@ -457,7 +449,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time for return trip
         $this->travelTo(Date::createFromTimestamp($returnMission->time_arrival + 10));
-        $this->reloadApplication();
 
         // Process missions for the ACS defender (return mission belongs to them)
         $playerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
@@ -513,7 +504,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Advance time so ACS defend fleet physically arrives and starts holding
         $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
         $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Send 1 light fighter attack - it will be completely destroyed, all 100 ACS LFs survive
@@ -534,7 +524,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time to attack arrival - battle occurs during ACS defend hold time
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // After battle: NO return mission yet - fleet is still holding, outbound mission unit counts updated
@@ -544,7 +533,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Advance time past hold time expiration - this triggers AcsDefendMission::processArrival()
         // which creates the single return mission using the post-battle unit counts
         $this->travelTo(Date::createFromTimestamp($acsDefendMission->time_arrival + 10));
-        $this->reloadApplication();
         $acsDefenderPlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
         $acsDefenderPlayerService->updateFleetMissions();
 
@@ -558,7 +546,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
             $this->fail('Return mission should exist.');
         }
         $this->travelTo(Date::createFromTimestamp($returnMission->time_arrival + 10));
-        $this->reloadApplication();
         $acsDefenderPlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
         $acsDefenderPlayerService->updateFleetMissions();
 
@@ -623,7 +610,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Advance to physical arrival (fleet starts holding)
         $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
         $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Send a moderate attack during hold time that causes real combat
@@ -644,7 +630,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance to attack arrival - battle occurs during ACS defend hold time
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // After battle: no return mission yet - fleet is still holding with updated unit counts.
@@ -670,7 +655,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Advance past hold time expiration - AcsDefendMission::processArrival() creates the single
         // return mission using the post-battle unit counts (survivorCount LFs, not the original 100)
         $this->travelTo(Date::createFromTimestamp($acsDefendMission->time_arrival + 10));
-        $this->reloadApplication();
         $acsDefenderPlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
         $acsDefenderPlayerService->updateFleetMissions();
 
@@ -684,7 +668,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Process the return trip
         $this->travelTo(Date::createFromTimestamp($returnMission->time_arrival + 10));
-        $this->reloadApplication();
         $acsDefenderPlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
         $acsDefenderPlayerService->updateFleetMissions();
 
@@ -741,7 +724,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // With the new architecture, time_arrival includes hold time, so calculate physical arrival
         $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
         $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Send attack
@@ -762,7 +744,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time for attack to arrive
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
-        $this->reloadApplication();
         $this->playerSetAllMessagesRead();
         $this->get('/overview');
 
@@ -888,7 +869,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         $physicalArrivalTime2 = $acsDefendMission2->time_arrival - $acsDefendMission2->time_holding;
         $maxPhysicalArrivalTime = max($physicalArrivalTime1, $physicalArrivalTime2);
         $this->travelTo(Date::createFromTimestamp($maxPhysicalArrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Send attack
@@ -909,7 +889,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time for attack to arrive
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
-        $this->reloadApplication();
         $this->playerSetAllMessagesRead();
         $this->get('/overview');
 
@@ -968,7 +947,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // arrival (start of hold) is time_arrival - time_holding.
         $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
         $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Send an overwhelming attack that destroys the defending fleet during the hold.
@@ -989,7 +967,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
 
         // Advance time for the attack to arrive: the battle occurs and destroys the ACS defend fleet.
         $this->travelTo(Date::createFromTimestamp($attackMission->time_arrival + 10));
-        $this->reloadApplication();
         $this->playerSetAllMessagesRead();
         $this->get('/overview');
 
@@ -1004,7 +981,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Advance time PAST the hold end (time_arrival). This is exactly the window in which the
         // old query re-surfaced the destroyed mission in the fleet widget.
         $this->travelTo(Date::createFromTimestamp($acsDefendMission->time_arrival + 10));
-        $this->reloadApplication();
 
         // The destroyed mission must NOT be returned by the fleet widget query for the defender.
         $defenderPlayerService = resolve(PlayerService::class, ['player_id' => $acsDefender['user']->id]);
@@ -1054,7 +1030,6 @@ class FleetDispatchMultiDefenderBattleTest extends FleetDispatchTestCase
         // Advance time to within the hold period (fleet has arrived and is holding, not destroyed).
         $physicalArrivalTime = $acsDefendMission->time_arrival - $acsDefendMission->time_holding;
         $this->travelTo(Date::createFromTimestamp($physicalArrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // The holding (processed=0) outbound mission must be returned by the fleet widget query.

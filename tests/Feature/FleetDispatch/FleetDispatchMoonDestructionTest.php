@@ -106,9 +106,6 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
         // Advance time past fleet arrival.
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to prevent cached state from affecting mission processing.
-        $this->reloadApplication();
-
         // Trigger fleet processing via overview.
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -193,9 +190,6 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
 
         // Advance time past moon destruction arrival.
         $this->travel($fleetMissionDuration + 1)->seconds();
-
-        // Reload application to prevent cached state from affecting mission processing.
-        $this->reloadApplication();
 
         // Trigger fleet processing via overview.
         $response = $this->get('/overview');
@@ -297,7 +291,6 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
 
         // --- Process the outbound mission ---
         $this->travel($fleetMissionDuration + 1)->seconds();
-        $this->reloadApplication();
         $this->get('/overview')->assertStatus(200);
 
         // Moon must still exist (draw → no destruction attempt).
@@ -337,7 +330,6 @@ class FleetDispatchMoonDestructionTest extends FleetDispatchTestCase
 
         // --- Process the return mission and verify the DS arrive home ---
         $this->travel($fleetMissionDuration + 1)->seconds();
-        $this->reloadApplication();
         $this->get('/overview')->assertStatus(200);
 
         $attacker->reloadPlanet();

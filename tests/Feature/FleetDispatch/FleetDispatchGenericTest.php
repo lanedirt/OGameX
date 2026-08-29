@@ -73,17 +73,9 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
-
         // Deduct resources from the planet but don't save the planet itself.
         // This should NOT deduct the resources.
         $this->planetService->deductResources(new Resources(5000, 5000, 0, 0), false);
-
-        // Reload application to make sure the planet is not cached.
-        // NOTE: without this method, the planet would be cached and the resources would be deducted
-        // during the next HTTP request in this test.
-        $this->reloadApplication();
 
         // Do another HTTP request.
         $response = $this->get('/overview');
@@ -91,7 +83,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
         // Assert that the resources are NOT deducted.
         $this->planetService->reloadPlanet();
-        $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are deducted from planet without saving it. State seems to be cached between requests. Check the AccountTestCase::reloadApplication() test logic.');
+        $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are deducted from planet without saving it. State seems to be cached between requests.');
     }
 
     /**

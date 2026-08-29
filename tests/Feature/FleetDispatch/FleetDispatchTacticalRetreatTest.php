@@ -33,7 +33,7 @@ class FleetDispatchTacticalRetreatTest extends FleetDispatchTestCase
 
         // Use a freshly created hostile planet so leftover ships/resources from
         // earlier suite tests cannot change the 5:1 ratio or remaining fleet.
-        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('light_fighter', 5);
         $foreignPlanet->addUnit('rocket_launcher', 20);
         $foreignPlanet->addResources(new Resources(0, 0, 100000, 0));
@@ -64,7 +64,6 @@ class FleetDispatchTacticalRetreatTest extends FleetDispatchTestCase
         );
 
         $this->travel($duration + 1)->seconds();
-        $this->reloadApplication();
         $this->get('/overview')->assertStatus(200);
 
         $coords = $foreignPlanet->getPlanetCoordinates();
@@ -108,7 +107,7 @@ class FleetDispatchTacticalRetreatTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
         $unitsArray = [];
