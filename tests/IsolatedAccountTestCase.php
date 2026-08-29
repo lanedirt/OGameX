@@ -8,6 +8,7 @@ use LogicException;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 use OGame\Services\InitialUserDataService;
+use OGame\Services\SettingsService;
 
 /**
  * Isolated variant of AccountTestCase.
@@ -55,6 +56,14 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
      */
     protected function createAndLoginUser(): void
     {
+        // Seed the planet allocator so the homeworld lands at a fixed, collision-safe
+        // system far from both the seeded Legor admin account (1:1:2) and any planets
+        // leaked by non-transactional tests (Admin/Ban/Buddy populate systems 1..N).
+        // Without this, position-based colonisation tests collide with Legor's 1:1:2, and
+        // the distance between the two home planets drifts (raising deuterium fuel past
+        // the budget in FleetDispatchLargeResourcesTest).
+        resolve(SettingsService::class)->set('last_assigned_system', 400);
+
         $user = $this->createUser();
 
         $this->actingAs($user);
@@ -89,17 +98,12 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
      */
     protected function createUser(): User
     {
-        $user = User::factory()->create([
+        // Create without model events to skip the `created` hook that promotes the first
+        // user to admin. That hook issues a cross-row `update users`, which contends with
+        // the scheduler/queue worker and deadlocks (1205 lock wait) in tests.
+        $user = User::withoutEvents(fn (): User => User::factory()->create([
             'username' => 'test_' . Str::random(16),
-        ]);
-
-        // User::factory() skips CreateNewUser, but the User model's `created` hook still
-        // promotes each transaction's first user to admin. Revert that for a normal player.
-        if ($user->hasRole('admin')) {
-            $user->removeRole('admin');
-            $user->username = 'test_' . Str::random(16);
-            $user->save();
-        }
+        ]));
 
         // Guard against a regression that silently promotes factory users to admin.
         $this->assertFalse($user->hasRole('admin'), 'Factory user should not be an admin.');

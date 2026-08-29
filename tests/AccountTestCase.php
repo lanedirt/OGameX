@@ -842,7 +842,14 @@ abstract class AccountTestCase extends TestCase
         $coordinate = $this->getNearbyEmptyCoordinate(13, 15);
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
 
-        return $planetServiceFactory->createAdditionalPlanetForPlayer($playerService, $coordinate);
+        $planet = $planetServiceFactory->createAdditionalPlanetForPlayer($playerService, $coordinate);
+
+        // Reload the player so its planets collection includes the new planet. Without this,
+        // a moon created for this planet later resolves a stale (empty) planets collection and
+        // throws "No planet found for this moon" during battle processing.
+        $playerService->load($foreignUser->id);
+
+        return $planet;
     }
 
     /**

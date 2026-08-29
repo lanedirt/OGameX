@@ -903,7 +903,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // The ally's mission goes from ally planet → target planet, so we need to trigger
         // processing from the target's perspective (the target planet is the destination).
         $this->travelTo(Date::createFromTimestamp($allyMission->time_arrival + 10));
-        $this->refreshApplication();
         $targetUserModel = User::find($this->targetUser()->id);
         if ($targetUserModel === null) {
             $this->fail('Target user not found.');
@@ -1184,7 +1183,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->createAllyPlayer();
 
         // Give ally higher drive tech so they are naturally faster
-        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser()->id]);
+        $allyPlayerService = $this->allyPlanet()->getPlayer();
+        if ($allyPlayerService === null) {
+            $this->fail('Ally player not found.');
+        }
         $allyPlayerService->setResearchLevel('impulse_drive', 5);
         $allyPlayerService->setResearchLevel('combustion_drive', 5);
 
