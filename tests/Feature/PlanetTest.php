@@ -13,9 +13,6 @@ class PlanetTest extends IsolatedAccountTestCase
      */
     public function testPlanetHasBaseResourceProduction(): void
     {
-        // Production stats are computed on planet update; reproduce that here.
-        $this->planetService->updateResourceProductionStats();
-
         // Assert that a planet has default production for metal and crystal.
         $this->assertGreaterThan(0, $this->planetService->getMetalProductionPerHour());
         $this->assertGreaterThan(0, $this->planetService->getCrystalProductionPerHour());

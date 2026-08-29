@@ -91,7 +91,6 @@ class PlanetMoveTest extends IsolatedAccountTestCase
         $this->assertEquals($emptyCoordinate->position, $move->target_position);
 
         // Verify coordinates have NOT changed yet (move is only scheduled).
-        $this->refreshServiceCaches();
         $player = $this->planetService->getPlayer();
         if ($player === null) {
             $this->fail('Player is null.');
@@ -349,7 +348,6 @@ class PlanetMoveTest extends IsolatedAccountTestCase
         $this->assertEquals(260000, $user->dark_matter);
 
         // Verify the planet coordinates changed.
-        $this->refreshServiceCaches();
         $player = $this->planetService->getPlayer();
         if ($player === null) {
             $this->fail('Player is null.');
@@ -803,7 +801,6 @@ class PlanetMoveTest extends IsolatedAccountTestCase
         $this->scheduleAndProcessMove($emptyCoordinate);
 
         // Verify the move was processed and planet is at new coordinates.
-        $this->refreshServiceCaches();
         $player = $this->planetService->getPlayer();
         if ($player === null) {
             $this->fail('Player is null.');

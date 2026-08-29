@@ -39,9 +39,6 @@ class OptionsTest extends IsolatedAccountTestCase
         $response->assertRedirect('/options');
         $response->assertSessionHas('success');
 
-        // Drop the request-bound PlayerService so the next resolve reloads from the DB.
-        $this->app->forgetInstance(PlayerService::class);
-
         // Reload player service to get fresh data
         $playerService = resolve(PlayerService::class, ['player_id' => $this->currentUserId]);
 
@@ -70,9 +67,6 @@ class OptionsTest extends IsolatedAccountTestCase
         ]);
 
         $response->assertRedirect('/options');
-
-        // Drop the request-bound PlayerService so the next resolve reloads from the DB.
-        $this->app->forgetInstance(PlayerService::class);
 
         // Reload player service to get fresh data
         $playerService = resolve(PlayerService::class, ['player_id' => $this->currentUserId]);
@@ -115,9 +109,6 @@ class OptionsTest extends IsolatedAccountTestCase
 
         $response->assertRedirect('/options');
         $response->assertSessionHas('error');
-
-        // Drop the request-bound PlayerService so the next resolve reloads from the DB.
-        $this->app->forgetInstance(PlayerService::class);
 
         // Verify the value was not saved
         $playerService = resolve(PlayerService::class, ['player_id' => $this->currentUserId]);
