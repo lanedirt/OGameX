@@ -1196,7 +1196,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
             // Ensure that foreign planet has no moon
             if ($foreignPlanet->hasMoon()) {
-                $foreignPlanet->moon()->abandonPlanet();
+                $foreignPlanet->moon()->permanentlyDeletePlanet();
             }
 
             // Add defender units

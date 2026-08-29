@@ -215,92 +215,304 @@ class PlanetService
     }
 
     /**
-     * Abandon (delete) the current planet. Careful: this action is irreversible!
+     * Abandon this planet or moon: soft-flag as destroyed (official "Destroyed Planet" behavior).
+     * The body remains until the daily purge permanently deletes it.
      *
      * @return void
      */
     public function abandonPlanet(): void
+    {
+        $this->markAsDestroyed();
+    }
+
+    /**
+     * Soft-flag this planet/moon as destroyed. Keeps the row for galaxy display and combat until purge.
+     *
+     * @return void
+     */
+    public function markAsDestroyed(): void
     {
         // Sanity check: disallow abandoning the last remaining planet of user.
         if ($this->isPlanet() && $this->player->planets->planetCount() < 2) {
             throw new RuntimeException('Cannot abandon only remaining planet.');
         }
 
-        // Sanity check: disallow abandoning a planet with active fleet missions.
-        // Moons are exempt: moon destruction redirects incoming fleets and nulls out planet
-        // references for any remaining missions, so active missions are handled gracefully.
+        // Sanity check: only block when this player has outbound missions from the planet
+        // (and its moon, if any). Incoming foreign fleets must not prevent abandon.
+        // Moons abandoned alone are exempt: fleets are handled on permanent delete / moon destruction.
         if ($this->isPlanet()) {
             $fleetMissionService = resolve(FleetMissionService::class);
-            $activeMissions = $fleetMissionService->getActiveMissionsByPlanetIds([$this->planet->id]);
+            $bodyIds = [$this->planet->id];
+            if ($this->hasMoon()) {
+                $bodyIds[] = $this->moon()->getPlanetId();
+            }
 
-            if ($activeMissions->count() > 0) {
+            $ownerId = (int) $this->planet->user_id;
+            $activeMissions = $fleetMissionService->getActiveMissionsByPlanetIds($bodyIds);
+            $hasOutbound = $activeMissions->contains(static function (FleetMission $mission) use ($bodyIds, $ownerId): bool {
+                return (int) $mission->user_id === $ownerId
+                    && in_array((int) $mission->planet_id_from, $bodyIds, true);
+            });
+
+            if ($hasOutbound) {
                 throw new RuntimeException('Cannot abandon planet with active fleet missions.');
             }
         }
 
-        // If this is a planet and has a moon, delete the moon first
+        $destroyedAt = (int) Date::now()->timestamp;
+
+        // Flag moon with the same timestamp so it is purged in the same 03:00 job as the parent.
+        // (Wiki also mentions a separate 01:10 moon release; we deliberately keep them paired.)
         if ($this->isPlanet() && $this->hasMoon()) {
-            $this->moon()->abandonPlanet();
+            $this->moon()->applyDestroyedFlag($destroyedAt);
         }
 
-        // Anonymize the planet in all tables where it is referenced.
-        // This is done to prevent foreign key constraints from failing.
+        $this->applyDestroyedFlag($destroyedAt);
+    }
 
-        // Moon-origin fleets must keep a valid home planet so they can still return after the moon is gone.
-        if ($this->isMoon()) {
-            $this->redirectActiveOutgoingMoonMissionsToParentPlanet();
+    /**
+     * Apply the destroyed flag, clear queues, zero production, and unassign as current planet.
+     *
+     * @param int $destroyedAt Unix timestamp when the body was marked destroyed.
+     * @return void
+     */
+    public function applyDestroyedFlag(int $destroyedAt): void
+    {
+        if ($this->isDestroyed()) {
+            return;
         }
 
-        // Fleet missions
-        FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
-        FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
-
-        // Building queues
         BuildingQueue::where('planet_id', $this->planet->id)->delete();
-
-        // Research queues
         ResearchQueue::where('planet_id', $this->planet->id)->delete();
-
-        // Unit queues
         UnitQueue::where('planet_id', $this->planet->id)->delete();
-
-        // Planet moves
         PlanetMove::where('planet_id', $this->planet->id)->delete();
 
-        // Update the player's current planet if it is the planet being abandoned.
         $player = $this->getPlayer();
         if ($player !== null && $player->getCurrentPlanetId() === $this->planet->id) {
             $player->setCurrentPlanetId(0);
         }
 
-        // TODO: add feature test to check that abandoning a planet works correctly in various scenarios.
+        $this->planet->destroyed = $destroyedAt;
+        $this->planet->metal_production = 0;
+        $this->planet->crystal_production = 0;
+        $this->planet->deuterium_production = 0;
+        $this->planet->energy_used = 0;
+        $this->planet->energy_max = 0;
+        // Intentionally keep user_id: Galaxy shows "Deep space" in the UI, but ownership
+        // clearing needs a nullable FK / sentinel user and coordination with inactive-player
+        // deletion (#1490 / #922). Do not clear ownership in this pass.
+        $this->save();
 
-        // Delete the planet from the database
-        $this->planet->delete();
+        // Drop stale factory cache entries so fleet/galaxy lookups see the destroyed flag.
+        resolve(PlanetServiceFactory::class)->forgetPlanetCache(
+            $this->planet->id,
+            $this->getPlanetCoordinates()->asString(),
+            $this->getPlanetType()
+        );
     }
 
     /**
-     * Rebind active missions launched from a moon to its parent planet before the moon is deleted.
-     * This preserves the original flight while ensuring the fleet returns to the planet instead.
+     * Permanently delete this planet/moon from the database.
+     * Teleports fleets still tied to this body, then removes related rows and the planet itself.
+     *
+     * @param bool $parentBeingDeleted
+     *  When true, this moon is being deleted as part of its parent planet's permanent delete.
+     *  Moon-origin fleets must then rebind to another active colony, not the dying parent.
+     *
+     * @return void
      */
-    private function redirectActiveOutgoingMoonMissionsToParentPlanet(): void
+    public function permanentlyDeletePlanet(bool $parentBeingDeleted = false): void
     {
-        $parentPlanet = $this->getParentPlanet();
-        if ($parentPlanet === null) {
+        $planetId = $this->planet->id;
+        $coordinateKey = $this->getPlanetCoordinates()->asString();
+        $planetType = $this->getPlanetType();
+
+        // Keep fleet teleports and the row delete atomic so a mid-purge failure
+        // cannot leave fleets recalled while the body still exists.
+        DB::transaction(function () use ($parentBeingDeleted) {
+            // If this is a planet and has a moon, permanently delete the moon first.
+            if ($this->isPlanet() && $this->hasMoon()) {
+                $this->moon()->permanentlyDeletePlanet(true);
+            }
+
+            $this->teleportFleetsAwayFromPlanet();
+
+            // Moon-origin fleets must keep a valid home planet so they can still return after the moon is gone.
+            if ($this->isMoon()) {
+                $this->redirectActiveOutgoingMoonMissionsToParentPlanet($parentBeingDeleted);
+            }
+
+            // Anonymize remaining fleet mission FK references.
+            FleetMission::where('planet_id_from', $this->planet->id)->update(['planet_id_from' => null]);
+            FleetMission::where('planet_id_to', $this->planet->id)->update(['planet_id_to' => null]);
+
+            BuildingQueue::where('planet_id', $this->planet->id)->delete();
+            ResearchQueue::where('planet_id', $this->planet->id)->delete();
+            UnitQueue::where('planet_id', $this->planet->id)->delete();
+            PlanetMove::where('planet_id', $this->planet->id)->delete();
+
+            // Update the player's current planet if it is the planet being abandoned.
+            $player = $this->getPlayer();
+            if ($player !== null && $player->getCurrentPlanetId() === $this->planet->id) {
+                $player->setCurrentPlanetId(0);
+            }
+
+            $this->planet->delete();
+        });
+
+        resolve(PlanetServiceFactory::class)->forgetPlanetCache($planetId, $coordinateKey, $planetType);
+    }
+
+    /**
+     * Teleport fleets still traveling to or from this planet when it is permanently deleted.
+     * Outbound missions are recalled; return missions arrive immediately.
+     *
+     * @return void
+     */
+    private function teleportFleetsAwayFromPlanet(): void
+    {
+        $player = $this->getPlayer();
+        $fleetMissionService = $player !== null
+            ? resolve(FleetMissionService::class, ['player' => $player])
+            : resolve(FleetMissionService::class);
+        $missions = $fleetMissionService->getActiveMissionsByPlanetIds([$this->planet->id]);
+        $nowTs = (int) Date::now()->timestamp;
+
+        foreach ($missions as $mission) {
+            // Skip missions that have already arrived and are mid-processing (e.g. moon destruction).
+            // Their FKs are nulled below so processArrival/startReturn can continue safely.
+            if ($mission->time_arrival <= $nowTs) {
+                continue;
+            }
+
+            if ($mission->parent_id === null) {
+                // Moon-origin outbound fleets are rebound to the parent planet afterwards
+                // (see redirectActiveOutgoingMoonMissionsToParentPlanet) so they can finish
+                // the mission and return home. Recalling them here would send them back to
+                // the dying moon and then null planet_id_to on delete.
+                if ($this->isMoon() && (int) $mission->planet_id_from === (int) $this->planet->id) {
+                    continue;
+                }
+
+                // Outbound still in flight: recall so ships return to origin immediately.
+                $fleetMissionService->cancelMission($mission);
+            } else {
+                // Return trips still headed to a moon being deleted are rebound to the parent
+                // planet below; force-arriving here would land ships on a body about to vanish.
+                if ($this->isMoon() && (int) $mission->planet_id_to === (int) $this->planet->id) {
+                    continue;
+                }
+
+                // Return trip still in flight: force immediate arrival at the home planet.
+                $mission->time_arrival = $nowTs;
+                if ($mission->time_holding !== null) {
+                    $mission->time_holding = 0;
+                }
+                $mission->save();
+                $fleetMissionService->updateMission($mission);
+            }
+        }
+    }
+
+    /**
+     * Returns true if this planet/moon is flagged as destroyed (abandoned, awaiting purge).
+     */
+    public function isDestroyed(): bool
+    {
+        return (int) $this->planet->destroyed > 0;
+    }
+
+    /**
+     * Unix timestamp when this body was marked destroyed, or null if active.
+     */
+    public function getDestroyedAt(): int|null
+    {
+        $destroyed = (int) $this->planet->destroyed;
+
+        return $destroyed > 0 ? $destroyed : null;
+    }
+
+    /**
+     * Rebind active missions launched from a moon to a surviving home planet before the moon is deleted.
+     * Prefers the parent planet when it remains a valid home; otherwise another active colony of the owner.
+     * This preserves the original flight while ensuring the fleet is not later canceled by the dying parent.
+     * Also rebinds return trips that were still headed back to the moon.
+     *
+     * @param bool $parentBeingDeleted True when the parent planet is permanently deleting this moon.
+     */
+    private function redirectActiveOutgoingMoonMissionsToParentPlanet(bool $parentBeingDeleted = false): void
+    {
+        $homePlanet = $this->resolveMoonFleetRebindPlanet($parentBeingDeleted);
+        if ($homePlanet === null) {
             return;
         }
 
-        $parentCoordinates = $parentPlanet->getPlanetCoordinates();
+        $homeCoordinates = $homePlanet->getPlanetCoordinates();
+        $homePlanetId = $homePlanet->getPlanetId();
 
         FleetMission::where('planet_id_from', $this->planet->id)
             ->where('processed', 0)
             ->update([
-                'planet_id_from' => $parentPlanet->getPlanetId(),
-                'galaxy_from' => $parentCoordinates->galaxy,
-                'system_from' => $parentCoordinates->system,
-                'position_from' => $parentCoordinates->position,
+                'planet_id_from' => $homePlanetId,
+                'galaxy_from' => $homeCoordinates->galaxy,
+                'system_from' => $homeCoordinates->system,
+                'position_from' => $homeCoordinates->position,
                 'type_from' => PlanetType::Planet->value,
             ]);
+
+        FleetMission::where('planet_id_to', $this->planet->id)
+            ->where('processed', 0)
+            ->update([
+                'planet_id_to' => $homePlanetId,
+                'galaxy_to' => $homeCoordinates->galaxy,
+                'system_to' => $homeCoordinates->system,
+                'position_to' => $homeCoordinates->position,
+                'type_to' => PlanetType::Planet->value,
+            ]);
+    }
+
+    /**
+     * Choose where moon-origin fleets should home after the moon is permanently deleted.
+     *
+     * Classic OGame: fleets return to the parent planet when it survives. If the parent is
+     * already destroyed or being permanently deleted in the same cascade, rebind to another
+     * active (non-destroyed) planet of the same owner so the parent's teleport/cancel pass
+     * does not wipe the ships.
+     *
+     * @param bool $parentBeingDeleted
+     * @return PlanetService|null
+     */
+    private function resolveMoonFleetRebindPlanet(bool $parentBeingDeleted = false): PlanetService|null
+    {
+        $parentPlanet = $this->getParentPlanet();
+        if ($parentPlanet === null) {
+            return null;
+        }
+
+        // Parent remains a valid home base — classic moon-destruction path.
+        if (!$parentBeingDeleted && !$parentPlanet->isDestroyed()) {
+            return $parentPlanet;
+        }
+
+        $player = $this->getPlayer();
+        if ($player === null) {
+            return null;
+        }
+
+        // PlanetListService only includes non-destroyed bodies; reload so a just-flagged
+        // parent is excluded when this runs in the same request as soft-delete.
+        $player->load($player->getId());
+
+        $parentId = $parentPlanet->getPlanetId();
+        foreach ($player->planets->allPlanets() as $planet) {
+            if ($planet->getPlanetId() !== $parentId) {
+                return $planet;
+            }
+        }
+
+        // No other active colony (e.g. last-planet edge cases). Fall back to parent so
+        // callers still rebind FKs rather than leaving moon IDs that are about to vanish.
+        return $parentPlanet;
     }
 
     /**
@@ -1215,6 +1427,19 @@ class PlanetService
             $this->planet->time_last_update = $until_time;
         }
 
+        // Destroyed planets produce nothing; advance the clock without accruing resources
+        // even if production rates were left non-zero by a concurrent update.
+        if ($this->isDestroyed()) {
+            if ($time_last_update < $until_time) {
+                $this->planet->time_last_update = $until_time;
+                if ($save_planet) {
+                    $this->save();
+                }
+            }
+
+            return;
+        }
+
         if ($time_last_update < $until_time) {
             // Last updated time is in past, so update resources based on hourly
             // production.
@@ -1366,18 +1591,10 @@ class PlanetService
             return false;
         }
 
-        $player = $this->getPlayer();
-        if ($player === null) {
-            throw new RuntimeException('Planet has no owner.');
-        }
+        // Look up by coordinates so destroyed/unowned planets still resolve moons.
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
 
-        // Access all players planets and see if there is a moon with the same coordinates
-        // as this planet.
-        if ($player->planets->getMoonByCoordinates($this->getPlanetCoordinates()) !== null) {
-            return true;
-        }
-
-        return false;
+        return $planetServiceFactory->makeMoonForCoordinate($this->getPlanetCoordinates()) !== null;
     }
 
     /**
@@ -1387,12 +1604,9 @@ class PlanetService
      */
     public function moon(): PlanetService
     {
-        $player = $this->getPlayer();
-        if ($player === null) {
-            throw new RuntimeException('Planet has no owner.');
-        }
-
-        $moon = $player->planets->getMoonByCoordinates($this->getPlanetCoordinates());
+        // Look up by coordinates so destroyed/unowned planets still resolve moons.
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $moon = $planetServiceFactory->makeMoonForCoordinate($this->getPlanetCoordinates());
 
         if ($moon === null) {
             throw new RuntimeException('No moon found for this planet.');
@@ -1908,6 +2122,21 @@ class PlanetService
      */
     public function updateResourceProductionStats(bool $save_planet = true): void
     {
+        // Destroyed planets produce nothing (including base income) until permanent purge.
+        if ($this->isDestroyed()) {
+            $this->planet->metal_production = 0;
+            $this->planet->crystal_production = 0;
+            $this->planet->deuterium_production = 0;
+            $this->planet->energy_used = 0;
+            $this->planet->energy_max = 0;
+
+            if ($save_planet) {
+                $this->save();
+            }
+
+            return;
+        }
+
         $production_total = $this->getPlanetBasicIncome();
 
         $energy_production_total = 0;

@@ -45,6 +45,11 @@ class TransportMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
+        // Destroyed moons cannot be targeted; destroyed planets can receive transport.
+        if ($destroyedCheck = $this->checkDestroyedTarget($targetPlanet, $targetType, true)) {
+            return $destroyedCheck;
+        }
+
         // If target player is in vacation mode, the mission is not possible.
         if ($vacationCheck = $this->checkTargetVacationMode($targetPlanet)) {
             return $vacationCheck;
