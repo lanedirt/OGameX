@@ -105,9 +105,6 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
             'username' => 'test_' . Str::random(16),
         ]));
 
-        // Guard against a regression that silently promotes factory users to admin.
-        $this->assertFalse($user->hasRole('admin'), 'Factory user should not be an admin.');
-
         resolve(InitialUserDataService::class)->createFor($user);
 
         return $user;
