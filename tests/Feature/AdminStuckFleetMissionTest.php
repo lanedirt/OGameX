@@ -10,9 +10,9 @@ use OGame\Models\FleetMission;
 use OGame\Models\Message;
 use OGame\Models\Planet;
 use OGame\Models\User;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class AdminStuckFleetMissionTest extends AccountTestCase
+class AdminStuckFleetMissionTest extends IsolatedAccountTestCase
 {
     /** @var array<int, int> */
     private array $createdUserIds = [];

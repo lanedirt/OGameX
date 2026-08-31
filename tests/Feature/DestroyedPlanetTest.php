@@ -18,12 +18,12 @@ use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
 use RuntimeException;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Tests for soft "Destroyed Planet" abandon behavior (issue #146).
  */
-class DestroyedPlanetTest extends AccountTestCase
+class DestroyedPlanetTest extends IsolatedAccountTestCase
 {
     /**
      * Abandoning a planet soft-flags it instead of hard-deleting the row.

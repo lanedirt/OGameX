@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use DB;
 use Exception;
 use Illuminate\Support\Facades\Date;
 use OGame\Factories\PlanetServiceFactory;
@@ -17,89 +16,13 @@ use OGame\Services\AllianceService;
 use OGame\Services\BuddyService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that Alliance Depot supply rocket functionality works as expected.
  */
-class AllianceDepotSupplyRocketTest extends AccountTestCase
+class AllianceDepotSupplyRocketTest extends IsolatedAccountTestCase
 {
-    /** @var array<int> */
-    private array $createdPlanetIds = [];
-
-    /** @var array<int> */
-    private array $createdAllianceIds = [];
-
-    /**
-     * Track created planets for cleanup.
-     */
-    private function trackPlanet(Planet $planet): void
-    {
-        $this->createdPlanetIds[] = $planet->id;
-    }
-
-    /**
-     * Clean up test data after each test to prevent test isolation issues.
-     */
-    protected function tearDown(): void
-    {
-        // Remove alliance data created during this test
-        if (!empty($this->createdAllianceIds)) {
-            // Delete alliance members
-            DB::table('alliance_members')
-                ->whereIn('alliance_id', $this->createdAllianceIds)
-                ->delete();
-
-            // Delete alliance applications
-            DB::table('alliance_applications')
-                ->whereIn('alliance_id', $this->createdAllianceIds)
-                ->delete();
-
-            // Delete alliances
-            DB::table('alliances')
-                ->whereIn('id', $this->createdAllianceIds)
-                ->delete();
-
-            // Reset alliance_id for current user
-            if ($this->currentUserId !== 0) {
-                DB::table('users')
-                    ->where('id', $this->currentUserId)
-                    ->update([
-                        'alliance_id' => null,
-                        'alliance_left_at' => null,
-                    ]);
-            }
-        }
-
-        // Remove planets created during this test
-        if (!empty($this->createdPlanetIds)) {
-            // Delete fleet missions to/from these planets first (foreign key constraints)
-            // Delete child missions first (return missions with parent_id)
-            FleetMission::whereNotNull('parent_id')
-                ->where(function ($query) {
-                    $query->whereIn('planet_id_from', $this->createdPlanetIds)
-                        ->orWhereIn('planet_id_to', $this->createdPlanetIds);
-                })
-                ->delete();
-
-            // Then delete parent missions
-            FleetMission::whereNull('parent_id')
-                ->where(function ($query) {
-                    $query->whereIn('planet_id_from', $this->createdPlanetIds)
-                        ->orWhereIn('planet_id_to', $this->createdPlanetIds);
-                })
-                ->delete();
-
-            // Now we can delete the planets
-            Planet::whereIn('id', $this->createdPlanetIds)->delete();
-        }
-
-        // Remove all buddy relationships to prevent interference with other tests
-        DB::table('buddy_requests')->truncate();
-
-        parent::tearDown();
-    }
-
     /**
      * Test that supply rocket successfully extends hold time.
      *
@@ -120,7 +43,6 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             'system'  => $buddyCoordinate->system,
             'planet'  => $buddyCoordinate->position,
         ]);
-        $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
         if ($buddyPlanetService === null) {
             $this->fail('Buddy planet service is null.');
@@ -229,7 +151,6 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             'system'  => $buddyCoordinate->system,
             'planet'  => $buddyCoordinate->position,
         ]);
-        $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
         if ($buddyPlanetService === null) {
             $this->fail('Buddy planet service is null.');
@@ -320,7 +241,6 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             'system'  => $buddyCoordinate->system,
             'planet'  => $buddyCoordinate->position,
         ]);
-        $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
         if ($buddyPlanetService === null) {
             $this->fail('Buddy planet service is null.');
@@ -444,7 +364,6 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             'system' => 150,
             'planet' => $buddyPosition,
         ]);
-        $this->trackPlanet($buddyPlanet);
         $buddyPlanetService = $planetServiceFactory->make($buddyPlanet->id, true);
         if ($buddyPlanetService === null) {
             $this->fail('Buddy planet service is null.');
@@ -543,7 +462,6 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
         // Create alliance and add both players to it
         $allianceService = app(AllianceService::class);
         $alliance = $allianceService->createAlliance($this->currentUserId, 'TAG', 'Test Alliance');
-        $this->createdAllianceIds[] = $alliance->id;
 
         // Create alliance member and their planet with Alliance Depot
         $allianceMemberUser = User::factory()->create();
@@ -557,7 +475,6 @@ class AllianceDepotSupplyRocketTest extends AccountTestCase
             'system'  => $allianceMemberCoordinate->system,
             'planet'  => $allianceMemberCoordinate->position,
         ]);
-        $this->trackPlanet($allianceMemberPlanet);
         $allianceMemberPlanetService = $planetServiceFactory->make($allianceMemberPlanet->id, true);
         if ($allianceMemberPlanetService === null) {
             $this->fail('Alliance member planet service is null.');

@@ -6,12 +6,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use OGame\Models\Ban;
 use OGame\Models\User;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test ban and unban functionality for the Server Administration panel.
  */
-class BanTest extends AccountTestCase
+class BanTest extends IsolatedAccountTestCase
 {
     /** @var array<int, int> User IDs created during tests, deleted in tearDown. */
     private array $createdUserIds = [];

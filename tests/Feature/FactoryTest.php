@@ -8,17 +8,17 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Planet;
 use OGame\Models\User;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test factory classes.
  *
  * Note: even though this test does not rely on a specific user session it still requires the
- * AccountTestCase base class because it tests default dependency injection behavior of the
+ * IsolatedAccountTestCase base class because it tests default dependency injection behavior of the
  * Laravel IoC container which only comes into effect when a user is logged in and a default
  * PlayerService is available.
  */
-class FactoryTest extends AccountTestCase
+class FactoryTest extends IsolatedAccountTestCase
 {
     /**
      * Verify that loading a planet for another user works and returns the correct player object.
