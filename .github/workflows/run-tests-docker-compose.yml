@@ -36,7 +36,7 @@ jobs:
         image: docker:26.0.0
         options: --privileged
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Check for no external remote sources
         uses: ./.github/actions/check-remote-sources
@@ -45,14 +45,14 @@ jobs:
         uses: ./.github/actions/docker-compose-setup
 
       - name: Run Tests
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: docker compose exec -T ogamex-app php artisan test
 
       - name: Run custom Race Condition Tests
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4
         with:
           timeout_minutes: 10
           max_attempts: 3
