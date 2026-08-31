@@ -136,6 +136,7 @@ class FleetMission extends Model
     {
         return $this->union_id !== null;
     }
+
     /**
      * The attributes that should be cast.
      *

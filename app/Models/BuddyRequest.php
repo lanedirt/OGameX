@@ -92,6 +92,7 @@ class BuddyRequest extends Model
     {
         return $this->status === self::STATUS_REJECTED;
     }
+
     /**
      * The attributes that should be cast.
      *

@@ -108,6 +108,7 @@ class AllianceApplication extends Model
     {
         $this->status = self::STATUS_REJECTED;
     }
+
     /**
      * The attributes that should be cast.
      *

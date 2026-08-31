@@ -146,6 +146,7 @@ class FleetUnion extends Model
     {
         return $this->getUniquePlayerCount() >= $this->max_players;
     }
+
     /**
      * @return array<string, string>
      */

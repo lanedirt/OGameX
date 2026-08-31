@@ -104,6 +104,7 @@ class AllianceRank extends Model
         $permissions = $this->permissions ?? [];
         $this->permissions = array_values(array_filter($permissions, fn ($p) => $p !== $permission));
     }
+
     /**
      * The attributes that should be cast.
      *

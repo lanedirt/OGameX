@@ -14,7 +14,6 @@ use RectorLaravel\Rector\FuncCall\RemoveDumpDataDeadCodeRector;
 use RectorLaravel\Rector\MethodCall\EloquentOrderByToLatestOrOldestRector;
 use RectorLaravel\Rector\StaticCall\CarbonSetTestNowToTravelToRector;
 use RectorLaravel\Rector\StaticCall\CarbonToDateFacadeRector;
-use RectorLaravel\Set\LaravelSetProvider;
 
 return RectorConfig::configure()
     ->withImportNames()

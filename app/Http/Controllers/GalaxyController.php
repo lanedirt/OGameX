@@ -494,13 +494,13 @@ class GalaxyController extends OGameController
         $allianceData = null;
 
         if ($player->getUser()->alliance_id) {
-            $alliance = Alliance::with(['highscore', 'members'])->find($player->getUser()->alliance_id);
+            $alliance = Alliance::with(['highscore', 'members'])->withCount('members')->find($player->getUser()->alliance_id);
             if ($alliance) {
                 $allianceTag = $alliance->alliance_tag;
                 $allianceName = $alliance->alliance_name;
 
                 // Get member count
-                $memberCount = $alliance->member_count;
+                $memberCount = $alliance->members_count;
 
                 // Get highscore rank (default to general rank)
                 $highscoreRank = $alliance->highscore->general_rank ?? '?';

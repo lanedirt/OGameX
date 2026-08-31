@@ -79,6 +79,7 @@ class DarkMatterTransaction extends Model
     {
         return $query->where('user_id', $userId);
     }
+
     /**
      * The attributes that should be cast.
      *

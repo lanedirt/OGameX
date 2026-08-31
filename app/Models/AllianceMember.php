@@ -94,6 +94,7 @@ class AllianceMember extends Model
 
         return false;
     }
+
     /**
      * The attributes that should be cast.
      *

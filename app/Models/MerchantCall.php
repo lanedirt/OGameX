@@ -46,6 +46,7 @@ class MerchantCall extends Model
     {
         return $this->belongsTo(Planet::class);
     }
+
     /**
      * The attributes that should be cast.
      *

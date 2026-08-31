@@ -40,6 +40,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property int|null $planet_current
+ * @property int|null $alliance_id
+ * @property Carbon|null $alliance_left_at
  * @property int $dark_matter
  * @property int $tactical_retreat_ratio
  * @property Carbon|null $dark_matter_last_regen
@@ -301,6 +303,7 @@ class User extends Authenticatable
     {
         return true;
     }
+
     /**
      * The attributes that should be cast.
      *

@@ -56,6 +56,7 @@ class Message extends Model
     {
         return $this->belongsTo(User::class);
     }
+
     /**
      * Treat the params column as an array so its contents get stored/retrieved as JSON.
      *

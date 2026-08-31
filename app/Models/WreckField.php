@@ -196,6 +196,7 @@ class WreckField extends Model
 
         return min(100, max(0, (int) (($elapsedTime / $totalTime) * 100)));
     }
+
     protected function casts(): array
     {
         return [
