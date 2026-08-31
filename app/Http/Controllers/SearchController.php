@@ -116,6 +116,7 @@ class SearchController extends OGameController
         $alliances = Alliance::where('alliance_name', 'LIKE', '%' . $searchText . '%')
             ->orWhere('alliance_tag', 'LIKE', '%' . $searchText . '%')
             ->with('highscore')
+            ->withCount('members')
             ->limit(50)
             ->get();
 
@@ -125,7 +126,7 @@ class SearchController extends OGameController
                 'id' => $alliance->id,
                 'name' => $alliance->alliance_name,
                 'tag' => $alliance->alliance_tag,
-                'member_count' => $alliance->member_count,
+                'member_count' => $alliance->members_count,
                 'rank' => $alliance->highscore->general_rank ?? '?',
                 'points' => $alliance->highscore->general ?? 0,
                 'is_open' => $alliance->is_open,
