@@ -14,10 +14,21 @@ runs:
       run: |
         sudo chmod -R 777 /var/www
 
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Cache Composer dependencies
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
     - name: Set up Docker Compose
       shell: bash
       run: |
-        docker compose -f docker-compose.yml up -d
+        docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
 
     - name: Wait for application to be ready (max 60 seconds)
       shell: bash

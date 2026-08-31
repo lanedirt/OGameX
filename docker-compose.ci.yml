@@ -1,0 +1,30 @@
+# CI-only Compose overrides.
+#
+# Enables GitHub Actions' BuildKit cache (`type=gha`) so the PHP image layers — apt
+# packages, PHP extensions, the Rust toolchain and the Composer binary — are reused
+# across workflow runs instead of being rebuilt from scratch on every fresh runner.
+#
+# This file is NOT used for local development (the `gha` cache backend requires the
+# GitHub Actions runtime token, which only exists in CI).
+services:
+  ogamex-app:
+    build:
+      cache_from:
+        - type=gha,scope=ogamex-app
+      cache_to:
+        - type=gha,scope=ogamex-app,mode=max
+
+  ogamex-scheduler:
+    build:
+      cache_from:
+        - type=gha,scope=ogamex-app
+
+  ogamex-queue-worker:
+    build:
+      cache_from:
+        - type=gha,scope=ogamex-app
+
+  ogamex-reverb:
+    build:
+      cache_from:
+        - type=gha,scope=ogamex-app
