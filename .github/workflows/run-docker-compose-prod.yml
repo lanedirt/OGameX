@@ -18,7 +18,7 @@ jobs:
         image: docker:26.0.0
         options: --privileged
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Modify Dockerfile to disable USER www (which is not supported by GitHub Actions, as it runs as root)
         run: |
           sed -i '/USER www/s/^/#/' ./Dockerfile
@@ -31,7 +31,7 @@ jobs:
           # Build the images and start the services
           docker compose -f docker-compose.prod.yml up -d
       - name: Test if the services are running
-        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 5
           max_attempts: 5
