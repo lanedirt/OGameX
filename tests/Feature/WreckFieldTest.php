@@ -9,9 +9,9 @@ use OGame\Models\WreckField;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
 use OGame\Services\WreckFieldService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class WreckFieldTest extends AccountTestCase
+class WreckFieldTest extends IsolatedAccountTestCase
 {
     private function getWreckFieldService(): WreckFieldService
     {

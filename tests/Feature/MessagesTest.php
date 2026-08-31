@@ -345,7 +345,7 @@ class MessagesTest extends MoonTestCase
     private function createBattleReport(): int
     {
         // Get a random planet to create the battle report for.
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         $foreignPlayer = $foreignPlanet->getPlayer();
         if ($foreignPlayer === null) {
@@ -391,7 +391,7 @@ class MessagesTest extends MoonTestCase
     private function createEspionageReport(): int
     {
         // Get a random planet to create the espionage report for.
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         $foreignPlayer = $foreignPlanet->getPlayer();
         if ($foreignPlayer === null) {
@@ -421,7 +421,7 @@ class MessagesTest extends MoonTestCase
     public function testBattleReportWithDeletedPlayers(): void
     {
         // Get a random planet to create the battle report for.
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Create battle report with deleted players
         $battleReport = new BattleReport();

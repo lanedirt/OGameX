@@ -113,7 +113,6 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
 
         // Travel to arrival
         $this->travel($fleetMission->time_arrival - time() + 1)->seconds();
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Get return mission
@@ -164,7 +163,6 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
 
         // Travel to arrival
         $this->travel($fleetMission->time_arrival - time() + 1)->seconds();
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Verify return mission exists
@@ -205,7 +203,6 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
 
         // Travel to arrival
         $this->travel($fleetMission->time_arrival - time() + 1)->seconds();
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Verify mission completed successfully
@@ -250,7 +247,6 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
 
         // Travel to arrival
         $this->travel($fleetMission->time_arrival - time() + 1)->seconds();
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Get return mission
@@ -314,7 +310,6 @@ class FleetDispatchMissionResourceHandlingTest extends FleetDispatchTestCase
         // For ACS Defend, time_arrival includes hold time
         // Travel to when hold expires (mission processed and return starts)
         $this->travel($fleetMission->time_arrival - time() + 1)->seconds();
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Get return mission

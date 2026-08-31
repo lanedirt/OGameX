@@ -280,7 +280,6 @@ class FleetDispatchRecycleTest extends FleetDispatchTestCase
         $this->switchToFirstPlanet();
         $this->moonService->permanentlyDeletePlanet();
 
-        $this->reloadApplication();
         $this->switchToFirstPlanet();
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
 

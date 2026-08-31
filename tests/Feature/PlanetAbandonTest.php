@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class PlanetAbandonTest extends AccountTestCase
+class PlanetAbandonTest extends IsolatedAccountTestCase
 {
     /**
      * Check that abandoning a second planet works as expected.

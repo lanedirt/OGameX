@@ -114,8 +114,6 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
      * Only removes buddy relationships, alliance data, and resets vacation mode - test users and planets
      * remain in database but won't have special state that affects subsequent tests.
      *
-     * @todo Refactor test architecture to support DatabaseTransactions/RefreshDatabase
-     *       by removing dependency on reloadApplication() expecting persisted users.
      */
     protected function tearDown(): void
     {
@@ -768,7 +766,9 @@ class FleetDispatchAcsDefendTest extends FleetDispatchTestCase
             $this->fail('Buddy planet player is null.');
         }
         $buddyPlayer->activateVacationMode();
-        $this->reloadApplication();
+
+        // Reload the cached planet so the dispatch check observes the fresh vacation state.
+        resolve(PlanetServiceFactory::class)->make($this->getBuddyPlanet()->getPlanetId(), reloadCache: true);
 
         // Try to send ACS Defend fleet - should fail
         $unitCollection = new UnitCollection();

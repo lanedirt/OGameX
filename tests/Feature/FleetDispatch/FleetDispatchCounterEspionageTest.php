@@ -102,7 +102,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet with minimal ships
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('small_cargo', 1);
         $foreignPlanet->save();
 
@@ -133,7 +133,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet and add many ships to guarantee 100% counter-espionage chance
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('light_fighter', 500);
         $foreignPlanet->save();
 
@@ -207,7 +207,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet and add both ships and defense
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('light_fighter', 100);
         $foreignPlanet->addUnit('rocket_launcher', 1000);
         $foreignPlanet->save();
@@ -253,7 +253,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet and add ships
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('light_fighter', 20);
         $foreignPlanet->save();
 
@@ -285,7 +285,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet and add overwhelming ships to guarantee probe destruction
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('battlecruiser', 1000);
         $foreignPlanet->save();
 
@@ -318,7 +318,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $initialProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
 
         // Get a foreign planet and add overwhelming ships to guarantee 100% counter-espionage
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Set defender's espionage technology very high to further guarantee counter-espionage
         $foreignPlanetPlayer = $foreignPlanet->getPlayer();
@@ -381,7 +381,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $initialProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
 
         // Get a foreign planet and add overwhelming ships to guarantee 100% counter-espionage
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Set defender's espionage technology very high to further guarantee counter-espionage
         $foreignPlanetPlayer = $foreignPlanet->getPlayer();

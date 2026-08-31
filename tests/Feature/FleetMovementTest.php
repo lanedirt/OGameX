@@ -102,7 +102,7 @@ class FleetMovementTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet to spy on
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Get espionage probe object ID
         $espionageProbe = ObjectService::getUnitObjectByMachineName('espionage_probe');
@@ -122,8 +122,6 @@ class FleetMovementTest extends FleetDispatchTestCase
             'am' . $espionageProbe->id => 1,
         ]);
         $post->assertStatus(200);
-
-        $this->reloadApplication();
 
         $response = $this->get('/fleet/movement');
         $response->assertStatus(200);

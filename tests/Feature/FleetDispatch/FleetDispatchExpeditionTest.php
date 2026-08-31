@@ -778,10 +778,8 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
      * Bind an ExpeditionMission subclass into the container that forces the expedition find
      * variant roll to the given variant/multiplier and optionally pins the base max find amount.
      *
-     * IMPORTANT: this must be called AFTER dispatching the expedition (sendTestExpedition() /
-     * sendMissionToPosition16()): dispatchFleet() calls reloadApplication() internally, which
-     * wipes any container bindings registered before it. The mission outcome itself is processed
-     * later (e.g. via a /overview request), which is when this binding takes effect.
+     * IMPORTANT: this must be called before the mission is processed (via a /overview request),
+     * which is when this binding takes effect.
      *
      * @param string $variant The find variant to force: 'normal', 'rare' or 'exceptional'.
      * @param int $multiplier The reward multiplier to force.
@@ -1497,8 +1495,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->basicSetup();
         $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
 
-        // Send the expedition BEFORE binding: dispatchFleet() calls reloadApplication() which would
-        // wipe any binding registered before it. The mission itself is processed later via /overview.
+        // Send the expedition. The mission itself is processed later via /overview.
         $this->sendTestExpedition(true);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -1542,7 +1539,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->basicSetup();
         $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainResources]);
 
-        // Send BEFORE binding (dispatchFleet calls reloadApplication which wipes bindings).
+        // Send the expedition.
         $this->sendTestExpedition(true);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -1631,7 +1628,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         $this->basicSetup();
         $this->settingsEnableExpeditionOutcomes([ExpeditionOutcomeType::GainShips]);
 
-        // Send BEFORE binding (dispatchFleet calls reloadApplication which wipes bindings).
+        // Send the expedition.
         $this->sendTestExpedition(true);
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -1690,7 +1687,7 @@ class FleetDispatchExpeditionTest extends FleetDispatchTestCase
         }
         $initialDarkMatter = $initialUser->dark_matter;
 
-        // Send BEFORE binding (dispatchFleet calls reloadApplication which wipes bindings).
+        // Send the expedition.
         $this->sendTestExpedition(true);
 
         // Forces an exceptional variant with multiplier=10. Dark matter is not cargo-constrained,

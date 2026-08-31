@@ -5,7 +5,6 @@ namespace Tests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use LogicException;
-use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 use OGame\Services\InitialUserDataService;
@@ -21,8 +20,6 @@ use OGame\Services\SettingsService;
  *    instead of a real HTTP /register + /login round-trip.
  *  - Starts the session up-front so csrf_token() returns a real token, avoiding a
  *    session-initializing GET request; CSRF stays fully enforced.
- *  - Resets the stateful singleton services (SettingsService + service factories) on
- *    teardown, because their in-memory caches are NOT rolled back by DatabaseTransactions.
  *
  * Test intent (assertions) is identical to AccountTestCase-based tests; only the setup
  * mechanism changes. See docs/test-isolation-migration-plan.md (Phase 1).
@@ -38,27 +35,8 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     {
         parent::setUp();
 
-        // Start the session so csrf_token() returns a real token. Controllers verify the
-        // token themselves (e.g. AbstractUnitsController::addBuildRequest compares
-        // session()->token() to the posted _token), so this avoids needing a
-        // session-initializing GET request while keeping CSRF fully enforced.
+        // Start the session up-front so csrf_token() returns a real token.
         $this->app['session']->driver()->start();
-    }
-
-    /**
-     * Reset stateful singletons between tests. Their in-memory caches (settings values,
-     * cached PlanetService/PlayerService instances) survive across tests because the app
-     * container is not rebuilt, so we clear them explicitly here.
-     *
-     * @return void
-     */
-    protected function tearDown(): void
-    {
-        $this->app->forgetInstance(SettingsService::class);
-        $this->app->forgetInstance(PlayerServiceFactory::class);
-        $this->app->forgetInstance(PlanetServiceFactory::class);
-
-        parent::tearDown();
     }
 
     /**
@@ -74,13 +52,18 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     /**
      * Create a user and authenticate without HTTP round-trips.
      *
-        * Authenticates via actingAs() and wires up the planet services from the real factories,
-        * mirroring retrieveMetaFields() without the HTML parsing.
-     *
      * @return void
      */
     protected function createAndLoginUser(): void
     {
+        // Seed the planet allocator so the homeworld lands at a fixed, collision-safe
+        // system far from both the seeded Legor admin account (1:1:2) and any planets
+        // leaked by non-transactional tests (Admin/Ban/Buddy populate systems 1..N).
+        // Without this, position-based colonisation tests collide with Legor's 1:1:2, and
+        // the distance between the two home planets drifts (raising deuterium fuel past
+        // the budget in FleetDispatchLargeResourcesTest).
+        resolve(SettingsService::class)->set('last_assigned_system', 400);
+
         $user = $this->createUser();
 
         $this->actingAs($user);
@@ -95,6 +78,10 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
         $this->planetService = $playerService->planets->current();
         $this->currentPlanetId = $this->planetService->getPlanetId();
 
+        // Reproduce the page-load side effects real registration triggers.
+        $playerService->update();
+        $this->planetService->update();
+
         $allPlanets = $playerService->planets->allPlanets();
         if (isset($allPlanets[1])) {
             $this->secondPlanetService = $allPlanets[1];
@@ -107,22 +94,16 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
     /**
      * Create a normal (non-admin) user using the standard Eloquent factories.
      *
-        * Creates a normal user with a collision-safe username, then delegates initial game data
-        * setup to the production service used during registration.
-     *
      * @return User
      */
     protected function createUser(): User
     {
-        $user = User::factory()->create(['username' => 'test_' . Str::random(16)]);
-
-        // User::factory() skips CreateNewUser, but the User model's `created` hook still
-        // promotes each transaction's first user to admin. Revert that for a normal player.
-        if ($user->hasRole('admin')) {
-            $user->removeRole('admin');
-            $user->username = 'test_' . Str::random(16);
-            $user->save();
-        }
+        // Create without model events to skip the `created` hook that promotes the first
+        // user to admin. That hook issues a cross-row `update users`, which contends with
+        // the scheduler/queue worker and deadlocks (1205 lock wait) in tests.
+        $user = User::withoutEvents(fn (): User => User::factory()->create([
+            'username' => 'test_' . Str::random(16),
+        ]));
 
         resolve(InitialUserDataService::class)->createFor($user);
 

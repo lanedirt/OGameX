@@ -112,8 +112,8 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function fleetCheckToOtherPlayer(UnitCollection $units, bool $assertSuccess): void
     {
-        $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
-        $this->checkTargetFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, PlanetType::Planet, $assertSuccess);
+        $foreignPlanet = $this->createForeignPlanet();
+        $this->checkTargetFleet($foreignPlanet->getPlanetCoordinates(), $units, PlanetType::Planet, $assertSuccess);
     }
 
     /**
@@ -236,10 +236,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToOtherPlayerPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
-        $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
-        $this->dispatchFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
-        return $nearbyForeignPlanet;
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
+        return $foreignPlanet;
     }
 
     /**
@@ -252,10 +252,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToOtherPlayerCleanPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
-        $nearbyForeignCleanPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
-        $this->dispatchFleet($nearbyForeignCleanPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
-        return $nearbyForeignCleanPlanet;
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
+        return $foreignPlanet;
     }
 
     /**
@@ -268,10 +268,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToOtherPlayerMoon(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
-        $nearbyForeignMoon = $this->getNearbyForeignMoon();
+        $foreignMoon = $this->createForeignMoon();
 
-        $this->dispatchFleet($nearbyForeignMoon->getPlanetCoordinates(), $units, $resources, PlanetType::Moon, 0, $assertStatus);
-        return $nearbyForeignMoon;
+        $this->dispatchFleet($foreignMoon->getPlanetCoordinates(), $units, $resources, PlanetType::Moon, 0, $assertStatus);
+        return $foreignMoon;
     }
 
     /**
@@ -331,8 +331,6 @@ abstract class FleetDispatchTestCase extends MoonTestCase
                 ]
             ]);
         }
-
-        $this->reloadApplication();
     }
 
     /**
@@ -369,8 +367,6 @@ abstract class FleetDispatchTestCase extends MoonTestCase
         $post->assertJson([
             'success' => $assertStatus,
         ]);
-
-        $this->reloadApplication();
 
         $this->get('/ajax/fleet/eventbox/fetch')->assertStatus(200);
         $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);

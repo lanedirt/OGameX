@@ -8,12 +8,12 @@ use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that the research queue works as expected.
  */
-class ResearchQueueTest extends AccountTestCase
+class ResearchQueueTest extends IsolatedAccountTestCase
 {
     /**
      * Set up common test components.

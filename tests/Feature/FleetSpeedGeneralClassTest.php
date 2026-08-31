@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use OGame\Enums\CharacterClass;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class FleetSpeedGeneralClassTest extends AccountTestCase
+class FleetSpeedGeneralClassTest extends IsolatedAccountTestCase
 {
     /**
      * Test that General class can use 5% fleet speed.

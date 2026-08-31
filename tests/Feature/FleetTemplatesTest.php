@@ -4,12 +4,12 @@ namespace Tests\Feature;
 
 use OGame\Models\FleetTemplate;
 use OGame\Models\User;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test fleet templates functionality.
  */
-class FleetTemplatesTest extends AccountTestCase
+class FleetTemplatesTest extends IsolatedAccountTestCase
 {
     /**
      * Test that getting templates returns empty array initially.

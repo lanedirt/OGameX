@@ -149,7 +149,7 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->planetAddUnit('espionage_probe', 5);
 
         // Get a nearby foreign planet
-        $otherPlanet = $this->getNearbyForeignPlanet();
+        $otherPlanet = $this->createForeignPlanet();
         $otherPlayer = $otherPlanet->getPlayer();
         if ($otherPlayer === null) {
             $this->fail('Player not found.');
@@ -262,8 +262,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Activate vacation mode
         $player->activateVacationMode();
 
-        // Reload planet to get updated percentages
-        $this->reloadApplication();
         $planet = $this->planetService;
 
         // Update planet production again
@@ -295,8 +293,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Build a metal mine
         $this->planetSetObjectLevel('metal_mine', 5);
 
-        // Reload planet to get updated building levels
-        $this->reloadApplication();
         $planet = $this->planetService;
 
         // Verify initial production percentage is 10 (representing 100% in 0-10 scale)
@@ -310,8 +306,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Activate vacation mode
         $player->activateVacationMode();
 
-        // Reload planet to get updated percentages
-        $this->reloadApplication();
         $planet = $this->planetService;
 
         // Verify production percentage is now 0
@@ -325,8 +319,6 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->travel(48)->hours();
         $player->deactivateVacationMode();
 
-        // Reload planet
-        $this->reloadApplication();
         $planet = $this->planetService;
 
         // Verify production percentage is still 0 (must be manually reset)
@@ -340,8 +332,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Manually reset production to 100% (10 in 0-10 scale)
         $planet->setBuildingPercent(ObjectService::getObjectByMachineName('metal_mine')->id, 10);
 
-        // Reload planet to get updated percentages
-        $this->reloadApplication();
         $planet = $this->planetService;
 
         // Now full production resumes (base income + mine production)
@@ -357,7 +347,7 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a nearby foreign planet
-        $otherPlanet = $this->getNearbyForeignPlanet();
+        $otherPlanet = $this->createForeignPlanet();
         $otherPlayer = $otherPlanet->getPlayer();
         if ($otherPlayer === null) {
             $this->fail('Player not found.');
@@ -420,8 +410,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Should redirect back to options page
         $response->assertRedirect('/options');
 
-        // Reload application and player to get updated data
-        $this->reloadApplication();
         $player->load($player->getId());
 
         // Verify player is now in vacation mode
@@ -455,8 +443,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Should redirect back to options page
         $response->assertRedirect('/options');
 
-        // Reload application and player to get updated data
-        $this->reloadApplication();
         $player->load($player->getId());
 
         // Verify player is no longer in vacation mode
@@ -482,8 +468,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Add a building to the queue using helper method
         $this->addResourceBuildRequest('metal_mine');
 
-        // Reload to get queue
-        $this->reloadApplication();
         $planet = $this->planetService;
 
         // Verify building is in queue and building
@@ -503,8 +487,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Travel the remaining time (should complete if not paused)
         $this->travel($buildTime / 2 + 10)->seconds();
 
-        // Reload and update planet
-        $this->reloadApplication();
         $planet = $this->planetService;
         $planet->update();
 
@@ -518,8 +500,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Travel remaining build time
         $this->travel($buildTime)->seconds();
 
-        // Reload and update planet
-        $this->reloadApplication();
         $planet = $this->planetService;
         $planet->update();
 
@@ -553,8 +533,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Add units to the queue using helper method
         $this->addShipyardBuildRequest('light_fighter', 5);
 
-        // Reload to get queue
-        $this->reloadApplication();
         $planet = $this->planetService;
 
         // Travel time (units would complete if not paused)
@@ -587,8 +565,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Add research to the queue using helper method
         $this->addResearchBuildRequest('energy_technology');
 
-        // Reload to get queue
-        $this->reloadApplication();
         $player->load($player->getId());
 
         $initialLevel = $player->getResearchLevel('energy_technology');
@@ -605,8 +581,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Travel more time (research would complete if not paused)
         $this->travel(1000)->seconds();
 
-        // Reload and update player
-        $this->reloadApplication();
         $player->load($player->getId());
         $player->updateResearchQueue();
 
@@ -620,8 +594,6 @@ class VacationModeTest extends FleetDispatchTestCase
         // Travel time for research to complete
         $this->travel(1000)->seconds();
 
-        // Reload and update player
-        $this->reloadApplication();
         $player->load($player->getId());
         $player->updateResearchQueue();
 
@@ -661,7 +633,6 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->assertFalse($responseData['success'], 'Build request should fail when in vacation mode');
 
         // Verify building was not added to queue
-        $this->reloadApplication();
         $player->load($player->getId());
         $this->assertEquals(0, $planet->getObjectLevel('metal_mine'), 'Metal mine should not be built when in vacation mode');
     }
@@ -699,7 +670,6 @@ class VacationModeTest extends FleetDispatchTestCase
         $this->assertFalse($responseData['success'], 'Research request should fail when in vacation mode');
 
         // Verify research was not started
-        $this->reloadApplication();
         $player->load($player->getId());
         $this->assertEquals(0, $player->getResearchLevel('energy_technology'), 'Research should not be started when in vacation mode');
     }
@@ -747,7 +717,6 @@ class VacationModeTest extends FleetDispatchTestCase
 
         // Verify ships were not added to queue - wait a bit and check ship count hasn't increased
         $this->travel(10)->seconds();
-        $this->reloadApplication();
         $player->load($player->getId());
         $planet = $this->planetService;
         $this->assertEquals($initialShipCount, $planet->getObjectAmount('light_fighter'), 'Ships should not be built when in vacation mode');

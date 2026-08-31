@@ -25,6 +25,13 @@ abstract class UnitTestCase extends TestCase
         $this->setUpPlayerService();
         $this->setUpPlanetService();
         $this->setUpSettingsService();
+
+        // Reset production settings to defaults so values leaked by other tests
+        // (e.g. basic income set to 0) don't affect production assertions.
+        $this->settingsService->set('basic_income_metal', 30);
+        $this->settingsService->set('basic_income_crystal', 15);
+        $this->settingsService->set('basic_income_deuterium', 0);
+        $this->settingsService->set('basic_income_energy', 0);
     }
 
     /**

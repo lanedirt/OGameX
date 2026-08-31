@@ -79,7 +79,7 @@ class PhalanxTest extends FleetDispatchTestCase
         $this->planetService->addResources(new Resources(0, 0, 10000, 0));
 
         // Try to scan a nearby planet
-        $targetPlanet = $this->getNearbyForeignPlanet();
+        $targetPlanet = $this->createForeignPlanet();
         $coords = $targetPlanet->getPlanetCoordinates();
 
         $response = $this->post('/ajax/phalanx/scan', [
@@ -105,7 +105,7 @@ class PhalanxTest extends FleetDispatchTestCase
         $this->moonService->addResources(new Resources(0, 0, 10000, 0));
 
         // Try to scan a nearby planet
-        $targetPlanet = $this->getNearbyForeignPlanet();
+        $targetPlanet = $this->createForeignPlanet();
         $coords = $targetPlanet->getPlanetCoordinates();
 
         $response = $this->post('/ajax/phalanx/scan', [
@@ -133,7 +133,7 @@ class PhalanxTest extends FleetDispatchTestCase
         $this->moonService->addResources(new Resources(0, 0, 1000, 0)); // Only 1000, need 5000
 
         // Try to scan a nearby planet
-        $targetPlanet = $this->getNearbyForeignPlanet();
+        $targetPlanet = $this->createForeignPlanet();
         $coords = $targetPlanet->getPlanetCoordinates();
 
         $response = $this->post('/ajax/phalanx/scan', [
@@ -213,7 +213,7 @@ class PhalanxTest extends FleetDispatchTestCase
         $this->moonService->addResources(new Resources(0, 0, 10000, 0));
 
         // Get a nearby foreign planet
-        $targetPlanet = $this->getNearbyForeignPlanet();
+        $targetPlanet = $this->createForeignPlanet();
         $coords = $targetPlanet->getPlanetCoordinates();
 
         // Check deuterium before scan
