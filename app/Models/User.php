@@ -40,6 +40,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property int|null $planet_current
+ * @property int|null $alliance_id
+ * @property Carbon|null $alliance_left_at
  * @property int $dark_matter
  * @property int $tactical_retreat_ratio
  * @property Carbon|null $dark_matter_last_regen
@@ -127,21 +129,6 @@ class User extends Authenticatable
             }
         });
     }
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'vacation_mode' => 'boolean',
-        'vacation_mode_activated_at' => 'datetime',
-        'vacation_mode_until' => 'datetime',
-        'dark_matter_last_regen' => 'datetime',
-        'character_class_free_used' => 'boolean',
-        'character_class_changed_at' => 'datetime',
-        'alliance_left_at' => 'datetime',
-    ];
 
     /**
      * Get the user tech record associated with the user.
@@ -315,5 +302,23 @@ class User extends Authenticatable
     public function canBeImpersonated(): bool
     {
         return true;
+    }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'vacation_mode' => 'boolean',
+            'vacation_mode_activated_at' => 'datetime',
+            'vacation_mode_until' => 'datetime',
+            'dark_matter_last_regen' => 'datetime',
+            'character_class_free_used' => 'boolean',
+            'character_class_changed_at' => 'datetime',
+            'alliance_left_at' => 'datetime',
+        ];
     }
 }

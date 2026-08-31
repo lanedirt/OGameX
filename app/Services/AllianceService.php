@@ -100,7 +100,6 @@ class AllianceService
             ]);
 
             // Update user's alliance_id and clear cooldown
-            /** @phpstan-ignore assign.propertyType */
             $user->alliance_id = $alliance->id;
             $user->alliance_left_at = null;
             $user->save();
@@ -285,7 +284,6 @@ class AllianceService
             ]);
 
             // Update user's alliance_id and clear cooldown
-            /** @phpstan-ignore assign.propertyType */
             $applicant->alliance_id = $application->alliance_id;
             $applicant->alliance_left_at = null;
             $applicant->save();

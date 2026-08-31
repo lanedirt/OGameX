@@ -50,19 +50,22 @@ class Message extends Model
     use HasFactory;
 
     /**
-     * Treat the params column as an array so its contents get stored/retrieved as JSON.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'params' => 'array',
-    ];
-
-    /**
      * Get the user that owns the research queue record.
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Treat the params column as an array so its contents get stored/retrieved as JSON.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'params' => 'array',
+        ];
     }
 }
