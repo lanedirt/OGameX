@@ -54,15 +54,6 @@ class BuddyRequest extends Model
     public const STATUS_REJECTED = 2;
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'viewed' => 'boolean',
-    ];
-
-    /**
      * Get the user who sent the buddy request.
      */
     public function sender(): BelongsTo
@@ -100,5 +91,17 @@ class BuddyRequest extends Model
     public function isRejected(): bool
     {
         return $this->status === self::STATUS_REJECTED;
+    }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'viewed' => 'boolean',
+        ];
     }
 }

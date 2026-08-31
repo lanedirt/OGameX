@@ -29,14 +29,17 @@ use Illuminate\Support\Carbon;
 #[Table(name: 'bans')]
 class Ban extends Model
 {
-    protected $casts = [
-        'banned_until' => 'datetime',
-        'canceled'     => 'boolean',
-        'canceled_at'  => 'datetime',
-    ];
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'banned_until' => 'datetime',
+            'canceled'     => 'boolean',
+            'canceled_at'  => 'datetime',
+        ];
     }
 }

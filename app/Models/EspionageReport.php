@@ -49,16 +49,6 @@ use Illuminate\Support\Carbon;
  */
 class EspionageReport extends Model
 {
-    protected $casts = [
-        'player_info' => 'array',
-        'resources' => 'array',
-        'debris' => 'array',
-        'buildings' => 'array',
-        'research' => 'array',
-        'ships' => 'array',
-        'defense' => 'array',
-    ];
-
     /**
      * Get the player that owns the planet that this espionage report is about.
      * Note: this is not the player that owns the espionage report!
@@ -66,5 +56,18 @@ class EspionageReport extends Model
     public function planetUserId(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'player_info' => 'array',
+            'resources' => 'array',
+            'debris' => 'array',
+            'buildings' => 'array',
+            'research' => 'array',
+            'ships' => 'array',
+            'defense' => 'array',
+        ];
     }
 }
