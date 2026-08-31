@@ -129,21 +129,6 @@ class User extends Authenticatable
     }
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'vacation_mode' => 'boolean',
-        'vacation_mode_activated_at' => 'datetime',
-        'vacation_mode_until' => 'datetime',
-        'dark_matter_last_regen' => 'datetime',
-        'character_class_free_used' => 'boolean',
-        'character_class_changed_at' => 'datetime',
-        'alliance_left_at' => 'datetime',
-    ];
-
-    /**
      * Get the user tech record associated with the user.
      *
      * @return HasOne
@@ -315,5 +300,22 @@ class User extends Authenticatable
     public function canBeImpersonated(): bool
     {
         return true;
+    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'vacation_mode' => 'boolean',
+            'vacation_mode_activated_at' => 'datetime',
+            'vacation_mode_until' => 'datetime',
+            'dark_matter_last_regen' => 'datetime',
+            'character_class_free_used' => 'boolean',
+            'character_class_changed_at' => 'datetime',
+            'alliance_left_at' => 'datetime',
+        ];
     }
 }

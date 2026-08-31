@@ -47,15 +47,6 @@ class DarkMatterTransaction extends Model
     use HasFactory;
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'created_at' => 'datetime',
-    ];
-
-    /**
      * Get the user that owns the transaction.
      *
      * @return BelongsTo
@@ -87,5 +78,16 @@ class DarkMatterTransaction extends Model
     public function scopeForUser($query, int $userId)
     {
         return $query->where('user_id', $userId);
+    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+        ];
     }
 }

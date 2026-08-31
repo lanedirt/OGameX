@@ -2,6 +2,7 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -73,15 +74,6 @@ class Alliance extends Model
     use HasFactory;
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'is_open' => 'boolean',
-    ];
-
-    /**
      * Get the founder user of this alliance.
      */
     public function founder(): BelongsTo
@@ -124,9 +116,11 @@ class Alliance extends Model
     /**
      * Get total member count for this alliance.
      */
-    public function getMemberCountAttribute(): int
+    protected function memberCount(): Attribute
     {
-        return $this->members()->count();
+        return Attribute::make(get: function () {
+            return $this->members()->count();
+        });
     }
 
     /**
@@ -135,5 +129,16 @@ class Alliance extends Model
     public function isOpen(): bool
     {
         return $this->is_open;
+    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_open' => 'boolean',
+        ];
     }
 }

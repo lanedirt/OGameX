@@ -45,15 +45,6 @@ class AllianceMember extends Model
     use HasFactory;
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'joined_at' => 'datetime',
-    ];
-
-    /**
      * Get the alliance this member belongs to.
      */
     public function alliance(): BelongsTo
@@ -102,5 +93,16 @@ class AllianceMember extends Model
         }
 
         return false;
+    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'joined_at' => 'datetime',
+        ];
     }
 }

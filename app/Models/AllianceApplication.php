@@ -54,15 +54,6 @@ class AllianceApplication extends Model
     public const STATUS_REJECTED = 2;
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'viewed' => 'boolean',
-    ];
-
-    /**
      * Get the alliance this application is for.
      */
     public function alliance(): BelongsTo
@@ -116,5 +107,16 @@ class AllianceApplication extends Model
     public function reject(): void
     {
         $this->status = self::STATUS_REJECTED;
+    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'viewed' => 'boolean',
+        ];
     }
 }

@@ -1,9 +1,7 @@
 <?php
 
-use Rector\CodeQuality\Rector\Concat\JoinStringConcatRector;
 use Rector\CodeQuality\Rector\FuncCall\CompactToVariablesRector;
 use Rector\CodeQuality\Rector\Identical\StrlenZeroToIdenticalEmptyStringRector;
-use Rector\CodingStyle\Rector\Assign\NestedTernaryToMatchRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
@@ -25,11 +23,9 @@ return RectorConfig::configure()
         // Types
         AddReturnTypeDeclarationRector::class,
         AddParamTypeDeclarationRector::class,
-        NestedTernaryToMatchRector::class,
         // Strictness
         PrivatizeFinalClassMethodRector::class,
         ClassPropertyAssignToConstructorPromotionRector::class,
-        JoinStringConcatRector::class,
         StrlenZeroToIdenticalEmptyStringRector::class,
         CompactToVariablesRector::class,
         // Laravel specific
@@ -42,7 +38,6 @@ return RectorConfig::configure()
         RemoveDumpDataDeadCodeRector::class,
     ])
 
-    ->withSetProviders(LaravelSetProvider::class)
     ->withComposerBased(laravel: true)
     ->withPaths([
         __DIR__ . '/app',

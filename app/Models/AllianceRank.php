@@ -61,15 +61,6 @@ class AllianceRank extends Model
     public const PERMISSION_MANAGE_CLASSES = 'manage_classes';
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'permissions' => 'array',
-    ];
-
-    /**
      * Get the alliance this rank belongs to.
      */
     public function alliance(): BelongsTo
@@ -112,5 +103,16 @@ class AllianceRank extends Model
     {
         $permissions = $this->permissions ?? [];
         $this->permissions = array_values(array_filter($permissions, fn ($p) => $p !== $permission));
+    }
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'permissions' => 'array',
+        ];
     }
 }
