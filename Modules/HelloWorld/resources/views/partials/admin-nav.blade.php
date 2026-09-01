@@ -1,5 +1,5 @@
 <li>
     <a class="{{ Request::is('admin/hello-world*') ? 'active' : '' }}" href="{{ route('helloworld.index') }}">
-        HelloWorld example
+        {{ __('t_helloworld.admin_nav') }}
     </a>
 </li>

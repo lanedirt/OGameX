@@ -1,19 +1,25 @@
-# OGameX Modules
+# OGameX modules
 
-OGameX uses [nwidart/laravel-modules](https://github.com/nWidart/laravel-modules)
-to organize optional, independently shipped features. A module is an ordinary
-Laravel application packaged under `Modules/<StudlyName>`: routes, controllers,
-models, migrations, jobs, commands, events, policies, views, and tests.
+Modules are optional Laravel features under `Modules/<Name>`. Keep a feature in
+its module when it owns its routes, views, data, and tests.
 
-The module host only answers three questions:
+[`Modules/HelloWorld`](../Modules/HelloWorld) is the reference module. It is
+disabled by default and includes an admin route, a view, configuration, a view
+slot, and module-local tests.
 
-1. which modules exist;
-2. which modules are enabled;
-3. how a module's Laravel code is loaded.
+## Package
 
-It deliberately does not know anything about OGameX gameplay systems.
+OGameX uses [`nwidart/laravel-modules`](https://github.com/nWidart/laravel-modules)
+`^13.0`. The package handles module discovery, enabled state, service-provider
+loading, and module resource loading. Do not add another module loader or status
+system.
 
-## Start here
+Module `composer.json` files are merged into the root Composer configuration.
+Run `composer dump-autoload` after changing a module's Composer metadata.
+
+## Create a module
+
+Run these commands from the repository root:
 
 ```bash
 php artisan module:make MyFeature
@@ -22,39 +28,22 @@ php artisan module:enable MyFeature
 php artisan module:list
 ```
 
-Disable a module with `php artisan module:disable MyFeature`.
+Replace `MyFeature` with a StudlyCase name. Disable it with
+`php artisan module:disable MyFeature`. The enabled state is stored in
+`modules_statuses.json`.
 
-Use `Modules/HelloWorld` as the working reference. It contains a provider, an
-admin route, a view, module configuration, an `admin.nav` view slot, and
-module-local tests.
-
-```bash
-php artisan module:enable HelloWorld
-php artisan test --testsuite=Modules --filter=HelloWorld
-```
-
-## The mental model
-
-An **enabled** module is normal Laravel application code. When a module is
-enabled, its service provider boots and its routes, views, configuration,
-migrations, commands, and schedules are loaded. A **disabled** module registers
-nothing; it has no effect on the application.
-
-Enabled state is owned by Laravel Modules and stored in `modules_statuses.json`.
-There is no second OGameX module status or permission layer.
-
-## Structure
+## Module layout
 
 ```text
 Modules/MyFeature/
 ├── app/
-│   ├── Console/              # Commands and scheduled work
-│   ├── Http/Controllers/     # Pages and APIs
-│   ├── Jobs/                 # Laravel jobs
-│   ├── Listeners/            # Event listeners
-│   ├── Models/               # Module-owned data
-│   ├── Providers/            # Module and route providers
-│   └── Services/             # Module domain logic
+│   ├── Console/
+│   ├── Http/Controllers/
+│   ├── Jobs/
+│   ├── Listeners/
+│   ├── Models/
+│   ├── Providers/
+│   └── Services/
 ├── config/
 ├── database/migrations/
 ├── resources/views/
@@ -65,39 +54,12 @@ Modules/MyFeature/
 └── module.json
 ```
 
-Keep domain logic in the module. Keep the provider small: register bindings and
-Laravel infrastructure.
+Use normal Laravel classes inside the module. Keep module domain logic and
+module-owned migrations in the module. Keep providers focused on registration.
 
-## Provider and alias
+## Metadata and autoloading
 
-The main provider extends `Nwidart\Modules\Support\ModuleServiceProvider`.
-Call `parent::boot()` first; it loads the module's configuration, views,
-migrations, commands, and schedules.
-
-The lowercase alias must match across `module.json`, `$nameLower`, and the
-module's view/config namespaces.
-
-```php
-use Nwidart\Modules\Support\ModuleServiceProvider;
-
-class MyFeatureServiceProvider extends ModuleServiceProvider
-{
-    protected string $name = 'MyFeature';
-    protected string $nameLower = 'myfeature';
-
-    protected array $providers = [
-        RouteServiceProvider::class,
-    ];
-
-    public function boot(): void
-    {
-        parent::boot();
-    }
-}
-```
-
-`module.json` provides the display name, lowercase alias, priority, and the
-provider classes to register:
+`module.json` must identify the module provider:
 
 ```json
 {
@@ -111,68 +73,167 @@ provider classes to register:
 }
 ```
 
-Each module declares its own PSR-4 autoloading in its `composer.json`. The root
-Composer merge plugin merges these definitions, so after changing a module's
-Composer metadata run `composer dump-autoload`.
+The module `composer.json` must map its namespace to `app/`:
 
-## Routes, views, and configuration
+```json
+{
+    "autoload": {
+        "psr-4": {
+            "Modules\\MyFeature\\": "app/"
+        }
+    }
+}
+```
 
-Routes live in `routes/web.php` and are registered by the module's route
-provider, exactly like core routes. Views use the `myfeature::` namespace.
-Configuration is published under the `myfeature` config namespace and is read
-with `config('myfeature.key', $default)`.
+Run `composer dump-autoload` after changing Composer metadata.
 
-A module may register its own migrations under `database/migrations`; they are
-run by the normal migration commands while the module is enabled.
+The alias must match in `module.json`, `$nameLower`, view namespaces, config,
+and route names.
 
-## Admin modules page
+## Provider
 
-While signed in as an administrator, `/admin/modules` lists every discovered
-module with its name, alias, version, priority, and enabled state. Modules can
-be enabled and disabled from this page; the state is written to
-`modules_statuses.json` (a plain file, so it is readable before the database is
-available during boot).
+The main provider must call `parent::boot()`. This loads the module's config,
+views, migrations, commands, schedules, and route provider.
+
+```php
+<?php
+
+namespace Modules\MyFeature\Providers;
+
+use Nwidart\Modules\Support\ModuleServiceProvider;
+
+class MyFeatureServiceProvider extends ModuleServiceProvider
+{
+    protected string $name = 'MyFeature';
+
+    protected string $nameLower = 'myfeature';
+
+    protected array $providers = [
+        RouteServiceProvider::class,
+    ];
+
+    public function boot(): void
+    {
+        parent::boot();
+    }
+}
+```
+
+## Routes, controllers, and views
+
+Define routes in `routes/web.php`. The module route provider loads this file.
+Use namespaced URLs and route names. For an admin page:
+
+```php
+use Illuminate\Support\Facades\Route;
+use Modules\MyFeature\Http\Controllers\MyFeatureController;
+
+Route::middleware(['auth', 'banned', 'globalgame', 'locale', 'firstlogin', 'admin'])
+    ->prefix('admin/my-feature')
+    ->name('myfeature.')
+    ->group(function (): void {
+        Route::get('/', [MyFeatureController::class, 'index'])->name('index');
+    });
+```
+
+Put behavior in a controller or service:
+
+```php
+namespace Modules\MyFeature\Http\Controllers;
+
+use Illuminate\View\View;
+use OGame\Http\Controllers\OGameController;
+
+class MyFeatureController extends OGameController
+{
+    public function index(): View
+    {
+        return view('myfeature::index', [
+            'title' => config('myfeature.title', 'My Feature'),
+        ]);
+    }
+}
+```
+
+Put the view at `resources/views/index.blade.php` and load it as
+`myfeature::index`. User-facing strings must use the project's translation
+conventions.
+
+## Config and migrations
+
+Put config in `config/config.php` and read it through the lowercase alias:
+
+```php
+return ['title' => 'My Feature'];
+```
+
+```php
+config('myfeature.title', 'My Feature');
+```
+
+Put module-owned migrations in `database/migrations` and run them with the
+normal Laravel command while the module is enabled:
+
+```bash
+php artisan migrate
+```
+
+Do not edit a merged migration. Add a new one.
 
 ## View slots
 
-A core Blade view can render a named slot with `@moduleSlot('slot.name')`. A
-module provider registers a renderer for that slot, which returns a plain HTML
-string appended at the slot position.
-
-This foundation exposes a single, clearly controlled slot:
-
-| Slot | Purpose |
-|---|---|
-| `admin.nav` | After the existing items in the admin sidebar |
-
-Slots are additive: they append content at a fixed, documented position and do
-not replace core markup or inject scripts.
+The supported `admin.nav` slot appends content to the admin sidebar. Register a
+renderer in the module provider:
 
 ```php
 use OGame\Services\ModuleSlotService;
 
-ModuleSlotService::register('admin.nav', function (array $data): string {
+ModuleSlotService::register('admin.nav', static function (array $data): string {
     return view('myfeature::partials.admin-nav')->render();
 });
 ```
 
-## Testing
+Slots append content. They do not replace core markup or provide general script
+injection. Discuss new extension points before adding them.
 
-Put module-specific tests inside the module. The `Modules` suite discovers them:
+## Tests
+
+Keep module tests under `Modules/MyFeature/tests`. Run the module suite with:
 
 ```bash
 php artisan test --testsuite=Modules --filter=MyFeature
 ```
 
-Test the provider, migrations, routes, authorization, and the domain behavior
-the module owns. Core tests cover the module host itself: discovery,
-enable/disable, route registration, and that a disabled module has no effect.
+The `HelloWorld` test shows how to enable a module before application boot. Use
+an isolated status file in tests. Do not modify the tracked
+`modules_statuses.json` from a test.
 
-## Pull-request checklist
+## Checklist
 
-- The alias matches across `module.json`, `$nameLower`, view/config namespaces,
-  and route names.
-- Run `composer dump-autoload` after changing module Composer metadata.
-- Run the module migration and focused module tests.
-- A disabled module must not register routes, views, or providers.
-- Prefer module-owned tables and migrations over changing core schema.
+- `php artisan module:list` discovers the module.
+- Enabled modules register their resources. Disabled modules have no effect.
+- The alias is consistent everywhere.
+- Module migrations and focused tests pass.
+- User-facing strings are translatable.
+- Module code does not change core schema or templates without a clear reason.
+
+See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for the full pull request checks.
+
+## Troubleshooting
+
+**Routes are missing:** Check that the module is enabled, the provider calls
+`parent::boot()`, and `RouteServiceProvider` is listed in `$providers`.
+
+**Views or config are missing:** Check the lowercase alias and its namespaces.
+
+**Classes are not found:** Check the PSR-4 mapping, then run:
+
+```bash
+composer dump-autoload
+```
+
+**Caches are stale:** Run:
+
+```bash
+php artisan optimize:clear
+```

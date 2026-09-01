@@ -49,15 +49,16 @@ Disclaimer: this project is purely fan-based and does not contain any commercial
 - [4. Roadmap](#roadmap)
   - [a) Upcoming Features](#upcoming-features)
 - [5. Contributing](#contributing)
-- [6. Disclaimer](#disclaimer)
-- [7. Installation](#installation)
+- [6. Adding modules](#adding-modules)
+- [7. Disclaimer](#disclaimer)
+- [8. Installation](#installation)
   - [a) Development: Install OGameX using Docker](#development)
   - [b) Production: Install OGameX using Docker](#production)
-- [8. Upgrade](#upgrade)
-- [9. Support](#support)
-- [10. Sponsorship](#sponsorship)
-- [11. License](#license)
-- [12. OGameX related projects](#related-projects)
+- [9. Upgrade](#upgrade)
+- [10. Support](#support)
+- [11. Sponsorship](#sponsorship)
+- [12. License](#license)
+- [13. OGameX related projects](#related-projects)
 
 ## <a name="screenshots"></a> 🖥️ 1. Example screenshots
 
@@ -119,11 +120,17 @@ A good starting point are issues labeled as "good first issue".
 
 Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBUTING.md) file for more information.
 
-## <a name="disclaimer"></a> 📓 6. Disclaimer
+## <a name="adding-modules"></a> 6. Adding modules
+
+OGameX supports optional Laravel modules. Follow the [modules tutorial](docs/modules.md)
+to create one, wire its Laravel resources, and add tests. [`Modules/HelloWorld`](Modules/HelloWorld)
+is the reference implementation.
+
+## <a name="disclaimer"></a> 📓 7. Disclaimer
 
 This project is a non-commercial hobby project. All rights and concepts related to OGame are owned by GameForge GmbH. We encourage supporters to try the official OGame at https://ogame.org to support its creators.
 
-## <a name="installation"></a> 🖥️ 7. Installation
+## <a name="installation"></a> 🖥️ 8. Installation
 The recommended way to install OGameX is by running the bundled Docker containers. This takes care of all the dependencies and is the easiest way to get started.
 
 If you instead wish to install OGameX manually, note that OGameX requires PHP ^8.5. See the list of requirements for Laravel 13.x and how to deploy manually to a server here: https://laravel.com/docs/13.x/deployment.
@@ -187,7 +194,7 @@ Create a new account to start using OGameX. The first account created will be au
 
 > Note: The production version runs in forced-HTTPS (redirect) mode by default using a self-signed SSL certificate. If you want to access the application via HTTP, open `.env` and change `APP_ENV` from `production` to `local`.
 
-## <a name="upgrade"></a> 🖥️ 8. Upgrade and misc instructions
+## <a name="upgrade"></a> 🖥️ 9. Upgrade and misc instructions
 
 ### Upgrade OGameX to a new version
 If you want to upgrade an existing installation of OGameX to a new version, follow these steps:
@@ -233,11 +240,11 @@ By default, the first registered user is assigned the admin role which can see t
   ```
   For production, add `-f docker-compose.prod.yml` to the `docker compose` commands above.
 
-## <a name="support"></a> 📞 9. Support
+## <a name="support"></a> 📞 10. Support
 
 Did you encounter issues in this project? Please open a ticket on GitHub and we'll try to help you out as soon as possible.
 
-## <a name="sponsorship"></a> 💰 10. Sponsorship
+## <a name="sponsorship"></a> 💰 11. Sponsorship
 We thank the following parties for sponsoring this project:
 
 <table>
@@ -262,11 +269,11 @@ We thank the following parties for sponsoring this project:
 
 Interested in supporting OGameX? We welcome sponsorships of all sizes! Your support helps us maintain and improve this open-source project. Please get in touch with us via GitHub or Discord to discuss sponsorship opportunities.
 
-## <a name="license"></a> 📰 11. License
+## <a name="license"></a> 📰 12. License
 
 The OGameX Laravel source code is open-source software licensed under the MIT license. See the LICENSE file for more details. All rights and concepts related to OGame are owned by GameForge GmbH.
 
-## <a name="related-projects"></a> 🌍 12. OGameX related projects
+## <a name="related-projects"></a> 🌍 13. OGameX related projects
 
 The following projects either host OGameX servers or are based on the OGameX core.
 
