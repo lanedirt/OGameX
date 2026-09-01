@@ -245,7 +245,7 @@ class JumpGateTest extends MoonTestCase
         $this->assertFalse($this->jumpGateService->hasUnprocessedArrivedFleet($this->moonService));
 
         // Create a foreign player's attack fleet that has arrived but not processed
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlayer = $foreignPlanet->getPlayer();
         $this->assertNotNull($foreignPlayer, 'Foreign player not found');
 
@@ -272,7 +272,7 @@ class JumpGateTest extends MoonTestCase
     public function testFleetInTransitDoesNotTriggerRaceCondition(): void
     {
         // Create a foreign player's attack fleet that has NOT arrived yet
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlayer = $foreignPlanet->getPlayer();
         $this->assertNotNull($foreignPlayer, 'Foreign player not found');
 
@@ -323,7 +323,7 @@ class JumpGateTest extends MoonTestCase
      */
     public function testProcessedFleetDoesNotTriggerRaceCondition(): void
     {
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlayer = $foreignPlanet->getPlayer();
         $this->assertNotNull($foreignPlayer, 'Foreign player not found');
 

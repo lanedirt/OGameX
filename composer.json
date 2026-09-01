@@ -67,7 +67,7 @@
             "./vendor/bin/phpstan analyse --memory-limit=1G"
         ],
         "tests": [
-            "@php artisan test"
+            "./vendor/bin/pest --parallel"
         ],
         "rector": [
             "./vendor/bin/rector --memory-limit=1G"

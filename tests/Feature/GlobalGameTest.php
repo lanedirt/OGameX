@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\Date;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class GlobalGameTest extends AccountTestCase
+class GlobalGameTest extends IsolatedAccountTestCase
 {
     /**
      * Test that a page load updates only the current planet of player instead of all planets.

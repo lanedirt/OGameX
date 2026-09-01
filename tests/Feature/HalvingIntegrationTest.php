@@ -10,12 +10,12 @@ use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Models\User;
 use OGame\Services\HalvingService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Integration tests for the Dark Matter halving feature.
  */
-class HalvingIntegrationTest extends AccountTestCase
+class HalvingIntegrationTest extends IsolatedAccountTestCase
 {
     /**
      * Get the current user model, failing the test if it cannot be found.

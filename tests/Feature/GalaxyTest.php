@@ -7,12 +7,12 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that the galaxy page works as expected.
  */
-class GalaxyTest extends AccountTestCase
+class GalaxyTest extends IsolatedAccountTestCase
 {
     /**
      * Verify that debris fields are shown on the galaxy page.

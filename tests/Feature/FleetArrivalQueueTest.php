@@ -30,11 +30,6 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
 
     protected string $missionName = 'Transport';
 
-    /**
-     * @var array<int> Buddy user IDs created by ACS Defend tests, cleaned up in tearDown.
-     */
-    private array $createdBuddyUserIds = [];
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -43,64 +38,12 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
         DB::table('jobs')->delete();
     }
 
-    public function reloadApplication(): void
-    {
-        parent::reloadApplication();
-        config(['queue.default' => 'database']);
-    }
-
-    protected function tearDown(): void
-    {
-        if ($this->currentUserId !== 0) {
-            $planetIds = Planet::where('user_id', $this->currentUserId)->pluck('id')->all();
-
-            if (!empty($planetIds)) {
-                FleetMission::where(function ($query) use ($planetIds) {
-                    $query->whereIn('planet_id_from', $planetIds)
-                        ->orWhereIn('planet_id_to', $planetIds);
-                })->whereNotNull('parent_id')->delete();
-
-                FleetMission::where(function ($query) use ($planetIds) {
-                    $query->whereIn('planet_id_from', $planetIds)
-                        ->orWhereIn('planet_id_to', $planetIds);
-                })->delete();
-            }
-
-            Message::where('user_id', $this->currentUserId)->delete();
-            DB::table('users_tech')->where('user_id', $this->currentUserId)->delete();
-            // Clear the FK on users.planet_current before deleting the planet rows it references.
-            DB::table('users')->where('id', $this->currentUserId)->update(['planet_current' => null]);
-            Planet::where('user_id', $this->currentUserId)->delete();
-            User::where('id', $this->currentUserId)->delete();
-        }
-
-        foreach ($this->createdBuddyUserIds as $buddyUserId) {
-            DB::table('buddy_requests')
-                ->where('sender_user_id', $buddyUserId)
-                ->orWhere('receiver_user_id', $buddyUserId)
-                ->delete();
-            Message::where('user_id', $buddyUserId)->delete();
-            DB::table('users_tech')->where('user_id', $buddyUserId)->delete();
-            DB::table('users')->where('id', $buddyUserId)->update(['planet_current' => null]);
-            Planet::where('user_id', $buddyUserId)->delete();
-            User::where('id', $buddyUserId)->delete();
-        }
-        $this->createdBuddyUserIds = [];
-
-        DB::table('jobs')->delete();
-
-        config(['queue.default' => 'sync']);
-
-        parent::tearDown();
-    }
-
     /**
      * Create a buddy player with a planet the current user can send ACS Defend missions to.
      */
     private function createBuddyTargetPlanet(): PlanetService
     {
         $buddyUser = User::factory()->create();
-        $this->createdBuddyUserIds[] = $buddyUser->id;
 
         $buddyPlanet = $this->createPlanetAtSafeCoordinate($buddyUser->id);
 

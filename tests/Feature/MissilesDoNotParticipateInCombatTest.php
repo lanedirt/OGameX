@@ -31,7 +31,7 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetAddUnit('light_fighter', 10);
-        $this->playerSetResearchLevel('computer_technology', object_level: 1);
+        $this->playerSetResearchLevel('computer_technology', objectLevel: 1);
 
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
@@ -88,7 +88,6 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
         );
 
         $this->travel($fleetMissionDuration + 1)->seconds();
-        $this->reloadApplication();
         $this->playerSetAllMessagesRead();
 
         // Trigger the battle
@@ -193,7 +192,6 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
         );
 
         $this->travel($fleetMissionDuration + 1)->seconds();
-        $this->reloadApplication();
 
         // Trigger the battle
         $response = $this->get('/overview');

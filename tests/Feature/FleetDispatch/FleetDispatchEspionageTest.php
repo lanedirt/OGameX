@@ -465,7 +465,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
     {
         $this->basicSetup();
 
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanetCoordinates = $foreignPlanet->getPlanetCoordinates();
 
         // Send a espionage mission through the minifleet endpoint to a nearby foreign planet.
@@ -479,8 +479,6 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         ]);
 
         $post->assertStatus(200);
-
-        $this->reloadApplication();
 
         // The eventbox should show the espionage mission.
         $response = $this->get('/ajax/fleet/eventbox/fetch');
@@ -512,7 +510,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Add enough probes to the planet
         $this->planetAddUnit('espionage_probe', 10);
 
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanetCoordinates = $foreignPlanet->getPlanetCoordinates();
 
         // Send an espionage mission through the minifleet endpoint
@@ -526,8 +524,6 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         ]);
 
         $post->assertStatus(200);
-
-        $this->reloadApplication();
 
         // Get the fleet mission and verify it contains 5 probes (the saved amount)
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
@@ -556,7 +552,7 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         // Add probes to the planet
         $this->planetAddUnit('espionage_probe', 10);
 
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanetCoordinates = $foreignPlanet->getPlanetCoordinates();
 
         // Send an espionage mission through the minifleet endpoint
@@ -570,8 +566,6 @@ class FleetDispatchEspionageTest extends FleetDispatchTestCase
         ]);
 
         $post->assertStatus(200);
-
-        $this->reloadApplication();
 
         // Get the fleet mission and verify it contains 1 probe (the default)
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);

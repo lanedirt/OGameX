@@ -77,13 +77,13 @@ Your PR should include feature or unit tests where possible to cover the changes
 To run the tests locally, you can use the following command:
 
 ```
-$ php artisan test
+$ composer run tests
 ```
 
 You are also able to apply the `--filter` parameter to run a specific class or method such as :
 
 ```
-$ php artisan test --filter PlanetServiceTest
+$ composer run tests -- --filter PlanetServiceTest
 ```
 
 ### 6. Custom race condition tests
@@ -108,3 +108,25 @@ During development, you can run the Vite dev server to automatically recompile a
 ```
 $ npm run dev
 ```
+
+## AI-Assisted Contributions
+
+AI-assisted contributions are welcome at OGameX, and many of us use AI tooling in our own workflow. What matters is the quality of what you submit, not how you wrote it. That said, **AI-assisted contributions are held to the same bar as any other contribution.** In the past we have received PRs that were clearly unreviewed AI output: code that didn't fit the project, broke existing behavior, or showed no understanding of the game mechanics it was trying to implement. These create a heavy burden on reviewers and will be closed without detailed review.
+
+If you use a coding agent, point it at [AGENTS.md](AGENTS.md), which contains the project's build commands, repository layout, and conventions.
+
+### The ground rules
+
+1. **Understand what you are submitting.** You don't need to have written every line by hand, but you must be able to explain what your code does and why. During review, you are the one answering questions, not your AI agent. If you cannot explain a change, it is not ready.
+
+2. **Understand the game.** OGameX is a faithful recreation of OGame. Contributions that get game mechanics wrong (fleet timing, combat formulas, resource calculations, building requirements, research dependencies) will not be merged regardless of code quality. If you are not familiar with how a feature works in OGame, research it first or ask in Discussions before writing code.
+
+3. **Test for real.** Run the application and verify your change works in the browser. "It compiles" or "the tests pass" is not sufficient. Confirm the feature actually behaves correctly in the running game, and include screenshots or a brief description of your manual testing in the PR.
+
+4. **Review your own code first.** Read through your entire diff line by line before opening a PR. Run the project's code quality tools (Rector, Pint, PHPStan) and make sure your tests actually test the behavior you changed, not just that "something runs without errors." This is where you catch the mistakes AI makes.
+
+5. **Sound like a human.** Issues, PR descriptions, and review replies should read like you wrote them. Generic AI-generated walls of text make it harder for reviewers to understand your intent. Write concisely in your own words.
+
+6. **Be transparent.** If AI tools were involved in generating your code, mention it in the PR description.
+
+If you are new to programming or to this codebase, AI can be an excellent learning tool: ask it to explain the code it generates, work in small steps (understand, plan, implement, review), and feed it context about how OGame works, such as the relevant mission classes, existing tests, and the specific mechanics involved.

@@ -6,12 +6,12 @@ use Exception;
 use OGame\Models\BuddyRequest;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test buddy system functionality.
  */
-class BuddyTest extends AccountTestCase
+class BuddyTest extends IsolatedAccountTestCase
 {
     /**
      * Test that the buddies index page loads correctly.
@@ -694,9 +694,9 @@ class BuddyTest extends AccountTestCase
         // Store the original user ID
         $originalUserId = $this->currentUserId;
 
-        // Create a second user with planets using the registration process
+        // Create a second user with planets. createAndLoginUser() already switches the
+        // active user and currentUserId to the newly created user.
         $this->createAndLoginUser();
-        $this->retrieveMetaFields(); // Update currentUserId to the new user
         $ignoredUserId = $this->currentUserId;
         $ignoredUser = User::find($ignoredUserId);
 

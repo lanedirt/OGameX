@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use OGame\Models\Resources;
 use OGame\Models\UnitQueue;
 use OGame\Services\ObjectService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that missile silo capacity works correctly, including queued missiles.
  */
-class MissileSiloCapacityTest extends AccountTestCase
+class MissileSiloCapacityTest extends IsolatedAccountTestCase
 {
     /**
      * Prepare the planet for the test with missile silo and required buildings.

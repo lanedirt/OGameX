@@ -318,11 +318,11 @@
                 </tr>
                 <tr>
                     <td>{{ __('t_ingame.alliance.rename_founder') }}</td>
-                    <td><input type="text" class="textInput" id="foundername" value="{{ $alliance->founder_rank_name ?? 'Founder' }}" size="30" maxlength="20"></td>
+                    <td><input type="text" class="textInput" id="foundername" value="{{ $alliance->founder_rank_name ?? __('t_ingame.alliance.rank_founder_default') }}" size="30" maxlength="20"></td>
                 </tr>
                 <tr>
                     <td>{{ __('t_ingame.alliance.rename_newcomer') }}</td>
-                    <td><input type="text" class="textInput" id="newcomerrankname" value="{{ $alliance->newcomer_rank_name ?? 'Newcomer' }}" size="30" maxlength="20"></td>
+                    <td><input type="text" class="textInput" id="newcomerrankname" value="{{ $alliance->newcomer_rank_name ?? __('t_ingame.alliance.rank_newcomer_default') }}" size="30" maxlength="20"></td>
                 </tr>
                 <tr>
                     <td colspan="2">

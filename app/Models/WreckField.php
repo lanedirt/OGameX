@@ -62,14 +62,6 @@ class WreckField extends Model
 {
     use HasFactory;
 
-    protected $casts = [
-        'created_at' => 'datetime',
-        'expires_at' => 'datetime',
-        'repair_started_at' => 'datetime',
-        'repair_completed_at' => 'datetime',
-        'ship_data' => 'array',
-    ];
-
     /**
      * Get the owner of the wreck field.
      */
@@ -203,5 +195,16 @@ class WreckField extends Model
         $elapsedTime = (int) now()->timestamp - (int) $this->repair_started_at->timestamp;
 
         return min(100, max(0, (int) (($elapsedTime / $totalTime) * 100)));
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'created_at' => 'datetime',
+            'expires_at' => 'datetime',
+            'repair_started_at' => 'datetime',
+            'repair_completed_at' => 'datetime',
+            'ship_data' => 'array',
+        ];
     }
 }

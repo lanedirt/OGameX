@@ -35,8 +35,13 @@ jobs:
       docker:
         image: docker:26.0.0
         options: --privileged
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    name: Tests (shard ${{ matrix.shard }}/3)
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Check for no external remote sources
         uses: ./.github/actions/check-remote-sources
@@ -44,15 +49,30 @@ jobs:
       - name: Setup Docker Compose
         uses: ./.github/actions/docker-compose-setup
 
-      - name: Run Tests
-        uses: nick-fields/retry@v4
+      - name: Run Tests (shard ${{ matrix.shard }}/3)
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: docker compose exec -T ogamex-app php artisan test
+          command: docker compose exec -T ogamex-app ./vendor/bin/pest --shard=${{ matrix.shard }}/3 --parallel
+
+  race-condition:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:26.0.0
+        options: --privileged
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check for no external remote sources
+        uses: ./.github/actions/check-remote-sources
+
+      - name: Setup Docker Compose
+        uses: ./.github/actions/docker-compose-setup
 
       - name: Run custom Race Condition Tests
-        uses: nick-fields/retry@v4
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 10
           max_attempts: 3

@@ -79,6 +79,24 @@ class PlanetServiceFactory
     }
 
     /**
+     * Drop cached PlanetService instances for a planet/moon so subsequent lookups reload from DB.
+     */
+    public function forgetPlanetCache(int $planetId, string|null $coordinateKey = null, PlanetType|null $type = null): void
+    {
+        unset($this->instancesById[$planetId]);
+
+        if ($coordinateKey === null) {
+            return;
+        }
+
+        if ($type === PlanetType::Moon) {
+            unset($this->moonInstancesByCoordinate[$coordinateKey]);
+        } else {
+            unset($this->planetInstancesByCoordinate[$coordinateKey]);
+        }
+    }
+
+    /**
      * Returns a planetService either from local instances cache or creates a new one. Note:
      * it is advised to use makeForPlayer() method if playerService is already available.
      *
@@ -92,11 +110,24 @@ class PlanetServiceFactory
     public function make(int $planetId, bool $reloadCache = false): PlanetService|null
     {
         if ($reloadCache || !isset($this->instancesById[$planetId])) {
+            $player = null;
+            $planet = null;
+
+            if ($reloadCache) {
+                $planet = Planet::find($planetId);
+                if ($planet === null) {
+                    throw new RuntimeException('Planet not found.');
+                }
+
+                $player = $this->playerServiceFactory->make($planet->user_id);
+                $player->refreshUser();
+            }
+
             /** @var PlanetService */
             $planetService = resolve(PlanetService::class, [
-                'player' => null,
-                'planet_id' => $planetId,
-                'planet' => null,
+                'player' => $player,
+                'planet_id' => $planet === null ? $planetId : null,
+                'planet' => $planet,
             ]);
 
             // Verify planet type is valid

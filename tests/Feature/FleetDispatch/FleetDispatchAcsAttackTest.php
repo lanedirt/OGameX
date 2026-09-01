@@ -538,7 +538,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Advance time to arrival
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->playerSetAllMessagesRead();
         $this->get('/overview');
 
@@ -609,7 +608,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Advance to arrival
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Check that each fleet got its own return mission
@@ -673,7 +671,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         // Advance well past arrival time so battle processes and union expires
         $this->travelTo(Date::createFromTimestamp($mission->time_arrival + 3600));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Union should no longer be visible (time_arrival is in the past)
@@ -787,7 +784,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Advance time slightly (fleet is mid-flight)
         $midFlightTime = (int)(($initiatorMission->time_departure + $initiatorMission->time_arrival) / 2);
         $this->travelTo(Date::createFromTimestamp($midFlightTime));
-        $this->reloadApplication();
 
         // Recall ally's fleet: switch to ally user context
         $allyUserModel = User::find($this->allyUser()->id);
@@ -883,7 +879,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Advance time slightly (mid-flight)
         $midFlightTime = (int)(($initiatorMission->time_departure + $initiatorMission->time_arrival) / 2);
         $this->travelTo(Date::createFromTimestamp($midFlightTime));
-        $this->reloadApplication();
 
         // Recall initiator's fleet (logged in as the initiator/current user)
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -908,7 +903,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // The ally's mission goes from ally planet → target planet, so we need to trigger
         // processing from the target's perspective (the target planet is the destination).
         $this->travelTo(Date::createFromTimestamp($allyMission->time_arrival + 10));
-        $this->refreshApplication();
         $targetUserModel = User::find($this->targetUser()->id);
         if ($targetUserModel === null) {
             $this->fail('Target user not found.');
@@ -998,7 +992,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $elapsedTime = (int)(($allyMission->time_arrival - $allyMission->time_departure) / 2);
         $midFlightTimestamp = $allyMission->time_departure + $elapsedTime;
         $this->travelTo(Date::createFromTimestamp($midFlightTimestamp));
-        $this->reloadApplication();
 
         // Recall ally's fleet
         $allyUserModel = User::find($this->allyUser()->id);
@@ -1081,7 +1074,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Advance to arrival
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Verify exactly one NEW battle report was created (not two)
@@ -1155,7 +1147,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Advance to arrival
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Both return missions should exist (fleets survive against minimal defenses)
@@ -1192,7 +1183,10 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         $this->createAllyPlayer();
 
         // Give ally higher drive tech so they are naturally faster
-        $allyPlayerService = resolve(PlayerService::class, ['player_id' => $this->allyUser()->id]);
+        $allyPlayerService = $this->allyPlanet()->getPlayer();
+        if ($allyPlayerService === null) {
+            $this->fail('Ally player not found.');
+        }
         $allyPlayerService->setResearchLevel('impulse_drive', 5);
         $allyPlayerService->setResearchLevel('combustion_drive', 5);
 
@@ -1251,7 +1245,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Advance to arrival so battle processes
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Get the ally's return mission
@@ -1633,7 +1626,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Advance time past arrival and trigger fleet processing.
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Fetch return missions.
@@ -1749,7 +1741,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
@@ -1845,7 +1836,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
@@ -1947,7 +1937,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
@@ -2049,7 +2038,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
 
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         $initiatorReturn = FleetMission::where('parent_id', $initiatorMission->id)
@@ -2161,7 +2149,6 @@ class FleetDispatchAcsAttackTest extends FleetDispatchTestCase
         // Advance to arrival and trigger mission processing
         $arrivalTime = max($initiatorMission->time_arrival, $allyMission->time_arrival);
         $this->travelTo(Date::createFromTimestamp($arrivalTime + 10));
-        $this->reloadApplication();
         $this->get('/overview');
 
         // Verify battle report shows correct combined attacker count (360 + 180 = 540)

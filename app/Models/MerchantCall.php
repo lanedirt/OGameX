@@ -32,15 +32,6 @@ use Illuminate\Support\Carbon;
 class MerchantCall extends Model
 {
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'called_at' => 'datetime',
-    ];
-
-    /**
      * Get the user that made the merchant call.
      */
     public function user(): BelongsTo
@@ -54,5 +45,17 @@ class MerchantCall extends Model
     public function planet(): BelongsTo
     {
         return $this->belongsTo(Planet::class);
+    }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'called_at' => 'datetime',
+        ];
     }
 }

@@ -50,22 +50,25 @@ use Illuminate\Support\Carbon;
  */
 class BattleReport extends Model
 {
-    protected $casts = [
-        'general' => 'array',
-        'attacker' => 'array',
-        'defender' => 'array',
-        'rounds' => 'array',
-        'loot' => 'array',
-        'debris' => 'array',
-        'repaired_defenses' => 'array',
-        'wreckage' => 'array',
-    ];
-
     /**
      * Get the player that owns the planet that this battle report is about.
      */
     public function planetUserId(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'general' => 'array',
+            'attacker' => 'array',
+            'defender' => 'array',
+            'rounds' => 'array',
+            'loot' => 'array',
+            'debris' => 'array',
+            'repaired_defenses' => 'array',
+            'wreckage' => 'array',
+        ];
     }
 }

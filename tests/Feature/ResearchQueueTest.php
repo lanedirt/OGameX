@@ -8,12 +8,12 @@ use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that the research queue works as expected.
  */
-class ResearchQueueTest extends AccountTestCase
+class ResearchQueueTest extends IsolatedAccountTestCase
 {
     /**
      * Set up common test components.
@@ -246,6 +246,11 @@ class ResearchQueueTest extends AccountTestCase
      */
     public function testResearchLabRequirement(): void
     {
+        // This test expects research to finish within 2 minutes; set research_speed explicitly
+        // so it's self-contained and doesn't depend on settings left behind by other tests.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('research_speed', 2);
+
         // Add required resources for research to planet
         $this->planetAddResources(new Resources(5000, 5000, 5000, 0));
 

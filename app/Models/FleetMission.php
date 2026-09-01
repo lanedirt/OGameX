@@ -112,19 +112,6 @@ use Illuminate\Support\Carbon;
 class FleetMission extends Model
 {
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'wreck_field_data' => 'array',
-        'time_arrival_ms' => 'integer',
-        'arrival_job_id' => 'integer',
-        'hold_job_id' => 'integer',
-        'retreat_after_defender_retreat' => 'boolean',
-    ];
-
-    /**
      * Get the planet that this fleet mission is going from.
      */
     public function planetFrom(): BelongsTo
@@ -154,5 +141,21 @@ class FleetMission extends Model
     public function isInUnion(): bool
     {
         return $this->union_id !== null;
+    }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'wreck_field_data' => 'array',
+            'time_arrival_ms' => 'integer',
+            'arrival_job_id' => 'integer',
+            'hold_job_id' => 'integer',
+            'retreat_after_defender_retreat' => 'boolean',
+        ];
     }
 }

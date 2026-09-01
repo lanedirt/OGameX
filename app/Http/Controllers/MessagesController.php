@@ -32,9 +32,9 @@ class MessagesController extends OGameController
         ];
 
         // By default open the "Fleets/Espionage" tab.
-        $tabKey = $request->get('tab', 'fleets');
-        $subtabKey = $request->get('subtab', 'espionage');
-        $page = (int) $request->get('pagination', 1);
+        $tabKey = $request->input('tab', 'fleets');
+        $subtabKey = $request->input('subtab', 'espionage');
+        $page = (int) $request->input('pagination', 1);
 
         $tabContent = $this->tabContent($messageService, $tabKey, $subtabKey, $page);
 
@@ -131,9 +131,9 @@ class MessagesController extends OGameController
      */
     public function ajaxGetTabContents(Request $request, MessageService $messageService): View
     {
-        $tabKey = $request->get('tab', 'fleets');
-        $subtabKey = $request->get('subtab', '');
-        $page = (int) $request->get('pagination', 1);
+        $tabKey = $request->input('tab', 'fleets');
+        $subtabKey = $request->input('subtab', '');
+        $page = (int) $request->input('pagination', 1);
 
         // If no subtab is provided, we load the tab template.
         if (empty($subtabKey)) {
@@ -155,8 +155,8 @@ class MessagesController extends OGameController
     public function ajaxGetMessage(int $messageId, Request $request, MessageService $messageService): View
     {
         // Get tab and subtab from request for pagination context
-        $tab = $request->get('tab');
-        $subtab = $request->get('subtab');
+        $tab = $request->input('tab');
+        $subtab = $request->input('subtab');
 
         // Get full message with pagination context
         $paginationData = $messageService->getMessagePaginationContext($messageId, $tab, $subtab);
@@ -177,10 +177,10 @@ class MessagesController extends OGameController
      */
     public function post(Request $request, MessageService $messageService): JsonResponse
     {
-        $messageId = $request->get('messageId');
+        $messageId = $request->input('messageId');
 
         // If action is 103, we delete the message.
-        if ((int)$request->get('action') === 103) {
+        if ((int)$request->input('action') === 103) {
             $messageService->deleteMessage($messageId);
         }
 

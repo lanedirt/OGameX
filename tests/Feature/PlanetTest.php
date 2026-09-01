@@ -4,18 +4,15 @@ namespace Tests\Feature;
 
 use Exception;
 use OGame\Models\Resources;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class PlanetTest extends AccountTestCase
+class PlanetTest extends IsolatedAccountTestCase
 {
     /**
      * Check that a planet has default (base) production.
      */
     public function testPlanetHasBaseResourceProduction(): void
     {
-        // Reload the planet to ensure it has the latest data.
-        $this->planetService->reloadPlanet();
-
         // Assert that a planet has default production for metal and crystal.
         $this->assertGreaterThan(0, $this->planetService->getMetalProductionPerHour());
         $this->assertGreaterThan(0, $this->planetService->getCrystalProductionPerHour());

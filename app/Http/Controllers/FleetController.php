@@ -101,11 +101,11 @@ class FleetController extends OGameController
             'units' => $units,
             'objects' => ObjectService::getShipObjects(),
             'shipAmount' => $planet->getFlightShipAmount(),
-            'galaxy' => $request->get('galaxy'),
-            'system' => $request->get('system'),
-            'position' => $request->get('position'),
-            'type' => $request->get('type'),
-            'mission' => $request->get('mission'),
+            'galaxy' => $request->input('galaxy'),
+            'system' => $request->input('system'),
+            'position' => $request->input('position'),
+            'type' => $request->input('type'),
+            'mission' => $request->input('mission'),
             'settings' => $settings,
             'fleetSlotsInUse' => $player->getFleetSlotsInUse(),
             'fleetSlotsMax' => $player->getFleetSlotsMax(),
@@ -337,7 +337,15 @@ class FleetController extends OGameController
         $targetCoordinates = new Coordinate($galaxy, $system, $position);
         $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinates, true, $planetType);
         $targetInhabited = true;
-        if ($targetPlanet !== null) {
+        if ($targetPlanet !== null && $targetPlanet->isDestroyed()) {
+            // Destroyed bodies show as "space" for manual fleet dispatch (no galaxy click-actions).
+            $targetPlayerId = 99999;
+            $targetPlanetName = $targetPlanet->isMoon()
+                ? $targetPlanet->getPlanetName()
+                : __('t_galaxy.planet.destroyed');
+            $targetPlayerName = 'Deep space';
+            $targetCoordinates = $targetPlanet->getPlanetCoordinates();
+        } elseif ($targetPlanet !== null) {
             $targetPlayer = $targetPlanet->getPlayer();
 
             $targetPlayerId = $targetPlayer?->getId() ?? 99999;
