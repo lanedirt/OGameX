@@ -11,24 +11,29 @@ class HelloWorldRouteTest extends IsolatedAccountTestCase
 {
     private string $statusesFile;
 
-    private string $originalStatuses;
-
     /**
      * Enable the reference module before the application boots so its routes,
      * views, and slots are registered during boot. Doing this here (instead of a
      * mid-test `refreshApplication()`) keeps the test compatible with the
      * `DatabaseTransactions` isolation used by `IsolatedAccountTestCase`.
+     *
+     * The enabled status is written to a throwaway file (never the tracked
+     * `modules_statuses.json`), so a mid-class crash can never leave the
+     * repository dirty.
      */
     public function createApplication(): Application
     {
         // base_path() is unavailable until the app is created, so resolve the
         // project root from this file's location (Modules/HelloWorld/tests/Feature).
-        $this->statusesFile = dirname(__DIR__, 4) . '/modules_statuses.json';
-        $this->originalStatuses = (string) file_get_contents($this->statusesFile);
-
-        $statuses = json_decode($this->originalStatuses, true);
+        $trackedFile = dirname(__DIR__, 4) . '/modules_statuses.json';
+        $statuses = json_decode((string) file_get_contents($trackedFile), true);
         $statuses['HelloWorld'] = true;
+
+        $this->statusesFile = sys_get_temp_dir() . '/modules_statuses_' . uniqid('', true) . '.json';
         file_put_contents($this->statusesFile, json_encode($statuses, JSON_PRETTY_PRINT));
+
+        // Point the module activator at the throwaway file for this boot.
+        putenv('MODULES_STATUSES_FILE=' . $this->statusesFile);
 
         return parent::createApplication();
     }
@@ -44,10 +49,13 @@ class HelloWorldRouteTest extends IsolatedAccountTestCase
 
     protected function tearDown(): void
     {
-        // Restore the exact statuses file the suite started with.
-        file_put_contents($this->statusesFile, $this->originalStatuses);
-
         ModuleSlotService::resetSlots();
+
+        // Remove the throwaway statuses file and clear the env override.
+        if (is_file($this->statusesFile)) {
+            unlink($this->statusesFile);
+        }
+        putenv('MODULES_STATUSES_FILE');
 
         parent::tearDown();
     }

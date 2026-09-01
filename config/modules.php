@@ -314,7 +314,7 @@ return [
     'activators' => [
         'file' => [
             'class' => FileActivator::class,
-            'statuses-file' => base_path('modules_statuses.json'),
+            'statuses-file' => env('MODULES_STATUSES_FILE', base_path('modules_statuses.json')),
         ],
     ],
 
