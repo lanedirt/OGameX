@@ -77,13 +77,13 @@ Your PR should include feature or unit tests where possible to cover the changes
 To run the tests locally, you can use the following command:
 
 ```
-$ php artisan test
+$ composer run tests
 ```
 
 You are also able to apply the `--filter` parameter to run a specific class or method such as :
 
 ```
-$ php artisan test --filter PlanetServiceTest
+$ composer run tests -- --filter PlanetServiceTest
 ```
 
 ### 6. Custom race condition tests
