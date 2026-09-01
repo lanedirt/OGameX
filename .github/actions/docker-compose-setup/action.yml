@@ -1,12 +1,6 @@
 name: 'Docker Compose Setup'
 description: 'Sets up Docker Compose environment for OGameX testing'
 
-inputs:
-  use-prepared-image:
-    description: 'Download and load the pre-built Docker images artifact instead of building from scratch.'
-    required: false
-    default: 'false'
-
 runs:
   using: 'composite'
   steps:
@@ -20,44 +14,10 @@ runs:
       run: |
         sudo chmod -R 777 /var/www
 
-    - name: Download pre-built Docker images
-      if: inputs.use-prepared-image == 'true'
-      uses: actions/download-artifact@v4
-      with:
-        name: docker-images
-        path: .docker-images
-
-    - name: Load pre-built Docker images
-      if: inputs.use-prepared-image == 'true'
+    - name: Set up Docker Compose
       shell: bash
       run: |
-        gunzip -c .docker-images/docker-images.tar.gz | docker image load
-        rm -rf .docker-images
-
-    - name: Set up Docker Buildx
-      if: inputs.use-prepared-image != 'true'
-      uses: docker/setup-buildx-action@v3
-
-    - name: Cache Composer dependencies
-      if: inputs.use-prepared-image != 'true'
-      uses: actions/cache@v4
-      with:
-        path: vendor
-        key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-composer-
-
-    - name: Set up Docker Compose (pre-built images)
-      if: inputs.use-prepared-image == 'true'
-      shell: bash
-      run: |
-        docker compose up -d ogamex-db ogamex-app
-
-    - name: Set up Docker Compose (build from source)
-      if: inputs.use-prepared-image != 'true'
-      shell: bash
-      run: |
-        docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d
+        docker compose -f docker-compose.yml up -d
 
     - name: Wait for application to be ready (max 60 seconds)
       shell: bash

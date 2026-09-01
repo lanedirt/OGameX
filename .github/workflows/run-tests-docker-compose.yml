@@ -29,44 +29,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Build the Docker images ONCE, save them as a workflow artifact, and let all
-  # downstream jobs load them instead of each matrix shard rebuilding the image.
-  build-images:
-    runs-on: ubuntu-latest
-    name: Build Docker images
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Check for no external remote sources
-        uses: ./.github/actions/check-remote-sources
-
-      - name: Setup Docker Compose (builds the image)
-        uses: ./.github/actions/docker-compose-setup
-        with:
-          use-prepared-image: 'false'
-
-      - name: Save Docker images as artifact
-        shell: bash
-        run: |
-          # Explicitly save only the app image and MariaDB needed by tests/race.
-          # docker compose config --images resolves the exact project-prefixed name.
-          APP_IMAGE=$(docker compose config | sed -n '/ogamex-app:/,/image:/p' | grep 'image:' | awk '{print $2}' | head -n1)
-          echo "App image: $APP_IMAGE"
-          if [ -z "$APP_IMAGE" ]; then echo 'ERROR: could not resolve app image name'; exit 1; fi
-          docker image save "$APP_IMAGE" mariadb:11.3.2-jammy | gzip -1 > docker-images.tar.gz
-          ls -lh docker-images.tar.gz
-
-      - name: Upload Docker images artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-images
-          path: docker-images.tar.gz
-          retention-days: 1
-          if-no-files-found: error
-
   test-docker:
-    needs: build-images
     runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:26.0.0
+        options: --privileged
     strategy:
       fail-fast: false
       matrix:
@@ -80,8 +48,6 @@ jobs:
 
       - name: Setup Docker Compose
         uses: ./.github/actions/docker-compose-setup
-        with:
-          use-prepared-image: 'true'
 
       - name: Run Tests (shard ${{ matrix.shard }}/3)
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
@@ -91,18 +57,19 @@ jobs:
           command: docker compose exec -T ogamex-app ./vendor/bin/pest --shard=${{ matrix.shard }}/3 --parallel
 
   race-condition:
-    needs: build-images
     runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:26.0.0
+        options: --privileged
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Check for no external remote sources
         uses: ./.github/actions/check-remote-sources
 
       - name: Setup Docker Compose
         uses: ./.github/actions/docker-compose-setup
-        with:
-          use-prepared-image: 'true'
 
       - name: Run custom Race Condition Tests
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
