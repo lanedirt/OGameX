@@ -694,9 +694,9 @@ class BuddyTest extends IsolatedAccountTestCase
         // Store the original user ID
         $originalUserId = $this->currentUserId;
 
-        // Create a second user with planets using the registration process
+        // Create a second user with planets. createAndLoginUser() already switches the
+        // active user and currentUserId to the newly created user.
         $this->createAndLoginUser();
-        $this->retrieveMetaFields(); // Update currentUserId to the new user
         $ignoredUserId = $this->currentUserId;
         $ignoredUser = User::find($ignoredUserId);
 
