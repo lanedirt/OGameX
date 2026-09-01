@@ -2,38 +2,104 @@
 
 namespace Tests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use LogicException;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 use OGame\Services\InitialUserDataService;
+use OGame\Services\PlanetService;
 use OGame\Services\SettingsService;
+use Tests\Traits\AssertsMessages;
+use Tests\Traits\AssertsPageState;
+use Tests\Traits\CreatesForeignFixtures;
+use Tests\Traits\ManagesPlanetState;
+use Tests\Traits\SubmitsBuildRequests;
 
 /**
- * Isolated variant of AccountTestCase.
+ * Base class for tests that require an authenticated account, isolated per test.
  *
- * Differences from AccountTestCase:
- *  - Wraps each test in a database transaction (DatabaseTransactions) so no rows leak
- *    between tests and tests no longer depend on execution order.
- *  - Creates the user via the standard Eloquent factories (User::factory()) + actingAs(),
- *    instead of a real HTTP /register + /login round-trip.
- *  - Starts the session up-front so csrf_token() returns a real token, avoiding a
- *    session-initializing GET request; CSRF stays fully enforced.
+ * Wraps each test in a database transaction (DatabaseTransactions) so no rows leak between
+ * tests and tests no longer depend on execution order. Creates the user via the standard
+ * Eloquent factories (User::factory()) + actingAs() instead of a real HTTP /register +
+ * /login round-trip, and starts the session up-front so csrf_token() returns a real token
+ * (CSRF stays fully enforced).
  *
- * Test intent (assertions) is identical to AccountTestCase-based tests; only the setup
- * mechanism changes. See docs/test-isolation-migration-plan.md (Phase 1).
+ * Shared test helpers are grouped into focused traits in Tests\Traits (planet state,
+ * page assertions, build requests, messages and foreign fixtures).
  */
-abstract class IsolatedAccountTestCase extends AccountTestCase
+abstract class IsolatedAccountTestCase extends TestCase
 {
     use DatabaseTransactions;
+    use ManagesPlanetState;
+    use AssertsPageState;
+    use SubmitsBuildRequests;
+    use AssertsMessages;
+    use CreatesForeignFixtures;
+
+    protected int $currentUserId = 0;
+    protected string $currentUsername = '';
+    protected int $userPlanetAmount = 2;
+
+    protected int $currentPlanetId = 0;
 
     /**
-     * @return void
+     * Default computer technology level for newly created users.
+     * Tests that require a different level can override this property.
+     */
+    protected int $defaultComputerTechnologyLevel = 5;
+
+    /**
+     * Test user main planet.
+     */
+    protected PlanetService $planetService;
+
+    /**
+     * Test user second planet.
+     */
+    protected ?PlanetService $secondPlanetService = null;
+
+    /**
+     * The default test time that is used to start tests with.
+     */
+    protected Carbon $defaultTestTime;
+
+    /**
+     * Set up common test components.
      */
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Set default test time to 2024-01-01 00:00:00 to ensure all tests have the same starting point.
+        $this->travelTo(Date::create(2024, 1, 1, 0, 0, 0));
+
+        // Set default server settings for all tests.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+        // Establish a full speed baseline so settings mutated by earlier tests can't leak
+        // into this one. Without this, e.g. ResearchQueueTest sets research_speed=2 which
+        // then changes timing in unrelated tests like VacationModeTest (see #1021).
+        $settingsService->set('research_speed', 1);
+
+        // Set amount of planets to be created for the user because planet switching
+        // is a part of the test suite.
+        $settingsService->set('registration_planet_amount', $this->userPlanetAmount);
+
+        // Reset planet assignment to start within valid galaxy bounds.
+        // This ensures tests don't fail when the database has planets in galaxies
+        // beyond the configured max (e.g., from previous test runs with different settings).
+        $maxGalaxies = $settingsService->numberOfGalaxies();
+        $lastAssignedGalaxy = (int)$settingsService->get('last_assigned_galaxy', 1);
+        if ($lastAssignedGalaxy > $maxGalaxies) {
+            $settingsService->set('last_assigned_galaxy', 1);
+            $settingsService->set('last_assigned_system', 1);
+        }
+
+        // Create a new user and login so we can access ingame features.
+        $this->createAndLoginUser();
 
         // Start the session up-front so csrf_token() returns a real token.
         $this->app['session']->driver()->start();
@@ -51,8 +117,6 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
 
     /**
      * Create a user and authenticate without HTTP round-trips.
-     *
-     * @return void
      */
     protected function createAndLoginUser(): void
     {
@@ -93,8 +157,6 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
 
     /**
      * Create a normal (non-admin) user using the standard Eloquent factories.
-     *
-     * @return User
      */
     protected function createUser(): User
     {
@@ -108,5 +170,19 @@ abstract class IsolatedAccountTestCase extends AccountTestCase
         resolve(InitialUserDataService::class)->createFor($user);
 
         return $user;
+    }
+
+    /**
+     * Set default computer technology level for newly created users.
+     * Tests that require a different level can override $defaultComputerTechnologyLevel.
+     */
+    protected function setDefaultComputerTechnology(): void
+    {
+        if ($this->defaultComputerTechnologyLevel === 0) {
+            // Skip setting if level is 0 (default game behavior).
+            return;
+        }
+
+        $this->playerSetResearchLevel('computer_technology', $this->defaultComputerTechnologyLevel);
     }
 }

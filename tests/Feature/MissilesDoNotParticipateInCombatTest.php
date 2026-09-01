@@ -31,7 +31,7 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetAddUnit('light_fighter', 10);
-        $this->playerSetResearchLevel('computer_technology', object_level: 1);
+        $this->playerSetResearchLevel('computer_technology', objectLevel: 1);
 
         $settingsService = resolve(SettingsService::class);
         $settingsService->set('economy_speed', 8);
