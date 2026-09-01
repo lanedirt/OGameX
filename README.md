@@ -1,3 +1,27 @@
+## OGameX Next
+
+OGameX Next is an independently maintained continuation of [OGameX](https://github.com/lanedirt/OGameX).
+
+The original OGameX project focuses on recreating classic OGame as closely as possible, targeting the pre-Lifeforms experience.
+
+OGameX Next builds on that foundation with a broader goal:
+
+* ⚡ Faster development and PR review loops
+* 🧩 Modular architecture and extension system
+* 🤖 Optional AI players and AI-powered features
+* 🚀 Faster experimentation with new gameplay and server features
+* 🧪 Strong automated testing without sacrificing development speed
+
+We aim to stay compatible with useful upstream improvements while allowing OGameX Next to evolve independently.
+
+## Relationship with OGameX
+
+OGameX Next is based on the original OGameX project by [@lanedirt](https://github.com/lanedirt).
+
+Useful changes may flow in both directions, but OGameX Next has its own roadmap, review process, and releases.
+
+---
+
 <div align="center">
 
 🌟 **If you find this project useful, please consider giving it a star!** 🌟
