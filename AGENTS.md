@@ -11,7 +11,7 @@ OGameX is an open-source PHP/Laravel recreation of OGame, a browser-based space 
   1. `composer run rector`
   2. `composer run cs`
   3. `composer run stan`
-  4. `composer run tests`
+  4. `composer run tests` (or `composer run tests -- --filter SpecificTest` for targeted runs)
 - **Game accuracy matters.** OGameX faithfully recreates OGame's mechanics. Before implementing or changing any game mechanic (combat, fleet timing, resource production, building/research requirements, expeditions), verify how it works in the original game. Incorrect mechanics will not be accepted regardless of code quality.
 - **Database schema changes go through new Laravel migrations.** Never edit a migration that has already been merged; add a new migration instead.
 - **Do not run `composer update` or modify lock files** unless the task is explicitly a dependency upgrade.
