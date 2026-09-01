@@ -6,12 +6,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use OGame\Models\Ban;
 use OGame\Models\User;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test ban and unban functionality for the Server Administration panel.
  */
-class BanTest extends AccountTestCase
+class BanTest extends IsolatedAccountTestCase
 {
     /** @var array<int, int> User IDs created during tests, deleted in tearDown. */
     private array $createdUserIds = [];
@@ -172,6 +172,32 @@ class BanTest extends AccountTestCase
         $target->refresh();
         $this->assertFalse($target->isBanned());
         $this->assertTrue((bool) $target->vacation_mode);
+    }
+
+    /**
+     * Test that unbanning lifts the 48h vacation time-lock so the player can leave vacation immediately.
+     * The vacation_mode flag stays ON; only vacation_mode_until is released back to now().
+     */
+    public function testUnbanLiftsVacationModeUntilRestriction(): void
+    {
+        $this->artisan('ogamex:admin:assign-role', ['username' => $this->currentUsername()]);
+
+        $target = $this->createTrackedUser();
+        Ban::create(['user_id' => $target->id, 'reason' => 'Some violation', 'banned_until' => null, 'canceled' => false]);
+        $target->vacation_mode = true;
+        $target->vacation_mode_activated_at = now();
+        $target->vacation_mode_until = now()->addHours(48);
+        $target->save();
+
+        $this->post(route('admin.server-administration.unban'), [
+            'user_id' => $target->id,
+        ]);
+
+        $target->refresh();
+        $this->assertFalse($target->isBanned());
+        $this->assertTrue((bool) $target->vacation_mode);
+        $this->assertNotNull($target->vacation_mode_until);
+        $this->assertTrue(now()->greaterThanOrEqualTo($target->vacation_mode_until));
     }
 
     /**

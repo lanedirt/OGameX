@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use Illuminate\Support\Facades\DB;
 use OGame\Models\WreckField;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class FacilitiesWreckFieldTest extends AccountTestCase
+class FacilitiesWreckFieldTest extends IsolatedAccountTestCase
 {
     protected function tearDown(): void
     {

@@ -135,7 +135,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         $unitCollection = new UnitCollection();
         $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
-        $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
+        $nearbyForeignPlanet = $this->createForeignPlanet();
 
         $this->checkTargetFleet($nearbyForeignPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, false);
 
@@ -181,9 +181,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
-
-        // Reload application to make sure the defender planet is not cached.
-        $this->reloadApplication();
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -237,9 +234,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
-
-        // Reload application to make sure the defender moon is not cached.
-        $this->reloadApplication();
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -296,7 +290,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertNotNull($mission, 'Attack mission should exist');
 
         $this->travelTo(Date::createFromTimestamp($mission->time_arrival + 10));
-        $this->reloadApplication();
         $this->get('/overview')->assertStatus(200);
 
         $returnMission = FleetMission::where('parent_id', $mission->id)
@@ -363,9 +356,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
-
-        // Reload application to make sure the defender planet is not cached as we modified it above during test.
-        $this->reloadApplication();
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -630,9 +620,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Increase time by 24 hours to ensure the mission is done and fleets have returned.
         $this->travel(24)->hours();
 
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
-
         // Get amount of resources of the foreign planet before the battle.
         $attackerResourcesBefore = $this->planetService->getResources();
         $foreignPlanetResourcesBefore = $foreignPlanet->getResources();
@@ -652,7 +639,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the resources of the foreign planet have decreased after the battle, and resources of attacker
         // planet have increased.
-        $this->reloadApplication();
         $this->planetService->reloadPlanet();
         $foreignPlanet->reloadPlanet();
         $this->assertLessThan($foreignPlanetResourcesBefore->metal, $foreignPlanet->getResources()->metal, 'Defender still has same amount of metal after battle while it was expected they lost some.');
@@ -694,9 +680,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
-
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -731,7 +714,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertStringNotContainsString('You are under attack!', (string)$response->getContent(), 'You are under attack warning title is shown while we should not be under attack.');
 
         // Get foreign planet.
-        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Add units to foreign planet.
         $foreignPlanet->addUnit('light_fighter', 1);
@@ -762,7 +745,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
 
         // Get foreign planet.
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Add units to foreign planet.
         $foreignPlanet->addUnit('light_fighter', 1);
@@ -837,9 +820,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
-
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -912,9 +892,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached
-        $this->reloadApplication();
-
         // Trigger the update logic
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -978,9 +955,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
-
-        // Reload application to make sure the planet is not cached
-        $this->reloadApplication();
 
         // Trigger the update logic
         $response = $this->get('/overview');
@@ -1057,9 +1031,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached
-        $this->reloadApplication();
-
         // Trigger the update logic
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -1124,9 +1095,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
-
-        // Reload application to make sure the planet is not cached
-        $this->reloadApplication();
 
         // Trigger the update logic
         $response = $this->get('/overview');
@@ -1196,7 +1164,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
             // Ensure that foreign planet has no moon
             if ($foreignPlanet->hasMoon()) {
-                $foreignPlanet->moon()->abandonPlanet();
+                $foreignPlanet->moon()->permanentlyDeletePlanet();
             }
 
             // Add defender units
@@ -1221,9 +1189,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             // Set time to fleet mission duration + 1 second
             $this->travel($fleetMissionDuration + 1)->seconds();
 
-            // Reload application to make sure the planet is not cached
-            $this->reloadApplication();
-
             // Trigger the update logic
             $response = $this->get('/overview');
             $response->assertStatus(200);
@@ -1246,9 +1211,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
             // Clean up for next attempt if moon wasn't created
             if (!$moonCreated) {
-                // Reset the test state
-                $this->reloadApplication();
-                // Do a request to get a new CSRF token
                 $this->get('/overview');
             }
         }
@@ -1319,7 +1281,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
-        $this->reloadApplication();
 
         // Trigger the update logic.
         $response = $this->get('/overview');
@@ -1366,9 +1327,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
-
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
 
         // Set all messages as read to avoid interference with message checks.
         $this->playerSetAllMessagesRead();
@@ -1534,9 +1492,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Increase time to complete the mission
         $this->travel(24)->hours();
 
-        // Reload application
-        $this->reloadApplication();
-
         // Trigger update
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -1585,9 +1540,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Increase time to complete the mission
         $this->travel(24)->hours();
 
-        // Reload application
-        $this->reloadApplication();
-
         // Trigger update
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -1629,9 +1581,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Increase time to complete the mission
         $this->travel(24)->hours();
 
-        // Reload application
-        $this->reloadApplication();
-
         // Trigger update
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -1669,7 +1618,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->planetAddUnit('light_fighter', 100);
         $this->playerSetResearchLevel('computer_technology', 20);
 
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         $validSpeeds = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
 
@@ -1705,7 +1654,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->planetAddUnit('light_fighter', 100);
         $this->playerSetResearchLevel('computer_technology', 20);
 
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         $invalidSpeeds = [0.5, 0, 10.5, 11, 1.3, 5.7, -1, 100, 65];
 

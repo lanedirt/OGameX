@@ -7,17 +7,18 @@ use Illuminate\Support\Collection;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\Planet;
-use Tests\AccountTestCase;
+use OGame\Models\User;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test factory classes.
  *
  * Note: even though this test does not rely on a specific user session it still requires the
- * AccountTestCase base class because it tests default dependency injection behavior of the
+ * IsolatedAccountTestCase base class because it tests default dependency injection behavior of the
  * Laravel IoC container which only comes into effect when a user is logged in and a default
  * PlayerService is available.
  */
-class FactoryTest extends AccountTestCase
+class FactoryTest extends IsolatedAccountTestCase
 {
     /**
      * Verify that loading a planet for another user works and returns the correct player object.
@@ -87,6 +88,36 @@ class FactoryTest extends AccountTestCase
             $this->fail('Second planet player could not be loaded.');
         }
         $this->assertEquals($playerIds[1], $player2->getId());
+    }
+
+    /**
+     * Verify that reloading a planet also reloads its owning player.
+     */
+    public function testPlanetFactoryReloadRefreshesOwningPlayer(): void
+    {
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+
+        $planetService = $planetServiceFactory->make($this->currentPlanetId);
+        $this->assertNotNull($planetService);
+        $player = $planetService->getPlayer();
+        $this->assertNotNull($player);
+
+        $user = User::findOrFail($player->getId());
+        $originalRatio = $user->tactical_retreat_ratio;
+        $updatedRatio = $originalRatio === 0 ? 5 : 0;
+        $user->tactical_retreat_ratio = $updatedRatio;
+        $user->save();
+
+        try {
+            $reloadedPlanetService = $planetServiceFactory->make($this->currentPlanetId, true);
+            $this->assertNotNull($reloadedPlanetService);
+            $reloadedPlayer = $reloadedPlanetService->getPlayer();
+            $this->assertNotNull($reloadedPlayer);
+            $this->assertSame($updatedRatio, $reloadedPlayer->getUser()->tactical_retreat_ratio);
+        } finally {
+            $user->tactical_retreat_ratio = $originalRatio;
+            $user->save();
+        }
     }
 
     /**

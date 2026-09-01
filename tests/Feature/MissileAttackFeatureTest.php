@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use Route;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Feature tests for missile attack functionality.
@@ -11,7 +11,7 @@ use Tests\AccountTestCase;
  * NOTE: These tests are simplified due to test infrastructure limitations.
  * Full integration testing should be done manually or with additional test helpers.
  */
-class MissileAttackFeatureTest extends AccountTestCase
+class MissileAttackFeatureTest extends IsolatedAccountTestCase
 {
     public function testMissileAttackRouteExists(): void
     {

@@ -301,6 +301,43 @@ class MessagesTest extends MoonTestCase
     }
 
     /**
+     * Test that for every ExpeditionGameMessage that defines find-variant tiers, the tier id
+     * lists combined cover exactly the ids 1..numberOfVariations, with no gaps, duplicates or
+     * out-of-range entries.
+     */
+    public function testExpeditionGameMessageVariantTierIdLists(): void
+    {
+        $gameMessages = GameMessageFactory::getAllGameMessages();
+        $checkedMessages = 0;
+
+        foreach ($gameMessages as $key => $gameMessage) {
+            if (!$gameMessage instanceof ExpeditionGameMessage) {
+                continue;
+            }
+
+            $tiers = $gameMessage->getVariationIdsByTier();
+            $allIds = array_merge($tiers['normal'], $tiers['rare'], $tiers['exceptional']);
+
+            // Messages without tiers configured fall back to the full variation range; skip them.
+            if ($allIds === []) {
+                continue;
+            }
+
+            $checkedMessages++;
+            $numberOfVariations = $gameMessage->getNumberOfVariations();
+            sort($allIds);
+            $this->assertSame(
+                range(1, $numberOfVariations),
+                $allIds,
+                "Tier id lists of {$key} combined must cover exactly the ids 1..{$numberOfVariations} with no gaps, duplicates or out-of-range entries"
+            );
+        }
+
+        // Resources, ships and dark matter gain messages all define tiers.
+        $this->assertGreaterThanOrEqual(3, $checkedMessages, 'Expected at least three expedition messages with variant tiers');
+    }
+
+    /**
      * Create a new battle report record in the database.
      *
      * @return int The ID of the newly created battle report.
@@ -308,7 +345,7 @@ class MessagesTest extends MoonTestCase
     private function createBattleReport(): int
     {
         // Get a random planet to create the battle report for.
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         $foreignPlayer = $foreignPlanet->getPlayer();
         if ($foreignPlayer === null) {
@@ -354,7 +391,7 @@ class MessagesTest extends MoonTestCase
     private function createEspionageReport(): int
     {
         // Get a random planet to create the espionage report for.
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         $foreignPlayer = $foreignPlanet->getPlayer();
         if ($foreignPlayer === null) {
@@ -384,7 +421,7 @@ class MessagesTest extends MoonTestCase
     public function testBattleReportWithDeletedPlayers(): void
     {
         // Get a random planet to create the battle report for.
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Create battle report with deleted players
         $battleReport = new BattleReport();

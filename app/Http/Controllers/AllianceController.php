@@ -39,7 +39,7 @@ class AllianceController extends OGameController
 
         // Check if applying to a specific alliance
         if ($request->has('alliance_id') && !$userAllianceId) {
-            $targetAllianceId = (int)$request->get('alliance_id');
+            $targetAllianceId = (int)$request->input('alliance_id');
         }
 
         // If user is in an alliance, load alliance data

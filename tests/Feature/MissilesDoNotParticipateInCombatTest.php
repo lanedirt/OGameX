@@ -88,7 +88,6 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
         );
 
         $this->travel($fleetMissionDuration + 1)->seconds();
-        $this->reloadApplication();
         $this->playerSetAllMessagesRead();
 
         // Trigger the battle
@@ -193,7 +192,6 @@ class MissilesDoNotParticipateInCombatTest extends FleetDispatchTestCase
         );
 
         $this->travel($fleetMissionDuration + 1)->seconds();
-        $this->reloadApplication();
 
         // Trigger the battle
         $response = $this->get('/overview');

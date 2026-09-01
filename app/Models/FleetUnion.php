@@ -62,13 +62,6 @@ use OGame\Models\Planet\Coordinate;
 class FleetUnion extends Model
 {
     /**
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'time_arrival' => 'integer',
-    ];
-
-    /**
      * Get the creator of this union.
      */
     public function creator(): BelongsTo
@@ -152,5 +145,15 @@ class FleetUnion extends Model
     public function hasReachedMaxPlayers(): bool
     {
         return $this->getUniquePlayerCount() >= $this->max_players;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'time_arrival' => 'integer',
+        ];
     }
 }

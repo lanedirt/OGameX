@@ -6,12 +6,12 @@ use Exception;
 use OGame\Models\BuddyRequest;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test buddy system functionality.
  */
-class BuddyTest extends AccountTestCase
+class BuddyTest extends IsolatedAccountTestCase
 {
     /**
      * Test that the buddies index page loads correctly.

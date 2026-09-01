@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Verify that the admin panel works as expected.
  */
-class AdminTest extends AccountTestCase
+class AdminTest extends IsolatedAccountTestCase
 {
     /**
      * The paths that are only accessible by admins which will be tested.

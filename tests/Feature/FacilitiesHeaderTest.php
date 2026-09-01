@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that Facilities page header functionality works as expected.
  */
-class FacilitiesHeaderTest extends AccountTestCase
+class FacilitiesHeaderTest extends IsolatedAccountTestCase
 {
     /**
      * Test that the facilities page loads successfully and contains a header element.

@@ -7,13 +7,13 @@ use OGame\Models\Resources;
 use OGame\Services\MerchantService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test class for Merchant functionality.
  * Tests resource trader, scrap merchant, expedition bonuses, and storage capacity limits.
  */
-class MerchantTest extends AccountTestCase
+class MerchantTest extends IsolatedAccountTestCase
 {
     /**
      * Get the current player, failing the test if it is null.

@@ -56,6 +56,11 @@ class MoonDestructionMission extends GameMission
             return new MissionPossibleStatus(false, __('No moon exists at the target coordinates.'));
         }
 
+        // Destroyed moons cannot be targeted.
+        if ($destroyedCheck = $this->checkDestroyedTarget($targetMoon, $targetType, false)) {
+            return $destroyedCheck;
+        }
+
         // Cannot attack own moon
         if ($this->checkOwnPlanet($planet, $targetMoon)) {
             return new MissionPossibleStatus(false, __('You cannot destroy your own moon.'));
@@ -313,10 +318,10 @@ class MoonDestructionMission extends GameMission
             $this->redirectFleetsFromMoon($targetMoon);
 
             // Delete the moon (this will cascade to buildings, units, queues)
-            $targetMoon->abandonPlanet();
+            $targetMoon->permanentlyDeletePlanet();
         });
 
-        // Refresh the mission so planet_id_to reflects the null value written by abandonPlanet.
+        // Refresh the mission so planet_id_to reflects the null value written by permanentlyDeletePlanet.
         // Without this, startReturn would use the stale moon ID and violate the FK constraint.
         $mission->refresh();
 
@@ -445,6 +450,18 @@ class MoonDestructionMission extends GameMission
             'moon_existed' => true,
             'moon_chance' => 0,
             'moon_created' => false,
+            'tactical_retreat' => [
+                'ratio' => $battleResult->tacticalRetreatRatio,
+                'attacker_points' => $battleResult->tacticalRetreatAttackerPoints,
+                'defender_points' => $battleResult->tacticalRetreatDefenderPoints,
+                'defender_fled' => $battleResult->tacticalRetreatDefenderFled,
+                'attacker_also_retreated' => $battleResult->tacticalRetreatAttackerAlsoRetreated,
+                'deuterium_cost' => $battleResult->tacticalRetreatDeuteriumCost,
+                'by' => $battleResult->tacticalRetreatDefenderFled
+                    ? ($battleResult->tacticalRetreatAttackerAlsoRetreated ? 'both' : 'defender')
+                    : 'none',
+                'supremacy' => $battleResult->tacticalRetreatAttackerPoints,
+            ],
         ];
 
         $report->attacker = [

@@ -7,12 +7,12 @@ use OGame\Models\User;
 use OGame\Services\AllianceService;
 use OGame\Services\BuddyService;
 use OGame\Services\ChatService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test chat system functionality.
  */
-class ChatTest extends AccountTestCase
+class ChatTest extends IsolatedAccountTestCase
 {
     /**
      * Create an alliance for the current user via the AllianceService.
@@ -400,8 +400,8 @@ class ChatTest extends AccountTestCase
     {
         $alliance = $this->createAllianceForCurrentUser();
 
-        // Reload application so the user's alliance_id is reflected in auth
-        $this->reloadApplication();
+        // Re-fetch and re-authenticate so the user's alliance_id is reflected in auth.
+        $this->be(User::findOrFail($this->currentUserId));
 
         $response = $this->post('/chat/send', [
             'mode' => 3,
@@ -452,8 +452,8 @@ class ChatTest extends AccountTestCase
         $chatService = resolve(ChatService::class);
         $chatService->sendAllianceMessage($this->currentUserId, $alliance->id, 'Alliance test');
 
-        // Reload application so the user's alliance_id is reflected in auth
-        $this->reloadApplication();
+        // Re-fetch and re-authenticate so the user's alliance_id is reflected in auth.
+        $this->be(User::findOrFail($this->currentUserId));
 
         $response = $this->post('/chat/history', [
             'mode' => 4,
@@ -475,8 +475,8 @@ class ChatTest extends AccountTestCase
     {
         $alliance = $this->createAllianceForCurrentUser();
 
-        // Reload application so the user's alliance_id is reflected in auth
-        $this->reloadApplication();
+        // Re-fetch and re-authenticate so the user's alliance_id is reflected in auth.
+        $this->be(User::findOrFail($this->currentUserId));
 
         $response = $this->get('/chat?allianceId=' . $alliance->id);
         $response->assertStatus(200);

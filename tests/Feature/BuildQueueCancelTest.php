@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\Models\Resources;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test AJAX calls to make sure they work as expected.
  */
-class BuildQueueCancelTest extends AccountTestCase
+class BuildQueueCancelTest extends IsolatedAccountTestCase
 {
     /**
      * Verify that when adding more than one of the same building to the build queue, that cancellation
