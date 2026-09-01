@@ -1,27 +1,3 @@
-## OGameX Next
-
-OGameX Next is an independently maintained continuation of [OGameX](https://github.com/lanedirt/OGameX).
-
-The original OGameX project focuses on recreating classic OGame as closely as possible, targeting the pre-Lifeforms experience.
-
-OGameX Next builds on that foundation with a broader goal:
-
-* ⚡ Faster development and PR review loops
-* 🧩 Modular architecture and extension system
-* 🤖 Optional AI players and AI-powered features
-* 🚀 Faster experimentation with new gameplay and server features
-* 🧪 Strong automated testing without sacrificing development speed
-
-We aim to stay compatible with useful upstream improvements while allowing OGameX Next to evolve independently.
-
-## Relationship with OGameX
-
-OGameX Next is based on the original OGameX project by [@lanedirt](https://github.com/lanedirt).
-
-Useful changes may flow in both directions, but OGameX Next has its own roadmap, review process, and releases.
-
----
-
 <div align="center">
 
 🌟 **If you find this project useful, please consider giving it a star!** 🌟
@@ -141,7 +117,7 @@ A good starting point are issues labeled as "good first issue".
 
 [![good first issues open](https://img.shields.io/github/issues/lanedirt/OGameX/good%20first%20issue.svg?logo=github)](https://github.com/lanedirt/OGameX/issues?q=is%3Aopen+is%3Aissue+label%3A"good+first+issue")
 
-Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBUTING.md) file for more information. To build an extension, start with the [OGameX module guide](docs/modules.md).
+Read the [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBUTING.md) file for more information.
 
 ## <a name="disclaimer"></a> 📓 6. Disclaimer
 
