@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
-class AdminModulesPageTest extends AccountTestCase
+class AdminModulesPageTest extends IsolatedAccountTestCase
 {
     public function test_admin_can_list_installed_modules(): void
     {

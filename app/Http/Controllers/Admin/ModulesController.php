@@ -62,7 +62,7 @@ class ModulesController extends OGameController
     {
         $name = $request->input('module');
 
-        if (! is_string($name) || ! Module::has($name)) {
+        if (!is_string($name) || !Module::has($name)) {
             return redirect()->back()->with('error', 'Invalid module name.');
         }
 
