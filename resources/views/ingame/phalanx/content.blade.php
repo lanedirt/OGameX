@@ -22,6 +22,27 @@
                                 <td class="value">{{ number_format($count, 0, ',', '.') }}</td>
                             </tr>
                         @endforeach
+
+                        <tr>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+
+                        <tr><th colspan="2">@lang('Shipment'):</th></tr>
+
+                        <tr>
+                            <td>@lang('Metal'):</td>
+                            <td class="value">{{ $movement['resources']->metal->getFormattedLong() }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>@lang('Crystal'):</td>
+                            <td class="value">{{ $movement['resources']->crystal->getFormattedLong() }}</td>
+                        </tr>
+
+                        <tr>
+                            <td>@lang('Deuterium'):</td>
+                            <td class="value">{{ $movement['resources']->deuterium->getFormattedLong() }}</td>
+                        </tr>
                     </table>
                 </div>
             </div>
