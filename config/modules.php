@@ -36,19 +36,18 @@ return [
     */
     'stubs' => [
         /*
-         * OGameX overrides the stubs that would otherwise generate a module
-         * that fails our Pint/PSR-12 checks or uses the wrong middleware stack.
-         * The package falls back to its own v13 stubs for every file we do not
-         * override, so new upstream generators continue to work without
-         * copying them.
+         * OGameX overrides the stubs that shape a new module so `module:make`
+         * produces an OGameX admin page out of the box: an OGameController
+         * entry point, the in-game Blade layout, and the admin middleware
+         * stack. The generated tree also passes Pint without extra steps. The
+         * package falls back to its own v13 stubs for every file we do not
+         * override, so new upstream generators continue to work.
          */
         'enabled' => true,
         'path' => base_path('stubs/modules'),
         'files' => [
             'routes/web' => 'routes/web.php',
-            'routes/api' => 'routes/api.php',
             'views/index' => 'resources/views/index.blade.php',
-            'views/master' => 'resources/views/components/layouts/master.blade.php',
             'scaffold/config' => 'config/config.php',
             'composer' => 'composer.json',
             // 'assets/js/app' => 'resources/assets/js/app.js',
@@ -79,11 +78,9 @@ return [
              * Note: Keys should be in UPPERCASE.
              */
             'routes/web' => ['LOWER_NAME', 'STUDLY_NAME', 'PLURAL_LOWER_NAME', 'KEBAB_NAME', 'MODULE_NAMESPACE', 'CONTROLLER_NAMESPACE'],
-            'routes/api' => ['LOWER_NAME', 'STUDLY_NAME', 'PLURAL_LOWER_NAME', 'KEBAB_NAME', 'MODULE_NAMESPACE', 'CONTROLLER_NAMESPACE'],
             // 'vite' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME'],
             'json' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME', 'MODULE_NAMESPACE', 'PROVIDER_NAMESPACE'],
             'views/index' => ['LOWER_NAME'],
-            'views/master' => ['LOWER_NAME', 'STUDLY_NAME', 'KEBAB_NAME'],
             'scaffold/config' => ['STUDLY_NAME'],
             'composer' => [
                 'LOWER_NAME',
