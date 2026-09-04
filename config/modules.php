@@ -36,9 +36,11 @@ return [
     */
     'stubs' => [
         /*
-         * OGameX overrides only the master module provider stub. The package
-         * falls back to its own v13 stubs for every file we do not override,
-         * so new upstream generators continue to work without copying them.
+         * OGameX overrides the stubs that would otherwise generate a module
+         * that fails our Pint/PSR-12 checks or uses the wrong middleware stack.
+         * The package falls back to its own v13 stubs for every file we do not
+         * override, so new upstream generators continue to work without
+         * copying them.
          */
         'enabled' => true,
         'path' => base_path('stubs/modules'),
