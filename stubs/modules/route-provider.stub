@@ -1,0 +1,24 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Route;
+
+class $CLASS$ extends ServiceProvider
+{
+    protected string $name = '$MODULE$';
+
+    public function boot(): void
+    {
+        parent::boot();
+    }
+
+    /**
+     * Register the module's web routes.
+     */
+    public function map(): void
+    {
+        Route::middleware('web')->group(module_path($this->name, 'routes/web.php'));
+    }
+}

@@ -18,9 +18,16 @@ If you would like to contribute via pull requests, a good way to get started is 
 
 Refer to the [Installation section](https://github.com/lanedirt/OGameX#installation) in the main README.md for how to get your local development environment setup.
 
+### Modules
+
+New modules should follow the [module tutorial](docs/modules.md). Use
+`Modules/HelloWorld` as the reference implementation. Keep module routes, views,
+data, and tests inside the module, and verify that disabling it removes its
+application behavior.
+
 ### Before you open a PR
 
-- **One issue, one PR.** Each pull request must address a single issue or concern. Only include changes directly related to the issue being fixed or the feature being added. Do not bundle unrelated changes — even small cleanups or fixes to other areas should be submitted separately. If you notice something unrelated that needs fixing while working on your PR, open a separate issue or PR for it. This keeps reviews focused and the git history clean.
+- **One issue, one PR.** Each pull request must address a single issue or concern. Only include changes directly related to the issue being fixed or the feature being added. Do not bundle unrelated changes, including small cleanups or fixes to other areas. Submit those separately. If you notice something unrelated that needs fixing while working on your PR, open a separate issue or PR for it. This keeps reviews focused and the git history clean.
 - **Branch from `main`.** Always create your feature branch from the latest `main`. Do not base a branch on another feature branch or an outdated commit.
 - **Address open change requests first.** If you have an existing PR with a change request from a reviewer, resolve that feedback before opening a new PR. Reviewers have limited time, and stacking new PRs on top of unresolved ones makes it harder to keep quality high. PRs opened while another of your PRs has an unresolved change request may be closed until the existing one is resolved.
 

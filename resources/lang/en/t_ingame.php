@@ -57,6 +57,25 @@ return [
         'dark_matter' => 'Dark Matter',
     ],
 
+    // ── Module administration ──
+    'modules' => [
+        'title'              => 'Modules',
+        'installed'          => 'Installed Modules',
+        'enabled'            => 'enabled',
+        'disabled'           => 'disabled',
+        'search_placeholder' => 'Search modules...',
+        'none_installed'     => 'No modules installed. Create one with :command.',
+        'module'             => 'Module',
+        'version'            => 'Version',
+        'priority'           => 'Priority',
+        'status'             => 'Status',
+        'actions'            => 'Actions',
+        'disable'            => 'Disable',
+        'enable'             => 'Enable',
+        'disable_confirm'    => 'Disable :module? Disabling immediately stops its routes, views and services.',
+        'state_help'         => 'Module state is stored in :file. You can also manage modules via :command.',
+    ],
+
     // -------------------------------------------------------------------------
     // Shared building page strings (resources, facilities, research, shipyard, defense)
     // -------------------------------------------------------------------------

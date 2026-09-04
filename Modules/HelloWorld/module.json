@@ -1,0 +1,15 @@
+{
+    "name": "HelloWorld",
+    "alias": "helloworld",
+    "description": "A disabled-by-default reference module for OGameX contributors.",
+    "keywords": [
+        "example",
+        "reference",
+        "ogamex"
+    ],
+    "priority": 0,
+    "providers": [
+        "Modules\\HelloWorld\\Providers\\HelloWorldServiceProvider"
+    ],
+    "files": []
+}
