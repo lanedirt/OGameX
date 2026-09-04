@@ -1,0 +1,22 @@
+<?php
+
+return [
+    /*
+     * Human-readable module name.
+     */
+    'name' => '$STUDLY_NAME$',
+
+    /*
+     * Page title shown at the top of the module's admin page.
+     */
+    'title' => '$STUDLY_NAME$',
+
+    /*
+     * Welcome message shown on the module's admin page.
+     *
+     * As the module grows, move user-facing strings into translations: create
+     * lang/en/t_<alias>.php and use __('t_<alias>.<key>') in views, following
+     * the HelloWorld reference module.
+     */
+    'welcome' => 'This page is provided by the $STUDLY_NAME$ module.',
+];
