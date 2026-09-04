@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Nwidart\Modules\Facades\Module;
 use OGame\Services\ModuleSlotService;
@@ -15,24 +16,42 @@ class ModuleHostTest extends TestCase
 {
     private string $statusesFile;
 
-    private string $originalStatuses;
+    /**
+     * Point the module activator at a throwaway statuses file (never the tracked
+     * `modules_statuses.json`) so enable/disable cannot leave the repository
+     * dirty. The file is created once and reused across `refreshApplication()`
+     * calls, so toggled state persists within a test while a mid-class crash can
+     * never touch the tracked file.
+     */
+    public function createApplication(): Application
+    {
+        if (!isset($this->statusesFile)) {
+            $trackedFile = dirname(__DIR__, 2) . '/modules_statuses.json';
+            $this->statusesFile = sys_get_temp_dir() . '/modules_statuses_' . uniqid('', true) . '.json';
+            copy($trackedFile, $this->statusesFile);
+        }
+
+        putenv('MODULES_STATUSES_FILE=' . $this->statusesFile);
+
+        return parent::createApplication();
+    }
 
     protected function setUp(): void
     {
         parent::setUp();
 
         ModuleSlotService::resetSlots();
-
-        $this->statusesFile = base_path('modules_statuses.json');
-        $this->originalStatuses = (string) file_get_contents($this->statusesFile);
     }
 
     protected function tearDown(): void
     {
         ModuleSlotService::resetSlots();
 
-        // Restore the exact statuses file the suite started with.
-        file_put_contents($this->statusesFile, $this->originalStatuses);
+        // Remove the throwaway statuses file and clear the env override.
+        if (isset($this->statusesFile) && is_file($this->statusesFile)) {
+            unlink($this->statusesFile);
+        }
+        putenv('MODULES_STATUSES_FILE');
 
         parent::tearDown();
     }
