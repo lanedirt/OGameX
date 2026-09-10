@@ -49,9 +49,15 @@ class FleetMissionService
      * another player's holdings at a contested destination, routed to the heavy arrival
      * lane so a big battle never blocks light traffic. Attack (1) and ACS Attack (2) run
      * the battle directly; Moon Destruction (9) fights the moon's defenders; Espionage (6)
-     * can trigger counter-espionage against the target's full fleet/defenses; ACS Defend
-     * (5) holds at a contested planet and, when arrivals batch during catch-up, can pull
-     * the attacker's battle into its own processing.
+     * can trigger counter-espionage against the target's full fleet/defenses.
+     *
+     * ACS Defend (5) is deliberately light even though it exists to defend against an
+     * attack. Neither of its own events runs a battle: the hold-start job only sends the
+     * arrival messages and flips processed_hold, and the completion job only starts the
+     * return trip. Whether the fleet takes part in a battle is decided at battle time by
+     * GameMission::collectDefendingFleets() from timestamps alone, so it defends even if
+     * its jobs have not run yet. Keeping it heavy would only delay its arrival messages
+     * behind the very battles it was sent for.
      *
      * Everything else is light — including Expedition (15): its combat is scaled to the
      * fleet the player sent and resolves at an uncontested deep-space position (16), so it
@@ -60,7 +66,7 @@ class FleetMissionService
      *
      * @var array<int, int>
      */
-    private const HEAVY_MISSION_TYPES = [1, 2, 5, 6, 9];
+    private const HEAVY_MISSION_TYPES = [1, 2, 6, 9];
 
     /**
      * TTL (seconds) for the per-destination processing lock. Must stay >=
@@ -68,6 +74,12 @@ class FleetMissionService
      * and let another worker observe uncommitted writes.
      */
     public const DESTINATION_LOCK_TTL = 600;
+
+    /**
+     * Seconds a caller waits to acquire the per-destination lock before giving up
+     * with a LockTimeoutException (the queue job then releases itself and retries).
+     */
+    public const DESTINATION_LOCK_WAIT = 10;
 
     /**
      * The queue model where this class should get its data from.
@@ -748,7 +760,7 @@ class FleetMissionService
 
         // Lock TTL must stay >= ProcessFleetArrival::$timeout so a long battle cannot
         // outlive the lock and let another worker observe uncommitted writes.
-        Cache::lock($lockKey, self::DESTINATION_LOCK_TTL)->block(10, function () use ($mission, $lockKey) {
+        Cache::lock($lockKey, self::DESTINATION_LOCK_TTL)->block(self::DESTINATION_LOCK_WAIT, function () use ($mission, $lockKey) {
             DB::transaction(function () use ($mission, $lockKey) {
                 $currentTime = (int) Date::now()->timestamp;
 
@@ -817,7 +829,7 @@ class FleetMissionService
         // Note: an ACS Defend mission whose hold period AND full expiry are both overdue
         // will appear in both Branch A and Branch B. The handledKeys deduplication below
         // ensures processDueMissionEventsForMission is called only once per destination.
-        $missions = FleetMission::query()
+        $query = FleetMission::query()
             ->where('canceled', 0)
             ->where(function (Builder $query) use ($currentTime) {
                 // Branch A: ACS Defend physical arrival (hold start) overdue.
@@ -854,17 +866,26 @@ class FleetMissionService
             })
             ->orderBy('time_arrival')
             ->orderBy('time_arrival_ms')
-            ->orderBy('id')
-            ->limit(max(1, $limit))
-            ->get();
+            ->orderBy('id');
 
         $processedDestinations = 0;
         $handledKeys = [];
+        $destinationLimit = max(1, $limit);
 
-        foreach ($missions as $mission) {
+        // $limit caps distinct destinations per tick, not overdue rows. One call to
+        // processDueMissionEventsForMission drains every due event at that destination,
+        // so further rows for a destination already seen are skipped without counting.
+        // Applying the limit to rows instead would let a single destination with a large
+        // backlog (a mass attack after downtime) crowd every other destination out of
+        // this run. The result set is streamed so the backlog is never fully hydrated.
+        foreach ($query->cursor() as $mission) {
             $lockKey = $this->getMissionDestinationLockKey($mission);
             if (isset($handledKeys[$lockKey])) {
                 continue;
+            }
+
+            if (count($handledKeys) >= $destinationLimit) {
+                break;
             }
 
             $handledKeys[$lockKey] = true;

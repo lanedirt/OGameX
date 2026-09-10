@@ -236,8 +236,8 @@ By default, the first registered user is assigned the admin role which can see t
 ### Tuning the fleet arrival queue workers
 Fleet arrivals (battles, transports, deployments, etc.) are processed in the background by the `ogamex-queue-worker` container. It runs several workers under supervisor, split into two lanes so a large battle can never hold up ordinary logistics:
 
-- **Light lane**: transports, deployments, colonisations and all returning fleets. Never runs a battle.
-- **Heavy lane**: attacks, ACS attacks/defends, espionage and moon destruction. Runs battles, and also helps drain the light lane when idle.
+- **Light lane**: transports, deployments, colonisations, ACS defends and all returning fleets. Never runs a battle of its own. (An ACS defend fleet still fights: defenders are picked at battle time from timestamps, not from the queue.)
+- **Heavy lane**: attacks, ACS attacks, espionage and moon destruction. Runs battles, and also helps drain the light lane when idle.
 
 The worker is an opt-in service locally, so a plain `docker compose up` (and the CI test run) does not start it. Otherwise a live worker would drain the queue out from under the test suite. Start the fleet workers explicitly when you want them:
   ```
@@ -256,6 +256,7 @@ Guidelines:
 - More workers means more parallel processing but also more concurrent database connections, so make sure your MySQL `max_connections` has headroom.
 - Each heavy worker can use up to the PHP `memory_limit` (1024M by default) during a very large battle, so budget roughly `QUEUE_WORKERS_HEAVY × memory_limit` of RAM for the worker container. Workers recycle at 900MB to avoid accumulating memory across battles.
 - `DB_QUEUE_RETRY_AFTER` (660) must stay larger than the job timeout (600s), or a long battle job can be picked up by a second worker while it is still running.
+- Inspect or restart the worker pools with `docker compose exec ogamex-queue-worker supervisorctl status`.
 
 After changing these values, recreate the worker container so it picks them up (they are read at container start):
   ```

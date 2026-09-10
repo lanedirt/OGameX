@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Mockery;
@@ -13,7 +14,6 @@ use OGame\Jobs\ProcessFleetArrival;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\FleetMission;
 use OGame\Models\Message;
-use OGame\Models\Planet;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\BuddyService;
@@ -93,9 +93,9 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
     {
         $service = resolve(FleetMissionService::class);
 
-        // Attack (1), ACS Attack (2), ACS Defend (5), Espionage (6) and Moon Destruction (9)
-        // can run or batch a large battle at a contested destination: heavy lane.
-        foreach ([1, 2, 5, 6, 9] as $type) {
+        // Attack (1), ACS Attack (2), Espionage (6) and Moon Destruction (9) can run a
+        // large battle at a contested destination: heavy lane.
+        foreach ([1, 2, 6, 9] as $type) {
             $mission = new FleetMission();
             $mission->mission_type = $type;
             $mission->parent_id = null;
@@ -107,9 +107,11 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
             );
         }
 
-        // Transport (3), Deployment (4), Colonisation (7), Recycle (8), Missile (10) and
-        // Expedition (15, bounded combat at an uncontested position) use the light lane.
-        foreach ([3, 4, 7, 8, 10, 15] as $type) {
+        // Transport (3), Deployment (4), ACS Defend (5, its own events never battle; the
+        // fleet is picked as a defender at battle time from timestamps), Colonisation (7),
+        // Recycle (8), Missile (10) and Expedition (15, bounded combat at an uncontested
+        // position) use the light lane.
+        foreach ([3, 4, 5, 7, 8, 10, 15] as $type) {
             $mission = new FleetMission();
             $mission->mission_type = $type;
             $mission->parent_id = null;
@@ -529,6 +531,258 @@ class FleetArrivalQueueTest extends FleetDispatchTestCase
             Message::where('user_id', $buddyUserId)->where('key', 'acs_defend_arrival_host')->exists(),
             'ACS Defend arrival message must be sent to the host player.'
         );
+    }
+
+    public function testSchedulerLimitCountsDestinationsNotRows(): void
+    {
+        $this->basicSetup();
+
+        // Clear overdue leftovers from both scheduler branches so only the missions below match.
+        $this->deleteOverdueMissions();
+
+        $baseArrival = (int) now()->timestamp - 1;
+
+        // Three overdue missions at destination A (earliest rows), then one at destination B.
+        $firstAtA = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
+        $this->createDueMission($baseArrival, ($baseArrival * 1000) + 200);
+        $this->createDueMission($baseArrival, ($baseArrival * 1000) + 300);
+        $missionAtB = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 400, $this->planetService);
+
+        // With --limit=2 a row limit would take the first two rows (both at A) and never
+        // reach B. The limit must count distinct destinations instead.
+        /** @var FleetMissionService $service */
+        $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($firstAtA, $missionAtB) {
+            /** @var Expectation $e1 */
+            $e1 = $mock->shouldReceive('processDueMissionEventsForMission');
+            $e1->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $firstAtA->id));
+
+            /** @var Expectation $e2 */
+            $e2 = $mock->shouldReceive('processDueMissionEventsForMission');
+            $e2->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtB->id));
+        });
+
+        $processed = $service->processMissedMissionEvents(2);
+
+        $this->assertSame(2, $processed, 'The scheduler limit must count destinations, not overdue rows.');
+    }
+
+    public function testSchedulerLimitStopsAfterGivenNumberOfDestinations(): void
+    {
+        $this->basicSetup();
+        $this->deleteOverdueMissions();
+
+        $baseArrival = (int) now()->timestamp - 1;
+        $missionAtA = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
+        $this->createDueMission($baseArrival, ($baseArrival * 1000) + 200, $this->planetService);
+
+        /** @var FleetMissionService $service */
+        $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($missionAtA) {
+            /** @var Expectation $e */
+            $e = $mock->shouldReceive('processDueMissionEventsForMission');
+            $e->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionAtA->id));
+        });
+
+        $processed = $service->processMissedMissionEvents(1);
+
+        $this->assertSame(1, $processed, 'Only the first destination may be processed when the limit is 1.');
+    }
+
+    public function testDeletingMissionRemovesPendingArrivalJobs(): void
+    {
+        $this->basicSetup();
+        $this->sendMissionToSecondPlanet($this->createCargoUnits(1), new Resources(1000, 500, 250, 0));
+
+        $mission = $this->latestOutboundMission();
+
+        $arrivalJobId = $mission->arrival_job_id;
+        $this->assertNotNull($arrivalJobId, 'Mission did not store its delayed arrival job ID.');
+        $this->assertTrue(DB::table('jobs')->where('id', $arrivalJobId)->exists());
+
+        $mission->delete();
+
+        $this->assertFalse(
+            DB::table('jobs')->where('id', $arrivalJobId)->exists(),
+            'Deleting the mission must remove its pending arrival job.'
+        );
+    }
+
+    public function testJobIsReusedWhenAlreadyScheduledAtCorrectTime(): void
+    {
+        $this->basicSetup();
+        $this->sendMissionToSecondPlanet($this->createCargoUnits(1), new Resources(1000, 500, 250, 0));
+
+        $mission = $this->latestOutboundMission();
+
+        $originalJobId = $mission->arrival_job_id;
+        $this->assertNotNull($originalJobId);
+
+        // Re-sync with no changes: the job is still scheduled at the same time,
+        // so it must be reused rather than deleted and re-dispatched.
+        resolve(FleetMissionService::class)->syncMissionArrivalJobs($mission);
+
+        $mission->refresh();
+        $this->assertSame($originalJobId, $mission->arrival_job_id, 'An unchanged mission must keep its existing arrival job.');
+        $this->assertSame(1, DB::table('jobs')->where('id', $originalJobId)->count(), 'No duplicate job may be dispatched.');
+    }
+
+    public function testChangingArrivalTimeReplacesPendingJob(): void
+    {
+        $this->basicSetup();
+        $this->sendMissionToSecondPlanet($this->createCargoUnits(1), new Resources(1000, 500, 250, 0));
+
+        $mission = $this->latestOutboundMission();
+
+        $originalJobId = $mission->arrival_job_id;
+        $this->assertNotNull($originalJobId);
+
+        // Shift the arrival time: the updated observer must delete the stale job
+        // and dispatch a fresh one at the new time.
+        $mission->time_arrival = $mission->time_arrival + 60;
+        $mission->save();
+
+        $mission->refresh();
+        $this->assertNotSame($originalJobId, $mission->arrival_job_id, 'A changed arrival time must replace the pending job.');
+        $this->assertFalse(DB::table('jobs')->where('id', $originalJobId)->exists(), 'The stale job must be deleted.');
+        $this->assertSame(
+            (int) $mission->time_arrival,
+            (int) DB::table('jobs')->where('id', $mission->arrival_job_id)->value('available_at'),
+            'The new job must be scheduled at the new arrival time.'
+        );
+    }
+
+    public function testSyncDriverDoesNotStoreArrivalJobId(): void
+    {
+        config(['queue.default' => 'sync']);
+
+        $this->basicSetup();
+        $this->sendMissionToSecondPlanet($this->createCargoUnits(1), new Resources(1000, 500, 250, 0));
+
+        $mission = $this->latestOutboundMission();
+
+        $this->assertNull($mission->arrival_job_id, 'The sync driver cannot schedule delayed jobs, so no job id may be stored.');
+        $this->assertSame(0, DB::table('jobs')->count(), 'The sync driver must not write any queued jobs.');
+    }
+
+    public function testCoordsDestinationLockKeyFallsBackToCoordinates(): void
+    {
+        $service = resolve(FleetMissionService::class);
+
+        $mission = new FleetMission();
+        $mission->planet_id_to = null;
+        $mission->type_to = PlanetType::Planet->value;
+        $mission->galaxy_to = 1;
+        $mission->system_to = 2;
+        $mission->position_to = 3;
+
+        $this->assertSame(
+            'fleet-destination:coords:1:1:2:3',
+            $service->getMissionDestinationLockKey($mission),
+            'Destinations without a planet id must lock on their coordinates.'
+        );
+    }
+
+    public function testSchedulerFallbackProcessesEachDestinationOnce(): void
+    {
+        $this->basicSetup();
+        $this->deleteOverdueMissions();
+
+        $baseArrival = (int) now()->timestamp - 1;
+        $missionA = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
+        $this->createDueMission($baseArrival, ($baseArrival * 1000) + 200);
+
+        // Both missions share one destination, so the scheduler must batch them
+        // into a single processDueMissionEventsForMission call.
+        /** @var FleetMissionService $service */
+        $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($missionA) {
+            /** @var Expectation $e */
+            $e = $mock->shouldReceive('processDueMissionEventsForMission');
+            $e->once()->with(Mockery::on(fn (FleetMission $m) => $m->id === $missionA->id));
+        });
+
+        $processed = $service->processMissedMissionEvents();
+
+        $this->assertSame(1, $processed, 'Two overdue missions at one destination must count as one processed destination.');
+    }
+
+    public function testProcessDueMissionEventsForMissionIdIgnoresMissingMission(): void
+    {
+        $this->assertNull(FleetMission::find(PHP_INT_MAX), 'Test precondition: the mission id must not exist.');
+
+        // A job whose mission was deleted (recall, admin cleanup) must be a silent no-op:
+        // it returns before taking any destination lock and throws nothing.
+        Cache::shouldReceive('lock')->never();
+
+        resolve(FleetMissionService::class)->processDueMissionEventsForMissionId(PHP_INT_MAX);
+    }
+
+    public function testRedirectedMissionIsSkippedUnderWrongDestinationLock(): void
+    {
+        $this->basicSetup();
+
+        $baseArrival = (int) now()->timestamp - 1;
+        $first = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 100);
+        $second = $this->createDueMission($baseArrival, ($baseArrival * 1000) + 200);
+
+        // The first mission redirects the second to a different planet mid-batch
+        // (the moon-destruction scenario). The second must then be skipped because
+        // it no longer belongs to the destination this worker holds the lock for.
+        /** @var FleetMissionService $service */
+        $service = $this->partialMock(FleetMissionService::class, function (MockInterface $mock) use ($first, $second) {
+            /** @var Expectation $e */
+            $e = $mock->shouldReceive('updateMission');
+            $e->once()->with(Mockery::on(function (FleetMission $m) use ($first, $second) {
+                if ($m->id !== $first->id) {
+                    return false;
+                }
+
+                FleetMission::where('id', $second->id)->update([
+                    'planet_id_to' => $this->planetService->getPlanetId(),
+                ]);
+
+                return true;
+            }));
+        });
+
+        $service->processDueMissionEventsForMission($first);
+
+        $this->assertSame(
+            $this->planetService->getPlanetId(),
+            FleetMission::find($second->id)?->planet_id_to,
+            'The second mission must have been redirected mid-batch.'
+        );
+    }
+
+    /**
+     * Remove overdue unprocessed missions from both scheduler branches (overdue
+     * completions and overdue ACS Defend hold arrivals) left behind by earlier runs
+     * against a shared dev database, so the scheduler only sees this test's missions.
+     */
+    private function deleteOverdueMissions(): void
+    {
+        $now = (int) now()->timestamp;
+
+        DB::table('fleet_missions')
+            ->where('processed', 0)
+            ->where('canceled', 0)
+            ->where('time_arrival', '<=', $now)
+            ->delete();
+        DB::table('fleet_missions')
+            ->where('canceled', 0)
+            ->where('mission_type', 5)
+            ->where('processed_hold', 0)
+            ->whereNotNull('time_holding')
+            ->where('time_holding', '>', 0)
+            ->whereRaw('(time_arrival - time_holding) <= ?', [$now])
+            ->delete();
+    }
+
+    private function latestOutboundMission(): FleetMission
+    {
+        return FleetMission::query()
+            ->where('user_id', $this->currentUserId)
+            ->whereNull('parent_id')
+            ->latest('id')
+            ->firstOrFail();
     }
 
     private function createCargoUnits(int $amount): UnitCollection

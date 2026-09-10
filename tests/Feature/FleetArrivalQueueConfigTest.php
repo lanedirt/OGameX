@@ -94,6 +94,32 @@ class FleetArrivalQueueConfigTest extends TestCase
         }
     }
 
+    public function testLockContentionRetryBudgetCoversLockTtl(): void
+    {
+        // A released job counts as an attempt. A job queued behind a battle that holds
+        // the destination lock for the full TTL must still have attempts left when the
+        // lock is released, otherwise it hits failed() and waits for the scheduler.
+        $job = new ProcessFleetArrival(0);
+        $retryBudget = $job->tries * (FleetMissionService::DESTINATION_LOCK_WAIT + ProcessFleetArrival::LOCK_RETRY_DELAY);
+
+        $this->assertGreaterThanOrEqual(
+            FleetMissionService::DESTINATION_LOCK_TTL,
+            $retryBudget,
+            "tries * (lock wait + retry delay) = {$retryBudget}s must cover DESTINATION_LOCK_TTL ("
+            . FleetMissionService::DESTINATION_LOCK_TTL . 's), or a job behind a long battle fails before the lock frees.'
+        );
+    }
+
+    public function testPoisonJobFailsBeforeExhaustingRetryBudget(): void
+    {
+        // The large $tries budget exists for lock contention. A job that throws every
+        // time must be cut off much earlier so a broken mission does not spin 20 times.
+        $job = new ProcessFleetArrival(0);
+
+        $this->assertLessThan($job->tries, $job->maxExceptions);
+        $this->assertGreaterThanOrEqual(2, $job->maxExceptions, 'Allow at least one transient failure before giving up.');
+    }
+
     public function testJobAllowsMultipleLockContentionRetries(): void
     {
         // Simultaneous arrivals at one destination contend for the lock; the job
