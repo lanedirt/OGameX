@@ -40,6 +40,7 @@ use OGame\Services\CharacterClassService;
 use OGame\Services\DarkMatterService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\MerchantService;
+use OGame\Services\MilitaryStatisticsService;
 use OGame\Services\NPCFleetGeneratorService;
 use OGame\Services\NPCPlanetService;
 use OGame\Services\NPCPlayerService;
@@ -679,6 +680,16 @@ class ExpeditionMission extends GameMission
         // Load the mission owner user
         $player = $this->playerServiceFactory->make($mission->user_id, true);
 
+        // Track military statistics for lost fleet
+        $fleetUnits = $this->fleetMissionService->getFleetUnits($mission);
+        $militaryStatisticsService = app(MilitaryStatisticsService::class);
+        $lostPoints = $militaryStatisticsService->calculateMilitaryPoints($fleetUnits);
+
+        if ($lostPoints > 0) {
+            $user = $player->getUser();
+            $militaryStatisticsService->addLostPoints($user, $lostPoints);
+        }
+
         // Send a message to the player with the fleet destroyed outcome.
         $message_variation_id = ExpeditionLossOfFleet::getRandomMessageVariationId();
         $this->messageService->sendSystemMessageToPlayer($player, ExpeditionLossOfFleet::class, ['message_variation_id' => $message_variation_id]);
@@ -749,6 +760,15 @@ class ExpeditionMission extends GameMission
         );
 
         $battleResult = $battleEngine->simulateBattle();
+
+        // Track military statistics for expedition battles
+        // Player only gets "lost" points (no "destroyed" points against NPCs)
+        $militaryStatisticsService = app(MilitaryStatisticsService::class);
+        $playerLostPoints = $militaryStatisticsService->calculateMilitaryPoints($battleResult->attackerUnitsLost);
+        if ($playerLostPoints > 0) {
+            $user = $player->getUser();
+            $militaryStatisticsService->addLostPoints($user, $playerLostPoints);
+        }
 
         // Create battle report for expedition battle
         // Note: Battle report uses origin planet coordinates, not deep space position 16
