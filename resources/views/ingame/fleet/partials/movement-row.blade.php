@@ -86,33 +86,45 @@ if ($fleet_event->is_return_trip) {
                         <h1>{{ __('t_ingame.fleet.fleet_details') }}:</h1>
                         <div class="splitLine"></div>
                         <table cellpadding="0" cellspacing="0" class="fleetinfo">
-                            <tr>
-                                <th colspan="2">{{ __('t_ingame.fleet.ships') }}:</th>
-                            </tr>
-                            @foreach ($fleet_event->fleet_units->units as $fleet_unit)
+                            @if ($fleet_event->fleet_intel_level->showsShipTypes())
                                 <tr>
-                                    <td>{{ $fleet_unit->unitObject->title }}:</td>
-                                    <td class="value">{{ number_format($fleet_unit->amount) }}</td>
+                                    <th colspan="2">{{ __('t_ingame.fleet.ships') }}:</th>
                                 </tr>
-                            @endforeach
-                            <tr>
-                                <td colspan="2">&nbsp;</td>
-                            </tr>
-                            <tr>
-                                <th colspan="2">{{ __('t_ingame.fleet.shipment') }}:</th>
-                            </tr>
-                            <tr>
-                                <td>{{ __('t_ingame.fleet.metal') }}:</td>
-                                <td class="value">{{ $fleet_event->resources->metal->getFormattedLong() }}</td>
-                            </tr>
-                            <tr>
-                                <td>{{ __('t_ingame.fleet.crystal') }}:</td>
-                                <td class="value">{{ $fleet_event->resources->crystal->getFormattedLong() }}</td>
-                            </tr>
-                            <tr>
-                                <td>{{ __('t_ingame.fleet.deuterium') }}:</td>
-                                <td class="value">{{ $fleet_event->resources->deuterium->getFormattedLong() }}</td>
-                            </tr>
+                                @foreach ($fleet_event->fleet_units->units as $fleet_unit)
+                                    <tr>
+                                        <td>{{ $fleet_unit->unitObject->title }}:</td>
+                                        <td class="value">{{ $fleet_event->fleet_intel_level->showsShipAmounts() ? number_format($fleet_unit->amount) : '?' }}</td>
+                                    </tr>
+                                @endforeach
+                            @elseif ($fleet_event->fleet_intel_level->showsTotalCount())
+                                <tr>
+                                    <th colspan="2">{{ __('t_ingame.fleet.ships') }}:</th>
+                                </tr>
+                                <tr>
+                                    <td>{{ __('t_ingame.fleet.ships') }}:</td>
+                                    <td class="value">{{ number_format($fleet_event->fleet_unit_count) }}</td>
+                                </tr>
+                            @endif
+                            @if ($fleet_event->show_shipment)
+                                <tr>
+                                    <td colspan="2">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">{{ __('t_ingame.fleet.shipment') }}:</th>
+                                </tr>
+                                <tr>
+                                    <td>{{ __('t_ingame.fleet.metal') }}:</td>
+                                    <td class="value">{{ $fleet_event->resources->metal->getFormattedLong() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ __('t_ingame.fleet.crystal') }}:</td>
+                                    <td class="value">{{ $fleet_event->resources->crystal->getFormattedLong() }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ __('t_ingame.fleet.deuterium') }}:</td>
+                                    <td class="value">{{ $fleet_event->resources->deuterium->getFormattedLong() }}</td>
+                                </tr>
+                            @endif
                         </table>
                     </div>
                 </div>
