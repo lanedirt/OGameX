@@ -94,6 +94,56 @@ return [
         'only_letters'               => 'Gebruik alleen letters.',
     ],
 
+    // Pagina wachtwoord vergeten
+    'forgot_password' => [
+        'title'          => 'Wachtwoord vergeten?',
+        'description'    => 'Voer uw e-mailadres in en wij sturen u een link om uw wachtwoord opnieuw in te stellen.',
+        'email_label'    => 'E-mailadres:',
+        'submit'         => 'Resetlink versturen',
+        'back_to_login'  => '← Terug naar inloggen',
+    ],
+
+    // Pagina wachtwoord opnieuw instellen
+    'reset_password' => [
+        'title'          => 'Wachtwoord opnieuw instellen',
+        'email_label'    => 'E-mailadres:',
+        'password_label' => 'Nieuw wachtwoord:',
+        'confirm_label'  => 'Nieuw wachtwoord bevestigen:',
+        'submit'         => 'Wachtwoord opnieuw instellen',
+    ],
+
+    // Pagina e-mailadres vergeten
+    'forgot_email' => [
+        'title'          => 'E-mailadres vergeten?',
+        'description'    => 'Voer uw commandantsnaam in en wij sturen een hint naar het geregistreerde e-mailadres.',
+        'username_label' => 'Commandantsnaam:',
+        'submit'         => 'Hint versturen',
+        'back_to_login'  => '← Terug naar inloggen',
+        'sent'           => 'Als er een overeenkomend account is gevonden, is er een hint naar het geregistreerde e-mailadres gestuurd.',
+    ],
+
+    // Uitgaande e-mailsjablonen
+    'mail' => [
+        'reset_password' => [
+            'subject'      => 'Stel uw OGameX-wachtwoord opnieuw in',
+            'heading'      => 'Wachtwoord Opnieuw Instellen',
+            'greeting'     => 'Hallo :username,',
+            'body'         => 'We hebben een verzoek ontvangen om het wachtwoord voor uw account opnieuw in te stellen. Klik op de knop hieronder om een nieuw wachtwoord te kiezen.',
+            'cta'          => 'Wachtwoord Opnieuw Instellen',
+            'expiry'       => 'Deze link verloopt over 60 minuten.',
+            'no_action'    => 'Als u geen wachtwoordreset heeft aangevraagd, is geen verdere actie vereist.',
+            'url_fallback' => 'Als u problemen heeft met het klikken op de knop, kopieer en plak dan de onderstaande URL in uw browser:',
+        ],
+        'retrieve_email' => [
+            'subject'   => 'Uw OGameX e-mailadres',
+            'heading'   => 'Hint E-mailadres',
+            'greeting'  => 'Hallo :username,',
+            'body'      => 'U heeft een hint aangevraagd voor het e-mailadres dat aan uw account is gekoppeld:',
+            'cta'       => 'Ga naar Inloggen',
+            'no_action' => 'Als u dit verzoek niet heeft gedaan, kunt u deze e-mail veilig negeren.',
+        ],
+    ],
+
     // Tooltip-teksten universum kenmerken
     'universe_characteristics' => [
         'fleet_speed'      => 'Vlootsnelheid: hoe hoger de waarde, hoe minder tijd u heeft om te reageren op een aanval.',
