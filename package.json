@@ -12,6 +12,6 @@
         "laravel-echo": "^2.4.0",
         "laravel-vite-plugin": "^3.2",
         "pusher-js": "^8.6.0",
-        "vite": "^8.2"
+        "vite": "^8.3"
     }
 }
