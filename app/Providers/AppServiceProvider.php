@@ -3,6 +3,7 @@
 namespace OGame\Providers;
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +36,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Register model observers
         User::observe(UserObserver::class);
+
+        // Register @moduleSlot Blade directive for module view injection
+        Blade::directive('moduleSlot', function (string $expression): string {
+            return "<?php echo \\OGame\\Services\\ModuleSlotService::render({$expression}); ?>";
+        });
     }
 
     /**
