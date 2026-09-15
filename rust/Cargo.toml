@@ -6,3 +6,10 @@ members = [
     "battle_engine_debug",
     "test_ffi",
 ]
+
+# Optimize the release build for runtime performance: fat LTO and a single
+# codegen unit let LLVM inline and optimize across crate boundaries, which
+# measurably speeds up the battle hot loop at the cost of longer compile times.
+[profile.release]
+lto = "fat"
+codegen-units = 1
