@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $general_rank
  * @property int|null $economy_rank
  * @property int|null $research_rank
- * @property int|null $military_rank
+ * @property int|null $military_built_rank
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Alliance $alliance
@@ -38,7 +38,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|AllianceHighscore whereGeneralRank($value)
  * @method static Builder|AllianceHighscore whereEconomyRank($value)
  * @method static Builder|AllianceHighscore whereResearchRank($value)
- * @method static Builder|AllianceHighscore whereMilitaryRank($value)
+ * @method static Builder|AllianceHighscore whereMilitaryBuiltRank($value)
  * @method static Builder|AllianceHighscore whereCreatedAt($value)
  * @method static Builder|AllianceHighscore whereUpdatedAt($value)
  * @mixin \Eloquent
@@ -52,7 +52,7 @@ use Illuminate\Support\Carbon;
     'general_rank',
     'economy_rank',
     'research_rank',
-    'military_rank',
+    'military_built_rank',
 ])]
 class AllianceHighscore extends Model
 {
@@ -74,7 +74,7 @@ class AllianceHighscore extends Model
         $query->where(function ($query) {
             $query->where('general_rank', '!=', null)
                 ->where('economy_rank', '!=', null)
-                ->where('military_rank', '!=', null)
+                ->where('military_built_rank', '!=', null)
                 ->where('research_rank', '!=', null);
         });
     }
