@@ -135,6 +135,7 @@ class StationObjects
             new GameObjectRequirement('energy_technology', 12),
         ];
         $terraformer->price = new GameObjectPrice(0, 50000, 100000, 1000, 2);
+        $terraformer->canBeTornDown = false; // Terraformer is permanent
         $terraformer->valid_planet_types = [PlanetType::Planet];
         $terraformer->assets = new GameObjectAssets();
         $terraformer->assets->imgMicro = 'terraformer_micro.jpg';
@@ -155,6 +156,7 @@ class StationObjects
         ];
         $spaceDock->price = new GameObjectPrice(200, 0, 50, 50, 2);
         $spaceDock->consumesPlanetField = false; // Space Dock floats in orbit and doesn't consume a field
+        $spaceDock->canBeTornDown = false; // Space Dock is permanent
         $spaceDock->valid_planet_types = [PlanetType::Planet];
         $spaceDock->assets = new GameObjectAssets();
         $spaceDock->assets->imgMicro = 'space_dock_micro.jpg';
@@ -171,6 +173,7 @@ class StationObjects
         $lunarBase->description = __('t_resources.lunar_base.description');
         $lunarBase->description_long = __('t_resources.lunar_base.description_long');
         $lunarBase->price = new GameObjectPrice(20000, 40000, 20000, 0, 2);
+        $lunarBase->canBeTornDown = false; // Lunar Base is permanent, every level grants moon fields
         $lunarBase->valid_planet_types = [PlanetType::Moon];
         $lunarBase->assets = new GameObjectAssets();
         $lunarBase->assets->imgMicro = 'lunar_base_micro.jpg';
