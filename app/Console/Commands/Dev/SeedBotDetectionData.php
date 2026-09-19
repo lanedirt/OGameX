@@ -20,7 +20,7 @@ class SeedBotDetectionData extends Command
 
     public function handle(): int
     {
-        /** @var Collection<int, User> $users */
+        /** @var Collection<string, User> $users */
         $users = User::where('email', 'like', '%@' . self::EMAIL_DOMAIN)->get()->keyBy('username');
 
         if ($users->isEmpty()) {
