@@ -1,0 +1,17 @@
+@extends('ingame.layouts.main')
+
+@section('content')
+    <div id="overviewcomponent" class="maincontent">
+        <div id="planet" class="shortHeader">
+            <h2>{{ $title }}</h2>
+        </div>
+
+        <div id="buttonz">
+            <div class="content">
+                <p class="box_highlight textCenter no_buddies">
+                    {{ $welcome }}
+                </p>
+            </div>
+        </div>
+    </div>
+@endsection

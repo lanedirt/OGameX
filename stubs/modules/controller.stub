@@ -1,0 +1,26 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use Illuminate\View\View;
+use OGame\Http\Controllers\OGameController;
+
+class $CLASS$ extends OGameController
+{
+    /**
+     * Show the module's main admin page.
+     *
+     * This is the entry point generated for a new OGameX module. Add your own
+     * actions here and keep user-facing strings translatable via
+     * __('t_$LOWER_NAME$.<key>') in the module's lang files.
+     */
+    public function index(): View
+    {
+        $this->setBodyId('overview');
+
+        return view('$LOWER_NAME$::index', [
+            'title' => config('$LOWER_NAME$.title', '$STUDLY_NAME$'),
+            'welcome' => config('$LOWER_NAME$.welcome'),
+        ]);
+    }
+}
