@@ -103,8 +103,9 @@ The Deuterium Tank protects a certain percentage of the synthesizer\'s daily pro
     'terraformer' => [
         'title'            => 'Terraformer',
         'description'      => 'The terraformer increases the usable surface of planets.',
-        'description_long' => 'With the increasing construction on planets, even the living space for the colony is becoming more and more limited. Traditional methods such as high-rise and underground construction are increasingly becoming insufficient. A small group of high-energy physicists and nano engineers eventually came to the solution: terraforming.
+        'description_long' => 'With the increasing construction on planets, even the living space for the colony is becoming more and more limited. Traditional methods such as high-rise and underground construction are increasingly becoming insufficient. A small group of high-energy physicists and nano engineers eventually came to the solution: Terraforming.
 Making use of tremendous amounts of energy, the terraformer can make whole stretches of land or even continents arable. This building houses the production of nanites created specifically for this purpose, which ensure a consistent ground quality throughout.
+
 
 Each terraformer level allows 5 fields to be cultivated. With each level, the terraformer occupies one field itself. Every 2 terraformer levels you will receive 1 bonus field.
 
@@ -126,7 +127,7 @@ Since the Space Dock floats in orbit, it does not require a planet field.',
     'lunar_base' => [
         'title'            => 'Lunar Base',
         'description'      => 'Since the moon has no atmosphere, a lunar base is required to generate habitable space.',
-        'description_long' => 'A moon has no atmosphere, so a lunar base must first be built before a settlement can be set up. This then provides oxygen, heating, and gravity. With each level constructed, a larger living and development area is provided within the biosphere. Each constructed level allows three fields for other buildings. With each level, the Lunar base occupies one field itself.
+        'description_long' => 'A moon has no atmosphere, so a lunar base must first be built before a Lunar base can be set up. This then provides oxygen, heating, and gravity. With each level constructed, a larger living and development area is provided within the biosphere. Each constructed level allows three fields for other buildings. With each level, the Lunar base occupies one field itself.
 Once built, the lunar base can not be torn down.',
     ],
 

@@ -2545,15 +2545,15 @@ class PlanetService
     /**
      * Get is the current planet building the object or not
      *
+     * When no level is passed any queue entry for the object counts, including a tear down.
+     * A building that is being torn down is under construction just like one that is being
+     * upgraded, so locks such as the Research Lab blocking research apply either way.
+     *
      * @return bool
      */
     public function isBuildingObject(string $machine_name, int|null $level = null): bool
     {
         $object = ObjectService::getObjectByMachineName($machine_name);
-
-        if ($level === null) {
-            $level = $this->getObjectLevel($machine_name) + 1;
-        }
 
         // Check only building queue objects
         if ($object->type !== GameObjectType::Building && $object->type !== GameObjectType::Station) {
