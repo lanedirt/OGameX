@@ -44,7 +44,8 @@ class RustBattleEngine extends BattleEngine
         parent::__construct($attackers, $defenderPlanet, $defenders, $settings);
 
         $this->ffi = FFI::cdef(
-            "char* fight_battle_rounds(const char* input_json);",
+            "char* fight_battle_rounds(const char* input_json);
+            void free_battle_result(char* ptr);",
             base_path('storage/rust-libs/libbattle_engine_ffi.so')
         );
     }
@@ -70,6 +71,11 @@ class RustBattleEngine extends BattleEngine
         // @phpstan-ignore-next-line
         $outputPtr = $this->ffi->fight_battle_rounds($inputJson);
         $output = FFI::string($outputPtr);
+
+        // Free the Rust-allocated result buffer. Without this every battle
+        // leaks its output for the lifetime of the PHP process.
+        // @phpstan-ignore-next-line
+        $this->ffi->free_battle_result($outputPtr);
 
         // Parse JSON response
         $battleOutput = json_decode($output, true);
