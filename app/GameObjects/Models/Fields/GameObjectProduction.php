@@ -106,9 +106,14 @@ class GameObjectProduction
      * @param float $building_percentage
      *  The production percentage of the building set by the player
      *
+     * @param float $production_factor
+     *  The planet production factor caused by an energy shortage. This only
+     *  reduces the resource output, energy production and consumption are
+     *  always calculated at their nominal value.
+     *
      * @return ProductionIndex
      */
-    public function calculate(int $level, float $building_percentage = 1): ProductionIndex
+    public function calculate(int $level, float $building_percentage = 1, float $production_factor = 1): ProductionIndex
     {
         $productionIndex = new ProductionIndex();
 
@@ -116,7 +121,7 @@ class GameObjectProduction
             return $productionIndex;
         }
 
-        $this->calculateMine($productionIndex, $level, $building_percentage);
+        $this->calculateMine($productionIndex, $level, $building_percentage, $production_factor);
         // planet slot bonus is counted toward the mine's income
         //    all other multiplier (plasma, officers) applies on top of planet slot bonus
         //    therefore, this value needs to be calculated right before other bonuses
@@ -139,14 +144,16 @@ class GameObjectProduction
      * @param ProductionIndex $productionIndex
      * @param int $level
      * @param float $building_percentage
+     * @param float $production_factor
      * @return void
      */
-    private function calculateMine(ProductionIndex $productionIndex, int $level, float $building_percentage = 1): void
+    private function calculateMine(ProductionIndex $productionIndex, int $level, float $building_percentage = 1, float $production_factor = 1): void
     {
         if ($this->metal_formula) {
             $productionIndex->mine->metal->set(
                 $this->metal_formula->__invoke($this, $level)
                 * $building_percentage
+                * $production_factor
                 * $this->universe_speed
             );
         }
@@ -155,6 +162,7 @@ class GameObjectProduction
             $productionIndex->mine->crystal->set(
                 $this->crystal_formula->__invoke($this, $level)
                 * $building_percentage
+                * $production_factor
                 * $this->universe_speed
             );
         }
@@ -163,10 +171,12 @@ class GameObjectProduction
             $productionIndex->mine->deuterium->set(
                 $this->deuterium_formula->__invoke($this, $level)
                 * $building_percentage
+                * $production_factor
                 * $this->universe_speed
             );
         }
 
+        // The production factor is intentionally not applied to energy.
         if ($this->energy_formula) {
             $productionIndex->mine->energy->set(
                 $this->energy_formula->__invoke($this, $level)
