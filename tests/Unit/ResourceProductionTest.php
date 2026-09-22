@@ -485,6 +485,44 @@ class ResourceProductionTest extends UnitTestCase
     }
 
     /**
+     * Test that production factor (energy shortage) only affects resources and not energy.
+     */
+    public function testProductionFactorDoesNotAffectEnergy(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 1);
+
+        // Create scenario with insufficient energy (production factor below 100%)
+        $this->createAndSetPlanetModel([
+            'planet' => 5, // Position 5 has no position bonuses
+            'metal_mine' => 10,
+            'metal_mine_percent' => 10,
+            'crystal_mine' => 10,
+            'crystal_mine_percent' => 10,
+            'deuterium_synthesizer' => 10,
+            'deuterium_synthesizer_percent' => 10,
+            'solar_plant' => 5, // Not enough energy
+            'solar_plant_percent' => 10,
+            'temp_min' => 27,
+            'temp_max' => 67,
+        ]);
+
+        $production_factor = $this->planetService->getResourceProductionFactor();
+        $this->assertLessThan(100, $production_factor, 'Production factor should be less than 100% with insufficient energy');
+
+        // Energy consumption of a mine must be the same with and without production factor applied.
+        $metal_mine_production = $this->planetService->getObjectProduction('metal_mine');
+        $metal_mine_production_nominal = $this->planetService->getObjectProduction('metal_mine', null, true);
+        $this->assertEquals($metal_mine_production_nominal->energy->get(), $metal_mine_production->energy->get(), 'Mine energy consumption should not be reduced by production factor');
+        $this->assertLessThan($metal_mine_production_nominal->metal->get(), $metal_mine_production->metal->get(), 'Mine metal production should be reduced by production factor');
+
+        // Energy production of a solar plant must be the same with and without production factor applied.
+        $solar_plant_production = $this->planetService->getObjectProduction('solar_plant');
+        $solar_plant_production_nominal = $this->planetService->getObjectProduction('solar_plant', null, true);
+        $this->assertEquals($solar_plant_production_nominal->energy->get(), $solar_plant_production->energy->get(), 'Solar plant energy production should not be reduced by production factor');
+    }
+
+    /**
      * Test deuterium production at different temperatures.
      */
     public function testDeuteriumProductionTemperatureDependency(): void
