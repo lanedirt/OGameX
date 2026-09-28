@@ -232,7 +232,8 @@ class ResearchQueueTest extends IsolatedAccountTestCase
         // Intergalactic Research Network technology level 2 limits combined planet count to 3.
         $forthPlanetService = $player->planets->all()[3];
         $forthPlanetService->setObjectLevel(31, 6); // Research Lab
-        $this->assertSame(24, $this->planetService->getResearchNetworkLabLevel('shielding_technology'));
+        $research_network_lab_level = $this->planetService->getResearchNetworkLabLevel('shielding_technology');
+        $this->assertSame(24, $research_network_lab_level);
 
         // Assert the combined research lab level of the four planets when two of the planets do not meet the requirements.
         $thirdPlanetService->setObjectLevel(31, 1); // Research Lab
