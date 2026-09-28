@@ -1230,7 +1230,6 @@ class PlanetService
      *
      * @param string $machine_name
      * @return int
-     * @phpstan-impure
      */
     public function getResearchNetworkLabLevel(string $machine_name): int
     {
