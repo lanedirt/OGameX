@@ -9875,16 +9875,16 @@
         },
         {
             "name": "laravel/sail",
-            "version": "v1.67.0",
+            "version": "v1.68.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/sail.git",
-                "reference": "639e03ac12cf23def171770bcab05758045b2642"
+                "reference": "2bc304083d515065b03944e425e62cb3c526c33e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/sail/zipball/639e03ac12cf23def171770bcab05758045b2642",
-                "reference": "639e03ac12cf23def171770bcab05758045b2642",
+                "url": "https://api.github.com/repos/laravel/sail/zipball/2bc304083d515065b03944e425e62cb3c526c33e",
+                "reference": "2bc304083d515065b03944e425e62cb3c526c33e",
                 "shasum": ""
             },
             "require": {
@@ -9934,7 +9934,7 @@
                 "issues": "https://github.com/laravel/sail/issues",
                 "source": "https://github.com/laravel/sail"
             },
-            "time": "2026-08-12T13:55:56+00:00"
+            "time": "2026-09-18T14:34:46+00:00"
         },
         {
             "name": "mockery/mockery",
@@ -13003,16 +13003,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v8.1.5",
+            "version": "v8.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "b3fc9e8888eeb9daddc33bfbd15d282a61f543cd"
+                "reference": "0b4aa53a67f9fece88c665f1a1dadcfd25d93fe5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/b3fc9e8888eeb9daddc33bfbd15d282a61f543cd",
-                "reference": "b3fc9e8888eeb9daddc33bfbd15d282a61f543cd",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/0b4aa53a67f9fece88c665f1a1dadcfd25d93fe5",
+                "reference": "0b4aa53a67f9fece88c665f1a1dadcfd25d93fe5",
                 "shasum": ""
             },
             "require": {
@@ -13055,7 +13055,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v8.1.5"
+                "source": "https://github.com/symfony/yaml/tree/v8.1.6"
             },
             "funding": [
                 {
@@ -13075,7 +13075,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-21T12:16:08+00:00"
+            "time": "2026-08-30T01:03:44+00:00"
         },
         {
             "name": "symplify/rule-doc-generator-contracts",
