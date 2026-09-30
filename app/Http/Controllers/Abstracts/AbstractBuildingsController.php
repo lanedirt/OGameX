@@ -180,11 +180,8 @@ abstract class AbstractBuildingsController extends OGameController
         }
 
         // Max amount of buildings that can be in the queue in a given time.
-        $max_build_queue_count = 4; //@TODO: refactor into global / constant?
-        $build_queue_max = false;
-        if (count($build_queue) >= $max_build_queue_count) {
-            $build_queue_max = true;
-        }
+        // The queue itself knows its own limit, which includes the Commander officer bonus.
+        $build_queue_max = $build_full_queue->isQueueFull();
 
         // If openTech is in querystring, add client JS to open the technology tab.
         $open_tech_id = 0;

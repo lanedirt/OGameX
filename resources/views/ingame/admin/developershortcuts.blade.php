@@ -291,6 +291,44 @@
                                     </div>
                                 </div>
                             </form>
+
+                            <form action="{{ route('admin.developershortcuts.activate-officer') }}" name="form" method="post">
+                                {{ csrf_field() }}
+                                <p class="box_highlight textCenter no_buddies">@lang('Activate officer for player:')</p>
+                                <div class="group bborder" style="display: block;">
+                                    <div class="fieldwrapper">
+                                        <div class="smallFont">@lang('Activating the Commanding Staff also activates all five individual officers. Activating an officer that is already active extends its duration.')</div>
+                                        <label class="styled textBeefy" for="officer_username">@lang('Username:')</label>
+                                        <div class="thefield">
+                                            <input type="text" id="officer_username" class="textInput w150 textCenter textBeefy"
+                                                   placeholder="@lang('Username')" name="username">
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper">
+                                        <label class="styled textBeefy" for="officer_key">@lang('Officer:')</label>
+                                        <div class="thefield">
+                                            <select id="officer_key" name="officer_key" class="dropdown">
+                                                @foreach (\OGame\Services\OfficerService::TYPE_MAP as $officerKey)
+                                                    <option value="{{ $officerKey }}">{{ __('t_ingame.premium.officer_' . $officerKey . '_title') }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper">
+                                        <label class="styled textBeefy" for="officer_days">@lang('Duration:')</label>
+                                        <div class="thefield">
+                                            <select id="officer_days" name="days" class="dropdown">
+                                                @foreach (\OGame\Services\OfficerService::DURATIONS as $officerDays)
+                                                    <option value="{{ $officerDays }}">{{ $officerDays }} {{ __('t_ingame.premium.days') }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="fieldwrapper" style="text-align: center;">
+                                        <input type="submit" class="btn_blue" name="activate_officer" value="@lang('Activate Officer')">
+                                    </div>
+                                </div>
+                            </form>
                 </div>
             </div>
             </div>
