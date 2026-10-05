@@ -198,10 +198,11 @@ class BuildingQueueService
             }
         }
 
-        // Check if building can be downgraded (no dependencies)
-        // Note: We check based on level_after_queue, not current_level
+        // Check if this building can be torn down at all.
+        // TODO: verify this message against the original game. Permanent buildings have no tear
+        // down button, so this is only reachable by posting the request directly.
         if (!ObjectService::canDowngradeBuilding($building->machine_name, $planet)) {
-            throw new Exception('Cannot downgrade building: other buildings or research depend on this level.');
+            throw new Exception('This building cannot be torn down.');
         }
 
         // Check if Research Lab is being downgraded while research is in progress
@@ -219,9 +220,10 @@ class BuildingQueueService
             }
         }
 
-        // Check if Shipyard is being downgraded while ships/defense are being built
-        if ($building->machine_name === 'shipyard' && $player->isBuildingShipsOrDefense()) {
-            throw new Exception('Cannot downgrade Shipyard while ships or defense are being built.');
+        // Check if Shipyard or Nanite Factory is being downgraded while ships/defense are being built
+        if (($building->machine_name === 'shipyard' || $building->machine_name === 'nano_factory')
+            && $player->isBuildingShipsOrDefense()) {
+            throw new Exception('Cannot downgrade ' . $building->title . ' while ships or defense are being built.');
         }
 
         // Cannot downgrade if level_after_queue is already 0
@@ -517,16 +519,22 @@ class BuildingQueueService
     /**
      * Get is object in building queue
      *
+     * When no level is passed any queue entry for the object matches, both upgrades and tear downs.
+     *
      * @return bool
      */
-    public function objectInBuildingQueue(PlanetService $planet, string $machine_name, int $level): bool
+    public function objectInBuildingQueue(PlanetService $planet, string $machine_name, int|null $level = null): bool
     {
         $queue_items = $this->retrieveQueueItems($planet);
 
         foreach ($queue_items as $item) {
             $object = ObjectService::getObjectById($item->object_id);
 
-            if ($object->machine_name === $machine_name && $item->object_level_target === $level) {
+            if ($object->machine_name !== $machine_name) {
+                continue;
+            }
+
+            if ($level === null || $item->object_level_target === $level) {
                 return true;
             }
         }
