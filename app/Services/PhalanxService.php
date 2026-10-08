@@ -31,6 +31,7 @@ class PhalanxService
     public function __construct(
         private PlayerServiceFactory $playerServiceFactory,
         private CoordinateDistanceCalculator $coordinateDistanceCalculator,
+        private IncomingFleetIntelService $incomingFleetIntelService,
     ) {
     }
 
@@ -135,6 +136,8 @@ class PhalanxService
      */
     public function scanPlanetFleets(int $target_planet_id, int $scanner_player_id): array
     {
+        $scannerPlayer = $this->playerServiceFactory->make($scanner_player_id, true);
+
         // Get all active fleet missions involving this planet
         $fleet_missions = FleetMission::where(function ($query) use ($target_planet_id) {
             $query->where('planet_id_from', $target_planet_id)
@@ -175,10 +178,13 @@ class PhalanxService
                                                  ($mission->time_holding ?? 0);
                         }
 
-                        $ships = $this->getFleetShips($mission);
+                        $intel = $this->incomingFleetIntelService->shapeIncomingFleetIntel($mission, $scannerPlayer);
+                        $ships = $intel['units']->toArray();
+                        $ship_count = $intel['ship_count'];
+                        $resources = $intel['resources'];
                         $fleet_speed = $this->getFleetSpeed($mission);
                         $mission_type_name = $this->getMissionTypeName($mission->mission_type);
-                        $fleet_direction = $this->getFleetDirectionLabel($mission->user_id, $scanner_player_id, $mission->mission_type);
+                        $fleet_direction = $this->incomingFleetIntelService->getFleetDirectionLabel($mission, $scannerPlayer);
 
                         $scan_results[] = [
                             'mission_id' => $mission->id + 999999,
@@ -192,6 +198,7 @@ class PhalanxService
                             'fleet_owner_id' => $mission->user_id,
                             'fleet_icon' => '014a5d88b102d4b47ab5146d4807c6.gif',
                             'display_time' => $return_time_arrival,
+                            'resources' => $resources,
                             'origin' => [
                                 'galaxy' => $mission->galaxy_to,
                                 'system' => $mission->system_to,
@@ -205,7 +212,7 @@ class PhalanxService
                                 'planet_name' => $planet_names[$mission->planet_id_from] ?? '',
                             ],
                             'ships' => $ships,
-                            'ship_count' => array_sum($ships),
+                            'ship_count' => $ship_count,
                             'fleet_speed' => $fleet_speed,
                         ];
                     }
@@ -224,8 +231,10 @@ class PhalanxService
             // Check if this is a return trip
             $is_return_trip = !empty($mission->parent_id);
 
-            // Get ship counts
-            $ships = $this->getFleetShips($mission);
+            $intel = $this->incomingFleetIntelService->shapeIncomingFleetIntel($mission, $scannerPlayer);
+            $ships = $intel['units']->toArray();
+            $ship_count = $intel['ship_count'];
+            $resources = $intel['resources'];
 
             // Calculate fleet speed (with research bonuses)
             $fleet_speed = $this->getFleetSpeed($mission);
@@ -252,7 +261,7 @@ class PhalanxService
             }
 
             // Calculate display properties for Blade template
-            $fleet_direction = $this->getFleetDirectionLabel($mission->user_id, $scanner_player_id, $mission->mission_type);
+            $fleet_direction = $this->incomingFleetIntelService->getFleetDirectionLabel($mission, $scannerPlayer);
             $fleet_icon = $is_return_trip ? '014a5d88b102d4b47ab5146d4807c6.gif' : 'f9cb590cdf265f499b0e2e5d91fc75.gif'; // Left for return, right for incoming
 
             // Add the incoming mission to results
@@ -268,6 +277,7 @@ class PhalanxService
                 'fleet_owner_id' => $mission->user_id,
                 'fleet_icon' => $fleet_icon,
                 'display_time' => $display_time_arrival,
+                'resources' => $resources,
                 'origin' => [
                     'galaxy' => $mission->galaxy_from,
                     'system' => $mission->system_from,
@@ -281,7 +291,7 @@ class PhalanxService
                     'planet_name' => $planet_names[$mission->planet_id_to] ?? '',
                 ],
                 'ships' => $ships,
-                'ship_count' => array_sum($ships),
+                'ship_count' => $ship_count,
                 'fleet_speed' => $fleet_speed,
             ];
         }
@@ -306,32 +316,6 @@ class PhalanxService
     }
 
     /**
-     * Get fleet direction label based on ownership and mission type.
-     *
-     * @param int $fleet_owner_id The player ID who owns the fleet
-     * @param int $scanner_player_id The player ID performing the scan
-     * @param int $mission_type The mission type ID
-     * @return string Fleet direction label
-     */
-    private function getFleetDirectionLabel(int $fleet_owner_id, int $scanner_player_id, int $mission_type): string
-    {
-        // If scanner owns the fleet
-        if ($fleet_owner_id === $scanner_player_id) {
-            return 'Own fleet';
-        }
-
-        // If attack mission (type 1 = Attack) or ACS Attack (type 2)
-        // TODO: ACS Attack (type 2) fleets are not yet shown in Phalanx scan results.
-        // Each union member fleet needs to be displayed individually, matching OGame behaviour.
-        if ($mission_type === 1) {
-            return 'Enemy fleet';
-        }
-
-        // All other missions
-        return 'Friendly fleet';
-    }
-
-    /**
      * Check if a mission type has a return trip.
      *
      * @param int $mission_type
@@ -346,27 +330,6 @@ class PhalanxService
             // Fallback for unimplemented missions (2, 5, 9) - all have return trips
             return true;
         }
-    }
-
-    /**
-     * Extract ship counts from a fleet mission.
-     *
-     * @param FleetMission $mission
-     * @return array<string, int> Ship counts indexed by ship type
-     */
-    private function getFleetShips(FleetMission $mission): array
-    {
-        $ship_types = [];
-
-        // Dynamically get all ship objects from the game system
-        foreach (ObjectService::getShipObjects() as $ship) {
-            $amount = $mission->{$ship->machine_name} ?? 0;
-            if ($amount > 0) {
-                $ship_types[$ship->machine_name] = $amount;
-            }
-        }
-
-        return $ship_types;
     }
 
     /**

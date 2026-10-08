@@ -21,10 +21,10 @@
     <td class="coordsOrigin textBeefy">{{ $fleet_event_row->union_player_count }} / {{ $fleet_event_row->union_max_players }}</td>
 
     <td class="detailsFleet">
-        <span>{{ $fleet_event_row->fleet_unit_count }}</span>
+        <span>@if ($fleet_event_row->fleet_intel_level->showsTotalCount()){{ $fleet_event_row->fleet_unit_count }}@endif</span>
     </td>
     <td class="icon_movement">
-        <span class="tooltip tooltipRight tooltipClose"
+        <span @if ($fleet_event_row->fleet_intel_level->showsCompositionTooltip()) class="tooltip tooltipRight tooltipClose"
               title="&lt;div class=&quot;htmlTooltip&quot;&gt;
     &lt;h1&gt;@lang('Fleet details'):&lt;/h1&gt;
     &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
@@ -42,15 +42,17 @@
                     &lt;td&gt;@lang('Fleets')&lt;/td&gt;
                     &lt;td&gt;{{ $origin['fleet_count'] }}&lt;/td&gt;
                 &lt;/tr&gt;
+                @if ($fleet_event_row->fleet_intel_level->showsTotalCount())
                 &lt;tr&gt;
                     &lt;td&gt;@lang('Ships')&lt;/td&gt;
                     &lt;td&gt;{{ $origin['ship_count'] }}&lt;/td&gt;
                 &lt;/tr&gt;
+                @endif
                 @endforeach
             @endforeach
             &lt;/table&gt;
     &lt;/div&gt;
-">
+"@endif>
             &nbsp;
         </span>
     </td>
@@ -123,48 +125,11 @@
         </td>
 
         <td class="detailsFleet">
-            <span>{{ $member_fleet->fleet_unit_count }}</span>
+            <span>@if ($member_fleet->fleet_intel_level->showsTotalCount()){{ $member_fleet->fleet_unit_count }}@endif</span>
         </td>
         <td class="icon_movement">
-            <span class="tooltip tooltipRight tooltipClose"
-                  title="&lt;div class=&quot;htmlTooltip&quot;&gt;
-    &lt;h1&gt;@lang('Fleet details'):&lt;/h1&gt;
-    &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
-            &lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;&gt;
-            &lt;tr&gt;
-                &lt;th colspan=&quot;3&quot;&gt;@lang('Ships'):&lt;/th&gt;
-            &lt;/tr&gt;
-            @foreach ($member_fleet->fleet_units->units as $fleet_unit)
-                &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;{{ $fleet_unit->unitObject->title }}:&lt;/td&gt;
-                    &lt;td class=&quot;value&quot;&gt;{{ $fleet_unit->amount }}&lt;/td&gt;
-                &lt;/tr&gt;
-            @endforeach
-
-                &lt;tr&gt;
-                    &lt;th colspan=&quot;3&quot;&gt;&nbsp;&lt;/th&gt;
-                &lt;/tr&gt;
-
-                &lt;tr&gt;
-                    &lt;th colspan=&quot;3&quot;&gt;@lang('Shipment'):&lt;/th&gt;
-                &lt;/tr&gt;
-
-                &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;@lang('Metal'):&lt;/td&gt;
-                    &lt;td class=&quot;value&quot;&gt;{{ $member_fleet->resources->metal->getFormattedLong() }}&lt;/td&gt;
-                &lt;/tr&gt;
-
-                &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;@lang('Crystal'):&lt;/td&gt;
-                    &lt;td class=&quot;value&quot;&gt;{{ $member_fleet->resources->crystal->getFormattedLong() }}&lt;/td&gt;
-                &lt;/tr&gt;
-                &lt;tr&gt;
-                    &lt;td colspan=&quot;2&quot;&gt;@lang('Deuterium'):&lt;/td&gt;
-                    &lt;td class=&quot;value&quot;&gt;{{ $member_fleet->resources->deuterium->getFormattedLong() }}&lt;/td&gt;
-                &lt;/tr&gt;
-            &lt;/table&gt;
-    &lt;/div&gt;
-">
+            <span @if ($member_fleet->fleet_intel_level->showsCompositionTooltip()) class="tooltip tooltipRight tooltipClose"
+                  title="@include('ingame.fleetevents.partials.fleet-details-tooltip', ['fleet' => $member_fleet])"@endif>
                 &nbsp;
             </span>
         </td>
