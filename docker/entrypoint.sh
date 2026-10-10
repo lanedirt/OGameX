@@ -27,7 +27,18 @@ if [ "$role" = "scheduler" ]; then
         sleep 60
     done
 elif [ "$role" = "queue" ]; then
-      php /var/www/artisan queue:work --verbose --no-interaction
+      # Run two worker pools under supervisor so independent planet destinations are
+      # processed in parallel. The light pool is dedicated to light traffic (transports,
+      # deployments, returns) so it is never blocked by battles; the heavy pool handles
+      # battles and backfills light work when idle. Tune via QUEUE_WORKERS_LIGHT /
+      # QUEUE_WORKERS_HEAVY. The worker flags live in docker/supervisor/queue-worker.conf.
+      workers_light=${QUEUE_WORKERS_LIGHT:-2}
+      workers_heavy=${QUEUE_WORKERS_HEAVY:-3}
+      echo "Starting ${workers_light} light + ${workers_heavy} heavy fleet-arrival worker(s) under supervisor..."
+      sed -e "s/{{QUEUE_WORKERS_LIGHT}}/${workers_light}/g" \
+          -e "s/{{QUEUE_WORKERS_HEAVY}}/${workers_heavy}/g" \
+          /var/www/docker/supervisor/queue-worker.conf > /tmp/queue-worker.conf
+      exec supervisord -c /tmp/queue-worker.conf
 elif [ "$role" = "reverb" ]; then
     php /var/www/artisan reverb:start --host="${REVERB_SERVER_HOST:-0.0.0.0}" --port="${REVERB_SERVER_PORT:-8090}"
 elif [ "$role" = "app" ]; then
