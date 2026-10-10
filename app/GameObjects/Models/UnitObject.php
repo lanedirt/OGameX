@@ -35,8 +35,9 @@ abstract class UnitObject extends GameObject
     {
         foreach ($this->rapidfire as $rapidfire) {
             if ($rapidfire->object_machine_name == $object->machine_name) {
-                // If chance is 85%, it means that 85 out of 100 times, rapidfire will be successful.
-                return (random_int(1, 10000) / 100) <= $rapidfire->getChance();
+                // Rapidfire continues with probability (n - 1) / n, matching the original game.
+                // For example amount 4 means 3/4 = 75% chance.
+                return random_int(1, $rapidfire->amount) > 1;
             }
         }
 

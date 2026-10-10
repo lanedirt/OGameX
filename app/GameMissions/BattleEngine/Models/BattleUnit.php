@@ -10,21 +10,22 @@ use OGame\GameObjects\Models\UnitObject;
 class BattleUnit
 {
     /**
-     * @var int The original hull plating of the unit. This is the structural integrity of the unit divided by 10.
+     * @var float The original hull plating of the unit. This is the structural integrity of the unit divided by 10.
      */
-    public int $originalHullPlating;
+    public float $originalHullPlating;
 
     /**
-     * @var int The current health points of the unit. Hull plating = structural integrity / 10.
+     * @var float The current health points of the unit. Hull plating = structural integrity / 10.
      */
-    public int $currentHullPlating;
+    public float $currentHullPlating;
 
     /**
-     * @var int The shield points of the unit.
+     * @var float The shield points of the unit.
      *
-     * Damage is first applied to the shield, then to the hull plating. After every round of combat, the shield regenerates.
+     * Damage is first applied to the shield, then to the hull plating. After every round of combat, the shield
+     * regenerates. Stored as float because shield damage is dealt in multiples of 1% of the max shield.
      */
-    public int $currentShieldPoints;
+    public float $currentShieldPoints;
 
     /**
      * Create a new BattleUnit object.
@@ -60,6 +61,6 @@ class BattleUnit
         }
 
         $explosionChance = (1 - $hullPercentage) * 100;
-        return rand(0, 100) < $explosionChance;
+        return rand(0, 100) < (int)$explosionChance;
     }
 }
