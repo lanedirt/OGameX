@@ -73,6 +73,8 @@ class NpcEmpireManager
         private PlanetServiceFactory $planetServiceFactory,
         private SettingsService $settingsService,
         private NpcDevelopmentAi $developmentAi,
+        private NpcFleetAi $fleetAi,
+        private NpcExpansionAi $expansionAi,
     ) {
     }
 
@@ -240,6 +242,8 @@ class NpcEmpireManager
         // 4. AI decision cycle.
         if ($this->shouldMakeDecision($empire)) {
             $this->developmentAi->decide($player);
+            $this->fleetAi->decide($player, $empire);
+            $this->expansionAi->decide($player, $empire);
             $empire->last_ai_decision_at = Date::now();
             $empire->save();
         }
