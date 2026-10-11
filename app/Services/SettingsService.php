@@ -777,4 +777,101 @@ class SettingsService
     {
         return $this->get('contact_content', '');
     }
+
+    /**
+     * Returns whether the NPC empire feature is enabled.
+     *
+     * @return bool
+     */
+    public function npcEmpiresEnabled(): bool
+    {
+        return (bool)$this->get('npc_empires_enabled', 0);
+    }
+
+    /**
+     * Returns the maximum amount of NPC empires allowed on this server.
+     *
+     * @return int
+     */
+    public function npcMaxCount(): int
+    {
+        return (int)$this->get('npc_max_count', 10);
+    }
+
+    /**
+     * Returns whether NPC empires are allowed to take aggressive action
+     * (espionage and attacks) against real players.
+     *
+     * @return bool
+     */
+    public function npcAttackPlayersEnabled(): bool
+    {
+        return (bool)$this->get('npc_attack_players_enabled', 0);
+    }
+
+    /**
+     * Returns the minimum development speed multiplier that NPC empires
+     * can roll at spawn (extra resources on top of normal production).
+     *
+     * @return float
+     */
+    public function npcDevelopmentSpeedMin(): float
+    {
+        return (float)$this->get('npc_development_speed_min', '0.5');
+    }
+
+    /**
+     * Returns the maximum development speed multiplier that NPC empires
+     * can roll at spawn (extra resources on top of normal production).
+     *
+     * @return float
+     */
+    public function npcDevelopmentSpeedMax(): float
+    {
+        return (float)$this->get('npc_development_speed_max', '2.5');
+    }
+
+    /**
+     * Returns the minimum aggression weight that NPC empires can roll
+     * at spawn (0-100 scale).
+     *
+     * @return float
+     */
+    public function npcAggressionMin(): float
+    {
+        return (float)$this->get('npc_aggression_min', '20');
+    }
+
+    /**
+     * Returns the maximum aggression weight that NPC empires can roll
+     * at spawn (0-100 scale).
+     *
+     * @return float
+     */
+    public function npcAggressionMax(): float
+    {
+        return (float)$this->get('npc_aggression_max', '80');
+    }
+
+    /**
+     * Returns the minimum expansion rate multiplier that NPC empires
+     * can roll at spawn.
+     *
+     * @return float
+     */
+    public function npcExpansionRateMin(): float
+    {
+        return (float)$this->get('npc_expansion_rate_min', '0.5');
+    }
+
+    /**
+     * Returns the maximum expansion rate multiplier that NPC empires
+     * can roll at spawn.
+     *
+     * @return float
+     */
+    public function npcExpansionRateMax(): float
+    {
+        return (float)$this->get('npc_expansion_rate_max', '2.0');
+    }
 }
