@@ -212,6 +212,42 @@ class NpcEmpireManager
                 ]);
             }
         }
+
+        try {
+            $this->spawnToMax();
+        } catch (Throwable $e) {
+            logger()->error('NPC empire auto-spawn failed', ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Automatically spawn new NPC empires until the configured maximum
+     * count is reached, respecting the configured minimum spawn interval.
+     * No-op when auto-spawn is disabled (default).
+     *
+     * @throws Throwable
+     */
+    public function spawnToMax(): void
+    {
+        if (!$this->settingsService->npcAutospawnEnabled()) {
+            return;
+        }
+
+        $empires = $this->listEmpires();
+        if ($empires->count() >= $this->settingsService->npcMaxCount()) {
+            return;
+        }
+
+        $newestSpawn = $empires->max('created_at');
+        if ($newestSpawn !== null && $newestSpawn->diffInHours(Date::now()) < $this->settingsService->npcAutospawnIntervalHours()) {
+            return;
+        }
+
+        $empire = $this->spawn();
+        logger()->info('NPC empire auto-spawned', [
+            'npc_user_id' => $empire->user_id,
+            'username'    => $empire->user->username,
+        ]);
     }
 
     /**

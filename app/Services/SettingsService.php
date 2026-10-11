@@ -874,4 +874,25 @@ class SettingsService
     {
         return (float)$this->get('npc_expansion_rate_max', '2.0');
     }
+
+    /**
+     * Returns whether NPC empires should automatically spawn until the
+     * configured maximum count is reached.
+     *
+     * @return bool
+     */
+    public function npcAutospawnEnabled(): bool
+    {
+        return (bool)$this->get('npc_autospawn_enabled', 0);
+    }
+
+    /**
+     * Returns the minimum interval in hours between automatic NPC spawns.
+     *
+     * @return int
+     */
+    public function npcAutospawnIntervalHours(): int
+    {
+        return max(1, (int)$this->get('npc_autospawn_interval_hours', 24));
+    }
 }
