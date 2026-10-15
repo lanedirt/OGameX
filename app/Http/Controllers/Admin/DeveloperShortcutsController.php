@@ -16,6 +16,7 @@ use OGame\Models\User;
 use OGame\Services\DarkMatterService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
+use OGame\Services\OfficerService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 
@@ -453,5 +454,34 @@ class DeveloperShortcutsController extends OGameController
 
         return redirect()->route('overview.index')
             ->with('success', __('Now impersonating :username', ['username' => $targetUser->username]));
+    }
+
+    /**
+     * Activate an officer for a player from the developer shortcuts page.
+     */
+    public function activateOfficer(Request $request, OfficerService $officerService): RedirectResponse
+    {
+        // TYPE_MAP already contains 'all_officers' (the Commanding Staff bundle).
+        $validOfficerKeys = array_values(OfficerService::TYPE_MAP);
+
+        $validated = $request->validate([
+            'username'    => ['required', 'string'],
+            'officer_key' => ['required', 'string', 'in:' . implode(',', $validOfficerKeys)],
+            'days'        => ['required', 'integer', 'in:' . implode(',', OfficerService::DURATIONS)],
+        ]);
+
+        $user = User::where('username', $validated['username'])->first();
+        if (!$user) {
+            return redirect()->back()->with('error', 'Player "' . $validated['username'] . '" not found.');
+        }
+
+        // Activating 'all_officers' implicitly activates all five individual officers,
+        // see Officer::isOfficerActive().
+        $officer = $officerService->getOfficer($user);
+        $officer->activate($validated['officer_key'], (int)$validated['days']);
+        $officer->save();
+        $officerService->clearCache($user);
+
+        return redirect()->back()->with('success', 'Officer "' . $validated['officer_key'] . '" activated for ' . $validated['days'] . ' days for player "' . $validated['username'] . '".');
     }
 }
