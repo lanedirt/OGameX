@@ -52,6 +52,10 @@ jobs:
           git fetch --tags --force
           git checkout ${{ steps.tag.outputs.tag }}
 
+      - name: Pull prebuilt images
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: docker compose -f docker-compose.prod.yml pull ogamex-phpmyadmin
+
       - name: Build and start stack
         working-directory: ${{ env.DEPLOY_DIR }}
         run: docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
