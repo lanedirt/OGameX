@@ -210,7 +210,17 @@ If you want to upgrade an existing installation of OGameX to a new version, foll
   ```
   $ git checkout 0.14.0 # replace with the latest release tag
   ```
-  3. Rebuild and start the containers:
+  3. Pull the latest prebuilt images. The phpMyAdmin image ships its own PHP and is only updated when it is pulled explicitly:
+
+  **For development:**
+  ```
+  $ docker compose pull ogamex-phpmyadmin
+  ```
+  **For production:**
+  ```
+  $ docker compose -f docker-compose.prod.yml pull ogamex-phpmyadmin
+  ```
+  4. Rebuild and start the containers:
 
   **For development:**
   ```

@@ -30,6 +30,10 @@ jobs:
         working-directory: ${{ env.DEPLOY_DIR }}
         run: git pull
 
+      - name: Pull prebuilt images
+        working-directory: ${{ env.DEPLOY_DIR }}
+        run: docker compose -f docker-compose.prod.yml pull ogamex-phpmyadmin
+
       - name: Build and start stack
         working-directory: ${{ env.DEPLOY_DIR }}
         run: docker compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
