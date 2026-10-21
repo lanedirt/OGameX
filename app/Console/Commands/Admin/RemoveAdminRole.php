@@ -18,6 +18,10 @@ class RemoveAdminRole extends Command
     public function handle(): int
     {
         $username = $this->argument('username');
+        if (!is_string($username)) {
+            $this->error('Username must be a string.');
+            return 1;
+        }
 
         $user = User::where('username', $username)->first();
 
