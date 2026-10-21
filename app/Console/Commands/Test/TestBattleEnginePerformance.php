@@ -62,7 +62,7 @@ class TestBattleEnginePerformance extends TestCommand
         }
         $engine = $this->argument('engine');
 
-        if (!in_array($engine, ['php', 'rust'])) {
+        if (!is_string($engine) || !in_array($engine, ['php', 'rust'])) {
             $this->error('Invalid engine specified. Use "php" or "rust"');
             return 1;
         }
