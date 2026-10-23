@@ -1,6 +1,6 @@
 [package]
 name = "battle_engine_ffi"
-version = "0.1.0"
+version = "2.0.0"
 edition = "2021"
 
 [lib]
@@ -10,6 +10,13 @@ crate-type = ["cdylib", "rlib"]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 rand = "0.9"
-memory-stats = "1.2.0"
+memory-stats = { version = "1.2.0", optional = true }
+
+[features]
+default = []
+# Peak-memory tracking for debugging. Reads /proc/self/smaps on every round,
+# which scales with mapped memory and slows battles down in long-running
+# processes - keep disabled for production builds.
+memory-metrics = ["dep:memory-stats"]
 
 
