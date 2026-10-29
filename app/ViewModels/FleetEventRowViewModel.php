@@ -2,6 +2,7 @@
 
 namespace OGame\ViewModels;
 
+use OGame\Enums\IncomingFleetIntelLevel;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet\Coordinate;
@@ -52,6 +53,18 @@ class FleetEventRowViewModel
     public int $fleet_unit_count;
     public UnitCollection $fleet_units;
     public Resources $resources;
+
+    /**
+     * How much fleet composition detail the viewing player may see.
+     * Own fleets remain Full; foreign fleets are set by IncomingFleetIntelService.
+     */
+    public IncomingFleetIntelLevel $fleet_intel_level = IncomingFleetIntelLevel::Full;
+
+    /**
+     * Whether shipment/cargo should be shown in the fleet details tooltip.
+     * Always false for foreign fleets.
+     */
+    public bool $show_shipment = true;
 
     /**
      * @var bool Whether this fleet can open the federation (union) overlay.
