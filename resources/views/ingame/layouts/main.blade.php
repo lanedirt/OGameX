@@ -552,8 +552,20 @@
                     <li>
                         <span class="menu_icon">
                             @if ($currentPlanet->isMoon() && $currentPlanet->getObjectLevel('jump_gate') > 0)
-                                <a href="{{ route('jumpgate.index') }}" class="overlay tooltipRight js_hideTipOnMobile" target="_self" data-overlay-title="{{ __('t_ingame.layout.menu_jump_gate') }}" title="{{ __('t_ingame.layout.menu_jump_gate') }}">
-                                    <div class="menuImage station highlighted ipiHintable" data-ipi-hint="ipiToolbarJumpgate"></div>
+                                <a href="{{ route('jumpgate.index') }}"
+                                class="overlay tooltipRight js_hideTipOnMobile"
+                                target="_self"
+                                data-overlay-title="{{ __('t_ingame.layout.menu_jump_gate') }}"
+                                title="{{ __('t_ingame.layout.menu_jump_gate') }}">
+                                    <div class="menuImage station highlighted ipiHintable"
+                                        data-ipi-hint="ipiToolbarJumpgate"></div>
+                                </a>
+                            @elseif ($currentPlanet->isPlanet())
+                                <a href="{{ route('facilities.index') }}?openSpaceDock=1"
+                                class="tooltipRight js_hideTipOnMobile"
+                                target="_self"
+                                title="{{ __('t_resources.space_dock.title') }}">
+                                    <div class="menuImage station"></div>
                                 </a>
                             @else
                                 <div class="menuImage station"></div>
