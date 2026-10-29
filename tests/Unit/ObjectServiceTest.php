@@ -155,6 +155,82 @@ class ObjectServiceTest extends UnitTestCase
     }
 
     /**
+     * Test canDowngradeBuilding returns false for Lunar Base (permanent building).
+     */
+    public function testCanDowngradeBuildingLunarBaseIsPermanent(): void
+    {
+        $this->createAndSetPlanetModel([
+            'lunar_base' => 3,
+        ]);
+
+        $can_downgrade = ObjectService::canDowngradeBuilding('lunar_base', $this->planetService);
+        $this->assertFalse($can_downgrade);
+    }
+
+    /**
+     * Test canDowngradeBuilding returns false for Space Dock (permanent building).
+     */
+    public function testCanDowngradeBuildingSpaceDockIsPermanent(): void
+    {
+        $this->createAndSetPlanetModel([
+            'space_dock' => 2,
+        ]);
+
+        $can_downgrade = ObjectService::canDowngradeBuilding('space_dock', $this->planetService);
+        $this->assertFalse($can_downgrade);
+    }
+
+    /**
+     * Test canDowngradeBuilding returns false for a Missile Silo that still holds missiles.
+     */
+    public function testCanDowngradeBuildingMissileSiloWithMissiles(): void
+    {
+        $this->createAndSetPlanetModel([
+            'missile_silo' => 4,
+            'interplanetary_missile' => 2,
+        ]);
+
+        $can_downgrade = ObjectService::canDowngradeBuilding('missile_silo', $this->planetService);
+        $this->assertFalse($can_downgrade);
+    }
+
+    /**
+     * Test canDowngradeBuilding allows tearing down a Research Lab that completed research relies on.
+     * Requirements are only checked when research is started, so already completed research never
+     * blocks the tear down. Regression test for issue #1624 where a level 7 lab could not be torn
+     * down because Hyperspace Technology (which requires lab level 7) had already been researched.
+     */
+    public function testCanDowngradeResearchLabWithCompletedResearch(): void
+    {
+        $this->createAndSetPlanetModel([
+            'research_lab' => 7,
+        ]);
+        $this->createAndSetUserTechModel([
+            'hyperspace_technology' => 8,
+            'hyperspace_drive' => 8,
+        ]);
+
+        $can_downgrade = ObjectService::canDowngradeBuilding('research_lab', $this->planetService);
+        $this->assertTrue($can_downgrade);
+    }
+
+    /**
+     * Test canDowngradeBuilding allows tearing down a building that an existing building required.
+     * A Shipyard needs Robotics Factory level 2 to be built, but once it exists the Robotics
+     * Factory can be torn down again.
+     */
+    public function testCanDowngradeBuildingWithDependentBuildingBuilt(): void
+    {
+        $this->createAndSetPlanetModel([
+            'robot_factory' => 2,
+            'shipyard' => 12,
+        ]);
+
+        $can_downgrade = ObjectService::canDowngradeBuilding('robot_factory', $this->planetService);
+        $this->assertTrue($can_downgrade);
+    }
+
+    /**
      * Test getRecursiveRequirements returns all prerequisites for a technology.
      * Example: shielding_technology requires research_lab level 6 and energy_technology level 3.
      */
