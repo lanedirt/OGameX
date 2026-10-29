@@ -16,8 +16,10 @@ use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Lab404\Impersonate\Models\Impersonate;
 use OGame\Enums\CharacterClass;
+use OGame\Mail\ResetPasswordMail;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
@@ -320,5 +322,18 @@ class User extends Authenticatable
             'character_class_changed_at' => 'datetime',
             'alliance_left_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Send the password reset notification using OGameX branded email.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $resetUrl = url(route('password.reset', [
+            'token' => $token,
+            'email' => $this->email,
+        ], false));
+
+        Mail::to($this->email)->send(new ResetPasswordMail($resetUrl, $this->username));
     }
 }
