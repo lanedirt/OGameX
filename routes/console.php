@@ -7,6 +7,7 @@ use OGame\Console\Commands\Scheduler\DeleteOldMessages;
 use OGame\Console\Commands\Scheduler\GenerateAllianceHighscores;
 use OGame\Console\Commands\Scheduler\GenerateHighscoreRanks;
 use OGame\Console\Commands\Scheduler\GenerateHighscores;
+use OGame\Console\Commands\Scheduler\ProcessNpcEmpires;
 use OGame\Console\Commands\Scheduler\ResetDebrisFields;
 
 /*
@@ -40,3 +41,6 @@ Schedule::command(CleanupDestroyedPlanets::class)->dailyAt('03:00')->withoutOver
 
 // Process Dark Matter regeneration every 5 minutes
 Schedule::command(DarkMatterRegenerateCommand::class)->everyFiveMinutes()->withoutOverlapping();
+
+// Advance all NPC empires every minute (time-based state + AI decisions)
+Schedule::command(ProcessNpcEmpires::class)->everyMinute()->withoutOverlapping();

@@ -73,6 +73,17 @@ class ServerSettingsController extends OGameController
             'expedition_weight_items' => $settingsService->expeditionWeightItems(),
             'hamill_probability' => $settingsService->hamillManoeuvreChance(),
             'highscore_admin_visible' => $settingsService->highscoreAdminVisible(),
+            'npc_empires_enabled' => $settingsService->npcEmpiresEnabled(),
+            'npc_max_count' => $settingsService->npcMaxCount(),
+            'npc_attack_players_enabled' => $settingsService->npcAttackPlayersEnabled(),
+            'npc_development_speed_min' => $settingsService->npcDevelopmentSpeedMin(),
+            'npc_development_speed_max' => $settingsService->npcDevelopmentSpeedMax(),
+            'npc_aggression_min' => $settingsService->npcAggressionMin(),
+            'npc_aggression_max' => $settingsService->npcAggressionMax(),
+            'npc_expansion_rate_min' => $settingsService->npcExpansionRateMin(),
+            'npc_expansion_rate_max' => $settingsService->npcExpansionRateMax(),
+            'npc_autospawn_enabled' => $settingsService->npcAutospawnEnabled(),
+            'npc_autospawn_interval_hours' => $settingsService->npcAutospawnIntervalHours(),
         ]);
     }
 
@@ -143,6 +154,20 @@ class ServerSettingsController extends OGameController
         $settingsService->set('hamill_manoeuvre_chance', max(1, (int)request('hamill_probability', 1000)));
 
         $settingsService->set('highscore_admin_visible', request('highscore_admin_visible', 0));
+
+        // NPC empire settings. Trait ranges are respecified at spawn time, so
+        // changing them only affects future NPC empires.
+        $settingsService->set('npc_empires_enabled', request('npc_empires_enabled', 0));
+        $settingsService->set('npc_max_count', max(0, (int)request('npc_max_count', 10)));
+        $settingsService->set('npc_attack_players_enabled', request('npc_attack_players_enabled', 0));
+        $settingsService->set('npc_development_speed_min', request('npc_development_speed_min', '0.5'));
+        $settingsService->set('npc_development_speed_max', request('npc_development_speed_max', '2.5'));
+        $settingsService->set('npc_aggression_min', request('npc_aggression_min', '20'));
+        $settingsService->set('npc_aggression_max', request('npc_aggression_max', '80'));
+        $settingsService->set('npc_expansion_rate_min', request('npc_expansion_rate_min', '0.5'));
+        $settingsService->set('npc_expansion_rate_max', request('npc_expansion_rate_max', '2.0'));
+        $settingsService->set('npc_autospawn_enabled', request('npc_autospawn_enabled', 0));
+        $settingsService->set('npc_autospawn_interval_hours', max(1, (int)request('npc_autospawn_interval_hours', 24)));
 
         // Clear highscore cache when admin visibility setting changes
         $this->clearHighscoreCache();

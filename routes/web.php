@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use OGame\Http\Controllers\Admin\DeveloperShortcutsController;
 use OGame\Http\Controllers\Admin\FleetTimingController;
+use OGame\Http\Controllers\Admin\NpcEmpireController;
 use OGame\Http\Controllers\Admin\RulesController as AdminRulesController;
 use OGame\Http\Controllers\Admin\ServerAdministrationController;
 use OGame\Http\Controllers\Admin\ServerSettingsController as AdminServerSettingsController;
@@ -266,6 +267,11 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     // Rules
     Route::get('/admin/rules', [AdminRulesController::class, 'index'])->name('admin.rules.index');
     Route::post('/admin/rules', [AdminRulesController::class, 'update'])->name('admin.rules.update');
+
+    // NPC empires (AI-controlled player camouflage accounts)
+    Route::get('/admin/npc-empires', [NpcEmpireController::class, 'index'])->name('admin.npc-empires.index');
+    Route::post('/admin/npc-empires/spawn', [NpcEmpireController::class, 'spawn'])->name('admin.npc-empires.spawn');
+    Route::post('/admin/npc-empires/remove', [NpcEmpireController::class, 'remove'])->name('admin.npc-empires.remove');
 
     // Fleet Timing Control (test tool)
     Route::get('/admin/fleet-timing', [FleetTimingController::class, 'index'])->name('admin.fleettiming.index');
