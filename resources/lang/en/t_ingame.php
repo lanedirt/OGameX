@@ -1360,6 +1360,68 @@ return [
         'benefit_mines'              => '+2% mine production',
         'benefit_espionage_title'    => '1 level will be added to your espionage research.',
         'benefit_espionage'          => '+1 espionage levels',
+
+        // ── Detail panel / officer purchase ───────────────────────────────
+        'dark_matter_title'          => 'Dark Matter',
+        'dark_matter_label'          => 'Dark Matter',
+        'dark_matter_description'    => 'Dark Matter is a rare substance that can only be stored with great effort. It allows you to generate large amounts of energy. The process of obtaining Dark Matter is complex and risky, making it extremely valuable.<br><b>Only purchased Dark Matter that is still available can protect against account deletion!</b>',
+        'dark_matter_benefits'       => 'Dark Matter allows you to hire Officers and Commanders, pay merchant offers, move planets, and purchase items.',
+        'active_for_days'            => 'Active for :days more days',
+        'not_active'                 => 'Not active',
+        'days'                       => 'days',
+        'advantages'                 => 'Advantages:',
+        'buy_dark_matter'            => 'Purchase Dark Matter',
+        'insufficient_dark_matter'   => 'You do not have enough Dark Matter.',
+        'no_dark_matter'             => 'There is not enough dark matter available',
+        'purchase_success'           => 'The officer has been hired successfully.',
+        'invalid_officer_type'       => 'Invalid officer type.',
+        'invalid_duration'           => 'Invalid duration.',
+        'purchase_failed'            => 'The officer could not be hired. Please try again.',
+
+        // ── Officer titles, descriptions and tooltips ──────────────────────
+        'officer_commander_title'       => 'Commander',
+        'officer_commander_description' => 'The Commander manages and optimizes the building queues of all your planets. He also ensures that your messages are better organized and that your empire is advertisement-free.',
+        'officer_commander_tooltip'     => '<b>+40 favorites</b><p>With more favorites you can save more messages, which can then also be shared.</p><br/><b>Building queue</b><p>Place up to 4 additional building contracts at the same time in the building queue.</p><br/><b>Transport scanner</b><p>The number of resources that the transporter is bringing to your planet will be shown.</p><br/><b>Advertisement free</b><p>You no longer see advertising for other games, instead only ads about OGame-specific events and offers will be shown.</p>',
+
+        'officer_admiral_title'         => 'Admiral',
+        'officer_admiral_description'   => 'The Admiral leads your fleets into battle. Under his command, your fleets are better organized and more effective.',
+        'officer_admiral_tooltip'       => '<b>Max. fleet slots +2</b><p>You can dispatch more fleets at the same time.</p><br/><b>Max. expeditions +1</b><p>You can dispatch one additional expedition at the same time.</p><br/><b>Improved fleet escape rate</b><p>Until you reach 500,000 points, your fleet is able to retreat when forces are three times bigger than your own.</p><br/><b>Max. save slots +20</b><p>You can save more combat simulations at once.</p>',
+
+        'officer_engineer_title'        => 'Engineer',
+        'officer_engineer_description'  => 'The Engineer oversees the defense systems of your planets and ensures that they work as efficiently as possible.',
+        'officer_engineer_tooltip'      => '<b>Halves losses to defense systems</b><p>After a battle, half of all lost defense systems will be rebuilt.</p><br/><b>+10% energy production</b><p>Your power stations and solar satellites produce 10% more energy.</p>',
+
+        'officer_geologist_title'       => 'Geologist',
+        'officer_geologist_description' => 'The Geologist analyzes the ground of your planets and finds ways to extract more resources.',
+        'officer_geologist_tooltip'     => '<b>+10% mine production</b><p>Your mines produce 10% more.</p>',
+
+        'officer_technocrat_title'       => 'Technocrat',
+        'officer_technocrat_description' => 'The Technocrat researches new technologies and ensures that research projects are completed faster.',
+        'officer_technocrat_tooltip'     => '<b>+2 espionage levels</b><p>2 levels will be added to your espionage research.</p><br/><b>25% less research time</b><p>Your research requires 25% less time till completion.</p>',
+
+        'officer_all_officers_title'       => 'Commanding Staff',
+        'officer_all_officers_description' => 'If you hire all five officers, you will receive additional bonuses for your entire empire.',
+        'officer_all_officers_tooltip'     => '<b>Max. fleet slots +1</b><p>You can dispatch more fleets at the same time.</p><br/><b>+2% energy production</b><p>Your power stations and solar satellites produce 2% more energy.</p><br/><b>+2% mine production</b><p>Your mines produce 2% more.</p><br/><b>+1 espionage levels</b><p>1 levels will be added to your espionage research.</p>',
+
+        // ── Advantages list shown on each officer detail panel ─────────────
+        // The Commanding Staff panel reuses the generic 'benefit_*' keys above.
+        'officer_commander_benefit_favourites'   => '+40 favorites',
+        'officer_commander_benefit_queue'        => 'Building queue',
+        'officer_commander_benefit_scanner'      => 'Transport scanner',
+        'officer_commander_benefit_ads'          => 'Advertisement free',
+
+        'officer_admiral_benefit_fleet_slots'    => 'Max. fleet slots +2',
+        'officer_admiral_benefit_expeditions'    => 'Max. expeditions +1',
+        'officer_admiral_benefit_escape'         => 'Improved fleet escape rate',
+        'officer_admiral_benefit_save_slots'     => 'Max. save slots +20',
+
+        'officer_engineer_benefit_defence'       => 'Halves losses to defense systems',
+        'officer_engineer_benefit_energy'        => '+10% energy production',
+
+        'officer_geologist_benefit_mines'        => '+10% mine production',
+
+        'officer_technocrat_benefit_espionage'   => '+2 espionage levels',
+        'officer_technocrat_benefit_research'    => '25% less research time',
     ],
 
     // ── Shop ────────────────────────────────────────────────────────────────
