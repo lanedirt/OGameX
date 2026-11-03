@@ -7,14 +7,13 @@ name = "battle_engine_debug"
 version = "0.1.0"
 dependencies = [
  "battle_engine_ffi",
- "libc",
  "serde",
  "serde_json",
 ]
 
 [[package]]
 name = "battle_engine_ffi"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "memory-stats",
  "rand",
