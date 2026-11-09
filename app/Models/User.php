@@ -118,6 +118,11 @@ class User extends Authenticatable
                 return;
             }
 
+            // NPC empire accounts are never eligible for the admin role.
+            if ($user->is_npc) {
+                return;
+            }
+
             // Check if this is the first non-Legor user
             $nonLegorUserCount = User::where('username', '!=', 'Legor')->where('id', '!=', $user->id)->count();
 

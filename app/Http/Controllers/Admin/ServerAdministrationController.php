@@ -326,6 +326,17 @@ class ServerAdministrationController extends OGameController
     }
 
     /**
+     * Returns the ids of all NPC empire accounts. These are AI-controlled
+     * and must never be flagged by the bot detection heuristics.
+     *
+     * @return array<int>
+     */
+    private function getNpcUserIds(): array
+    {
+        return User::query()->where('is_npc', true)->pluck('id')->all();
+    }
+
+    /**
      * Signal 1 — Round-the-clock activity.
      *
      * Flags players who span many distinct hours of the day AND exceed a per-slot
@@ -348,6 +359,7 @@ class ServerAdministrationController extends OGameController
             ->where('fleet_missions.time_departure', '>', $cutoff)
             ->where('fleet_missions.canceled', 0)
             ->whereNotIn('fleet_missions.mission_type', self::EXCLUDED_MISSION_TYPES)
+            ->whereNotIn('fleet_missions.user_id', $this->getNpcUserIds())
             ->groupBy('fleet_missions.user_id', 'users_tech.computer_technology')
             ->havingRaw('COUNT(DISTINCT FLOOR(fleet_missions.time_departure % 86400 / 3600)) >= ?', [$activeHoursThreshold])
             ->havingRaw('COUNT(*) >= ?', [$floorMissions])
@@ -392,6 +404,7 @@ class ServerAdministrationController extends OGameController
             ->whereNotNull('fm_return.parent_id')
             ->where('fm_return.canceled', 0)
             ->where('fm_return.time_arrival', '>', $cutoff)
+            ->whereNotIn('fm_return.user_id', $this->getNpcUserIds())
             ->groupBy('fm_return.user_id')
             ->havingRaw('COUNT(*) >= ?', [$minOccurrences])
             ->select([
@@ -433,6 +446,7 @@ class ServerAdministrationController extends OGameController
             ->where('attack.mission_type', 1)
             ->where('attack.canceled', 0)
             ->where('attack.time_departure', '>', $cutoff)
+            ->whereNotIn('response.user_id', $this->getNpcUserIds())
             ->groupBy('planets.user_id')
             ->havingRaw('COUNT(*) >= ?', [$minOccurrences])
             ->select([

@@ -481,6 +481,72 @@
                                 </div>
                             </div>
                         </div>
+
+                        <p class="box_highlight textCenter no_buddies">{{ __('t_ingame.admin.section_npc') }}</p>
+
+                        <div class="group bborder" style="display: block;">
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">{{ __('t_ingame.admin.npc_empires_enabled') }}</label>
+                                <div class="thefield">
+                                    <input type="checkbox" name="npc_empires_enabled" value="1" {{ $npc_empires_enabled ? 'checked' : '' }}>
+                                    <span class="textBeefy" style="font-size: 10px; color: #848484;">{{ __('t_ingame.admin.npc_empires_enabled_desc') }}</span>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">{{ __('t_ingame.admin.npc_max_count') }}</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $npc_max_count }}" size="3" maxlength="4" name="npc_max_count">
+                                    <span class="textBeefy" style="font-size: 10px; color: #848484;">{{ __('t_ingame.admin.npc_max_count_desc') }}</span>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">{{ __('t_ingame.admin.npc_attack_players_enabled') }}</label>
+                                <div class="thefield">
+                                    <input type="checkbox" name="npc_attack_players_enabled" value="1" {{ $npc_attack_players_enabled ? 'checked' : '' }}>
+                                    <span class="textBeefy" style="font-size: 10px; color: #848484;">{{ __('t_ingame.admin.npc_attack_players_enabled_desc') }}</span>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">{{ __('t_ingame.admin.npc_development_speed_range') }}</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*\.?[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $npc_development_speed_min }}" size="4" name="npc_development_speed_min">
+                                    <span class="textBeefy" style="padding: 0 6px;">-</span>
+                                    <input type="text" pattern="[0-9]*\.?[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $npc_development_speed_max }}" size="4" name="npc_development_speed_max">
+                                    <span class="textBeefy" style="font-size: 10px; color: #848484;">{{ __('t_ingame.admin.npc_development_speed_desc') }}</span>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">{{ __('t_ingame.admin.npc_aggression_range') }}</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*\.?[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $npc_aggression_min }}" size="4" name="npc_aggression_min">
+                                    <span class="textBeefy" style="padding: 0 6px;">-</span>
+                                    <input type="text" pattern="[0-9]*\.?[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $npc_aggression_max }}" size="4" name="npc_aggression_max">
+                                    <span class="textBeefy" style="font-size: 10px; color: #848484;">{{ __('t_ingame.admin.npc_aggression_desc') }}</span>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">{{ __('t_ingame.admin.npc_expansion_range') }}</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*\.?[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $npc_expansion_rate_min }}" size="4" name="npc_expansion_rate_min">
+                                    <span class="textBeefy" style="padding: 0 6px;">-</span>
+                                    <input type="text" pattern="[0-9]*\.?[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $npc_expansion_rate_max }}" size="4" name="npc_expansion_rate_max">
+                                    <span class="textBeefy" style="font-size: 10px; color: #848484;">{{ __('t_ingame.admin.npc_expansion_desc') }}</span>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper">
+                                <label class="styled textBeefy">{{ __('t_ingame.admin.npc_autospawn_enabled') }}</label>
+                                <div class="thefield">
+                                    <input type="checkbox" name="npc_autospawn_enabled" value="1" {{ $npc_autospawn_enabled ? 'checked' : '' }}>
+                                    <span class="textBeefy" style="font-size: 10px; color: #848484;">{{ __('t_ingame.admin.npc_autospawn_desc') }}</span>
+                                </div>
+                            </div>
+                            <div class="fieldwrapper" style="margin-bottom: 50px;">
+                                <label class="styled textBeefy">{{ __('t_ingame.admin.npc_autospawn_interval') }}</label>
+                                <div class="thefield">
+                                    <input type="text" pattern="[0-9]*" class="textInput w50 textCenter textBeefy" value="{{ $npc_autospawn_interval_hours }}" size="3" maxlength="5" name="npc_autospawn_interval_hours">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="footer">
