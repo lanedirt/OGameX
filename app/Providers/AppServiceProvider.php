@@ -11,6 +11,8 @@ use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
 use OGame\Observers\UserObserver;
+use OGame\Services\DarkMatterService;
+use OGame\Services\OfficerService;
 use OGame\Services\SettingsService;
 
 class AppServiceProvider extends ServiceProvider
@@ -50,6 +52,12 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(function ($app): PlayerServiceFactory {
             return new PlayerServiceFactory();
+        });
+
+        // OfficerService keeps a per-request cache of Officer records, so it must be shared
+        // between all call sites within a request.
+        $this->app->singleton(function ($app): OfficerService {
+            return new OfficerService($app->make(DarkMatterService::class));
         });
 
         $this->app->singleton(function ($app): PlanetServiceFactory {

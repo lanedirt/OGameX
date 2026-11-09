@@ -1,0 +1,143 @@
+<?php
+
+namespace OGame\Models;
+
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property Carbon|null $commander_until
+ * @property Carbon|null $admiral_until
+ * @property Carbon|null $engineer_until
+ * @property Carbon|null $geologist_until
+ * @property Carbon|null $technocrat_until
+ * @property Carbon|null $all_officers_until
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property-read User $user
+ */
+#[Fillable([
+    'user_id',
+    'commander_until',
+    'admiral_until',
+    'engineer_until',
+    'geologist_until',
+    'technocrat_until',
+    'all_officers_until',
+])]
+class Officer extends Model
+{
+    /**
+     * The officer types this model tracks, i.e. the valid arguments to isOfficerActive()
+     * and activate().
+     */
+    public const OFFICER_TYPES = [
+        'commander',
+        'admiral',
+        'engineer',
+        'geologist',
+        'technocrat',
+        'all_officers',
+    ];
+
+    protected $casts = [
+        'commander_until'    => 'datetime',
+        'admiral_until'      => 'datetime',
+        'engineer_until'     => 'datetime',
+        'geologist_until'    => 'datetime',
+        'technocrat_until'   => 'datetime',
+        'all_officers_until' => 'datetime',
+    ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function isCommanderActive(): bool
+    {
+        return $this->isOfficerActive('commander');
+    }
+
+    public function isAdmiralActive(): bool
+    {
+        return $this->isOfficerActive('admiral');
+    }
+
+    public function isEngineerActive(): bool
+    {
+        return $this->isOfficerActive('engineer');
+    }
+
+    public function isGeologistActive(): bool
+    {
+        return $this->isOfficerActive('geologist');
+    }
+
+    public function isTechnocratActive(): bool
+    {
+        return $this->isOfficerActive('technocrat');
+    }
+
+    public function isAllOfficersActive(): bool
+    {
+        return $this->isOfficerActive('all_officers');
+    }
+
+    /**
+     * Check if a specific officer type is active (either directly or via all_officers).
+     */
+    public function isOfficerActive(string $type): bool
+    {
+        // Guard against unknown names: an undefined attribute reads as null, which would
+        // otherwise fall through and report any string as active while the bundle runs.
+        if (!in_array($type, self::OFFICER_TYPES, true)) {
+            return false;
+        }
+
+        $column      = $type . '_until';
+        $directActive = $this->$column !== null && $this->$column->isFuture();
+
+        if ($type === 'all_officers') {
+            return $directActive;
+        }
+
+        // An officer is active if activated individually OR if all_officers is active.
+        return $directActive || $this->isAllOfficersActive();
+    }
+
+    /**
+     * Activate or extend an officer for a given number of days.
+     */
+    public function activate(string $type, int $days): void
+    {
+        $column  = $type . '_until';
+        $current = $this->$column;
+
+        if ($current !== null && $current->isFuture()) {
+            // Extend from the current expiry date (copy() avoids in-place mutation).
+            $this->$column = $current->copy()->addDays($days);
+        } else {
+            // New activation, starting now.
+            $this->$column = now()->addDays($days);
+        }
+    }
+
+    /**
+     * Get the number of individually active officers (excluding all_officers slot).
+     */
+    public function getActiveOfficerCount(): int
+    {
+        $count = 0;
+        foreach (array_diff(self::OFFICER_TYPES, ['all_officers']) as $type) {
+            if ($this->isOfficerActive($type)) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+}
