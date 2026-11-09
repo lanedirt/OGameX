@@ -5149,16 +5149,16 @@
         },
         {
             "name": "spatie/laravel-permission",
-            "version": "8.3.2",
+            "version": "8.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-permission.git",
-                "reference": "e4e906f8ca5fe10fbe4b6a81f6c4e544a01d8053"
+                "reference": "b2ce93ac4d16fb9226abe6db27e562f4740040ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/e4e906f8ca5fe10fbe4b6a81f6c4e544a01d8053",
-                "reference": "e4e906f8ca5fe10fbe4b6a81f6c4e544a01d8053",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/b2ce93ac4d16fb9226abe6db27e562f4740040ac",
+                "reference": "b2ce93ac4d16fb9226abe6db27e562f4740040ac",
                 "shasum": ""
             },
             "require": {
@@ -5225,7 +5225,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-permission/issues",
-                "source": "https://github.com/spatie/laravel-permission/tree/8.3.2"
+                "source": "https://github.com/spatie/laravel-permission/tree/8.4.0"
             },
             "funding": [
                 {
@@ -5233,7 +5233,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-19T16:31:21+00:00"
+            "time": "2026-11-05T09:12:42+00:00"
         },
         {
             "name": "spomky-labs/cbor-php",
