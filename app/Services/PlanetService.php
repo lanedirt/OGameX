@@ -2376,7 +2376,10 @@ class PlanetService
         $object->production->characterClassService = app(CharacterClassService::class);
         $object->production->universe_speed = $this->settingsService->economySpeed();
 
-        return $object->production->calculate($object_level, $resource_production_factor * $building_percentage);
+        // The production factor is passed separately from the building percentage
+        // because it only reduces the resource output. Energy production and
+        // consumption are always calculated at their nominal value.
+        return $object->production->calculate($object_level, $building_percentage, $resource_production_factor);
     }
 
     /**
