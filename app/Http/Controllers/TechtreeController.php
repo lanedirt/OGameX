@@ -78,8 +78,60 @@ class TechtreeController extends OGameController
                 'astrophysics_table' => $this->getAstrophysicsTable($object, $player),
             ]);
         } elseif ($tab === 3) {
+            $planet = $player->planets->current();
+
+            $defenseAll = ObjectService::getDefenseObjects();
+            $missiles = array_values(array_filter($defenseAll, fn ($d) => str_ends_with($d->machine_name, '_missile')));
+            $defenseOnly = array_values(array_filter($defenseAll, fn ($d) => !str_ends_with($d->machine_name, '_missile')));
+
+            $categories = [
+                'building' => [
+                    'label_key' => 't_ingame.techtree.technology_category_construction',
+                    'objects' => [...ObjectService::getBuildingObjects(), ...ObjectService::getStationObjects()],
+                ],
+                'research' => [
+                    'label_key' => 't_ingame.techtree.technology_category_research',
+                    'objects' => ObjectService::getResearchObjects(),
+                ],
+                'ship' => [
+                    'label_key' => 't_ingame.techtree.technology_category_ships',
+                    'objects' => ObjectService::getShipObjects(),
+                ],
+                'defense' => [
+                    'label_key' => 't_ingame.techtree.technology_category_defense',
+                    'objects' => $defenseOnly,
+                ],
+                'missile' => [
+                    'label_key' => 't_ingame.techtree.technology_category_rockets',
+                    'objects' => $missiles,
+                ],
+            ];
+
+            // Pre-compute direct requirements (with current level) for every object that has requirements.
+            $requirements_by_object = [];
+            foreach ($categories as $category) {
+                foreach ($category['objects'] as $cat_object) {
+                    if (empty($cat_object->requirements)) {
+                        continue;
+                    }
+                    $reqs = [];
+                    foreach ($cat_object->requirements as $requirement) {
+                        $required_object = ObjectService::getObjectByMachineName($requirement->object_machine_name);
+                        if ($required_object->type === GameObjectType::Research) {
+                            $current_level = $player->getResearchLevel($required_object->machine_name);
+                        } else {
+                            $current_level = $planet->getObjectLevel($required_object->machine_name);
+                        }
+                        $reqs[] = new TechtreeRequirement(1, 0, null, $required_object, $requirement->level, $current_level);
+                    }
+                    $requirements_by_object[$cat_object->id] = $reqs;
+                }
+            }
+
             return view('ingame.techtree.technology')->with([
                 'object' => $object,
+                'categories' => $categories,
+                'requirements_by_object' => $requirements_by_object,
             ]);
         } elseif ($tab === 4) {
             return view('ingame.techtree.applications')->with([
