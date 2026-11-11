@@ -77,6 +77,14 @@ abstract class GameObject
     public bool $consumesPlanetField = true;
 
     /**
+     * Whether this object can be torn down once built. Most buildings can, but the Terraformer,
+     * the Lunar Base and the Space Dock are permanent and have no tear down button at all.
+     *
+     * @var bool
+     */
+    public bool $canBeTornDown = true;
+
+    /**
      * Custom calculation formulas for this object. These formulas can be used to calculate custom values for the object.
      * E.g. a formula to determine max amount of planets that can be colonized with astrophysics technology.
      *

@@ -128,7 +128,7 @@
 
             </div>
 
-            @if ($can_downgrade && $downgrade_price !== null)
+            @if ($downgrade_price !== null && $object->canBeTornDown)
             <div id="demolition_costs_tooltip" class="htmlTooltip">
                 <h1>{{ __('t_ingame.ajax_object.deconstruction_costs') }}</h1>
 
@@ -217,14 +217,38 @@
                     <button class="maximum">{{ __('t_ingame.ajax_object.max_btn', ['amount' => $max_build_amount]) }}</button>
                 </div>
             @elseif ($object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Building || $object_type == \OGame\GameObjects\Models\Enums\GameObjectType::Station)
-                @if ($can_downgrade && $current_level > 0)
+                @if ($current_level > 0 && $object->canBeTornDown)
+                    @php
+                        // Permanent buildings have no tear down button at all, every other building
+                        // keeps the button and gets it disabled with a reason instead, the same way
+                        // the improve button behaves. Tearing down the Research Lab is blocked while
+                        // research runs anywhere in the empire, the Shipyard and Nanite Factory while
+                        // this planet still has ships or defence in its queue, and the Missile Silo
+                        // until it is completely empty.
+                        $downgrade_blocked_research = $object->machine_name === 'research_lab' && $research_in_progress;
+                        $downgrade_blocked_shipyard = in_array($object->machine_name, ['shipyard', 'nano_factory'], true) && $ship_or_defense_in_progress;
+                        $downgrade_blocked_silo = $is_missile_silo && $current_missiles > 0;
+                        $downgrade_disabled = $is_in_vacation_mode || $downgrade_blocked_research
+                            || $downgrade_blocked_shipyard || $downgrade_blocked_silo;
+
+                        $downgrade_tooltip = '';
+                        if ($is_in_vacation_mode) {
+                            $downgrade_tooltip = __('t_ingame.ajax_object.vacation_mode');
+                        } elseif ($downgrade_blocked_research) {
+                            $downgrade_tooltip = __('t_ingame.ajax_object.research_in_progress');
+                        } elseif ($downgrade_blocked_shipyard) {
+                            $downgrade_tooltip = __('t_ingame.ajax_object.shipyard_busy');
+                        } elseif ($downgrade_blocked_silo) {
+                            $downgrade_tooltip = __('t_ingame.ajax_object.silo_not_empty');
+                        }
+                    @endphp
                     <button class="downgrade" data-technology="{{ $object->id }}" data-name="{{ $title }}"
-                            @if ($is_in_vacation_mode)
+                            @if ($downgrade_disabled)
                                 disabled
                             @endif>
                         <div class="demolish_img tooltipRel ipiHintable" rel="demolition_costs_tooltip_oneTimeelement"
                              data-ipi-hint="ipiTechnologyTearDown{{ $object->class_name }}"></div>
-                        <span class="label tooltip" title="{{ $is_in_vacation_mode ? __('t_ingame.ajax_object.vacation_mode') : '' }}">{{ __('t_ingame.ajax_object.tear_down_btn') }}</span>
+                        <span class="label tooltip" title="{{ $downgrade_tooltip }}">{{ __('t_ingame.ajax_object.tear_down_btn') }}</span>
                     </button>
                 @endif
             @endif
