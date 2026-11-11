@@ -16,6 +16,7 @@ use OGame\Http\Controllers\DefenseController;
 use OGame\Http\Controllers\FacilitiesController;
 use OGame\Http\Controllers\FleetController;
 use OGame\Http\Controllers\FleetEventsController;
+use OGame\Http\Controllers\ForgotEmailController;
 use OGame\Http\Controllers\GalaxyController;
 use OGame\Http\Controllers\HighscoreController;
 use OGame\Http\Controllers\JumpGateController;
@@ -55,6 +56,10 @@ Route::redirect('/', '/overview', 301);
 
 // Language switcher — accessible to both guests and authenticated users.
 Route::get('/lang/{lang}', [LanguageController::class, 'switchLang'])->name('language.switch');
+
+// Forgot email lookup (guest only).
+Route::get('/forgot-email', [ForgotEmailController::class, 'show'])->name('password.email-lookup');
+Route::post('/forgot-email', [ForgotEmailController::class, 'send'])->middleware('throttle:forgot-email');
 
 // Public AJAX endpoints (no auth required).
 Route::get('/ajax/main/rules', [RulesController::class, 'ajaxRules'])->name('rules.ajax');

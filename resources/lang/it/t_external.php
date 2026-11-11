@@ -94,6 +94,56 @@ return [
         'only_letters'               => 'Usa solo lettere.',
     ],
 
+    // Pagina password dimenticata
+    'forgot_password' => [
+        'title'          => 'Hai dimenticato la password?',
+        'description'    => 'Inserisci il tuo indirizzo e-mail e ti invieremo un link per reimpostare la password.',
+        'email_label'    => 'Indirizzo e-mail:',
+        'submit'         => 'Invia link di ripristino',
+        'back_to_login'  => '← Torna al login',
+    ],
+
+    // Pagina reimposta password
+    'reset_password' => [
+        'title'          => 'Reimposta la password',
+        'email_label'    => 'Indirizzo e-mail:',
+        'password_label' => 'Nuova password:',
+        'confirm_label'  => 'Conferma nuova password:',
+        'submit'         => 'Reimposta password',
+    ],
+
+    // Pagina e-mail dimenticata
+    'forgot_email' => [
+        'title'          => 'Hai dimenticato l\'indirizzo e-mail?',
+        'description'    => 'Inserisci il nome del tuo comandante e ti invieremo un suggerimento all\'indirizzo e-mail registrato.',
+        'username_label' => 'Nome comandante:',
+        'submit'         => 'Invia suggerimento',
+        'back_to_login'  => '← Torna al login',
+        'sent'           => 'Se è stato trovato un account corrispondente, è stato inviato un suggerimento all\'indirizzo e-mail registrato.',
+    ],
+
+    // Template e-mail in uscita
+    'mail' => [
+        'reset_password' => [
+            'subject'      => 'Reimposta la tua password OGameX',
+            'heading'      => 'Ripristino Password',
+            'greeting'     => 'Ciao :username,',
+            'body'         => 'Abbiamo ricevuto una richiesta per reimpostare la password del tuo account. Clicca il pulsante qui sotto per scegliere una nuova password.',
+            'cta'          => 'Reimposta Password',
+            'expiry'       => 'Questo link scadrà tra 60 minuti.',
+            'no_action'    => 'Se non hai richiesto il ripristino della password, non è necessaria alcuna ulteriore azione.',
+            'url_fallback' => 'Se hai problemi a cliccare il pulsante, copia e incolla l\'URL qui sotto nel tuo browser:',
+        ],
+        'retrieve_email' => [
+            'subject'   => 'Il tuo indirizzo e-mail OGameX',
+            'heading'   => 'Suggerimento Indirizzo E-mail',
+            'greeting'  => 'Ciao :username,',
+            'body'      => 'Hai richiesto un suggerimento per l\'indirizzo e-mail associato al tuo account:',
+            'cta'       => 'Vai al Login',
+            'no_action' => 'Se non hai effettuato questa richiesta, puoi ignorare questa e-mail.',
+        ],
+    ],
+
     // Testi tooltip caratteristiche universo
     'universe_characteristics' => [
         'fleet_speed'      => 'Velocità flotta: maggiore è il valore, meno tempo hai per reagire a un attacco.',
