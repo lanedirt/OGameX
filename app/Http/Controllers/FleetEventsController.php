@@ -14,6 +14,7 @@ use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Models\User;
 use OGame\Services\FleetMissionService;
+use OGame\Services\IncomingFleetIntelService;
 use OGame\Services\PlayerService;
 use OGame\ViewModels\FleetEventRowViewModel;
 
@@ -199,8 +200,12 @@ class FleetEventsController extends OGameController
      * @param PlanetServiceFactory $planetServiceFactory
      * @return View
      */
-    public function fetchEventList(PlayerService $player, FleetMissionService $fleetMissionService, PlanetServiceFactory $planetServiceFactory): View
-    {
+    public function fetchEventList(
+        PlayerService $player,
+        FleetMissionService $fleetMissionService,
+        PlanetServiceFactory $planetServiceFactory,
+        IncomingFleetIntelService $incomingFleetIntelService
+    ): View {
         // Get all the fleet movements for the current user.
         $friendlyMissionRows = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
 
@@ -260,9 +265,12 @@ class FleetEventsController extends OGameController
                 }
             }
 
-            $eventRowViewModel->fleet_unit_count = $fleetMissionService->getFleetUnitCount($row);
-            $eventRowViewModel->fleet_units = $fleetMissionService->getFleetUnits($row);
-            $eventRowViewModel->resources = $fleetMissionService->getResources($row);
+            $incomingIntel = $incomingFleetIntelService->shapeIncomingFleetIntel($row, $player, $fleetMissionService);
+            $eventRowViewModel->fleet_unit_count = $incomingIntel['ship_count'];
+            $eventRowViewModel->fleet_units = $incomingIntel['units'];
+            $eventRowViewModel->resources = $incomingIntel['resources'];
+            $eventRowViewModel->fleet_intel_level = $incomingIntel['intel_level'];
+            $eventRowViewModel->show_shipment = $incomingIntel['show_shipment'];
 
             $eventRowViewModel->time_departure = $row->time_departure;
             $eventRowViewModel->active_recall_time = time() + (time() - $row->time_departure);
@@ -380,7 +388,7 @@ class FleetEventsController extends OGameController
                 $returnTripRow->destination_planet_type = $eventRowViewModel->origin_planet_type;
                 $returnTripRow->fleet_unit_count = $eventRowViewModel->fleet_unit_count;
                 $returnTripRow->fleet_units = $eventRowViewModel->fleet_units;
-                $returnTripRow->resources = new Resources(0, 0, 0, 0);
+                $returnTripRow->resources = $eventRowViewModel->resources;
                 $returnTripRow->destination_player_id = $eventRowViewModel->destination_player_id;
                 $returnTripRow->destination_player_name = $eventRowViewModel->destination_player_name;
                 $fleet_events[] = $returnTripRow;
@@ -469,9 +477,12 @@ class FleetEventsController extends OGameController
                         }
                     }
 
-                    $vm->fleet_unit_count = $fleetMissionService->getFleetUnitCount($row);
-                    $vm->fleet_units = $fleetMissionService->getFleetUnits($row);
-                    $vm->resources = new Resources(0, 0, 0, 0);
+                    $incomingIntel = $incomingFleetIntelService->shapeIncomingFleetIntel($row, $player, $fleetMissionService);
+                    $vm->fleet_unit_count = $incomingIntel['ship_count'];
+                    $vm->fleet_units = $incomingIntel['units'];
+                    $vm->resources = $incomingIntel['resources'];
+                    $vm->fleet_intel_level = $incomingIntel['intel_level'];
+                    $vm->show_shipment = $incomingIntel['show_shipment'];
                 }
 
                 // Resolve player name for all fleets
@@ -599,8 +610,7 @@ class FleetEventsController extends OGameController
                     // Neutral;
                     return FleetMissionStatus::Neutral;
                 case 5: // ACS Defend
-                    // Neutral (displays as "friendly" in UI with gold color)
-                    return FleetMissionStatus::Neutral;
+                    return FleetMissionStatus::Friendly;
             }
         }
 
