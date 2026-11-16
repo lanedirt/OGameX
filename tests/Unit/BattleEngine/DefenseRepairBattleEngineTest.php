@@ -7,7 +7,10 @@ use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
+use OGame\Models\User;
+use OGame\Services\DarkMatterService;
 use OGame\Services\ObjectService;
+use OGame\Services\OfficerService;
 use Tests\UnitTestCase;
 
 /**
@@ -178,5 +181,67 @@ class DefenseRepairBattleEngineTest extends UnitTestCase
             $averageDebris,
             "Average debris should be around 100000 with 50% repair rate"
         );
+    }
+
+    /**
+     * The Engineer halves the losses that the server's repair rate leaves behind, so with a
+     * repair rate of 0 the defender still gets half of the destroyed defenses back.
+     */
+    public function testEngineerHalvesDefenseLosses(): void
+    {
+        // No repairs at all for a defender without the Engineer.
+        $this->settingsService->set('defense_repair_rate', 0);
+
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => 200,
+        ]);
+
+        $attackerFleet = new UnitCollection();
+        $attackerFleet->addUnit(ObjectService::getUnitObjectByMachineName('bomber'), 500);
+
+        $withoutEngineer = $this->createBattleEngine($attackerFleet)->simulateBattle();
+        $this->assertSame(
+            0,
+            $withoutEngineer->repairedDefenses->getAmount(),
+            'Without the Engineer a repair rate of 0 must leave nothing repaired.'
+        );
+
+        // Same battle, but the defender now has an Engineer: 0% leaves 100% losses, halved to 50%.
+        $this->giveDefenderAnEngineer();
+
+        $this->createAndSetPlanetModel([
+            'rocket_launcher' => 200,
+        ]);
+
+        $withEngineer = $this->createBattleEngine($attackerFleet)->simulateBattle();
+
+        $repaired = $withEngineer->repairedDefenses->getAmount();
+        $destroyed = $withEngineer->defenderUnitsLost->getAmount();
+
+        $this->assertGreaterThan(
+            0,
+            $repaired,
+            'The Engineer must rebuild part of the destroyed defenses even at a repair rate of 0.'
+        );
+        $this->assertLessThan(
+            $destroyed,
+            $repaired,
+            'The Engineer halves the losses, it does not remove them.'
+        );
+        $this->assertEqualsWithDelta($destroyed * 0.5, $repaired, $destroyed * 0.2);
+    }
+
+    /**
+     * Swap in an OfficerService that reports the Engineer as active, so the battle engine
+     * takes the Engineer branch without needing a persisted officer record.
+     */
+    private function giveDefenderAnEngineer(): void
+    {
+        $this->app->instance(OfficerService::class, new class (app(DarkMatterService::class)) extends OfficerService {
+            public function isActive(User $user, string $officerKey): bool
+            {
+                return $officerKey === 'engineer';
+            }
+        });
     }
 }

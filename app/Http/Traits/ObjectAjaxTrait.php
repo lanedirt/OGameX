@@ -284,6 +284,7 @@ trait ObjectAjaxTrait
             'production_next' => $production_next,
             'energy_difference' => $energy_difference,
             'enough_resources' => $enough_resources,
+            'has_commander' => $player !== null && $player->hasCommander(),
             'has_requirements' => $object->hasRequirements(),
             'requirements_met' => $requirements_met,
             'character_class_met' => $character_class_met,
