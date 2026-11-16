@@ -431,6 +431,128 @@ class BuildQueueTest extends IsolatedAccountTestCase
     }
 
     /**
+     * Verify that a Research Lab can be torn down while research that required it is already
+     * completed. Requirements are only checked when a research is started, so completed research
+     * keeps working and never blocks the tear down.
+     *
+     * Regression test for issue #1624.
+     * @throws Exception
+     */
+    public function testDowngradeResearchLabWithCompletedResearch(): void
+    {
+        // Set the universe speed to 8x for this test.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        // Hyperspace Technology requires Research Lab level 7 and is already researched.
+        $this->planetSetObjectLevel('research_lab', 7);
+        $this->playerSetResearchLevel('hyperspace_technology', 8);
+
+        $downgrade_price = ObjectService::getObjectDowngradePrice('research_lab', $this->planetService);
+        $this->planetAddResources(new Resources(
+            $downgrade_price->metal->get() + 10000,
+            $downgrade_price->crystal->get() + 10000,
+            $downgrade_price->deuterium->get() + 10000,
+            0
+        ));
+
+        $object = ObjectService::getObjectByMachineName('research_lab');
+        $response = $this->post('/facilities/downgrade', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => 'success',
+        ]);
+
+        // Travel forward in time to complete the tear down.
+        $downgrade_time = $this->planetService->getBuildingDowngradeTime('research_lab');
+        $this->travel($downgrade_time + 1)->seconds();
+
+        $response = $this->get('/facilities');
+        $this->assertObjectLevelOnPage($response, 'research_lab', 6, 'Research Lab should be at level 6 after tear down completes.');
+    }
+
+    /**
+     * Verify that a Research Lab cannot be torn down while research is in progress.
+     * @throws Exception
+     */
+    public function testDowngradeResearchLabBlockedWhileResearching(): void
+    {
+        // Set the universe speed to 8x for this test.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        $this->planetSetObjectLevel('research_lab', 7);
+
+        $downgrade_price = ObjectService::getObjectDowngradePrice('research_lab', $this->planetService);
+        $this->planetAddResources(new Resources(
+            $downgrade_price->metal->get() + 100000,
+            $downgrade_price->crystal->get() + 100000,
+            $downgrade_price->deuterium->get() + 100000,
+            0
+        ));
+
+        // Start a research so the lab is locked.
+        $this->addResearchBuildRequest('energy_technology');
+
+        $object = ObjectService::getObjectByMachineName('research_lab');
+        $response = $this->post('/facilities/downgrade', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => false,
+        ]);
+
+        // The lab should still be at level 7 and no tear down should be queued.
+        $response = $this->get('/facilities');
+        $this->assertObjectLevelOnPage($response, 'research_lab', 7, 'Research Lab should still be at level 7 while research is in progress.');
+    }
+
+    /**
+     * Verify that research cannot be started while the Research Lab is being torn down. A lab that
+     * is being torn down is under construction just like one that is being upgraded.
+     * @throws Exception
+     */
+    public function testDowngradingResearchLabPreventsResearching(): void
+    {
+        // Set the universe speed to 8x for this test.
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        $this->planetSetObjectLevel('research_lab', 7);
+
+        $downgrade_price = ObjectService::getObjectDowngradePrice('research_lab', $this->planetService);
+        $this->planetAddResources(new Resources(
+            $downgrade_price->metal->get() + 100000,
+            $downgrade_price->crystal->get() + 100000,
+            $downgrade_price->deuterium->get() + 100000,
+            0
+        ));
+
+        // Start tearing down the Research Lab.
+        $object = ObjectService::getObjectByMachineName('research_lab');
+        $response = $this->post('/facilities/downgrade', [
+            '_token' => csrf_token(),
+            'technologyId' => $object->id,
+        ]);
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => 'success',
+        ]);
+
+        // Research should not be startable while the lab is in the building queue.
+        $this->addResearchBuildRequest('energy_technology');
+
+        $response = $this->get('/research');
+        $response->assertStatus(200);
+        $this->assertObjectNotInQueue($response, 'energy_technology', 'Energy Technology is in the research queue but the Research Lab is being torn down.');
+    }
+
+    /**
      * Verify that downgrading with Ion technology bonus reduces cost.
      * @throws Exception
      */
