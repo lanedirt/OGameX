@@ -179,9 +179,11 @@ class ResourcesController extends AbstractBuildingsController
 
         $production_factor = $this->planet->getResourceProductionFactor();
 
+        // Use the same stored planet values as the header so both always match.
         $productionindex_total->total->metal->set($this->planet->getMetalProductionPerHour());
         $productionindex_total->total->crystal->set($this->planet->getCrystalProductionPerHour());
         $productionindex_total->total->deuterium->set($this->planet->getDeuteriumProductionPerHour());
+        $productionindex_total->total->energy->set($this->planet->energy()->get());
 
         // Get crawler information
         $crawler_count = $this->planet->getObjectAmount('crawler');
