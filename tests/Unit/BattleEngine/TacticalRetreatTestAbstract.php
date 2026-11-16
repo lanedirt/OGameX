@@ -258,11 +258,15 @@ abstract class TacticalRetreatTestAbstract extends IsolatedAccountTestCase
                 'general' => 500000,
                 'economy' => 0,
                 'research' => 0,
-                'military' => 0,
+                'military_built' => 0,
+                'military_destroyed' => 0,
+                'military_lost' => 0,
                 'general_rank' => 1,
                 'economy_rank' => 1,
                 'research_rank' => 1,
-                'military_rank' => 1,
+                'military_built_rank' => 1,
+                'military_destroyed_rank' => 1,
+                'military_lost_rank' => 1,
             ]
         );
 

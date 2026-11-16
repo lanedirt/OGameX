@@ -25,6 +25,7 @@ use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
+use OGame\Services\MilitaryStatisticsService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use RuntimeException;
@@ -282,8 +283,19 @@ class MoonDestructionMission extends GameMission
 
         // Update surviving units if all Deathstars are lost
         if ($allDeathstarsLost) {
+            // Track military statistics for lost Deathstars
+            $militaryStatisticsService = app(MilitaryStatisticsService::class);
+            $attackerPlayer = $this->playerServiceFactory->make($mission->user_id, true);
+
             foreach ($survivingUnits->units as $unit) {
                 if ($unit->unitObject->machine_name === 'deathstar') {
+                    // Calculate lost points before zeroing the amount
+                    $lostPoints = $militaryStatisticsService->calculateMilitaryPointsFromMachineName('deathstar', $unit->amount);
+                    if ($lostPoints > 0) {
+                        $user = $attackerPlayer->getUser();
+                        $militaryStatisticsService->addLostPoints($user, $lostPoints);
+                    }
+
                     $unit->amount = 0;
                     break;
                 }
