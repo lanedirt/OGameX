@@ -19,3 +19,7 @@ yarn-error.log
 rust/*/target
 # Compiled rust apps (rust modules are recompiled during container start)
 storage/rust-libs/*.so
+
+# Local/OS files
+.DS_Store
+.ignition.json
