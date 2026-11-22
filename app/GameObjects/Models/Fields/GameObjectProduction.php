@@ -2,10 +2,12 @@
 
 namespace OGame\GameObjects\Models\Fields;
 
+use Closure;
 use OGame\Models\{
     ProductionIndex,
 };
 use OGame\Services\{
+    CharacterClassService,
     PlanetService,
     PlayerService,
 };
@@ -20,9 +22,9 @@ class GameObjectProduction
      *   1. GameObjectProduction $gameObjectProduction
      *   2. int $level
      *
-     * @var ?\Closure
+     * @var ?Closure
      */
-    public ?\Closure $metal_formula = null;
+    public ?Closure $metal_formula = null;
 
     /**
      * Crystal production formula in \Closure format.
@@ -32,9 +34,9 @@ class GameObjectProduction
      *   1. GameObjectProduction $gameObjectProduction
      *   2. int $level
      *
-     * @var ?\Closure
+     * @var ?Closure
      */
-    public ?\Closure $crystal_formula = null;
+    public ?Closure $crystal_formula = null;
 
     /**
      * Deuterium production formula in \Closure format.
@@ -44,9 +46,9 @@ class GameObjectProduction
      *   1. GameObjectProduction $gameObjectProduction
      *   2. int $level
      *
-     * @var ?\Closure
+     * @var ?Closure
      */
-    public ?\Closure $deuterium_formula = null;
+    public ?Closure $deuterium_formula = null;
 
     /**
      * Energy production formula in \Closure format.
@@ -56,9 +58,9 @@ class GameObjectProduction
      *   1. GameObjectProduction $gameObjectProduction
      *   2. int $level
      *
-     * @var ?\Closure
+     * @var ?Closure
      */
-    public ?\Closure $energy_formula = null;
+    public ?Closure $energy_formula = null;
 
     /**
      * The planet the object production calculation applies to
@@ -73,6 +75,13 @@ class GameObjectProduction
      * @var PlayerService
      */
     public PlayerService $playerService;
+
+    /**
+     * The character class service for bonus calculations
+     *
+     * @var CharacterClassService|null
+     */
+    public ?CharacterClassService $characterClassService = null;
 
     /**
      * The Universe speed, set by a server admin.
@@ -115,6 +124,8 @@ class GameObjectProduction
         $this->calculatePlasmaTech($productionIndex);
         $this->calculateEngineer($productionIndex);
         $this->calculateGeologist($productionIndex);
+        $this->calculateCharacterClass($productionIndex);
+        $this->calculateCrawlerProduction($productionIndex);
         $this->calculateCommandingStaff($productionIndex);
         $this->calculateItems($productionIndex);
         $this->calculateTotal($productionIndex);
@@ -288,6 +299,194 @@ class GameObjectProduction
     }
 
     /**
+     * Calculates Character Class bonus
+     * - Collector: +25% mines, +10% energy
+     *
+     * @param ProductionIndex $productionIndex
+     * @return void
+     */
+    private function calculateCharacterClass(ProductionIndex $productionIndex): void
+    {
+        if (!$this->characterClassService) {
+            return;
+        }
+
+        $user = $this->playerService->getUser();
+
+        // Get mine production bonus (Collector only: +25%)
+        $mineBonus = $this->characterClassService->getMineProductionBonus($user);
+        if ($mineBonus > 1.0) {
+            if ($productionIndex->mine->metal->get() > 0) {
+                $productionIndex->character_class->metal->set(
+                    floor(
+                        ($productionIndex->mine->metal->get() + $productionIndex->planet_slot->metal->get())
+                        * ($mineBonus - 1.0)
+                    )
+                );
+            }
+
+            if ($productionIndex->mine->crystal->get() > 0) {
+                $productionIndex->character_class->crystal->set(
+                    floor(
+                        ($productionIndex->mine->crystal->get() + $productionIndex->planet_slot->crystal->get())
+                        * ($mineBonus - 1.0)
+                    )
+                );
+            }
+
+            if ($productionIndex->mine->deuterium->get() > 0) {
+                $productionIndex->character_class->deuterium->set(
+                    floor(
+                        ($productionIndex->mine->deuterium->get() + $productionIndex->planet_slot->deuterium->get())
+                        * ($mineBonus - 1.0)
+                    )
+                );
+            }
+        }
+
+        // Get energy production bonus (Collector only: +10%)
+        $energyBonus = $this->characterClassService->getEnergyProductionBonus($user);
+        if ($energyBonus > 1.0 && $productionIndex->mine->energy->get() > 0) {
+            $productionIndex->character_class->energy->set(
+                floor($productionIndex->mine->energy->get() * ($energyBonus - 1.0))
+            );
+        }
+    }
+
+    /**
+     * Calculates Crawler production bonus (resources only, not energy consumption)
+     * Crawlers provide production bonus based on:
+     * - Number of crawlers on planet
+     * - Mine levels (determines max usable crawlers)
+     * - Each crawler provides 0.02% bonus per resource type
+     * - Collector class gets +50% crawler bonus
+     *
+     * Note: Energy consumption is calculated separately in getCrawlerEnergyConsumption()
+     * to avoid counting it multiple times when this is called for each mine.
+     *
+     * @param ProductionIndex $productionIndex
+     * @return void
+     */
+    private function calculateCrawlerProduction(ProductionIndex $productionIndex): void
+    {
+        // Get number of crawlers on planet
+        $crawlerCount = $this->planetService->getObjectAmount('crawler');
+
+        if ($crawlerCount <= 0) {
+            return;
+        }
+
+        // Get crawler percentage setting (0-10, where 10 = 100%)
+        $crawlerPercentage = $this->planetService->getBuildingPercent('crawler') / 10;
+
+        // Calculate maximum usable crawlers based on mine levels
+        $maxCrawlers = $this->getMaxUsableCrawlers();
+
+        // Use the lesser of actual crawlers or max usable crawlers
+        $effectiveCrawlers = min($crawlerCount, $maxCrawlers);
+
+        if ($effectiveCrawlers <= 0) {
+            return;
+        }
+
+        // Base crawler bonus: each crawler provides 0.02% bonus
+        $crawlerBaseBonus = $effectiveCrawlers * 0.0002 * $crawlerPercentage;
+
+        // Apply character class multiplier (Collector: +50% crawler effectiveness)
+        if ($this->characterClassService) {
+            $user = $this->playerService->getUser();
+            $crawlerMultiplier = $this->characterClassService->getCrawlerBonusMultiplier($user);
+            $crawlerBaseBonus *= $crawlerMultiplier;
+        }
+
+        // Apply crawler bonus to mine production
+        if ($productionIndex->mine->metal->get() > 0) {
+            $productionIndex->crawler->metal->set(
+                floor(
+                    ($productionIndex->mine->metal->get() + $productionIndex->planet_slot->metal->get())
+                    * $crawlerBaseBonus
+                )
+            );
+        }
+
+        if ($productionIndex->mine->crystal->get() > 0) {
+            $productionIndex->crawler->crystal->set(
+                floor(
+                    ($productionIndex->mine->crystal->get() + $productionIndex->planet_slot->crystal->get())
+                    * $crawlerBaseBonus
+                )
+            );
+        }
+
+        if ($productionIndex->mine->deuterium->get() > 0) {
+            $productionIndex->crawler->deuterium->set(
+                floor(
+                    ($productionIndex->mine->deuterium->get() + $productionIndex->planet_slot->deuterium->get())
+                    * $crawlerBaseBonus
+                )
+            );
+        }
+    }
+
+    /**
+     * Calculate crawler energy consumption
+     * This is separate from production bonus to avoid counting energy multiple times.
+     * Energy consumption: 50 energy per crawler at 100%, 100 energy at 150%
+     *
+     * @return int Negative value representing energy consumption
+     */
+    public function getCrawlerEnergyConsumption(): int
+    {
+        // Get number of crawlers on planet
+        $crawlerCount = $this->planetService->getObjectAmount('crawler');
+
+        if ($crawlerCount <= 0) {
+            return 0;
+        }
+
+        // Get crawler percentage setting (0-10, where 10 = 100%)
+        $crawlerPercentage = $this->planetService->getBuildingPercent('crawler') / 10;
+
+        // Calculate maximum usable crawlers based on mine levels
+        $maxCrawlers = $this->getMaxUsableCrawlers();
+
+        // Use the lesser of actual crawlers or max usable crawlers
+        $effectiveCrawlers = min($crawlerCount, $maxCrawlers);
+
+        if ($effectiveCrawlers <= 0) {
+            return 0;
+        }
+
+        // Crawlers consume energy: 50 energy per crawler at 100%
+        // At overload (>100%), energy consumption scales: at 150% = 100 energy per crawler
+        // Formula: base_energy * percentage + (percentage > 1 ? base_energy * (percentage - 1) : 0)
+        $baseEnergy = 50;
+        $energyConsumption = $baseEnergy * $crawlerPercentage;
+
+        // Add extra energy cost for overload (>100%)
+        if ($crawlerPercentage > 1.0) {
+            $energyConsumption += $baseEnergy * ($crawlerPercentage - 1.0);
+        }
+
+        return -((int)floor($effectiveCrawlers * $energyConsumption));
+    }
+
+    /**
+     * Calculate maximum usable crawlers based on mine levels.
+     * Formula: max crawlers = (metal mine level + crystal mine level + deuterium mine level) * 8
+     *
+     * @return int
+     */
+    private function getMaxUsableCrawlers(): int
+    {
+        $metalMineLevel = $this->planetService->getObjectLevel('metal_mine');
+        $crystalMineLevel = $this->planetService->getObjectLevel('crystal_mine');
+        $deuteriumMineLevel = $this->planetService->getObjectLevel('deuterium_synthesizer');
+
+        return ($metalMineLevel + $crystalMineLevel + $deuteriumMineLevel) * 8;
+    }
+
+    /**
      * Calculates Commanding Staff bonus
      * Commanding Staff is activated when a player has all officers activated
      *
@@ -360,6 +559,8 @@ class GameObjectProduction
         $productionIndex->total->add($productionIndex->planet_slot);
         $productionIndex->total->add($productionIndex->engineer);
         $productionIndex->total->add($productionIndex->geologist);
+        $productionIndex->total->add($productionIndex->character_class);
+        $productionIndex->total->add($productionIndex->crawler);
         $productionIndex->total->add($productionIndex->commanding_staff);
         $productionIndex->total->add($productionIndex->items);
     }

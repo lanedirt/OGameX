@@ -5,20 +5,16 @@ namespace OGame\ViewModels\Queue\Abstracts;
 class QueueListViewModel
 {
     /**
-     * List of queue items.
-     *
-     * @var array<QueueViewModel>
-     */
-    public array $queue;
-
-    /**
      * Constructor.
      *
      * @param array<QueueViewModel> $queue
      */
-    public function __construct(array $queue)
-    {
-        $this->queue = $queue;
+    public function __construct(
+        /**
+         * List of queue items.
+         */
+        public array $queue
+    ) {
     }
 
     /**

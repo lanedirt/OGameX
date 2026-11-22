@@ -65,7 +65,11 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function fleetCheckToSecondPlanet(UnitCollection $units, bool $assertSuccess): void
     {
-        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $coordinates = $secondPlanetService->getPlanetCoordinates();
         $this->checkTargetFleet($coordinates, $units, PlanetType::Planet, $assertSuccess);
     }
 
@@ -91,7 +95,11 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function fleetCheckToSecondPlanetDebrisField(UnitCollection $units, bool $assertSuccess): void
     {
-        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $coordinates = $secondPlanetService->getPlanetCoordinates();
         $this->checkTargetFleet($coordinates, $units, PlanetType::DebrisField, $assertSuccess);
     }
 
@@ -104,8 +112,8 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function fleetCheckToOtherPlayer(UnitCollection $units, bool $assertSuccess): void
     {
-        $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
-        $this->checkTargetFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, PlanetType::Planet, $assertSuccess);
+        $foreignPlanet = $this->createForeignPlanet();
+        $this->checkTargetFleet($foreignPlanet->getPlanetCoordinates(), $units, PlanetType::Planet, $assertSuccess);
     }
 
     /**
@@ -159,7 +167,11 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToSecondPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
     {
-        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $coordinates = $secondPlanetService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Planet, 0, $assertStatus);
     }
 
@@ -187,7 +199,11 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToSecondPlanetDebrisField(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
     {
-        $coordinates = $this->secondPlanetService->getPlanetCoordinates();
+        $secondPlanetService = $this->secondPlanetService;
+        if ($secondPlanetService === null) {
+            $this->fail('Second planet service is not initialized.');
+        }
+        $coordinates = $secondPlanetService->getPlanetCoordinates();
         $this->dispatchFleet($coordinates, $units, $resources, PlanetType::DebrisField, 0, $assertStatus);
     }
 
@@ -197,16 +213,17 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      * @param UnitCollection $units
      * @param Resources $resources
      * @param bool $assertStatus
+     * @param PlanetType $planetType
      * @return void
      */
-    protected function sendMissionToPosition16(UnitCollection $units, Resources $resources, bool $assertStatus = true): void
+    protected function sendMissionToPosition16(UnitCollection $units, Resources $resources, bool $assertStatus = true, PlanetType $planetType = PlanetType::Planet): void
     {
         $planetCoords = $this->planetService->getPlanetCoordinates();
         $coordinates = new Coordinate($planetCoords->galaxy, $planetCoords->system, 16);
 
         // Position 16 means expedition mission, so we set holdingHours to 1 hour which is the default time_holding (in hours) for expeditions.
         $holdingHours = 1;
-        $this->dispatchFleet($coordinates, $units, $resources, PlanetType::Planet, $holdingHours, $assertStatus);
+        $this->dispatchFleet($coordinates, $units, $resources, $planetType, $holdingHours, $assertStatus);
     }
 
     /**
@@ -219,10 +236,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToOtherPlayerPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
-        $nearbyForeignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
-        $this->dispatchFleet($nearbyForeignPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
-        return $nearbyForeignPlanet;
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
+        return $foreignPlanet;
     }
 
     /**
@@ -235,10 +252,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToOtherPlayerCleanPlanet(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
-        $nearbyForeignCleanPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
-        $this->dispatchFleet($nearbyForeignCleanPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
-        return $nearbyForeignCleanPlanet;
+        $this->dispatchFleet($foreignPlanet->getPlanetCoordinates(), $units, $resources, PlanetType::Planet, 0, $assertStatus);
+        return $foreignPlanet;
     }
 
     /**
@@ -251,10 +268,10 @@ abstract class FleetDispatchTestCase extends MoonTestCase
      */
     protected function sendMissionToOtherPlayerMoon(UnitCollection $units, Resources $resources, bool $assertStatus = true): PlanetService
     {
-        $nearbyForeignMoon = $this->getNearbyForeignMoon();
+        $foreignMoon = $this->createForeignMoon();
 
-        $this->dispatchFleet($nearbyForeignMoon->getPlanetCoordinates(), $units, $resources, PlanetType::Moon, 0, $assertStatus);
-        return $nearbyForeignMoon;
+        $this->dispatchFleet($foreignMoon->getPlanetCoordinates(), $units, $resources, PlanetType::Moon, 0, $assertStatus);
+        return $foreignMoon;
     }
 
     /**
@@ -299,7 +316,7 @@ abstract class FleetDispatchTestCase extends MoonTestCase
         // All errors should be included in the JSON response.
         $post->assertStatus(200);
 
-        // Assert that JSON response has the correct status and mission type.
+        // Assert that JSON response has the correct mission availability for this mission type.
         if ($assertSuccess) {
             $post->assertJson([
                 'status' => 'success',
@@ -307,9 +324,13 @@ abstract class FleetDispatchTestCase extends MoonTestCase
                     $this->missionType => true,
                 ]
             ]);
+        } else {
+            $post->assertJson([
+                'orders' => [
+                    $this->missionType => false,
+                ]
+            ]);
         }
-
-        $this->reloadApplication();
     }
 
     /**
@@ -346,8 +367,6 @@ abstract class FleetDispatchTestCase extends MoonTestCase
         $post->assertJson([
             'success' => $assertStatus,
         ]);
-
-        $this->reloadApplication();
 
         $this->get('/ajax/fleet/eventbox/fetch')->assertStatus(200);
         $this->get('/ajax/fleet/eventlist/fetch')->assertStatus(200);

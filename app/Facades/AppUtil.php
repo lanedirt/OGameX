@@ -3,6 +3,7 @@
 namespace OGame\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use RuntimeException;
 
 class AppUtil extends Facade
 {
@@ -77,10 +78,12 @@ class AppUtil extends Facade
             return $formattedNumber . 'Mn';
         } elseif ($number >= 1000) {
             // If number is 1,000 or higher but less than 1,000,000, format with commas as thousands separator
-            return number_format($number, 0, '.', ',');
+            return number_format((int) $number, 0, '.', ',');
         } else {
-            // If number is less than 1,000, just return it with no formatting
-            return number_format($number, 0, '.', ',');
+            // If number is less than 1,000, just return it with no formatting.
+            // Use (int) cast (truncation) to match the JS Math.floor behavior in the resource ticker,
+            // preventing float residuals (e.g. 0.7) from rounding up to 1 in the tooltip.
+            return number_format((int) $number, 0, '.', ',');
         }
     }
 
@@ -200,5 +203,34 @@ class AppUtil extends Facade
             'b' => $number * 1000000000,
             default => $number,
         };
+    }
+
+    /**
+     * Select a random key from a weighted associative array.
+     *
+     * @param array<int|string, int> $weights Associative array of [key => weight]
+     * @return int|string The selected key
+     */
+    public static function selectWeightedRandom(array $weights): int|string
+    {
+        if ($weights === []) {
+            throw new RuntimeException('Cannot select a weighted random key from an empty array.');
+        }
+
+        // max(1, ...) keeps random_int valid when every weight is zero; the loop then never
+        // matches and we fall through to the first key below.
+        $totalWeight = array_sum($weights);
+        $rand = random_int(1, max(1, $totalWeight));
+
+        $cumulative = 0;
+        foreach ($weights as $key => $weight) {
+            $cumulative += $weight;
+            if ($rand <= $cumulative) {
+                return $key;
+            }
+        }
+
+        // Reached only when all weights are zero; return the first key deterministically.
+        return array_key_first($weights);
     }
 }

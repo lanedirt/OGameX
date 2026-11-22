@@ -4,12 +4,13 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Models\UnitQueue;
 use OGame\ViewModels\Queue\UnitQueueListViewModel;
 use OGame\ViewModels\Queue\UnitQueueViewModel;
-use OGame\ViewModels\QueueListViewModel;
+use RuntimeException;
 
 /**
  * Class UnitQueueService.
@@ -57,7 +58,7 @@ class UnitQueueService
         foreach ($queue_items as $item) {
             $object = ObjectService::getObjectById($item['object_id']);
 
-            $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
+            $time_countdown = $item->time_end - (int)Date::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
@@ -70,7 +71,7 @@ class UnitQueueService
             if ($last_update < $item->time_start) {
                 $last_update = $item->time_start;
             }
-            $last_update_diff = (int)Carbon::now()->timestamp - $last_update;
+            $last_update_diff = (int)Date::now()->timestamp - $last_update;
             $time_countdown_next_single = $time_per_unit - $last_update_diff;
 
             $viewModel = new UnitQueueViewModel(
@@ -81,7 +82,8 @@ class UnitQueueService
                 $item['object_amount'],
                 $item['object_amount'] - $item['object_amount_progress'],
                 $time_countdown_next_single,
-                $time_per_unit
+                $time_per_unit,
+                (bool)$item['dm_halved'],
             );
 
             $list[] = $viewModel;
@@ -102,7 +104,7 @@ class UnitQueueService
         // Fetch queue items from model
         return $this->model->where([
             ['planet_id', $planet_id],
-            ['time_start', '<=', Carbon::now()->timestamp],
+            ['time_start', '<=', Date::now()->timestamp],
             ['processed', 0],
         ])
             ->orderBy('time_start', 'asc')
@@ -163,10 +165,22 @@ class UnitQueueService
             return;
         }
 
-        $object = ObjectService::getUnitObjectById($object_id);
+        $object = ObjectService::getObjectById($object_id);
+
+        // Only ships and defense units can be added to the unit queue.
+        if ($object->type !== GameObjectType::Ship && $object->type !== GameObjectType::Defense) {
+            throw new Exception('Only ships and defense units can be added to the unit queue.');
+        }
 
         // Check if user satisifes requirements to build this object.
         $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet);
+
+        // Check if user satisifes character class requirements to build this object.
+        $character_class_met = ObjectService::objectCharacterClassMet($object->machine_name, $planet);
+        if (!$character_class_met) {
+            // If character class requirements are not met, stop here.
+            return;
+        }
 
         // Sanity check: check if the planet has enough resources to build
         // the amount requested. If not, then adjust the ordered amount.
@@ -196,7 +210,7 @@ class UnitQueueService
         $build_time_total = $build_time_unit * $requested_build_amount;
 
         // Time this order will start
-        $time_start = (int)Carbon::now()->timestamp;
+        $time_start = (int)Date::now()->timestamp;
 
         // If there are other orders already in the queue, use the highest
         // time_end as the start time of this order.
@@ -216,8 +230,13 @@ class UnitQueueService
         $queue->crystal = $total_price->crystal->get();
         $queue->deuterium = $total_price->deuterium->get();
 
-        // All OK, deduct resources.
-        $planet->deductResources($total_price);
+        // Deduct resources
+        try {
+            $planet->deductResources($total_price);
+        } catch (RuntimeException $e) {
+            // Insufficient resources (atomic check failed) so we don't create the queue item.
+            return;
+        }
 
         // Save the new queue item which will automatically start it.
         $queue->save();

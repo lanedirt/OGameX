@@ -2,8 +2,11 @@
 
 namespace Tests\Unit\BattleEngine;
 
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use Tests\UnitTestCase;
 
@@ -24,12 +27,35 @@ class DefenseRepairBattleEngineTest extends UnitTestCase
         $this->createAndSetUserTechModel([]);
     }
 
+    protected function tearDown(): void
+    {
+        $this->settingsService->set('debris_field_from_ships', 30);
+        $this->settingsService->set('debris_field_from_defense', 0);
+        $this->settingsService->set('debris_field_deuterium_on', 0);
+        $this->settingsService->set('defense_repair_rate', 70);
+
+        parent::tearDown();
+    }
+
     /**
      * Create a battle engine instance for testing.
      */
     protected function createBattleEngine(UnitCollection $attackerFleet): PhpBattleEngine
     {
-        return new PhpBattleEngine($attackerFleet, $this->playerService, $this->planetService, $this->settingsService);
+        // Create defenders array with planet's stationary forces
+        $defenders = [DefenderFleet::fromPlanet($this->planetService)];
+
+        // Convert UnitCollection to AttackerFleet for the new multi-attacker architecture
+        $attacker = new AttackerFleet();
+        $attacker->units = $attackerFleet;
+        $attacker->player = $this->playerService;
+        $attacker->fleetMissionId = 0; // 0 for test battles without a real fleet mission
+        $attacker->ownerId = $this->playerService->getId();
+        $attacker->cargoResources = new Resources(0, 0, 0, 0);
+        $attacker->isInitiator = true;
+        $attacker->fleetMission = null;
+
+        return new PhpBattleEngine([$attacker], $this->planetService, $defenders, $this->settingsService);
     }
 
     /**

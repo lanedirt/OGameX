@@ -13,12 +13,14 @@ Fixes #[issue-number]
 ## Checklist
 Before submitting this pull request, ensure all following requirements as outlined in [CONTRIBUTING.md](https://github.com/lanedirt/OGameX/blob/main/CONTRIBUTING.md) are met:
 
+- [ ] **Automated Refactoring:** Rector has been run and no outstanding issues remain.
 - [ ] **Code Standards:** Code adheres to PSR-12 coding standards. Verified with Laravel Pint.
 - [ ] **Static Analysis:** Code passes PHPStan static code analysis.
 - [ ] **Testing:**
     - Relevant unit and feature tests are included or updated.
     - Tests successfully run locally.
-- [ ] **CSS & JS Build:** CSS and JS assets are compiled using Laravel Mix if any changes are made to JS/CSS files.
+- [ ] **Manual Testing:** Change has been verified in the running application (describe briefly in the Additional Information section).
+- [ ] **CSS & JS Build:** CSS and JS assets are compiled using Vite (`npm run build`) if any changes are made to JS/CSS files.
 - [ ] **Documentation:** Documentation has been updated to reflect any changes made.
 
 ## Additional Information

@@ -3,12 +3,12 @@
 namespace Tests\Feature;
 
 use OGame\Services\ObjectService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test AJAX calls to make sure they work as expected.
  */
-class Http200Test extends AccountTestCase
+class Http200Test extends IsolatedAccountTestCase
 {
     /**
      * Verify that all main pages return HTTP 200.

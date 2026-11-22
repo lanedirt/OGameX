@@ -6,11 +6,8 @@ use OGame\Facades\AppUtil;
 
 class Resource
 {
-    protected float $rawValue = 0;
-
-    public function __construct(float $rawValue)
+    public function __construct(protected float $rawValue)
     {
-        $this->rawValue = $rawValue;
     }
 
     /**

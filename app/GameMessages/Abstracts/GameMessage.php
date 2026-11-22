@@ -2,6 +2,7 @@
 
 namespace OGame\GameMessages\Abstracts;
 
+use Exception;
 use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\Factories\PlayerServiceFactory;
@@ -39,10 +40,6 @@ abstract class GameMessage
      */
     protected Message $message;
 
-    protected PlanetServiceFactory $planetServiceFactory;
-
-    protected PlayerServiceFactory $playerServiceFactory;
-
     /**
      * GameMessage constructor.
      *
@@ -50,14 +47,12 @@ abstract class GameMessage
      * @param PlanetServiceFactory $planetServiceFactory
      * @param PlayerServiceFactory $playerServiceFactory
      */
-    public function __construct(Message $message, PlanetServiceFactory $planetServiceFactory, PlayerServiceFactory $playerServiceFactory)
+    public function __construct(Message $message, protected PlanetServiceFactory $planetServiceFactory, protected PlayerServiceFactory $playerServiceFactory)
     {
         // Clone the message to prevent any changes to the original message affecting this object.
         // This is important because otherwise mutations such as setting the viewed flag after loading this object
         // would affect this object's state as well.
         $this->message = clone $message;
-        $this->planetServiceFactory = $planetServiceFactory;
-        $this->playerServiceFactory = $playerServiceFactory;
         $this->initialize();
     }
 
@@ -106,6 +101,9 @@ abstract class GameMessage
     public function getDateFormatted(): string
     {
         // Return in this format: 18.03.2024 14:50:38
+        if ($this->message->created_at === null) {
+            return '';
+        }
         return $this->message->created_at->format('d.m.Y H:i:s');
     }
 
@@ -305,35 +303,35 @@ abstract class GameMessage
             try {
                 $playerServiceFactory =  resolve(PlayerServiceFactory::class);
                 $playerService = $playerServiceFactory->make((int)$matches[1]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Do nothing
             }
 
-            if ($playerService->getId() > 0) {
+            if ($playerService !== null && $playerService->getId() > 0) {
                 $playerName = $playerService->getUsername();
             } else {
                 $playerName = 'Unknown Player';
             }
 
             return $playerName;
-        }, $body);
+        }, $body) ?? '';
 
         $body = preg_replace_callback('/\[planet\](\d+)\[\/planet\]/', function ($matches) {
             $planetService = null;
             try {
                 $planetServiceFactory = resolve(PlanetServiceFactory::class);
                 $planetService = $planetServiceFactory->make((int)$matches[1]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Do nothing
             }
 
             if ($planetService !== null) {
                 $planetIcon = '';
                 $planetIconTitle = '';
+                $planetIconHtml = '';
                 switch ($planetService->getPlanetType()) {
                     case PlanetType::Planet:
-                        $planetIcon = 'planet';
-                        $planetIconTitle = 'Planet';
+                        $planetIconHtml = '<img src="' . asset('img/planets/medium/' . $planetService->getPlanetBiomeType() . '_' . $planetService->getPlanetImageType() . '.png') . '" width="16" height="16" class="tooltip js_hideTipOnMobile" title="Planet">';
                         break;
                     case PlanetType::Moon:
                         $planetIcon = 'moon';
@@ -344,29 +342,32 @@ abstract class GameMessage
                         $planetIcon = 'Debris Field';
                         break;
                 }
-                $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">
-                                    <figure class="planetIcon ' . $planetIcon . ' tooltip js_hideTipOnMobile" title="' . $planetIconTitle . '"></figure>
-                                ' . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
+                if (empty($planetIconHtml)) {
+                    $planetIconHtml = '<figure class="planetIcon ' . $planetIcon . ' tooltip js_hideTipOnMobile" title="' . $planetIconTitle . '"></figure>';
+                }
+                $planetName = '<a href="' . route('galaxy.index', ['galaxy' => $planetService->getPlanetCoordinates()->galaxy, 'system' => $planetService->getPlanetCoordinates()->system, 'position' => $planetService->getPlanetCoordinates()->position]) . '" class="txt_link">'
+                                . $planetIconHtml . ' '
+                                . $planetService->getPlanetName() . ' [' . $planetService->getPlanetCoordinates()->asString() . ']</a>';
             } else {
                 $planetName = 'Unknown Planet';
             }
 
             return $planetName;
-        }, $body);
+        }, $body) ?? '';
 
         $body = preg_replace_callback('/\[coordinates\](\d+):(\d+):(\d+)\[\/coordinates\]/', function ($matches) {
             $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
             return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
                                 <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>
                             [' . $coordinates->asString() . ']</a>';
-        }, $body);
+        }, $body) ?? '';
 
         $body = preg_replace_callback('/\[debrisfield\](\d+):(\d+):(\d+)\[\/debrisfield\]/', function ($matches) {
             $coordinates = new Coordinate((int)$matches[1], (int)$matches[2], (int)$matches[3]);
             return '<a href="' . route('galaxy.index', ['galaxy' => $coordinates->galaxy, 'system' => $coordinates->system, 'position' => $coordinates->position]) . '" class="txt_link">
                                 <figure class="planetIcon tf tooltip js_hideTipOnMobile" title="Planet"></figure>
                             debris field [' . $coordinates->asString() . ']</a>';
-        }, $body);
+        }, $body) ?? '';
 
         return $body;
     }

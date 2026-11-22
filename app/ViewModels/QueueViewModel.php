@@ -12,4 +12,5 @@ abstract class QueueViewModel
     public int $count;
     public bool $enough_resources;
     public bool $currently_building;
+    public int $bonus_level = 0;
 }

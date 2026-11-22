@@ -62,4 +62,37 @@ class BootstrapTest extends TestCase
         // Check that overview page is correctly rendered without errors.
         $response->assertStatus(200);
     }
+
+    /**
+     * Verify that registration validation errors are scoped to the "register" error bag
+     * only, so they aren't also duplicated into the default bag.
+     */
+    public function testRegisterErrorsScopedToOwnBag(): void
+    {
+        $randomEmail = strtolower(Str::random(10) . '@example.com');
+
+        $formData = [
+            '_token' => csrf_token(),
+            'email' => $randomEmail,
+            // Password below the minimum length requirement to trigger a validation error.
+            'password' => 'short',
+            'v' => '3',
+            'step' => 'validate',
+            'kid' => '',
+            'errorCodeOn' => '1',
+            'is_utf8' => '1',
+            'agb' => 'on',
+        ];
+
+        $response = $this->post('/register', $formData);
+
+        $response->assertSessionHasErrorsIn('register', ['password']);
+
+        // Assert the default bag stays empty, otherwise the error would render twice.
+        $this->assertEmpty(session('errors')->getBag('default')->all());
+
+        $this->assertDatabaseMissing('users', [
+            'email' => $randomEmail,
+        ]);
+    }
 }

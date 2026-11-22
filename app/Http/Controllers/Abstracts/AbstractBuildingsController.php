@@ -5,6 +5,7 @@ namespace OGame\Http\Controllers\Abstracts;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Http\Controllers\OGameController;
 use OGame\Http\Controllers\ShipyardController;
 use OGame\Http\Traits\ObjectAjaxTrait;
@@ -26,13 +27,6 @@ abstract class AbstractBuildingsController extends OGameController
     protected string $route_view_index;
 
     /**
-     * QueueService.
-     *
-     * @var BuildingQueueService
-     */
-    protected BuildingQueueService $queue;
-
-    /**
      * Objects that are shown on this building page.
      *
      * @var array<array<string>>
@@ -49,9 +43,8 @@ abstract class AbstractBuildingsController extends OGameController
     /**
      * AbstractBuildingsController constructor.
      */
-    public function __construct(BuildingQueueService $queue)
+    public function __construct(protected BuildingQueueService $queue)
     {
-        $this->queue = $queue;
         parent::__construct();
     }
 
@@ -94,26 +87,65 @@ abstract class AbstractBuildingsController extends OGameController
 
                 // Check requirements of this building
                 $requirements_met = ObjectService::objectRequirementsMetWithQueue($object_machine_name, $next_level, $this->planet);
+                // Check character class requirements (for class-specific ships like crawler)
+                $character_class_met = ObjectService::objectCharacterClassMet($object_machine_name, $this->planet);
 
                 $valid_planet_type = ObjectService::objectValidPlanetType($object_machine_name, $this->planet);
 
                 // Check if the current planet has enough resources to build this building.
-                $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet));
+                $useProductionEnergy = in_array($object_machine_name, ['terraformer', 'space_dock']);
+                $enough_resources = $this->planet->hasResources(ObjectService::getObjectPrice($object_machine_name, $this->planet), $useProductionEnergy);
 
                 $view_model = new BuildingViewModel();
                 $view_model->count = $count;
                 $view_model->object = $object;
                 $view_model->current_level = $current_level;
                 $view_model->requirements_met = $requirements_met;
+                $view_model->character_class_met = $character_class_met;
                 $view_model->valid_planet_type = $valid_planet_type;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = ($build_active !== null && $build_active->object->machine_name === $object->machine_name);
                 if ($view_model->currently_building && $build_active !== null) {
                     $view_model->target_level = $build_active->level_target;
-                    $view_model->is_downgrade = $build_active->is_downgrade ?? false;
+                    $view_model->is_downgrade = $build_active->is_downgrade;
                 }
                 $view_model->research_in_progress = $research_in_progress;
                 $view_model->ship_or_defense_in_progress = $ship_or_defense_in_progress;
+
+                // Check if this building would use the last available field or exceed field limit
+                // Ships, defense units, and certain other objects don't consume planet fields
+                if (($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) && $object->consumesPlanetField) {
+                    $currentBuildingCount = $this->planet->getBuildingCount();
+                    $maxFields = $this->planet->getPlanetFieldMax();
+
+                    // Calculate the projected building count after all queued items complete
+                    $queuedFieldChange = 0;
+                    // Include the currently building item
+                    $all_queued = [];
+                    if ($build_active !== null) {
+                        $all_queued[] = $build_active;
+                    }
+                    $all_queued = array_merge($all_queued, $build_queue);
+
+                    foreach ($all_queued as $queueItem) {
+                        if ($queueItem->object->consumesPlanetField) {
+                            $current_item_level = $this->planet->getObjectLevel($queueItem->object->machine_name);
+                            $queuedFieldChange += ($queueItem->level_target - $current_item_level);
+                        }
+                    }
+
+                    // The projected building count after all queued items complete
+                    $projectedBuildingCount = $currentBuildingCount + $queuedFieldChange;
+
+                    // If projected building count + 1 equals max fields, this would use the last field
+                    $view_model->uses_last_field = ($projectedBuildingCount + 1) >= $maxFields;
+
+                    // If projected building count >= max fields, fields are already exceeded (after queue completes)
+                    $view_model->fields_exceeded = $projectedBuildingCount >= $maxFields;
+                } else {
+                    $view_model->uses_last_field = false;
+                    $view_model->fields_exceeded = false;
+                }
 
                 $buildings[$key_row][$object->id] = $view_model;
             }
@@ -132,7 +164,9 @@ abstract class AbstractBuildingsController extends OGameController
         }
 
         // Parse header filename for this planet
-        ksort($header_filename_parts);
+        // IMPORTANT: Do NOT sort - the order from header_filename_objects is critical!
+        // OGame uses build order (dependency chain), not numerical order.
+        // ksort() would break the filename matching.
 
         $header_filename = '';
         if ($this->planet->isPlanet()) {
@@ -213,8 +247,8 @@ abstract class AbstractBuildingsController extends OGameController
                 'errors' => [['message' => __('The Shipyard is still busy.')]],
             ]);
         }
-        // If the technology is a solar satellite, execute the addBuildRequest method in ShipyardController.
-        if ($request->input('technologyId') === '212') {
+        // If the technology is a solar satellite or crawler, execute the addBuildRequest method in ShipyardController.
+        if ($request->input('technologyId') === '212' || $request->input('technologyId') === '217') {
             return resolve(ShipyardController::class)->addBuildRequest($request, $player);
         }
 
@@ -227,11 +261,19 @@ abstract class AbstractBuildingsController extends OGameController
         }
 
         $building_id = $request->input('technologyId');
-        $this->queue->add($player->planets->current(), $building_id);
+
+        try {
+            $this->queue->add($player->planets->current(), $building_id);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Building construction started.',
+            'message' => __('t_ingame.buildings.building_started'),
         ]);
     }
 

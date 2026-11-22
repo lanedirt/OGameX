@@ -7,12 +7,12 @@ use OGame\Models\BuildingQueue;
 use OGame\Models\Resources;
 use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test AJAX calls to make sure they work as expected.
  */
-class BuildQueueTest extends AccountTestCase
+class BuildQueueTest extends IsolatedAccountTestCase
 {
     /**
      * Verify that building a metal mine works as expected.
@@ -373,7 +373,6 @@ class BuildQueueTest extends AccountTestCase
         // ---
         // Step 2: Verify resources were deducted immediately after request
         // ---
-        $this->reloadApplication();
         // Resources should be deducted when the downgrade starts
         $this->planetService->reloadPlanet();
         $actual_metal = $this->planetService->metal()->get();
@@ -458,5 +457,218 @@ class BuildQueueTest extends AccountTestCase
 
         // Verify the cost is reduced by Ion technology bonus
         $this->assertEquals($expected_metal, $downgrade_price->metal->get());
+    }
+
+    /**
+     * Test resource production with multiple buildings in queue (issue #931).
+     * Resources should be calculated in segments with correct production rates.
+     *
+     * @throws Exception
+     */
+    public function testResourceProductionWithMultipleBuildingsInQueue(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        // Setup: metal mine level 5 with energy
+        $this->planetSetObjectLevel('metal_mine', 5);
+        $this->planetSetObjectLevel('solar_plant', 10);
+        $this->planetAddResources(new Resources(10000, 10000, 0, 0));
+        $this->planetService->updateResourceProductionStats();
+
+        $production_level_5 = $this->planetService->getMetalProductionPerHour();
+        $this->assertGreaterThan(0, $production_level_5);
+
+        // Reset resources
+        $this->planetService->deductResources($this->planetService->getResources());
+        $this->planetAddResources(new Resources(10000, 10000, 0, 0));
+        $starting_metal = $this->planetService->metal()->get();
+
+        // Queue metal mine level 6 and 7
+        $this->addResourceBuildRequest('metal_mine');
+        $build_time_level_6 = $this->planetService->getBuildingConstructionTime('metal_mine');
+        $this->addResourceBuildRequest('metal_mine');
+
+        // Travel past level 6 completion
+        $this->travel($build_time_level_6 + 1)->seconds();
+        $response = $this->get('/resources');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 6);
+
+        $this->planetService->reloadPlanet();
+        $production_level_6 = $this->planetService->getMetalProductionPerHour();
+        $this->assertGreaterThanOrEqual($production_level_5, $production_level_6);
+
+        // Travel past level 7 completion
+        $build_time_level_7 = $this->planetService->getBuildingConstructionTime('metal_mine');
+        $this->travel($build_time_level_7 + 1)->seconds();
+        $response = $this->get('/resources');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 7);
+
+        $this->planetService->reloadPlanet();
+        $production_level_7 = $this->planetService->getMetalProductionPerHour();
+        $this->assertGreaterThanOrEqual($production_level_6, $production_level_7);
+
+        // Verify resources were produced during build time
+        $current_metal = $this->planetService->metal()->get();
+        $total_build_time_hours = ($build_time_level_6 + $build_time_level_7 + 2) / 3600;
+        $minimum_expected_production = $production_level_5 * $total_build_time_hours * 0.5;
+
+        $level_6_cost = ObjectService::getObjectRawPrice('metal_mine', 6);
+        $level_7_cost = ObjectService::getObjectRawPrice('metal_mine', 7);
+        $total_cost = $level_6_cost->metal->get() + $level_7_cost->metal->get();
+        $expected_minimum_metal = $starting_metal - $total_cost + $minimum_expected_production;
+
+        $this->assertGreaterThan(
+            $expected_minimum_metal,
+            $current_metal,
+            "Starting: $starting_metal, Cost: $total_cost, Min production: $minimum_expected_production, Current: $current_metal"
+        );
+    }
+
+    /**
+     * Test bulk processing of multiple buildings when player returns after long offline (issue #931).
+     *
+     * @throws Exception
+     */
+    public function testResourceProductionBulkProcessingMultipleBuildings(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        // Setup: metal mine level 3 with energy and storage
+        $this->planetSetObjectLevel('metal_mine', 3);
+        $this->planetSetObjectLevel('solar_plant', 10);
+        $this->planetSetObjectLevel('metal_store', 5);
+        $this->planetService->updateResourceStorageStats();
+        $this->planetService->save();
+
+        $this->planetAddResources(new Resources(5000, 5000, 0, 0));
+        $this->planetService->updateResourceProductionStats();
+        $this->planetService->save();
+
+        $initial_production = $this->planetService->getMetalProductionPerHour();
+        $this->assertGreaterThan(0, $initial_production);
+
+        $starting_metal = $this->planetService->metal()->get();
+
+        // Queue metal mine level 4 and 5
+        $this->addResourceBuildRequest('metal_mine');
+        $this->addResourceBuildRequest('metal_mine');
+
+        // Simulate long offline period - both buildings should complete
+        $this->travel(2)->hours();
+        $response = $this->get('/resources');
+        $this->assertObjectLevelOnPage($response, 'metal_mine', 5);
+
+        // Verify resources were produced
+        $this->planetService->reloadPlanet();
+        $current_metal = $this->planetService->metal()->get();
+
+        $level_4_cost = ObjectService::getObjectRawPrice('metal_mine', 4);
+        $level_5_cost = ObjectService::getObjectRawPrice('metal_mine', 5);
+        $total_cost = $level_4_cost->metal->get() + $level_5_cost->metal->get();
+        $minimum_expected = $starting_metal - $total_cost;
+
+        $this->assertGreaterThan(
+            $minimum_expected,
+            $current_metal,
+            "Starting: $starting_metal, Cost: $total_cost, Min: $minimum_expected, Current: $current_metal"
+        );
+    }
+
+    /**
+     * Test exact scenario: solar plant completion enables production.
+     * When solar plant completes, energy increases, enabling mine production.
+     *
+     * @throws Exception
+     */
+    public function testSolarPlantCompletionEnablesProduction(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('economy_speed', 8);
+
+        // Setup: metal mine level 10, but solar plant only level 1 (not enough energy)
+        $this->planetSetObjectLevel('metal_mine', 10);
+        $this->planetSetObjectLevel('solar_plant', 1);
+        $this->planetSetObjectLevel('metal_store', 5);
+        $this->planetService->updateResourceStorageStats();
+        $this->planetService->updateResourceProductionStats();
+        $this->planetService->save();
+
+        // With insufficient energy, production should be reduced or zero
+        $production_before = $this->planetService->getMetalProductionPerHour();
+
+        // Add resources and queue solar plant upgrade to level 10 (enough energy)
+        $this->planetAddResources(new Resources(50000, 50000, 0, 0));
+        $starting_metal = $this->planetService->metal()->get();
+
+        // Queue solar plant upgrade
+        $this->addResourceBuildRequest('solar_plant');
+        $build_time = $this->planetService->getBuildingConstructionTime('solar_plant');
+
+        // Travel past solar plant completion + extra time for production
+        $extra_production_time = 3600; // 1 hour extra
+        $this->travel($build_time + $extra_production_time)->seconds();
+
+        $response = $this->get('/resources');
+        $this->assertObjectLevelOnPage($response, 'solar_plant', 2);
+
+        // After solar plant upgrade, production should be higher
+        $this->planetService->reloadPlanet();
+        $production_after = $this->planetService->getMetalProductionPerHour();
+
+        // Key assertion: resources should have been produced during the extra hour
+        // with the NEW production rate (after solar plant completed)
+        $current_metal = $this->planetService->metal()->get();
+        $solar_plant_cost = ObjectService::getObjectRawPrice('solar_plant', 2);
+
+        // We should have: starting - cost + (production_after * 1 hour)
+        // At minimum, we should have more than starting - cost
+        $minimum_expected = $starting_metal - $solar_plant_cost->metal->get();
+
+        $this->assertGreaterThan(
+            $minimum_expected,
+            $current_metal,
+            "Production should occur after solar plant completes. " .
+            "Prod before: $production_before, Prod after: $production_after, " .
+            "Starting: $starting_metal, Current: $current_metal"
+        );
+    }
+
+    /**
+     * Verify that adding a research object to the building queue is rejected.
+     * This is a regression test for a bug where plasma_technology (id=122) could be
+     * added to building_queues via a crafted HTTP request, then written to the planets
+     * table causing "Unknown column 'plasma_technology' in 'field list'" SQL errors.
+     *
+     * @throws Exception
+     */
+    public function testBuildQueueRejectsResearchObject(): void
+    {
+        // Get the plasma_technology research object (id=122).
+        $researchObject = ObjectService::getObjectByMachineName('plasma_technology');
+
+        // Attempt to add plasma_technology to the building queue via the resources endpoint.
+        $response = $this->post('/resources/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $researchObject->id,
+        ]);
+
+        // The response should indicate failure, not success.
+        $response->assertStatus(200);
+        $responseData = $response->json();
+        $this->assertFalse($responseData['success'], 'Adding a research object to the building queue should be rejected.');
+
+        // Verify that no building queue entry was created for the research object.
+        $queueEntry = BuildingQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('object_id', $researchObject->id)
+            ->first();
+        $this->assertNull($queueEntry, 'A building queue entry should not have been created for a research object.');
+
+        // Verify that the planet model does not have plasma_technology set as a dirty attribute.
+        // Travel forward in time to trigger planet update.
+        $this->travel(1)->hours();
+        $response = $this->get('/resources');
+        $response->assertStatus(200);
     }
 }

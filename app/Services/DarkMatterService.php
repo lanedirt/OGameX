@@ -47,6 +47,9 @@ class DarkMatterService
         DB::transaction(function () use ($user, $amount, $type, $description) {
             // Lock the user row for update
             $user = User::where('id', $user->id)->lockForUpdate()->first();
+            if ($user === null) {
+                throw new Exception('User not found.');
+            }
 
             // Update balance
             $user->dark_matter += $amount;
@@ -82,6 +85,9 @@ class DarkMatterService
         DB::transaction(function () use ($user, $amount, $type, $description) {
             // Lock the user row for update
             $user = User::where('id', $user->id)->lockForUpdate()->first();
+            if ($user === null) {
+                throw new Exception('User not found.');
+            }
 
             // Check balance
             if ($user->dark_matter < $amount) {
@@ -146,6 +152,9 @@ class DarkMatterService
         DB::transaction(function () use ($user, $regenPeriod, $regenAmount) {
             // Lock the user row for update
             $user = User::where('id', $user->id)->lockForUpdate()->first();
+            if ($user === null) {
+                throw new Exception('User not found.');
+            }
 
             // Check if regeneration is due
             if ($user->dark_matter_last_regen === null) {

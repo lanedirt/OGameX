@@ -4,11 +4,13 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Models\BuildingQueue;
 use OGame\Models\Resources;
 use OGame\ViewModels\Queue\BuildingQueueListViewModel;
 use OGame\ViewModels\Queue\BuildingQueueViewModel;
+use RuntimeException;
 
 /**
  * Class BuildingQueueService.
@@ -30,7 +32,7 @@ class BuildingQueueService
         // Fetch queue items from model
         return BuildingQueue::where([
             ['planet_id', $planet_id],
-            ['time_end', '<=', Carbon::now()->timestamp],
+            ['time_end', '<=', Date::now()->timestamp],
             ['building', 1],
             ['processed', 0],
             ['canceled', 0],
@@ -78,6 +80,11 @@ class BuildingQueueService
         // Check if user satisfies requirements to build this object.
         $building = ObjectService::getObjectById($building_id);
 
+        // Only buildings and stations can be added to the building queue.
+        if ($building->type !== GameObjectType::Building && $building->type !== GameObjectType::Station) {
+            throw new Exception('Only buildings and stations can be added to the building queue.');
+        }
+
         // Check if building can be built on this planet type (planet or moon).
         $correct_planet_type = ObjectService::objectValidPlanetType($building->machine_name, $planet);
         if (!$correct_planet_type) {
@@ -110,6 +117,22 @@ class BuildingQueueService
             throw new Exception('Requirements not met to build this object.');
         }
 
+        // Check if planet has enough fields for this building (only for buildings that consume fields)
+        // Ships, defense units, and certain other objects don't consume planet fields
+        if ($building->consumesPlanetField) {
+            $currentBuildingCount = $planet->getBuildingCount();
+            $maxFields = $planet->getPlanetFieldMax();
+
+            // The new building would add 1 to the building count
+            if ($currentBuildingCount >= $maxFields) {
+                if ($planet->isMoon()) {
+                    throw new Exception('Not enough fields on this moon. Upgrade your Moon Base or use a moon field item to get more fields.');
+                } else {
+                    throw new Exception('Not enough fields on this planet. Upgrade your Terraformer or use a planet field item to get more fields.');
+                }
+            }
+        }
+
         $queue = new BuildingQueue();
         $queue->planet_id = $planet->getPlanetId();
         $queue->object_id = $building->id;
@@ -132,6 +155,11 @@ class BuildingQueueService
      */
     public function addDowngrade(PlanetService $planet, int $building_id): void
     {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         $build_queue = $this->retrieveQueue($planet);
 
         // Max amount of buildings that can be in the queue in a given time.
@@ -143,8 +171,8 @@ class BuildingQueueService
         $building = ObjectService::getObjectById($building_id);
 
         // Only buildings and stations can be downgraded
-        if ($building->type !== \OGame\GameObjects\Models\Enums\GameObjectType::Building &&
-            $building->type !== \OGame\GameObjects\Models\Enums\GameObjectType::Station) {
+        if ($building->type !== GameObjectType::Building &&
+            $building->type !== GameObjectType::Station) {
             throw new Exception('This object cannot be downgraded.');
         }
 
@@ -177,12 +205,22 @@ class BuildingQueueService
         }
 
         // Check if Research Lab is being downgraded while research is in progress
-        if ($building->machine_name === 'research_lab' && $planet->getPlayer()->isResearching()) {
+        if ($building->machine_name === 'research_lab' && $player->isResearching()) {
             throw new Exception('Cannot downgrade Research Lab while research is in progress.');
         }
 
+        // Check if Missile Silo is being downgraded while it contains missiles
+        if ($building->machine_name === 'missile_silo') {
+            $ipm_count = $planet->getObjectAmount('interplanetary_missile');
+            $abm_count = $planet->getObjectAmount('anti_ballistic_missile');
+
+            if ($ipm_count > 0 || $abm_count > 0) {
+                throw new Exception('Cannot downgrade Missile Silo while it contains missiles. Destroy all missiles first.');
+            }
+        }
+
         // Check if Shipyard is being downgraded while ships/defense are being built
-        if ($building->machine_name === 'shipyard' && $planet->getPlayer()->isBuildingShipsOrDefense()) {
+        if ($building->machine_name === 'shipyard' && $player->isBuildingShipsOrDefense()) {
             throw new Exception('Cannot downgrade Shipyard while ships or defense are being built.');
         }
 
@@ -230,7 +268,7 @@ class BuildingQueueService
         foreach ($queue_items as $item) {
             $object = ObjectService::getObjectById($item['object_id']);
 
-            $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
+            $time_countdown = $item->time_end - (int)Date::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
@@ -244,6 +282,7 @@ class BuildingQueueService
                 $item['building'],
                 $item['object_level_target'],
                 $is_downgrade,
+                (bool)($item['dm_halved'] ?? false),
             );
 
             $list[] = $viewModel;
@@ -290,6 +329,11 @@ class BuildingQueueService
      */
     public function start(PlanetService $planet, int $time_start = 0): void
     {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         // TODO: add unittest for case described above with $time_start.
         $queue_items = BuildingQueue::where([
             ['planet_id', $planet->getPlanetId()],
@@ -351,13 +395,13 @@ class BuildingQueueService
                 }
 
                 // Check if Research Lab is being downgraded while research is in progress
-                if ($object->machine_name === 'research_lab' && $planet->getPlayer()->isResearching()) {
+                if ($object->machine_name === 'research_lab' && $player->isResearching()) {
                     $this->cancel($planet, $queue_item->id, $queue_item->object_id);
                     continue;
                 }
 
                 // Check if Shipyard is being downgraded while ships/defense are being built
-                if ($object->machine_name === 'shipyard' && $planet->getPlayer()->isBuildingShipsOrDefense()) {
+                if ($object->machine_name === 'shipyard' && $player->isBuildingShipsOrDefense()) {
                     $this->cancel($planet, $queue_item->id, $queue_item->object_id);
                     continue;
                 }
@@ -370,7 +414,7 @@ class BuildingQueueService
                 }
 
                 // Sanity check: check if the Research Lab is tried to upgrade when research is in progress
-                if ($object->machine_name === 'research_lab' && $planet->getPlayer()->isResearching()) {
+                if ($object->machine_name === 'research_lab' && $player->isResearching()) {
                     // Error, cancel build queue item.
                     $this->cancel($planet, $queue_item->id, $queue_item->object_id);
                     continue;
@@ -384,19 +428,17 @@ class BuildingQueueService
                 }
             }
 
-            // Sanity check: check if the planet has enough resources. If not,
-            // then cancel build request.
-            if (!$planet->hasResources($price)) {
-                // Error, cancel build queue item.
+            // Deduct resources
+            try {
+                $planet->deductResources($price);
+            } catch (RuntimeException $e) {
+                // Insufficient resources so we cancel the build request.
                 $this->cancel($planet, $queue_item->id, $queue_item->object_id);
                 continue;
             }
 
-            // All OK, deduct resources and start building/downgrade process.
-            $planet->deductResources($price);
-
             if (!$time_start) {
-                $time_start = (int)Carbon::now()->timestamp;
+                $time_start = (int)Date::now()->timestamp;
             }
 
             $queue_item->time_duration = $build_time;
@@ -411,7 +453,7 @@ class BuildingQueueService
             // If the calculated end time is lower than the current time,
             // we force that the planet is updated again which will grant
             // the building immediately without having to wait for a refresh.
-            if ($queue_item->time_end < Carbon::now()->timestamp) {
+            if ($queue_item->time_end < Date::now()->timestamp) {
                 $planet->updateBuildingQueue();
             }
         }
@@ -459,8 +501,13 @@ class BuildingQueueService
             // unit queue objects cannot be canceled.
             $this->cancelItemMissingRequirements($planet);
 
+            $player = $planet->getPlayer();
+            if ($player === null) {
+                throw new Exception('Planet has no owner.');
+            }
+
             $research_queue = resolve(ResearchQueueService::class);
-            $research_queue->cancelItemMissingRequirements($planet->getPlayer(), $planet);
+            $research_queue->cancelItemMissingRequirements($player, $planet);
 
             // Set the next queue item to start (if applicable)
             $this->start($planet);

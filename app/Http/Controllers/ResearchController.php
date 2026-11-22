@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Http\Traits\ObjectAjaxTrait;
+use OGame\Services\CharacterClassService;
 use OGame\Services\HalvingService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
@@ -26,19 +27,11 @@ class ResearchController extends OGameController
     protected string $route_view_index;
 
     /**
-     * QueueService
-     *
-     * @var ResearchQueueService
-     */
-    protected ResearchQueueService $queue;
-
-    /**
      * ResourcesController constructor.
      */
-    public function __construct(ResearchQueueService $queue)
+    public function __construct(protected ResearchQueueService $queue)
     {
         $this->route_view_index = 'research.index';
-        $this->queue = $queue;
 
         parent::__construct();
     }
@@ -63,6 +56,13 @@ class ResearchController extends OGameController
             2 => ['espionage_technology', 'computer_technology', 'astrophysics', 'intergalactic_research_network', 'graviton_technology'],
             3 => ['weapon_technology', 'shielding_technology', 'armor_technology'],
         ];
+
+        // Combat research technologies that get General class bonus
+        $combat_research = ['weapon_technology', 'shielding_technology', 'armor_technology'];
+
+        // Get character class bonus for combat research
+        $characterClassService = app(CharacterClassService::class);
+        $combatResearchBonus = $characterClassService->getAdditionalCombatResearchLevels($player->getUser());
 
         $count = 0;
 
@@ -99,6 +99,11 @@ class ResearchController extends OGameController
                 $view_model->enough_resources = $enough_resources;
                 $view_model->currently_building = (!empty($research_active) && $research_active->object->machine_name === $object->machine_name);
                 $view_model->research_lab_upgrading = $research_lab_upgrading;
+
+                // Apply combat research bonus if applicable
+                if (in_array($object->machine_name, $combat_research)) {
+                    $view_model->bonus_level = $combatResearchBonus;
+                }
 
                 $research[$key_row][$object->id] = $view_model;
             }
@@ -171,11 +176,19 @@ class ResearchController extends OGameController
         }
 
         $building_id = $request->input('technologyId');
-        $this->queue->add($player, $player->planets->current(), $building_id);
+
+        try {
+            $this->queue->add($player, $player->planets->current(), $building_id);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Building construction started.',
+            'message' => __('t_ingame.buildings.building_started'),
         ]);
     }
 

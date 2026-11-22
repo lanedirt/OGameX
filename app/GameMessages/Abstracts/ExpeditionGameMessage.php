@@ -33,6 +33,29 @@ abstract class ExpeditionGameMessage extends GameMessage
     protected static int $numberOfVariations;
 
     /**
+     * Message variation ids belonging to each find-variant tier. Subclasses that support
+     * variant messages set these to the explicit body key ids that make up each tier.
+     * Ids are append-only and stable: message_variation_id is persisted on every sent
+     * message, so an existing id must keep its original text forever and new messages
+     * must be added at the end of the range. The three lists combined MUST cover exactly
+     * the ids 1..$numberOfVariations. Left empty for messages without tiers, in which
+     * case getRandomMessageVariationIdForVariant() falls back to the full range.
+     *
+     * @var list<int>
+     */
+    protected static array $normalVariationIds = [];
+
+    /**
+     * @var list<int>
+     */
+    protected static array $rareVariationIds = [];
+
+    /**
+     * @var list<int>
+     */
+    protected static array $exceptionalVariationIds = [];
+
+    /**
      * The base key for the message.
      * @var string
      */
@@ -65,6 +88,47 @@ abstract class ExpeditionGameMessage extends GameMessage
     public static function getRandomMessageVariationId(): int
     {
         return random_int(1, static::$numberOfVariations);
+    }
+
+    /**
+     * Get a random message variation id for a specific find variant (normal/rare/exceptional).
+     * A random id is picked from the matching tier id list ($normalVariationIds /
+     * $rareVariationIds / $exceptionalVariationIds). Messages that do not define tiers
+     * fall back to a random id across the full range.
+     *
+     * @param string $variant 'normal', 'rare', or 'exceptional'
+     * @return int
+     */
+    public static function getRandomMessageVariationIdForVariant(string $variant): int
+    {
+        $ids = match ($variant) {
+            'rare' => static::$rareVariationIds,
+            'exceptional' => static::$exceptionalVariationIds,
+            default => static::$normalVariationIds,
+        };
+
+        // No tiers configured (or an empty tier): behave like a plain random variation.
+        if ($ids === []) {
+            return static::getRandomMessageVariationId();
+        }
+
+        return $ids[array_rand($ids)];
+    }
+
+    /**
+     * Get the message variation ids for each find-variant tier.
+     * This is used for testing to verify that the tier lists combined cover exactly
+     * the full range of variations.
+     *
+     * @return array{normal: list<int>, rare: list<int>, exceptional: list<int>}
+     */
+    public function getVariationIdsByTier(): array
+    {
+        return [
+            'normal' => static::$normalVariationIds,
+            'rare' => static::$rareVariationIds,
+            'exceptional' => static::$exceptionalVariationIds,
+        ];
     }
 
     /**

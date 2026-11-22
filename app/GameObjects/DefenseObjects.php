@@ -22,13 +22,11 @@ class DefenseObjects
         // --- Rocket Launcher ---
         $rocketLauncher = new DefenseObject();
         $rocketLauncher->id = 401;
-        $rocketLauncher->title = 'Rocket Launcher';
+        $rocketLauncher->title = __('t_resources.rocket_launcher.title');
         $rocketLauncher->machine_name = 'rocket_launcher';
         $rocketLauncher->class_name = 'rocketLauncher';
-        $rocketLauncher->description = 'The rocket launcher is a simple, cost-effective defensive option.';
-        $rocketLauncher->description_long = 'Your first basic line of defense. These are simple ground based launch facilities that fire conventional warhead tipped missiles at attacking enemy targets. As they are cheap to construct and no research is required, they are well suited for defending raids, but lose effectiveness defending from larger scale attacks. Once you begin construction on more advanced defense weapons systems, Rocket Launchers become simple fodder to allow your more damaging weapons to inflict greater damage for a longer period of time.
-            
-        After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
+        $rocketLauncher->description = __('t_resources.rocket_launcher.description');
+        $rocketLauncher->description_long = __('t_resources.rocket_launcher.description_long');
         $rocketLauncher->requirements = [
             new GameObjectRequirement('shipyard', 1),
         ];
@@ -42,13 +40,11 @@ class DefenseObjects
         // --- Light Laser ---
         $lightLaser = new DefenseObject();
         $lightLaser->id = 402;
-        $lightLaser->title = 'Light Laser';
+        $lightLaser->title = __('t_resources.light_laser.title');
         $lightLaser->machine_name = 'light_laser';
         $lightLaser->class_name = 'laserCannonLight';
-        $lightLaser->description = 'Concentrated firing at a target with photons can produce significantly greater damage than standard ballistic weapons.';
-        $lightLaser->description_long = 'As technology developed and more sophisticated ships were created, it was determined that a stronger line of defense was needed to counter the attacks. As Laser Technology advanced, a new weapon was designed to provide the next level of defense. Light Lasers are simple ground based weapons that utilize special targeting systems to track the enemy and fire a high intensity laser designed to cut through the hull of the target. In order to be kept cost effective, they were fitted with an improved shielding system, however the structural integrity is the same as that of the Rocket Launcher.
-        
-        After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
+        $lightLaser->description = __('t_resources.light_laser.description');
+        $lightLaser->description_long = __('t_resources.light_laser.description_long');
         $lightLaser->requirements = [
             new GameObjectRequirement('shipyard', 2),
             new GameObjectRequirement('laser_technology', 3),
@@ -64,13 +60,11 @@ class DefenseObjects
         // --- Heavy Laser ---
         $heavyLaser = new DefenseObject();
         $heavyLaser->id = 403;
-        $heavyLaser->title = 'Heavy Laser';
+        $heavyLaser->title = __('t_resources.heavy_laser.title');
         $heavyLaser->machine_name = 'heavy_laser';
         $heavyLaser->class_name = 'laserCannonHeavy';
-        $heavyLaser->description = 'The heavy laser is the logical development of the light laser.';
-        $heavyLaser->description_long = 'The Heavy Laser is a practical, improved version of the Light Laser. Being more balanced than the Light Laser with improved alloy composition, it utilizes stronger, more densely packed beams, and even better onboard targeting systems.
-        
-        After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
+        $heavyLaser->description = __('t_resources.heavy_laser.description');
+        $heavyLaser->description_long = __('t_resources.heavy_laser.description_long');
         $heavyLaser->requirements = [
             new GameObjectRequirement('shipyard', 4),
             new GameObjectRequirement('laser_technology', 6),
@@ -87,15 +81,11 @@ class DefenseObjects
         // --- Gauss Cannon ---
         $gaussCannon = new DefenseObject();
         $gaussCannon->id = 404;
-        $gaussCannon->title = 'Gauss Cannon';
+        $gaussCannon->title = __('t_resources.gauss_cannon.title');
         $gaussCannon->machine_name = 'gauss_cannon';
         $gaussCannon->class_name = 'gaussCannon';
-        $gaussCannon->description = 'The Gauss Cannon fires projectiles weighing tons at high speeds.';
-
-        $gaussCannon->description_long = 'For a long time projectile weapons were regarded as antiquated in the wake of modern thermonuclear and energy technology and due to the development of the hyperdrive and improved armour. That was until the exact energy technology that had once aged it, helped it to re-achieve their established position.
-        A gauss cannon is a large version of the particle accelerator. Extremely heavy missiles are accelerated with a huge electromagnetic force and have muzzle velocities that make the dirt surrounding the missile burn in the skies. This weapon is so powerful when fired that it creates a sonic boom. Modern armour and shields can barely withstand the force, often the target is completely penetrated by the power of the missile. Defense structures deactivate as soon as they have been too badly damaged.
-        
-        After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
+        $gaussCannon->description = __('t_resources.gauss_cannon.description');
+        $gaussCannon->description_long = __('t_resources.gauss_cannon.description_long');
         $gaussCannon->requirements = [
             new GameObjectRequirement('shipyard', 6),
             new GameObjectRequirement('weapon_technology', 3),
@@ -112,13 +102,11 @@ class DefenseObjects
         // --- Ion Cannon ---
         $ionCannon = new DefenseObject();
         $ionCannon->id = 405;
-        $ionCannon->title = 'Ion Cannon';
+        $ionCannon->title = __('t_resources.ion_cannon.title');
         $ionCannon->machine_name = 'ion_cannon';
         $ionCannon->class_name = 'ionCannon';
-        $ionCannon->description = 'The Ion Cannon fires a continuous beam of accelerating ions, causing considerable damage to objects it strikes.';
-        $ionCannon->description_long = 'An ion cannon is a weapon that fires beams of ions (positively or negatively charged particles). The Ion Cannon is actually a type of Particle Cannon; only the particles used are ionized. Due to their electrical charges, they also have the potential to disable electronic devices, and anything else that has an electrical or similar power source, using a phenomena known as the the Electromagetic Pulse (EMP effect). Due to the cannons highly improved shielding system, this cannon provides improved protection for your larger, more destructive defense weapons.
-        
-        After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
+        $ionCannon->description = __('t_resources.ion_cannon.description');
+        $ionCannon->description_long = __('t_resources.ion_cannon.description_long');
         $ionCannon->requirements = [
             new GameObjectRequirement('shipyard', 4),
             new GameObjectRequirement('ion_technology', 4),
@@ -134,14 +122,11 @@ class DefenseObjects
         // --- Plasma Turret ---
         $plasmaTurret = new DefenseObject();
         $plasmaTurret->id = 406;
-        $plasmaTurret->title = 'Plasma Turret';
+        $plasmaTurret->title = __('t_resources.plasma_turret.title');
         $plasmaTurret->machine_name = 'plasma_turret';
         $plasmaTurret->class_name = 'plasmaCannon';
-        $plasmaTurret->description = 'Plasma Turrets release the energy of a solar flare and surpass even the destroyer in destructive effect.';
-
-        $plasmaTurret->description_long = 'One of the most advanced defense weapons systems ever developed, the Plasma Turret uses a large nuclear reactor fuel cell to power an electromagnetic accelerator that fires a pulse, or toroid, of plasma. During operation, the Plasma turret first locks on a target and begins the process of firing. A plasma sphere is created in the turrets core by super heating and compressing gases, stripping them of their ions. Once the gas is superheated, compressed, and a plasma sphere is created, it is then loaded into the electromagnetic accelerator which is energized. Once fully energized, the accelerator is activated, which results in the plasma sphere being launched at an extremely high rate of speed to the intended target. From the targets perspective, the approaching bluish ball of plasma is impressive, but once it strikes, it causes instant destruction.
-        
-        Defensive facilities deactivate as soon as they are too heavily damaged. After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
+        $plasmaTurret->description = __('t_resources.plasma_turret.description');
+        $plasmaTurret->description_long = __('t_resources.plasma_turret.description_long');
         $plasmaTurret->requirements = [
             new GameObjectRequirement('shipyard', 8),
             new GameObjectRequirement('plasma_technology', 7),
@@ -156,13 +141,11 @@ class DefenseObjects
         // --- Small Shield Dome ---
         $smallShieldDome = new DefenseObject();
         $smallShieldDome->id = 407;
-        $smallShieldDome->title = 'Small Shield Dome';
+        $smallShieldDome->title = __('t_resources.small_shield_dome.title');
         $smallShieldDome->machine_name = 'small_shield_dome';
         $smallShieldDome->class_name = 'shieldDomeSmall';
-        $smallShieldDome->description = 'The small shield dome covers an entire planet with a field which can absorb a tremendous amount of energy.';
-        $smallShieldDome->description_long = 'Colonizing new worlds brought about a new danger, space debris. A large asteroid could easily wipe out the world and all inhabitants. Advancements in shielding technology provided scientists with a way to develop a shield to protect an entire planet not only from space debris but, as it was learned, from an enemy attack. By creating a large electromagnetic field around the planet, space debris that would normally have destroyed the planet was deflected, and attacks from enemy Empires were thwarted. The first generators were large and the shield provided moderate protection, but it was later discovered that small shields did not afford the protection from larger scale attacks. The small shield dome was the prelude to a stronger, more advanced planetary shielding system to come.
-
-After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
+        $smallShieldDome->description = __('t_resources.small_shield_dome.description');
+        $smallShieldDome->description_long = __('t_resources.small_shield_dome.description_long');
         $smallShieldDome->requirements = [
             new GameObjectRequirement('shipyard', 1),
             new GameObjectRequirement('shielding_technology', 2),
@@ -178,13 +161,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         // --- Large Shield Dome ---
         $largeShieldDome = new DefenseObject();
         $largeShieldDome->id = 408;
-        $largeShieldDome->title = 'Large Shield Dome';
+        $largeShieldDome->title = __('t_resources.large_shield_dome.title');
         $largeShieldDome->machine_name = 'large_shield_dome';
         $largeShieldDome->class_name = 'shieldDomeLarge';
-        $largeShieldDome->description = 'The evolution of the small shield dome can employ significantly more energy to withstand attacks.';
-        $largeShieldDome->description_long = 'The Large Shield Dome is the next step in the advancement of planetary shields, it is the result of years of work improving the Small Shield Dome. Built to withstand a larger barrage of enemy fire by providing a higher energized electromagnetic field, large domes provide a longer period of protection before collapsing.
-        
-        After a battle, there is up to a 70 % chance that failed defensive facilities can be returned to use.';
+        $largeShieldDome->description = __('t_resources.large_shield_dome.description');
+        $largeShieldDome->description_long = __('t_resources.large_shield_dome.description_long');
         $largeShieldDome->requirements = [
             new GameObjectRequirement('shipyard', 6),
             new GameObjectRequirement('shielding_technology', 6),
@@ -200,12 +181,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         // --- Anti-Ballistic Missiles ---
         $antiBallisticMissile = new DefenseObject();
         $antiBallisticMissile->id = 502;
-        $antiBallisticMissile->title = 'Anti-Ballistic Missiles';
+        $antiBallisticMissile->title = __('t_resources.anti_ballistic_missile.title');
         $antiBallisticMissile->machine_name = 'anti_ballistic_missile';
         $antiBallisticMissile->class_name = 'missileInterceptor';
-        $antiBallisticMissile->description = 'Anti-Ballistic Missiles destroy attacking interplanetary missiles';
-
-        $antiBallisticMissile->description_long = 'Anti Ballistic Missiles (ABM) are your only line of defense when attacked by Interplanetary Missiles (IPM) on your planet or moon. When a launch of IPMs is detected, these missiles automatically arm, process a launch code in their flight computers, target the inbound IPM, and launch to intercept. During the flight, the target IPM is constantly tracked and course corrections are applied until the ABM reaches the target and destroys the attacking IPM. Each ABM destroys one incoming IPM.';
+        $antiBallisticMissile->description = __('t_resources.anti_ballistic_missile.description');
+        $antiBallisticMissile->description_long = __('t_resources.anti_ballistic_missile.description_long');
         $antiBallisticMissile->requirements = [
             new GameObjectRequirement('missile_silo', 2),
             new GameObjectRequirement('shipyard', 1),
@@ -221,12 +201,11 @@ After a battle, there is up to a 70 % chance that failed defensive facilities ca
         // --- Interplanetary Missiles ---
         $interplanetaryMissile = new DefenseObject();
         $interplanetaryMissile->id = 503;
-        $interplanetaryMissile->title = 'Interplanetary Missiles';
+        $interplanetaryMissile->title = __('t_resources.interplanetary_missile.title');
         $interplanetaryMissile->machine_name = 'interplanetary_missile';
         $interplanetaryMissile->class_name = 'missileInterplanetary';
-        $interplanetaryMissile->description = 'Interplanetary Missiles destroy enemy defenses.';
-
-        $interplanetaryMissile->description_long = 'Interplanetary Missiles (IPM) are your offensive weapon to destroy the defenses of your target. Using state of the art tracking technology, each missile targets a certain number of defenses for destruction. Tipped with an anti-matter bomb, they deliver a destructive force so severe that destroyed shields and defenses cannot be repaired. The only way to counter these missiles is with ABMs.';
+        $interplanetaryMissile->description = __('t_resources.interplanetary_missile.description');
+        $interplanetaryMissile->description_long = __('t_resources.interplanetary_missile.description_long');
         $interplanetaryMissile->requirements = [
             new GameObjectRequirement('shipyard', 1),
             new GameObjectRequirement('missile_silo', 4),

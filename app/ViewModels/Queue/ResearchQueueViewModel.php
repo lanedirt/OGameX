@@ -9,16 +9,6 @@ use OGame\ViewModels\Queue\Abstracts\QueueViewModel;
 class ResearchQueueViewModel extends QueueViewModel
 {
     /**
-     * Planet service of the planet where this research queue item was started.
-     *
-     * @var PlanetService
-     */
-    public PlanetService $planet;
-
-    public bool $building;
-    public int $level_target;
-
-    /**
      * Constructor.
      *
      * @param int $id
@@ -34,14 +24,13 @@ class ResearchQueueViewModel extends QueueViewModel
         GameObject $object,
         int $time_countdown,
         int $time_total,
-        PlanetService $planet,
-        bool $building,
-        int $level_target
+        /**
+         * Planet service of the planet where this research queue item was started.
+         */
+        public PlanetService $planet,
+        public bool $building,
+        public int $level_target
     ) {
-        $this->planet = $planet;
-        $this->building = $building;
-        $this->level_target = $level_target;
-
         parent::__construct($id, $object, $time_countdown, $time_total);
     }
 }

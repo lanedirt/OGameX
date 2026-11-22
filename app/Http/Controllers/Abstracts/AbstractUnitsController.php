@@ -5,7 +5,7 @@ namespace OGame\Http\Controllers\Abstracts;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use OGame\Http\Controllers\OGameController;
 use OGame\Http\Traits\ObjectAjaxTrait;
 use OGame\Services\ObjectService;
@@ -26,13 +26,6 @@ abstract class AbstractUnitsController extends OGameController
     protected string $route_view_index;
 
     /**
-     * QueueService
-     *
-     * @var UnitQueueService
-     */
-    protected UnitQueueService $queue;
-
-    /**
      * Objects that are shown on this building page.
      *
      * @var array<array<string>>
@@ -42,9 +35,8 @@ abstract class AbstractUnitsController extends OGameController
     /**
      * AbstractUnitsController constructor.
      */
-    public function __construct(UnitQueueService $queue)
+    public function __construct(protected UnitQueueService $queue)
     {
-        $this->queue = $queue;
         parent::__construct();
     }
 
@@ -71,7 +63,7 @@ abstract class AbstractUnitsController extends OGameController
         $queue_time_end = $this->queue->retrieveQueueTimeEnd($planet);
         $queue_time_countdown = 0;
         if ($queue_time_end > 0) {
-            $queue_time_countdown = $queue_time_end - (int)Carbon::now()->timestamp;
+            $queue_time_countdown = $queue_time_end - (int)Date::now()->timestamp;
         }
 
         $units = [];
@@ -87,17 +79,21 @@ abstract class AbstractUnitsController extends OGameController
                 // Check requirements of this building
                 $requirements_met = ObjectService::objectRequirementsMet($object->machine_name, $planet);
 
+                // Check character class requirements separately
+                $character_class_met = ObjectService::objectCharacterClassMet($object->machine_name, $planet);
+
                 // Check if the current planet has enough resources to build this building.
                 $enough_resources = $planet->hasResources(ObjectService::getObjectPrice($object->machine_name, $planet));
 
                 // Get maximum build amount of this building
-                $max_build_amount = ObjectService::getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met);
+                $max_build_amount = ObjectService::getObjectMaxBuildAmount($object->machine_name, $planet, $requirements_met && $character_class_met);
 
                 $view_model = new UnitViewModel();
                 $view_model->object = $object;
                 $view_model->count = $count;
                 $view_model->amount = $amount;
                 $view_model->requirements_met = $requirements_met;
+                $view_model->character_class_met = $character_class_met;
                 $view_model->enough_resources = $enough_resources;
                 $view_model->max_build_amount = $max_build_amount;
                 $view_model->currently_building = (!empty($build_active) && $build_active->object->machine_name == $object->machine_name);
@@ -157,7 +153,14 @@ abstract class AbstractUnitsController extends OGameController
         $building_id = $request->input('technologyId');
         $amount = $request->input('amount');
 
-        $this->queue->add($player->planets->current(), $building_id, $amount);
+        try {
+            $this->queue->add($player->planets->current(), $building_id, $amount);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',

@@ -12,11 +12,8 @@ use OGame\Services\PlayerService;
 
 class JumpGateController extends OGameController
 {
-    private JumpGateService $jumpGateService;
-
-    public function __construct(JumpGateService $jumpGateService)
+    public function __construct(private JumpGateService $jumpGateService)
     {
-        $this->jumpGateService = $jumpGateService;
     }
 
     /**
@@ -196,7 +193,7 @@ class JumpGateController extends OGameController
 
         return response()->json([
             'success' => true,
-            'message' => __('Ships have been transferred successfully.'),
+            'message' => __('Jump has been executed successfully.'),
             'redirect' => route('facilities.index', ['cp' => $target_moon_id]),
         ]);
     }

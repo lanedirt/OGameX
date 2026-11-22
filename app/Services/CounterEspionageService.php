@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use OGame\GameObjects\Models\Units\UnitCollection;
+
 /**
  * Service for handling counter-espionage calculations and logic.
  */
@@ -87,9 +89,9 @@ class CounterEspionageService
      * Defense structures are excluded from counter-espionage battles.
      *
      * @param PlanetService $planet The planet to get ships from
-     * @return \OGame\GameObjects\Models\Units\UnitCollection Ships on the planet
+     * @return UnitCollection Ships on the planet
      */
-    public function getDefenderShipsForBattle(PlanetService $planet): \OGame\GameObjects\Models\Units\UnitCollection
+    public function getDefenderShipsForBattle(PlanetService $planet): UnitCollection
     {
         return $planet->getShipUnits();
     }

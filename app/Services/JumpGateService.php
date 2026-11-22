@@ -2,7 +2,8 @@
 
 namespace OGame\Services;
 
-use Illuminate\Support\Carbon;
+use Exception;
+use Illuminate\Support\Facades\Date;
 use OGame\Models\FleetMission;
 
 /**
@@ -30,16 +31,14 @@ class JumpGateService
      */
     private const NON_TRANSFERABLE_SHIPS = [
         'solar_satellite',
+        'crawler',
     ];
-
-    private SettingsService $settingsService;
 
     /**
      * JumpGateService constructor.
      */
-    public function __construct(SettingsService $settingsService)
+    public function __construct(private SettingsService $settingsService)
     {
-        $this->settingsService = $settingsService;
     }
 
     /**
@@ -91,7 +90,7 @@ class JumpGateService
             return false;
         }
 
-        return $cooldown_until > Carbon::now()->timestamp;
+        return $cooldown_until > Date::now()->timestamp;
     }
 
     /**
@@ -108,7 +107,7 @@ class JumpGateService
             return 0;
         }
 
-        $now = (int) Carbon::now()->timestamp;
+        $now = (int) Date::now()->timestamp;
 
         if ($cooldown_until <= $now) {
             return 0;
@@ -293,7 +292,7 @@ class JumpGateService
         $min_level = min($source_level, $target_level);
 
         $cooldown_seconds = $this->calculateCooldown($min_level);
-        $cooldown_until = (int) Carbon::now()->timestamp + $cooldown_seconds;
+        $cooldown_until = (int) Date::now()->timestamp + $cooldown_seconds;
 
         // Set cooldown on source moon
         $source->setJumpGateCooldown($cooldown_until);
@@ -324,7 +323,7 @@ class JumpGateService
             if ($target_moon->isMoon() && $target_moon->getObjectLevel('jump_gate') > 0) {
                 return $target_moon;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Target moon no longer exists or is not accessible
         }
 
@@ -352,10 +351,15 @@ class JumpGateService
      */
     public function hasUnprocessedArrivedFleet(PlanetService $moon): bool
     {
+        $player = $moon->getPlayer();
+        if ($player === null) {
+            throw new Exception('Moon has no owner.');
+        }
+
         return FleetMission::where('planet_id_to', $moon->getPlanetId())
             ->where('processed', 0)
-            ->where('time_arrival', '<=', Carbon::now()->timestamp)
-            ->where('user_id', '!=', $moon->getPlayer()->getId())
+            ->where('time_arrival', '<=', Date::now()->timestamp)
+            ->where('user_id', '!=', $player->getId())
             ->exists();
     }
 }

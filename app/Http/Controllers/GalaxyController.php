@@ -6,15 +6,23 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Log;
+use OGame\Facades\AppUtil;
 use OGame\Factories\PlanetServiceFactory;
+use OGame\Models\Alliance;
+use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
+use OGame\Models\Highscore;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Services\BuddyService;
+use OGame\Services\CharacterClassService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PhalanxService;
+use OGame\Services\PlanetMoveService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use OGame\Models\Enums\PlanetType;
 
 class GalaxyController extends OGameController
 {
@@ -27,6 +35,11 @@ class GalaxyController extends OGameController
      * @var PlanetServiceFactory
      */
     private PlanetServiceFactory $planetServiceFactory;
+
+    /**
+     * @var BuddyService
+     */
+    private BuddyService $buddyService;
 
     /**
      * Shows the galaxy index page.
@@ -62,10 +75,11 @@ class GalaxyController extends OGameController
             'espionage_probe_count' => $planet->getObjectAmount('espionage_probe'),
             'recycler_count' => $planet->getObjectAmount('recycler'),
             'interplanetary_missiles_count' => $planet->getObjectAmount('interplanetary_missile'),
-            'used_slots' => 0,
-            'max_slots' => 1,
+            'used_slots' => $player->getFleetSlotsInUse(),
+            'max_slots' => $player->getFleetSlotsMax(),
             'max_galaxies' => $settingsService->numberOfGalaxies(),
             'is_in_vacation_mode' => $player->isInVacationMode(),
+            'planet_relocation_cost' => (int)$settingsService->get('planet_relocation_cost', 240000),
         ]);
     }
 
@@ -109,6 +123,16 @@ class GalaxyController extends OGameController
             }
         }
 
+        // Add position 16 (expedition position) with debris field if Discoverer class
+        $characterClassService = app(CharacterClassService::class);
+        if ($characterClassService->hasExpeditionDebrisFieldsVisible($player->getUser())) {
+            $expeditionDebrisRow = $this->createExpeditionDebrisRow($galaxy, $system, 16);
+            // Only add the row if there's actually debris at position 16
+            if ($expeditionDebrisRow['planets'] !== null) {
+                $galaxy_rows[] = $expeditionDebrisRow;
+            }
+        }
+
         return $galaxy_rows;
     }
 
@@ -124,18 +148,25 @@ class GalaxyController extends OGameController
      */
     private function createPlanetRow(int $galaxy, int $system, int $position, PlanetService $planet, PhalanxService $phalanxService): array
     {
-        $availableMissions = $this->getAvailableMissions($galaxy, $system, $position, $planet);
+        $isDestroyed = $planet->isDestroyed();
+        $availableMissions = $isDestroyed ? [] : $this->getAvailableMissions($galaxy, $system, $position, $planet);
         $planets_array = $this->createPlanetsArray($planet, $availableMissions);
 
+        $planetPlayer = $planet->getPlayer();
+
         return [
-            'actions' => $this->getPlanetActions($planet, $galaxy, $system, $position, $phalanxService),
+            'actions' => $isDestroyed ? [] : $this->getPlanetActions($planet, $galaxy, $system, $position, $phalanxService),
             'availableMissions' => [],
             'galaxy' => $galaxy,
             'planets' => $planets_array,
-            'player' => $this->getPlayerInfo($planet->getPlayer()),
+            'player' => $isDestroyed
+                ? ['playerId' => 99999, 'playerName' => 'Deep space']
+                : ($planetPlayer !== null ? $this->getPlayerInfo($planetPlayer) : []),
             'position' => $position,
             'positionFilters' => '',
             'system' => $system,
+            'playerId' => $isDestroyed ? 99999 : $planetPlayer?->getId(),
+            'playerName' => $isDestroyed ? 'Deep space' : ($planetPlayer?->getUsername() ?? ''),
         ];
     }
 
@@ -148,16 +179,18 @@ class GalaxyController extends OGameController
      */
     private function createPlanetsArray(PlanetService $planet, array $availableMissions): array
     {
+        $isDestroyed = $planet->isDestroyed();
+
         $planets_array = [
             [
-                'activity' => $this->getPlanetActivityStatus($planet),
+                'activity' => $isDestroyed ? null : $this->getPlanetActivityStatus($planet),
                 'availableMissions' => $availableMissions,
                 'fleet' => [],
                 'imageInformation' => $planet->getPlanetBiomeType() . '_' . $planet->getPlanetImageType(),
-                'isDestroyed' => false,
+                'isDestroyed' => $isDestroyed,
                 'planetId' => $planet->getPlanetId(),
-                'planetName' => $planet->getPlanetName(),
-                'playerId' => $planet->getPlayer()?->getId(),
+                'planetName' => $isDestroyed ? __('t_galaxy.planet.destroyed') : $planet->getPlanetName(),
+                'playerId' => $isDestroyed ? 99999 : $planet->getPlayer()?->getId(),
                 'planetType' => 1,
             ]
         ];
@@ -192,7 +225,7 @@ class GalaxyController extends OGameController
             'availableMissions' => [
                 [
                     'missionType' => 8,
-                    'name' => 'Harvest',
+                    'name' => __('t_ingame.galaxy.mission_harvest'),
                 ],
             ],
             'requiredShips' => $debrisField->calculateRequiredRecyclers(),
@@ -223,7 +256,8 @@ class GalaxyController extends OGameController
      */
     private function createMoonArray(PlanetService $moon): array
     {
-        $availableMissions = $this->getAvailableMissions(
+        $isDestroyed = $moon->isDestroyed();
+        $availableMissions = $isDestroyed ? [] : $this->getAvailableMissions(
             $moon->getPlanetCoordinates()->galaxy,
             $moon->getPlanetCoordinates()->system,
             $moon->getPlanetCoordinates()->position,
@@ -231,15 +265,15 @@ class GalaxyController extends OGameController
         );
 
         return [
-            'activity' => $this->getPlanetActivityStatus($moon),
+            'activity' => $isDestroyed ? null : $this->getPlanetActivityStatus($moon),
             'availableMissions' => $availableMissions,
             'fleet' => [],
-            // TODO: moon_c appears as red (recently destroyed?)
-            'imageInformation' => 'moon_a',
-            'isDestroyed' => false,
+            // Destroyed moons use the red-border moon_c sprite.
+            'imageInformation' => $isDestroyed ? 'moon_c' : 'moon_a',
+            'isDestroyed' => $isDestroyed,
             'planetId' => $moon->getPlanetId(),
             'planetName' => $moon->getPlanetName(),
-            'playerId' => $moon->getPlayer()->getId(),
+            'playerId' => $isDestroyed ? 99999 : $moon->getPlayer()?->getId(),
             'planetType' => 3,
             'size' => $moon->getPlanetDiameter(),
             'tooltipInfo' => [
@@ -260,39 +294,65 @@ class GalaxyController extends OGameController
      */
     private function getAvailableMissions(int $galaxy, int $system, int $position, PlanetService $planet): array
     {
+        $this->buddyService = app(BuddyService::class);
         $availableMissions = [];
 
         // Transport.
         $availableMissions[] = [
             'missionType' => 3,
             'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 3]),
-            'name' => __('Transport'),
+            'name' => __('t_ingame.fleet.mission_transport'),
         ];
 
-        if ($planet->getPlayer()->getId() !== $this->playerService->getId()) {
-            // Espionage (only if foreign planet).
-            $availableMissions[] = [
-                'missionType' => 6,
-                'canSpy' => true,
-                'reportId' => '',
-                'reportLink' => '',
-                'link' => route('fleet.dispatch.sendfleet', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 6, 'am210' => 1]),
-                'name' => __('Espionage'),
-            ];
+        $targetPlayer = $planet->getPlayer();
+        if ($targetPlayer === null) {
+            return $availableMissions;
+        }
 
-            // Attack (only if foreign planet).
-            $availableMissions[] = [
-                'missionType' => 1,
-                'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 1]),
-                'name' => __('Attack'),
-            ];
+        if ($targetPlayer->getId() !== $this->playerService->getId()) {
+            // Skip aggressive missions (Espionage, Attack) against Legor
+            $isLegor = $targetPlayer->getUsername(false) === 'Legor';
+
+            if (!$isLegor) {
+                // Espionage (only if foreign planet and not Legor).
+                $availableMissions[] = [
+                    'missionType' => 6,
+                    'canSpy' => true,
+                    'reportId' => '',
+                    'reportLink' => '',
+                    'link' => route('fleet.dispatch.sendfleet', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 6, 'am210' => 1]),
+                    'name' => __('t_ingame.fleet.mission_espionage'),
+                ];
+
+                // Attack (only if foreign planet and not Legor).
+                $availableMissions[] = [
+                    'missionType' => 1,
+                    'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 1]),
+                    'name' => __('t_ingame.fleet.mission_attack'),
+                ];
+            }
+
+            // Check if target player is a buddy or ally member
+            $currentUserId = $this->playerService->getUser()->id;
+            $targetUserId = $targetPlayer->getUser()->id;
+
+            $isBuddy = $this->buddyService->areBuddies($currentUserId, $targetUserId);
+
+            // ACS Defend (only if target is buddy or ally member).
+            if ($isBuddy) {
+                $availableMissions[] = [
+                    'missionType' => 5,
+                    'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 5]),
+                    'name' => __('t_ingame.fleet.mission_acs_defend'),
+                ];
+            }
 
             // Moon destruction (only if planet is a moon).
             if ($planet->isMoon()) {
                 $availableMissions[] = [
                     'missionType' => 10,
                     'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 10]),
-                    'name' => __('Moon destruction'),
+                    'name' => __('t_ingame.fleet.mission_destroy_moon'),
                 ];
             }
         } else {
@@ -300,7 +360,7 @@ class GalaxyController extends OGameController
             $availableMissions[] = [
                 'missionType' => 4,
                 'link' => route('fleet.index', ['galaxy' => $galaxy, 'system' => $system, 'position' => $position, 'type' => $planet->getPlanetType()->value, 'mission' => 4]),
-                'name' => __('Deployment'),
+                'name' => __('t_ingame.fleet.mission_deploy'),
             ];
         }
 
@@ -334,8 +394,8 @@ class GalaxyController extends OGameController
         // Check if phalanx can be used: must be on moon, target must be planet, not own planet, not admin
         if ($current_planet->isMoon()
             && !$planet->isMoon()
-            && $planet->getPlayer()->getId() !== $this->playerService->getId()
-            && !$planet->getPlayer()->isAdmin()) {
+            && $planet->getPlayer()?->getId() !== $this->playerService->getId()
+            && !$planet->getPlayer()?->isAdmin()) {
             // All basic checks passed, now check phalanx level and range
             $phalanx_level = $current_planet->getObjectLevel('sensor_phalanx');
             if ($phalanx_level > 0) {
@@ -354,7 +414,7 @@ class GalaxyController extends OGameController
                     if ($has_deuterium) {
                         $can_phalanx = true;
                     } else {
-                        $phalanx_inactive_reason = 'Not enough deuterium to use phalanx';
+                        $phalanx_inactive_reason = __('t_ingame.galaxy.phalanx_no_deut');
                     }
                 }
             }
@@ -363,22 +423,45 @@ class GalaxyController extends OGameController
         // Check if buddy request can be sent:
         // - Must be foreign planet (not own)
         // - Target player must not be admin (can't send requests to admins)
-        $canBuddyRequest = $planet->getPlayer()->getId() !== $this->playerService->getId()
-            && !$planet->getPlayer()->isAdmin();
+        $canBuddyRequest = $planet->getPlayer()?->getId() !== $this->playerService->getId()
+            && !$planet->getPlayer()?->isAdmin();
+
+        // Check if missile attack is possible:
+        // - Must be foreign planet (not own)
+        // - Target must be within range (missiles = 0 is allowed: overlay shows disabled button)
+        $canMissileAttack = false;
+        $missileAttackLink = route('galaxy.index');
+
+        if ($planet->getPlayer()?->getId() !== $this->playerService->getId()) {
+            $currentPlanet = $this->playerService->planets->current();
+            $missileRange = $this->playerService->getMissileRange();
+            $targetCoordinate = new Coordinate($galaxy, $system, $position);
+            $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
+
+            if ($distance <= $missileRange) {
+                $canMissileAttack = true;
+                $missileAttackLink = route('galaxy.missile-attack.overlay', [
+                    'galaxy' => $galaxy,
+                    'system' => $system,
+                    'position' => $position,
+                    'type' => $planet->getPlanetType()->value,
+                ]);
+            }
+        }
 
         return [
             'canBeIgnored' => false,
             'canBuddyRequests' => $canBuddyRequest,
             'canEspionage' => $canEspionage,
-            'canMissileAttack' => false,
+            'canMissileAttack' => $canMissileAttack,
             'canPhalanx' => $can_phalanx || !empty($phalanx_inactive_reason),
             'phalanxActive' => $can_phalanx,
             'phalanxInactive' => !empty($phalanx_inactive_reason),
             'phalanxInactiveReason' => $phalanx_inactive_reason,
             'canSendProbes' => $canEspionage,
             'canWrite' => false,
-            'discoveryUnlocked' => 'You haven\'t unlocked the research to discover new lifeforms yet.\n',
-            'missileAttackLink' => route('galaxy.index'),
+            'discoveryUnlocked' => __('t_galaxy.discovery.locked'),
+            'missileAttackLink' => $missileAttackLink,
         ];
     }
 
@@ -396,37 +479,100 @@ class GalaxyController extends OGameController
         // Check if target player is admin (cannot send buddy requests or ignore admins)
         $isTargetAdmin = $player->isAdmin();
 
+        // Get player's highscore rank
+        /** @var Highscore|null $highscore */
+        $highscore = $player->getUser()->highscore;
+        $playerRank = $highscore?->general_rank;
+
+        // Calculate which page this player is on in the highscore (100 players per page)
+        $highscorePage = $playerRank !== null ? (int)ceil($playerRank / 100) : 1;
+
+        // Get player's alliance information
+        $alliance = null;
+        $allianceTag = null;
+        $allianceName = null;
+        $allianceData = null;
+
+        if ($player->getUser()->alliance_id) {
+            $alliance = Alliance::with(['highscore', 'members'])->withCount('members')->find($player->getUser()->alliance_id);
+            if ($alliance) {
+                $allianceTag = $alliance->alliance_tag;
+                $allianceName = $alliance->alliance_name;
+
+                // Get member count
+                $memberCount = $alliance->members_count;
+
+                // Get highscore rank (default to general rank)
+                $highscoreRank = $alliance->highscore->general_rank ?? '?';
+
+                // Calculate which page this alliance is on in the highscore
+                $highscorePage = $highscoreRank !== '?' ? (int)ceil($highscoreRank / 100) : 1;
+
+                // Check if current player is in same alliance
+                $isAllianceMember = $player->getUser()->alliance_id === $this->playerService->getUser()->alliance_id;
+
+                $allianceData = [
+                    'available' => true,
+                    'allianceId' => $alliance->id,
+                    'allianceTag' => $allianceTag,
+                    'allianceName' => $allianceName,
+                    'memberCount' => $memberCount,
+                    'highscoreLink' => route('highscore.index', ['category' => 2, 'page' => $highscorePage]),
+                    'highscoreTitle' => (string)$highscoreRank,
+                    'infoPageLink' => route('alliance.index'),
+                    'infoPageTitle' => __('t_ingame.galaxy.alliance_page'),
+                    // Alliance class not implemented yet
+                    'allianceClassName' => null,
+                    'allianceClassCss' => null,
+                    // Application link - show if alliance is open and player is not in an alliance
+                    'applicationLink' => (!$this->playerService->getUser()->alliance_id && $alliance->is_open)
+                        ? route('alliance.index', ['alliance_id' => $alliance->id])
+                        : null,
+                    'applicationTitle' => (!$this->playerService->getUser()->alliance_id && $alliance->is_open)
+                        ? __('t_ingame.galaxy.apply')
+                        : null,
+                ];
+            }
+        }
+
         return [
             'actions' => [
-                'alliance' => [
+                'alliance' => $allianceData ?? [
                     'available' => false,
                 ],
                 'buddies' => [
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);',
-                    'title' => 'Buddy request to player',
+                    'title' => __('t_buddies.ui.buddy_request_to_player'),
                     'playerName' => $player->getUsername(),
                 ],
                 'ignore' => [
                     'available' => $isForeignPlayer && !$isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);',
-                    'title' => 'Ignore player',
+                    'title' => __('t_buddies.ui.ignore_player_title'),
                     'playerName' => $player->getUsername(),
                 ],
                 'support' => [
                     'available' => $isTargetAdmin,
                     'playerId' => $player->getId(),
                     'link' => 'javascript:void(0);', // TODO: Implement proper support contact link when messaging system is ready
-                    'title' => 'Contact support',
+                    'title' => __('t_ingame.galaxy.contact_support'),
                     'playerName' => $player->getUsername(),
                 ],
                 'highscore' => [
-                    'available' => false,
+                    'available' => $playerRank !== null,
+                    'rank' => $playerRank,
+                    'title' => __('t_ingame.galaxy.ranking'),
+                    'link' => route('highscore.index', ['category' => 1, 'page' => $highscorePage]),
                 ],
                 'message' => [
-                    'available' => false,
+                    'available' => $isForeignPlayer && !$isTargetAdmin,
+                    'disabledChatBar' => false,
+                    'title' => __('t_ingame.highscore.write_message'),
+                    'link' => 'javascript:void(0);',
+                    'playerId' => $player->getId(),
                 ],
             ],
             'playerId' => $player->getId(),
@@ -437,11 +583,15 @@ class GalaxyController extends OGameController
             'isNewbie' => $player->isNewbie($this->playerService),
             'isStrong' => $player->isStrong($this->playerService),
             'isOnVacation' => $player->isInVacationMode(),
+            'allianceId' => $alliance?->id,
+            'allianceTag' => $allianceTag,
+            'allianceName' => $allianceName,
+            'isAllianceMember' => $alliance !== null && $player->getUser()->alliance_id === $this->playerService->getUser()->alliance_id,
 
+            'isBanned' => $player->isBanned(),
             // Not implemented yet:
             //'isHonorableTarget' => $player->isHonorableTarget(),
             //'isOutlaw' => $player->isOutlaw(),
-            //'isBanned' => $player->isBanned(),
         ];
     }
 
@@ -455,21 +605,54 @@ class GalaxyController extends OGameController
      */
     private function createEmptySpaceRow(int $galaxy, int $system, int $position): array
     {
-        $planet_description = $this->planetServiceFactory->getPlanetDescription(new Planet\Coordinate($galaxy, $system, $position));
+        $planet_description = $this->planetServiceFactory->getPlanetDescription(new Coordinate($galaxy, $system, $position));
         $has_colonize_ship = $this->playerService->planets->current()->getObjectAmount('colony_ship') > 0;
         $colonize_ship_message = "<br><div><img src='/img/galaxy/activity.gif' />" . __('t_galaxy.mission.colonize.no_ship') . "</div>";
+
+        $astrophysicsLevel = $this->playerService->getResearchLevel('astrophysics');
+        $canColonizePosition = $this->playerService->canColonizePosition($position);
+        $usedFleetSlots = $this->playerService->getFleetSlotsInUse();
+        $maximumFleetSlots = $this->playerService->getFleetSlotsMax();
+        $canFly = $usedFleetSlots < $maximumFleetSlots;
+        $hasAdmiral = $this->playerService->hasAdmiral();
+
+        $description = __('t_galaxy.mission.colonize.name') . "<br>{$planet_description}";
+        if (!$has_colonize_ship) {
+            $description .= $colonize_ship_message;
+        }
+        if ($astrophysicsLevel === 0 || !$canColonizePosition) {
+            $description .= '<br>' . __('t_ingame.galaxy.astro_required');
+        }
+        if (!$canFly) {
+            $description .= '<br>' . __('t_ingame.fleet.no_free_slots');
+            if (!$hasAdmiral) {
+                $description .= '<br>' . __('t_ingame.galaxy.hire_admiral');
+            }
+        }
+
+        $canColonize = $has_colonize_ship
+            && $astrophysicsLevel > 0
+            && $canColonizePosition
+            && $canFly;
+
+        // Check if the current planet already has a pending move.
+        $planetMoveService = app(PlanetMoveService::class);
+        $activeMove = $planetMoveService->getActiveMoveForPlanet($this->playerService->planets->current());
+        $planetMovePossible = $activeMove === null;
 
         $missions_available = [
             [
                 'missionType' => 0,
-                'planetMovePossible' => true,
+                'planetMovePossible' => $planetMovePossible,
                 'moveAction' => 'prepareMove',
-                'title' => 'Relocate'
+                'moveLink' => route('planetMove.move'),
+                'galaxyLink' => route('galaxy.index', ['galaxy' => $galaxy, 'system' => $system]),
+                'title' => __('t_ingame.galaxy.relocate_action')
             ],
             [
                 'missionType' => 7,
-                'link' => $has_colonize_ship ? "/fleet?galaxy={$galaxy}&system={$system}&position={$position}&type=1&mission=7" : '#',
-                'description' => __('t_galaxy.mission.colonize.name') . "<br>{$planet_description}" . (!$has_colonize_ship ? $colonize_ship_message : '')
+                'link' => $canColonize ? "/fleet?galaxy={$galaxy}&system={$system}&position={$position}&type=1&mission=7" : '#',
+                'description' => $description,
             ]
         ];
 
@@ -480,12 +663,51 @@ class GalaxyController extends OGameController
             'planets' => [],
             'player' => [
                 'playerId' => 99999,
-                'playerName' => 'Deep space'
+                'playerName' => __('t_ingame.fleet.deep_space')
             ],
             'playerId' => 99999,
-            'playerName' => 'Deep space',
+            'playerName' => __('t_ingame.fleet.deep_space'),
             'position' => $position,
             'positionFilters' => 'empty_filter',
+            'system' => $system
+        ];
+    }
+
+    /**
+     * Creates a row for the expedition position (16) with debris field if it exists.
+     * Only visible to Discoverer class.
+     *
+     * @param int $galaxy
+     * @param int $system
+     * @param int $position
+     * @return array<string, mixed>
+     */
+    private function createExpeditionDebrisRow(int $galaxy, int $system, int $position): array
+    {
+        // Check if there's a debris field at position 16
+        $debrisField = app(DebrisFieldService::class);
+        $debrisFieldExists = $debrisField->loadForCoordinates(new Coordinate($galaxy, $system, $position));
+
+        // For expedition debris (position 16), the JavaScript expects 'planets' to be a single debris field object,
+        // not an array. This is different from normal positions where 'planets' is an array.
+        $debrisFieldObject = null;
+        if ($debrisFieldExists && $debrisField->getResources()->any()) {
+            $debrisFieldObject = $this->createDebrisFieldArray($debrisField);
+        }
+
+        return [
+            'actions' => [],
+            'availableMissions' => [],
+            'galaxy' => $galaxy,
+            'planets' => $debrisFieldObject,
+            'player' => [
+                'playerId' => 99999,
+                'playerName' => __('t_ingame.fleet.deep_space')
+            ],
+            'playerId' => 99999,
+            'playerName' => __('t_ingame.fleet.deep_space'),
+            'position' => $position,
+            'positionFilters' => 'expedition_debris',
             'system' => $system
         ];
     }
@@ -507,7 +729,7 @@ class GalaxyController extends OGameController
         if ($player->isInVacationMode()) {
             return response()->json([
                 'success' => false,
-                'error' => __('You cannot use the galaxy view whilst in vacation mode!'),
+                'error' => __('t_ingame.galaxy.vacation_error'),
             ], 403);
         }
 
@@ -524,21 +746,24 @@ class GalaxyController extends OGameController
             $can_system_phalanx = $phalanx_level > 0;
         }
 
+        $usedFleetSlots = $player->getFleetSlotsInUse();
+        $maximumFleetSlots = $player->getFleetSlotsMax();
+
         return response()->json([
             'components' => [],
             'filterSettings' => [],
             'lifeformEnabled' => false,
             'newAjaxToken' => csrf_token(),
-            'reservedPositions' => [],
+            'reservedPositions' => $this->getReservedPositions($galaxy, $system),
             'success' => true,
             'system' => [
                 'availableMissiles' => $planet->getObjectAmount('interplanetary_missile'),
-                'availablePathfinders' => 0,
+                'availablePathfinders' => $planet->getObjectAmount('pathfinder'),
                 'availableProbes' => $planet->getObjectAmount('espionage_probe'),
                 'availableRecyclers' => $planet->getObjectAmount('recycler'),
-                'canColonize' => true,
+                'canColonize' => $player->getResearchLevel('astrophysics') > 0,
                 'canExpedition' => true,
-                'canFly' => true,
+                'canFly' => $usedFleetSlots < $maximumFleetSlots,
                 'canSendSystemDiscovery' => true,
                 'canSwitchGalaxy' => true,
                 'canSystemEspionage' => false,
@@ -548,17 +773,17 @@ class GalaxyController extends OGameController
                 'galaxy' => $galaxy,
                 'system' => $system,
                 'galaxyContent' => $galaxyContent,
-                'hasAdmiral' => false,
+                'hasAdmiral' => $player->hasAdmiral(),
                 'hasBirthdayPlanet' => false,
                 'isOutlaw' => false,
-                'maximumFleetSlots' => 13,
+                'maximumFleetSlots' => $maximumFleetSlots,
                 'playerId' => $player->getId(),
                 'settingsProbeCount' => 3,
                 'showOutlawWarning' => true,
                 'slotsColonized' => $slotsColonized,
                 'switchGalaxyDeuteriumCosts' => 10,
                 'toGalaxyLink' => route('galaxy.index', ['galaxy' => $galaxy, 'system' => $system]),
-                'usedFleetSlots' => 1
+                'usedFleetSlots' => $usedFleetSlots,
             ],
         ]);
     }
@@ -615,5 +840,274 @@ class GalaxyController extends OGameController
         }
 
         return $slotsColonized;
+    }
+
+    /**
+     * Get reserved positions for a galaxy+system (positions with pending planet moves).
+     *
+     * @param int $galaxy
+     * @param int $system
+     * @return array<int, array<string, mixed>>
+     */
+    private function getReservedPositions(int $galaxy, int $system): array
+    {
+        $planetMoveService = app(PlanetMoveService::class);
+        $activeMoves = $planetMoveService->getActiveMovesForSystem($galaxy, $system);
+
+        $reserved = [];
+        foreach ($activeMoves as $move) {
+            $planet = Planet::find($move->planet_id);
+            $reserved[$move->target_position] = [
+                'isReserved' => true,
+                'user_id' => $planet?->user_id,
+                'cooldown' => max(0, $move->time_arrive - time()),
+            ];
+        }
+
+        return $reserved;
+    }
+
+    /**
+     * Shows the missile attack overlay.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @return View
+     */
+    public function missileAttackOverlay(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): View
+    {
+        $this->playerService = $player;
+        $this->planetServiceFactory = $planetServiceFactory;
+
+        // Get target coordinates from request
+        $galaxy = (int)$request->input('galaxy');
+        $system = (int)$request->input('system');
+        $position = (int)$request->input('position');
+        $type = (int)$request->input('type', PlanetType::Planet->value);
+
+        $data = [
+            'galaxy' => $galaxy,
+            'system' => $system,
+            'position' => $position,
+            'type' => $type,
+            'target_coords' => "$galaxy:$system:$position",
+            'target_planet_name' => '',
+            'target_player_name' => '',
+            'available_missiles' => 0,
+            'missile_range' => 0,
+            'target_abm_count' => 0,
+            'error' => null,
+        ];
+
+        // Get current planet and missile info
+        $currentPlanet = $player->planets->current();
+        $data['available_missiles'] = $currentPlanet->getObjectAmount('interplanetary_missile');
+        $data['missile_range'] = $player->getMissileRange();
+
+        // Load target planet
+        $targetCoordinate = new Coordinate($galaxy, $system, $position);
+        $targetPlanetType = PlanetType::from($type);
+        $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetPlanetType);
+
+        if ($targetPlanet === null) {
+            $data['error'] = __('Target planet does not exist');
+            return view('ingame.galaxy.missileattack', $data);
+        }
+
+        // Check if target is own planet
+        if ($currentPlanet->getPlayer()?->equals($targetPlanet->getPlayer())) {
+            $data['error'] = __('You cannot attack your own planet');
+            return view('ingame.galaxy.missileattack', $data);
+        }
+
+        // Check if target is within range
+        $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
+        if ($distance > $data['missile_range']) {
+            $data['error'] = __('Target is out of missile range');
+            return view('ingame.galaxy.missileattack', $data);
+        }
+
+        // Get target info
+        $data['target_planet_name'] = $targetPlanet->getPlanetName();
+        $data['target_player_name'] = $targetPlanet->getPlayer()?->getUsername() ?? '';
+
+        // Get ABM count for warning
+        $targetAbmCount = $targetPlanet->getObjectAmount('anti_ballistic_missile');
+
+        // If target is a moon, also count parent planet's ABMs
+        if ($targetPlanet->isMoon()) {
+            $parentPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinate, true, PlanetType::Planet);
+            if ($parentPlanet !== null) {
+                $targetAbmCount += $parentPlanet->getObjectAmount('anti_ballistic_missile');
+            }
+        }
+
+        $data['target_abm_count'] = $targetAbmCount;
+
+        // Calculate flight time: (30 + 60 × distance) / universe_speed seconds
+        $universeSpeed = 1; // TODO: Get from settings
+        $flightTime = (int)((30 + 60 * $distance) / $universeSpeed);
+        $arrivalTime = time() + $flightTime;
+
+        $data['flight_duration'] = $flightTime;
+        $data['flight_duration_formatted'] = AppUtil::formatTimeDuration($flightTime);
+        $data['arrival_time'] = date('d.m.y H:i:s', $arrivalTime);
+
+        return view('ingame.galaxy.missileattack', $data);
+    }
+
+    /**
+     * Handles missile attack submission.
+     *
+     * @param Request $request
+     * @param PlayerService $player
+     * @param PlanetServiceFactory $planetServiceFactory
+     * @return JsonResponse
+     */
+    public function missileAttack(Request $request, PlayerService $player, PlanetServiceFactory $planetServiceFactory): JsonResponse
+    {
+        $this->playerService = $player;
+        $this->planetServiceFactory = $planetServiceFactory;
+
+        // Validate input
+        $validated = $request->validate([
+            'galaxy' => 'required|integer|min:1',
+            'system' => 'required|integer|min:1',
+            'position' => 'required|integer|min:1|max:15',
+            'type' => 'required|integer',
+            'missile_count' => 'required|integer|min:0',
+            'target_priority' => 'required|integer|min:0|max:7',
+        ]);
+
+        $galaxy = $validated['galaxy'];
+        $system = $validated['system'];
+        $position = $validated['position'];
+        $type = $validated['type'];
+        $missileCount = $validated['missile_count'];
+        $targetPriority = $validated['target_priority'];
+
+        // Get current planet
+        $currentPlanet = $player->planets->current();
+
+        // Check if player has enough missiles
+        $availableMissiles = $currentPlanet->getObjectAmount('interplanetary_missile');
+        if ($missileCount === 0 || $availableMissiles === 0) {
+            return response()->json([
+                'success' => false,
+                'error' => __('t_ingame.galaxy.insufficient_range'),
+                'close_overlay' => true,
+            ], 400);
+        }
+        if ($missileCount > $availableMissiles) {
+            return response()->json([
+                'success' => false,
+                'error' => __('t_ingame.galaxy.not_enough_missiles'),
+            ], 400);
+        }
+
+        // Load target planet
+        $targetCoordinate = new Coordinate($galaxy, $system, $position);
+        $targetPlanetType = PlanetType::from($type);
+        $targetPlanet = $planetServiceFactory->makeForCoordinate($targetCoordinate, true, $targetPlanetType);
+
+        if ($targetPlanet === null) {
+            return response()->json([
+                'success' => false,
+                'error' => __('Target planet does not exist'),
+            ], 400);
+        }
+
+        // Check if target is own planet
+        if ($currentPlanet->getPlayer()?->equals($targetPlanet->getPlayer())) {
+            return response()->json([
+                'success' => false,
+                'error' => __('You cannot attack your own planet'),
+            ], 403);
+        }
+
+        // Check range
+        $missileRange = $player->getMissileRange();
+        $distance = $this->calculateSystemDistance($currentPlanet->getPlanetCoordinates(), $targetCoordinate);
+        if ($distance > $missileRange) {
+            return response()->json([
+                'success' => false,
+                'error' => __('Target is out of missile range'),
+            ], 400);
+        }
+
+        // Calculate flight time: (30 + 60 × distance) / universe_speed seconds
+        $universeSpeed = 1; // TODO: Get from settings
+        $flightTime = (int)((30 + 60 * $distance) / $universeSpeed);
+
+        // Create fleet mission
+        $mission = new FleetMission();
+        $mission->user_id = $player->getId();
+        $mission->planet_id_from = $currentPlanet->getPlanetId();
+        $mission->planet_id_to = $targetPlanet->getPlanetId();
+        $mission->galaxy_from = $currentPlanet->getPlanetCoordinates()->galaxy;
+        $mission->system_from = $currentPlanet->getPlanetCoordinates()->system;
+        $mission->position_from = $currentPlanet->getPlanetCoordinates()->position;
+        $mission->galaxy_to = $galaxy;
+        $mission->system_to = $system;
+        $mission->position_to = $position;
+        $mission->type_from = $currentPlanet->getPlanetType()->value;
+        $mission->type_to = $type;
+        $mission->mission_type = 10; // Missile attack mission
+        $mission->time_departure = time();
+        $mission->time_arrival = time() + $flightTime;
+        $mission->canceled = 0;
+        $mission->processed = 0;
+
+        // Store missile count and priority in dedicated columns
+        $mission->interplanetary_missile = $missileCount;
+        $mission->target_priority = $targetPriority;
+
+        // Save mission
+        $mission->save();
+
+        // Remove missiles from planet
+        $currentPlanet->removeUnit('interplanetary_missile', $missileCount);
+        $currentPlanet->save();
+
+        Log::info('Missile Attack Launched', [
+            'player_id' => $player->getId(),
+            'mission_id' => $mission->id,
+            'from' => $currentPlanet->getPlanetCoordinates()->asString(),
+            'to' => "$galaxy:$system:$position",
+            'missile_count' => $missileCount,
+            'target_priority' => $targetPriority,
+            'flight_time' => $flightTime,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Missiles launched successfully!'),
+            'mission_id' => $mission->id,
+            'arrival_time' => $mission->time_arrival,
+        ]);
+    }
+
+    /**
+     * Calculate distance in systems between two coordinates.
+     *
+     * @param Coordinate $from
+     * @param Coordinate $to
+     * @return int
+     */
+    private function calculateSystemDistance(Coordinate $from, Coordinate $to): int
+    {
+        // In the same galaxy and system = 0 distance
+        if ($from->galaxy === $to->galaxy && $from->system === $to->system) {
+            return 0;
+        }
+
+        // Different galaxy = not allowed (missiles can't cross galaxies)
+        if ($from->galaxy !== $to->galaxy) {
+            return PHP_INT_MAX; // Return very large number to make it out of range
+        }
+
+        // Same galaxy, different system
+        return abs($from->system - $to->system);
     }
 }

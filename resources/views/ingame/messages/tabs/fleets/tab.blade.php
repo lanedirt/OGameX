@@ -11,7 +11,7 @@
                     <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'espionage']) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-13">
-                        Espionage
+                        {{ __('t_ingame.messages.subtab_espionage') }}
                         @if ($unread_messages_count['espionage'] > 0)
                             <span>({{ $unread_messages_count['espionage'] }})</span>
                         @endif
@@ -25,7 +25,7 @@
                     <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'combat_reports' ]) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-15">
-                        Combat Reports
+                        {{ __('t_ingame.messages.subtab_combat') }}
                         @if ($unread_messages_count['combat_reports'] > 0)
                             <span>({{ $unread_messages_count['combat_reports'] }})</span>
                         @endif
@@ -39,7 +39,7 @@
                     <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'expeditions' ]) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-17">
-                        Expeditions
+                        {{ __('t_ingame.messages.subtab_expeditions') }}
                         @if ($unread_messages_count['expeditions'] > 0)
                             <span>({{ $unread_messages_count['expeditions'] }})</span>
                         @endif
@@ -53,7 +53,7 @@
                     <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'transport' ]) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-19">
-                        Unions/Transport
+                        {{ __('t_ingame.messages.subtab_transport') }}
                         @if ($unread_messages_count['transport'] > 0)
                             <span>({{ $unread_messages_count['transport'] }})</span>
                         @endif
@@ -67,7 +67,7 @@
                     <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'fleets', 'subtab' => 'other' ]) }}"
                        class="txt_link ui-tabs-anchor" role="presentation" tabindex="-1"
                        id="ui-id-21">
-                        Other
+                        {{ __('t_ingame.messages.subtab_other') }}
                         @if ($unread_messages_count['other'] > 0)
                             <span>({{ $unread_messages_count['other'] }})</span>
                         @endif

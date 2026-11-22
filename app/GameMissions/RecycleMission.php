@@ -17,6 +17,7 @@ use OGame\Models\Resources;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
+use RuntimeException;
 
 class RecycleMission extends GameMission
 {
@@ -31,9 +32,9 @@ class RecycleMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Cannot send missions while in vacation mode
-        if ($planet->getPlayer()->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
+        if (!$parentCheck->possible) {
+            return $parentCheck;
         }
 
         // Recycle mission is only possible for debris fields.
@@ -41,9 +42,21 @@ class RecycleMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // The recycle mission has to contain at least one recycler.
-        if ($units->getAmountByMachineName('recycler') === 0) {
-            return new MissionPossibleStatus(false);
+        // Check if this is an expedition debris field (position 16)
+        $isExpeditionDebris = $targetCoordinate->position === 16;
+
+        // For expedition debris (position 16): require Pathfinders
+        // For regular debris (positions 1-15): require Recyclers
+        if ($isExpeditionDebris) {
+            // Expedition debris can only be harvested by Pathfinders
+            if ($units->getAmountByMachineName('pathfinder') === 0) {
+                return new MissionPossibleStatus(false);
+            }
+        } else {
+            // Regular debris requires at least one recycler
+            if ($units->getAmountByMachineName('recycler') === 0) {
+                return new MissionPossibleStatus(false);
+            }
         }
 
         // Check if debris field exists (including "ghost" fields with 0 resources).
@@ -71,21 +84,44 @@ class RecycleMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
+        if ($mission->planet_id_from === null) {
+            throw new RuntimeException('Recycle mission has no origin planet.');
+        }
         $originPlanet = $this->planetServiceFactory->make($mission->planet_id_from, true);
+        if ($originPlanet === null) {
+            throw new RuntimeException('Recycle mission origin planet does not exist.');
+        }
+        $originPlayer = $originPlanet->getPlayer();
+        if ($originPlayer === null) {
+            throw new RuntimeException('Recycle mission origin planet has no owner.');
+        }
+        if ($mission->galaxy_to === null || $mission->system_to === null || $mission->position_to === null) {
+            throw new RuntimeException('Recycle mission has no target coordinate.');
+        }
         $targetCoordinate = new Coordinate($mission->galaxy_to, $mission->system_to, $mission->position_to);
 
         // Load the debris field for the target coordinate.
         $debrisField = app(DebrisFieldService::class);
         $debrisField->loadOrCreateForCoordinates($targetCoordinate);
 
-        // Get recycler unit count
-        $recycler = ObjectService::getShipObjectByMachineName('recycler');
-        $recyclerCount = $this->fleetMissionService->getFleetUnits($mission)->getAmountByMachineName($recycler->machine_name);
+        // Check if this is expedition debris (position 16) - harvested by Pathfinders
+        // or regular debris (positions 1-15) - harvested by Recyclers
+        $isExpeditionDebris = $targetCoordinate->position === 16;
 
-        // Calculate total recycler capacity.
-        $total_cargo_capacity = $recycler->properties->capacity->calculate($originPlanet->getPlayer())->totalValue * $recyclerCount;
+        if ($isExpeditionDebris) {
+            // Get pathfinder unit count and capacity
+            $harvesterShip = ObjectService::getShipObjectByMachineName('pathfinder');
+            $harvesterCount = $this->fleetMissionService->getFleetUnits($mission)->getAmountByMachineName($harvesterShip->machine_name);
+        } else {
+            // Get recycler unit count and capacity
+            $harvesterShip = ObjectService::getShipObjectByMachineName('recycler');
+            $harvesterCount = $this->fleetMissionService->getFleetUnits($mission)->getAmountByMachineName($harvesterShip->machine_name);
+        }
 
-        // Get resources from the debris field and take as much as the recyclers can carry.
+        // Calculate total cargo capacity.
+        $total_cargo_capacity = $harvesterShip->properties->capacity->calculate($originPlayer)->totalValue * $harvesterCount;
+
+        // Get resources from the debris field and take as much as the harvesters can carry.
         $resourcesToHarvest = $debrisField->getResources();
         $resourcesHarvested = LootService::distributeLoot($resourcesToHarvest, $total_cargo_capacity);
 
@@ -96,12 +132,12 @@ class RecycleMission extends GameMission
         }
 
         // Send a message to the player that the mission has arrived and the resources (if any) have been collected.
-        $this->messageService->sendSystemMessageToPlayer($originPlanet->getPlayer(), DebrisFieldHarvest::class, [
+        $this->messageService->sendSystemMessageToPlayer($originPlayer, DebrisFieldHarvest::class, [
             'from' => '[planet]' . $mission->planet_id_from . '[/planet]',
             'to' => '[debrisfield]' . $targetCoordinate->asString(). '[/debrisfield]',
             'coordinates' => '[coordinates]' . $targetCoordinate->asString() . '[/coordinates]',
-            'ship_name' => $recycler->title,
-            'ship_amount' => $recyclerCount,
+            'ship_name' => $harvesterShip->title,
+            'ship_amount' => $harvesterCount,
             'storage_capacity' => $total_cargo_capacity,
             'metal' => $resourcesToHarvest->metal->get(),
             'crystal' => $resourcesToHarvest->crystal->get(),
@@ -132,7 +168,17 @@ class RecycleMission extends GameMission
      */
     protected function processReturn(FleetMission $mission): void
     {
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Recycle return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Recycle return mission target planet does not exist.');
+        }
+        $targetPlayer = $target_planet->getPlayer();
+        if ($targetPlayer === null) {
+            throw new RuntimeException('Recycle return mission target planet has no owner.');
+        }
 
         // Recycle return trip: add back the units to the source planet.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -144,7 +190,7 @@ class RecycleMission extends GameMission
         }
 
         // Send message to player that the return mission has arrived.
-        $this->sendFleetReturnMessage($mission, $target_planet->getPlayer());
+        $this->sendFleetReturnMessage($mission, $targetPlayer);
 
         // Mark the return mission as processed
         $mission->processed = 1;

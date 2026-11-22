@@ -3,10 +3,12 @@
 namespace OGame\Services;
 
 use Exception;
+use InvalidArgumentException;
 use OGame\Factories\GameMessageFactory;
 use OGame\GameMessages\Abstracts\GameMessage;
 use OGame\GameMessages\BattleReport;
 use OGame\GameMessages\EspionageReport;
+use OGame\GameMessages\FleetLostContact;
 use OGame\GameMessages\WelcomeMessage;
 use OGame\Models\Message;
 use RuntimeException;
@@ -51,79 +53,15 @@ class MessageService
         ],
     ];
 
-    // TODO: tab array defined below is not used anymore but it's kept for reference purposes when implementing
-    // more message types.
-    /*protected array $tabs = [
-        'fleets' => [
-            'espionage' => [
-                1, // Espionage report for foreign planet
-                2, // Espionage action detected on own planet
-            ],
-            'combat_reports' => [
-                11, // Combat report
-            ],
-            'expeditions' => [
-                21, // Expedition report
-            ],
-            'transport' => [
-                'transport_arrived' => 31, // Own fleet reaching a planet
-                'transport_received' => 32, // Resource delivery by foreign fleet
-            ],
-            'other' => [
-                'return_of_fleet' => 41, // Return of fleet
-                'outlaw_notification' => 42, // Outlaw notification
-                'wreckage_created' => 43, // Wreckage created on own planet after battle
-                'fleet_deployment' => 44, // Fleet deployment reached the target planet
-            ],
-        ],
-        'communication' => [
-            'messages' => [
-                51, // Buddy request/confirm/delete
-                52, // Alliance message
-            ],
-            'information' => [
-                53, // Information
-            ],
-        ],
-        'economy' => [
-            'economy' => [
-                'production_canceled' => 61, // Production canceled
-                'repair_completed' => 62, // Repair completed
-                'colony_established' => 63, // Colony established
-            ],
-        ],
-        'universe' => [
-            'universe' => [
-                'welcome_message' => 71, // Welcome message
-                'starter_bonus' => 72, // Starter bonus
-                'promotions' => 73, // Promotions/sales
-            ],
-        ],
-        'system' => [
-            'system' => [
-                81, // Officer runs out
-            ],
-        ],
-        'favorites' => [
-            'favorites' => [
-                99, // TODO: Implement favorites
-            ],
-        ],
-    ];*/
-
-    /**
-     * The PlayerService object.
-     *
-     * @var PlayerService
-     */
-    private PlayerService $player;
-
     /**
      * MessageService constructor.
      */
-    public function __construct(PlayerService $player)
-    {
-        $this->player = $player;
+    public function __construct(
+        /**
+         * The PlayerService object.
+         */
+        private PlayerService $player
+    ) {
     }
 
     /**
@@ -138,7 +76,7 @@ class MessageService
     {
         // Ensure the provided class is a subclass of GameMessage
         if (!is_subclass_of($gameMessageClass, GameMessage::class)) {
-            throw new \InvalidArgumentException('Invalid game message class: ' . $gameMessageClass);
+            throw new InvalidArgumentException('Invalid game message class: ' . $gameMessageClass);
         }
 
         try {
@@ -213,7 +151,7 @@ class MessageService
     public function sendFleetLostContactMessageToPlayer(PlayerService $player, string $coordinates): Message
     {
         try {
-            $gameMessage = resolve(\OGame\GameMessages\FleetLostContact::class);
+            $gameMessage = resolve(FleetLostContact::class);
         } catch (Exception) {
             throw new RuntimeException('Could not create fleet lost contact message.');
         }
@@ -238,13 +176,14 @@ class MessageService
     }
 
     /**
-     * Load all messages for a specific tab/subtab.
+     * Load messages for a specific tab/subtab with pagination.
      *
      * @param string $tab
      * @param string $subtab
-     * @return GameMessage[] Array of GameMessage objects.
+     * @param int $page
+     * @return array{messages: GameMessage[], pagination: array{currentPage: int, totalPages: int, totalCount: int, perPage: int}}
      */
-    public function getMessagesForTab(string $tab, string $subtab): array
+    public function getMessagesForTab(string $tab, string $subtab, int $page = 1): array
     {
         // If subtab is empty, we use the first subtab of the tab.
         if (empty($subtab)) {
@@ -253,24 +192,34 @@ class MessageService
 
         // Get all messages of user where type is in the tab and subtab array. Order by created_at desc.
         $messageKeys = GameMessageFactory::GetGameMessageKeysByTab($tab, $subtab);
-        $messages = Message::where('user_id', $this->player->getId())
+
+        // Use Laravel's paginate() method for automatic pagination handling
+        $paginator = Message::where('user_id', $this->player->getId())
             ->whereIn('key', $messageKeys)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10, ['*'], 'page', $page);
 
         // Convert messages to GameMessage objects.
-        $return = [];
-        foreach ($messages as $message) {
-            $return[] = GameMessageFactory::createGameMessage($message);
+        $gameMessages = [];
+        foreach ($paginator->items() as $message) {
+            $gameMessages[] = GameMessageFactory::createGameMessage($message);
         }
 
         // When the messages are loaded, mark them as viewed.
-        foreach ($messages as $message) {
+        foreach ($paginator->items() as $message) {
             $message->viewed = 1;
             $message->save();
         }
 
-        return $return;
+        return [
+            'messages' => $gameMessages,
+            'pagination' => [
+                'currentPage' => $paginator->currentPage(),
+                'totalPages' => $paginator->lastPage(),
+                'totalCount' => $paginator->total(),
+                'perPage' => $paginator->perPage(),
+            ],
+        ];
     }
 
     /**

@@ -23,11 +23,13 @@ git config --global --add safe.directory /var/www
 
 if [ "$role" = "scheduler" ]; then
     while true; do
-        php /var/www/html/artisan schedule:run --verbose --no-interaction
+        php /var/www/artisan schedule:run --verbose --no-interaction
         sleep 60
     done
 elif [ "$role" = "queue" ]; then
-      php /var/www/html/artisan queue:work --verbose --no-interaction
+      php /var/www/artisan queue:work --verbose --no-interaction
+elif [ "$role" = "reverb" ]; then
+    php /var/www/artisan reverb:start --host="${REVERB_SERVER_HOST:-0.0.0.0}" --port="${REVERB_SERVER_PORT:-8090}"
 elif [ "$role" = "app" ]; then
     # Check APP_ENV and run appropriate composer install
     if [ "$is_production" = true ]; then
@@ -51,13 +53,16 @@ elif [ "$role" = "app" ]; then
     chmod +x ./rust/compile.sh
     ./rust/compile.sh
 
-    # Run migrations
-    php artisan migrate --force
+    # Ensure storage directory has correct ownership for www-data
+    chown -R www-data:www-data /var/www/storage
 
-    # Only run caching in production
+    # Run migrations as www-data to ensure log files are created with correct ownership
+    su -s /bin/sh -c "php artisan migrate --force" www-data
+
+    # Only run caching in production (as www-data to ensure correct file ownership)
     if [ "$is_production" = true ]; then
         echo "Production environment: Caching configurations..."
-        php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache
+        su -s /bin/sh -c "php artisan cache:clear && php artisan config:cache && php artisan route:cache && php artisan view:cache" www-data
     fi
 
     exec php-fpm

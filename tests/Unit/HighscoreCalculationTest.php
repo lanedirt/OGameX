@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Tests\UnitTestCase;
 
@@ -104,7 +105,7 @@ class HighscoreCalculationTest extends UnitTestCase
 
     /**
      * Test that the planet score is calculated correctly based on building levels and unit count combined.
-     * @throws \Exception
+     * @throws Exception
      */
     public function testEconomyScore(): void
     {
@@ -120,7 +121,7 @@ class HighscoreCalculationTest extends UnitTestCase
 
     /**
      * Test that the planet score is calculated correctly based on building levels and unit count combined.
-     * @throws \Exception
+     * @throws Exception
      */
     public function testMilitaryPoints(): void
     {
@@ -324,5 +325,47 @@ class HighscoreCalculationTest extends UnitTestCase
 
         $score_diff = abs(floor($optimized->sum() / 1000) - floor($iterative->sum() / 1000));
         $this->assertLessThanOrEqual(1, $score_diff);
+    }
+
+    /**
+     * Unit Test: Integer overflow protection for research score
+     */
+    public function testResearchScoreOverflowProtection(): void
+    {
+        // Set extremely high research levels that would cause overflow
+        $this->createAndSetUserTechModel([
+            'laser_technology' => 200,  // Very high level
+            'astrophysics' => 200,       // Very high level
+            'shielding_technology' => 200, // Very high level
+        ]);
+
+        $score = $this->playerService->getResearchScore();
+
+        // Should not throw an error and should return PHP_INT_MAX
+        $this->assertEquals(PHP_INT_MAX, $score);
+    }
+
+    /**
+     * Unit Test: Integer overflow protection for player total score
+     */
+    public function testPlayerScoreOverflowProtection(): void
+    {
+        // Create a planet with very high buildings
+        $this->createAndSetPlanetModel([
+            'metal_mine' => 200,  // Very high level
+            'crystal_mine' => 200, // Very high level
+        ]);
+
+        // Set very high research levels
+        $this->createAndSetUserTechModel([
+            'laser_technology' => 200,
+            'astrophysics' => 200,
+        ]);
+
+        $highscoreService = app(\OGame\Services\HighscoreService::class);
+        $score = $highscoreService->getPlayerScore($this->playerService);
+
+        // Should not throw an error and should return PHP_INT_MAX
+        $this->assertEquals(PHP_INT_MAX, $score);
     }
 }

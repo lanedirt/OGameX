@@ -1,7 +1,7 @@
 {{ $property_name }}|
 <table class=&quot;combat_unit_details_tooltip&quot;>
     <tr>
-        <th>Basic value:</th>
+        <th>{{ __('t_ingame.techtree.tooltip_basic_value') }}:</th>
         <td>{{ \OGame\Facades\AppUtil::formatNumber($property_breakdown['rawValue']) }}</td>
     </tr>
     @foreach ($property_breakdown['bonuses'] as $property_bonus)

@@ -2,16 +2,23 @@
 
 use Illuminate\Support\Facades\Route;
 use OGame\Http\Controllers\Admin\DeveloperShortcutsController;
+use OGame\Http\Controllers\Admin\FleetTimingController;
+use OGame\Http\Controllers\Admin\RulesController as AdminRulesController;
+use OGame\Http\Controllers\Admin\ServerAdministrationController;
 use OGame\Http\Controllers\Admin\ServerSettingsController as AdminServerSettingsController;
 use OGame\Http\Controllers\AllianceController;
+use OGame\Http\Controllers\AllianceDepotController;
 use OGame\Http\Controllers\BuddiesController;
 use OGame\Http\Controllers\ChangeNickController;
+use OGame\Http\Controllers\CharacterClassController;
+use OGame\Http\Controllers\ChatController;
 use OGame\Http\Controllers\DefenseController;
 use OGame\Http\Controllers\FacilitiesController;
 use OGame\Http\Controllers\FleetController;
 use OGame\Http\Controllers\FleetEventsController;
 use OGame\Http\Controllers\GalaxyController;
 use OGame\Http\Controllers\HighscoreController;
+use OGame\Http\Controllers\JumpGateController;
 use OGame\Http\Controllers\LanguageController;
 use OGame\Http\Controllers\MerchantController;
 use OGame\Http\Controllers\MessagesController;
@@ -19,7 +26,6 @@ use OGame\Http\Controllers\NotesController;
 use OGame\Http\Controllers\OptionsController;
 use OGame\Http\Controllers\OverviewController;
 use OGame\Http\Controllers\PaymentController;
-use OGame\Http\Controllers\JumpGateController;
 use OGame\Http\Controllers\PhalanxController;
 use OGame\Http\Controllers\PlanetAbandonController;
 use OGame\Http\Controllers\PlanetMoveController;
@@ -27,6 +33,7 @@ use OGame\Http\Controllers\PremiumController;
 use OGame\Http\Controllers\ResearchController;
 use OGame\Http\Controllers\ResourcesController;
 use OGame\Http\Controllers\RewardsController;
+use OGame\Http\Controllers\RulesController;
 use OGame\Http\Controllers\SearchController;
 use OGame\Http\Controllers\ServerSettingsController;
 use OGame\Http\Controllers\ShipyardController;
@@ -46,8 +53,18 @@ use OGame\Http\Controllers\TechtreeController;
 
 Route::redirect('/', '/overview', 301);
 
+// Language switcher — accessible to both guests and authenticated users.
+Route::get('/lang/{lang}', [LanguageController::class, 'switchLang'])->name('language.switch');
+
+// Public AJAX endpoints (no auth required).
+Route::get('/ajax/main/rules', [RulesController::class, 'ajaxRules'])->name('rules.ajax');
+Route::get('/ajax/main/legal', [RulesController::class, 'ajaxLegal'])->name('legal.ajax');
+Route::get('/ajax/main/privacy-policy', [RulesController::class, 'ajaxPrivacyPolicy'])->name('privacypolicy.ajax');
+Route::get('/ajax/main/terms', [RulesController::class, 'ajaxTerms'])->name('terms.ajax');
+Route::get('/ajax/main/contact', [RulesController::class, 'ajaxContact'])->name('contact.ajax');
+
 // Group: all logged in pages:
-Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
+Route::middleware(['auth', 'banned', 'globalgame', 'locale', 'firstlogin'])->group(function () {
     // Overview
     Route::get('/overview', [OverviewController::class, 'index'])->name('overview.index');
 
@@ -69,6 +86,13 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/facilities/downgrade', [FacilitiesController::class, 'downgradeBuildRequest'])->name('facilities.downgrade');
     Route::post('/facilities/cancel-buildrequest', [FacilitiesController::class, 'cancelBuildRequest'])->name('facilities.cancelbuildrequest');
     Route::post('/ajax/facilities/halve-building', [FacilitiesController::class, 'halveBuilding'])->name('facilities.halvebuilding');
+    Route::post('/ajax/facilities/complete-building', [FacilitiesController::class, 'completeBuilding'])->name('facilities.completebuilding');
+    Route::post('/ajax/facilities/start-repairs', [FacilitiesController::class, 'startRepairs'])->name('facilities.startrepairs');
+    Route::post('/ajax/facilities/complete-repairs', [FacilitiesController::class, 'completeRepairs'])->name('facilities.completerepairs');
+    Route::post('/ajax/facilities/burn-wreck-field', [FacilitiesController::class, 'burnWreckField'])->name('facilities.burnwreckfield');
+    Route::get('/ajax/facilities/wreck-field-status', [FacilitiesController::class, 'getWreckFieldStatus'])->name('facilities.wreckfieldstatus');
+    Route::get('/ajax/facilities/destroy-rockets', [FacilitiesController::class, 'destroyRocketsOverlay'])->name('facilities.destroy-rockets-overlay');
+    Route::post('/ajax/facilities/destroy-rockets', [FacilitiesController::class, 'destroyRockets'])->name('facilities.destroy-rockets');
 
     // Research
     Route::get('/research', [ResearchController::class, 'index'])->name('research.index');
@@ -83,6 +107,7 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::get('/ajax/shipyard', [ShipyardController::class, 'ajax'])->name('shipyard.ajax');
     Route::post('/shipyard/add-buildrequest', [ShipyardController::class, 'addBuildRequest'])->name('shipyard.addbuildrequest');
     Route::post('/ajax/shipyard/halve-unit', [ShipyardController::class, 'halveUnit'])->name('shipyard.halveunit');
+    Route::post('/ajax/shipyard/complete-unit', [ShipyardController::class, 'completeUnit'])->name('shipyard.completeunit');
 
     // Defense
     Route::get('/defense', [DefenseController::class, 'index'])->name('defense.index');
@@ -100,13 +125,28 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/ajax/fleet/dispatch/send-fleet', [FleetController::class, 'dispatchSendFleet'])->name('fleet.dispatch.sendfleet');
     Route::post('/ajax/fleet/dispatch/send-mini-fleet', [FleetController::class, 'dispatchSendMiniFleet'])->name('fleet.dispatch.sendminifleet');
     Route::post('/ajax/fleet/dispatch/recall-fleet', [FleetController::class, 'dispatchRecallFleet'])->name('fleet.dispatch.recallfleet');
+    Route::post('/ajax/fleet/tactical-retreat', [FleetController::class, 'updateTacticalRetreat'])->name('fleet.tacticalretreat');
+
+    // ACS Fleet Unions
+    Route::post('/ajax/fleet/union/create', [FleetController::class, 'createUnion'])->name('fleet.union.create');
+    Route::post('/ajax/fleet/union/join', [FleetController::class, 'joinUnion'])->name('fleet.union.join');
+    Route::get('/ajax/fleet/union/available', [FleetController::class, 'getAvailableUnions'])->name('fleet.union.available');
+    Route::get('/overlay/fleet/federation', [FleetController::class, 'federationOverlay'])->name('fleet.federation.overlay');
+
+    // Fleet Templates (Standard Fleets)
+    Route::get('/ajax/fleet/templates', [FleetController::class, 'getTemplates'])->name('fleet.templates.index');
+    Route::post('/ajax/fleet/templates', [FleetController::class, 'saveTemplate'])->name('fleet.templates.store');
+    Route::delete('/ajax/fleet/templates/{id}', [FleetController::class, 'deleteTemplate'])->name('fleet.templates.delete');
 
     Route::get('/ajax/fleet/eventbox/fetch', [FleetEventsController::class, 'fetchEventBox'])->name('fleet.eventbox.fetch');
     Route::get('/ajax/fleet/eventlist/fetch', [FleetEventsController::class, 'fetchEventList'])->name('fleet.eventlist.fetch');
+    Route::post('/ajax/fleet/eventlist/checkevents', [FleetEventsController::class, 'checkEvents'])->name('fleet.eventlist.checkevents');
 
     // Galaxy
     Route::get('/galaxy', [GalaxyController::class, 'index'])->name('galaxy.index');
     Route::post('/ajax/galaxy', [GalaxyController::class, 'ajax'])->name('galaxy.ajax');
+    Route::get('/overlay/galaxy/missile-attack', [GalaxyController::class, 'missileAttackOverlay'])->name('galaxy.missile-attack.overlay');
+    Route::post('/ajax/galaxy/missile-attack', [GalaxyController::class, 'missileAttack'])->name('galaxy.missile-attack');
 
     // Phalanx
     Route::post('/ajax/phalanx/scan', [PhalanxController::class, 'scan'])->name('phalanx.scan');
@@ -115,6 +155,10 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::get('/ajax/jumpgate', [JumpGateController::class, 'index'])->name('jumpgate.index');
     Route::post('/ajax/jumpgate/execute', [JumpGateController::class, 'executeJump'])->name('jumpgate.execute');
     Route::post('/ajax/jumpgate/set-default-target', [JumpGateController::class, 'setDefaultTarget'])->name('jumpgate.setdefaulttarget');
+
+    // Alliance Depot
+    Route::get('/ajax/alliance-depot', [AllianceDepotController::class, 'index'])->name('alliance-depot.index');
+    Route::post('/ajax/alliance-depot/send-supply-rocket', [AllianceDepotController::class, 'sendSupplyRocket'])->name('alliance-depot.send-supply-rocket');
 
     // Messages
     Route::get('/messages', [MessagesController::class, 'index'])->name('messages.index');
@@ -137,16 +181,47 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::post('/merchant/scrap/execute', [MerchantController::class, 'scrapExecute'])->name('merchant.scrap.execute');
 
     Route::get('/alliance', [AllianceController::class, 'index'])->name('alliance.index');
+    Route::get('/alliance/apply/{alliance_id}', [AllianceController::class, 'showApplicationForm'])->name('alliance.application.form');
+    Route::get('/alliance/info/{alliance_id}', [AllianceController::class, 'info'])->name('alliance.info');
     Route::get('/ajax/alliance/create', [AllianceController::class, 'ajaxCreate'])->name('alliance.ajax.create');
+    Route::get('/ajax/alliance/overview', [AllianceController::class, 'ajaxOverview'])->name('alliance.ajax.overview');
+    Route::get('/ajax/alliance/management', [AllianceController::class, 'ajaxManagement'])->name('alliance.ajax.management');
+    Route::get('/ajax/alliance/broadcast', [AllianceController::class, 'ajaxBroadcast'])->name('alliance.ajax.broadcast');
+    Route::get('/ajax/alliance/applications', [AllianceController::class, 'ajaxApplications'])->name('alliance.ajax.applications');
+    Route::get('/ajax/alliance/classes', [AllianceController::class, 'ajaxClasses'])->name('alliance.ajax.classes');
+    Route::get('/ajax/alliance/new-application', [AllianceController::class, 'ajaxNewApplication'])->name('alliance.ajax.new-application');
+    Route::get('/ajax/alliance/handle-application/{alliance_id}', [AllianceController::class, 'ajaxHandleApplication'])->name('alliance.ajax.handleapplication');
+    Route::post('/alliance/store', [AllianceController::class, 'store'])->name('alliance.store');
+    Route::post('/alliance/apply', [AllianceController::class, 'apply'])->name('alliance.apply');
+    Route::post('/alliance/action', [AllianceController::class, 'action'])->name('alliance.action');
+    Route::post('/alliance/rank/create', [AllianceController::class, 'createRank'])->name('alliance.rank.create');
+    Route::post('/alliance/members/kick', [AllianceController::class, 'kickMemberAction'])->name('alliance.members.kick');
+    Route::post('/alliance/members/assign-rank', [AllianceController::class, 'assignRankAction'])->name('alliance.members.assign-rank');
+    Route::post('/alliance/text/update', [AllianceController::class, 'updateAllianceText'])->name('alliance.text.update');
 
     Route::get('/premium', [PremiumController::class, 'index'])->name('premium.index');
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+
+    // Character Class
+    Route::get('/characterclass', [CharacterClassController::class, 'index'])->name('characterclass.index');
+    Route::post('/characterclass/select', [CharacterClassController::class, 'selectClass'])->name('characterclass.select');
+    Route::post('/characterclass/deselect', [CharacterClassController::class, 'deselectClass'])->name('characterclass.deselect');
 
     Route::get('/options', [OptionsController::class, 'index'])->name('options.index');
     Route::post('/options', [OptionsController::class, 'save'])->name('options.save');
 
     Route::get('/highscore', [HighscoreController::class, 'index'])->name('highscore.index');
     Route::post('/ajax/highscore', [HighscoreController::class, 'ajax'])->name('highscore.ajax');
+
+    Route::impersonate();
+
+    // Chat
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+    Route::post('/chat/history', [ChatController::class, 'getHistory'])->name('chat.history');
+    Route::post('/chat/more', [ChatController::class, 'loadMore'])->name('chat.more');
+    Route::post('/chat/read', [ChatController::class, 'markRead'])->name('chat.read');
+    Route::post('/chat/visibility', [ChatController::class, 'toggleVisibility'])->name('chat.visibility');
 
     Route::get('/buddies', [BuddiesController::class, 'index'])->name('buddies.index');
     Route::post('/buddies', [BuddiesController::class, 'post'])->name('buddies.post');
@@ -158,8 +233,11 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
 
     Route::get('/rewards', [RewardsController::class, 'index'])->name('rewards.index');
     Route::get('/planet-move', [PlanetMoveController::class, 'index'])->name('planetMove.index');
+    Route::post('/ajax/planet-move', [PlanetMoveController::class, 'move'])->name('planetMove.move');
+    Route::get('/ajax/planet-move/cancel', [PlanetMoveController::class, 'cancel'])->name('planetMove.cancel');
 
     Route::get('/overlay/search', [SearchController::class, 'overlay'])->name('search.overlay');
+    Route::post('/ajax/search', [SearchController::class, 'search'])->name('search.ajax');
 
     Route::match(['get', 'post'], '/overlay/notes', [NotesController::class, 'overlay'])->name('notes.overlay');
     Route::get('/overlay/notes/view', [NotesController::class, 'view'])->name('notes.view');
@@ -177,7 +255,6 @@ Route::middleware(['auth', 'globalgame', 'locale'])->group(function () {
     Route::get('/overlay/payment/iframe', [PaymentController::class, 'iframe'])->name('payment.iframesrc');
 
     Route::get('/overlay/server-settings', [ServerSettingsController::class, 'overlay'])->name('serversettings.overlay');
-    Route::get('/lang/{lang}', [LanguageController::class, 'switchLang'])->name('language.switch');
 });
 
 // Group: all logged in pages:
@@ -186,10 +263,34 @@ Route::middleware(['auth', 'globalgame', 'locale', 'admin'])->group(function () 
     Route::get('/admin/server-settings', [AdminServerSettingsController::class, 'index'])->name('admin.serversettings.index');
     Route::post('/admin/server-settings', [AdminServerSettingsController::class, 'update'])->name('admin.serversettings.update');
 
+    // Rules
+    Route::get('/admin/rules', [AdminRulesController::class, 'index'])->name('admin.rules.index');
+    Route::post('/admin/rules', [AdminRulesController::class, 'update'])->name('admin.rules.update');
+
+    // Fleet Timing Control (test tool)
+    Route::get('/admin/fleet-timing', [FleetTimingController::class, 'index'])->name('admin.fleettiming.index');
+    Route::post('/admin/fleet-timing/fast-forward', [FleetTimingController::class, 'fastForward'])->name('admin.fleettiming.fast-forward');
+    Route::post('/admin/fleet-timing/fast-forward-all', [FleetTimingController::class, 'fastForwardAll'])->name('admin.fleettiming.fast-forward-all');
+    Route::post('/admin/fleet-timing/reduce', [FleetTimingController::class, 'reduceTime'])->name('admin.fleettiming.reduce');
+
+    // Server administration (multi-account detection, bans)
+    Route::get('/admin/server-administration', [ServerAdministrationController::class, 'index'])->name('admin.server-administration.index');
+    Route::post('/admin/server-administration/ban', [ServerAdministrationController::class, 'ban'])->name('admin.server-administration.ban');
+    Route::post('/admin/server-administration/unban', [ServerAdministrationController::class, 'unban'])->name('admin.server-administration.unban');
+    Route::post('/admin/server-administration/detection-settings', [ServerAdministrationController::class, 'saveDetectionSettings'])->name('admin.server-administration.detection-settings');
+    Route::post('/admin/server-administration/dismiss', [ServerAdministrationController::class, 'dismiss'])->name('admin.server-administration.dismiss');
+    Route::post('/admin/server-administration/clear-cache', [ServerAdministrationController::class, 'clearCache'])->name('admin.server-administration.clear-cache');
+    Route::post('/admin/server-administration/attack-block', [ServerAdministrationController::class, 'saveAttackBlock'])->name('admin.server-administration.attack-block');
+    Route::post('/admin/server-administration/stuck-missions/settings', [ServerAdministrationController::class, 'saveStuckMissionSettings'])->name('admin.server-administration.stuck-missions.settings');
+    Route::post('/admin/server-administration/stuck-missions/process', [ServerAdministrationController::class, 'processStuckMission'])->name('admin.server-administration.stuck-missions.process');
+    Route::post('/admin/server-administration/stuck-missions/recover-homeworld', [ServerAdministrationController::class, 'recoverStuckMissionToHomeworld'])->name('admin.server-administration.stuck-missions.recover-homeworld');
+
     // Developer shortcuts
     Route::get('/admin/developer-shortcuts', [DeveloperShortcutsController::class, 'index'])->name('admin.developershortcuts.index');
     Route::post('/admin/developer-shortcuts', [DeveloperShortcutsController::class, 'update'])->name('admin.developershortcuts.update');
     Route::post('/admin/developer-shortcuts/resources', [DeveloperShortcutsController::class, 'updateResources'])->name('admin.developershortcuts.update-resources');
+    Route::post('/admin/developer-shortcuts/impersonate', [DeveloperShortcutsController::class, 'impersonate'])->name('admin.developershortcuts.impersonate');
     Route::post('/admin/developershortcuts/create-at-coords', [DeveloperShortcutsController::class, 'createAtCoords'])->name('admin.developershortcuts.create-at-coords');
     Route::post('/admin/developershortcuts/create-debris', [DeveloperShortcutsController::class, 'createDebris'])->name('admin.developershortcuts.create-debris');
+    Route::post('/admin/developershortcuts/update-dark-matter', [DeveloperShortcutsController::class, 'updateDarkMatter'])->name('admin.developershortcuts.update-dark-matter');
 });

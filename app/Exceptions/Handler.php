@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
 use Spatie\DiscordAlerts\Facades\DiscordAlert;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -17,7 +18,7 @@ class Handler extends ExceptionHandler
      *
      * @throws Throwable
      */
-    public function render($request, Exception|Throwable $e): \Symfony\Component\HttpFoundation\Response
+    public function render($request, Exception|Throwable $e): Response
     {
         $this->sendToDiscord($e);
 

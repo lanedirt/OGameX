@@ -2,10 +2,13 @@
 
 namespace Tests\Feature\FleetDispatch;
 
+use OGame\Factories\GameMessageFactory;
+use OGame\Factories\PlanetServiceFactory;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
-use OGame\Models\EspionageReport;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\EspionageReport;
+use OGame\Models\Message;
 use OGame\Models\Resources;
 use OGame\Services\CounterEspionageService;
 use OGame\Services\FleetMissionService;
@@ -99,7 +102,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet with minimal ships
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('small_cargo', 1);
         $foreignPlanet->save();
 
@@ -130,7 +133,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet and add many ships to guarantee 100% counter-espionage chance
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('light_fighter', 500);
         $foreignPlanet->save();
 
@@ -204,7 +207,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet and add both ships and defense
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('light_fighter', 100);
         $foreignPlanet->addUnit('rocket_launcher', 1000);
         $foreignPlanet->save();
@@ -230,7 +233,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
             $this->assertNotNull($battleReport, 'Battle report should exist.');
 
             // Verify defender units only contain ships, not defense
-            $defenderUnits = $battleReport->defender['units'];
+            $defenderUnits = $battleReport->defender['units'] ?? [];
 
             // Check that no defense units are in the battle
             $this->assertArrayNotHasKey('rocket_launcher', $defenderUnits, 'Rocket launchers should not be in counter-espionage battle.');
@@ -250,7 +253,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet and add ships
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('light_fighter', 20);
         $foreignPlanet->save();
 
@@ -282,7 +285,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $this->basicSetup();
 
         // Get a foreign planet and add overwhelming ships to guarantee probe destruction
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
         $foreignPlanet->addUnit('battlecruiser', 1000);
         $foreignPlanet->save();
 
@@ -315,10 +318,14 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $initialProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
 
         // Get a foreign planet and add overwhelming ships to guarantee 100% counter-espionage
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Set defender's espionage technology very high to further guarantee counter-espionage
-        $foreignPlanet->getPlayer()->setResearchLevel('espionage_technology', 10);
+        $foreignPlanetPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlanetPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $foreignPlanetPlayer->setResearchLevel('espionage_technology', 10);
 
         // Add overwhelming number of ships
         $foreignPlanet->addUnit('battlecruiser', 5000);
@@ -326,8 +333,11 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $foreignPlanet->update(); // Ensure planet state is fully persisted
 
         // Force a fresh reload of the foreign planet to ensure no caching issues
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $foreignPlanet = $planetServiceFactory->make($foreignPlanet->getPlanetId());
+        if ($foreignPlanet === null) {
+            $this->fail('Foreign planet could not be reloaded.');
+        }
 
         // Send only 1 probe (high chance to be destroyed)
         $unitCollection = new UnitCollection();
@@ -371,10 +381,14 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $initialProbes = $this->planetService->getShipUnits()->getAmountByMachineName('espionage_probe');
 
         // Get a foreign planet and add overwhelming ships to guarantee 100% counter-espionage
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Set defender's espionage technology very high to further guarantee counter-espionage
-        $foreignPlanet->getPlayer()->setResearchLevel('espionage_technology', 10);
+        $foreignPlanetPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlanetPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $foreignPlanetPlayer->setResearchLevel('espionage_technology', 10);
 
         // Add overwhelming number of ships
         $foreignPlanet->addUnit('battlecruiser', 5000);
@@ -382,8 +396,11 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         $foreignPlanet->update(); // Ensure planet state is fully persisted
 
         // Force a fresh reload of the foreign planet to ensure no caching issues
-        $planetServiceFactory = resolve(\OGame\Factories\PlanetServiceFactory::class);
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
         $foreignPlanet = $planetServiceFactory->make($foreignPlanet->getPlanetId());
+        if ($foreignPlanet === null) {
+            $this->fail('Foreign planet could not be reloaded.');
+        }
 
         // Send only 1 probe (high chance to be destroyed)
         $unitCollection = new UnitCollection();
@@ -437,7 +454,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
         ]);
 
         // Check that espionage_detected message was created
-        $espionageDetectedMessage = \OGame\Models\Message::where('key', 'espionage_detected')
+        $espionageDetectedMessage = Message::where('key', 'espionage_detected')
             ->orderByDesc('id')
             ->first();
 
@@ -445,7 +462,7 @@ class FleetDispatchCounterEspionageTest extends FleetDispatchTestCase
 
         // Verify the message contains expected text
         if ($espionageDetectedMessage) {
-            $gameMessage = \OGame\Factories\GameMessageFactory::createGameMessage($espionageDetectedMessage);
+            $gameMessage = GameMessageFactory::createGameMessage($espionageDetectedMessage);
             $body = $gameMessage->getBody();
             $this->assertStringContainsString('was sighted near your planet', $body);
         }

@@ -1,6 +1,7 @@
 @php
 /** @var array $fleet_movements */
 /** @var int $server_time */
+/** @var int $scanner_player_id */
 @endphp
 
 <div id="phalanxEventContent">
@@ -30,7 +31,7 @@
                     <li class="countDown">
                         <span class="friendly textBeefy" id="counter-phalanx-{{ $movement['mission_id'] }}">Loading...</span>
                     </li>
-                    <li class="arrivalTime">{{ date('H:i:s', $movement['display_time']) }} Time</li>
+                    <li class="arrivalTime">{{ date('H:i:s', $movement['display_time']) }} Clock</li>
                     <li class="descFleet">{{ $movement['fleet_direction'] }}</li>
                     <li class="missionFleet">
                         <img src="/img/fleet/{{ $movement['mission_type'] }}.gif">
@@ -38,6 +39,9 @@
                     </li>
                     <li class="originFleet">
                         <figure class="planetIcon planet"></figure>
+                        @if (!empty($movement['origin']['planet_name']))
+                            <span class="planetName">{{ $movement['origin']['planet_name'] }}</span>
+                        @endif
                     </li>
                     <li class="coordsOrigin">
                         <a class="dark_highlight_tablet" href="{{ route('galaxy.index', ['galaxy' => $movement['origin']['galaxy'], 'system' => $movement['origin']['system']]) }}" target="_top">
@@ -52,6 +56,9 @@
                     </li>
                     <li class="destFleet">
                         <figure class="planetIcon planet"></figure>
+                        @if (!empty($movement['destination']['planet_name']))
+                            <span class="planetName">{{ $movement['destination']['planet_name'] }}</span>
+                        @endif
                     </li>
                     <li class="destCoords">
                         <a class="dark_highlight_tablet" href="{{ route('galaxy.index', ['galaxy' => $movement['destination']['galaxy'], 'system' => $movement['destination']['system']]) }}" target="_top">
@@ -60,6 +67,16 @@
                     </li>
                     <li class="descSpeed">Speed</li>
                     <li class="baseSpeed">{{ $movement['fleet_speed'] }}</li>
+                    @if (!empty($movement['fleet_owner_id']))
+                        <li class="sendMail">
+                            <a href="javascript:void(0)"
+                               class="sendMail js_openChat tooltip"
+                               data-playerid="{{ $movement['fleet_owner_id'] }}"
+                               title="{{ __('t_ingame.highscore.write_message') }}">
+                                <span class="icon icon_chat"></span>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </div>
         @endforeach

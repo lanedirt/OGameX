@@ -7,10 +7,6 @@ use OGame\ViewModels\Queue\Abstracts\QueueViewModel;
 
 class BuildingQueueViewModel extends QueueViewModel
 {
-    public bool $building;
-    public int $level_target;
-    public bool $is_downgrade;
-
     /**
      * Constructor.
      *
@@ -21,20 +17,18 @@ class BuildingQueueViewModel extends QueueViewModel
      * @param bool $building
      * @param int $level_target
      * @param bool $is_downgrade
+     * @param bool $dm_halved
      */
     public function __construct(
         int $id,
         GameObject $object,
         int $time_countdown,
         int $time_total,
-        bool $building,
-        int $level_target,
-        bool $is_downgrade = false
+        public bool $building,
+        public int $level_target,
+        public bool $is_downgrade = false,
+        public bool $dm_halved = false,
     ) {
-        $this->building = $building;
-        $this->level_target = $level_target;
-        $this->is_downgrade = $is_downgrade;
-
         parent::__construct($id, $object, $time_countdown, $time_total);
     }
 }

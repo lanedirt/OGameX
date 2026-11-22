@@ -19,6 +19,7 @@ use OGame\GameObjects\Models\UnitObject;
 use OGame\GameObjects\ResearchObjects;
 use OGame\GameObjects\StationObjects;
 use OGame\Models\Resources;
+use OGame\Models\UnitQueue;
 use RuntimeException;
 
 /**
@@ -344,6 +345,42 @@ class ObjectService
     }
 
     /**
+     * Check if character class requirements are met for class-specific ships.
+     *
+     * @param string $machine_name
+     * @param PlanetService $planet
+     * @return bool
+     */
+    public static function objectCharacterClassMet(string $machine_name, PlanetService $planet): bool
+    {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
+        $user = $player->getUser();
+        $characterClassService = app(CharacterClassService::class);
+
+        // Check reaper - only General class can build
+        if ($machine_name === 'reaper') {
+            return $characterClassService->isGeneral($user);
+        }
+
+        // Check pathfinder - only Discoverer class can build
+        if ($machine_name === 'pathfinder') {
+            return $characterClassService->isDiscoverer($user);
+        }
+
+        // Check crawler - only Collector class can build
+        if ($machine_name === 'crawler') {
+            return $characterClassService->isCollector($user);
+        }
+
+        // All other ships/units have no character class restrictions
+        return true;
+    }
+
+    /**
      * Check if object requirements are met (for building it) with previous levels completed.
      *
      * @param string $machine_name
@@ -442,10 +479,28 @@ class ObjectService
             $silo_level = $planet->getObjectLevel('missile_silo');
             $total_capacity = $silo_level * 10; // Each silo level provides 10 slots
 
-            // Calculate current silo usage
+            // Calculate current silo usage from built missiles
             $current_ipm = $planet->getObjectAmount('interplanetary_missile');
             $current_abm = $planet->getObjectAmount('anti_ballistic_missile');
-            $used_capacity = ($current_ipm * 2) + $current_abm; // IPM = 2 slots, ABM = 1 slot
+
+            // Get queued missiles from the unit queue
+            $ipm_object_id = self::getObjectByMachineName('interplanetary_missile')->id;
+            $abm_object_id = self::getObjectByMachineName('anti_ballistic_missile')->id;
+
+            $queued_ipm = UnitQueue::where('planet_id', $planet->getPlanetId())
+                ->where('object_id', $ipm_object_id)
+                ->where('processed', 0)
+                ->sum('object_amount');
+
+            $queued_abm = UnitQueue::where('planet_id', $planet->getPlanetId())
+                ->where('object_id', $abm_object_id)
+                ->where('processed', 0)
+                ->sum('object_amount');
+
+            // Calculate total usage including queue
+            $total_ipm = $current_ipm + $queued_ipm;
+            $total_abm = $current_abm + $queued_abm;
+            $used_capacity = ($total_ipm * 2) + $total_abm; // IPM = 2 slots, ABM = 1 slot
 
             $remaining_capacity = $total_capacity - $used_capacity;
 
@@ -480,7 +535,12 @@ class ObjectService
         }
 
         if ($price->energy->get() > 0) {
-            $max_build_amount[] = floor($planet->energy()->get() / $price->energy->get());
+            // Terraformer and Space Dock only require total energy production capacity.
+            // All other objects (e.g. Graviton Technology) require free/net energy surplus.
+            $energyAvailable = in_array($machine_name, ['terraformer', 'space_dock'])
+                ? $planet->energyProduction()->get()
+                : $planet->energy()->get();
+            $max_build_amount[] = floor($energyAvailable / $price->energy->get());
         }
 
         // Add silo capacity limit to the array for missiles
@@ -514,7 +574,12 @@ class ObjectService
             if ($object->type === GameObjectType::Building || $object->type === GameObjectType::Station) {
                 $current_level = $planet->getObjectLevel($object->machine_name);
             } else {
-                $current_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+                $player = $planet->getPlayer();
+                if ($player === null) {
+                    throw new Exception('Planet has no owner.');
+                }
+
+                $current_level = $player->getResearchLevel($object->machine_name);
             }
 
             $price = self::getObjectRawPrice($machine_name, $current_level + 1);
@@ -734,8 +799,13 @@ class ObjectService
                 $object = self::getObjectByMachineName($requirement->object_machine_name);
 
                 if ($object->type === GameObjectType::Research) {
+                    $player = $planet->getPlayer();
+                    if ($player === null) {
+                        throw new Exception('Planet has no owner.');
+                    }
+
                     // Check if requirements are met with existing technology.
-                    if ($planet->getPlayer()->getResearchLevel($requirement->object_machine_name) < $requirement->level) {
+                    if ($player->getResearchLevel($requirement->object_machine_name) < $requirement->level) {
                         return true;
                     }
                 } else {
@@ -771,8 +841,13 @@ class ObjectService
                 }
 
                 if ($object->type === GameObjectType::Research) {
+                    $player = $planet->getPlayer();
+                    if ($player === null) {
+                        throw new Exception('Planet has no owner.');
+                    }
+
                     // Check if the requirements are met by the items in the research queue.
-                    if (!$planet->getPlayer()->isResearchingTech($requirement->object_machine_name, $requirement->level)) {
+                    if (!$player->isResearchingTech($requirement->object_machine_name, $requirement->level)) {
                         return true;
                     }
                 } else {
@@ -803,7 +878,12 @@ class ObjectService
         $current_level = 0;
 
         if ($object->type === GameObjectType::Research) {
-            $current_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+            $player = $planet->getPlayer();
+            if ($player === null) {
+                throw new Exception('Planet has no owner.');
+            }
+
+            $current_level = $player->getResearchLevel($object->machine_name);
         } else {
             $current_level = $planet->getObjectLevel($object->machine_name);
         }
@@ -826,20 +906,55 @@ class ObjectService
      */
     private static function hasPreviousLevelsInQueue(int $target_level, GameObject $object, PlanetService $planet): bool
     {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         // Check prior levels from queues.
         if ($object->type === GameObjectType::Research) {
-            $current_level = $planet->getPlayer()->getResearchLevel($object->machine_name);
+            $current_level = $player->getResearchLevel($object->machine_name);
         } else {
             $current_level = $planet->getObjectLevel($object->machine_name);
         }
 
         for ($i = $current_level + 1; $i < $target_level; $i++) {
-            if (!$planet->isBuildingObject($object->machine_name, $i) && !$planet->getPlayer()->isResearchingTech($object->machine_name, $i)) {
+            if (!$planet->isBuildingObject($object->machine_name, $i) && !$player->isResearchingTech($object->machine_name, $i)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    /**
+     * Get all requirements recursively for a game object.
+     * Returns an array of [machine_name => minimum_level] for all prerequisites.
+     *
+     * @param string $machineName
+     * @param array<string, int> $collected Already collected requirements (for recursion)
+     * @return array<string, int>
+     */
+    public static function getRecursiveRequirements(string $machineName, array &$collected = []): array
+    {
+        try {
+            $object = self::getObjectByMachineName($machineName);
+        } catch (Exception $e) {
+            return $collected;
+        }
+
+        foreach ($object->requirements as $requirement) {
+            $reqName = $requirement->object_machine_name;
+            $reqLevel = $requirement->level;
+
+            if (!isset($collected[$reqName]) || $collected[$reqName] < $reqLevel) {
+                $collected[$reqName] = $reqLevel;
+            }
+
+            self::getRecursiveRequirements($reqName, $collected);
+        }
+
+        return $collected;
     }
 
     /**
@@ -866,6 +981,21 @@ class ObjectService
                 return false;
             }
 
+            // Special case: Terraformer cannot be downgraded once built
+            if ($machine_name === 'terraformer') {
+                return false;
+            }
+
+            // Special case: Missile Silo cannot be downgraded if it contains missiles
+            if ($machine_name === 'missile_silo') {
+                $ipm_count = $planet->getObjectAmount('interplanetary_missile');
+                $abm_count = $planet->getObjectAmount('anti_ballistic_missile');
+
+                if ($ipm_count > 0 || $abm_count > 0) {
+                    return false; // Cannot downgrade silo while it contains missiles
+                }
+            }
+
             // Check all buildings, stations, and research objects for requirements
             $allObjects = [...self::getBuildingObjects(), ...self::getStationObjects(), ...self::getResearchObjects()];
 
@@ -889,7 +1019,12 @@ class ObjectService
                             // Get the current level of the requiring object
                             $requiring_object_level = 0;
                             if ($checkObject->type === GameObjectType::Research) {
-                                $requiring_object_level = $planet->getPlayer()->getResearchLevel($checkObject->machine_name);
+                                $player = $planet->getPlayer();
+                                if ($player === null) {
+                                    throw new Exception('Planet has no owner.');
+                                }
+
+                                $requiring_object_level = $player->getResearchLevel($checkObject->machine_name);
                             } else {
                                 $requiring_object_level = $planet->getObjectLevel($checkObject->machine_name);
                             }

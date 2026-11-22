@@ -8,20 +8,14 @@ use OGame\Services\PlayerService;
 class GameObjectProperty
 {
     /**
-     * Name of the property used for display.
+     * GameObjectProperty constructor.
      *
-     * @var string
+     * @param string $name Name of the property used for display.
+     * @param int $rawValue Raw value of the property.
+     * @param ObjectPropertyService $calculationService Calculation service for the property.
      */
-    public string $name;
-    public int $rawValue;
-    public ObjectPropertyService $calculationService;
-
-    // construct
-    public function __construct(string $name, int $rawValue, ObjectPropertyService $calculationService)
+    public function __construct(public string $name, public int $rawValue, public ObjectPropertyService $calculationService)
     {
-        $this->name = $name;
-        $this->rawValue = $rawValue;
-        $this->calculationService = $calculationService;
     }
 
     /**

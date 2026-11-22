@@ -5,6 +5,8 @@
     "database/migrations"
   ],
   "rules": {
+    "no_unused_imports": true,
+    "ordered_imports": true,
     "simplified_null_return": true,
     "braces": false,
     "no_extra_blank_lines": {
@@ -16,6 +18,11 @@
           "throw",
           "use"
       ]
+    },
+    "global_namespace_import": {
+      "import_classes": true,
+      "import_constants": true,
+      "import_functions": true
     },
     "class_attributes_separation": {
       "elements": {
@@ -31,6 +38,7 @@
       "position": "same_line"
     },
     "no_whitespace_in_blank_line": true,
-    "unary_operator_spaces": true
+    "unary_operator_spaces": true,
+    "no_spaces_inside_parenthesis": true
   }
 }

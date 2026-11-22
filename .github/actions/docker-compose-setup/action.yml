@@ -23,3 +23,9 @@ runs:
       shell: bash
       run: |
         timeout 60 bash -c 'until docker compose exec -T ogamex-app php artisan migrate:status > /dev/null 2>&1; do echo "Waiting for application to be ready..." && sleep 2; done'
+
+    - name: Set storage permissions inside container
+      shell: bash
+      run: |
+        docker compose exec -T ogamex-app chmod -R 775 storage/
+        docker compose exec -T ogamex-app chown -R www-data:www-data storage/

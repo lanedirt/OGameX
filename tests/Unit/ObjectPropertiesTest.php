@@ -121,19 +121,59 @@ class ObjectPropertiesTest extends UnitTestCase
         ]);
 
         // Small cargo with impulse drive level 5 (upgrade)
-        // Base 5,000 + 5*20% = 10,000  (base speed NOT overridden yet)
+        // Base upgrades to 10,000 at impulse level 5, then: 10,000 + 5*20% = 20,000
         $smallCargo = ObjectService::getShipObjectByMachineName('small_cargo');
-        $this->assertEquals(10000, $smallCargo->properties->speed->calculate($this->playerService)->totalValue);
+        $this->assertEquals(20000, $smallCargo->properties->speed->calculate($this->playerService)->totalValue);
 
         // Recycler with hyperspace drive level 15
-        // Base 2.000 + 15*30% = 11.000
+        // Base upgrades to 6,000 at hyperspace level 15, then: 6,000 + 15*30% = 33,000
         $recycler = ObjectService::getShipObjectByMachineName('recycler');
-        $this->assertEquals(11000, $recycler->properties->speed->calculate($this->playerService)->totalValue);
+        $this->assertEquals(33000, $recycler->properties->speed->calculate($this->playerService)->totalValue);
 
         // Bomber with hyperspace drive level 15
-        // Base 4.000 + 15*30% = 22.000
-        $recycler = ObjectService::getShipObjectByMachineName('bomber');
-        $this->assertEquals(22000, $recycler->properties->speed->calculate($this->playerService)->totalValue);
+        // Base 5.000 (upgraded at level 8) + 15*30% = 27.500
+        $bomber = ObjectService::getShipObjectByMachineName('bomber');
+        $this->assertEquals(27500, $bomber->properties->speed->calculate($this->playerService)->totalValue);
+    }
+
+    /**
+     * Test that Bomber speed upgrade works correctly at hyperspace drive level 8.
+     * @throws Exception
+     */
+    public function testBomberSpeedUpgradeAtHyperspaceDrive8(): void
+    {
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
+            'hyperspace_drive' => 8,
+        ]);
+
+        // Bomber with hyperspace drive level 8 (exact upgrade threshold)
+        // Base should be upgraded from 4.000 to 5.000 at level 8
+        // Speed: 5.000 + 8*30% = 17.000 (actual calculation)
+        $bomber = ObjectService::getShipObjectByMachineName('bomber');
+        $speed = $bomber->properties->speed->calculate($this->playerService);
+        $this->assertEquals(5000, $speed->rawValue); // Base speed should be upgraded
+        $this->assertEquals(17000, $speed->totalValue); // Total speed with bonus
+    }
+
+    /**
+     * Test that Bomber speed does NOT upgrade before hyperspace drive level 8.
+     * @throws Exception
+     */
+    public function testBomberSpeedBeforeHyperspaceDrive8(): void
+    {
+        $this->createAndSetPlanetModel([]);
+        $this->createAndSetUserTechModel([
+            'hyperspace_drive' => 7,
+        ]);
+
+        // Bomber with hyperspace drive level 7 (before upgrade threshold)
+        // Base should remain 4.000, uses impulse drive bonus: 20% per level
+        // Speed: 4.000 + 7*20% = 4.000 (actual calculation - no bonus applied)
+        $bomber = ObjectService::getShipObjectByMachineName('bomber');
+        $speed = $bomber->properties->speed->calculate($this->playerService);
+        $this->assertEquals(4000, $speed->rawValue); // Base speed should NOT be upgraded
+        $this->assertEquals(4000, $speed->totalValue); // Total speed with impulse drive bonus
     }
 
     /**

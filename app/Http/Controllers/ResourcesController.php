@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\View\View;
 use OGame\Http\Controllers\Abstracts\AbstractBuildingsController;
 use OGame\Models\{
@@ -13,10 +14,11 @@ use OGame\Models\{
     Resources,
 };
 use OGame\Services\BuildingQueueService;
-use OGame\Services\UnitQueueService;
+use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlayerService;
-use Carbon\Carbon;
+use OGame\Services\SettingsService;
+use OGame\Services\UnitQueueService;
 
 class ResourcesController extends AbstractBuildingsController
 {
@@ -46,14 +48,16 @@ class ResourcesController extends AbstractBuildingsController
         // Header filename objects are the building IDs that make up the header filename
         // to be used in the background image of the page header.
         if ($this->planet->isPlanet()) {
-            $this->header_filename_objects = [1, 2, 3, 4, 212];
+            $this->header_filename_objects = [1, 2, 3, 4, 12, 212];
         } elseif ($this->planet->isMoon()) {
             $this->header_filename_objects = [41, 42, 43];
         }
 
-        $this->objects = [
-            0 => ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite', 'metal_store', 'crystal_store', 'deuterium_store'],
-        ];
+        $resourceObjects = ['metal_mine', 'crystal_mine', 'deuterium_synthesizer', 'solar_plant', 'fusion_plant', 'solar_satellite', 'metal_store', 'crystal_store', 'deuterium_store'];
+        if ($this->planet->isPlanet()) {
+            array_splice($resourceObjects, 6, 0, ['crawler']);
+        }
+        $this->objects = [0 => $resourceObjects];
 
         // Parse shipyard queue because the resources page shows both the
         // building queue (handled by parent) but also the shipyard queue.
@@ -66,7 +70,7 @@ class ResourcesController extends AbstractBuildingsController
         $unit_queue_time_end = $unitQueue->retrieveQueueTimeEnd($this->planet);
         $unit_queue_time_countdown = 0;
         if ($unit_queue_time_end > 0) {
-            $unit_queue_time_countdown = $unit_queue_time_end - (int)Carbon::now()->timestamp;
+            $unit_queue_time_countdown = $unit_queue_time_end - (int)Date::now()->timestamp;
         }
 
         // Append unit queue data to the default view output handled by parent.
@@ -116,20 +120,37 @@ class ResourcesController extends AbstractBuildingsController
         foreach (ObjectService::getGameObjectsWithProduction() as $building) {
             $level = $this->planet->getObjectLevel($building->machine_name);
             $productionindex = $this->planet->getObjectProductionIndex($building, $level);
+
+            // Add the production index, but crawler energy needs special handling
+            // because it should only be counted once (not per mine)
             $productionindex_total->add($productionindex);
 
-            $production_rounded = $this->planet->getObjectProduction($building->machine_name, $level);
+            // Calculate production without character class bonus for individual building display
+            $production_without_class = new Resources();
+            $production_without_class->add($productionindex->mine);
+            $production_without_class->add($productionindex->plasma_technology);
+            $production_without_class->add($productionindex->planet_slot);
+            $production_without_class->add($productionindex->engineer);
+            $production_without_class->add($productionindex->geologist);
+            $production_without_class->add($productionindex->commanding_staff);
+            $production_without_class->add($productionindex->items);
+
+            // Round the values
+            $production_without_class->metal->set(ceil($production_without_class->metal->get()));
+            $production_without_class->crystal->set(ceil($production_without_class->crystal->get()));
+            $production_without_class->deuterium->set(ceil($production_without_class->deuterium->get()));
+            $production_without_class->energy->set(floor($production_without_class->energy->get()));
 
             $percentage = $this->planet->getBuildingPercent($building->machine_name);
 
-            if ($production_rounded->energy->get() < 0) {
+            if ($production_without_class->energy->get() < 0) {
                 // Building consumes energy (resource building)
                 $building_resource_rows[] = [
                     'id' => $building->id,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $production_rounded,
-                    'actual_energy_use' => floor($production_rounded->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
+                    'production' => $production_without_class,
+                    'actual_energy_use' => floor($production_without_class->energy->get() * ($this->planet->getResourceProductionFactor() / 100)),
                     'percentage' => $percentage,
                 ];
             } else {
@@ -139,11 +160,22 @@ class ResourcesController extends AbstractBuildingsController
                     'type' => $building->type,
                     'title' => $building->title,
                     'level' => $level,
-                    'production' => $production_rounded,
+                    'production' => $production_without_class,
                     'percentage' => $percentage,
                 ];
             }
         }
+
+        // Add crawler energy consumption separately (only once, not per mine)
+        // Get metal mine object to access the crawler energy calculation
+        $metalMine = ObjectService::getGameObjectsWithProductionByMachineName('metal_mine');
+        $settingsService = app(SettingsService::class);
+        $metalMine->production->planetService = $this->planet;
+        $metalMine->production->playerService = $player;
+        $metalMine->production->characterClassService = app(CharacterClassService::class);
+        $metalMine->production->universe_speed = $settingsService->economySpeed();
+        $crawlerEnergy = $metalMine->production->getCrawlerEnergyConsumption();
+        $productionindex_total->crawler->energy->set($crawlerEnergy);
 
         $production_factor = $this->planet->getResourceProductionFactor();
 
@@ -151,7 +183,20 @@ class ResourcesController extends AbstractBuildingsController
         $productionindex_total->total->crystal->set($this->planet->getCrystalProductionPerHour());
         $productionindex_total->total->deuterium->set($this->planet->getDeuteriumProductionPerHour());
 
+        // Get crawler information
+        $crawler_count = $this->planet->getObjectAmount('crawler');
+        $metalMineLevel = $this->planet->getObjectLevel('metal_mine');
+        $crystalMineLevel = $this->planet->getObjectLevel('crystal_mine');
+        $deuteriumMineLevel = $this->planet->getObjectLevel('deuterium_synthesizer');
+        $max_crawlers = ($metalMineLevel + $crystalMineLevel + $deuteriumMineLevel) * 8;
+        $crawler_percentage = $this->planet->getBuildingPercent('crawler');
+
+        // Get max crawler overload percentage (Collector: 150%, Others: 100%)
+        $characterClassService = app(CharacterClassService::class);
+        $max_crawler_overload = $characterClassService->getMaxCrawlerOverload($player->getUser());
+
         return view('ingame.resources.settings')->with([
+            'currentPlayer' => $player,
             'basic_income' => $this->planet->getPlanetBasicIncome(),
             'planet_name' => $this->planet->getPlanetName(),
             'building_resource_rows' => $building_resource_rows,
@@ -168,6 +213,10 @@ class ResourcesController extends AbstractBuildingsController
             'deuterium_storage' => $this->planet->deuteriumStorage()->get(),
             'deuterium_storage_formatted' => $this->planet->deuteriumStorage()->getFormatted(),
             'plasma_technology_level' => $player->getResearchLevel('plasma_technology'),
+            'crawler_count' => $crawler_count,
+            'max_crawlers' => $max_crawlers,
+            'crawler_percentage' => $crawler_percentage,
+            'max_crawler_overload' => $max_crawler_overload,
             'officers' => [
                 'commanding_staff' => $player->hasCommandingStaff(),
                 'engineer'  => $player->hasEngineer(),

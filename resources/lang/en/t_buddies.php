@@ -63,7 +63,11 @@ return [
         'from' => 'From:',
         'to' => 'To:',
         'online' => 'online',
+        'status_on' => 'On',
+        'status_off' => 'Off',
         'received_request_from' => 'You have received a new buddy request from',
+        'buddy_request_to_player' => 'Buddy request to player',
+        'ignore_player_title' => 'Ignore player',
     ],
 
     // Actions

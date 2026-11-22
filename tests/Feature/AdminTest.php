@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Verify that the admin panel works as expected.
  */
-class AdminTest extends AccountTestCase
+class AdminTest extends IsolatedAccountTestCase
 {
     /**
      * The paths that are only accessible by admins which will be tested.
@@ -15,6 +15,7 @@ class AdminTest extends AccountTestCase
     private const ADMIN_PATHS = [
         '/admin/server-settings',
         '/admin/developer-shortcuts',
+        '/admin/server-administration',
     ];
 
     /**
@@ -23,7 +24,11 @@ class AdminTest extends AccountTestCase
     public function testNormalUserAdminAccessDenied(): void
     {
         // Remove the admin role from the current user if it has it.
-        $this->artisan('ogamex:remove-admin-role', ['username' => auth()->user()->username]);
+        $authUser = auth()->user();
+        if ($authUser === null) {
+            $this->fail('Not authenticated.');
+        }
+        $this->artisan('ogamex:admin:remove-role', ['username' => $authUser->username]);
 
         // Verify that on overview page the admin bar doesn't show up.
         $response = $this->get('/overview');
@@ -43,7 +48,11 @@ class AdminTest extends AccountTestCase
     public function testAdminUserAdminAccessGranted(): void
     {
         // Create a new user and assign the admin role
-        $this->artisan('ogamex:assign-admin-role', ['username' => auth()->user()->username]);
+        $authUser = auth()->user();
+        if ($authUser === null) {
+            $this->fail('Not authenticated.');
+        }
+        $this->artisan('ogamex:admin:assign-role', ['username' => $authUser->username]);
 
         // Verify that on overview page the admin bar shows up.
         $response = $this->get('/overview');

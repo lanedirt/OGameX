@@ -14,24 +14,12 @@ use OGame\GameObjects\Models\Abstracts\GameObject;
 class TechtreeRequiredBy
 {
     /**
-     * @var GameObject The GameObject that is required.
-     */
-    public GameObject $gameObject;
-
-    /**
-     * @var bool Whether the requirements are met.
-     */
-    public bool $requirementsMet;
-
-    /**
      * GameObjectRequirement constructor.
      *
      * @param GameObject $gameObject
      * @param bool $requirementsMet
      */
-    public function __construct(GameObject $gameObject, bool $requirementsMet)
+    public function __construct(public GameObject $gameObject, public bool $requirementsMet)
     {
-        $this->gameObject = $gameObject;
-        $this->requirementsMet = $requirementsMet;
     }
 }

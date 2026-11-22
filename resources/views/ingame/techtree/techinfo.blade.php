@@ -1,4 +1,4 @@
-<div id="technologytree" data-title="@lang('Technology') - {{ $object->title }}">
+<div id="technologytree" data-title="{{ __('t_ingame.techtree.page_title') }} - {{ $object->title }}">
     @include('ingame.techtree.partials.nav', ['currentAction' => 'technologyinformation', 'objectId' => $object->id])
 
     <div class="content technologyinformation sprite_before sprite_large {{ $object->class_name }}">

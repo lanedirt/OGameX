@@ -2,7 +2,10 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  *
@@ -14,22 +17,30 @@ use Illuminate\Database\Eloquent\Model;
  * @property float $metal
  * @property float $crystal
  * @property float $deuterium
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField query()
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField whereCrystal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField whereDeuterium($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField whereGalaxy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField whereMetal($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField wherePlanet($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField whereSystem($value)
- * @method static \Illuminate\Database\Eloquent\Builder|DebrisField whereUpdatedAt($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|DebrisField newModelQuery()
+ * @method static Builder|DebrisField newQuery()
+ * @method static Builder|DebrisField query()
+ * @method static Builder|DebrisField whereCreatedAt($value)
+ * @method static Builder|DebrisField whereCrystal($value)
+ * @method static Builder|DebrisField whereDeuterium($value)
+ * @method static Builder|DebrisField whereGalaxy($value)
+ * @method static Builder|DebrisField whereId($value)
+ * @method static Builder|DebrisField whereMetal($value)
+ * @method static Builder|DebrisField wherePlanet($value)
+ * @method static Builder|DebrisField whereSystem($value)
+ * @method static Builder|DebrisField whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'galaxy',
+    'system',
+    'planet',
+    'metal',
+    'crystal',
+    'deuterium',
+])]
 class DebrisField extends Model
 {
 }

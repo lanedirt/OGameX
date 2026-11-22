@@ -3,8 +3,26 @@ name: PHPStan Code Analysis
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'resources/css/**'
+      - 'resources/js/**'
+      - 'public/css/**'
+      - 'public/js/**'
+      - 'public/build/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'resources/css/**'
+      - 'resources/js/**'
+      - 'public/css/**'
+      - 'public/js/**'
+      - 'public/build/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
 
 
 concurrency:
@@ -15,15 +33,15 @@ jobs:
   phpstan-code-analysis:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-    - uses: shivammathur/setup-php@v2
+    - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
       with:
         php-version: '8.5'
         coverage: none
 
     - name: Cache Composer packages
-      uses: actions/cache@v4
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}

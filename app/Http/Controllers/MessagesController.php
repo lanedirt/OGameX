@@ -32,10 +32,11 @@ class MessagesController extends OGameController
         ];
 
         // By default open the "Fleets/Espionage" tab.
-        $tabKey = $request->get('tab', 'fleets');
-        $subtabKey = $request->get('subtab', 'espionage');
+        $tabKey = $request->input('tab', 'fleets');
+        $subtabKey = $request->input('subtab', 'espionage');
+        $page = (int) $request->input('pagination', 1);
 
-        $tabContent = $this->tabContent($messageService, $tabKey, $subtabKey);
+        $tabContent = $this->tabContent($messageService, $tabKey, $subtabKey, $page);
 
         return view('ingame.messages.index')->with([
             'unread_messages_count' => $unread_messages_count,
@@ -49,11 +50,12 @@ class MessagesController extends OGameController
      * @param MessageService $messageService
      * @param string $tab
      * @param string $subtab
+     * @param int $page
      * @return View
      */
-    protected function tabContent(MessageService $messageService, string $tab, string $subtab = ''): View
+    protected function tabContent(MessageService $messageService, string $tab, string $subtab = '', int $page = 1): View
     {
-        $subtab_content = $this->subTabContent($messageService, $tab, $subtab);
+        $subtab_content = $this->subTabContent($messageService, $tab, $subtab, $page);
 
         switch ($tab) {
             case 'fleets':
@@ -98,21 +100,24 @@ class MessagesController extends OGameController
      * @param MessageService $messageService
      * @param string $tab
      * @param string $subtab
+     * @param int $page
      * @return View
      */
-    protected function subTabContent(MessageService $messageService, string $tab, string $subtab = ''): View
+    protected function subTabContent(MessageService $messageService, string $tab, string $subtab = '', int $page = 1): View
     {
-        $messages = $messageService->getMessagesForTab($tab, $subtab);
+        $result = $messageService->getMessagesForTab($tab, $subtab, $page);
 
         // Return the correct subtab view based on tab.
         switch ($tab) {
             case 'fleets':
                 return view('ingame.messages.tabs.fleets.subtab')->with([
-                    'messages' => $messages,
+                    'messages' => $result['messages'],
+                    'pagination' => $result['pagination'],
                 ]);
             default:
                 return view('ingame.messages.tabs.default.subtab')->with([
-                    'messages' => $messages,
+                    'messages' => $result['messages'],
+                    'pagination' => $result['pagination'],
                 ]);
         }
     }
@@ -126,16 +131,17 @@ class MessagesController extends OGameController
      */
     public function ajaxGetTabContents(Request $request, MessageService $messageService): View
     {
-        $tabKey = $request->get('tab', 'fleets');
-        $subtabKey = $request->get('subtab', '');
+        $tabKey = $request->input('tab', 'fleets');
+        $subtabKey = $request->input('subtab', '');
+        $page = (int) $request->input('pagination', 1);
 
         // If no subtab is provided, we load the tab template.
         if (empty($subtabKey)) {
-            return $this->tabContent($messageService, $tabKey);
+            return $this->tabContent($messageService, $tabKey, '', $page);
         }
 
         // Otherwise we load the subtab template.
-        return $this->subTabContent($messageService, $tabKey, $subtabKey);
+        return $this->subTabContent($messageService, $tabKey, $subtabKey, $page);
     }
 
     /**
@@ -149,8 +155,8 @@ class MessagesController extends OGameController
     public function ajaxGetMessage(int $messageId, Request $request, MessageService $messageService): View
     {
         // Get tab and subtab from request for pagination context
-        $tab = $request->get('tab');
-        $subtab = $request->get('subtab');
+        $tab = $request->input('tab');
+        $subtab = $request->input('subtab');
 
         // Get full message with pagination context
         $paginationData = $messageService->getMessagePaginationContext($messageId, $tab, $subtab);
@@ -171,10 +177,10 @@ class MessagesController extends OGameController
      */
     public function post(Request $request, MessageService $messageService): JsonResponse
     {
-        $messageId = $request->get('messageId');
+        $messageId = $request->input('messageId');
 
         // If action is 103, we delete the message.
-        if ((int)$request->get('action') === 103) {
+        if ((int)$request->input('action') === 103) {
             $messageService->deleteMessage($messageId);
         }
 

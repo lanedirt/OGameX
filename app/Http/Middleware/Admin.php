@@ -18,7 +18,8 @@ class Admin
      */
     public function handle(Request $request, Closure $next, string|null $guard = null)
     {
-        if (Auth::check() && !Auth::user()->hasRole('admin')) {
+        $user = Auth::user();
+        if ($user !== null && !$user->hasRole('admin')) {
             return redirect('/overview');
         }
 

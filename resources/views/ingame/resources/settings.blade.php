@@ -11,7 +11,7 @@
     <div id="resourcesettingscomponent">
     <div id="inhalt">
         <div id="planet" class="shortHeader">
-            <h2>@lang('Resource settings') - {{ $planet_name }}</h2>
+            <h2>{{ __('t_ingame.resources_page.settings_link') }} - {{ $planet_name }}</h2>
         </div>
         <div class="contentRS">
             <div class="headerRS"><a href="{{ route('resources.index') }}" class="close_details close_ressources"></a>
@@ -28,9 +28,9 @@
                             <td colspan="7" id="factor">
                                 <div class="secondcol">
                                     <div style="width:376px; margin: 0px auto;">
-                                        <span class="factorkey">@lang('Production factor'): {{ $production_factor }}%</span>
+                                        <span class="factorkey">{{ __('t_ingame.resource_settings.production_factor') }}: {{ $production_factor }}%</span>
                                         <span class="factorbutton">
-                                        <input class="btn_blue" type="submit" value="Recalculate">
+                                        <input class="btn_blue" type="submit" value="{{ __('t_ingame.resource_settings.recalculate') }}">
                                     </span>
                                         <br class="clearfloat">
                                     </div>
@@ -39,14 +39,14 @@
                         </tr>
                         <tr>
                             <th colspan="2"></th>
-                            <th>@lang('Metal')</th>
-                            <th>@lang('Crystal')</th>
-                            <th>@lang('Deuterium')</th>
-                            <th>@lang('Energy')</th>
+                            <th>{{ __('t_ingame.resource_settings.metal') }}</th>
+                            <th>{{ __('t_ingame.resource_settings.crystal') }}</th>
+                            <th>{{ __('t_ingame.resource_settings.deuterium') }}</th>
+                            <th>{{ __('t_ingame.resource_settings.energy') }}</th>
                             <th></th>
                         </tr>
                         <tr class="alt">
-                            <td colspan="2" class="label">@lang('Basic Income')</td>
+                            <td colspan="2" class="label">{{ __('t_ingame.resource_settings.basic_income') }}</td>
                             <td class="undermark textRight">
                                 <span class="tooltipCustom"
                                       title="{{ $basic_income->metal->get() }}">{{ $basic_income->metal->getFormattedLong() }}</span>
@@ -68,7 +68,7 @@
                         @foreach ($building_resource_rows as $count => $row)
                             <tr class="{{ $loop->iteration % 2 == 0 ? 'alt' : '' }}">
                                 <td class="label">
-                                    {{ $row['title'] }} (@lang('Level') {{ $row['level'] }})
+                                    {{ $row['title'] }} ({{ __('t_ingame.resource_settings.level') }} {{ $row['level'] }})
                                 </td>
                                 <td>
                                 </td>
@@ -136,7 +136,7 @@
                             <tr class="{{ $loop->iteration % 2 == 0 ? '' : 'alt' }}">
                                 <td class="label">
                                     {{ $row['title'] }}
-                                    ({{ ($row['type'] === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $row['type'] === \OGame\GameObjects\Models\Enums\GameObjectType::Defense) ? __('Number:') : __('Level')}} {{ $row['level'] }})
+                                    ({{ ($row['type'] === \OGame\GameObjects\Models\Enums\GameObjectType::Ship || $row['type'] === \OGame\GameObjects\Models\Enums\GameObjectType::Defense) ? __('t_ingame.resource_settings.number') : __('t_ingame.resource_settings.level')}} {{ $row['level'] }})
                                 </td>
                                 <td>
                                 </td>
@@ -201,7 +201,7 @@
                         @endforeach
                         <tr class="">
                             <td class="label">
-                                @lang('Plasma Technology') (@lang('Level') {{ $plasma_technology_level }})
+                                {{ __('t_resources.plasma_technology.title') }} ({{ __('t_ingame.resource_settings.level') }} {{ $plasma_technology_level }})
                             </td>
                             <td>
                             </td>
@@ -229,8 +229,55 @@
                             </td>
                         </tr>
                         <tr class="alt">
+                            <td colspan="2" class="label">
+                                {{ __('t_resources.crawler.title') }} ({{ __('t_ingame.resource_settings.number') }} {{ $crawler_count }}/{{ $max_crawlers }})
+                            </td>
+                            <td class="{{ $production_total->crawler->metal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $crawler_count > 0 ? '' : 'disabled' }}" title="{{ $production_total->crawler->metal->getFormattedFull() }}">
+                                    {{ $production_total->crawler->metal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->crawler->crystal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $crawler_count > 0 ? '' : 'disabled' }}" title="{{ $production_total->crawler->crystal->getFormattedFull() }}">
+                                    {{ $production_total->crawler->crystal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->crawler->deuterium->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $crawler_count > 0 ? '' : 'disabled' }}" title="{{ $production_total->crawler->deuterium->getFormattedFull() }}">
+                                    {{ $production_total->crawler->deuterium->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->crawler->energy->get() < 0 ? 'overmark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $crawler_count > 0 ? '' : 'disabled' }}" title="{{ $production_total->crawler->energy->getFormattedFull() }}">
+                                    {{ $production_total->crawler->energy->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td>
+                                <select name="last217" size="1" class="overmark">
+                                    @if($max_crawler_overload > 100)
+                                        <option class="overmark" value="15" {{ $crawler_percentage == 15 ? 'selected' : '' }}>150%</option>
+                                        <option class="overmark" value="14" {{ $crawler_percentage == 14 ? 'selected' : '' }}>140%</option>
+                                        <option class="overmark" value="13" {{ $crawler_percentage == 13 ? 'selected' : '' }}>130%</option>
+                                        <option class="overmark" value="12" {{ $crawler_percentage == 12 ? 'selected' : '' }}>120%</option>
+                                        <option class="overmark" value="11" {{ $crawler_percentage == 11 ? 'selected' : '' }}>110%</option>
+                                    @endif
+                                    <option class="undermark" value="10" {{ $crawler_percentage == 10 ? 'selected' : '' }}>100%</option>
+                                    <option class="undermark" value="9" {{ $crawler_percentage == 9 ? 'selected' : '' }}>90%</option>
+                                    <option class="undermark" value="8" {{ $crawler_percentage == 8 ? 'selected' : '' }}>80%</option>
+                                    <option class="undermark" value="7" {{ $crawler_percentage == 7 ? 'selected' : '' }}>70%</option>
+                                    <option class="middlemark" value="6" {{ $crawler_percentage == 6 ? 'selected' : '' }}>60%</option>
+                                    <option class="middlemark" value="5" {{ $crawler_percentage == 5 ? 'selected' : '' }}>50%</option>
+                                    <option class="middlemark" value="4" {{ $crawler_percentage == 4 ? 'selected' : '' }}>40%</option>
+                                    <option class="overmark" value="3" {{ $crawler_percentage == 3 ? 'selected' : '' }}>30%</option>
+                                    <option class="overmark" value="2" {{ $crawler_percentage == 2 ? 'selected' : '' }}>20%</option>
+                                    <option class="overmark" value="1" {{ $crawler_percentage == 1 ? 'selected' : '' }}>10%</option>
+                                    <option class="overmark" value="0" {{ $crawler_percentage == 0 ? 'selected' : '' }}>0%</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr class="">
                             <td class="label">
-                                @lang('Items')
+                                {{ __('t_ingame.resource_settings.items') }}
                             </td>
                             <td>
                             </td>
@@ -257,12 +304,12 @@
                             <td>
                             </td>
                         </tr>
-                        <tr class="">
+                        <tr class="alt">
                             <td class="label">
-                                @lang('Geologist')
+                                {{ __('t_ingame.resource_settings.geologist') }}
                             </td>
                             <td>
-                                <div class="tooltipCustom smallOfficer geologe {{ $officers['geologist'] ? '' : 'grayscale' }}" title="+10% @lang('mine production')">
+                                <div class="tooltipCustom smallOfficer geologe {{ $officers['geologist'] ? '' : 'grayscale' }}" title="+10% {{ __('t_ingame.resource_settings.mine_production') }}">
                                     <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="25" height="25">
                                 </div>
                             </td>
@@ -289,13 +336,13 @@
                             <td>
                             </td>
                         </tr>
-                        <tr class="alt">
+                        <tr class="">
                             <td class="label">
-                                @lang('Engineer')
+                                {{ __('t_ingame.resource_settings.engineer') }}
                             </td>
                             <td>
                                 <div class="tooltipCustom smallOfficer engineer {{ $officers['engineer'] ? '' : 'grayscale' }}"
-                                     title="+10% @lang('energy production')">
+                                     title="+10% {{ __('t_ingame.resource_settings.energy_production') }}">
                                     <img src="/img/icons/3e567d6f16d040326c7a0ea29a4f41.gif" width="25" height="25">
                                 </div>
                             </td>
@@ -322,9 +369,47 @@
                             <td>
                             </td>
                         </tr>
+                        <tr class="alt">
+                            <td class="label">
+                                {{ __('t_ingame.resource_settings.character_class') }}
+                            </td>
+                            <td>
+                                @php
+                                    $userClass = $currentPlayer->getUser()->getCharacterClassEnum();
+                                    $hasClass = $userClass !== null;
+                                    $classIcon = $hasClass ? $userClass->getMachineName() : 'noclass';
+                                    $classTooltip = $hasClass ? $userClass->getName() : 'No class selected';
+                                @endphp
+                                <div class="tooltipCustom sprite characterclass small {{ $classIcon }} {{ $hasClass ? '' : 'grayscale' }}"
+                                     title="{{ $classTooltip }}">
+                                </div>
+                            </td>
+                            <td class="{{ $production_total->character_class->metal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $hasClass ? '' : 'disabled' }}" title="{{ $production_total->character_class->metal->getFormattedFull() }}">
+                                    {{ $production_total->character_class->metal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->character_class->crystal->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $hasClass ? '' : 'disabled' }}" title="{{ $production_total->character_class->crystal->getFormattedFull() }}">
+                                    {{ $production_total->character_class->crystal->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->character_class->deuterium->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $hasClass ? '' : 'disabled' }}" title="{{ $production_total->character_class->deuterium->getFormattedFull() }}">
+                                    {{ $production_total->character_class->deuterium->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td class="{{ $production_total->character_class->energy->get() > 0 ? 'undermark' : 'normalmark' }}">
+                                <span class="tooltipCustom {{ $hasClass ? '' : 'disabled' }}" title="{{ $production_total->character_class->energy->getFormattedFull() }}">
+                                    {{ $production_total->character_class->energy->getFormattedLong() }}
+                                </span>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
                         <tr class="">
                             <td class="label">
-                                @lang('Commanding Staff')
+                                {{ __('t_ingame.resource_settings.commanding_staff') }}
                             </td>
                             <td>
                                 <div class="tooltipCustom smallOfficer stab {{ $officers['commanding_staff'] ? '' : 'grayscale' }}"
@@ -355,8 +440,8 @@
                             <td>
                             </td>
                         </tr>
-                        <tr class="">
-                            <td colspan="2" class="label">@lang('Storage capacity')</td>
+                        <tr class="alt">
+                            <td colspan="2" class="label">{{ __('t_ingame.resource_settings.storage_capacity') }}</td>
                             <td class="{{ $metal >= $metal_storage ? 'overmark' : 'normalmark' }} left2">
                             <span class="tooltipCustom" title="{{ $metal_storage_formatted }}">
                                 {{ $metal_storage_formatted }}
@@ -375,8 +460,8 @@
                             <td>-</td>
                             <td></td>
                         </tr>
-                        <tr class="summary alt">
-                            <td colspan="2" class="label"><em>@lang('Total per hour:')</em></td>
+                        <tr class="summary">
+                            <td colspan="2" class="label"><em>{{ __('t_ingame.resource_settings.total_per_hour') }}</em></td>
                             <td class="undermark">
                             <span class="tooltipCustom" title="{{ $production_total->total->metal->getFormattedFull() }}">
                                 {{ $production_total->total->metal->getFormattedLong() }}
@@ -399,8 +484,8 @@
                             </td>
                             <td></td>
                         </tr>
-                        <tr class="">
-                            <td colspan="2" class="label"><em>@lang('Total per day'):</em></td>
+                        <tr class="alt">
+                            <td colspan="2" class="label"><em>{{ __('t_ingame.resource_settings.total_per_day') }}:</em></td>
                             <td class="undermark">
                                 <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->metal->get() * 24) }}">
                                     {{ \OGame\Facades\AppUtil::formatNumberLong($production_total->total->metal->get() * 24) }}
@@ -423,8 +508,8 @@
                             </td>
                             <td></td>
                         </tr>
-                        <tr class="alt">
-                            <td colspan="2" class="label"><em>@lang('Total per week'):</em></td>
+                        <tr class="">
+                            <td colspan="2" class="label"><em>{{ __('t_ingame.resource_settings.total_per_week') }}</em></td>
                             <td class="undermark">
                                 <span class="tooltipCustom" title="{{ \OGame\Facades\AppUtil::formatNumber($production_total->total->metal->get() * 168) }}">
                                     {{ \OGame\Facades\AppUtil::formatNumberLong($production_total->total->metal->get() * 168) }}

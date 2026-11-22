@@ -1,0 +1,20 @@
+# Keep the Docker build context (and the resulting image layers) small so
+# `COPY . /var/www/` does not run the CI runner out of disk. Large PRs were
+# failing the preview build with "no space left on device" because the whole
+# ~400MB .git history was being copied into the image.
+
+# Version control & CI metadata — never needed inside the app image
+.git
+.gitattributes
+.github
+
+# Dependencies are provided inside the container, not from the build context:
+#  - vendor/       -> reinstalled at startup by docker/entrypoint.sh (`composer install`)
+#  - node_modules/ -> not needed at runtime; frontend assets are pre-built and
+#                     committed under public/build/
+node_modules
+vendor
+
+# Editor / IDE
+.idea
+.vscode

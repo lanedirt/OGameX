@@ -4,8 +4,8 @@ namespace OGame\Services;
 
 use Exception;
 use OGame\Factories\PlanetServiceFactory;
-use OGame\Models\Planet as Planet;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\Planet as Planet;
 use OGame\Models\Planet\Coordinate;
 
 /**
@@ -32,27 +32,17 @@ class PlanetListService
     private array $moons = [];
 
     /**
-     * PlayerService
-     *
-     * @var PlayerService
-     */
-    private PlayerService $player;
-
-    /**
-     * @var PlanetServiceFactory $planetServiceFactory
-     */
-    private PlanetServiceFactory $planetServiceFactory;
-
-    /**
      * Planets constructor.
+     *
+     * @param PlayerService $player PlayerService object.
+     * @param PlanetServiceFactory $planetServiceFactory PlanetServiceFactory object.
      */
-    public function __construct(PlayerService $player, PlanetServiceFactory $planetServiceFactory)
+    public function __construct(private PlayerService $player, private PlanetServiceFactory $planetServiceFactory)
     {
-        $this->planetServiceFactory = $planetServiceFactory;
-        $this->player = $player;
-
-        // Get all planets (and moons) of user.
-        $planets = Planet::where('user_id', $player->getId())->get();
+        // Get all active (non-destroyed) planets and moons of user.
+        $planets = Planet::where('user_id', $this->player->getId())
+            ->where('destroyed', 0)
+            ->get();
         foreach ($planets as $planetModel) {
             $planetService = $this->planetServiceFactory->makeFromModel($planetModel, $this->player);
 
@@ -160,17 +150,22 @@ class PlanetListService
         }
 
         // No valid current planet set, return first planet instead.
-        return $this->first();
+        $firstPlanet = $this->first();
+        if ($firstPlanet === null) {
+            throw new Exception('Player has no planets.');
+        }
+
+        return $firstPlanet;
     }
 
     /**
      * Get first planet of player.
      *
-     * @return PlanetService
+     * @return PlanetService|null
      */
-    public function first(): PlanetService
+    public function first(): PlanetService|null
     {
-        return $this->planets[0];
+        return $this->planets[0] ?? null;
     }
 
     /**

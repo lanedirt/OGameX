@@ -7,6 +7,7 @@ use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\Resources;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
 
@@ -24,6 +25,18 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
      * @var string The mission name for the test, displayed in UI.
      */
     protected string $missionName = 'Transport';
+
+    /**
+     * Returns the current planet's player, failing the test if none is set.
+     */
+    private function currentPlayer(): PlayerService
+    {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player not found.');
+        }
+        return $player;
+    }
 
     /**
      * Prepare the planet for the test so it has the required buildings and research.
@@ -60,17 +73,9 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
-
         // Deduct resources from the planet but don't save the planet itself.
         // This should NOT deduct the resources.
         $this->planetService->deductResources(new Resources(5000, 5000, 0, 0), false);
-
-        // Reload application to make sure the planet is not cached.
-        // NOTE: without this method, the planet would be cached and the resources would be deducted
-        // during the next HTTP request in this test.
-        $this->reloadApplication();
 
         // Do another HTTP request.
         $response = $this->get('/overview');
@@ -78,7 +83,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
         // Assert that the resources are NOT deducted.
         $this->planetService->reloadPlanet();
-        $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are deducted from planet without saving it. State seems to be cached between requests. Check the AccountTestCase::reloadApplication() test logic.');
+        $this->assertTrue($this->planetService->hasResources(new Resources(5000, 5000, 0, 0)), 'Resources are deducted from planet without saving it. State seems to be cached between requests.');
     }
 
     /**
@@ -112,7 +117,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         // With Impulse ≥5, Small Cargo switches to Impulse:
         // base speed becomes 10,000 and at Impulse 10 the bonus is +200% (20% × 10) → effective speed 20,000.
         // This reduces the duration to 56m 28s (3388 seconds) for a 1-system jump at fleet_speed=1.
-        $this->assertEquals(4788, $fleetMissionService->calculateFleetMissionDuration($this->planetService, $targetPlanetCoords, $units, $mission));
+        $this->assertEquals(3388, $fleetMissionService->calculateFleetMissionDuration($this->planetService, $targetPlanetCoords, $units, $mission));
     }
 
     public function testFleetDeuteriumConsumptionCalculation(): void
@@ -153,18 +158,18 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
         // First mission should succeed
         $this->sendTestMission();
-        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
+        $this->assertEquals(1, $this->currentPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
 
         // Second mission should fail due to max fleet slots restriction
         $this->sendTestMission(false);
-        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet mission has been created but should have been rejected due to max fleet slots restriction (computer technology level 0)');
+        $this->assertEquals(1, $this->currentPlayer()->getFleetSlotsInUse(), 'Fleet mission has been created but should have been rejected due to max fleet slots restriction (computer technology level 0)');
 
         // Upgrade computer technology to level 1
         $this->playerSetResearchLevel('computer_technology', 1);
 
         // Now second mission should succeed
         $this->sendTestMission();
-        $this->assertEquals(2, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 2 after second mission');
+        $this->assertEquals(2, $this->currentPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 2 after second mission');
     }
 
     /**
@@ -179,15 +184,15 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
 
         // Send first mission
         $this->sendTestMission();
-        $this->assertEquals(1, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
+        $this->assertEquals(1, $this->currentPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 1 after first mission');
 
         // Send second mission
         $this->sendTestMission();
-        $this->assertEquals(2, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 2 after second mission');
+        $this->assertEquals(2, $this->currentPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 2 after second mission');
 
         // Send third mission
         $this->sendTestMission();
-        $this->assertEquals(3, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 3 after third mission');
+        $this->assertEquals(3, $this->currentPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 3 after third mission');
 
         // Increase time by 10 hours to ensure all missions are done.
         $this->travel(10)->hours();
@@ -197,7 +202,7 @@ class FleetDispatchGenericTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Ensure that the fleet slots in use are updated correctly.
-        $this->assertEquals(0, $this->planetService->getPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 0 after all missions are done');
+        $this->assertEquals(0, $this->currentPlayer()->getFleetSlotsInUse(), 'Fleet slots in use should be 0 after all missions are done');
     }
 
     /**

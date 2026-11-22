@@ -2683,18 +2683,18 @@ a:hover img.queuePic {
     display: block;
     height: 16px;
     position: absolute;
-    top: 4px;
-    left: 32px;
+    top: 85px;
+    left: 125px;
     width: 16px
 }
 
 #rechts #norm a.wreckFieldIcon {
-    top: 4px;
+    top: 85px;
     left: 32px
 }
 
 #rechts #myPlanets .smallplanet a.wreckFieldIcon {
-    top: 4px;
+    top: 85px;
     left: 22px
 }
 
@@ -4037,7 +4037,7 @@ ul span.level span.textlabel {
     display: block;
     font-size: 10px;
     left: 11px;
-    margin-top: 4px;
+    margin-top: 85px;
     overflow: hidden;
     position: absolute;
     text-align: center;
@@ -6174,7 +6174,7 @@ button {
     height: 16px;
     width: 16px;
     background: url("/img/icons/813a5ab60cb168ac2f14b3dee16294.gif") no-repeat;
-    top: 4px;
+    top: 85px;
     position: relative
 }
 
@@ -9230,7 +9230,7 @@ ul.fleetBriefing {
 }
 
 #fleet1 #slots div img {
-    padding-top: 4px;
+    padding-top: 85px;
     vertical-align: top
 }
 
@@ -10820,12 +10820,12 @@ span.reload {
 }
 
 .detailsOpened .marker01 {
-    top: 4px;
+    top: 85px;
     left: 288px
 }
 
 .detailsOpened .marker02 {
-    top: 4px;
+    top: 85px;
     left: 340px
 }
 
@@ -11016,7 +11016,7 @@ span.reload {
     left: 394px;
     overflow: hidden;
     position: absolute;
-    top: 4px;
+    top: 85px;
     text-align: center;
     width: 30px
 }

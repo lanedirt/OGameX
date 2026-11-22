@@ -4,7 +4,12 @@ namespace OGame\GameMissions;
 
 use OGame\Enums\FleetMissionStatus;
 use OGame\Enums\FleetSpeedType;
+use OGame\Factories\PlayerServiceFactory;
+use OGame\GameMessages\DefenderEspionageDetected;
+use OGame\GameMessages\FleetLostContact;
 use OGame\GameMissions\Abstracts\GameMission;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
+use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\PhpBattleEngine;
 use OGame\GameMissions\BattleEngine\RustBattleEngine;
 use OGame\GameMissions\Models\MissionPossibleStatus;
@@ -14,9 +19,12 @@ use OGame\Models\Enums\PlanetType;
 use OGame\Models\EspionageReport;
 use OGame\Models\FleetMission;
 use OGame\Models\Planet\Coordinate;
+use OGame\Models\Resources;
 use OGame\Services\CounterEspionageService;
 use OGame\Services\DebrisFieldService;
 use OGame\Services\PlanetService;
+use OGame\Services\PlayerService;
+use RuntimeException;
 use Throwable;
 
 class EspionageMission extends GameMission
@@ -24,6 +32,7 @@ class EspionageMission extends GameMission
     protected static string $name = 'Espionage';
     protected static int $typeId = 6;
     protected static bool $hasReturnMission = true;
+    protected static bool $blockedByServerAttackBlock = true;
     protected static FleetSpeedType $fleetSpeedType = FleetSpeedType::war;
     protected static FleetMissionStatus $friendlyStatus = FleetMissionStatus::Hostile;
 
@@ -32,9 +41,9 @@ class EspionageMission extends GameMission
      */
     public function isMissionPossible(PlanetService $planet, Coordinate $targetCoordinate, PlanetType $targetType, UnitCollection $units): MissionPossibleStatus
     {
-        // Cannot send missions while in vacation mode
-        if ($planet->getPlayer()->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'You cannot send missions while in vacation mode!');
+        $parentCheck = parent::isMissionPossible($planet, $targetCoordinate, $targetType, $units);
+        if (!$parentCheck->possible) {
+            return $parentCheck;
         }
 
         // Espionage mission is only possible for planets and moons.
@@ -48,9 +57,14 @@ class EspionageMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
+        // Destroyed moons cannot be probed; destroyed planets can.
+        if ($destroyedCheck = $this->checkDestroyedTarget($targetPlanet, $targetType, true)) {
+            return $destroyedCheck;
+        }
+
         // If planet belongs to current player, the mission is not possible.
-        if ($planet->getPlayer()->equals($targetPlanet->getPlayer())) {
-            return new MissionPossibleStatus(false);
+        if ($ownPlanetCheck = $this->checkOwnPlanet($planet, $targetPlanet)) {
+            return $ownPlanetCheck;
         }
 
         // If no espionage probes are present in the fleet, the mission is not possible.
@@ -58,15 +72,14 @@ class EspionageMission extends GameMission
             return new MissionPossibleStatus(false);
         }
 
-        // If mission from and to coordinates and types are the same, the mission is not possible.
-        if ($planet->getPlanetCoordinates()->equals($targetCoordinate) && $planet->getPlanetType() === $targetType) {
-            return new MissionPossibleStatus(false);
+        // If target player is in vacation mode, the mission is not possible.
+        if ($vacationCheck = $this->checkTargetVacationMode($targetPlanet)) {
+            return $vacationCheck;
         }
 
-        // If target player is in vacation mode, the mission is not possible.
-        $targetPlayer = $targetPlanet->getPlayer();
-        if ($targetPlayer->isInVacationMode()) {
-            return new MissionPossibleStatus(false, 'This player is in vacation mode!');
+        // Legor's planet (Arakis at 1:1:2) cannot be probed
+        if ($adminCheck = $this->checkAdminProtection($targetPlanet, __('This planet belongs to an administrator and cannot be probed.'))) {
+            return $adminCheck;
         }
 
         // If all checks pass, the mission is possible.
@@ -79,8 +92,19 @@ class EspionageMission extends GameMission
      */
     protected function processArrival(FleetMission $mission): void
     {
+        if ($mission->planet_id_to === null || $mission->planet_id_from === null) {
+            throw new RuntimeException('Espionage mission is missing origin or target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
         $origin_planet = $this->planetServiceFactory->make($mission->planet_id_from, true);
+        if ($target_planet === null || $origin_planet === null) {
+            throw new RuntimeException('Espionage mission origin or target planet does not exist.');
+        }
+        $originPlayer = $origin_planet->getPlayer();
+        $targetPlayer = $target_planet->getPlayer();
+        if ($originPlayer === null || $targetPlayer === null) {
+            throw new RuntimeException('Espionage mission origin or target planet has no owner.');
+        }
 
         // Trigger target planet update to make sure the espionage report is accurate.
         $target_planet->update();
@@ -88,8 +112,13 @@ class EspionageMission extends GameMission
         // Calculate counter-espionage chance
         $counterEspionageService = resolve(CounterEspionageService::class);
         $attackerProbeCount = $mission->espionage_probe;
-        $attackerEspionageLevel = $origin_planet->getPlayer()->getResearchLevel('espionage_technology');
-        $defenderEspionageLevel = $target_planet->getPlayer()->getResearchLevel('espionage_technology');
+        $attackerEspionageLevel = $originPlayer->getResearchLevel('espionage_technology');
+        $defenderEspionageLevel = $targetPlayer->getResearchLevel('espionage_technology');
+
+        // TODO: Include ACS Defend fleets in counter-espionage chance calculation
+        // Currently only counts planet owner's ships via getDefenderShipCount()
+        // Should also count ships from ACS Defend fleets present at the target planet
+        // This creates inconsistency: ACS fleets participate in battle but don't affect detection chance
         $defenderShipCount = $counterEspionageService->getDefenderShipCount($target_planet);
 
         $counterEspionageChance = $counterEspionageService->calculateChance(
@@ -111,7 +140,10 @@ class EspionageMission extends GameMission
 
         if ($counterEspionageTriggered) {
             // Execute counter-espionage battle
-            $battleResult = $this->executeCounterEspionageBattle($origin_planet, $target_planet, $units, $counterEspionageService);
+            $battleResult = $this->executeCounterEspionageBattle($origin_planet, $target_planet, $units, $counterEspionageService, $mission->id, $mission->user_id);
+
+            // Set the attacker's origin planet ID on the battle result for the battle report.
+            $battleResult->attackerPlanetId = $mission->planet_id_from;
 
             // Create or append debris field.
             // TODO: we could change this debris field append logic to do everything in a single query to
@@ -127,8 +159,8 @@ class EspionageMission extends GameMission
             $debrisFieldService->save();
 
             // Create battle report for defender
-            $battleReportId = $this->createCounterEspionageBattleReport($origin_planet->getPlayer(), $target_planet, $battleResult);
-            $this->messageService->sendBattleReportMessageToPlayer($target_planet->getPlayer(), $battleReportId);
+            $battleReportId = $this->createCounterEspionageBattleReport($originPlayer, $target_planet, $battleResult);
+            $this->messageService->sendBattleReportMessageToPlayer($targetPlayer, $battleReportId);
 
             // Update surviving units based on battle result
             $survivingUnits = $battleResult->attackerUnitsResult;
@@ -136,7 +168,7 @@ class EspionageMission extends GameMission
             // If all probes destroyed, send "fleet lost contact" message to attacker
             if ($survivingUnits->getAmount() === 0) {
                 $this->messageService->sendFleetLostContactMessageToPlayer(
-                    $origin_planet->getPlayer(),
+                    $originPlayer,
                     '[' . $target_planet->getPlanetCoordinates()->asString() . ']'
                 );
             }
@@ -147,11 +179,11 @@ class EspionageMission extends GameMission
 
         // --- Defender notification (mirror official OGame "you were spied" message)
         // Defender is the owner of the target planet
-        $defenderUserId = $target_planet->getPlayer()->getId();
+        $defenderUserId = $targetPlayer->getId();
 
         if ($defenderUserId) {
             // Params expected by t_messages.espionage_detected.*
-            $attackerName = $origin_planet->getPlayer()->getUsername();
+            $attackerName = $originPlayer->getUsername();
 
             $params = [
                 // IMPORTANT: pass the raw mission planet id inside [planet]...[/planet]
@@ -161,19 +193,19 @@ class EspionageMission extends GameMission
                 'chance'        => $counterEspionageChance,
             ];
 
-            $playerServiceFactory = resolve(\OGame\Factories\PlayerServiceFactory::class);
+            $playerServiceFactory = resolve(PlayerServiceFactory::class);
             $defenderService      = $playerServiceFactory->make($defenderUserId);
 
             $this->messageService->sendSystemMessageToPlayer(
                 $defenderService,
-                \OGame\GameMessages\DefenderEspionageDetected::class,
+                DefenderEspionageDetected::class,
                 $params
             );
         }
 
         // Send a message to the player with a reference to the espionage report.
         $this->messageService->sendEspionageReportMessageToPlayer(
-            $origin_planet->getPlayer(),
+            $originPlayer,
             $reportId,
         );
 
@@ -197,15 +229,22 @@ class EspionageMission extends GameMission
      * @param PlanetService $targetPlanet
      * @param UnitCollection $attackerUnits
      * @param CounterEspionageService $counterEspionageService
-     * @return \OGame\GameMissions\BattleEngine\Models\BattleResult
+     * @param int $fleetMissionId
+     * @param int $ownerId
+     * @return BattleResult
      */
     private function executeCounterEspionageBattle(
         PlanetService $originPlanet,
         PlanetService $targetPlanet,
         UnitCollection $attackerUnits,
-        CounterEspionageService $counterEspionageService
-    ): \OGame\GameMissions\BattleEngine\Models\BattleResult {
+        CounterEspionageService $counterEspionageService,
+        int $fleetMissionId,
+        int $ownerId
+    ): BattleResult {
         $attackerPlayer = $originPlanet->getPlayer();
+        if ($attackerPlayer === null) {
+            throw new RuntimeException('Counter-espionage origin planet has no owner.');
+        }
 
         // Get only ships for counter-espionage battle (no defense)
         $defenderShips = $counterEspionageService->getDefenderShipsForBattle($targetPlanet);
@@ -216,14 +255,27 @@ class EspionageMission extends GameMission
             $targetPlanet->removeUnit($unit->unitObject->machine_name, $unit->amount, false);
         }
 
+        // Collect all defending fleets (planet owner + ACS defend fleets)
+        $defenders = $this->collectDefendingFleets($targetPlanet);
+
+        // Create AttackerFleet for counter-espionage probes (no FleetMission, use temporary ID)
+        $attackerFleet = new AttackerFleet();
+        $attackerFleet->units = $attackerUnits;
+        $attackerFleet->player = $attackerPlayer;
+        $attackerFleet->fleetMissionId = 0; // 0 for temporary/ephemeral fleets
+        $attackerFleet->ownerId = $ownerId;
+        $attackerFleet->cargoResources = new Resources(0, 0, 0, 0);
+        $attackerFleet->isInitiator = true;
+        $attackerFleet->fleetMission = null;
+
         // Execute battle using configured battle engine
         switch ($this->settings->battleEngine()) {
             case 'php':
-                $battleEngine = new PhpBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $this->settings);
+                $battleEngine = new PhpBattleEngine([$attackerFleet], $targetPlanet, $defenders, $this->settings);
                 break;
             case 'rust':
             default:
-                $battleEngine = new RustBattleEngine($attackerUnits, $attackerPlayer, $targetPlanet, $this->settings);
+                $battleEngine = new RustBattleEngine([$attackerFleet], $targetPlanet, $defenders, $this->settings);
                 break;
         }
 
@@ -234,29 +286,65 @@ class EspionageMission extends GameMission
             $targetPlanet->addUnit($unit->unitObject->machine_name, $unit->amount, false);
         }
 
+        // Process defender fleet results (planet owner + ACS defend fleets)
+        foreach ($battleResult->defenderFleetResults as $fleetResult) {
+            if ($fleetResult->fleetMissionId === 0) {
+                // Planet owner's ships - remove permanently lost ships (no defense repair in counter-espionage)
+                if ($fleetResult->unitsLost->getAmount() > 0) {
+                    $targetPlanet->removeUnits($fleetResult->unitsLost, false);
+                }
+                $targetPlanet->save();
+            } else {
+                // ACS Defend fleet - handle return or destruction
+                $defendMission = FleetMission::find($fleetResult->fleetMissionId);
+                if ($defendMission) {
+                    if ($fleetResult->completelyDestroyed) {
+                        // Fleet was completely destroyed - no return mission
+                        $defendMission->processed = 1;
+                        $defendMission->save();
+
+                        // Send fleet lost contact message to the fleet owner
+                        $fleetOwner = $this->playerServiceFactory->make($fleetResult->ownerId);
+                        $coordinates = '[coordinates]' . $targetPlanet->getPlanetCoordinates()->asString() . '[/coordinates]';
+                        $this->messageService->sendSystemMessageToPlayer($fleetOwner, FleetLostContact::class, [
+                            'coordinates' => $coordinates,
+                        ]);
+                    } else {
+                        // Fleet survived - create return mission with surviving units
+                        $this->startReturn($defendMission, new Resources(0, 0, 0, 0), $fleetResult->unitsResult);
+                    }
+                }
+            }
+        }
+
         return $battleResult;
     }
 
     /**
      * Create a battle report for counter-espionage battle.
      *
-     * @param \OGame\Services\PlayerService $attackerPlayer
+     * @param PlayerService $attackerPlayer
      * @param PlanetService $defenderPlanet
-     * @param \OGame\GameMissions\BattleEngine\Models\BattleResult $battleResult
+     * @param BattleResult $battleResult
      * @return int
      */
     private function createCounterEspionageBattleReport(
-        \OGame\Services\PlayerService $attackerPlayer,
+        PlayerService $attackerPlayer,
         PlanetService $defenderPlanet,
-        \OGame\GameMissions\BattleEngine\Models\BattleResult $battleResult
+        BattleResult $battleResult
     ): int {
+        $defenderPlayer = $defenderPlanet->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Counter-espionage defender planet has no owner.');
+        }
+
         $report = new BattleReport();
         $report->planet_galaxy = $defenderPlanet->getPlanetCoordinates()->galaxy;
         $report->planet_system = $defenderPlanet->getPlanetCoordinates()->system;
         $report->planet_position = $defenderPlanet->getPlanetCoordinates()->position;
         $report->planet_type = $defenderPlanet->getPlanetType()->value;
 
-        $report->planet_user_id = $defenderPlanet->getPlayer()->getId();
+        $report->planet_user_id = $defenderPlayer->getId();
 
         $report->general = [
             'moon_existed' => $battleResult->moonExisted,
@@ -271,10 +359,11 @@ class EspionageMission extends GameMission
             'weapon_technology' => $battleResult->attackerWeaponLevel,
             'shielding_technology' => $battleResult->attackerShieldLevel,
             'armor_technology' => $battleResult->attackerArmorLevel,
+            'planet_id' => $battleResult->attackerPlanetId,
         ];
 
         $report->defender = [
-            'player_id' => $defenderPlanet->getPlayer()->getId(),
+            'player_id' => $defenderPlayer->getId(),
             'resource_loss' => $battleResult->defenderResourceLoss->sum(),
             'units' => $battleResult->defenderUnitsStart->toArray(),
             'weapon_technology' => $battleResult->defenderWeaponLevel,
@@ -327,7 +416,13 @@ class EspionageMission extends GameMission
     protected function processReturn(FleetMission $mission): void
     {
         // Load the target planet
+        if ($mission->planet_id_to === null) {
+            throw new RuntimeException('Espionage return mission has no target planet.');
+        }
         $target_planet = $this->planetServiceFactory->make($mission->planet_id_to, true);
+        if ($target_planet === null) {
+            throw new RuntimeException('Espionage return mission target planet does not exist.');
+        }
 
         // Espionage return trip: add back the units to the source planet. Then we're done.
         $target_planet->addUnits($this->fleetMissionService->getFleetUnits($mission));
@@ -356,6 +451,12 @@ class EspionageMission extends GameMission
      */
     private function createEspionageReport(FleetMission $mission, PlanetService $originPlanet, PlanetService $targetPlanet, int $counterEspionageChance = 0): int
     {
+        $originPlayer = $originPlanet->getPlayer();
+        $targetPlayer = $targetPlanet->getPlayer();
+        if ($originPlayer === null || $targetPlayer === null) {
+            throw new RuntimeException('Espionage report origin or target planet has no owner.');
+        }
+
         // Create new espionage report record.
         $report = new EspionageReport();
         $report->planet_galaxy = $targetPlanet->getPlanetCoordinates()->galaxy;
@@ -363,11 +464,11 @@ class EspionageMission extends GameMission
         $report->planet_position = $targetPlanet->getPlanetCoordinates()->position;
         $report->planet_type = $targetPlanet->getPlanetType()->value;
 
-        $report->planet_user_id = $targetPlanet->getPlayer()->getId();
+        $report->planet_user_id = $targetPlayer->getId();
 
         $report->player_info = [
-            'player_id' => (string)$targetPlanet->getPlayer()->getId(),
-            'player_name' => $targetPlanet->getPlayer()->getUsername(),
+            'player_id' => (string)$targetPlayer->getId(),
+            'player_name' => $targetPlayer->getUsername(),
         ];
 
         // Resources
@@ -391,14 +492,19 @@ class EspionageMission extends GameMission
         }
 
         // TODO: Validate this does not cause issues when probing slot 16
-        $attackerEspionageLevel = $originPlanet->getPlayer()->getResearchLevel('espionage_technology');
-        $defenderEspionageLevel = $targetPlanet->getPlayer()->getResearchLevel('espionage_technology');
+        $attackerEspionageLevel = $originPlayer->getResearchLevel('espionage_technology');
+        $defenderEspionageLevel = $targetPlayer->getResearchLevel('espionage_technology');
         $techDifference = $defenderEspionageLevel - $attackerEspionageLevel;
         $levelDifference = max(0, $techDifference);
         $extraProbesRequired = pow($levelDifference, 2);
         $remainingProbes = max(0, $mission->espionage_probe - $extraProbesRequired);
 
         // Fleets
+        // TODO: Include ACS Defend fleets in espionage report
+        // Currently only shows planet owner's ships via getShipUnits()
+        // Should also show ACS Defend fleet units present at the target planet
+        // This creates inconsistency: ACS fleets are invisible to spy but participate in counter-espionage battles
+        // Consider showing them in a separate section or with owner labels
         if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 2, 1)) {
             $report->ships = $targetPlanet->getShipUnits()->toArray();
         }
@@ -415,7 +521,7 @@ class EspionageMission extends GameMission
 
         // Research
         if ($this->canRevealData($remainingProbes, $attackerEspionageLevel, $defenderEspionageLevel, 7, 4)) {
-            $report->research = $targetPlanet->getPlayer()->getResearchArray();
+            $report->research = $targetPlayer->getResearchArray();
         }
 
         // Store counter-espionage chance

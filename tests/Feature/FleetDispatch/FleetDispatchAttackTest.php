@@ -4,19 +4,23 @@ namespace Tests\Feature\FleetDispatch;
 
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use OGame\Factories\PlanetServiceFactory;
 use OGame\GameMissions\AttackMission;
 use OGame\GameObjects\Models\Units\UnitCollection;
 use OGame\Models\BattleReport;
 use OGame\Models\Enums\PlanetType;
+use OGame\Models\FleetMission;
 use OGame\Models\Message;
+use OGame\Models\Planet;
 use OGame\Models\Resources;
+use OGame\Services\DebrisFieldService;
 use OGame\Services\FleetMissionService;
 use OGame\Services\ObjectService;
+use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
 use Tests\FleetDispatchTestCase;
-use OGame\Services\DebrisFieldService;
 
 /**
  * Test that fleet dispatch works as expected for attack missions.
@@ -34,6 +38,16 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     protected string $missionName = 'Attack';
 
     /**
+     * Reset attack block setting after each test to avoid state leaking between tests.
+     */
+    protected function tearDown(): void
+    {
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('attack_block_until', 0);
+        parent::tearDown();
+    }
+
+    /**
      * Prepare the planet for the test, so it has the required buildings and research.
      *
      * @return void
@@ -41,7 +55,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     protected function basicSetup(): void
     {
         $this->planetAddUnit('light_fighter', 5);
-        $this->playerSetResearchLevel('computer_technology', object_level: 1);
+        $this->playerSetResearchLevel('computer_technology', objectLevel: 1);
 
         // Set the fleet speed to 1x for this test.
         $settingsService = resolve(SettingsService::class);
@@ -49,15 +63,29 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $settingsService->set('fleet_speed_war', 1);
         $settingsService->set('fleet_speed_holding', 1);
         $settingsService->set('fleet_speed_peaceful', 1);
+        $settingsService->set('attack_block_until', 0);
 
         // Add sufficient deuterium to the planet to ensure we don't run into fuel capacity restriction.
         $this->planetAddResources(new Resources(0, 0, 1000000, 0));
     }
 
+    /**
+     * Get the current planet's player, failing the test if it is null.
+     */
+    private function planetPlayer(): PlayerService
+    {
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Planet has no player.');
+        }
+
+        return $player;
+    }
+
     protected function messageCheckMissionArrival(): void
     {
         // Assert that attacker has received a message (either battle_report or fleet_lost_contact).
-        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())
+        $messageAttacker = Message::where('user_id', $this->planetPlayer()->getId())
         ->whereIn('key', ['battle_report', 'fleet_lost_contact'])
         ->orderByDesc('id')
         ->first();
@@ -96,6 +124,32 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
     }
 
     /**
+     * Assert that active attack block prevents launching hostile attack missions.
+     */
+    public function testAttackBlockPreventsAttackDispatch(): void
+    {
+        $this->basicSetup();
+
+        $settingsService = resolve(SettingsService::class);
+        $settingsService->set('attack_block_until', time() + 3600);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('light_fighter'), 1);
+        $nearbyForeignPlanet = $this->createForeignPlanet();
+
+        $this->checkTargetFleet($nearbyForeignPlanet->getPlanetCoordinates(), $unitCollection, PlanetType::Planet, false);
+
+        $this->dispatchFleet(
+            $nearbyForeignPlanet->getPlanetCoordinates(),
+            $unitCollection,
+            new Resources(0, 0, 0, 0),
+            PlanetType::Planet,
+            0,
+            false
+        );
+    }
+
+    /**
      * Assert that check request to dispatch fleet to empty position fails.
      */
     public function testFleetCheckToEmptyPlanetError(): void
@@ -128,9 +182,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the defender planet is not cached.
-        $this->reloadApplication();
-
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
 
@@ -139,14 +190,18 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $response->assertStatus(200);
 
         // Get message of attacker from database (either battle_report or fleet_lost_contact).
-        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())
+        $messageAttacker = Message::where('user_id', $this->planetPlayer()->getId())
             ->whereIn('key', ['battle_report', 'fleet_lost_contact'])
             ->orderByDesc('id')
             ->first();
         $this->assertNotNull($messageAttacker, 'Attacker has not received a message after combat.');
 
         // Assert that defender also received a message with the same battle report ID.
-        $messageDefender = Message::where('user_id', $foreignPlanet->getPlayer()->getId())->orderByDesc('id')->first();
+        $foreignPlanetPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlanetPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $messageDefender = Message::where('user_id', $foreignPlanetPlayer->getId())->orderByDesc('id')->first();
         if ($messageDefender) {
             $messageDefender = $messageDefender instanceof Message ? $messageDefender : new Message($messageDefender->getAttributes());
             if ($messageAttacker->battle_report_id !== null) {
@@ -180,9 +235,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the defender moon is not cached.
-        $this->reloadApplication();
-
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
 
@@ -197,17 +249,77 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         ]);
 
         // Get battle report message of attacker from database.
-        $messageAttacker = Message::where('user_id', $this->planetService->getPlayer()->getId())->where('key', 'battle_report')->orderByDesc('id')->first();
+        $messageAttacker = Message::where('user_id', $this->planetPlayer()->getId())->where('key', 'battle_report')->orderByDesc('id')->first();
         $this->assertNotNull($messageAttacker, 'Attacker has not received a battle report after combat.');
 
         // Assert that defender also received a message with the same battle report ID.
-        $messageDefender = Message::where('user_id', $foreignMoon->getPlayer()->getId())->orderByDesc('id')->first();
+        $foreignMoonPlayer = $foreignMoon->getPlayer();
+        if ($foreignMoonPlayer === null) {
+            $this->fail('Foreign moon has no player.');
+        }
+        $messageDefender = Message::where('user_id', $foreignMoonPlayer->getId())->orderByDesc('id')->first();
         if ($messageDefender) {
             $messageDefender = $messageDefender instanceof Message ? $messageDefender : new Message($messageDefender->getAttributes());
             $this->assertEquals($messageAttacker->battle_report_id, $messageDefender->battle_report_id, 'Defender has not received the same battle report as attacker.');
         } else {
             $this->fail('Defender has not received a battle report after combat.');
         }
+    }
+
+    /**
+     * Regression test: if the attacker's surviving free cargo space is below the theoretical
+     * loot, only the carried amount should be stolen and the remainder must stay on the target.
+     */
+    public function testAttackLeavesUncarriedLootOnDefenderPlanet(): void
+    {
+        $this->basicSetup();
+
+        $this->planetAddResources(new Resources(5000, 0, 0, 0));
+        $this->planetAddUnit('small_cargo', 1);
+
+        $unitCollection = new UnitCollection();
+        $unitCollection->addUnit(ObjectService::getUnitObjectByMachineName('small_cargo'), 1);
+        $foreignPlanet = $this->sendMissionToOtherPlayerCleanPlanet($unitCollection, new Resources(4900, 0, 0, 0));
+
+        DB::table('planets')
+            ->where('id', $foreignPlanet->getPlanetId())
+            ->update(['metal' => 12000, 'crystal' => 0, 'deuterium' => 0]);
+
+        $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
+        $mission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        $this->assertNotNull($mission, 'Attack mission should exist');
+
+        $this->travelTo(Date::createFromTimestamp($mission->time_arrival + 10));
+        $this->get('/overview')->assertStatus(200);
+
+        $returnMission = FleetMission::where('parent_id', $mission->id)
+            ->where('canceled', 0)
+            ->first();
+
+        $this->assertNotNull($returnMission, 'Return mission should exist');
+
+        $actualLootTaken = $returnMission->metal - 4900;
+        $this->assertGreaterThanOrEqual(0, $actualLootTaken);
+        $this->assertLessThan(
+            6000,
+            $actualLootTaken,
+            'Actual loot should be lower than the theoretical 6 000 because the fleet is nearly full'
+        );
+
+        $foreignPlanetPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlanetPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $planetServiceFactory = resolve(PlanetServiceFactory::class);
+        $refreshedForeignPlanet = $planetServiceFactory->makeForPlayer(
+            $foreignPlanetPlayer,
+            $foreignPlanet->getPlanetId()
+        );
+        $this->assertEquals(
+            12000 - $actualLootTaken,
+            $refreshedForeignPlanet->getResources()->metal->get(),
+            'Any loot that does not fit on the return fleet must remain on the defender planet'
+        );
     }
 
     /**
@@ -234,6 +346,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
@@ -241,9 +356,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
-
-        // Reload application to make sure the defender planet is not cached as we modified it above during test.
-        $this->reloadApplication();
 
         // Set all messages as read to avoid unread messages count in the overview.
         $this->playerSetAllMessagesRead();
@@ -254,6 +366,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that message has been received by calling extended method
@@ -264,24 +379,39 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Assert that a return trip has been launched by checking the active missions for the current planet.
         $this->assertCount(1, $activeMissions, 'No return trip launched after fleet with deployment mission has arrived at destination.');
 
+        $returnActiveMission = $activeMissions->first();
+        if ($returnActiveMission === null) {
+            $this->fail('No return trip mission found.');
+        }
+
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        $this->travelTo(Carbon::createFromTimestamp($activeMissions->first()->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($returnActiveMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
-        // Assert that the return trip is processed and that the resources mentioned in battle report
-        // match the resources of the return trip.
-        $fleetMission = $fleetMissionService->getFleetMissionById($activeMissions->first()->id, false);
+        // Assert that the return trip is processed and that the stolen resources mentioned in the
+        // battle report are present on the return trip. Return deuterium can be higher because the
+        // fleet mission payload also includes surviving mission fuel.
+        $fleetMission = $fleetMissionService->getFleetMissionById($returnActiveMission->id, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Return trip is not processed after fleet has arrived back at origin planet.');
 
         // Get most recent battle report ID from the database.
         $battleReport = BattleReport::orderBy('id', 'desc')->first();
-        $battleReportResources = new Resources($battleReport->loot['metal'], $battleReport->loot['crystal'], $battleReport->loot['deuterium'], 0);
+        $this->assertNotNull($battleReport, 'Battle report was not created.');
+        $battleReportResources = new Resources($battleReport->loot['metal'] ?? 0, $battleReport->loot['crystal'] ?? 0, $battleReport->loot['deuterium'] ?? 0, 0);
 
-        // Assert that the resources of the return trip match the resources of the battle report.
-        $this->assertEquals($battleReportResources, new Resources($fleetMission->metal, $fleetMission->crystal, $fleetMission->deuterium, 0), 'Resources of return trip do not match resources of battle report.');
+        $this->assertEquals($battleReportResources->metal->get(), $fleetMission->metal, 'Return trip metal should match looted metal in the battle report.');
+        $this->assertEquals($battleReportResources->crystal->get(), $fleetMission->crystal, 'Return trip crystal should match looted crystal in the battle report.');
+        $this->assertGreaterThanOrEqual(
+            $battleReportResources->deuterium->get(),
+            $fleetMission->deuterium,
+            'Return trip deuterium should contain at least the looted deuterium from the battle report.'
+        );
     }
 
     /**
@@ -337,11 +467,17 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 5 seconds.
         $this->travel(5)->seconds();
-        $fleetParentTime = Carbon::getTestNow();
+        $fleetParentTime = Date::getTestNow();
+        if ($fleetParentTime === null) {
+            $this->fail('Test now time is not set.');
+        }
 
         // Cancel the mission
         $response = $this->post('/ajax/fleet/dispatch/recall-fleet', [
@@ -352,6 +488,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the original mission is now canceled.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->canceled == 1, 'Fleet mission is not canceled after fleet recall is requested.');
 
         // Assert that only the return trip is now visible.
@@ -363,8 +502,14 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
 
         // Assert that the return trip arrival time is exactly 10 seconds  after the cancelation time.
         // Because the return trip should take exactly as long as the original trip has traveled until it was canceled.
@@ -374,7 +519,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->playerSetAllMessagesRead();
 
         // Advance time by amount of minutes it takes for the return trip to arrive.
-        $this->travelTo(Carbon::createFromTimestamp($fleetMission->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($fleetMission->time_arrival));
 
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
@@ -382,6 +527,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the return trip is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Return trip is not processed after fleet has arrived back at origin planet.');
 
         // Assert that the units have been returned to the origin planet.
@@ -412,6 +560,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Advance time by 10 seconds
@@ -469,9 +620,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Increase time by 24 hours to ensure the mission is done and fleets have returned.
         $this->travel(24)->hours();
 
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
-
         // Get amount of resources of the foreign planet before the battle.
         $attackerResourcesBefore = $this->planetService->getResources();
         $foreignPlanetResourcesBefore = $foreignPlanet->getResources();
@@ -491,7 +639,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the resources of the foreign planet have decreased after the battle, and resources of attacker
         // planet have increased.
-        $this->reloadApplication();
         $this->planetService->reloadPlanet();
         $foreignPlanet->reloadPlanet();
         $this->assertLessThan($foreignPlanetResourcesBefore->metal, $foreignPlanet->getResources()->metal, 'Defender still has same amount of metal after battle while it was expected they lost some.');
@@ -522,6 +669,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
@@ -530,15 +680,15 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
-
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Check that combat message has been received to ensure battle has taken place.
@@ -564,7 +714,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertStringNotContainsString('You are under attack!', (string)$response->getContent(), 'You are under attack warning title is shown while we should not be under attack.');
 
         // Get foreign planet.
-        $foreignPlanet = $this->getNearbyForeignCleanPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Add units to foreign planet.
         $foreignPlanet->addUnit('light_fighter', 1);
@@ -595,7 +745,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->planetAddResources(new Resources(5000, 5000, 100000, 0));
 
         // Get foreign planet.
-        $foreignPlanet = $this->getNearbyForeignPlanet();
+        $foreignPlanet = $this->createForeignPlanet();
 
         // Add units to foreign planet.
         $foreignPlanet->addUnit('light_fighter', 1);
@@ -605,7 +755,11 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set foreign planet player's computer level to +1 to ensure we don't run into max fleet slots restriction
         // in case they were already sending a mission and at max slots.
-        $foreignPlanet->getPlayer()->setResearchLevel('computer_technology', $foreignPlanet->getPlayer()->getResearchLevel('computer_technology') + 1);
+        $foreignPlanetPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlanetPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $foreignPlanetPlayer->setResearchLevel('computer_technology', $foreignPlanetPlayer->getResearchLevel('computer_technology') + 1);
 
         // Launch attack from foreign planet to the current players second planet.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $foreignPlanet->getPlayer()]);
@@ -622,6 +776,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMission->id, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed === 1, 'Fleet mission is not processed associated with players second (not-selected) planet.');
     }
 
@@ -652,6 +809,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
@@ -660,15 +820,15 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
-
         // Do a request to trigger the update logic.
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Get the battle report
@@ -677,7 +837,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the battle report contains debris field information
         $this->assertNotEmpty($battleReport->debris, 'Battle report does not contain debris field information.');
-        $this->assertGreaterThan(0, $battleReport->debris['metal'] + $battleReport->debris['crystal'] + $battleReport->debris['deuterium'], 'Debris field in battle report is empty.');
+        $this->assertGreaterThan(0, ($battleReport->debris['metal'] ?? 0) + ($battleReport->debris['crystal'] ?? 0) + ($battleReport->debris['deuterium'] ?? 0), 'Debris field in battle report is empty.');
 
         // Assert that a debris field was actually created in the database
         $debrisFieldService = resolve(DebrisFieldService::class);
@@ -685,9 +845,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertTrue($debrisFieldExists, 'Debris field was not created in the database.');
 
         $debrisResources = $debrisFieldService->getResources();
-        $this->assertEquals($battleReport->debris['metal'], $debrisResources->metal->get(), 'Debris field metal in database does not match battle report.');
-        $this->assertEquals($battleReport->debris['crystal'], $debrisResources->crystal->get(), 'Debris field crystal in database does not match battle report.');
-        $this->assertEquals($battleReport->debris['deuterium'], $debrisResources->deuterium->get(), 'Debris field deuterium in database does not match battle report.');
+        $this->assertEquals(($battleReport->debris['metal'] ?? 0), $debrisResources->metal->get(), 'Debris field metal in database does not match battle report.');
+        $this->assertEquals(($battleReport->debris['crystal'] ?? 0), $debrisResources->crystal->get(), 'Debris field crystal in database does not match battle report.');
+        $this->assertEquals(($battleReport->debris['deuterium'] ?? 0), $debrisResources->deuterium->get(), 'Debris field deuterium in database does not match battle report.');
     }
 
     /**
@@ -721,6 +881,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get fleet mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Calculate fleet mission duration
@@ -729,15 +892,15 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached
-        $this->reloadApplication();
-
         // Trigger the update logic
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
         // Assert that the fleet mission is processed without errors
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Large-scale fleet mission was not processed successfully.');
 
         // Get the battle report
@@ -746,7 +909,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the battle report contains debris field information
         $this->assertNotEmpty($battleReport->debris, 'Battle report does not contain debris field information for large-scale attack.');
-        $this->assertGreaterThan(0, $battleReport->debris['metal'] + $battleReport->debris['crystal'] + $battleReport->debris['deuterium'], 'Debris field in battle report is empty for large-scale attack.');
+        $this->assertGreaterThan(0, ($battleReport->debris['metal'] ?? 0) + ($battleReport->debris['crystal'] ?? 0) + ($battleReport->debris['deuterium'] ?? 0), 'Debris field in battle report is empty for large-scale attack.');
 
         // Assert that a debris field was actually created in the database
         $debrisFieldService = resolve(DebrisFieldService::class);
@@ -782,6 +945,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get fleet mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Calculate fleet mission duration
@@ -790,29 +956,29 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached
-        $this->reloadApplication();
-
         // Trigger the update logic
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
         // Assert that the fleet mission is processed without errors
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Battle with expected moon creation fleet mission was not processed successfully.');
 
         // Get the battle report
         $battleReport = BattleReport::orderBy('id', 'desc')->first();
         $this->assertNotNull($battleReport, 'Battle report was not created for battle that should result in moon creation.');
-        $this->assertSame(100, $battleReport->general['moon_chance'], 'Battle report does not contain 100% moon chance.');
+        $this->assertSame(100, ($battleReport->general['moon_chance'] ?? 0), 'Battle report does not contain 100% moon chance.');
 
         $this->assertNotEmpty($battleReport->debris, 'Battle report does not contain debris field information for large-scale attack.');
-        $this->assertFalse($battleReport->general['moon_existed'], 'Battle report does not contain correct boolean that moon already existed before battle.');
-        $this->assertTrue($battleReport->general['moon_created'], 'Battle report does not contain moon creation information.');
+        $this->assertFalse(($battleReport->general['moon_existed'] ?? false), 'Battle report does not contain correct boolean that moon already existed before battle.');
+        $this->assertTrue(($battleReport->general['moon_created'] ?? false), 'Battle report does not contain moon creation information.');
 
         // Assert that debris field is at least 10M resources combined as every 100k results in 1%
         // So 10M results in 100% moon chance which is required for this test.
-        $this->assertGreaterThan(10000000, $battleReport->debris['metal'] + $battleReport->debris['crystal'] + $battleReport->debris['deuterium'], 'Debris field in battle report does not contain at least 10M resources required for 100% moon chance.');
+        $this->assertGreaterThan(10000000, ($battleReport->debris['metal'] ?? 0) + ($battleReport->debris['crystal'] ?? 0) + ($battleReport->debris['deuterium'] ?? 0), 'Debris field in battle report does not contain at least 10M resources required for 100% moon chance.');
 
         // Assert that a moon was actually created by attempting to load it.
         $planetServiceFactory = resolve(PlanetServiceFactory::class);
@@ -854,6 +1020,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get fleet mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Calculate fleet mission duration
@@ -862,23 +1031,23 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached
-        $this->reloadApplication();
-
         // Trigger the update logic
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
         // Assert that the fleet mission is processed without errors
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Battle with expected moon creation fleet mission was not processed successfully.');
 
         // Get the battle report
         $battleReport = BattleReport::orderBy('id', 'desc')->first();
         $this->assertNotNull($battleReport, 'Battle report was not created for battle that should result in moon creation.');
-        $this->assertSame(0, $battleReport->general['moon_chance'], 'Battle report should contain 0 percent moon chance because moon already existed before battle.');
-        $this->assertTrue($battleReport->general['moon_existed'], 'Battle report does not contain correct boolean that moon already existed before battle.');
-        $this->assertFalse($battleReport->general['moon_created'], 'Battle report does not contain moon creation information.');
+        $this->assertSame(0, ($battleReport->general['moon_chance'] ?? 0), 'Battle report should contain 0 percent moon chance because moon already existed before battle.');
+        $this->assertTrue(($battleReport->general['moon_existed'] ?? false), 'Battle report does not contain correct boolean that moon already existed before battle.');
+        $this->assertFalse(($battleReport->general['moon_created'] ?? false), 'Battle report does not contain moon creation information.');
     }
 
     /**
@@ -916,6 +1085,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get fleet mission
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Calculate fleet mission duration
@@ -924,15 +1096,15 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Set time to fleet mission duration + 1 second
         $this->travel($fleetMissionDuration + 1)->seconds();
 
-        // Reload application to make sure the planet is not cached
-        $this->reloadApplication();
-
         // Trigger the update logic
         $response = $this->get('/overview');
         $response->assertStatus(200);
 
         // Assert that the fleet mission is processed without errors
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Battle against moon fleet mission was not processed successfully.');
 
         // Get the battle report
@@ -940,20 +1112,20 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertNotNull($battleReport, 'Battle report was not created for battle against moon.');
 
         // Assert that battle report shows moon was NOT created (moon_created should be false)
-        $this->assertFalse($battleReport->general['moon_created'], 'Moon creation should not occur when attacking a moon, even with sufficient debris.');
+        $this->assertFalse(($battleReport->general['moon_created'] ?? false), 'Moon creation should not occur when attacking a moon, even with sufficient debris.');
 
         // Assert that battle report indicates moon already existed
-        $this->assertTrue($battleReport->general['moon_existed'], 'Battle report should indicate that moon already existed before battle.');
+        $this->assertTrue(($battleReport->general['moon_existed'] ?? false), 'Battle report should indicate that moon already existed before battle.');
 
         // Assert that moon chance is 0 (because moon already exists)
-        $this->assertSame(0, $battleReport->general['moon_chance'], 'Moon chance should be 0 when attacking a moon.');
+        $this->assertSame(0, ($battleReport->general['moon_chance'] ?? 0), 'Moon chance should be 0 when attacking a moon.');
 
         // Verify there's still exactly one moon at these coordinates (no duplicate created)
         $moonAtCoordinates = $planetServiceFactory->makeMoonForCoordinate($moonCoordinates);
         $this->assertNotNull($moonAtCoordinates, 'Moon should still exist at coordinates after battle.');
 
         // Verify there's no duplicate by checking the planet database directly
-        $moonsAtLocation = \OGame\Models\Planet::where('galaxy', $moonCoordinates->galaxy)
+        $moonsAtLocation = Planet::where('galaxy', $moonCoordinates->galaxy)
             ->where('system', $moonCoordinates->system)
             ->where('planet', $moonCoordinates->position)
             ->where('planet_type', PlanetType::Moon->value)
@@ -992,7 +1164,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
             // Ensure that foreign planet has no moon
             if ($foreignPlanet->hasMoon()) {
-                $foreignPlanet->moon()->abandonPlanet();
+                $foreignPlanet->moon()->permanentlyDeletePlanet();
             }
 
             // Add defender units
@@ -1001,6 +1173,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             // Get fleet mission
             $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
             $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+            if ($fleetMission === null) {
+                $this->fail('No active fleet mission found.');
+            }
             $fleetMissionId = $fleetMission->id;
 
             // Calculate fleet mission duration
@@ -1014,15 +1189,15 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             // Set time to fleet mission duration + 1 second
             $this->travel($fleetMissionDuration + 1)->seconds();
 
-            // Reload application to make sure the planet is not cached
-            $this->reloadApplication();
-
             // Trigger the update logic
             $response = $this->get('/overview');
             $response->assertStatus(200);
 
             // Assert that the fleet mission is processed
             $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+            if ($fleetMission === null) {
+                $this->fail('Fleet mission not found.');
+            }
             $this->assertTrue($fleetMission->processed == 1, 'Fleet mission was not processed successfully.');
 
             // Get the battle report
@@ -1030,15 +1205,12 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
             $this->assertNotNull($battleReport, 'Battle report was not created.');
 
             // Check if moon was created in this attempt
-            if ($battleReport->general['moon_created']) {
+            if (($battleReport->general['moon_created'] ?? false)) {
                 $moonCreated = true;
             }
 
             // Clean up for next attempt if moon wasn't created
             if (!$moonCreated) {
-                // Reset the test state
-                $this->reloadApplication();
-                // Do a request to get a new CSRF token
                 $this->get('/overview');
             }
         }
@@ -1046,9 +1218,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Assert that a moon was created within the maximum attempts
         $this->assertTrue($moonCreated, sprintf('Moon was not created within %d attempts with 20%% maximum moon chance.', $maxAttempts));
         $this->assertLessThanOrEqual($maxAttempts, $attempts, 'Test exceeded maximum allowed attempts.');
-
-        // Output the number of attempts it took to create the moon
-        dump("Moon was created after amount of attempts: " . $attempts);
     }
 
     /**
@@ -1105,11 +1274,13 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionDuration = $fleetMissionService->calculateFleetMissionDuration($this->planetService, $foreignPlanet->getPlanetCoordinates(), $unitCollection, resolve(AttackMission::class));
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
-        $this->reloadApplication();
 
         // Trigger the update logic.
         $response = $this->get('/overview');
@@ -1117,6 +1288,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMission->id, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1);
     }
 
@@ -1143,6 +1317,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Get just dispatched fleet mission ID from database.
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this->planetService->getPlayer()]);
         $fleetMission = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer()->first();
+        if ($fleetMission === null) {
+            $this->fail('No active fleet mission found.');
+        }
         $fleetMissionId = $fleetMission->id;
 
         // Get time it takes for the fleet to travel to the second planet.
@@ -1150,9 +1327,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Set time to fleet mission duration + 1 second.
         $this->travel($fleetMissionDuration + 1)->seconds();
-
-        // Reload application to make sure the planet is not cached.
-        $this->reloadApplication();
 
         // Set all messages as read to avoid interference with message checks.
         $this->playerSetAllMessagesRead();
@@ -1163,24 +1337,31 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Assert that the fleet mission is processed.
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
         $this->assertTrue($fleetMission->processed == 1, 'Fleet mission is not processed after fleet has arrived at destination.');
 
         // Assert that attacker received a "fleet_lost_contact" message instead of battle report.
-        $attackerMessage = Message::where('user_id', $this->planetService->getPlayer()->getId())
+        $attackerMessage = Message::where('user_id', $this->planetPlayer()->getId())
             ->where('key', 'fleet_lost_contact')
             ->orderByDesc('id')
             ->first();
         $this->assertNotNull($attackerMessage, 'Attacker did not receive a fleet_lost_contact message after being destroyed in first round.');
 
         // Assert that attacker did NOT receive a normal battle report.
-        $attackerBattleReport = Message::where('user_id', $this->planetService->getPlayer()->getId())
+        $attackerBattleReport = Message::where('user_id', $this->planetPlayer()->getId())
             ->where('key', 'battle_report')
             ->orderByDesc('id')
             ->first();
         $this->assertNull($attackerBattleReport, 'Attacker received a battle report when they should have received fleet_lost_contact message.');
 
         // Assert that defender received the full battle report.
-        $defenderMessage = Message::where('user_id', $foreignPlanet->getPlayer()->getId())
+        $foreignPlanetPlayer = $foreignPlanet->getPlayer();
+        if ($foreignPlanetPlayer === null) {
+            $this->fail('Foreign planet has no player.');
+        }
+        $defenderMessage = Message::where('user_id', $foreignPlanetPlayer->getId())
             ->where('key', 'battle_report')
             ->orderByDesc('id')
             ->first();
@@ -1229,11 +1410,18 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $fleetMissionService = resolve(FleetMissionService::class);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Attack mission not created');
-        $fleetMissionId = $activeMissions->first()->id;
+        $firstMission = $activeMissions->first();
+        if ($firstMission === null) {
+            $this->fail('Attack mission not created.');
+        }
+        $fleetMissionId = $firstMission->id;
         $fleetMission = $fleetMissionService->getFleetMissionById($fleetMissionId, false);
+        if ($fleetMission === null) {
+            $this->fail('Fleet mission not found.');
+        }
 
         // Recall the mission before it arrives
-        $fleetParentTime = Carbon::createFromTimestamp($fleetMission->time_departure);
+        $fleetParentTime = Date::createFromTimestamp($fleetMission->time_departure);
         $this->travel(60)->seconds();
 
         // Send recall request
@@ -1246,6 +1434,9 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $activeMissions = $fleetMissionService->getActiveFleetMissionsForCurrentPlayer();
         $this->assertCount(1, $activeMissions, 'Return mission should be created after recall');
         $returnMission = $activeMissions->first();
+        if ($returnMission === null) {
+            $this->fail('Return mission should be created after recall.');
+        }
 
         // Verify return mission has original resources (deuterium may be slightly higher from fuel return)
         $this->assertEquals(80000, $returnMission->metal);
@@ -1253,7 +1444,7 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         $this->assertGreaterThanOrEqual(10000, $returnMission->deuterium);
 
         // Advance time to return mission arrival
-        $this->travelTo(Carbon::createFromTimestamp($returnMission->time_arrival));
+        $this->travelTo(Date::createFromTimestamp($returnMission->time_arrival));
 
         // Trigger update to process the return
         $this->get('/overview');
@@ -1300,9 +1491,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
 
         // Increase time to complete the mission
         $this->travel(24)->hours();
-
-        // Reload application
-        $this->reloadApplication();
 
         // Trigger update
         $response = $this->get('/overview');
@@ -1352,9 +1540,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Increase time to complete the mission
         $this->travel(24)->hours();
 
-        // Reload application
-        $this->reloadApplication();
-
         // Trigger update
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -1396,9 +1581,6 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         // Increase time to complete the mission
         $this->travel(24)->hours();
 
-        // Reload application
-        $this->reloadApplication();
-
         // Trigger update
         $response = $this->get('/overview');
         $response->assertStatus(200);
@@ -1414,13 +1596,86 @@ class FleetDispatchAttackTest extends FleetDispatchTestCase
         );
         $this->assertArrayHasKey(
             'rocket_launcher',
-            $battleReport->repaired_defenses,
+            $battleReport->repaired_defenses ?? [],
             'Battle report should contain repaired rocket launchers'
         );
         $this->assertEquals(
             100,
-            $battleReport->repaired_defenses['rocket_launcher'],
+            $battleReport->repaired_defenses['rocket_launcher'] ?? null,
             'With 100% repair rate, all 100 rocket launchers should be in repaired_defenses'
         );
+    }
+
+    /**
+     * Assert that fleet dispatch with valid speed values succeeds.
+     * Speed is sent as 1-10 range (where 1 = 10%, 10 = 100%), in 0.5 increments.
+     */
+    public function testFleetDispatchValidSpeeds(): void
+    {
+        $this->basicSetup();
+
+        // Add enough light fighters and fleet slots to send multiple missions.
+        $this->planetAddUnit('light_fighter', 100);
+        $this->playerSetResearchLevel('computer_technology', 20);
+
+        $foreignPlanet = $this->createForeignPlanet();
+
+        $validSpeeds = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
+
+        foreach ($validSpeeds as $speed) {
+            $post = $this->post('/ajax/fleet/dispatch/send-fleet', [
+                'galaxy' => $foreignPlanet->getPlanetCoordinates()->galaxy,
+                'system' => $foreignPlanet->getPlanetCoordinates()->system,
+                'position' => $foreignPlanet->getPlanetCoordinates()->position,
+                'type' => PlanetType::Planet->value,
+                'mission' => $this->missionType,
+                'metal' => 0,
+                'crystal' => 0,
+                'deuterium' => 0,
+                '_token' => csrf_token(),
+                'holdingtime' => 0,
+                'speed' => $speed,
+                'am204' => 1, // 1 light fighter
+            ]);
+
+            $post->assertStatus(200);
+            $this->assertTrue($post->json('success'), "Fleet dispatch should succeed with valid speed {$speed}");
+        }
+    }
+
+    /**
+     * Assert that fleet dispatch with invalid speed values fails.
+     */
+    public function testFleetDispatchInvalidSpeeds(): void
+    {
+        $this->basicSetup();
+
+        // Add enough light fighters and fleet slots to attempt multiple missions.
+        $this->planetAddUnit('light_fighter', 100);
+        $this->playerSetResearchLevel('computer_technology', 20);
+
+        $foreignPlanet = $this->createForeignPlanet();
+
+        $invalidSpeeds = [0.5, 0, 10.5, 11, 1.3, 5.7, -1, 100, 65];
+
+        foreach ($invalidSpeeds as $speed) {
+            $post = $this->post('/ajax/fleet/dispatch/send-fleet', [
+                'galaxy' => $foreignPlanet->getPlanetCoordinates()->galaxy,
+                'system' => $foreignPlanet->getPlanetCoordinates()->system,
+                'position' => $foreignPlanet->getPlanetCoordinates()->position,
+                'type' => PlanetType::Planet->value,
+                'mission' => $this->missionType,
+                'metal' => 0,
+                'crystal' => 0,
+                'deuterium' => 0,
+                '_token' => csrf_token(),
+                'holdingtime' => 0,
+                'speed' => $speed,
+                'am204' => 1, // 1 light fighter
+            ]);
+
+            $post->assertStatus(200);
+            $this->assertFalse($post->json('success'), "Fleet dispatch should fail with invalid speed {$speed}");
+        }
     }
 }

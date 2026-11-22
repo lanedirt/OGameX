@@ -4,11 +4,13 @@ namespace OGame\Services;
 
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
+use OGame\GameObjects\Models\Enums\GameObjectType;
 use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
 use OGame\ViewModels\Queue\ResearchQueueListViewModel;
 use OGame\ViewModels\Queue\ResearchQueueViewModel;
+use RuntimeException;
 
 /**
  * Class ResearchQueueService.
@@ -64,12 +66,13 @@ class ResearchQueueService
         // Fetch queue items from model
         return $this->model->where([
             ['planet_id', $planet_id],
-            ['time_end', '<=', Carbon::now()->timestamp],
+            ['time_end', '<=', Date::now()->timestamp],
             ['building', 1],
             ['processed', 0],
             ['canceled', 0],
         ])
             ->orderBy('time_start', 'asc')
+            ->orderBy('id', 'asc')
             ->get();
     }
 
@@ -84,13 +87,14 @@ class ResearchQueueService
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
                 ['users.id', $player->getId()],
-                ['research_queues.time_end', '<=', Carbon::now()->timestamp],
+                ['research_queues.time_end', '<=', Date::now()->timestamp],
                 ['research_queues.building', 1],
                 ['research_queues.processed', 0],
                 ['research_queues.canceled', 0],
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
     }
 
@@ -114,7 +118,12 @@ class ResearchQueueService
             throw new Exception('Maximum number of items already in queue.');
         }
 
-        $object = ObjectService::getResearchObjectById($research_object_id);
+        $object = ObjectService::getObjectById($research_object_id);
+
+        // Only research objects can be added to the research queue.
+        if ($object->type !== GameObjectType::Research) {
+            throw new Exception('Only research objects can be added to the research queue.');
+        }
 
         // @TODO: add checks that current logged in user is owner of planet
         // and is able to add this object to the research queue.
@@ -153,25 +162,83 @@ class ResearchQueueService
      */
     public function retrieveQueue(PlanetService $planet): ResearchQueueListViewModel
     {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
         // Fetch queue items from model
         $queue_items = $this->model
             ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
             ->join('users', 'planets.user_id', '=', 'users.id')
             ->where([
-                ['users.id', $planet->getPlayer()->getId()],
+                ['users.id', $player->getId()],
                 ['research_queues.processed', 0],
                 ['research_queues.canceled', 0],
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
 
         // Convert to ViewModel array
         $list = [];
         foreach ($queue_items as $item) {
             $object = ObjectService::getResearchObjectById($item->object_id);
-            $planetService = $planet->getPlayer()->planets->getById($item['planet_id']);
-            $time_countdown = $item->time_end - (int)Carbon::now()->timestamp;
+            $planetService = $player->planets->getById($item['planet_id']);
+            $time_countdown = $item->time_end - (int)Date::now()->timestamp;
+            if ($time_countdown < 0) {
+                $time_countdown = 0;
+            }
+
+            $viewModel = new ResearchQueueViewModel(
+                $item['id'],
+                $object,
+                $time_countdown,
+                $item['time_end'] - $item['time_start'],
+                $planetService,
+                $item['building'],
+                $item['object_level_target'],
+            );
+
+            $list[] = $viewModel;
+        }
+
+        return new ResearchQueueListViewModel($list);
+    }
+
+    /**
+     * Retrieve current research queue for a specific planet only (not all player planets).
+     * Used by planet relocation to check if research is running on the planet being moved.
+     *
+     * @param PlanetService $planet
+     * @return ResearchQueueListViewModel
+     * @throws Exception
+     */
+    public function retrieveQueueForPlanet(PlanetService $planet): ResearchQueueListViewModel
+    {
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new Exception('Planet has no owner.');
+        }
+
+        // Fetch queue items from model scoped to this specific planet.
+        $queue_items = $this->model
+            ->where([
+                ['research_queues.planet_id', $planet->getPlanetId()],
+                ['research_queues.processed', 0],
+                ['research_queues.canceled', 0],
+            ])
+            ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
+            ->get();
+
+        // Convert to ViewModel array
+        $list = [];
+        foreach ($queue_items as $item) {
+            $object = ObjectService::getResearchObjectById($item->object_id);
+            $planetService = $player->planets->getById($item['planet_id']);
+            $time_countdown = $item->time_end - (int)Date::now()->timestamp;
             if ($time_countdown < 0) {
                 $time_countdown = 0;
             }
@@ -245,6 +312,7 @@ class ResearchQueueService
                 ['canceled', 0],
             ])
             ->select('research_queues.*')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
 
         foreach ($queue_items as $queue_item) {
@@ -284,15 +352,6 @@ class ResearchQueueService
                 continue;
             }
 
-            // Sanity check: check if the planet has enough resources. If not,
-            // then cancel research request.
-            if (!$planet->hasResources($price)) {
-                // Error, cancel research queue item.
-                $this->cancel($player, $queue_item->id, $queue_item->object_id);
-
-                continue;
-            }
-
             // Sanity check: check if the researching requirements are still met. If not,
             // then cancel research request.
             if (!ObjectService::objectRequirementsWithLevelsMet($object->machine_name, $queue_item->object_level_target, $planet)) {
@@ -301,11 +360,17 @@ class ResearchQueueService
                 continue;
             }
 
-            // All OK, deduct resources and start researching process.
-            $planet->deductResources($price);
+            // Deduct resources
+            try {
+                $planet->deductResources($price);
+            } catch (RuntimeException $e) {
+                // Insufficient resources so we cancel the research request.
+                $this->cancel($player, $queue_item->id, $queue_item->object_id);
+                continue;
+            }
 
             if (!$time_start) {
-                $time_start = (int)Carbon::now()->timestamp;
+                $time_start = (int)Date::now()->timestamp;
             }
 
             $queue_item->time_duration = (int)$research_time;
@@ -320,7 +385,7 @@ class ResearchQueueService
             // If the calculated end time is lower than the current time,
             // we force that the planet is updated again which will grant
             // the research immediately without having to wait for a refresh.
-            if ($queue_item->time_end < Carbon::now()->timestamp) {
+            if ($queue_item->time_end < Date::now()->timestamp) {
                 $player->updateResearchQueue();
             }
         }
@@ -404,6 +469,7 @@ class ResearchQueueService
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
 
         foreach ($queue_items as $item) {
@@ -435,6 +501,7 @@ class ResearchQueueService
             ])
             ->select('research_queues.*')
             ->orderBy('research_queues.time_start', 'asc')
+            ->orderBy('research_queues.id', 'asc')
             ->get();
 
         foreach ($research_queue_items as $research_queue_item) {

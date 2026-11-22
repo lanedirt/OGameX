@@ -2,13 +2,18 @@
 
 namespace OGame\GameMissions\BattleEngine;
 
+use FFI;
+use OGame\GameMissions\BattleEngine\Models\AttackerFleet;
 use OGame\GameMissions\BattleEngine\Models\BattleResult;
 use OGame\GameMissions\BattleEngine\Models\BattleResultRound;
+use OGame\GameMissions\BattleEngine\Models\DefenderFleet;
 use OGame\GameObjects\Models\Units\UnitCollection;
+use OGame\Services\CharacterClassService;
 use OGame\Services\ObjectService;
 use OGame\Services\PlanetService;
-use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
+use RuntimeException;
+use stdClass;
 
 /**
  * Class RustBattleEngine.
@@ -22,23 +27,23 @@ use OGame\Services\SettingsService;
 class RustBattleEngine extends BattleEngine
 {
     /**
-     * @var \FFI The FFI instance used to call the Rust battle engine.
+     * @var FFI The FFI instance used to call the Rust battle engine.
      */
-    private \FFI $ffi;
+    private FFI $ffi;
 
     /**
      * RustBattleEngine constructor.
      *
-     * @param UnitCollection $attackerFleet The fleet of the attacker player.
-     * @param PlayerService $attackerPlayer The attacker player.
-     * @param PlanetService $defenderPlanet The planet of the defender player.
+     * @param array<AttackerFleet> $attackers All attacking fleets.
+     * @param PlanetService $defenderPlanet The planet of the defender player (used for loot, moon calculation).
+     * @param array<DefenderFleet> $defenders All defending fleets (planet owner + ACS defend fleets).
      * @param SettingsService $settings The settings service.
      */
-    public function __construct(UnitCollection $attackerFleet, PlayerService $attackerPlayer, PlanetService $defenderPlanet, SettingsService $settings)
+    public function __construct(array $attackers, PlanetService $defenderPlanet, array $defenders, SettingsService $settings)
     {
-        parent::__construct($attackerFleet, $attackerPlayer, $defenderPlanet, $settings);
+        parent::__construct($attackers, $defenderPlanet, $defenders, $settings);
 
-        $this->ffi = \FFI::cdef(
+        $this->ffi = FFI::cdef(
             "char* fight_battle_rounds(const char* input_json);",
             base_path('storage/rust-libs/libbattle_engine_ffi.so')
         );
@@ -52,100 +57,123 @@ class RustBattleEngine extends BattleEngine
      */
     protected function fightBattleRounds(BattleResult $result): array
     {
+        // Hamill Manoeuvre: General class Light Fighters have a chance to destroy one Deathstar before battle
+        $this->checkHamillManoeuvre($result);
+
         // Convert PHP battle units to format expected by Rust
         $input = $this->prepareBattleInput($result);
 
-        // Convert to JSON, forcing object notation
-        $inputJson = json_encode($input, JSON_FORCE_OBJECT);
+        // Convert to JSON
+        $inputJson = json_encode($input);
 
         // Call Rust function
         // @phpstan-ignore-next-line
         $outputPtr = $this->ffi->fight_battle_rounds($inputJson);
-        $output = \FFI::string($outputPtr);
+        $output = FFI::string($outputPtr);
 
         // Parse JSON response
         $battleOutput = json_decode($output, true);
 
         // Convert Rust output back to PHP battle rounds
-        return $this->convertBattleOutput($battleOutput);
+        $rounds = $this->convertBattleOutput($result, $battleOutput);
+
+        // Handle case where no battle occurred - all fleets keep their units
+        if (count($rounds) === 0) {
+            foreach ($result->attackerFleetResults as $fleetResult) {
+                $fleetResult->unitsResult = clone $fleetResult->unitsStart;
+                $fleetResult->completelyDestroyed = false;
+            }
+            foreach ($result->defenderFleetResults as $fleetResult) {
+                $fleetResult->unitsResult = clone $fleetResult->unitsStart;
+                $fleetResult->completelyDestroyed = false;
+            }
+        }
+
+        return $rounds;
     }
 
     /**
      * Prepare the battle input for the Rust battle engine.
      *
      * @param BattleResult $result
-     * @return array{
-     *     attacker_units: array<int, array{
-     *         unit_id: int,
-     *         amount: int,
-     *         shield_points: int,
-     *         attack_power: int,
-     *         hull_plating: float,
-     *         rapidfire: array<int, int>
-     *     }>,
-     *     defender_units: array<int, array{
-     *         unit_id: int,
-     *         amount: int,
-     *         shield_points: int,
-     *         attack_power: int,
-     *         hull_plating: float,
-     *         rapidfire: array<int, int>
-     *     }>
-     * }
+     * @return array Array structure for JSON serialization to Rust battle engine
      */
     private function prepareBattleInput(BattleResult $result): array
     {
-        // Convert PHP battle units to Rust format
-        $attackerUnits = [];
-        foreach ($result->attackerUnitsStart->units as $unit) {
-            $rapidfire = [];
-            foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
-                $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
-                $rapidfire[$targetUnit->id] = $rapidfireObject->amount;
+        // Build attacker fleets
+        $attackerFleets = [];
+        foreach ($this->attackers as $attackerFleet) {
+            $attackerUnits = new stdClass();
+            foreach ($attackerFleet->units->units as $unit) {
+                $rapidfire = new stdClass();
+                foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
+                    $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
+                    $rapidfire->{$targetUnit->id} = $rapidfireObject->amount;
+                }
+
+                $attackerUnits->{$unit->unitObject->id} = (object)[
+                    'unit_id' => $unit->unitObject->id,
+                    'amount' => $unit->amount,
+                    'shield_points' => $unit->unitObject->properties->shield->calculate($attackerFleet->player)->totalValue,
+                    'attack_power' => $unit->unitObject->properties->attack->calculate($attackerFleet->player)->totalValue,
+                    'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($attackerFleet->player)->totalValue / 10),
+                    'rapidfire' => $rapidfire,
+                ];
             }
 
-            $attackerUnits[$unit->unitObject->id] = [
-                'unit_id' => $unit->unitObject->id,
-                'amount' => $unit->amount,
-                'shield_points' => $unit->unitObject->properties->shield->calculate($this->attackerPlayer)->totalValue,
-                'attack_power' => $unit->unitObject->properties->attack->calculate($this->attackerPlayer)->totalValue,
-                'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->attackerPlayer)->totalValue / 10),
-                'rapidfire' => $rapidfire,
+            $attackerFleets[] = (object)[
+                'fleet_mission_id' => $attackerFleet->fleetMissionId,
+                'owner_id' => max(0, $attackerFleet->ownerId), // Ensure non-negative for u32
+                'units' => $attackerUnits,
             ];
         }
 
-        // Convert defender units to Rust format
-        $defenderUnits = [];
-        foreach ($result->defenderUnitsStart->units as $unit) {
-            $rapidfire = [];
-            foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
-                $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
-                $rapidfire[$targetUnit->id] = $rapidfireObject->amount;
+        // Build defender fleets (planet owner + ACS defend fleets)
+        $defenderPlayer = $this->defenderPlanet->getPlayer();
+        if ($defenderPlayer === null) {
+            throw new RuntimeException('Battle defender planet has no owner.');
+        }
+        $defenderFleets = [];
+        foreach ($result->defenderFleetResults as $fleetResult) {
+            $defenderUnits = new stdClass();
+            foreach ($fleetResult->unitsStart->units as $unit) {
+                $rapidfire = new stdClass();
+                foreach ($unit->unitObject->rapidfire as $rapidfireObject) {
+                    $targetUnit = ObjectService::getUnitObjectByMachineName($rapidfireObject->object_machine_name);
+                    $rapidfire->{$targetUnit->id} = $rapidfireObject->amount;
+                }
+
+                $defenderUnits->{$unit->unitObject->id} = (object)[
+                    'unit_id' => $unit->unitObject->id,
+                    'amount' => $unit->amount,
+                    'shield_points' => $unit->unitObject->properties->shield->calculate($defenderPlayer)->totalValue,
+                    'attack_power' => $unit->unitObject->properties->attack->calculate($defenderPlayer)->totalValue,
+                    'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($defenderPlayer)->totalValue / 10),
+                    'rapidfire' => $rapidfire,
+                ];
             }
 
-            $defenderUnits[$unit->unitObject->id] = [
-                'unit_id' => $unit->unitObject->id,
-                'amount' => $unit->amount,
-                'shield_points' => $unit->unitObject->properties->shield->calculate($this->defenderPlanet->getPlayer())->totalValue,
-                'attack_power' => $unit->unitObject->properties->attack->calculate($this->defenderPlanet->getPlayer())->totalValue,
-                'hull_plating' => floor($unit->unitObject->properties->structural_integrity->calculate($this->defenderPlanet->getPlayer())->totalValue / 10),
-                'rapidfire' => $rapidfire,
+            $defenderFleets[] = (object)[
+                'fleet_mission_id' => $fleetResult->fleetMissionId,
+                'owner_id' => max(0, $fleetResult->ownerId), // Ensure non-negative for u32
+                'units' => $defenderUnits,
             ];
         }
 
         return [
-            'attacker_units' => $attackerUnits,
-            'defender_units' => $defenderUnits,
+            'attacker_fleets' => $attackerFleets,
+            'defender_fleets' => $defenderFleets,
         ];
     }
 
     /**
-     * Convert the battle output from Rust to PHP.
+     * Convert the battle output from Rust to PHP and populate per-fleet results.
      *
+     * @param BattleResult $result The battle result to populate with fleet results
      * @param array<string, list<array<string, float|int|string>>> $battleOutput
      * @return array<BattleResultRound>
      */
-    private function convertBattleOutput(array $battleOutput): array
+    private function convertBattleOutput(BattleResult $result, array $battleOutput): array
     {
         $rounds = [];
         foreach ($battleOutput['rounds'] as $roundData) {
@@ -192,6 +220,61 @@ class RustBattleEngine extends BattleEngine
             $round->fullStrengthAttacker = (int)($roundData['full_strength_attacker'] ?? 0);
             $round->fullStrengthDefender = (int)($roundData['full_strength_defender'] ?? 0);
 
+            // Populate per-fleet results from Rust (use last round for final results)
+            if (isset($roundData['attacker_fleet_results']) && is_array($roundData['attacker_fleet_results'])) {
+                foreach ($roundData['attacker_fleet_results'] as $fleetResult) {
+                    $fleetMissionId = (int)$fleetResult['fleet_mission_id'];
+                    $ownerId = (int)$fleetResult['owner_id'];
+
+                    // Find the corresponding fleet result in the BattleResult
+                    foreach ($result->attackerFleetResults as $attackerFleetResult) {
+                        if ($attackerFleetResult->fleetMissionId === $fleetMissionId && $attackerFleetResult->playerId === $ownerId) {
+                            // Populate units_result from Rust data
+                            if (isset($fleetResult['units_result']) && is_array($fleetResult['units_result'])) {
+                                $attackerFleetResult->unitsResult = $this->convertUnitArrayToUnitCollection($fleetResult['units_result']);
+                            }
+
+                            // Populate units_lost from Rust data
+                            if (isset($fleetResult['units_lost']) && is_array($fleetResult['units_lost'])) {
+                                $attackerFleetResult->unitsLost = $this->convertUnitArrayToUnitCollection($fleetResult['units_lost']);
+                            }
+
+                            // Check if completely destroyed
+                            $attackerFleetResult->completelyDestroyed = $attackerFleetResult->unitsResult->getAmount() === 0;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (isset($roundData['defender_fleet_results']) && is_array($roundData['defender_fleet_results'])) {
+                foreach ($roundData['defender_fleet_results'] as $fleetResult) {
+                    $fleetMissionId = (int)$fleetResult['fleet_mission_id'];
+                    $ownerId = (int)$fleetResult['owner_id'];
+
+                    // Find the corresponding fleet result in the BattleResult
+                    foreach ($result->defenderFleetResults as $defenderFleetResult) {
+                        // Note: NPC owner IDs are negative (-1/-2) in PHP but clamped to 0 when sent to Rust.
+                        // Use max(0, ...) here to match the same clamping applied in prepareBattleInput().
+                        if ($defenderFleetResult->fleetMissionId === $fleetMissionId && max(0, $defenderFleetResult->ownerId) === $ownerId) {
+                            // Populate units_result from Rust data
+                            if (isset($fleetResult['units_result']) && is_array($fleetResult['units_result'])) {
+                                $defenderFleetResult->unitsResult = $this->convertUnitArrayToUnitCollection($fleetResult['units_result']);
+                            }
+
+                            // Populate units_lost from Rust data
+                            if (isset($fleetResult['units_lost']) && is_array($fleetResult['units_lost'])) {
+                                $defenderFleetResult->unitsLost = $this->convertUnitArrayToUnitCollection($fleetResult['units_lost']);
+                            }
+
+                            // Check if completely destroyed
+                            $defenderFleetResult->completelyDestroyed = $defenderFleetResult->unitsResult->getAmount() === 0;
+                            break;
+                        }
+                    }
+                }
+            }
+
             $rounds[] = $round;
         }
         return $rounds;
@@ -211,5 +294,53 @@ class RustBattleEngine extends BattleEngine
             $unitCollection->addUnit($unitObject, (int)$unit['amount']);
         }
         return $unitCollection;
+    }
+
+    /**
+     * Check and execute the Hamill Manoeuvre special ability.
+     * General class Light Fighters have a small chance to instantly destroy one Deathstar before battle.
+     *
+     * @param BattleResult $result
+     * @return void
+     */
+    private function checkHamillManoeuvre(BattleResult $result): void
+    {
+        // Check if attacker is General class
+        $attackerPlayer = $this->getAttackerPlayer();
+        $characterClassService = app(CharacterClassService::class);
+        if (!$characterClassService->isGeneral($attackerPlayer->getUser())) {
+            return;
+        }
+
+        // Check if attacker has at least one Light Fighter
+        $hasLightFighter = $result->attackerUnitsStart->getAmountByMachineName('light_fighter') > 0;
+
+        if (!$hasLightFighter) {
+            return;
+        }
+
+        // Check if defender has at least one Deathstar
+        $hasDeathstar = $result->defenderUnitsStart->getAmountByMachineName('deathstar') > 0;
+
+        if (!$hasDeathstar) {
+            return;
+        }
+
+        // Roll the dice for Hamill Manoeuvre
+        $settings = app(SettingsService::class);
+        $probability = $settings->hamillManoeuvreChance();
+        $dice = random_int(1, $probability);
+
+        if ($dice === 1) {
+            // Hamill Manoeuvre triggered! Destroy one Deathstar
+            $result->hamillManoeuvreTriggered = true;
+
+            // Remove the Deathstar from defender units so it doesn't participate in battle
+            $deathstarObject = ObjectService::getShipObjectByMachineName('deathstar');
+            $result->defenderUnitsStart->removeUnit($deathstarObject, 1);
+
+            // NOTE: The loss will be properly calculated after battle rounds complete
+            // by comparing the modified defenderUnitsStart with defenderUnitsResult.
+        }
     }
 }

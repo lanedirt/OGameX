@@ -2,8 +2,8 @@
 
 Follow the steps in the checklist below to prepare a new release for the GitHub repository.
 
-- [ ] Update ./README.md and set version in line Latest stable release **(0.7.0)**: to the new version.
-- [ ] Update ./config/app.php and set 'version' => '0.7.0' to the new version.
+- [ ] Update ./README.md and set version in line Latest stable release **(0.14.0)**: to the new version.
+- [ ] Update ./config/app.php and set 'version' => '0.14.0' to the new version.
 - [ ] Update README screenshots if applicable
 - [ ] Update README current/upcoming features
 

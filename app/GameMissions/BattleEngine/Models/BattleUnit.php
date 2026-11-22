@@ -10,19 +10,9 @@ use OGame\GameObjects\Models\UnitObject;
 class BattleUnit
 {
     /**
-     * @var UnitObject The unit object that this battle unit represents.
-     */
-    public UnitObject $unitObject;
-
-    /**
      * @var int The original hull plating of the unit. This is the structural integrity of the unit divided by 10.
      */
     public int $originalHullPlating;
-
-    /**
-     * @var int The original shield points of the unit.
-     */
-    public int $originalShieldPoints;
 
     /**
      * @var int The current health points of the unit. Hull plating = structural integrity / 10.
@@ -37,31 +27,22 @@ class BattleUnit
     public int $currentShieldPoints;
 
     /**
-     * @var int The attack power of the unit. This is the amount of damage the unit deals to another unit in a single round of combat.
-     */
-    public int $attackPower;
-
-    /**
      * Create a new BattleUnit object.
      *
      * @param UnitObject $unitObject
      * @param int $structuralIntegrity
-     * @param int $shieldPoints
+     * @param int $originalShieldPoints
      * @param int $attackPower
+     * @param int $fleetMissionId
+     * @param int $ownerId
      */
-    public function __construct(UnitObject $unitObject, int $structuralIntegrity, int $shieldPoints, int $attackPower)
+    public function __construct(public UnitObject $unitObject, int $structuralIntegrity, public int $originalShieldPoints, public int $attackPower, public int $fleetMissionId, public int $ownerId)
     {
-        $this->unitObject = $unitObject;
-
         // Hull plating is the structural integrity divided by 10.
         $hullPlating = $structuralIntegrity / 10;
         $this->originalHullPlating = $hullPlating;
         $this->currentHullPlating = $hullPlating;
-
-        $this->originalShieldPoints = $shieldPoints;
-        $this->currentShieldPoints = $shieldPoints;
-
-        $this->attackPower = $attackPower;
+        $this->currentShieldPoints = $this->originalShieldPoints;
     }
 
     /**

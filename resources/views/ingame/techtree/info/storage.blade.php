@@ -3,11 +3,11 @@
     <table class="general_details">
         <thead>
         <tr>
-            <th>Level</th>
-            <th>Storage cap.</th>
-            <th>Difference</th>
-            <th>Difference/level</th>
-            <th>Protected (Percent)</th>
+            <th>{{ __('t_ingame.techtree.col_level') }}</th>
+            <th>{{ __('t_ingame.techtree.storage_capacity') }}</th>
+            <th>{{ __('t_ingame.techtree.col_difference') }}</th>
+            <th>{{ __('t_ingame.techtree.col_diff_per_level') }}</th>
+            <th>{{ __('t_ingame.techtree.col_protected_percent') }}</th>
         </tr>
         </thead>
         <tbody>

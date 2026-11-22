@@ -7,15 +7,8 @@ namespace OGame\Models\Planet;
  */
 class Coordinate
 {
-    public int $galaxy;
-    public int $system;
-    public int $position;
-
-    public function __construct(int $galaxy, int $system, int $position)
+    public function __construct(public int $galaxy, public int $system, public int $position)
     {
-        $this->galaxy = $galaxy;
-        $this->system = $system;
-        $this->position = $position;
     }
 
     /**

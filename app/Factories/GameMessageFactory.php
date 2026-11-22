@@ -4,7 +4,52 @@ namespace OGame\Factories;
 
 use Illuminate\Contracts\Container\BindingResolutionException;
 use OGame\GameMessages\Abstracts\GameMessage;
+use OGame\GameMessages\AcsDefendArrivalHost;
+use OGame\GameMessages\AcsDefendArrivalSender;
+use OGame\GameMessages\AllianceApplicationReceived;
+use OGame\GameMessages\AllianceBroadcast;
+use OGame\GameMessages\BattleReport;
+use OGame\GameMessages\BuddyRemoved;
+use OGame\GameMessages\BuddyRequestAccepted;
+use OGame\GameMessages\BuddyRequestReceived;
+use OGame\GameMessages\ColonyEstablished;
+use OGame\GameMessages\ColonyEstablishFailAstrophysics;
+use OGame\GameMessages\DebrisFieldHarvest;
+use OGame\GameMessages\DefenderEspionageDetected;
+use OGame\GameMessages\EspionageReport;
+use OGame\GameMessages\ExpeditionBattle;
+use OGame\GameMessages\ExpeditionBattleAliens;
+use OGame\GameMessages\ExpeditionBattlePirates;
+use OGame\GameMessages\ExpeditionFailed;
+use OGame\GameMessages\ExpeditionFailedAndDelay;
+use OGame\GameMessages\ExpeditionFailedAndSpeedup;
+use OGame\GameMessages\ExpeditionGainDarkMatter;
+use OGame\GameMessages\ExpeditionGainItem;
+use OGame\GameMessages\ExpeditionGainResources;
+use OGame\GameMessages\ExpeditionGainShips;
+use OGame\GameMessages\ExpeditionLossOfFleet;
+use OGame\GameMessages\ExpeditionMerchantFound;
+use OGame\GameMessages\FleetDeployment;
+use OGame\GameMessages\FleetDeploymentWithResources;
+use OGame\GameMessages\FleetLostContact;
+use OGame\GameMessages\FleetUnionInvite;
+use OGame\GameMessages\MissileAttackReport;
+use OGame\GameMessages\MissileDefenseReport;
+use OGame\GameMessages\MoonDestroyed;
+use OGame\GameMessages\MoonDestructionCatastrophic;
+use OGame\GameMessages\MoonDestructionFailure;
+use OGame\GameMessages\MoonDestructionMissionFailed;
+use OGame\GameMessages\MoonDestructionRepelled;
+use OGame\GameMessages\MoonDestructionSuccess;
+use OGame\GameMessages\PlanetRelocationSuccess;
+use OGame\GameMessages\ReturnOfFleet;
+use OGame\GameMessages\ReturnOfFleetWithResources;
+use OGame\GameMessages\TransportArrived;
+use OGame\GameMessages\TransportReceived;
+use OGame\GameMessages\WelcomeMessage;
+use OGame\GameMessages\WreckFieldRepairCompleted;
 use OGame\Models\Message;
+use RuntimeException;
 
 class GameMessageFactory
 {
@@ -17,37 +62,66 @@ class GameMessageFactory
      * @var array<string, class-string<GameMessage>>
      */
     private static array $gameMessageClasses = [
-        'welcome_message' => \OGame\GameMessages\WelcomeMessage::class,
-        'return_of_fleet_with_resources' => \OGame\GameMessages\ReturnOfFleetWithResources::class,
-        'return_of_fleet' => \OGame\GameMessages\ReturnOfFleet::class,
-        'transport_arrived' => \OGame\GameMessages\TransportArrived::class,
-        'transport_received' => \OGame\GameMessages\TransportReceived::class,
-        'colony_established' => \OGame\GameMessages\ColonyEstablished::class,
-        'colony_establish_fail_astrophysics' => \OGame\GameMessages\ColonyEstablishFailAstrophysics::class,
-        'fleet_deployment' => \OGame\GameMessages\FleetDeployment::class,
-        'fleet_deployment_with_resources' => \OGame\GameMessages\FleetDeploymentWithResources::class,
-        'espionage_report' => \OGame\GameMessages\EspionageReport::class,
-        'espionage_detected' => \OGame\GameMessages\DefenderEspionageDetected::class,
-        'battle_report' => \OGame\GameMessages\BattleReport::class,
-        'fleet_lost_contact' => \OGame\GameMessages\FleetLostContact::class,
-        'debris_field_harvest' => \OGame\GameMessages\DebrisFieldHarvest::class,
+        'welcome_message' => WelcomeMessage::class,
+        'return_of_fleet_with_resources' => ReturnOfFleetWithResources::class,
+        'return_of_fleet' => ReturnOfFleet::class,
+        'transport_arrived' => TransportArrived::class,
+        'transport_received' => TransportReceived::class,
+        'colony_established' => ColonyEstablished::class,
+        'colony_establish_fail_astrophysics' => ColonyEstablishFailAstrophysics::class,
+        'fleet_deployment' => FleetDeployment::class,
+        'fleet_deployment_with_resources' => FleetDeploymentWithResources::class,
+        'acs_defend_arrival_sender' => AcsDefendArrivalSender::class,
+        'acs_defend_arrival_host' => AcsDefendArrivalHost::class,
+        'espionage_report' => EspionageReport::class,
+        'espionage_detected' => DefenderEspionageDetected::class,
+        'battle_report' => BattleReport::class,
+        'fleet_lost_contact' => FleetLostContact::class,
+        'debris_field_harvest' => DebrisFieldHarvest::class,
 
-        'expedition_battle' => \OGame\GameMessages\ExpeditionBattle::class,
-        'expedition_gain_dark_matter' => \OGame\GameMessages\ExpeditionGainDarkMatter::class,
-        'expedition_failed' => \OGame\GameMessages\ExpeditionFailed::class,
-        'expedition_failed_and_delay' => \OGame\GameMessages\ExpeditionFailedAndDelay::class,
-        'expedition_loss_of_fleet' => \OGame\GameMessages\ExpeditionLossOfFleet::class,
-        'expedition_failed_and_speedup' => \OGame\GameMessages\ExpeditionFailedAndSpeedup::class,
-        'expedition_gain_item' => \OGame\GameMessages\ExpeditionGainItem::class,
-        'expedition_gain_resources' => \OGame\GameMessages\ExpeditionGainResources::class,
-        'expedition_gain_ships' => \OGame\GameMessages\ExpeditionGainShips::class,
-        'expedition_merchant_found' => \OGame\GameMessages\ExpeditionMerchantFound::class,
+        'expedition_battle' => ExpeditionBattle::class,
+        'expedition_battle_pirates' => ExpeditionBattlePirates::class,
+        'expedition_battle_aliens' => ExpeditionBattleAliens::class,
+        'expedition_gain_dark_matter' => ExpeditionGainDarkMatter::class,
+        'expedition_failed' => ExpeditionFailed::class,
+        'expedition_failed_and_delay' => ExpeditionFailedAndDelay::class,
+        'expedition_loss_of_fleet' => ExpeditionLossOfFleet::class,
+        'expedition_failed_and_speedup' => ExpeditionFailedAndSpeedup::class,
+        'expedition_gain_item' => ExpeditionGainItem::class,
+        'expedition_gain_resources' => ExpeditionGainResources::class,
+        'expedition_gain_ships' => ExpeditionGainShips::class,
+        'expedition_merchant_found' => ExpeditionMerchantFound::class,
 
         // Buddy system messages
-        'buddy_request_received' => \OGame\GameMessages\BuddyRequestReceived::class,
-        'buddy_request_accepted' => \OGame\GameMessages\BuddyRequestAccepted::class,
-        'buddy_removed' => \OGame\GameMessages\BuddyRemoved::class,
-        ];
+        'buddy_request_received' => BuddyRequestReceived::class,
+        'buddy_request_accepted' => BuddyRequestAccepted::class,
+        'buddy_removed' => BuddyRemoved::class,
+
+        // Missile attack messages
+        'missile_attack_report' => MissileAttackReport::class,
+        'missile_defense_report' => MissileDefenseReport::class,
+
+        // Alliance messages
+        'alliance_broadcast' => AllianceBroadcast::class,
+        'alliance_application_received' => AllianceApplicationReceived::class,
+
+        // Fleet union messages
+        'fleet_union_invite' => FleetUnionInvite::class,
+
+        // Planet relocation messages
+        'planet_relocation_success' => PlanetRelocationSuccess::class,
+
+        // Moon destruction messages
+        'moon_destruction_success' => MoonDestructionSuccess::class,
+        'moon_destruction_failure' => MoonDestructionFailure::class,
+        'moon_destruction_catastrophic' => MoonDestructionCatastrophic::class,
+        'moon_destroyed' => MoonDestroyed::class,
+        'moon_destruction_mission_failed' => MoonDestructionMissionFailed::class,
+        'moon_destruction_repelled' => MoonDestructionRepelled::class,
+
+        // Wreck field messages
+        'wreck_field_repair_completed' => WreckFieldRepairCompleted::class,
+    ];
 
     /**
      * @return array<GameMessage>
@@ -60,7 +134,7 @@ class GameMessageFactory
                 // Create a new instance of the game message class and pass a new (empty) Message object to it.
                 $gameMessages[$id] = resolve($class, ['message' => new Message()]);
             } catch (BindingResolutionException $e) {
-                throw new \RuntimeException('Game message not found: ' . $class);
+                throw new RuntimeException('Game message not found: ' . $class);
             }
         }
         return $gameMessages;
@@ -77,7 +151,7 @@ class GameMessageFactory
         try {
             return resolve(self::$gameMessageClasses[$message->key], ['message' => $message]);
         } catch (BindingResolutionException $e) {
-            throw new \RuntimeException('Game message not found: ' . $message->key);
+            throw new RuntimeException('Game message not found: ' . $message->key);
         }
     }
 
@@ -100,7 +174,7 @@ class GameMessageFactory
                     $matchingKeys[] = $id;
                 }
             } catch (BindingResolutionException $e) {
-                throw new \RuntimeException('Game message not found: ' . $className);
+                throw new RuntimeException('Game message not found: ' . $className);
             }
         }
 

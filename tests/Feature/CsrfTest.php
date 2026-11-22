@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that certain actions require a CSRF token.
  */
-class CsrfTest extends AccountTestCase
+class CsrfTest extends IsolatedAccountTestCase
 {
     /**
      * Verify that issuing fastbuild requests without a CSRF token fails.

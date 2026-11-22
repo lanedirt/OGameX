@@ -5,5 +5,6 @@
     "gulp.autoDetect": "off",
     "jake.autoDetect": "off",
     "task.autoDetect": "off",
-    "dotnet.autoDetect": "off"
+    "dotnet.autoDetect": "off",
+    "php.version": "8.5"
   }

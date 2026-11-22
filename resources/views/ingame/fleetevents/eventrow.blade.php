@@ -120,6 +120,9 @@
         <td class="sendProbe">
         </td>
         <td class="sendMail">
+            @if ($fleet_event_row->destination_player_id !== null && $fleet_event_row->destination_player_id !== auth()->id())
+                <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $fleet_event_row->destination_player_id }}" title="{{ $fleet_event_row->destination_player_name }}"><span class="icon icon_chat"></span></a>
+            @endif
         </td>
     </tr>
 @else
@@ -239,7 +242,7 @@
         <td class="sendMail">
             @if ($fleet_event_row->is_recallable)
                 <span class="reversal reversal_time" ref="{{ $fleet_event_row->id }}">
-                    <a class="icon_link tooltipHTML recallFleet" data-fleet-id="{{ $fleet_event_row->id }}"
+                    <a class="icon_link tooltipHTML recallFleet" data-fleet-id="{{ $fleet_event_row->real_mission_id }}"
                        title="Recall:| {{ \Carbon\Carbon::parse($fleet_event_row->active_recall_time)->format('d.m.Y') }}<br>
                                             {{ \Carbon\Carbon::parse($fleet_event_row->active_recall_time)->format('H:i:s') }}">
                         <img src="/img/icons/89624964d4b06356842188dba05b1b.gif" height="16" width="16"/>
@@ -250,19 +253,39 @@
         <td class="sendProbe">
         </td>
         <td class="sendMail">
+            @if ($fleet_event_row->destination_player_id !== null && $fleet_event_row->destination_player_id !== auth()->id())
+                <a href="javascript:void(0)" class="sendMail js_openChat tooltip" data-playerid="{{ $fleet_event_row->destination_player_id }}" title="{{ $fleet_event_row->destination_player_name }}"><span class="icon icon_chat"></span></a>
+            @endif
         </td>
     </tr>
 @endif
 
 <script type="text/javascript">
     (function ($) {
-        new eventboxCountdown(
-            $("#counter-eventlist-{{ $fleet_event_row->id }}"),
-                {{ $fleet_event_row->mission_time_arrival }} - {{ time() }},
-            $("#eventListWrap"),
-            "#TODO_page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
-            [0, 1]
-        );
+        // Initialize countdown timer for this fleet mission row
+        // When the countdown reaches zero, it calls the checkEvents endpoint to determine
+        // which mission rows should be removed from the display (e.g., arrival missions entering hold time)
+
+        // Set up AJAX to include CSRF token for Laravel authentication
+        var wrappedCountdown = function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            // Initialize the countdown timer
+            // Parameters: countdown element, time remaining (seconds), parent container,
+            //             checkEvents URL, mission IDs to check when timer expires
+            new eventboxCountdown(
+                $("#counter-eventlist-{{ $fleet_event_row->id }}"),
+                    {{ $fleet_event_row->mission_time_arrival }} - {{ time() }},
+                $("#eventListWrap"),
+                "{{ route('fleet.eventlist.checkevents') }}",
+                [{{ $fleet_event_row->id }}]
+            );
+        };
+        wrappedCountdown();
     })(jQuery);
 </script>
 

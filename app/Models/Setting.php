@@ -2,25 +2,31 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\WithoutIncrementing;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  *
  *
  * @property string $key
  * @property string $value
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|Setting newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Setting newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Setting query()
- * @method static \Illuminate\Database\Eloquent\Builder|Setting whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Setting whereKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Setting whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Setting whereValue($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder|Setting newModelQuery()
+ * @method static Builder|Setting newQuery()
+ * @method static Builder|Setting query()
+ * @method static Builder|Setting whereCreatedAt($value)
+ * @method static Builder|Setting whereKey($value)
+ * @method static Builder|Setting whereUpdatedAt($value)
+ * @method static Builder|Setting whereValue($value)
  * @mixin \Eloquent
  */
+#[Fillable(['key', 'value'])]
+#[WithoutIncrementing]
 class Setting extends Model
 {
     use HasFactory;
@@ -31,13 +37,4 @@ class Setting extends Model
      * @var string
      */
     protected $primaryKey = 'key';
-
-    /**
-     * Setting table has custom primary key (that does not increment).
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    protected $fillable = ['key', 'value'];
 }

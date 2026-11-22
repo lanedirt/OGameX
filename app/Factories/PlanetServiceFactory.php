@@ -3,13 +3,15 @@
 namespace OGame\Factories;
 
 use Cache;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
+use OGame\GameConstants\UniverseConstants;
+use OGame\Models\Enums\PlanetType;
 use OGame\Models\Planet;
 use OGame\Models\Planet\Coordinate;
+use OGame\Services\CharacterClassService;
 use OGame\Services\PlanetService;
 use OGame\Services\PlayerService;
 use OGame\Services\SettingsService;
-use OGame\Models\Enums\PlanetType;
 use RuntimeException;
 
 /**
@@ -39,18 +41,59 @@ class PlanetServiceFactory
     protected array $instancesById = [];
 
     /**
-     * SettingsService.
-     *
-     * @var SettingsService
-     */
-    protected SettingsService $settings;
-
-    /**
      * PlanetServiceFactory constructor.
      */
-    public function __construct(SettingsService $settingsService)
+    public function __construct(
+        /**
+         * SettingsService.
+         */
+        protected SettingsService $settings,
+        /**
+         * PlayerServiceFactory.
+         */
+        protected PlayerServiceFactory $playerServiceFactory
+    ) {
+    }
+
+    /**
+     * Don't serialize anything - settings service will be resolved on wakeup.
+     *
+     * @return array
+     */
+    public function __sleep(): array
     {
-        $this->settings = $settingsService;
+        return [];
+    }
+
+    /**
+     * Wake up after unserialization - reinitialize settings service and cache arrays.
+     *
+     * @return void
+     */
+    public function __wakeup(): void
+    {
+        $this->planetInstancesByCoordinate = [];
+        $this->moonInstancesByCoordinate = [];
+        $this->instancesById = [];
+        $this->settings = app()->make(SettingsService::class);
+    }
+
+    /**
+     * Drop cached PlanetService instances for a planet/moon so subsequent lookups reload from DB.
+     */
+    public function forgetPlanetCache(int $planetId, string|null $coordinateKey = null, PlanetType|null $type = null): void
+    {
+        unset($this->instancesById[$planetId]);
+
+        if ($coordinateKey === null) {
+            return;
+        }
+
+        if ($type === PlanetType::Moon) {
+            unset($this->moonInstancesByCoordinate[$coordinateKey]);
+        } else {
+            unset($this->planetInstancesByCoordinate[$coordinateKey]);
+        }
     }
 
     /**
@@ -67,11 +110,24 @@ class PlanetServiceFactory
     public function make(int $planetId, bool $reloadCache = false): PlanetService|null
     {
         if ($reloadCache || !isset($this->instancesById[$planetId])) {
+            $player = null;
+            $planet = null;
+
+            if ($reloadCache) {
+                $planet = Planet::find($planetId);
+                if ($planet === null) {
+                    throw new RuntimeException('Planet not found.');
+                }
+
+                $player = $this->playerServiceFactory->make($planet->user_id);
+                $player->refreshUser();
+            }
+
             /** @var PlanetService */
             $planetService = resolve(PlanetService::class, [
-                'player' => null,
-                'planet_id' => $planetId,
-                'planet' => null,
+                'player' => $player,
+                'planet_id' => $planet === null ? $planetId : null,
+                'planet' => $planet,
             ]);
 
             // Verify planet type is valid
@@ -261,52 +317,72 @@ class PlanetServiceFactory
     /**
      * Determine next available new planet position.
      *
+     * Uses density tiers to progressively fill the universe:
+     * - Tier 1: 2-3 planets per system (initial distribution)
+     * - Tier 2: 6-7 planets per system (after first max galaxy wrap-around)
+     * - Tier 3: 9 planets per system (maximum density, positions 4-12)
+     *
+     * Note: In case tier 3 cannot find any empty positions and the universe is really full,
+     * new planets will be unable to be created and will start throwing exceptions.
+     *
+     * In this case the server admin either needs to increase the number of galaxies in
+     * server settings or disable user registration and create a new separate server.
+     *
      * @return Coordinate
      */
     public function determineNewPlanetPosition(): Coordinate
     {
+        $maxGalaxies = $this->settings->numberOfGalaxies();
         $lastAssignedGalaxy = (int)$this->settings->get('last_assigned_galaxy', 1);
         $lastAssignedSystem = (int)$this->settings->get('last_assigned_system', 1);
+        $densityTier = (int)$this->settings->get('planet_density_tier', 1);
 
-        $galaxy = $lastAssignedGalaxy;
+        // Ensure starting galaxy is within valid bounds (wrap if needed)
+        $galaxy = $lastAssignedGalaxy > $maxGalaxies ? UniverseConstants::MIN_GALAXY : $lastAssignedGalaxy;
         $system = $lastAssignedSystem;
+
+        $maxPlanetsForTier = $this->getMaxPlanetsForDensityTier($densityTier);
 
         $tryCount = 0;
         while ($tryCount < 100) {
             $tryCount++;
             $planetCount = Planet::where('galaxy', $galaxy)->where('system', $system)->count();
 
-            // 70% of the time max 2 planets per system, 30% of the time max 3.
-            if ($planetCount < ((rand(1, 10) < 7) ? 2 : 3)) {
+            if ($planetCount < $maxPlanetsForTier) {
                 // Find a random position between 4 and 12 that's not already taken
                 $positions = range(4, 12);
-                shuffle($positions); // Randomize the positions array
+                shuffle($positions);
 
                 foreach ($positions as $position) {
                     $existingPlanet = Planet::where('galaxy', $galaxy)->where('system', $system)->where('planet', $position)->first();
                     if (!$existingPlanet) {
+                        // Update last assigned position for next time
+                        $this->settings->set('last_assigned_galaxy', $galaxy);
+                        $this->settings->set('last_assigned_system', $system);
                         return new Coordinate($galaxy, $system, $position);
                     }
                 }
+            }
 
-                // Increment system and galaxy accordingly if no position is found
-                $system++;
-                if ($system > 499) {
-                    $system = 1;
-                    $galaxy++;
-                }
-            } else {
-                // Increment system and galaxy if the current one is full
-                $system++;
-                if ($system > 499) {
-                    $system = 1;
-                    $galaxy++;
+            // System is full, move to next system
+            $system++;
+            if ($system > UniverseConstants::MAX_SYSTEM_COUNT) {
+                // Galaxy is full, move to next galaxy
+                $system = UniverseConstants::MIN_SYSTEM;
+                $galaxy++;
+
+                // Max amount of galaxies reached: start from first galaxy and increase density tier
+                if ($galaxy > $maxGalaxies) {
+                    $galaxy = UniverseConstants::MIN_GALAXY;
+                    $densityTier = min($densityTier + 1, 3);
+                    $this->settings->set('planet_density_tier', $densityTier);
+                    $maxPlanetsForTier = $this->getMaxPlanetsForDensityTier($densityTier);
                 }
             }
         }
 
         // If more than 100 tries have been done with no success, give up.
-        throw new RuntimeException('Unable to determine new planet position.');
+        throw new RuntimeException('Unable to determine new planet position. Universe may be full.');
     }
 
     /**
@@ -361,6 +437,39 @@ class PlanetServiceFactory
     }
 
     /**
+     * Create a planet at a specific coordinate (bypasses position determination).
+     * Used for special accounts like Legor.
+     *
+     * @param PlayerService $player
+     * @param Coordinate $coordinate
+     * @param string $planetName
+     * @return PlanetService
+     * @throws RuntimeException if position is occupied
+     */
+    public function createPlanetAtPosition(PlayerService $player, Coordinate $coordinate, string $planetName): PlanetService
+    {
+        if ($this->planetExistsAtCoordinate($coordinate)) {
+            throw new RuntimeException("Position {$coordinate->asString()} is already occupied");
+        }
+
+        return $this->createPlanet($player, $coordinate, $planetName, PlanetType::Planet);
+    }
+
+    /**
+     * Check if a planet exists at the given coordinate.
+     *
+     * @param Coordinate $coordinate
+     * @return bool
+     */
+    public function planetExistsAtCoordinate(Coordinate $coordinate): bool
+    {
+        return Planet::where('galaxy', $coordinate->galaxy)
+            ->where('system', $coordinate->system)
+            ->where('planet', $coordinate->position)
+            ->exists();
+    }
+
+    /**
      * Creates a new moon for an existing planet and then return the planetService instance for the newly created moon.
      *
      * @param PlanetService $planet The planet to create the moon for.
@@ -371,7 +480,12 @@ class PlanetServiceFactory
      */
     public function createMoonForPlanet(PlanetService $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null): PlanetService
     {
-        return $this->createPlanet($planet->getPlayer(), $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon, $debrisAmount, $moonChance, $xFactor);
+        $player = $planet->getPlayer();
+        if ($player === null) {
+            throw new RuntimeException('Planet has no owner.');
+        }
+
+        return $this->createPlanet($player, $planet->getPlanetCoordinates(), 'Moon', PlanetType::Moon, $debrisAmount, $moonChance, $xFactor);
     }
 
     /**
@@ -396,14 +510,14 @@ class PlanetServiceFactory
         $planet->destroyed = 0;
         $planet->field_current = 0;
         $planet->planet_type = $planet_type->value;
-        $planet->time_last_update = (int)Carbon::now()->timestamp;
+        $planet->time_last_update = (int)Date::now()->timestamp;
 
         if ($planet_type === PlanetType::Moon) {
-            $this->setupMoonProperties($planet, $debrisAmount, $moonChance, $xFactor);
+            $this->setupMoonProperties($planet, $debrisAmount, $moonChance, $xFactor, $player);
         } else {
             $is_first_planet = $player->planets->planetCount() == 0;
 
-            $this->setupPlanetProperties($planet, $is_first_planet);
+            $this->setupPlanetProperties($planet, $is_first_planet, $player);
         }
 
         $planet->save();
@@ -424,8 +538,9 @@ class PlanetServiceFactory
      * @param int $debrisAmount Total resources in debris field (metal + crystal + deuterium)
      * @param int $moonChance Moon chance percentage from the battle (unused for size, kept for future features)
      * @param int|null $xFactor Optional x factor (10-20). If null, random value is used.
+     * @param PlayerService|null $player Optional PlayerService to avoid reloading from database
      */
-    private function setupMoonProperties(Planet $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null): void
+    private function setupMoonProperties(Planet $planet, int $debrisAmount, int $moonChance, int|null $xFactor = null, PlayerService|null $player = null): void
     {
         // Calculate moon diameter using official formula:
         // diameter = floor((x + 3 * debris / 100000) ^ 0.5 * 1000)
@@ -445,8 +560,20 @@ class PlanetServiceFactory
         $maxDiameter = (int)floor(pow(20 + (3 * 2000000 / 100000), 0.5) * 1000); // = 8944 km
         $planet->diameter = min($diameter, $maxDiameter);
 
-        // Moon field size is always 1
-        $planet->field_max = 1;
+        // Moon field size is base 1 + General class bonus (+5)
+        // Only apply character class bonus if user has selected a class
+        $moonFieldsBonus = 0;
+        if ($planet->user_id) {
+            // Use provided player if available, otherwise load from database
+            if (!$player) {
+                $player = $this->playerServiceFactory->make($planet->user_id, true);
+            }
+            if ($player->getUser()->character_class !== null) {
+                $characterClassService = app(CharacterClassService::class);
+                $moonFieldsBonus = $characterClassService->getAdditionalMoonFields($player->getUser());
+            }
+        }
+        $planet->field_max = 1 + $moonFieldsBonus;
 
         // Calculate temperature based on planet position (same as the planet at this position)
         $planetData = $this->planetData($planet->planet, false);
@@ -464,13 +591,31 @@ class PlanetServiceFactory
     /**
      * Sets up planet-specific properties.
      * @param Planet $planet
+     * @param bool $is_first_planet
+     * @param PlayerService|null $player Optional PlayerService to avoid reloading from database
      */
-    private function setupPlanetProperties(Planet $planet, bool $is_first_planet = false): void
+    private function setupPlanetProperties(Planet $planet, bool $is_first_planet = false, PlayerService|null $player = null): void
     {
         $planet_data = $this->planetData($planet->planet, $is_first_planet);
 
         // Random field count between the min and max values and add the Server planet fields bonus setting.
-        $planet->field_max = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
+        $base_fields = rand($planet_data['fields'][0], $planet_data['fields'][1]) + $this->settings->planetFieldsBonus();
+
+        // Apply Discoverer class planet size bonus (+10%)
+        // Only apply character class bonus if user has selected a class
+        $planetSizeMultiplier = 1.0;
+        if ($planet->user_id) {
+            // Use provided player if available, otherwise load from database
+            if (!$player) {
+                $player = $this->playerServiceFactory->make($planet->user_id, true);
+            }
+            if ($player->getUser()->character_class !== null) {
+                $characterClassService = app(CharacterClassService::class);
+                $planetSizeMultiplier = $characterClassService->getPlanetSizeBonus($player->getUser());
+            }
+        }
+
+        $planet->field_max = (int)($base_fields * $planetSizeMultiplier);
         $planet->diameter = (int) (36.14 * $planet->field_max + 5697.23);
 
         // Random temperature between the min and max values is assigned to temp_max, then temp_min is calculated as temp_max - 40.
@@ -508,7 +653,6 @@ class PlanetServiceFactory
         // The base production percent is 10 (which is effectively 100%).
         // "Max Deterium production" on position 15 is interpreted as a higher deuterium bonus.
         // You can tweak these values according to your game's balance.
-
         $data = [
             // Position 1
             1 => [
@@ -587,7 +731,7 @@ class PlanetServiceFactory
             ],
         ];
 
-        //first_planet static data
+        // First planet static data.
         if ($is_first_planet) {
             return $data[$planetPosition] ?? [
                 'fields' => [163, 163],
@@ -601,5 +745,20 @@ class PlanetServiceFactory
             'fields' => [100, 150],
             'temperature' => [0, 40],
         ];
+    }
+
+    /**
+     * Get max planets per system based on density tier.
+     *
+     * @param int $densityTier The current density tier (1-3)
+     * @return int Max planets allowed per system
+     */
+    private function getMaxPlanetsForDensityTier(int $densityTier): int
+    {
+        return match ($densityTier) {
+            1 => (rand(1, 10) < 7) ? 2 : 3,  // 70% chance of 2, 30% chance of 3
+            2 => (rand(1, 10) < 7) ? 6 : 7,  // 70% chance of 6, 30% chance of 7
+            default => 9,                     // Max 9 planets (positions 4-12)
+        };
     }
 }

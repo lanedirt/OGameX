@@ -3,8 +3,26 @@ name: Laravel Pint PSR-12 Code Style Checker
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'resources/css/**'
+      - 'resources/js/**'
+      - 'public/css/**'
+      - 'public/js/**'
+      - 'public/build/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'resources/css/**'
+      - 'resources/js/**'
+      - 'public/css/**'
+      - 'public/js/**'
+      - 'public/build/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.js'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,8 +32,8 @@ jobs:
   laravel-pint-psr12-code-style-checker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
         with:
           php-version: '8.5'
           coverage: none
@@ -25,7 +43,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -35,4 +53,4 @@ jobs:
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Run Laravel Pint (PSR-12)
-        run: composer run cs -- --verbose -- --test
+        run: composer run cs -- --verbose --test

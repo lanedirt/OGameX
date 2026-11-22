@@ -5,11 +5,17 @@ namespace OGame\Services;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use OGame\GameObjects\Models\Calculations\CalculationType;
+use OGame\Models\BuildingQueue;
 use OGame\Models\FleetMission;
+use OGame\Models\Highscore;
+use OGame\Models\Message;
 use OGame\Models\Planet;
+use OGame\Models\ResearchQueue;
 use OGame\Models\Resources;
+use OGame\Models\UnitQueue;
 use OGame\Models\User;
 use OGame\Models\UserTech;
 use RuntimeException;
@@ -90,7 +96,11 @@ class PlayerService
     public function load(int $id): void
     {
         // Fetch user from model
-        $user = User::where('id', $id)->first();
+        $user = User::with('highscore')->where('id', $id)->first();
+        if ($user === null) {
+            throw new RuntimeException('User not found.');
+        }
+
         $this->user = $user;
 
         // Fetch user tech from model
@@ -150,6 +160,21 @@ class PlayerService
     }
 
     /**
+     * Reload the user model from the database.
+     *
+     * @return void
+     */
+    public function refreshUser(): void
+    {
+        $user = User::where('id', $this->user->id)->first();
+        if ($user === null) {
+            throw new RuntimeException('User not found.');
+        }
+
+        $this->user = $user;
+    }
+
+    /**
      * Saves current player object to DB.
      */
     public function save(): void
@@ -168,13 +193,23 @@ class PlayerService
     }
 
     /**
+     * Checks if the player is currently banned.
+     *
+     * @return bool
+     */
+    public function isBanned(): bool
+    {
+        return $this->user->isBanned();
+    }
+
+    /**
      * Checks if the player is inactive.
      *
      * @return bool
      */
     public function isInactive(): bool
     {
-        $lastActivity = Carbon::createFromTimestamp((int)$this->user->time);
+        $lastActivity = Date::createFromTimestamp((int)$this->user->time);
 
         // If the player has not logged in in the last 7 days, then they are considered inactive.
         if ($lastActivity->diffInDays(now()) >= 7) {
@@ -191,7 +226,7 @@ class PlayerService
      */
     public function isLongInactive(): bool
     {
-        $lastActivity = Carbon::createFromTimestamp((int)$this->user->time);
+        $lastActivity = Date::createFromTimestamp((int)$this->user->time);
 
         // If the player has not logged in in the last 28 days, then they are considered long inactive.
         if ($lastActivity->diffInDays(now()) >= 28) {
@@ -335,7 +370,7 @@ class PlayerService
      */
     public function getLastUsernameChange(): Carbon|null
     {
-        return $this->user->username_updated_at ? Carbon::parse($this->user->username_updated_at) : null;
+        return $this->user->username_updated_at ? Date::parse($this->user->username_updated_at) : null;
     }
 
     /**
@@ -356,7 +391,7 @@ class PlayerService
      */
     public function validatePassword(string $password): bool
     {
-        if (Auth::Attempt((['email' => $this->getEmail(), 'password' => $password]))) {
+        if (Auth::attempt(['email' => $this->getEmail(), 'password' => $password])) {
             return true;
         }
 
@@ -430,6 +465,33 @@ class PlayerService
     }
 
     /**
+     * Calculate the maximum range for interplanetary missiles based on Impulse Drive research level.
+     *
+     * Formula: (impulse_drive_level × 5) - 1
+     *
+     * Examples:
+     *   - Level 0: 0 systems (no Impulse Drive = no missiles)
+     *   - Level 1: 4 systems
+     *   - Level 2: 9 systems
+     *   - Level 5: 24 systems
+     *   - Level 10: 49 systems
+     *
+     * @return int Maximum range in systems within same galaxy
+     */
+    public function getMissileRange(): int
+    {
+        $impulseDriveLevel = $this->getResearchLevel('impulse_drive');
+
+        // If no Impulse Drive research, missiles cannot be launched
+        if ($impulseDriveLevel === 0) {
+            return 0;
+        }
+
+        // Calculate range: (level × 5) - 1
+        return ($impulseDriveLevel * 5) - 1;
+    }
+
+    /**
      * Get planet ID that player has currently selected / is looking at.
      *
      * @return int
@@ -438,7 +500,12 @@ class PlayerService
     {
         if (!$this->user->planet_current) {
             // If no current planet is set, return the first planet of the player.
-            return $this->planets->first()->getPlanetId();
+            $firstPlanet = $this->planets->first();
+            if ($firstPlanet === null) {
+                throw new RuntimeException('Player has no planets.');
+            }
+
+            return $firstPlanet->getPlanetId();
         }
 
         return $this->user->planet_current;
@@ -475,7 +542,18 @@ class PlayerService
         $fleetMissionService = resolve(FleetMissionService::class, ['player' => $this]);
         $activeMissions = $fleetMissionService->getActiveFleetMissionsSentByCurrentPlayer();
 
-        return $activeMissions->count();
+        // Exclude missile attacks (type 10) as they don't use fleet slots
+        // All other missions use fleet slots for their entire duration (travel + hold + return)
+        $fleetMissions = $activeMissions->filter(function ($mission) {
+            // Exclude missile attacks
+            if ($mission->mission_type === 10) {
+                return false;
+            }
+
+            return true;
+        });
+
+        return $fleetMissions->count();
     }
 
     /**
@@ -491,7 +569,12 @@ class PlayerService
         $object = ObjectService::getResearchObjectByMachineName('computer_technology');
         $fleet_slots_from_research = $object->performCalculation(CalculationType::MAX_FLEET_SLOTS, $this->getResearchLevel('computer_technology'));
 
-        return $fleet_slots_from_research;
+        // Add General class bonus (+2 fleet slots)
+        $characterClassService = app(CharacterClassService::class);
+        $user = $this->getUser();
+        $fleet_slots_bonus = $characterClassService->getAdditionalFleetSlots($user);
+
+        return $fleet_slots_from_research + $fleet_slots_bonus;
     }
 
     /**
@@ -531,7 +614,12 @@ class PlayerService
         $settingsService = app(SettingsService::class);
         $bonus_slots = $settingsService->bonusExpeditionSlots();
 
-        return $expedition_slots_from_research + $bonus_slots;
+        // Add Discoverer class bonus (+2 expedition slots)
+        $characterClassService = app(CharacterClassService::class);
+        $user = $this->getUser();
+        $expedition_slots_bonus = $characterClassService->getExpeditionSlotsBonus($user);
+
+        return $expedition_slots_from_research + $bonus_slots + $expedition_slots_bonus;
     }
 
     /**
@@ -563,7 +651,7 @@ class PlayerService
                 // ------
                 // 2. Update last_ip and time properties.
                 // ------
-                $this->user->time = (string)Carbon::now()->timestamp;
+                $this->user->time = (string)Date::now()->timestamp;
                 $this->user->last_ip = request()->ip();
 
                 $this->user->save();
@@ -643,7 +731,11 @@ class PlayerService
                             ->first();
 
                         if ($fleetMissionLock) {
-                            $fleetMissionService->updateMission($mission);
+                            try {
+                                $fleetMissionService->updateMission($mission);
+                            } catch (Exception $e) {
+                                throw new Exception('Could not update fleet mission with ID ' . $mission->id . ': ' . $e->getMessage());
+                            }
                         } else {
                             throw new Exception('Could not acquire update fleet mission update lock.');
                         }
@@ -671,7 +763,7 @@ class PlayerService
     public function getCachedGeneralScore(): int
     {
         if ($this->cachedGeneralScore === null) {
-            $this->cachedGeneralScore = \OGame\Models\Highscore::where('player_id', $this->getId())->first()->general ?? 0;
+            $this->cachedGeneralScore = Highscore::where('player_id', $this->getId())->first()->general ?? 0;
         }
         return $this->cachedGeneralScore;
     }
@@ -700,7 +792,14 @@ class PlayerService
 
         // Divide the score by 1000 to get the amount of points. Floor the result.
         $resources_sum = $resources_spent->metal->get() + $resources_spent->crystal->get() + $resources_spent->deuterium->get();
-        return (int)floor($resources_sum / 1000);
+        $score = floor($resources_sum / 1000);
+
+        // Cap at PHP_INT_MAX to prevent overflow on PHP 8.5+
+        if ($score > PHP_INT_MAX) {
+            return PHP_INT_MAX;
+        }
+
+        return (int)$score;
     }
 
     /**
@@ -802,33 +901,42 @@ class PlayerService
      */
     public function delete(): void
     {
-        // Loop through all planets and delete all records associated with them.
-        foreach ($this->planets->all() as $planet) {
+        // Include destroyed planets still awaiting purge so related rows are cleaned up.
+        $planetIds = Planet::where('user_id', $this->getId())->pluck('id');
+
+        foreach ($planetIds as $planetId) {
             // Delete all queue items.
-            \OGame\Models\ResearchQueue::where('planet_id', $planet->getPlanetId())->delete();
-            \OGame\Models\BuildingQueue::where('planet_id', $planet->getPlanetId())->delete();
-            \OGame\Models\UnitQueue::where('planet_id', $planet->getPlanetId())->delete();
+            ResearchQueue::where('planet_id', $planetId)->delete();
+            BuildingQueue::where('planet_id', $planetId)->delete();
+            UnitQueue::where('planet_id', $planetId)->delete();
             // Delete all fleet missions.
             // Get all fleet missions for this planet then loop through them and delete them.
             // TODO: this might be a performance bottleneck if there are many missions. Consider using a bulk delete compatible
             // with the foreign key constraints instead.
-            $missions = FleetMission::where('planet_id_from', $planet->getPlanetId())->orWhere('planet_id_to', $planet->getPlanetId())->get();
+            $missions = FleetMission::where('planet_id_from', $planetId)->orWhere('planet_id_to', $planetId)->get();
             foreach ($missions as $mission) {
                 // Delete any that have this mission as their parent.
-                \OGame\Models\FleetMission::where('parent_id', $mission->id)->delete();
+                FleetMission::where('parent_id', $mission->id)->delete();
                 // Delete mission itself.
                 $mission->delete();
             }
         }
 
         // Delete all messages.
-        \OGame\Models\Message::where('user_id', $this->getId())->delete();
+        Message::where('user_id', $this->getId())->delete();
+
+        // Delete highscore record.
+        Highscore::where('player_id', $this->getId())->delete();
 
         // Delete tech record.
-        $this->user_tech->delete();
+        UserTech::where('user_id', $this->getId())->delete();
+
+        // Clear planet_current reference before deleting planets (FK constraint).
+        $this->user->planet_current = null;
+        $this->user->save();
 
         // Delete all planets.
-        \OGame\Models\Planet::where('user_id', $this->getId())->delete();
+        Planet::where('user_id', $this->getId())->delete();
 
         // Delete the actual user.
         $this->user->delete();
@@ -941,9 +1049,9 @@ class PlayerService
     /**
      * Get the date when vacation mode can be deactivated.
      *
-     * @return \Illuminate\Support\Carbon|null
+     * @return Carbon|null
      */
-    public function getVacationModeUntil(): \Illuminate\Support\Carbon|null
+    public function getVacationModeUntil(): Carbon|null
     {
         return $this->user->vacation_mode_until;
     }

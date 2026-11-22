@@ -2,8 +2,8 @@
 
 namespace OGame\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use OGame\Services\PlayerService;
 

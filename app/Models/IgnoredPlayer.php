@@ -2,6 +2,8 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,29 +19,23 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read User $user
  * @property-read User $ignoredUser
- * @method static \Illuminate\Database\Eloquent\Builder|IgnoredPlayer newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IgnoredPlayer newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|IgnoredPlayer query()
- * @method static \Illuminate\Database\Eloquent\Builder|IgnoredPlayer whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IgnoredPlayer whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IgnoredPlayer whereIgnoredUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IgnoredPlayer whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|IgnoredPlayer whereUpdatedAt($value)
+ * @method static Builder|IgnoredPlayer newModelQuery()
+ * @method static Builder|IgnoredPlayer newQuery()
+ * @method static Builder|IgnoredPlayer query()
+ * @method static Builder|IgnoredPlayer whereId($value)
+ * @method static Builder|IgnoredPlayer whereUserId($value)
+ * @method static Builder|IgnoredPlayer whereIgnoredUserId($value)
+ * @method static Builder|IgnoredPlayer whereCreatedAt($value)
+ * @method static Builder|IgnoredPlayer whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'user_id',
+    'ignored_user_id',
+])]
 class IgnoredPlayer extends Model
 {
     use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'user_id',
-        'ignored_user_id',
-    ];
 
     /**
      * Get the user who is ignoring.

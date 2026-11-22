@@ -3,6 +3,7 @@
 namespace OGame\Services;
 
 use OGame\Models\Note;
+use RuntimeException;
 
 /**
  * Class NoteService.
@@ -14,18 +15,14 @@ use OGame\Models\Note;
 class NoteService
 {
     /**
-     * The PlayerService object.
-     *
-     * @var PlayerService
-     */
-    private PlayerService $player;
-
-    /**
      * NoteService constructor.
      */
-    public function __construct(PlayerService $player)
-    {
-        $this->player = $player;
+    public function __construct(
+        /**
+         * The PlayerService object.
+         */
+        private PlayerService $player
+    ) {
     }
 
     /**
@@ -84,6 +81,10 @@ class NoteService
         $note = Note::where('id', $noteId)
             ->where('user_id', $this->player->getId())
             ->first();
+
+        if ($note === null) {
+            throw new RuntimeException('Note not found.');
+        }
 
         $note->update($data);
 

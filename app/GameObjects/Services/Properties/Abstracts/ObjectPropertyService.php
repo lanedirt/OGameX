@@ -19,13 +19,9 @@ abstract class ObjectPropertyService
      * @var string
      */
     protected string $propertyName = '';
-    protected int $base_value;
-    protected GameObject $parent_object;
 
-    public function __construct(GameObject $parentObject, int $baseValue)
+    public function __construct(protected GameObject $parent_object, protected int $base_value)
     {
-        $this->parent_object = $parentObject;
-        $this->base_value = $baseValue;
     }
 
     /**
@@ -45,7 +41,8 @@ abstract class ObjectPropertyService
     public function calculateProperty(PlayerService $player): GameObjectPropertyDetails
     {
         $bonusPercentage = $this->getBonusPercentage($player);
-        $bonusValue = (($this->base_value / 100) * $bonusPercentage);
+        // Use integer arithmetic to avoid floating point precision issues
+        $bonusValue = intdiv($this->base_value * $bonusPercentage, 100);
 
         $totalValue = $this->base_value + $bonusValue;
 

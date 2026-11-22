@@ -2,10 +2,12 @@
 
 namespace OGame\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 /**
  *
@@ -21,8 +23,8 @@ use Illuminate\Database\Eloquent\Builder;
  * @property int $research_rank
  * @property int $military_rank
  * @property-read User $player
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @method static Builder<static>|Highscore newModelQuery()
  * @method static Builder<static>|Highscore newQuery()
  * @method static Builder<static>|Highscore query()
@@ -41,21 +43,20 @@ use Illuminate\Database\Eloquent\Builder;
  * @method static Builder<static>|Highscore whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'player_id',
+    'general',
+    'economy',
+    'research',
+    'military',
+    'general_rank',
+    'economy_rank',
+    'research_rank',
+    'military_rank',
+])]
 class Highscore extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        'player_id',
-        'general',
-        'economy',
-        'research',
-        'military',
-        'general_rank',
-        'economy_rank',
-        'research_rank',
-        'military_rank',
-    ];
 
     /**
      * Get the user that owns the note record.
@@ -67,14 +68,15 @@ class Highscore extends Model
 
     /**
      * Scope to ensure only valid highscore ranks.
+     * Filters out null ranks and rank 0 (used for excluded players like Legor and admins when hidden).
      */
     public function scopeValidRanks(Builder $query): void
     {
         $query->where(function ($query) {
-            $query->where('general_rank', '!=', null)
-                ->where('economy_rank', '!=', null)
-                ->where('military_rank', '!=', null)
-                ->where('research_rank', '!=', null);
+            $query->where('general_rank', '>', 0)
+                ->where('economy_rank', '>', 0)
+                ->where('military_rank', '>', 0)
+                ->where('research_rank', '>', 0);
         });
     }
 }

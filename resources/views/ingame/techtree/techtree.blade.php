@@ -7,7 +7,7 @@
     /** @var array<int, array<int, TechtreeRequirement>> $techtree_by_depth */
 @endphp
 
-<div id="technologytree" data-title="@lang('Technology') - {{ $object->title }}">
+<div id="technologytree" data-title="{{ __('t_ingame.techtree.page_title') }} - {{ $object->title }}">
     @include('ingame.techtree.partials.nav', ['currentAction' => 'technologytree', 'objectId' => $object->id])
     <div class="content technologytree">
         @if ($object->hasRequirements())
@@ -26,7 +26,7 @@
         </div>
         @else
             <p class="hint">
-                @lang('No requirements available')
+                {{ __('t_ingame.techtree.no_requirements') }}
             </p>
         @endif
     </div>

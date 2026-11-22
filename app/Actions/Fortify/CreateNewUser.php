@@ -8,45 +8,16 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-use OGame\Factories\PlanetServiceFactory;
-use OGame\Factories\PlayerServiceFactory;
 use OGame\Models\User;
-use OGame\Models\UserTech;
-use OGame\Services\MessageService;
-use OGame\Services\SettingsService;
+use OGame\Services\InitialUserDataService;
 use RuntimeException;
 
 class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules;
 
-    /**
-     * @var PlayerServiceFactory
-     */
-    private PlayerServiceFactory $playerServiceFactory;
-
-    /**
-     * @var PlanetServiceFactory
-     */
-    private PlanetServiceFactory $planetServiceFactory;
-
-    /**
-     * @var SettingsService
-     */
-    private SettingsService $settings;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @param PlayerServiceFactory $playerServiceFactory
-     * @param PlanetServiceFactory $planetServiceFactory
-     * @param SettingsService $settings
-     */
-    public function __construct(PlayerServiceFactory $playerServiceFactory, PlanetServiceFactory $planetServiceFactory, SettingsService $settings)
+    public function __construct(private InitialUserDataService $initialUserDataService)
     {
-        $this->playerServiceFactory = $playerServiceFactory;
-        $this->planetServiceFactory = $planetServiceFactory;
-        $this->settings = $settings;
     }
 
     /**
@@ -172,12 +143,13 @@ class CreateNewUser implements CreatesNewUsers
                 Rule::unique(User::class),
             ],
             'password' => $this->passwordRules(),
-        ])->validate();
+        ])->validateWithBag('register');
 
         // Add try/catch to retry creating user 5 times because exception could be triggered
         // if the username is already taken.
         for ($attempt = 0; $attempt < 5; $attempt++) {
             try {
+                /** @var User $user */
                 $user = User::create([
                     'lang' => 'en',
                     'username' => $this->generateUniqueName(),
@@ -192,7 +164,7 @@ class CreateNewUser implements CreatesNewUsers
                     $user->save();
                 }
 
-                $this->createInitialGameDataForUser($user);
+                $this->initialUserDataService->createFor($user);
 
                 return $user;
             } catch (Exception $e) {
@@ -205,31 +177,5 @@ class CreateNewUser implements CreatesNewUsers
         }
 
         throw new RuntimeException('Failed to create a unique username after 5 attempts.');
-    }
-
-    /**
-     * Create initial data for the player such as planets and tech records.
-     *
-     * @param User $user
-     * @throws Exception
-     */
-    private function createInitialGameDataForUser($user): void
-    {
-        // Create initial player tech record.
-        $tech = new UserTech();
-        $tech->user_id = $user->id;
-        $tech->save();
-
-        // Create initial planet(s) for the player.
-        $playerService = $this->playerServiceFactory->make($user->id);
-        $planetNames = ['Homeworld', 'Colony'];
-        // The amount of planets to create is defined in the settings and defaults to 1.
-        for ($i = 0; $i < $this->settings->registrationPlanetAmount(); $i++) {
-            $this->planetServiceFactory->createInitialPlanetForPlayer($playerService, $planetNames[$i === 0 ? 0 : 1]);
-        }
-
-        // Send welcome message to player
-        $message = new MessageService($playerService);
-        $message->sendWelcomeMessage();
     }
 }

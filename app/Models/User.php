@@ -2,10 +2,24 @@
 
 namespace OGame\Models;
 
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Lab404\Impersonate\Models\Impersonate;
+use OGame\Enums\CharacterClass;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -23,53 +37,66 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $time
  * @property string|null $register_ip
  * @property string|null $register_time
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int|null $planet_current
+ * @property int|null $alliance_id
+ * @property Carbon|null $alliance_left_at
  * @property int $dark_matter
- * @property \Illuminate\Support\Carbon|null $dark_matter_last_regen
+ * @property int $tactical_retreat_ratio
+ * @property Carbon|null $dark_matter_last_regen
  * @property bool $vacation_mode
- * @property \Illuminate\Support\Carbon|null $vacation_mode_activated_at
- * @property \Illuminate\Support\Carbon|null $vacation_mode_until
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property Carbon|null $vacation_mode_activated_at
+ * @property Carbon|null $vacation_mode_until
+ * @property int|null $character_class
+ * @property bool $character_class_free_used
+ * @property Carbon|null $character_class_changed_at
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \OGame\Models\UserTech|null $tech
- * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|User query()
- * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereLang($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereLastIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User wherePlanetCurrent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereRegisterIp($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereRegisterTime($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereTime($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereTwoFactorConfirmedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereTwoFactorRecoveryCodes($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereTwoFactorSecret($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUsername($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read UserTech|null $tech
+ * @method static UserFactory factory($count = null, $state = [])
+ * @method static Builder|User newModelQuery()
+ * @method static Builder|User newQuery()
+ * @method static Builder|User query()
+ * @method static Builder|User whereCreatedAt($value)
+ * @method static Builder|User whereEmail($value)
+ * @method static Builder|User whereId($value)
+ * @method static Builder|User whereLang($value)
+ * @method static Builder|User whereLastIp($value)
+ * @method static Builder|User wherePassword($value)
+ * @method static Builder|User wherePlanetCurrent($value)
+ * @method static Builder|User whereRegisterIp($value)
+ * @method static Builder|User whereRegisterTime($value)
+ * @method static Builder|User whereTime($value)
+ * @method static Builder|User whereTwoFactorConfirmedAt($value)
+ * @method static Builder|User whereTwoFactorRecoveryCodes($value)
+ * @method static Builder|User whereTwoFactorSecret($value)
+ * @method static Builder|User whereUpdatedAt($value)
+ * @method static Builder|User whereUsername($value)
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @method static \Illuminate\Database\Eloquent\Builder|User permission($permissions, $without = false)
- * @method static \Illuminate\Database\Eloquent\Builder|User role($roles, $guard = null, $without = false)
- * @method static \Illuminate\Database\Eloquent\Builder|User withoutPermission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder|User withoutRole($roles, $guard = null)
+ * @method static Builder|User permission($permissions, $without = false)
+ * @method static Builder|User role($roles, $guard = null, $without = false)
+ * @method static Builder|User withoutPermission($permissions)
+ * @method static Builder|User withoutRole($roles, $guard = null)
  * @property string|null $username_updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUsernameUpdatedAt($value)
+ * @method static Builder|User whereUsernameUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable([
+    'username', 'email', 'password', 'lang', 'espionage_probes_amount',
+])]
+#[Hidden([
+    'password',
+])]
 class User extends Authenticatable
 {
-    use Notifiable;
     use HasFactory;
     use HasRoles;
+    use Impersonate;
+    use Notifiable;
 
     /**
      * Disable use of default "remember_token" laravel behavior.
@@ -78,34 +105,30 @@ class User extends Authenticatable
     public $remember_token = false;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Boot method to attach model events.
      */
-    protected $fillable = [
-        'username', 'email', 'password', 'lang', 'espionage_probes_amount',
-    ];
+    protected static function boot(): void
+    {
+        parent::boot();
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-    ];
+        // Automatically assign admin role to the first non-Legor user
+        static::created(function (User $user) {
+            // Skip Legor
+            if ($user->username === 'Legor') {
+                return;
+            }
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'vacation_mode' => 'boolean',
-        'vacation_mode_activated_at' => 'datetime',
-        'vacation_mode_until' => 'datetime',
-        'dark_matter_last_regen' => 'datetime',
-    ];
+            // Check if this is the first non-Legor user
+            $nonLegorUserCount = User::where('username', '!=', 'Legor')->where('id', '!=', $user->id)->count();
+
+            if ($nonLegorUserCount === 0) {
+                // This is the first real user - assign admin role and rename to Admin
+                $user->assignRole('admin');
+                $user->username = 'Admin';
+                $user->save();
+            }
+        });
+    }
 
     /**
      * Get the user tech record associated with the user.
@@ -120,11 +143,31 @@ class User extends Authenticatable
     /**
      * Get the dark matter transactions for the user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function darkMatterTransactions()
     {
         return $this->hasMany(DarkMatterTransaction::class);
+    }
+
+    /**
+     * Get the highscore record associated with the user.
+     *
+     * @return HasOne
+     */
+    public function highscore(): HasOne
+    {
+        return $this->hasOne(Highscore::class, 'player_id');
+    }
+
+    /**
+     * Get the alliance that the user belongs to.
+     *
+     * @return BelongsTo
+     */
+    public function alliance(): BelongsTo
+    {
+        return $this->belongsTo(Alliance::class, 'alliance_id');
     }
 
     /**
@@ -145,5 +188,137 @@ class User extends Authenticatable
         $timeDifference = $currentTime - $lastActivity;
 
         return $timeDifference <= 900; // 15 minutes
+    }
+
+    /**
+     * Get the user's character class as an enum.
+     *
+     * @return CharacterClass|null
+     */
+    public function getCharacterClassEnum(): CharacterClass|null
+    {
+        if ($this->character_class === null) {
+            return null;
+        }
+
+        return CharacterClass::tryFrom($this->character_class);
+    }
+
+    /**
+     * Check if user is a Collector.
+     *
+     * @return bool
+     */
+    public function isCollector(): bool
+    {
+        return $this->character_class === CharacterClass::COLLECTOR->value;
+    }
+
+    /**
+     * Check if user is a General.
+     *
+     * @return bool
+     */
+    public function isGeneral(): bool
+    {
+        return $this->character_class === CharacterClass::GENERAL->value;
+    }
+
+    /**
+     * Check if user is a Discoverer.
+     *
+     * @return bool
+     */
+    public function isDiscoverer(): bool
+    {
+        return $this->character_class === CharacterClass::DISCOVERER->value;
+    }
+
+    /**
+     * Check if user has a character class selected.
+     *
+     * @return bool
+     */
+    public function hasCharacterClass(): bool
+    {
+        return $this->character_class !== null;
+    }
+
+    /**
+     * All ban records for this user.
+     *
+     * @return HasMany
+     */
+    public function bans(): HasMany
+    {
+        return $this->hasMany(Ban::class);
+    }
+
+    /**
+     * Returns the current active ban, or null if the user is not banned.
+     *
+     * @return Ban|null
+     */
+    public function currentBan(): Ban|null
+    {
+        /** @var Ban|null $ban */
+        $ban = $this->bans()
+            ->where('canceled', false)
+            ->where(function ($q) {
+                $q->whereNull('banned_until')
+                    ->orWhere('banned_until', '>', now());
+            })
+            ->latest()
+            ->first();
+
+        return $ban;
+    }
+
+    /**
+     * Check if the user is currently banned.
+     */
+    public function isBanned(): bool
+    {
+        return $this->bans()
+            ->where('canceled', false)
+            ->where(function ($q) {
+                $q->whereNull('banned_until')
+                    ->orWhere('banned_until', '>', now());
+            })
+            ->exists();
+    }
+
+    /**
+     * Only admins can impersonate other users.
+     */
+    public function canImpersonate(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Users can be impersonated except when they are the same as the impersonator (enforced in UI).
+     */
+    public function canBeImpersonated(): bool
+    {
+        return true;
+    }
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'vacation_mode' => 'boolean',
+            'vacation_mode_activated_at' => 'datetime',
+            'vacation_mode_until' => 'datetime',
+            'dark_matter_last_regen' => 'datetime',
+            'character_class_free_used' => 'boolean',
+            'character_class_changed_at' => 'datetime',
+            'alliance_left_at' => 'datetime',
+        ];
     }
 }

@@ -18,7 +18,7 @@
             </td>
         </tr>
         <tr class="data">
-            <td class="desc">@lang('Building duration')</td>
+            <td class="desc">{{ __('t_ingame.buildqueue.building_duration') }}</td>
         </tr>
         <tr class="data">
             <td class="desc timer">
@@ -27,7 +27,7 @@
             </td>
         </tr>
         <tr class="data">
-            <td class="desc">@lang('Total time'):</td>
+            <td class="desc">{{ __('t_ingame.buildqueue.total_time') }}:</td>
         </tr>
         <tr class="data">
             <td class="desc timer">
@@ -37,28 +37,42 @@
         </tr>
         <tr class="data">
             <td colspan="2">
-                <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile ship tpd-hideOnClickOutside"
-                   title="" href="javascript:void(0);"
-                   rel="#page=componentOnly&amp;component=itemactions&amp;action=buyAndActivate&amp;itemUuid=75accaa0d1bc22b78d83b89cd437bdccd6a58887&amp;asJson=1">
-                    <div class="                                                build-finish-img
-                                            " alt="                                                Complete
-                                            "></div>
-                    <span class="build-txt">
-                                                                                            Complete
-                                                                                    </span>
-                    <span class="dm_cost ">
-                                                                                                    Costs:
-                                                                                                        5,250 DM
-                                                                                            </span>
-                </a>
+                @php
+                    $halvingService = app(\OGame\Services\HalvingService::class);
+                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_countdown, 'unit');
+                    $wouldComplete = $build_active->dm_halved;
+                @endphp
+                @if ($wouldComplete)
+                    <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile ship tpd-hideOnClickOutside"
+                       title="{{ __('t_ingame.buildqueue.complete_tooltip') }}"
+                       href="javascript:void(0);"
+                       rel="{{ route('shipyard.completeunit') }}?queue_item_id={{ $build_active->id }}">
+                        <div class="build-finish-img" alt="{{ __('t_ingame.buildqueue.complete') }}"></div>
+                        <span class="build-txt">{{ __('t_ingame.buildqueue.complete') }}</span>
+                        <span class="dm_cost">{{ __('t_ingame.buildqueue.halve_cost', ['amount' => number_format($halvingCost)]) }}</span>
+                    </a>
+                @else
+                    <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile ship tpd-hideOnClickOutside"
+                       title="{{ __('t_ingame.buildqueue.halve_tooltip_building') }}"
+                       href="javascript:void(0);"
+                       rel="{{ route('shipyard.halveunit') }}?queue_item_id={{ $build_active->id }}">
+                        <div class="build-faster-img" alt="{{ __('t_ingame.buildqueue.halve_time') }}"></div>
+                        <span class="build-txt">{{ __('t_ingame.buildqueue.halve_time') }}</span>
+                        <span class="dm_cost">{{ __('t_ingame.buildqueue.halve_cost', ['amount' => number_format($halvingCost)]) }}</span>
+                    </a>
+                @endif
             </td>
         </tr>
         </tbody>
     </table>
 
     <script type="text/javascript">
-        var questionbuilding = 'Do\u0020you\u0020want\u0020to\u0020reduce\u0020the\u0020construction\u0020time\u0020of\u0020the\u0020current\u0020construction\u0020project\u0020by\u002050\u0025\u0020of\u0020the\u0020total\u0020construction\u0020time\u0020\u00287m\u002010s\u0029\u0020for\u0020\u003Cspan\u0020style\u003D\u0022font\u002Dweight\u003A\u0020bold\u003B\u0022\u003E750\u0020Dark\u0020Matter\u003C\/span\u003E\u003F';
-        var pricebuilding = 750;
+        @if ($wouldComplete)
+        var questionship = '{!! __('t_ingame.buildqueue.question_complete_unit', ['dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('t_ingame.shared.dark_matter') . '</span>']) !!}';
+        @else
+        var questionship = '{!! __('t_ingame.buildqueue.question_halve_unit', ['time_reduction' => \OGame\Facades\AppUtil::formatTimeDuration(intdiv($build_active->time_total, 2)), 'dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('t_ingame.shared.dark_matter') . '</span>']) !!}';
+        @endif
+        var priceship = {{ $halvingCost }};
         var referrerPage = $.deparam.querystring().page;
         new CountdownTimer('unitCountdown', {{ $build_active->time_countdown }}, '{{ url()->current() }}', null, true, 3)
         new CountdownTimerUnit('shipyardCountdownUnit', {{ $build_active->time_countdown_object_next }}, {{ $build_active->object_amount_remaining }}, {{ $build_active->object->id }}, {{ $build_active->time_countdown_per_object }}, null, 3)
@@ -68,10 +82,10 @@
         <tbody>
         <tr>
             <td colspan="2" class="idle">
-                <a class="tooltip js_hideTipOnMobile " title="@lang('At the moment there are no ships or defense built on this planet. Click here to get to the shipyard.')" href="{{ route('shipyard.index') }}">
-                    @lang('No ships/defense in construction.')
+                <a class="tooltip js_hideTipOnMobile " title="{{ __('t_ingame.shipyard_page.no_units_idle_tooltip') }}" href="{{ route('shipyard.index') }}">
+                    {{ __('t_ingame.shipyard_page.no_units_idle') }}
                     <br>
-                    @lang('(To shipyard)')
+                    {{ __('t_ingame.shipyard_page.to_shipyard') }}
                 </a>
             </td>
         </tr>

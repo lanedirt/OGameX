@@ -10,7 +10,7 @@
                     <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'communication', 'subtab' => 'messages']) }}"
                        class="txt_link ui-tabs-anchor"
                        role="presentation" tabindex="-1" id="ui-id-31">
-                        Messages
+                        {{ __('t_ingame.messages.subtab_messages') }}
                         @if ($unread_messages_count['messages'] > 0)
                             <span>({{ $unread_messages_count['messages'] }})</span>
                         @endif
@@ -22,7 +22,7 @@
                     <a href="{{ route('messages.ajax.gettabcontents', ['tab' => 'communication', 'subtab' => 'information']) }}"
                        class="txt_link ui-tabs-anchor"
                        role="presentation" tabindex="-1" id="ui-id-33">
-                        Information
+                        {{ __('t_ingame.messages.subtab_information') }}
                         @if ($unread_messages_count['information'] > 0)
                             <span>({{ $unread_messages_count['information'] }})</span>
                         @endif
@@ -33,7 +33,7 @@
                     aria-controls="ui-id-36" aria-labelledby="ui-id-35" aria-selected="false" aria-expanded="false">
                     <a href="#" class="txt_link ui-tabs-anchor"
                        role="presentation" tabindex="-1" id="ui-id-35">
-                        Shared Combat Reports
+                        {{ __('t_ingame.messages.subtab_shared_combat') }}
                         <span></span>
                     </a>
                 </li>
@@ -42,7 +42,7 @@
                     aria-controls="ui-id-38" aria-labelledby="ui-id-37" aria-selected="false" aria-expanded="false">
                     <a href="#" class="txt_link ui-tabs-anchor"
                        role="presentation" tabindex="-1" id="ui-id-37">
-                        Shared Espionage Reports
+                        {{ __('t_ingame.messages.subtab_shared_espionage') }}
                         <span></span>
                     </a>
                 </li>
@@ -52,7 +52,7 @@
                     aria-labelledby="ui-id-39" aria-selected="false" aria-expanded="false">
                     <a href="#" class="txt_link ui-tabs-anchor"
                        role="presentation" tabindex="-1" id="ui-id-39">
-                        Expeditions
+                        {{ __('t_ingame.messages.subtab_expeditions') }}
                         <span></span>
                     </a>
                 </li>
@@ -113,7 +113,7 @@
                         });
                     </script>
                     <div class="js_accordion">
-                        <h3>New alliance message</h3>
+                        <h3>{{ __('t_ingame.messages.new_alliance_msg') }}</h3>
                         <!-- the form for creating new messages (broadcasts in this case) is in a separate tpl because is is also needed for sharing reports -->
                         <form action="#TODO_page=ingame&amp;component=alliance&amp;tab=broadcast&amp;action=sendBroadcast&amp;asJson=1"
                               method="post" id="newAllianceMsg">
@@ -121,7 +121,7 @@
 
                             <link rel="stylesheet" href="/cdn/css/select2.css" type="text/css">
                             <div>
-                                To:
+                                {{ __('t_ingame.messages.to') }}:
                                 <script language="javascript">
                                     jQuery("#select2").select2({
                                         tags: true,
@@ -158,7 +158,7 @@
                                                 class="dropdown-wrapper" aria-hidden="true"></span></span>
                                 </div>
                                 <br>
-                                <button class="btn_blue js_send_msg fright ally_send_button">send</button>
+                                <button class="btn_blue js_send_msg fright ally_send_button">{{ __('t_ingame.messages.send') }}</button>
                                 <div class="editor_wrap">
                                     <div>
                                         <div class="markItUp">

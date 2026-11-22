@@ -4,13 +4,15 @@ namespace Tests\Feature;
 
 use Exception;
 use OGame\Models\Resources;
+use OGame\Models\UnitQueue;
+use OGame\Services\ObjectService;
 use OGame\Services\SettingsService;
-use Tests\AccountTestCase;
+use Tests\IsolatedAccountTestCase;
 
 /**
  * Test that the unit queue works as expected.
  */
-class UnitQueueTest extends AccountTestCase
+class UnitQueueTest extends IsolatedAccountTestCase
 {
     /**
      * Prepare the planet for the test, so it has the required buildings and research.
@@ -467,5 +469,125 @@ class UnitQueueTest extends AccountTestCase
         $response = $this->get('/defense');
         $response->assertStatus(200);
         $this->assertObjectLevelOnPage($response, 'rocket_launcher', 50, 'Rocket Launcher is not at 50 units 50 seconds after build request issued.');
+    }
+
+    /**
+     * Verify that building ships is blocked when nanite factory is being upgraded.
+     * @throws Exception
+     */
+    public function testUnitQueueBlockedWhenNaniteFactoryUpgrading(): void
+    {
+        $this->basicSetup();
+
+        // Set up prerequisites for nanite factory (requires robot factory 10 and computer tech 10)
+        $this->planetSetObjectLevel('robot_factory', 10);
+        $this->planetSetObjectLevel('nano_factory', 1);
+        $this->playerSetResearchLevel('computer_technology', 10);
+
+        // Add resources for nanite factory upgrade and ships
+        $this->planetAddResources(new Resources(2000000, 1000000, 200000, 0));
+
+        // Start upgrading nanite factory
+        $this->addFacilitiesBuildRequest('nano_factory');
+
+        // Verify nanite factory is in build queue
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+        $this->assertObjectInQueue($response, 'nano_factory', 2, 'Nanite Factory level 2 is not in build queue.');
+
+        // Try to build ships - should fail
+        $response = $this->post('/shipyard/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => 204, // light_fighter
+            'amount' => 1,
+        ]);
+
+        $response->assertStatus(200);
+        $responseData = $response->json();
+
+        $this->assertFalse(
+            $responseData['success'] ?? true,
+            'Ship build request should fail when nanite factory is being upgraded.'
+        );
+
+        // Try to build defense - should also fail
+        $response = $this->post('/defense/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => 401, // rocket_launcher
+            'amount' => 1,
+        ]);
+
+        $response->assertStatus(200);
+        $responseData = $response->json();
+
+        $this->assertFalse(
+            $responseData['success'] ?? true,
+            'Defense build request should fail when nanite factory is being upgraded.'
+        );
+    }
+
+    /**
+     * Verify that building ships is allowed after nanite factory upgrade completes.
+     * @throws Exception
+     */
+    public function testUnitQueueAllowedAfterNaniteFactoryUpgradeCompletes(): void
+    {
+        $this->basicSetup();
+
+        // Set up prerequisites for nanite factory
+        $this->planetSetObjectLevel('robot_factory', 10);
+        $this->planetSetObjectLevel('nano_factory', 1);
+        $this->playerSetResearchLevel('computer_technology', 10);
+
+        // Add resources
+        $this->planetAddResources(new Resources(2000000, 1000000, 200000, 0));
+
+        // Start upgrading nanite factory
+        $this->addFacilitiesBuildRequest('nano_factory');
+
+        // Wait for nanite factory upgrade to complete (nanite factory takes a long time)
+        $this->travel(1)->days();
+
+        // Reload to process the queue
+        $response = $this->get('/facilities');
+        $response->assertStatus(200);
+        $this->assertObjectLevelOnPage($response, 'nano_factory', 2, 'Nanite Factory should be at level 2 after upgrade completes.');
+
+        // Now building ships should work
+        $this->addShipyardBuildRequest('light_fighter', 1);
+
+        // Verify ship is in queue
+        $response = $this->get('/shipyard');
+        $response->assertStatus(200);
+    }
+
+    /**
+     * Verify that adding a research object to the unit queue is rejected.
+     * Only ship and defense objects should be accepted by the unit queue.
+     *
+     * @throws Exception
+     */
+    public function testUnitQueueRejectsResearchObject(): void
+    {
+        // Get a research object (plasma_technology).
+        $researchObject = ObjectService::getObjectByMachineName('plasma_technology');
+
+        // Attempt to add the research object to the unit queue via the shipyard endpoint.
+        $response = $this->post('/shipyard/add-buildrequest', [
+            '_token' => csrf_token(),
+            'technologyId' => $researchObject->id,
+            'amount' => 1,
+        ]);
+
+        // The response should indicate failure, not success.
+        $response->assertStatus(200);
+        $responseData = $response->json();
+        $this->assertFalse($responseData['success'], 'Adding a research object to the unit queue should be rejected.');
+
+        // Verify that no unit queue entry was created for the research object.
+        $queueEntry = UnitQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('object_id', $researchObject->id)
+            ->first();
+        $this->assertNull($queueEntry, 'A unit queue entry should not have been created for a research object.');
     }
 }

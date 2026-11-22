@@ -2,6 +2,8 @@
 
 namespace OGame\Services;
 
+use Illuminate\Support\Facades\Date;
+use OGame\Factories\GameMissionFactory;
 use OGame\Models\Setting;
 
 /**
@@ -235,6 +237,18 @@ class SettingsService
     }
 
     /**
+     * Returns the alliance cooldown period in days.
+     * This is the number of days a player must wait after leaving an alliance
+     * before they can create or join another alliance.
+     *
+     * @return int
+     */
+    public function allianceCooldownDays(): int
+    {
+        return (int)$this->get('alliance_cooldown_days', 3);
+    }
+
+    /**
      * Returns the percentage of debris field generated from destroyed ships.
      *
      * @return int
@@ -252,6 +266,56 @@ class SettingsService
     public function debrisFieldFromDefense(): int
     {
         return (int)$this->get('debris_field_from_defense', 0);
+    }
+
+    /**
+     * Returns the minimum resource loss required for wreck field formation.
+     *
+     * @return int
+     */
+    public function wreckFieldMinResourcesLoss(): int
+    {
+        return (int)$this->get('wreck_field_min_resources_loss', 150000);
+    }
+
+    /**
+     * Returns the minimum fleet percentage that must be destroyed for wreck field formation.
+     *
+     * @return int
+     */
+    public function wreckFieldMinFleetPercentage(): int
+    {
+        return (int)$this->get('wreck_field_min_fleet_percentage', 5);
+    }
+
+    /**
+     * Returns the lifetime of wreck fields in hours.
+     *
+     * @return int
+     */
+    public function wreckFieldLifetimeHours(): int
+    {
+        return (int)$this->get('wreck_field_lifetime_hours', 72);
+    }
+
+    /**
+     * Returns the maximum repair time in hours for wreck fields.
+     *
+     * @return int
+     */
+    public function wreckFieldRepairMaxHours(): int
+    {
+        return (int)$this->get('wreck_field_repair_max_hours', 12);
+    }
+
+    /**
+     * Returns the minimum repair time in minutes for wreck fields.
+     *
+     * @return int
+     */
+    public function wreckFieldRepairMinMinutes(): int
+    {
+        return (int)$this->get('wreck_field_repair_min_minutes', 30);
     }
 
     /**
@@ -322,6 +386,39 @@ class SettingsService
     public function battleEngine(): string
     {
         return $this->get('battle_engine', 'rust');
+    }
+
+    /**
+     * Returns the configured attack block end timestamp.
+     *
+     * @return int
+     */
+    public function attackBlockUntil(): int
+    {
+        return (int)$this->get('attack_block_until', 0);
+    }
+
+    /**
+     * Returns whether the server-wide attack block is currently active.
+     *
+     * @return bool
+     */
+    public function attackBlockActive(): bool
+    {
+        $until = $this->attackBlockUntil();
+
+        return $until > Date::now()->timestamp;
+    }
+
+    /**
+     * Returns whether the given mission type is blocked by attack block.
+     *
+     * @param int $missionType
+     * @return bool
+     */
+    public function missionBlockedByAttackBlock(int $missionType): bool
+    {
+        return $this->attackBlockActive() && GameMissionFactory::getMissionById($missionType, [])->isBlockedByServerAttackBlock();
     }
 
     /**
@@ -503,7 +600,7 @@ class SettingsService
      */
     public function expeditionWeightShips(): float
     {
-        return (float)$this->get('expedition_weight_ships', '22');
+        return (float)$this->get('expedition_weight_ships', '17');
     }
 
     /**
@@ -513,7 +610,7 @@ class SettingsService
      */
     public function expeditionWeightResources(): float
     {
-        return (float)$this->get('expedition_weight_resources', '32.5');
+        return (float)$this->get('expedition_weight_resources', '35');
     }
 
     /**
@@ -523,7 +620,7 @@ class SettingsService
      */
     public function expeditionWeightDelay(): float
     {
-        return (float)$this->get('expedition_weight_delay', '7');
+        return (float)$this->get('expedition_weight_delay', '7.5');
     }
 
     /**
@@ -533,7 +630,7 @@ class SettingsService
      */
     public function expeditionWeightSpeedup(): float
     {
-        return (float)$this->get('expedition_weight_speedup', '2');
+        return (float)$this->get('expedition_weight_speedup', '2.75');
     }
 
     /**
@@ -543,7 +640,7 @@ class SettingsService
      */
     public function expeditionWeightNothing(): float
     {
-        return (float)$this->get('expedition_weight_nothing', '26.5');
+        return (float)$this->get('expedition_weight_nothing', '25');
     }
 
     /**
@@ -553,7 +650,7 @@ class SettingsService
      */
     public function expeditionWeightBlackHole(): float
     {
-        return (float)$this->get('expedition_weight_black_hole', '0.3');
+        return (float)$this->get('expedition_weight_black_hole', '0.2');
     }
 
     /**
@@ -563,7 +660,7 @@ class SettingsService
      */
     public function expeditionWeightPirates(): float
     {
-        return (float)$this->get('expedition_weight_pirates', '0');
+        return (float)$this->get('expedition_weight_pirates', '3.0');
     }
 
     /**
@@ -573,7 +670,7 @@ class SettingsService
      */
     public function expeditionWeightAliens(): float
     {
-        return (float)$this->get('expedition_weight_aliens', '0');
+        return (float)$this->get('expedition_weight_aliens', '1.5');
     }
 
     /**
@@ -583,7 +680,7 @@ class SettingsService
      */
     public function expeditionWeightDarkMatter(): float
     {
-        return (float)$this->get('expedition_weight_dark_matter', '9');
+        return (float)$this->get('expedition_weight_dark_matter', '7.5');
     }
 
     /**
@@ -593,7 +690,7 @@ class SettingsService
      */
     public function expeditionWeightMerchant(): float
     {
-        return (float)$this->get('expedition_weight_merchant', '0.7');
+        return (float)$this->get('expedition_weight_merchant', '0.4');
     }
 
     /**
@@ -604,5 +701,80 @@ class SettingsService
     public function expeditionWeightItems(): float
     {
         return (float)$this->get('expedition_weight_items', '0');
+    }
+
+    /**
+     * Get the Hamill Manoeuvre probability (Light Fighter destroying Deathstar).
+     * This is the probability denominator (1 in X chance).
+     * Default is 1000 (0.1% chance = 1 in 1000).
+     * Setting this to 10 means 10% chance (1 in 10), useful for testing.
+     *
+     * @return int
+     */
+    public function hamillManoeuvreChance(): int
+    {
+        return (int)$this->get('hamill_manoeuvre_chance', 1000);
+    }
+
+    /**
+     * Returns whether admin users should be visible in highscores.
+     * When disabled (default), admins are excluded from highscore rankings entirely.
+     * When enabled, admins appear in highscores with orange-highlighted names.
+     *
+     * @return bool
+     */
+    public function highscoreAdminVisible(): bool
+    {
+        return (bool)$this->get('highscore_admin_visible', 0);
+    }
+
+    /**
+     * Returns the server rules content (BBCode).
+     *
+     * @return string
+     */
+    public function rulesContent(): string
+    {
+        return $this->get('rules_content', '');
+    }
+
+    /**
+     * Returns the legal content (BBCode).
+     *
+     * @return string
+     */
+    public function legalContent(): string
+    {
+        return $this->get('legal_content', '');
+    }
+
+    /**
+     * Returns the privacy policy content (BBCode).
+     *
+     * @return string
+     */
+    public function privacyPolicyContent(): string
+    {
+        return $this->get('privacy_policy_content', '');
+    }
+
+    /**
+     * Returns the terms and conditions content (BBCode).
+     *
+     * @return string
+     */
+    public function termsContent(): string
+    {
+        return $this->get('terms_content', '');
+    }
+
+    /**
+     * Returns the contact content (BBCode).
+     *
+     * @return string
+     */
+    public function contactContent(): string
+    {
+        return $this->get('contact_content', '');
     }
 }

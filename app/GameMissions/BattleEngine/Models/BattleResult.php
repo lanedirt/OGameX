@@ -23,6 +23,11 @@ class BattleResult
     public Resources $debris;
 
     /**
+     * @var array The wreck field data containing ships that can be repaired.
+     */
+    public array $wreckField = [];
+
+    /**
      * @var bool Whether a moon already existed at defender's planet location before battle commenced.
      */
     public bool $moonExisted;
@@ -83,6 +88,18 @@ class BattleResult
     public Resources $defenderResourceLoss;
 
     /**
+     * @var array<DefenderFleetResult> Per-fleet results for each defending fleet (planet owner + ACS defend fleets).
+     * Empty array for backward compatibility with single-defender battles.
+     */
+    public array $defenderFleetResults = [];
+
+    /**
+     * @var array<AttackerFleetResult> Per-fleet results for each attacking fleet in ACS battles.
+     * Empty array for backward compatibility with single-attacker battles.
+     */
+    public array $attackerFleetResults = [];
+
+    /**
      * @var int The attacker player's weapon technology level.
      */
     public int $attackerWeaponLevel;
@@ -123,4 +140,51 @@ class BattleResult
      * repaired and restored to the defender's planet after battle.
      */
     public UnitCollection $repairedDefenses;
+
+    /**
+     * @var int The planet ID from which the attacker launched the attack.
+     */
+    public int $attackerPlanetId;
+
+    /**
+     * @var bool Whether a Deathstar was destroyed by the Hamill Manoeuvre.
+     * The Hamill Manoeuvre is a General class special ability where a Light Fighter
+     * has a small chance to instantly destroy one Deathstar at the start of battle.
+     */
+    public bool $hamillManoeuvreTriggered = false;
+
+    /**
+     * @var int Attacker supremacy ratio displayed as 1:N in the combat report.
+     */
+    public int $tacticalRetreatRatio = 1;
+
+    /**
+     * @var int Raw attacker retreat-weighted fleet points.
+     */
+    public int $tacticalRetreatAttackerPoints = 0;
+
+    /**
+     * @var int Raw defender retreat-weighted fleet points.
+     */
+    public int $tacticalRetreatDefenderPoints = 0;
+
+    /**
+     * @var bool Whether the defending planet fleet fled before combat.
+     */
+    public bool $tacticalRetreatDefenderFled = false;
+
+    /**
+     * @var bool Whether the attacker also withdrew without fighting after defender flee.
+     */
+    public bool $tacticalRetreatAttackerAlsoRetreated = false;
+
+    /**
+     * @var int Deuterium spent (or that would be spent) for the tactical retreat.
+     */
+    public int $tacticalRetreatDeuteriumCost = 0;
+
+    /**
+     * @var UnitCollection|null Ships that fled combat but remain on the defender planet.
+     */
+    public ?UnitCollection $tacticalRetreatFleeingUnits = null;
 }

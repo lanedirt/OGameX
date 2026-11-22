@@ -56,17 +56,17 @@
         </tr>
         <tr class="data">
             <td colspan="2">
-                <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile building " title="Reduces construction time by 50% of the total construction time (7m 10s)." href="javascript:void(0);" rel="#TODO_componentOnly&amp;component=itemactions&amp;action=buyAndActivate&amp;itemUuid=cb4fd53e61feced0d52cfc4c1ce383bad9c05f67&amp;asJson=1">
-                    <div class="                                                build-faster-img
-                                            " alt="                                                Halve time
-                                            "></div>
-                    <span class="build-txt">
-                                                                                            Halve time
-                                                                                    </span>
-                    <span class="dm_cost ">
-                                                                                                    Costs:
-                                                                                                        750 DM
-                                                                                            </span>
+                @php
+                    $halvingService = app(\OGame\Services\HalvingService::class);
+                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_total, 'research');
+                @endphp
+                <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile research "
+                   title="@lang('Reduces research time by 50% of the total research time.')"
+                   href="javascript:void(0);"
+                   rel="{{ route('research.halveresearch') }}?queue_item_id={{ $build_active->id }}">
+                    <div class="build-faster-img" alt="@lang('Halve time')"></div>
+                    <span class="build-txt">@lang('Halve time')</span>
+                    <span class="dm_cost">@lang('Costs:') {{ number_format($halvingCost) }} DM</span>
                 </a>
             </td>
         </tr>
@@ -74,14 +74,14 @@
     </table>
     <script type="text/javascript">
         var cancelBuildListEntryUrl = '{{ route('research.cancelbuildrequest') }}';
-        var questionbuilding = 'Do\u0020you\u0020want\u0020to\u0020reduce\u0020the\u0020construction\u0020time\u0020of\u0020the\u0020current\u0020construction\u0020project\u0020by\u002050\u0025\u0020of\u0020the\u0020total\u0020construction\u0020time\u0020\u00287m\u002010s\u0029\u0020for\u0020\u003Cspan\u0020style\u003D\u0022font\u002Dweight\u003A\u0020bold\u003B\u0022\u003E750\u0020Dark\u0020Matter\u003C\/span\u003E\u003F';
-        var pricebuilding = 750;
+        var questionresearch = 'Do you want to reduce the research time of the current research project by 50% of the total research time for <span style="font-weight: bold;">{{ number_format($halvingCost) }} Dark Matter</span>?';
+        var priceresearch = {{ $halvingCost }};
         var referrerPage = $.deparam.querystring().page;
 
-        new CountdownTimer('researchCountdown', {{ $build_active->time_countdown }},'{{ url()->current() }}',null,true,3)
+        new CountdownTimer('researchCountdown', {{ $build_active->time_countdown }}, '{{ url()->current() }}', null, true, 3)
 
         function cancelbuilding(id, listId, question) {
-            errorBoxDecision('Caution', "" + question + "", 'yes', 'No', function() {
+            errorBoxDecision('Caution', "" + question + "", 'yes', 'No', function () {
                 buildListActionCancel(id, listId)
             });
         }

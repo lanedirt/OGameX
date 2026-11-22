@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use OGame\Models\User;
 
 /**
@@ -24,8 +25,8 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'username' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'username' => fake()->name() . '_' . Str::random(6),
+            'email' => Str::uuid() . '@test.example.com',
             'two_factor_confirmed_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'lang' => 'en'
