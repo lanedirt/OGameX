@@ -58,7 +58,7 @@
             <td colspan="2">
                 @php
                     $halvingService = app(\OGame\Services\HalvingService::class);
-                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_total, 'research');
+                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_total, 'research', auth()->user());
                 @endphp
                 <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile research "
                    title="@lang('Reduces research time by 50% of the total research time.')"

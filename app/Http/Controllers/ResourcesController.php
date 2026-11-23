@@ -191,8 +191,12 @@ class ResourcesController extends AbstractBuildingsController
         $max_crawlers = ($metalMineLevel + $crystalMineLevel + $deuteriumMineLevel) * 8;
         $crawler_percentage = $this->planet->getBuildingPercent('crawler');
 
-        // Get max crawler overload percentage (Collector: 150%, Others: 100%)
         $characterClassService = app(CharacterClassService::class);
+
+        // Collector with active Geologist: +10% usable crawlers
+        $max_crawlers = (int)floor($max_crawlers * $characterClassService->getUsableCrawlersMultiplier($player->getUser(), $player->hasGeologist()));
+
+        // Get max crawler overload percentage (Collector: 150%, Others: 100%)
         $max_crawler_overload = $characterClassService->getMaxCrawlerOverload($player->getUser());
 
         return view('ingame.resources.settings')->with([

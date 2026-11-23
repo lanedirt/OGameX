@@ -40,12 +40,14 @@ class HalvingService
      *
      * Formula: ceiling((remaining_time_in_minutes / 30) * 750) DM
      * With min/max caps applied based on queue type.
+     * If a user is given, the character class speedup discount is applied afterwards.
      *
      * @param int $remainingTimeSeconds Remaining construction time in seconds
      * @param string $queueType 'building', 'research', or 'unit'
+     * @param User|null $user User to apply the character class speedup discount for
      * @return int Cost in Dark Matter
      */
-    public function calculateHalvingCost(int $remainingTimeSeconds, string $queueType): int
+    public function calculateHalvingCost(int $remainingTimeSeconds, string $queueType, User|null $user = null): int
     {
         // Convert seconds to minutes
         $remainingTimeMinutes = $remainingTimeSeconds / 60;
@@ -64,7 +66,16 @@ class HalvingService
             default => self::MAX_COST_BUILDING,
         };
 
-        return min($cost, $maxCost);
+        $cost = min($cost, $maxCost);
+
+        // Apply character class speedup discount (Collector: building, General: shipyard, Discoverer: research)
+        if ($user !== null) {
+            $discountType = $queueType === 'unit' ? 'shipyard' : $queueType;
+            $discount = app(CharacterClassService::class)->getSpeedupDiscount($user, $discountType);
+            $cost = (int)ceil($cost * $discount);
+        }
+
+        return $cost;
     }
 
     /**
@@ -100,10 +111,11 @@ class HalvingService
      * @param int $timeEnd Current time_end value
      * @param int $timeDuration Original construction time in seconds
      * @param string $queueType 'building', 'research', or 'unit'
+     * @param User $user User to apply the character class speedup discount for
      * @return array{remaining_time: int, new_time_end: int, cost: int}
      * @throws Exception If queue item already completed
      */
-    private function calculateNewTimeValues(int $timeEnd, int $timeDuration, string $queueType): array
+    private function calculateNewTimeValues(int $timeEnd, int $timeDuration, string $queueType, User $user): array
     {
         $currentTime = $this->getCurrentTimestamp();
         $remainingTime = $timeEnd - $currentTime;
@@ -113,7 +125,7 @@ class HalvingService
         }
 
         // Calculate cost based on REMAINING time
-        $cost = $this->calculateHalvingCost($remainingTime, $queueType);
+        $cost = $this->calculateHalvingCost($remainingTime, $queueType, $user);
 
         // Calculate time reduction: 50% of ORIGINAL construction time, capped at max reduction
         // Use intdiv for exact 50% (no rounding)
@@ -179,7 +191,8 @@ class HalvingService
             $timeValues = $this->calculateNewTimeValues(
                 (int)$queueItem->time_end,
                 (int)$queueItem->time_duration,
-                'building'
+                'building',
+                $lockedUser
             );
             $cost = $timeValues['cost'];
 
@@ -263,7 +276,7 @@ class HalvingService
                 throw new Exception('Queue item already completed');
             }
 
-            $cost = $this->calculateHalvingCost($remainingTime, 'building');
+            $cost = $this->calculateHalvingCost($remainingTime, 'building', $lockedUser);
 
             // Check balance
             if ($lockedUser->dark_matter < $cost) {
@@ -347,7 +360,8 @@ class HalvingService
             $timeValues = $this->calculateNewTimeValues(
                 (int)$queueItem->time_end,
                 (int)$queueItem->time_duration,
-                'research'
+                'research',
+                $lockedUser
             );
             $cost = $timeValues['cost'];
 
@@ -447,7 +461,7 @@ class HalvingService
             }
 
             // Calculate cost based on remaining time before halving
-            $cost = $this->calculateHalvingCost($remainingTime, 'unit');
+            $cost = $this->calculateHalvingCost($remainingTime, 'unit', $lockedUser);
 
             // Check balance
             if ($lockedUser->dark_matter < $cost) {
@@ -566,7 +580,7 @@ class HalvingService
                 throw new Exception('Queue item already completed');
             }
 
-            $cost = $this->calculateHalvingCost($remainingTime, 'unit');
+            $cost = $this->calculateHalvingCost($remainingTime, 'unit', $lockedUser);
 
             // Check balance
             if ($lockedUser->dark_matter < $cost) {
@@ -655,7 +669,7 @@ class HalvingService
             throw new Exception('Queue item already completed');
         }
 
-        return $this->calculateHalvingCost($remainingTime, $queueType);
+        return $this->calculateHalvingCost($remainingTime, $queueType, $context->getPlayer()?->getUser());
     }
 
     /**
@@ -690,7 +704,7 @@ class HalvingService
             throw new Exception('Queue item already completed');
         }
 
-        return $this->calculateHalvingCost($remainingTime, 'research');
+        return $this->calculateHalvingCost($remainingTime, 'research', $player->getUser());
     }
 
     /**

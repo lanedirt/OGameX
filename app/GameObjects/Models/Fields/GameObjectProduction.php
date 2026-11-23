@@ -474,6 +474,7 @@ class GameObjectProduction
     /**
      * Calculate maximum usable crawlers based on mine levels.
      * Formula: max crawlers = (metal mine level + crystal mine level + deuterium mine level) * 8
+     * Collector with active Geologist: +10% usable crawlers
      *
      * @return int
      */
@@ -483,7 +484,16 @@ class GameObjectProduction
         $crystalMineLevel = $this->planetService->getObjectLevel('crystal_mine');
         $deuteriumMineLevel = $this->planetService->getObjectLevel('deuterium_synthesizer');
 
-        return ($metalMineLevel + $crystalMineLevel + $deuteriumMineLevel) * 8;
+        $maxCrawlers = ($metalMineLevel + $crystalMineLevel + $deuteriumMineLevel) * 8;
+
+        if ($this->characterClassService) {
+            $maxCrawlers = (int)floor($maxCrawlers * $this->characterClassService->getUsableCrawlersMultiplier(
+                $this->playerService->getUser(),
+                $this->playerService->hasGeologist()
+            ));
+        }
+
+        return $maxCrawlers;
     }
 
     /**

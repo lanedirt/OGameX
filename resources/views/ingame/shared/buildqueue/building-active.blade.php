@@ -45,7 +45,7 @@
             <td colspan="2">
                 @php
                     $halvingService = app(\OGame\Services\HalvingService::class);
-                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_countdown, 'building');
+                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_countdown, 'building', auth()->user());
                     $wouldComplete = $build_active->dm_halved;
                 @endphp
                 @if ($wouldComplete)
