@@ -958,7 +958,11 @@ class ObjectService
     }
 
     /**
-     * Check if a building can be downgraded (no other buildings/research require it at current level).
+     * Check if a building can be downgraded.
+     *
+     * Requirements are only checked when a building or research is started. Objects that are
+     * already built or researched stay in place and keep working when a building they once
+     * required is torn down, so existing objects never block a downgrade.
      *
      * @param string $machine_name
      * @param PlanetService $planet
@@ -981,8 +985,8 @@ class ObjectService
                 return false;
             }
 
-            // Special case: Terraformer cannot be downgraded once built
-            if ($machine_name === 'terraformer') {
+            // Some buildings are permanent and can never be torn down once built.
+            if (!$object->canBeTornDown) {
                 return false;
             }
 
@@ -996,50 +1000,7 @@ class ObjectService
                 }
             }
 
-            // Check all buildings, stations, and research objects for requirements
-            $allObjects = [...self::getBuildingObjects(), ...self::getStationObjects(), ...self::getResearchObjects()];
-
-            foreach ($allObjects as $checkObject) {
-                // Skip checking requirements for the same object
-                if ($checkObject->machine_name === $machine_name) {
-                    continue;
-                }
-
-                // Check if this object has requirements
-                if (empty($checkObject->requirements)) {
-                    continue;
-                }
-
-                // Check each requirement
-                foreach ($checkObject->requirements as $requirement) {
-                    // If this requirement matches the building we want to downgrade
-                    if ($requirement->object_machine_name === $machine_name) {
-                        // Check if the requirement level matches or exceeds current level
-                        if ($requirement->level >= $current_level) {
-                            // Get the current level of the requiring object
-                            $requiring_object_level = 0;
-                            if ($checkObject->type === GameObjectType::Research) {
-                                $player = $planet->getPlayer();
-                                if ($player === null) {
-                                    throw new Exception('Planet has no owner.');
-                                }
-
-                                $requiring_object_level = $player->getResearchLevel($checkObject->machine_name);
-                            } else {
-                                $requiring_object_level = $planet->getObjectLevel($checkObject->machine_name);
-                            }
-
-                            // If the requiring object exists at a level that needs this building at current level or higher
-                            // Only block if the requiring object's level meets or exceeds the requirement level
-                            if ($requiring_object_level >= $requirement->level) {
-                                return false; // Cannot downgrade, dependency exists
-                            }
-                        }
-                    }
-                }
-            }
-
-            return true; // No dependencies found, can downgrade
+            return true;
         } catch (Exception $e) {
             return false; // On error, don't allow downgrade
         }
