@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Exception;
 use Illuminate\Support\Facades\Date;
+use OGame\Enums\CharacterClass;
 use OGame\Enums\DarkMatterTransactionType;
 use OGame\Models\BuildingQueue;
 use OGame\Models\DarkMatterTransaction;
@@ -276,6 +277,61 @@ class HalvingServiceTest extends IsolatedAccountTestCase
 
         $queueItem->refresh();
         $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set');
+    }
+
+    /**
+     * Test character class speedup discount is applied to the halving cost.
+     */
+    public function testCharacterClassSpeedupDiscount(): void
+    {
+        $collector = new User();
+        $collector->character_class = CharacterClass::COLLECTOR->value;
+        $general = new User();
+        $general->character_class = CharacterClass::GENERAL->value;
+        $discoverer = new User();
+        $discoverer->character_class = CharacterClass::DISCOVERER->value;
+        $noClass = new User();
+
+        // 1 hour = 1500 DM without discount, 1350 DM with 10% discount
+        $this->assertEquals(1350, $this->halvingService->calculateHalvingCost(3600, 'building', $collector));
+        $this->assertEquals(1500, $this->halvingService->calculateHalvingCost(3600, 'building', $general));
+        $this->assertEquals(1350, $this->halvingService->calculateHalvingCost(3600, 'unit', $general));
+        $this->assertEquals(1500, $this->halvingService->calculateHalvingCost(3600, 'unit', $discoverer));
+        $this->assertEquals(1350, $this->halvingService->calculateHalvingCost(3600, 'research', $discoverer));
+        $this->assertEquals(1500, $this->halvingService->calculateHalvingCost(3600, 'research', $collector));
+        $this->assertEquals(1500, $this->halvingService->calculateHalvingCost(3600, 'building', $noClass));
+
+        // Discount is applied after the caps
+        $this->assertEquals(675, $this->halvingService->calculateHalvingCost(60, 'building', $collector));
+        $this->assertEquals(64800, $this->halvingService->calculateHalvingCost(604800, 'building', $collector));
+    }
+
+    /**
+     * Test Collector is charged the discounted cost when halving a building.
+     */
+    public function testCollectorIsChargedDiscountedBuildingHalvingCost(): void
+    {
+        $user = $this->findCurrentUser();
+        $user->dark_matter = 100000;
+        $user->character_class = CharacterClass::COLLECTOR->value;
+        $user->save();
+
+        $this->addBuildingToQueue();
+
+        $queueItem = BuildingQueue::where('planet_id', $this->planetService->getPlanetId())
+            ->where('building', 1)
+            ->where('processed', 0)
+            ->first();
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+
+        $remainingTime = (int)$queueItem->time_end - (int)Date::now()->timestamp;
+        $fullCost = $this->halvingService->calculateHalvingCost($remainingTime, 'building');
+
+        $result = $this->halvingService->halveBuilding($user, $queueItem->id, $this->planetService);
+
+        $this->assertEquals((int)ceil($fullCost * 0.9), $result['cost'], 'Collector should pay 10% less for building halving');
+        $user->refresh();
+        $this->assertEquals(100000 - $result['cost'], $user->dark_matter);
     }
 
     /**

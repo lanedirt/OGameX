@@ -301,6 +301,23 @@ class CharacterClassService
     }
 
     /**
+     * Get usable crawlers multiplier (Collector with active Geologist only).
+     * Returns multiplier (e.g., 1.1 for +10%).
+     *
+     * @param User $user
+     * @param bool $hasGeologist
+     * @return float
+     */
+    public function getUsableCrawlersMultiplier(User $user, bool $hasGeologist): float
+    {
+        if ($hasGeologist && $this->isCollector($user)) {
+            return 1.1; // +10%
+        }
+
+        return 1.0;
+    }
+
+    /**
      * Get maximum crawler overload percentage (Collector only).
      * Returns max percentage (e.g., 150 for 150%).
      *

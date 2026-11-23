@@ -131,6 +131,19 @@ class CharacterClassServiceTest extends TestCase
         $this->assertEquals(100, $this->characterClassService->getMaxCrawlerOverload($general));
     }
 
+    public function testCollectorUsableCrawlersMultiplierWithGeologist(): void
+    {
+        $collector = new User();
+        $collector->character_class = CharacterClass::COLLECTOR->value;
+
+        $general = new User();
+        $general->character_class = CharacterClass::GENERAL->value;
+
+        $this->assertEquals(1.1, $this->characterClassService->getUsableCrawlersMultiplier($collector, true));
+        $this->assertEquals(1.0, $this->characterClassService->getUsableCrawlersMultiplier($collector, false));
+        $this->assertEquals(1.0, $this->characterClassService->getUsableCrawlersMultiplier($general, true));
+    }
+
     // ==================== General Bonuses ====================
 
     public function testGeneralCombatShipSpeedBonus(): void
