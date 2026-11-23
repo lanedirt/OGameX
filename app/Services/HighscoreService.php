@@ -28,7 +28,14 @@ class HighscoreService
      * Highscore type to calculate.
      * @var HighscoreTypeEnum
      */
-    private HighscoreTypeEnum $highscoreType;
+    private HighscoreTypeEnum $highscoreType = HighscoreTypeEnum::general;
+
+    /**
+     * Military highscore subcategory (0=built, 1=destroyed, 2=lost).
+     * Only used when highscoreType is military.
+     * @var int|null
+     */
+    private ?int $militarySubcategory = null;
 
     /**
      * Highscore constructor.
@@ -38,6 +45,26 @@ class HighscoreService
      */
     public function __construct(private PlayerServiceFactory $playerServiceFactory, private SettingsService $settingsService)
     {
+    }
+
+    /**
+     * Get the database column name for the current highscore type.
+     * Maps 'military' type to the appropriate military subcategory column.
+     *
+     * @return string
+     */
+    private function getHighscoreColumnName(): string
+    {
+        if ($this->highscoreType === HighscoreTypeEnum::military) {
+            // Map military subcategory to column name
+            return match($this->militarySubcategory) {
+                0 => 'military_built',    // built (default)
+                1 => 'military_destroyed', // destroyed
+                2 => 'military_lost',      // lost
+                default => 'military_built', // fallback to built
+            };
+        }
+        return $this->highscoreType->name;
     }
 
     /**
@@ -54,15 +81,17 @@ class HighscoreService
      * Set the highscore type to calculate.
      *
      * @param int $type
+     * @param int|null $militarySubcategory Military subcategory (0=built, 1=destroyed, 2=lost)
      * @return void
      */
-    public function setHighscoreType(int $type): void
+    public function setHighscoreType(int $type, int|null $militarySubcategory = null): void
     {
         // 0 = general score
         // 1 = economy points
         // 2 = research points
         // 3 = military points
         $this->highscoreType = HighscoreTypeEnum::cases()[$type];
+        $this->militarySubcategory = $militarySubcategory ?? 0; // Default to built
     }
 
     /**
@@ -310,14 +339,15 @@ class HighscoreService
     {
         // Get all player highscores
         $adminVisible = $this->isAdminVisibleInHighscore();
-        return Cache::remember(sprintf('highscores-%s-%d-%s', $this->highscoreType->name, $pageOn, $adminVisible ? '1' : '0'), now()->addMinutes(5), function () use ($perPage, $pageOn, $adminVisible) {
+        $columnName = $this->getHighscoreColumnName();
+        return Cache::remember(sprintf('highscores-%s-%d-%s', $columnName, $pageOn, $adminVisible ? '1' : '0'), now()->addMinutes(5), function () use ($perPage, $pageOn, $adminVisible, $columnName) {
             $parsedHighscores = [];
 
             $query = Highscore::query()
                 ->whereHas('player.tech')
                 ->with(['player', 'player.alliance', 'player.roles'])
                 ->validRanks()
-                ->orderBy($this->highscoreType->name.'_rank');
+                ->orderBy($columnName.'_rank');
 
             // Filter out admin users if setting is disabled
             if (!$adminVisible) {
@@ -343,7 +373,7 @@ class HighscoreService
                     continue;
                 }
 
-                $score = $playerScore->{$this->highscoreType->name} ?? 0;
+                $score = $playerScore->{$columnName} ?? 0;
                 $score_formatted = AppUtil::formatNumber($score);
 
                 // Get player's alliance information if they're in one
@@ -370,7 +400,7 @@ class HighscoreService
                     'points' => $score,
                     'points_formatted' => $score_formatted,
                     'planet_coords' => $mainPlanet->getPlanetCoordinates(),
-                    'rank' => $playerScore->{$this->highscoreType->name.'_rank'},
+                    'rank' => $playerScore->{$columnName.'_rank'},
                     'is_admin' => $playerService->isAdmin(),
                     'alliance_tag' => $allianceTag,
                     'alliance_id' => $allianceId,
@@ -391,7 +421,9 @@ class HighscoreService
     public function getHighscorePlayerRank(PlayerService $player): int
     {
         // Find the player in the highscore list to determine its rank.
-        return Highscore::where('player_id', $player->getId())->first()->general_rank ?? 0;
+        $columnName = $this->getHighscoreColumnName();
+        $highscore = Highscore::where('player_id', $player->getId())->first();
+        return $highscore->{$columnName . '_rank'} ?? 0;
     }
 
     /**
@@ -449,6 +481,11 @@ class HighscoreService
                 $averageScore = $memberCount > 0 ? $score / $memberCount : 0;
                 $averageScore_formatted = AppUtil::formatNumber($averageScore);
 
+                // Special handling: alliance military uses 'military_built_rank' instead of 'military_rank'
+                $rankColumn = ($this->highscoreType === HighscoreTypeEnum::military)
+                    ? 'military_built_rank'
+                    : $this->highscoreType->name . '_rank';
+
                 $parsedHighscores[] = [
                     'id' => $allianceScore->alliance_id,
                     'name' => $allianceScore->alliance->alliance_name,
@@ -458,7 +495,7 @@ class HighscoreService
                     'average_points' => $averageScore,
                     'average_points_formatted' => $averageScore_formatted,
                     'member_count' => $memberCount,
-                    'rank' => $allianceScore->{$this->highscoreType->name.'_rank'},
+                    'rank' => $allianceScore->{$rankColumn},
                 ];
             }
             return $parsedHighscores;
@@ -478,7 +515,13 @@ class HighscoreService
         if (!$allianceHighscore) {
             return 0;
         }
-        return $allianceHighscore->{$this->highscoreType->name.'_rank'} ?? 0;
+
+        // Special handling: alliance military uses 'military_built_rank' instead of 'military_rank'
+        $rankColumn = ($this->highscoreType === HighscoreTypeEnum::military)
+            ? 'military_built_rank'
+            : $this->highscoreType->name . '_rank';
+
+        return $allianceHighscore->{$rankColumn} ?? 0;
     }
 
     /**
