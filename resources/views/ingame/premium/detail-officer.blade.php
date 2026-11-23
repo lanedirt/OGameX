@@ -1,0 +1,105 @@
+@php
+    $cssClass = $officerKey === 'all_officers' ? 'allOfficers' : $officerKey;
+@endphp
+
+<div class="officers200 {{ $cssClass }}"></div>
+
+<div id="content">
+    <h2>{{ __('t_ingame.premium.officer_' . $officerKey . '_title') }}</h2>
+
+    <a id="close" class="close_details" href="javascript:void(0);"></a>
+
+    <span class="level">
+        @if($isActive && $expiresAt)
+            <span class="undermark">
+                {{ __('t_ingame.premium.active_for_days', ['days' => (int) now()->diffInDays($expiresAt)]) }}
+            </span>
+        @else
+            <span class="overmark">{{ __('t_ingame.premium.not_active') }}</span>
+        @endif
+    </span>
+
+    <br class="clearfloat">
+
+    <div id="wrapper" style="position:relative;">
+        <div id="features">
+
+            <p style="width:255px; height:auto; min-height:120px; float:left;">{{ __('t_ingame.premium.officer_' . $officerKey . '_description') }}</p>
+
+            <div style="position:absolute; right:0; top:0; display:flex; flex-direction:column; gap:6px;">
+                @foreach($costs as $days => $cost)
+                    @if($darkMatter >= $cost)
+                        <form class="officer_purchase" method="POST" action="{{ route('premium.purchase') }}" style="margin:0;">
+                            @csrf
+                            <input type="hidden" name="type" value="{{ $typeId }}">
+                            <input type="hidden" name="days" value="{{ $days }}">
+                            <a class="build-it officer"
+                               href="javascript:void(0);"
+                               style="float:none; display:block;">
+                                <span>
+                                    {{ $days }} {{ __('t_ingame.premium.days') }}<br>
+                                    <b>{{ number_format($cost, 0, ',', '.') }} {{ __('t_ingame.premium.dark_matter_label') }}</b>
+                                </span>
+                            </a>
+                        </form>
+                    @else
+                        <a class="build-it_disabled officer"
+                           href="javascript:void(0);"
+                           style="float:none; display:block;"
+                           title="{{ __('t_ingame.premium.insufficient_dark_matter') }}">
+                            <span>
+                                {{ $days }} {{ __('t_ingame.premium.days') }}<br>
+                                <b>{{ number_format($cost, 0, ',', '.') }} {{ __('t_ingame.premium.dark_matter_label') }}</b>
+                            </span>
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+
+            <br class="clearfloat">
+        </div>
+    </div>
+</div>
+
+<br clear="all">
+
+<div id="description">
+    <div class="benefits">
+        {{ __('t_ingame.premium.advantages') }}
+        <a href="javascript:void(0);"
+           class="tooltipRight help"
+           data-tooltip-width="450"
+           title="{{ __('t_ingame.premium.officer_' . $officerKey . '_tooltip') }}"></a>
+    </div>
+    <div class="benefitlist">
+        @foreach($benefitKeys as $key)
+            <span>{{ __('t_ingame.premium.' . $key) }}</span>
+        @endforeach
+    </div>
+</div>
+
+<script>
+(function () {
+    // Initialize tooltips on the content that was loaded through AJAX.
+    if (typeof initTooltips === 'function') {
+        initTooltips($('#detail'));
+    }
+
+    $('#features a.build-it.officer').on('click', buyOfficerWithDM);
+
+    function buyOfficerWithDM(event) {
+        event.preventDefault();
+
+        // Disable all purchase buttons to prevent a double submit.
+        var $form = $(event.currentTarget).closest('form.officer_purchase');
+        $('#features .officer.build-it')
+            .off('click')
+            .attr('href', 'javascript:void(0)')
+            .removeClass('build-it')
+            .addClass('build-it_disabled');
+
+        // Submit the purchase as a POST request including the CSRF token.
+        $form.trigger('submit');
+    }
+}());
+</script>

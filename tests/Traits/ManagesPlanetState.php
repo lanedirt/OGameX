@@ -5,7 +5,9 @@ namespace Tests\Traits;
 use Exception;
 use OGame\Models\Planet\Coordinate;
 use OGame\Models\Resources;
+use OGame\Models\User;
 use OGame\Services\ObjectService;
+use OGame\Services\OfficerService;
 
 /**
  * Helpers for reading and mutating the current test user's planets, resources, object
@@ -89,6 +91,24 @@ trait ManagesPlanetState
      * Switch the active planet context to the first planet of the current user which affects
      * interactive requests done such as building queue items or canceling build queue items.
      */
+    /**
+     * Activate the Commander for the current player.
+     *
+     * Queueing more than one building at a time is a Commander benefit, so tests that
+     * line up multiple build orders need her active.
+     */
+    protected function playerActivateCommander(int $days = 7): void
+    {
+        $officerService = resolve(OfficerService::class);
+        $user = User::findOrFail($this->currentUserId);
+
+        $officer = $officerService->getOfficer($user);
+        $officer->activate('commander', $days);
+        $officer->save();
+
+        $officerService->clearCache($user);
+    }
+
     protected function switchToFirstPlanet(): void
     {
         $response = $this->get('/overview?cp=' . $this->planetService->getPlanetId());
