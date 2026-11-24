@@ -199,6 +199,7 @@ class ResearchQueueService
                 $planetService,
                 $item['building'],
                 $item['object_level_target'],
+                (bool)($item['dm_halved'] ?? false),
             );
 
             $list[] = $viewModel;
@@ -251,6 +252,7 @@ class ResearchQueueService
                 $planetService,
                 $item['building'],
                 $item['object_level_target'],
+                (bool)($item['dm_halved'] ?? false),
             );
 
             $list[] = $viewModel;

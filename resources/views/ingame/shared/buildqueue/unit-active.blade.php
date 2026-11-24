@@ -70,7 +70,7 @@
         @if ($wouldComplete)
         var questionship = '{!! __('t_ingame.buildqueue.question_complete_unit', ['dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('t_ingame.shared.dark_matter') . '</span>']) !!}';
         @else
-        var questionship = '{!! __('t_ingame.buildqueue.question_halve_unit', ['time_reduction' => \OGame\Facades\AppUtil::formatTimeDuration(intdiv($build_active->time_total, 2)), 'dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('t_ingame.shared.dark_matter') . '</span>']) !!}';
+        var questionship = '{!! __('t_ingame.buildqueue.question_halve_unit', ['time_reduction' => \OGame\Facades\AppUtil::formatTimeDuration(min(intdiv($build_active->time_total, 2), $build_active->time_countdown)), 'dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('t_ingame.shared.dark_matter') . '</span>']) !!}';
         @endif
         var priceship = {{ $halvingCost }};
         var referrerPage = $.deparam.querystring().page;

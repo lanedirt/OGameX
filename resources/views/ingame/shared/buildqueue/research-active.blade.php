@@ -58,23 +58,40 @@
             <td colspan="2">
                 @php
                     $halvingService = app(\OGame\Services\HalvingService::class);
-                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_total, 'research');
+                    $halvingCost = $halvingService->calculateHalvingCost($build_active->time_countdown, 'research');
+                    $timeReduction = $halvingService->calculateTimeReduction($build_active->time_total, $build_active->time_countdown, 'research');
+                    $wouldComplete = $build_active->dm_halved;
                 @endphp
-                <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile research "
-                   title="@lang('Reduces research time by 50% of the total research time.')"
-                   href="javascript:void(0);"
-                   rel="{{ route('research.halveresearch') }}?queue_item_id={{ $build_active->id }}">
-                    <div class="build-faster-img" alt="@lang('Halve time')"></div>
-                    <span class="build-txt">@lang('Halve time')</span>
-                    <span class="dm_cost">@lang('Costs:') {{ number_format($halvingCost) }} DM</span>
-                </a>
+                @if ($wouldComplete)
+                    <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile research "
+                       title="@lang('Instantly completes the current research.')"
+                       href="javascript:void(0);"
+                       rel="{{ route('research.completeresearch') }}?queue_item_id={{ $build_active->id }}">
+                        <div class="build-finish-img" alt="@lang('Complete')"></div>
+                        <span class="build-txt">@lang('Complete')</span>
+                        <span class="dm_cost">@lang('Costs:') {{ number_format($halvingCost) }} DM</span>
+                    </a>
+                @else
+                    <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile research "
+                       title="@lang('Reduces research time by 50% of the total research time (max. 72 hours).')"
+                       href="javascript:void(0);"
+                       rel="{{ route('research.halveresearch') }}?queue_item_id={{ $build_active->id }}">
+                        <div class="build-faster-img" alt="@lang('Halve time')"></div>
+                        <span class="build-txt">@lang('Halve time')</span>
+                        <span class="dm_cost">@lang('Costs:') {{ number_format($halvingCost) }} DM</span>
+                    </a>
+                @endif
             </td>
         </tr>
         </tbody>
     </table>
     <script type="text/javascript">
         var cancelBuildListEntryUrl = '{{ route('research.cancelbuildrequest') }}';
-        var questionresearch = 'Do you want to reduce the research time of the current research project by 50% of the total research time for <span style="font-weight: bold;">{{ number_format($halvingCost) }} Dark Matter</span>?';
+        @if ($wouldComplete)
+        var questionresearch = 'Do you want to immediately complete the current research project for <span style="font-weight: bold;">{{ number_format($halvingCost) }} Dark Matter</span>?';
+        @else
+        var questionresearch = 'Do you want to reduce the research time of the current research project by {{ \OGame\Facades\AppUtil::formatTimeDuration($timeReduction) }} for <span style="font-weight: bold;">{{ number_format($halvingCost) }} Dark Matter</span>?';
+        @endif
         var priceresearch = {{ $halvingCost }};
         var referrerPage = $.deparam.querystring().page;
 

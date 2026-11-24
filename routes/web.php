@@ -101,6 +101,7 @@ Route::middleware(['auth', 'banned', 'globalgame', 'locale', 'firstlogin'])->gro
     Route::post('/research/add-buildrequest', [ResearchController::class, 'addBuildRequest'])->name('research.addbuildrequest.post');
     Route::post('/research/cancel-buildrequest', [ResearchController::class, 'cancelBuildRequest'])->name('research.cancelbuildrequest');
     Route::post('/ajax/research/halve-research', [ResearchController::class, 'halveResearch'])->name('research.halveresearch');
+    Route::post('/ajax/research/complete-research', [ResearchController::class, 'completeResearch'])->name('research.completeresearch');
 
     // Shipyard
     Route::get('/shipyard', [ShipyardController::class, 'index'])->name('shipyard.index');

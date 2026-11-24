@@ -46,6 +46,7 @@
                 @php
                     $halvingService = app(\OGame\Services\HalvingService::class);
                     $halvingCost = $halvingService->calculateHalvingCost($build_active->time_countdown, 'building');
+                    $timeReduction = $halvingService->calculateTimeReduction($build_active->time_total, $build_active->time_countdown, 'building');
                     $wouldComplete = $build_active->dm_halved;
                 @endphp
                 @if ($wouldComplete)
@@ -59,7 +60,7 @@
                     </a>
                 @else
                     <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile building tpd-hideOnClickOutside"
-                       title="@lang('Reduces construction time by 50% of the total construction time.')"
+                       title="@lang('Reduces construction time by 50% of the total construction time (max. 48 hours).')"
                        href="javascript:void(0);"
                        rel="{{ route('facilities.halvebuilding') }}?queue_item_id={{ $build_active->id }}">
                         <div class="build-faster-img" alt="@lang('Halve time')"></div>
@@ -75,7 +76,7 @@
         @if ($wouldComplete)
         var questionbuilding = '{!! __('Do you want to immediately complete the construction order for :dm_cost?', ['dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('Dark Matter') . '</span>']) !!}';
         @else
-        var questionbuilding = '{!! __('Do you want to reduce the construction time of the current construction project by 50% of the total construction time (:time_reduction) for :dm_cost?', ['time_reduction' => \OGame\Facades\AppUtil::formatTimeDuration(intdiv($build_active->time_total, 2)), 'dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('Dark Matter') . '</span>']) !!}';
+        var questionbuilding = '{!! __('Do you want to reduce the construction time of the current construction project by 50% of the total construction time (:time_reduction) for :dm_cost?', ['time_reduction' => \OGame\Facades\AppUtil::formatTimeDuration($timeReduction), 'dm_cost' => '<span style="font-weight: bold;">' . number_format($halvingCost) . ' ' . __('Dark Matter') . '</span>']) !!}';
         @endif
         var pricebuilding = {{ $halvingCost }};
         var cancelBuildListEntryUrl = '{{ route('resources.cancelbuildrequest') }}';
