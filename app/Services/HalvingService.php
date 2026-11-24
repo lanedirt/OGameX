@@ -92,6 +92,23 @@ class HalvingService
     }
 
     /**
+     * Calculate the time reduction of a halving.
+     *
+     * Halving reduces the ORIGINAL construction time by 50%, capped at the max reduction
+     * for the queue type and at the remaining time.
+     *
+     * @param int $timeDuration Original construction time in seconds
+     * @param int $remainingTime Remaining construction time in seconds
+     * @param string $queueType 'building' or 'research'
+     * @return int Time reduction in seconds
+     */
+    public function calculateTimeReduction(int $timeDuration, int $remainingTime, string $queueType): int
+    {
+        // Use intdiv for exact 50% (no rounding)
+        return max(0, min(intdiv($timeDuration, 2), $this->getMaxReduction($queueType), $remainingTime));
+    }
+
+    /**
      * Calculate new time values after halving.
      *
      * Halving reduces the ORIGINAL construction time by 50%, but capped at max reduction.
@@ -116,10 +133,7 @@ class HalvingService
         $cost = $this->calculateHalvingCost($remainingTime, $queueType);
 
         // Calculate time reduction: 50% of ORIGINAL construction time, capped at max reduction
-        // Use intdiv for exact 50% (no rounding)
-        $halfOriginal = intdiv($timeDuration, 2);
-        $maxReduction = $this->getMaxReduction($queueType);
-        $reduction = min($halfOriginal, $maxReduction, $remainingTime);
+        $reduction = $this->calculateTimeReduction($timeDuration, $remainingTime, $queueType);
 
         // Calculate new remaining time
         $newRemainingTime = $remainingTime - $reduction;
@@ -342,6 +356,10 @@ class HalvingService
                 throw new Exception('Queue item not found or already completed');
             }
 
+            if ($queueItem->dm_halved) {
+                throw new Exception('Queue item has already been halved. Use Complete to finish instantly.');
+            }
+
             // Calculate new time values
             // Cost is based on remaining time, reduction is 50% of original time
             $timeValues = $this->calculateNewTimeValues(
@@ -376,6 +394,7 @@ class HalvingService
             $queueItemModel = ResearchQueue::find($queueItemId);
             if ($queueItemModel) {
                 $queueItemModel->time_end = $timeValues['new_time_end'];
+                $queueItemModel->dm_halved = 1;
                 $queueItemModel->save();
             }
 
@@ -385,6 +404,94 @@ class HalvingService
                 'cost' => $cost,
                 'new_balance' => $lockedUser->dark_matter,
                 'remaining_time' => $timeValues['remaining_time'],
+            ];
+        });
+
+        return $result;
+    }
+
+    /**
+     * Complete a research queue item instantly using Dark Matter.
+     *
+     * This is used when the research has already been halved once. Instead of halving
+     * again, the research is completed immediately.
+     *
+     * @param User $user The user performing the completion
+     * @param int $queueItemId The research queue item ID
+     * @param PlayerService $player The player service
+     * @return array{success: bool, cost: int, new_balance: int}
+     * @throws Exception If insufficient Dark Matter or invalid queue item
+     */
+    public function completeResearch(User $user, int $queueItemId, PlayerService $player): array
+    {
+        /** @var array{success: bool, cost: int, new_balance: int} $result */
+        $result = DB::transaction(function () use ($user, $queueItemId, $player) {
+            // Lock user row for Dark Matter balance
+            $lockedUser = User::where('id', $user->id)->lockForUpdate()->first();
+            if (!$lockedUser) {
+                throw new Exception('User not found');
+            }
+
+            // Lock and retrieve queue item
+            $queueItem = ResearchQueue::query()
+                ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
+                ->where('research_queues.id', $queueItemId)
+                ->where('planets.user_id', $lockedUser->id)
+                ->where('research_queues.processed', 0)
+                ->where('research_queues.canceled', 0)
+                ->where('research_queues.building', 1)
+                ->select('research_queues.*')
+                ->lockForUpdate()
+                ->first();
+
+            if (!$queueItem) {
+                throw new Exception('Queue item not found or already completed');
+            }
+
+            // Calculate cost based on remaining time
+            $currentTime = $this->getCurrentTimestamp();
+            $remainingTime = (int)$queueItem->time_end - $currentTime;
+
+            if ($remainingTime <= 0) {
+                throw new Exception('Queue item already completed');
+            }
+
+            $cost = $this->calculateHalvingCost($remainingTime, 'research');
+
+            // Check balance
+            if ($lockedUser->dark_matter < $cost) {
+                throw new Exception("Insufficient Dark Matter. Required: {$cost}, Available: {$lockedUser->dark_matter}");
+            }
+
+            // Debit Dark Matter
+            $lockedUser->dark_matter -= $cost;
+            $lockedUser->save();
+
+            // Record transaction
+            $object = ObjectService::getResearchObjectById($queueItem->object_id);
+            $planet = $player->planets->getById((int)$queueItem->planet_id);
+            $description = "Completing research: {$object->title} on planet {$planet->getPlanetName()} (ID: {$queueItem->planet_id})";
+            $this->transactionService->recordTransaction(
+                $lockedUser,
+                -$cost,
+                DarkMatterTransactionType::HALVING->value,
+                $description,
+                $lockedUser->dark_matter
+            );
+
+            // Set time_end to now so the research queue processor grants the level immediately.
+            // The next queued research is started from this time_end when it is processed.
+            $queueItemModel = ResearchQueue::find($queueItemId);
+            if ($queueItemModel) {
+                $queueItemModel->time_end = $currentTime;
+                $queueItemModel->dm_completed = 1;
+                $queueItemModel->save();
+            }
+
+            return [
+                'success' => true,
+                'cost' => $cost,
+                'new_balance' => $lockedUser->dark_matter,
             ];
         });
 

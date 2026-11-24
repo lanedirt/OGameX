@@ -18,6 +18,7 @@ class ResearchQueueViewModel extends QueueViewModel
      * @param PlanetService $planet
      * @param bool $building
      * @param int $level_target
+     * @param bool $dm_halved
      */
     public function __construct(
         int $id,
@@ -29,7 +30,8 @@ class ResearchQueueViewModel extends QueueViewModel
          */
         public PlanetService $planet,
         public bool $building,
-        public int $level_target
+        public int $level_target,
+        public bool $dm_halved = false,
     ) {
         parent::__construct($id, $object, $time_countdown, $time_total);
     }

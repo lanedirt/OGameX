@@ -279,6 +279,21 @@ class HalvingServiceTest extends IsolatedAccountTestCase
     }
 
     /**
+     * Test time reduction is 50% of the original time, capped at the max reduction and remaining time.
+     */
+    public function testCalculateTimeReduction(): void
+    {
+        // 2 hours: 50% = 1 hour
+        $this->assertEquals(3600, $this->halvingService->calculateTimeReduction(7200, 7200, 'building'));
+        // 42 days of research: capped at 72 hours
+        $this->assertEquals(259200, $this->halvingService->calculateTimeReduction(3629686, 3629686, 'research'));
+        // 10 days of building: capped at 48 hours
+        $this->assertEquals(172800, $this->halvingService->calculateTimeReduction(864000, 864000, 'building'));
+        // Capped at remaining time
+        $this->assertEquals(600, $this->halvingService->calculateTimeReduction(7200, 600, 'research'));
+    }
+
+    /**
      * Test insufficient balance rejection.
      */
     public function testInsufficientBalanceRejection(): void

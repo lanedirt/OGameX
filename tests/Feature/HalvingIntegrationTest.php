@@ -252,6 +252,87 @@ class HalvingIntegrationTest extends IsolatedAccountTestCase
     }
 
     /**
+     * Research can only be halved once; a second halve is rejected and Complete finishes the job.
+     */
+    public function testResearchHalveThenCompleteFinishesTask(): void
+    {
+        $user = $this->findCurrentUser();
+        $user->dark_matter = 300000;
+        $user->save();
+
+        $player = $this->planetService->getPlayer();
+        if ($player === null) {
+            $this->fail('Player should exist');
+        }
+
+        $this->planetSetObjectLevel('research_lab', 1);
+        $this->planetAddResources(new Resources(10000, 10000, 10000, 0));
+        $levelBefore = $player->getResearchLevel('energy_technology');
+        $this->addResearchBuildRequest('energy_technology');
+
+        $queueItem = ResearchQueue::query()
+            ->join('planets', 'research_queues.planet_id', '=', 'planets.id')
+            ->where('planets.user_id', $this->currentUserId)
+            ->where('research_queues.building', 1)
+            ->where('research_queues.processed', 0)
+            ->select('research_queues.*')
+            ->first();
+
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+        $queueItemId = $queueItem->id;
+
+        // First halve - reduces by min(50% of original, 72h, remaining)
+        $response1 = $this->post('/ajax/research/halve-research', [
+            '_token' => csrf_token(),
+            'queue_item_id' => $queueItemId,
+        ]);
+
+        $response1->assertStatus(200);
+        $this->assertTrue($response1->json('success'), 'First halving should succeed');
+
+        $queueItem = ResearchQueue::find($queueItemId);
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+        $this->assertEquals(1, (int)$queueItem->dm_halved, 'dm_halved flag should be set after first halve');
+
+        // Second halve must be rejected and must not charge Dark Matter — use Complete instead
+        $user->refresh();
+        $balanceAfterFirstHalve = $user->dark_matter;
+
+        $response2 = $this->post('/ajax/research/halve-research', [
+            '_token' => csrf_token(),
+            'queue_item_id' => $queueItemId,
+        ]);
+
+        $response2->assertStatus(200);
+        $this->assertFalse($response2->json('success'), 'Second halving should be rejected');
+        $this->assertStringContainsString('already been halved', (string)$response2->json('message'));
+
+        $user->refresh();
+        $this->assertEquals($balanceAfterFirstHalve, $user->dark_matter, 'Rejected halving should not charge Dark Matter');
+
+        // Complete finishes the research instantly
+        $response3 = $this->post('/ajax/research/complete-research', [
+            '_token' => csrf_token(),
+            'queue_item_id' => $queueItemId,
+        ]);
+
+        $response3->assertStatus(200);
+        $this->assertTrue($response3->json('success'), 'Complete should succeed after first halve');
+
+        $user->refresh();
+        $this->assertEquals($balanceAfterFirstHalve - $response3->json('cost'), $user->dark_matter, 'Complete should charge its cost');
+
+        $player->updateResearchQueue();
+
+        $this->assertEquals($levelBefore + 1, $player->getResearchLevel('energy_technology'), 'Research should be completed');
+
+        $queueItem = ResearchQueue::find($queueItemId);
+        $this->assertNotNull($queueItem, 'Queue item should exist');
+        $this->assertEquals(1, (int)$queueItem->processed, 'Queue item should be processed');
+        $this->assertEquals(1, (int)$queueItem->dm_completed, 'dm_completed flag should be set');
+    }
+
+    /**
      * Test halving with insufficient Dark Matter returns error.
      */
     public function testHalvingWithInsufficientDarkMatter(): void
